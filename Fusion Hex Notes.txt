@@ -1,0 +1,39 @@
+There are 37401 Fusions
+
+Fusion 1
+	Demon 1 C5
+	Demon 2 E2
+	Result 11C
+Fusion 2
+	Demon 1 141
+
+Gap: 0x7C
+
+
+Special Fusions (62 is vanilla?)
+1st 0xCC5  20xCD1
+
+0xCC5 ID
+0xCC7 First Demon
+0xCC9 Second Demon
+0xCCB Third Demon
+0xCCD Fourth Demon
+0xCCF Result Demon
+
+Fusion Chart Reading
+First Entry 95
+	race1 95
+	race2 96
+	result 3
+Second Entry 99
+
+
+
+
+
+
+
+
+
+
+

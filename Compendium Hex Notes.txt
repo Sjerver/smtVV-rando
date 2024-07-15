@@ -1,0 +1,92 @@
+First Demon LevelOffsets!!!= #69 Offset #1D0 zum nächsten Start bei Race
+UnusedZeroLevel ist 69
+SatanLevel ist 239
+
+
+Abdiel ist Testsubjekt!
+	<IDs>
+Herald->Megami x1? 1B35D
+1B361 (Differnce between )
+1B36
+	<Numbers>
+Level x4 1B369
+Registerable x4?
+HP x 4 1B385
+MP x 4 1B389
+HPGrowth x4 1B38D
+MPGrowth x4 1B391
+Str x4 1B395
+Vit x4 1B399
+Mag x4 1B39D
+Agi x4 1B3A1
+Luk x4 1B3A5
+StrGrowth x4 1B3A9
+VitGrowth x4 1B3AD
+MagGrowth x4 1B3B1
+AgiGrowth x4 1B3B5
+LukGrowth x4 1B3B9
+
+1st Skill x4 1B3D9
+Last Skill x4 1B3F5
+
+1stLearnedLevel x4 1B409
+1stLearnedSkill x4 1B40D
+LastLearnedLevel x4 1B441
+LastLearnedSkill x4 1B445
+
+InnateSkill x4 1B469 <Skill ID>
+
+	<Damage Percentage and Codes for Drain/Repel>
+00=Null 0A=ResistSevere 14=ResistHeavy 28=ResistMedium 64=Normal 7D=Weak
+2C01=WeakMedium E803=Drain E703=Repel 8403=Random
+Physical x4 1B46D
+Fire
+Ice
+Electric
+Force
+Light
+Dark
+Almighty
+Poison
+???
+Confusion
+Charm
+Sleep
+Seal
+??
+??
+??
+??
+??
+??
+Mirage 1B48D
+??Mud
+??
+??
+??
+??
+??
+PhysPotential 1B4DD		Negative Potential als Int32 (FF FF FF FF - zahl)
+FirePotential
+IcePotential
+ElecPotential
+ForcePotential
+LightPotential
+DarkPotential
+AlmightyPotential
+AilmentPotential
+RecoverPotential
+SupportPotential 1B501
+
+
+
+
+
+
+
+
+ENEMY DATA 
+
+
+
+

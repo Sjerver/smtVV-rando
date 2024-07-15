@@ -1,0 +1,117 @@
+Skill IDs bis 400 Active
+Skill IDs 401 bis 800 Passive
+	bis 530 Normal Passives
+Skill IDS nach 800 Active
+
+Agi Start 0x85
+Skill Offset 0xc4
+
+0x8D MP Cost
+0x8F skill type
+	0=StrBased 1=MagBased 2=Ailment 3=Heal 4=Support 7=RevivalChant 
+	D=LevelBased
+0x90 Subtype
+0x91 Element
+	0=phys 1=fire 2=ice 3=elec 4=force 5=light 6=dark 7=almighty 0C=Ailment
+	20=heal
+NOT IN YET 0x92 Element2
+NOT IN YET 0x93 Element3
+NOT IN YET 0x94 Element4
+0xA1 SkillIcon
+
+0xA2 PotentialType
+
+0XA7 Target
+	0=SingleFoe 1=AllFoe 2=SingleAlly 3=AllyAll 4=Self 5=Foe&AllyAll 6=Random
+	7=AllyAndStockSingle 8=Ally&StockAll
+
+0XA9 Min Hits
+0XAA Max Hits
+0XAB Crit Rate
+
+0xAD Power
+
+0XB9 Hit Rate
+0XBA InstantKill
+0XBB Poison
+0xBD Confusion
+0xBE Charm
+0xBF Sleep
+0xC0 Seal
+0xC3 Mirage
+0xC8 Mud
+0xC9 Shroud
+
+0xCA Over Max HP%
+0xCB Pierce
+0xCD Ailment Chance
+0xCE HealEffect
+	1=Revive 2=RmvPoison 4RmvConfuse 5RmvCharm 6RmvSleep
+	7RmvSeal A=RmvMirage f=RmvMud 10=RmvShroud 64=AllAilments
+	67=ReviveAllAilments
+
+0xD0 EffectTimer
+0xD1 Physical
+0xD5 Magical
+0XD9 Defense
+0xDD Accuracy/Evasion
+
+0xE5 Enable
+0xE6 Physical (4=Drain)
+0xE7 Fire (1=Resist)
+0xE8 Ice
+0xE9 Elec (2=Null)
+0xEA Fore
+0xEB Light (3=Repel)
+0xEC Dark
+0xED FlatHealingAmount
+0xF1 %HealingAmount
+
+0xF2 HPDrain%
+0xF3 MPDrain%
+
+0xF5 Rank
+
+0xF8 MagatsuhiEnabler (1=Player, 2Enemy???)
+0xF9 Race1 to use Skill
+0xFD Race2 to use Skill
+
+0x10D Modifier 1
+	1=Charge 2=Concentrate
+0x10E Modifier 2
+0x10F Modifier 3
+0x110 Modifier 4
+0x111 Condition 1 
+0x112 AilmentCondition 0=Any
+0x113 Effect1
+0x115 Amount1
+0x119 Condition 2
+0x11A AilmentCondition2
+0x11B Effect2
+0x11D Amount2
+
+
+Passive Skills (Example NullFire)
+
+0x13501 HP% Increase		0x1356D is next Skills HP% Increase
+0x13502 MP% Increase
+0x13503 Counterchance
+0x13510 Survive (1=Endure 2=EnduringSoul)
+
+0x13512 ElementType (0Phys bis 7Almighty 8Poison AConfusion BCharm CSleep DSeal
+	14Mirage 1DRecovery 20None)
+0x13513 ResistType (1Resist 2Null 3Repel 4Drain
+
+0x13523 PhysicalResist
+0x13524 FireResist
+0x13525 IceResist
+0x13526 ElecResist
+0x13527 ForceResist
+0x13528 DarkResist
+0x13528 LightResist
+
+0x13535 Effect 1
+0x13537 EffectAmount
+0x13539 Effect 2
+0x1353A EffectAmount
+NOT IN YET 0x13561 InnateSkillFlag
