@@ -15,7 +15,7 @@ var fusionChartArr = []
 var specialFusionArr = []
 
 /**
- * Reads the file that contains the Demon Table.
+ * Reads the file that contains the Demon Table.s
  * @returns the bytes of the Demon Table file as a buffer
  */
 async function readNKMBaseTable() {
