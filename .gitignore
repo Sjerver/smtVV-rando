@@ -22,6 +22,9 @@
 .bat
 .pak
 .exe
+filelist.txt
+UnrealPak-Without-Compression.bat
+UnrealPak.exe
 
 # debug
 npm-debug.log*
