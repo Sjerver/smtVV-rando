@@ -15,7 +15,7 @@ var fusionChartArr = []
 var specialFusionArr = []
 
 /**
- * Reads the file that contains the Demon Table.s
+ * Reads the file that contains the Demon Table.
  * @returns the bytes of the Demon Table file as a buffer
  */
 async function readNKMBaseTable() {
@@ -1367,7 +1367,6 @@ function adjustFusionTableToLevels(fusions, comp) {
         })
 
     }
-    //TODO: special case for elements
 
     //Piece of code logging which fusions were changed
     // oldFusions.forEach((old, index) => {
@@ -1384,6 +1383,10 @@ function adjustFusionTableToLevels(fusions, comp) {
     //         console.log(fusions[index])
     //     }
     // })
+}
+
+function adjustSpecialFusionTable(fusions, comp) {
+    
 }
 
 function determineNormalFusionResult(level1, level2, resultTable) {

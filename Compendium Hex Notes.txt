@@ -86,6 +86,72 @@ SupportPotential 1B501
 
 
 ENEMY DATA 
+First Enemy 88139 -> Second Enemy 882A9
+	Differece = 0x170
+
+Level 0x88139
+
+HP 0x8813D
+MP 0x88141
+Str 0x88145
+Vit 0x88149
+Mag 0x8814D
+Agi 0x88151
+Luk 0x88155
+
+Turns 0x88164
+
+Experience 0x8817D	4 Bytes
+Money 0x88181 4Bytes
+			+50 (NuwaSnake 17, King 7
+Item1 0x8819D 4B
+Chance1 0x881A1 4B
+Quest1 0x881A5 4B
+Item2 0x881A9 4B
+Chance2 0x881AD 4B
+Quest2 0x881B1 4B
+Item3 0x881B5 4B
+Chance3 0x881B9 4B
+Quest3 0x881BD 4B
+
+FirstSkill 0x881C1
+SecondSkill 0x881C5
+ThirdSkill 0x881C9
+FourthSkill 0x881CD
+FifthSkill 0x881D1
+SixthSkill 0x881D5
+SeventhSkill 0x881D9
+EightSkill 0x881DD
+
+Innate 0x881F1 
+PhysResist 0x881F5
+FireResist 0x881F9
+IceResist 0x881FD
+ElecResist 0x88201
+ForceResist 0x88205
+LightResist 0x88209
+DarkResist 0x8820D
+AlmightyResist 0x88211
+PoisonResist 0x88215
+ConfusionResist 0x8821D
+charmResist 0x88221
+SleepResist 0x88225
+SealResist 0x88229
+MirageResist 0x8822D
+
+PhysPotential 0x88265
+FirePotential 0x88269
+IcePotential 0x8826D
+ElecPotential 0x88271
+ForcePotential 0x88275
+LightPotential 0x8879
+DarkPotential 0x8827D
+AlmightyPotential 0x88281
+AilmentPotential 0x88285
+SupportPotential 0x88289
+RecoveryPotential 0x8828D
+
+
 
 
 
