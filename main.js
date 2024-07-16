@@ -1070,12 +1070,53 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
     return comp
 }
 
-function checkAdditionalSkillConditions(skill, totalSkillList, demon) {
-    if(skill.id == CHARGE.ID && (totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 0) || demon.potentials.physical > 0)) {
+function checkAdditionalSkillConditions(skill, totalSkillList, demon) { 
+    if((skill.name == "Charge" || skill.name == "Critical Aura")  && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 0)) || demon.potential.physical > 0)) {
+        //Check for Charge, Critical Aura when already assigned Str-Based Skill or Demon has positive Physical Potential
         return true
-    } else if(skill.id == CONCENTRATE.ID && (totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 1) || demon.stats.str.start <= demon.stats.mag.start) {
+    } else if(skill.name == "Concentrate" && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 1)) || demon.stats.str.start <= demon.stats.mag.start)) {
+        //Check for Concentrate when already assigned Mag-Based Skill or Demon has higher base mag than str
         return true
+    } else if((skill.name == "Curse Siphon" || skill.name == "Great Curse Siphon" || skill.name == "Virus Carrier") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 2)) || demon.potential.ailment > 0)) {
+        //Check for Curse Siphon, Great Curse Siphon, Virus Carrier when already assigned ailment Skill or Demon has positive ailment Potential
+        return true
+    } else if((skill.name == "Bowl of Hygieia" || skill.name == "Heal Pleroma" || skill.name == "High Heal Pleroma" || skill.name == "Nation Founder" || skill.name == "Healing Hand" || skill.name == "Oath of Plenteousness") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 3)) || demon.potential.recover > 0)) {
+        //Check for Bowl of Hygieia, Heal Pleroma, High Heal Pleroma, Nation Founder, Healing Hand, Oath of Plenteousness when already assigned heal Skill or Demon has positive recover Potential
+        return true
+    } else if((skill.name == "Poison Adept" || skill.name == "Poison Master") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).ailmentFlags.poison > 0)) || demon.potential.ailment > 0)) {
+        //Check for Poison Adept, Poison Master when already assigned poison-inflicting Skill or Demon has positive ailment Potential
+        return true
+    } else if((skill.name == "Phys Pleroma" || skill.name == "High Phys Pleroma" || skill.name == "Phys Enhancer" || skill.name == "Phys Gestalt" || skill.name == "Sankosho")  && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 0)) || demon.potential.physical > 0)) {
+        //Check for Phys Pleroma, High Phys Pleroma, Phys Enhancer, Phys Gestalt, Sankosho when already assigned phys element Skill or Demon has positive Physical Potential
+        return true
+    } else if((skill.name == "Fire Pleroma" || skill.name == "High Fire Pleroma" || skill.name == "Fire Enhancer" || skill.name == "Fire Gestalt" || skill.name == "Incendiary Stoning") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 1)) || demon.potential.fire > 0)) {
+        //Check for Fire Pleroma, High Fire Pleroma, Fire Enhancer, Fire Gestalt, Incendiary Stoning when already assigned fire element Skill or Demon has positive fire Potential
+        return true
+    } else if((skill.name == "Ice Pleroma" || skill.name == "High Ice Pleroma" || skill.name == "Ice Enhancer" || skill.name == "Ice Gestalt" || skill.name == "Roaring Mist") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 2)) || demon.potential.ice > 0)) {
+        //Check for Ice Pleroma, High Ice Pleroma, Ice Enhancer, Ice Gestalt, Roaring Mist when already assigned ice element Skill or Demon has positive ice Potential
+        return true
+    } else if((skill.name == "Elec Pleroma" || skill.name == "High Elec Pleroma" || skill.name == "Elec Enhancer" || skill.name == "Herkeios" || skill.name == "Elec Gestalt" || skill.name == "Carpet Bolting") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 3)) || demon.potential.elec > 0)) {
+        //Check for Elec Pleroma, High Elec Pleroma, Elec Enhancer, Herkeios, Elec Gestalt, Carpet Bolting when already assigned Elec element Skill or Demon has positive elec Potential
+        return true
+    } else if((skill.name == "Force Pleroma" || skill.name == "High Force Pleroma" || skill.name == "Force Enhancer" || skill.name == "Force Gestalt" || skill.name == "Catastrophic Gales") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 4)) || demon.potential.force > 0)) {
+        //Check for Force Pleroma, High Force Pleroma, Force Enhancer, Force Gestalt, Catastrophic Gales when already assigned Force element Skill or Demon has positive Force Potential
+        return true
+    } else if((skill.name == "Light Pleroma" || skill.name == "High Light Pleroma" || skill.name == "Light Enhancer" || skill.name == "Light Gestalt" || skill.name == "Lighted Wheel") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 5)) || demon.potential.light > 0)) {
+        //Check for Light Pleroma, High Light Pleroma, Light Enhancer, Light Gestalt, Lighted Wheel when already assigned Light element Skill or Demon has positive Light Potential
+        return true
+    } else if((skill.name == "Dark Pleroma" || skill.name == "High Dark Pleroma" || skill.name == "Dark Enhancer" || skill.name == "Dark Gestalt" || skill.name == "Boon of Sloth") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 6)) || demon.potential.dark > 0)) {
+        //Check for Dark Pleroma, High Dark Pleroma, Dark Enhancer, Dark Gestalt, Boon of Sloth when already assigned Dark element Skill or Demon has positive Dark Potential
+        return true
+    } else if((skill.name == "Almighty Pleroma" || skill.name == "High Almighty Pleroma" || skill.name == "Ceaseless Crucifixion") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 7)) || demon.potential.almighty > 0)) {
+        //Check for Almighty Pleroma, High Almighty Pleroma, Ceaseless Crucifixion when already assigned Almighty element Skill or Demon has positive Almighty Potential
+        return true
+    } else if((skill.name == "Biondetta") && (demon.race.value != 2 && demon.race.value != 3 && demon.race.value != 24 && demon.race.value != 28)) {
+        //Check for Biondetta when demon does not belong to herald, megami, femme, lady race
+        return true
+    } else if((skill.name == "Nation Builder") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 4)) || demon.potential.support > 0)) {
+        //Check for Nation Builder when already assigned support type skill or demon has positive support potential
     } else {
+        //Skill fullfills no additional skill conditions
         return false
     }
 }
