@@ -3,12 +3,12 @@ import * as fs from 'fs/promises';
 
 const raceArray = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 
-var compendiumArr = []
 var compendiumNames = []
 var skillNames = []
+
+var compendiumArr = []
 var skillArr = []
 var passiveSkillArr = []
-
 var innateSkillArr = []
 var normalFusionArr = []
 var fusionChartArr = []
@@ -35,8 +35,8 @@ async function readSkillData() {
 }
 
 /**
- * 
- * @returns 
+ * Reads the file that contains the fusion recipes table.
+ * @returns the buffer containing the fusion recipe table
  */
 async function readNormalFusionTables() {
     var fileContents = (await fs.readFile('./base/UniteCombineTable.uexp'))
@@ -44,6 +44,10 @@ async function readNormalFusionTables() {
     return fileContents
 }
 
+/**
+* Reads the file that contains the Special Fusion Table and the Fusion Chart Table.
+* @returns the buffer containing the Special Fusion Table and the Fusion Chart Table
+*/
 async function readOtherFusionTables() {
     var fileContents = (await fs.readFile('./base/UniteTable.uexp'))
 
@@ -98,6 +102,10 @@ async function writeSkillData(result) {
     await fs.writeFile('./rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Skill/SkillData.uexp', result)
 }
 
+/**
+* Writes the given Buffer to the file UniteCombineTable.uexp.
+* @param {Buffer} result
+*/
 async function writeNormalFusionTable(result) {
     await fs.writeFile('./rando/Project/Content/Blueprints/Gamedata/BinTable/Unite/UniteCombineTable.uexp', result)
 }
@@ -161,6 +169,7 @@ function fillCompendiumArr(NKMBaseTable) {
             name: compendiumNames[index],
             offsetNumbers: locations,
             race: { value: NKMBaseTable.readUInt8(locations.race), translation: raceArray[NKMBaseTable.readUInt8(locations.race)] },
+            oldlevel : readInt32LE(locations.level),
             level: { value: readInt32LE(locations.level) },
             registerable : readInt32LE(locations.HP - 4),
             resist: {
@@ -210,31 +219,50 @@ function fillCompendiumArr(NKMBaseTable) {
 }
 
 /**
- * 
- * @param {Buffer} skillData 
+ * Fills the arrays skillArr, passiveSkillArr and innateSkillArr with data extracted from the Buffer skillData.
+ * The end arrays contain data on all skills of their respective type.
+ * @param {Buffer} skillData the buffer to get the skill data from
  */
 function fillSkillArrs(skillData) {
+    /**
+    * Reads the next 4 bytes as a little endian Interger at the location ofSet of the Buffer skillData.
+    * @param {Number} ofSet the location at which to start reading.
+    * @return the read Integer
+    */
     function read4(ofSet) {
         return skillData.readInt32LE(ofSet)
     }
+    /**
+    * Reads the next byte as an unsigned Interger at the location ofSet of the Buffer skillData.
+    * @param {Number} ofSet the location at which to start reading.
+    * @return the read Integer
+    */
     function read1(ofSet) {
         return skillData.readUInt8(ofSet)
     }
+    /**
+    * Reads the next 2 bytes as a little endian Interger at the location ofSet of the Buffer skillData.
+    * @param {Number} ofSet the location at which to start reading.
+    * @return the read Integer
+    */
     function read2(ofSet) {
         return skillData.readInt16LE(ofSet)
     }
 
+    // Define start locations for batches of skills and how much data each skill has
     let startValue = 0x85
     let passiveStartValue = 0x132E5
     let skillOffset = 0xC4
     let passiveOffset = 0x6C
     let secondBatchStart = 0x1E305
 
+    //Because the skill table starts with id=1, we need an filler object in the array to keep id & index consistent.
     let fillerObject = { id: 0, name: "Filler" }
     skillArr.push(fillerObject)
 
+    //For every skill (there are 950 skills in Vanilla)...
     for (let index = 0; index < 950; index++) {
-        //check if skill is passive 
+        //check if skill is in passive area 
         if (index >= 400 && index < 801) {
             let offset = passiveStartValue + passiveOffset * (index - 400)
             let locations = {
@@ -251,7 +279,7 @@ function fillSkillArrs(skillData) {
             } else {
                 skillType2 = "passive"
             }
-
+            //Create the object to push 
             let toPush = {
                 id: index + 1,
                 name: translateSkillID(index + 1),
@@ -280,7 +308,7 @@ function fillSkillArrs(skillData) {
                 effect2: read2(locations.effect + 4),
                 effect2Amount: read2(locations.effect + 6)
             }
-
+            // If skill is in the innate area push to innateSkillArr else push to passiveSkillArr
             if (index >= 530) {
                 innateSkillArr.push(toPush)
             } else {
@@ -290,9 +318,11 @@ function fillSkillArrs(skillData) {
         } else {
             // console.log(index)
             let offset = startValue + skillOffset * index
+            //While the skillTable starts with id 1, I do not read the ID from the data (which I really should)
             let skillID = index + 1
             let skillName = translateSkillID(index + 1)
-            // if(index == 5) {console.log((startValue + skillOffset * index).toString(16))}
+            
+            //if skill is in the second batch of active skills, we calculate the offset a different way and index = id is working
             if (index >= 800) {
                 skillName = translateSkillID(index)
                 skillID = index
@@ -459,14 +489,25 @@ function fillSkillArrs(skillData) {
 
 }
 
+/**
+ * Fills the array normalFusionArr with data extracted from the Buffer fusionData.
+ * The end array contains data on all normal fusions between two registerable demons.
+ * @param {Buffer} fusionData the buffer to get the fusion data from
+ */
 function fillNormalFusionArr(fusionData) {
+    /**
+    * Reads the next 4 bytes as a little endian Interger at the location ofSet of the Buffer fusionData.
+    * @param {Number} ofSet the location at which to start reading.
+    * @return the read Integer
+    */
     function read4(ofSet) {
         return fusionData.readInt32LE(ofSet)
     }
-
+    //Define Starting point and difference to next fsion
     let startValue = 0xC5
     let fusionOffset = 0x7C
 
+    //For every fusion (37401 = ((n-1)*(n))/2 with n being the number of registerable demons)
     for (let index = 0; index < 37401; index++) {
         let offset = startValue + index * fusionOffset
         let locations = {
@@ -490,11 +531,19 @@ function fillNormalFusionArr(fusionData) {
             }
         })
     }
-
-    // console.log(normalFusionArr)
 }
 
+/**
+ * Fills the array fusionChartArray with data extracted from the Buffer fusionData.
+ * The end array contains data on what the normal result of a fusion between two races should be.
+ * @param {Buffer} fusionData the buffer to get the fusion chart data from
+ */
 function fillFusionChart(fusionData) {
+    /**
+    * Reads the next byte as an unsigned Interger at the location ofSet of the Buffer fusionData.
+    * @param {Number} ofSet the location at which to start reading.
+    * @return the read Integer
+    */
     function read1(ofSet) {
         return fusionData.readUInt8(ofSet)
     }
@@ -522,15 +571,33 @@ function fillFusionChart(fusionData) {
     }
 }
 
+/**
+ * Fills the array fusionChartArray with data extracted from the Buffer fusionData.
+ * The end array contains data on the results and ingredients of all special fusions
+ * @param {Buffer} fusionData the buffer to get the special fusion data from
+ */
 function fillSpecialFusionArr(fusionData) {
+    /**
+    * Reads the next byte as an unsigned Interger at the location ofSet of the Buffer skillData.
+    * @param {Number} ofSet the location at which to start reading.
+    * @return the read Integer
+    */
     function read1(ofSet) {
         return fusionData.readUInt8(ofSet)
     }
-
+    /**
+    * Reads the next 4 bytes as a little endian Interger at the location ofSet of the Buffer fusionData.
+    * @param {Number} ofSet the location at which to start reading. 
+    * @return the read Integer
+    */
     function read4(ofSet) {
         return fusionData.readInt32LE(ofSet)
     }
-
+    /**
+    * Reads the next 2 bytes as a little endian Interger at the location ofSet of the Buffer fusionData.
+    * @param {Number} ofSet the location at which to start reading. 
+    * @return the read Integer
+    */
     function read2(ofSet) {
         return fusionData.readInt16LE(ofSet)
     }
@@ -568,6 +635,11 @@ function fillSpecialFusionArr(fusionData) {
     }
 }
 
+/**
+* Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
+* @param {Number} id the id of the skill to return
+* @returns the skill object with the given id
+*/
 function obtainSkillFromID(id) {
     // let id = idO - 1
     // console.log(id)
@@ -582,6 +654,12 @@ function obtainSkillFromID(id) {
     }
 }
 
+/**
+* Translates the given value of a skill modifier to its an understable description of its effect in game.
+* //UNCOMPLETE
+* @param {Number} value the value of the modifier
+* @returns the description of the given modifier value
+*/
 function translateModifier(value) {
     let results = ["None", "Charge", "Concentrate"]
     if (value >= results.length) {
@@ -600,26 +678,51 @@ function translateSkillID(id) {
     return skillNames[id]
 }
 
+/**
+* Returns a text description of the given skill type value.
+* @param {Number} value
+* @returns the text description of the given skill type value.
+*/
 function translateSkillType(value) {
     let results = ["StrBased", "MagBased", "Ailment", "Heal", "Support", "", "RevivalChant", "", "", "", "", "", "", "LevelBased"]
     return results[value]
 }
 
+/**
+* Returns a text description of the given skill element value.
+* @param {Number} value
+* @returns the text description of the given skill element value.
+*/
 function translateSkillElement(value) {
     let results = ["Physical", "Fire", "Ice", "Elec", "Force", "Light", "Dark", "Almighty", "", "", "", "", "Ailment", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Heal"]
     return results[value]
 }
 
+/**
+* Returns a text description of the given skill passive resist type value.
+* @param {Number} value
+* @returns the text description of the given given skill passive resist type value.
+*/
 function translatePassiveResist(value) {
     let results = ["None", "Resist", "Null", "Repel", "Drain"]
     return results[value]
 }
 
+/**
+* Returns a text description of the given skill target value.
+* @param {Number} value
+* @returns the text description of the given skill target value.
+*/
 function translateTarget(value) {
     let results = ["SingleFoe", "AllFoe", "SingleAlly", "AllyAll", "Self", "Foe+AllyAll", "Random", "AllyAndStockSingle", "Ally+StockAll"]
     return results[value]
 }
 
+/**
+* Returns a text description of the given skill potential type value.
+* @param {Number} value
+* @returns the text description of the given skill potential type value.
+*/
 function translatePotentialType(value) {
     let types = ["Phys", "Fire", "Ice", "Elec", "Force", "Light", "Dark", "Almighty", "Ailment", "Support", "Recover", "", "", "Magatsuhi"]
     return types[value]
@@ -672,6 +775,11 @@ function translateResist(value) {
     return result
 }
 
+/**
+* Returns a text description of the given skill passive element type value.
+* @param {Number} value
+* @returns the text description of the given skill passive element type value.
+*/
 function translatePassiveElementType(value) {
     let result = ""
     switch (value) {
@@ -747,7 +855,7 @@ function generateSkillLevelList() {
             let skill = demon.skills[i]
             skillLevels[skill.id].level.push(demon.level.value)
         }
-        //Add the level the demons learns a skill to the skills level list
+        //Add the level the demons learns a skill at to the skills level list
         for (let i = 0; i < demon.learnedSkills.length; i++) {
             let skill = demon.learnedSkills[i]
             skillLevels[skill.id].level.push(skill.level)
@@ -887,7 +995,9 @@ function assignCompletelyRandomWeightedSkills(comp, levelList) {
 }
 
 /**
- * Assigns every demon new skills randomized based on weights by including the levels above and below them
+ * Assigns every demon new skills randomized based on weights.
+ * The weights are compromised of the skills learnable at the demons level and up to 3 level below and above them.
+ * Additionally the weights are adjusted to max the skill potential of demons, making skills with positive potential more likely and negative potential less likely if not impossible.
  * @param {Array} the array of demon
  * @param {Array} levelList the list of levels and their learnable skills
  * @returns the edited compendium
@@ -904,7 +1014,7 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
             // console.log(demon.level.value)
             possibleSkills.push(e)})
         
-        //And add the skills at learned at the level below and on top
+        //And add the skills learnable at up to 3 level below and above the demons level
         if (demon.level.value < 99) {
             levelList[demon.level.value + 1].forEach(e => possibleSkills.push(e))
         }
@@ -914,24 +1024,28 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
         if (demon.level.value > 2) {
             levelList[demon.level.value - 2].forEach(e => possibleSkills.push(e))
         }
+        if (demon.level.value > 3) {
+            levelList[demon.level.value - 3].forEach(e => possibleSkills.push(e))
+        }
         if(demon.level.value < 98) {
             levelList[demon.level.value + 2].forEach(e => possibleSkills.push(e))
         }
         if(demon.level.value < 97) {
             levelList[demon.level.value + 3].forEach(e => possibleSkills.push(e))
         }
-        // console.log("PUSHED TROUGH")
-        // Create the weighted list of skills
+        // Create the weighted list of skills and update it with potentials
         let weightedSkills = createWeightedList(possibleSkills)
         weightedSkills = updateWeightsWithPotential(weightedSkills, demon.potential)
+        //If there are skills to be learned
         if (weightedSkills.values.length > 0) {
-            // For every skill change the id to a random one that is not already assigned
+            // For every skill change the id to a random one that is not already assigned to this demon
             demon.skills = demon.skills.map((skill, index) => {
                 let uniqueSkill = false
                 let rng = 0
                 while (uniqueSkill == false) {
                     rng = weightedRando(weightedSkills.values, weightedSkills.weights)
                     if (void (0) === demon.skills.find(e => e.id == rng)) {
+                        //if skill is unique set weight of skill to 0, so it cannot be result of randomization again
                         uniqueSkill = true
                         weightedSkills.weights[weightedSkills.values.indexOf(rng)] = 0
                     }
@@ -940,12 +1054,13 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
             })
             //Randomly assign learnable skills
             demon.learnedSkills = demon.learnedSkills.map((skill, index) => {
-
+                // For every skill change the id to a random one that is not already assigned to this demon
                 let uniqueSkill = false
                 let rng = 0
                 while (uniqueSkill == false) {
                     rng = weightedRando(weightedSkills.values, weightedSkills.weights)
-                    if (void (0) === demon.skills.find(e => e.id == rng)) {
+                    if (void (0) === demon.skills.find(e => e.id == rng) && void (0) === demon.learnedSkills.find(e => e.id == rng)) {
+                        //if skill is unique set weight of skill to 0, so it cannot be result of randomization again
                         uniqueSkill = true
                         weightedSkills.weights[weightedSkills.values.indexOf(rng)] = 0
                     }
@@ -957,18 +1072,22 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
     return comp
 }
 
-// function addDuplicateWeights(weightedList) {
-//     let newValues = []
-//     let newWeights
-// }
-
+/**
+* Update the weights in the weightList by applying the given skill potentials to the skills
+* @param {Array} weightList Array with sub-arrays weights and values
+* @param {Object} potentials Object containing the data of skill potentials of a demon
+* @returns weightList updated with the potentials
+*/
 function updateWeightsWithPotential(weightList, potentials) {
     // console.log(weightList)
+    //For every skill in weight list
     let newWeights = weightList.values.map((element, index) => {
+        //start with old weight
         let newWeight = weightList.weights[index]
 
         let skill = obtainSkillFromID(element)
         let skillStructure = determineSkillStructureByID(skill.id)
+        //Passive skills do not have a corresponding potential by default so we need to handle them seperately
         if (skillStructure == "Active") {
             let potentialType = skill.potentialType.translation
             let additionalWeight = 2 * obtainPotentialByName(potentialType, potentials)
@@ -986,6 +1105,12 @@ function updateWeightsWithPotential(weightList, potentials) {
     return { values: weightList.values, weights: newWeights }
 }
 
+/**
+* Returns the skill potential value based on the potential type indicated by a string.
+* @param {String} name the potential type to return the value of 
+* @param {Object} potentials contains data on the skill potential of a demon
+* @returns the skill potential described the given name
+*/
 function obtainPotentialByName(name, potentials) {
     switch (name) {
         case "Phys":
@@ -1029,7 +1154,7 @@ function obtainPotentialByName(name, potentials) {
 
 /**
  * Based on array of skills creates two arrays where each skill is only included once.
- * Skills that were originally present more than once have increased weight
+ * Skills that were originally present more than once have increased weight.
  * @param {Array} possibleSkills Array of skills 
  * @returns an array of values and an array of weights
  */
@@ -1050,6 +1175,11 @@ function createWeightedList(possibleSkills) {
     return { values: ids, weights: prob }
 }
 
+/**
+* Based on the skill id, returns which area of the skillTable the skill belongs to as a String.
+* @param {Number} id of the skill
+* @returns area of the skillTable the skill belongs to as a String
+*/
 function determineSkillStructureByID(id) {
     if (id < 401) {
         return "Active"
@@ -1074,6 +1204,7 @@ function updateCompendiumBuffer(buffer, newComp) {
         demon.skills.forEach((skill, index) => {
             buffer.writeInt32LE(skill.id, demon.offsetNumbers.firstSkill + 4 * index)
         })
+        // Write the id and levels of the demons learnable skills to the buffer
         demon.learnedSkills.forEach((skill, index) => {
             buffer.writeInt32LE(skill.id, demon.offsetNumbers.firstLearnedLevel + 8 * index + 4)
             buffer.writeInt32LE(skill.level, demon.offsetNumbers.firstLearnedLevel + 8 * index)
@@ -1085,6 +1216,12 @@ function updateCompendiumBuffer(buffer, newComp) {
     return buffer
 }
 
+/**
+ * Write the values in fusions to the respective locations in the buffer
+ * @param {Buffer} buffer of the normal fusion table
+ * @param {Array} fusions containing data for all possible normal fusions
+ * @returns the updated buffer
+ */
 function updateNormalFusionBuffer(buffer, fusions) {
     fusions.forEach(fusion => {
         buffer.writeInt32LE(fusion.firstDemon.value, fusion.offsetNumbers.firstDemon)
@@ -1094,7 +1231,7 @@ function updateNormalFusionBuffer(buffer, fusions) {
 }
 
 /**
- * Check if a certain race of demons contains two demons of the level
+ * Check if a certain race of demons contains two demons of the same level
  * @param {Array} comp 
  */
 function checkRaceDoubleLevel(comp) {
@@ -1139,7 +1276,7 @@ function weightedRando(values, weights) {
     weights.forEach(w => {
         total = total + w
     })
-    // Generate random number with max being the totoal weight
+    // Generate random number with max being the total weight
     let rng = Math.ceil(Math.random() * total)
 
     let cursor = 0
@@ -1153,9 +1290,16 @@ function weightedRando(values, weights) {
 
 }
 
+/**
+* Assign every demon a completely random level between 1 and 98.
+* Also updates to the levels of the learnable skills to have the same difference as the in the original data when possible.
+* @param {Array} comp array containing all demon data
+* @returns the demon data array with changed levels
+*/
 function assignCompletelyRandomLevels(comp) {
     for (let index = 0; index < comp.length; index++) {
         const element = comp[index];
+        // Only up to 98 so level 99 demons can still learn their skills on a non godborn file
         let newLevel = Math.floor(Math.random() * 98 + 1)
         element.learnedSkills = element.learnedSkills.map(skill => {
             let skillLevel = (skill.level - element.level.value) + newLevel
@@ -1169,7 +1313,16 @@ function assignCompletelyRandomLevels(comp) {
     return comp
 }
 
+/**
+* Re-calculate the normal fusion result of every demon based on their race and level.
+* In contrast to the normal game, does not remove fusion of two demons which also exist as ingredients to a special fusion
+* Example: Normally Pixie + Angel does not create a normal fusion, since they are a special fusion for High Pixie. If their levels and races are unchanged they would result to Fortuna.
+* @param {Array} fusions the array of normal fusions to modify
+* @param {Array} comp the array of demons 
+*/
 function adjustFusionTableToLevels(fusions, comp) {
+    //Recreate the fusion array in its original form
+    //Mostly as a way of testing
     let oldFusions = fusions.map(element => {
         let firstDemon = {
             value: element.firstDemon.value,
@@ -1185,9 +1338,10 @@ function adjustFusionTableToLevels(fusions, comp) {
         }
         return { firstDemon: firstDemon, secondDemon: secondDemon, result: result }
     })
+
     let raceTable = createRaceTables(comp)//lists of demon of each race in order
     let specialFusions = listSpecialFusables() //list of demon IDs that cant be result
-    // console.log(specialFusions)
+
 
     //Filters out all demons that are obtainable via special fusion
     raceTable = raceTable.map(race => {
@@ -1195,26 +1349,26 @@ function adjustFusionTableToLevels(fusions, comp) {
         return newRace
     })
 
-    //Remove old Lilith as viable result
+    //Remove old Lilith as valid result
     raceTable[31].pop()
 
-    // raceTable[31].forEach(e => console.log(e.name))
-    var alternativeFusionCollect = true
 
-    if (alternativeFusionCollect) {
-
+        //For each fusion...
         fusions.forEach(fusion => {
             let demon1 = comp[fusion.firstDemon.value]
             let demon2 = comp[fusion.secondDemon.value]
             let demon1Race = demon1.race.value
             let demon2Race = demon2.race.value
+            //obtain the normal race of the resulting demon
             let targetRace = fusionChartArr.find(element => (element.race1.value == demon1Race && element.race2.value == demon2Race) || (element.race1.value == demon2Race && element.race2.value == demon1Race))
 
             // console.log(targetRace)
+            //Check if the fusion results in a valid race
             if (targetRace !== void (0)) {
-
+                // Check if the fusion results in an "Element"
                 if (raceArray[targetRace.result.value] === "Element") {
-                    // console.log("TROL")
+                    // Element fusions are doable by combining two demons of the same race
+                    // Depending on the ingredients race, a different element is the result of the fusion
                     switch (raceArray[demon1Race]) {
                         case "Herald":
                         case "Deity":
@@ -1224,7 +1378,7 @@ function adjustFusionTableToLevels(fusions, comp) {
                         case "Snake":
                         case "Tyrant":
                         case "Drake":
-                            fusion.result.value = 155
+                            fusion.result.value = 155 //Flaemis id
                             fusion.result.translation = comp[155].name
                             break;
                         case "Megami":
@@ -1235,7 +1389,7 @@ function adjustFusionTableToLevels(fusions, comp) {
                         case "Femme":
                         case "Brute":
                         case "Haunt":
-                            fusion.result.value = 156
+                            fusion.result.value = 156 //Aquans id
                             fusion.result.translation = comp[156].name
                             break;
                         case "Avian":
@@ -1246,27 +1400,35 @@ function adjustFusionTableToLevels(fusions, comp) {
                         case "Fairy":
                         case "Fury":
                         case "Dragon":
-                            fusion.result.value = 157
+                            fusion.result.value = 157 //Aeros id
                             fusion.result.translation = comp[157].name
                             break;
                         default:
-                            fusion.result.value = 158
+                            fusion.result.value = 158 //Erthrys id
                             fusion.result.translation = comp[158].name
                             break;
                     }
 
                 } else {
+                    //if fusion is valid and targetRace is not element
+                    // calculate the resulting demon and save it to the fusion
                     let resultingDemon = determineNormalFusionResult(demon1.level.value, demon2.level.value, raceTable[targetRace.result.value])
                     fusion.result.value = resultingDemon.id
                     fusion.result.translation = comp[resultingDemon.id].name
                 }
 
             } else {
+                //if target race is not a valid fusion
+                // first define what effects the element demons have on the result of each demon
+                // Fusing elements with another demon results in a demon of the same race with either an decreased or increased base level
+                // 0 means unfusable, -1 reduces the level of the resulting demon, 1 increases it
                 let erthys = [0, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1, 1, -1, -1, -1, 0, 0, 1, -1, 1, 0, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, -1, -1, -1, 1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 let aeros = [0, 0, -1, -1, 1, -1, 1, -1, 1, 0, -1, -1, -1, -1, -1, 0, 0, -1, 1, 1, 0, -1, -1, 1, -1, 1, -1, -1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 let aquans = [0, 0, -1, 1, -1, 1, 1, 1, -1, 0, -1, -1, 1, -1, 1, 0, 0, 1, -1, -1, 0, -1, 1, -1, -1, -1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 let flaemis = [0, 0, 1, -1, -1, 1, -1, -1, 1, 0, 1, -1, -1, 1, -1, 0, 0, -1, 1, -1, 0, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, 1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                // if the first demon ingredient is an element
                 if (demon1Race == 15) {
+                    //determine direction based on race of 2nd demon ingredient
                     let direction
                     switch (demon1.name) {
                         case "Erthys":
@@ -1285,8 +1447,9 @@ function adjustFusionTableToLevels(fusions, comp) {
                             break;
                     }
                     let foundResult = false
-                    let searchTable = raceTable[demon2Race]
+                    let searchTable = raceTable[demon2Race] //sorted list of demons of a certain race sorted by ascending level
                     if (direction > 0) {
+                        //Since we want to increase the level, start search at 0
                         for (let index = 0; index < searchTable.length; index++) {
                             const element = searchTable[index];
                             if (element.level.value > demon2.level.value && !foundResult) {
@@ -1295,7 +1458,13 @@ function adjustFusionTableToLevels(fusions, comp) {
                                 foundResult = true
                             }
                         }
+                        if (!foundResult) {
+                             // if demon is highest level demon
+                            fusion.result.value = 0
+                            fusion.result.translation = "Empty"
+                        }
                     } else if (direction < 0) {
+                        //Since we want to decrease the level, start search at end of array
                         for (let index = searchTable.length - 1; index >= 0; index--) {
                             const element = searchTable[index];
                             if (element.level.value < demon2.level.value && !foundResult) {
@@ -1305,14 +1474,17 @@ function adjustFusionTableToLevels(fusions, comp) {
                             }
                         }
                         if (!foundResult) {
+                             // if demon is lowest level demon
                             fusion.result.value = 0
                             fusion.result.translation = "Empty"
                         }
                     } else {
+                        // if the second demon should not fusable with an element
                         fusion.result.value = 0
                         fusion.result.translation = "Empty"
                     }
                 } else if (demon2Race == 15) {
+                    //determine direction based on race of first demon ingredient
                     let direction
                     switch (demon2.name) {
                         case "Erthys":
@@ -1333,6 +1505,7 @@ function adjustFusionTableToLevels(fusions, comp) {
                     let foundResult = false
                     let searchTable = raceTable[demon1Race]
                     if (direction > 0) {
+                         //Since we want to increase the level, start search at 0
                         for (let index = 0; index < searchTable.length; index++) {
                             const element = searchTable[index];
                             if (element.level.value > demon1.level.value && !foundResult) {
@@ -1341,7 +1514,13 @@ function adjustFusionTableToLevels(fusions, comp) {
                                 foundResult = true
                             }
                         }
+                        if (!foundResult) {
+                             // if demon is highest level demon
+                            fusion.result.value = 0
+                            fusion.result.translation = "Empty"
+                        }
                     } else if (direction < 0) {
+                        //Since we want to decrease the level, start search at end of array
                         for (let index = searchTable.length - 1; index >= 0; index--) {
                             const element = searchTable[index];
                             if (element.level.value < demon1.level.value && !foundResult) {
@@ -1351,10 +1530,12 @@ function adjustFusionTableToLevels(fusions, comp) {
                             }
                         }
                         if (!foundResult) {
+                            // if demon is lowest level demon
                             fusion.result.value = 0
                             fusion.result.translation = "Empty"
                         }
                     } else {
+                        // if the second demon should not fusable with an element
                         fusion.result.value = 0
                         fusion.result.translation = "Empty"
                     }
@@ -1366,7 +1547,7 @@ function adjustFusionTableToLevels(fusions, comp) {
             // console.log(fusion.result)
         })
 
-    }
+    
 
     //Piece of code logging which fusions were changed
     // oldFusions.forEach((old, index) => {
@@ -1389,6 +1570,14 @@ function adjustSpecialFusionTable(fusions, comp) {
     
 }
 
+/**
+* Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
+* Resulting demon is the demon with an level higher than the average of the two levels.
+* @param {Number} level1 level of the first ingredient demon
+* @param {Number} level2 level of the second ingredient demon
+* @param {Array} resultTable  array of demons of a race sorted by level ascending
+* @returns the demon that should result from the fusion
+*/
 function determineNormalFusionResult(level1, level2, resultTable) {
     let resultingLevel = Math.ceil((level1 + level2) / 2) + 1
     let foundDemon = false
@@ -1401,6 +1590,10 @@ function determineNormalFusionResult(level1, level2, resultTable) {
     return resultTable[resultTable.length - 1]
 }
 
+/**
+* Returns an array of ids of all demons that are the result of a special fusion.
+* @returns an array of ids of all demons that are the result of a special fusion.
+*/
 function listSpecialFusables() {
     let demons = specialFusionArr.map(fusion => {
         return fusion.result.value
@@ -1408,14 +1601,23 @@ function listSpecialFusables() {
     return demons
 }
 
+/**
+* Creates Arrays for each race containing the registerable demons of that race in ascending order based on their level.
+* @param {Array} comp the array containing the data of all demons
+* @returns array containing an array for each race containing the registerable demons of that race in ascending order based on their level
+*/
 function createRaceTables(comp) {
+    //For every race...
     let raceTable = raceArray.map(race => {
         let demonList = []
+        // go trough each demon
         comp.forEach(demon => {
             if (race == demon.race.translation && !demon.name.startsWith('NOT USED')) {
+                // and add them to the array if they belong to the race and are used
                 demonList.push(demon)
             }
         })
+        //Sort array in ascending order
         demonList = demonList.sort((a, b) => a.level.value - b.level.value)
         return demonList
     })
