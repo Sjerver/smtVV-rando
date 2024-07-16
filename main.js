@@ -116,8 +116,6 @@ async function writeNormalFusionTable(result) {
  * @param {Buffer} NKMBaseTable the buffer to get the demon data from
  */
 function fillCompendiumArr(NKMBaseTable) {
-    // let json = NKMBaseTable.toJSON()
-
     function readInt32LE(ofSet) {
         return NKMBaseTable.readInt32LE(ofSet)
     }
@@ -1059,7 +1057,7 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
                 let rng = 0
                 while (uniqueSkill == false) {
                     rng = weightedRando(weightedSkills.values, weightedSkills.weights)
-                    if (void (0) === demon.skills.find(e => e.id == rng) && void (0) === demon.learnedSkills.find(e => e.id == rng)) {
+                    if (void (0) === demon.skills.find(e => e.id == rng) && void (0) === demon.learnedSkills.find(e => e.id == rng)) {             
                         //if skill is unique set weight of skill to 0, so it cannot be result of randomization again
                         uniqueSkill = true
                         weightedSkills.weights[weightedSkills.values.indexOf(rng)] = 0
@@ -1070,6 +1068,16 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
         }
     }
     return comp
+}
+
+function checkAdditionalSkillConditions(skill, totalSkillList, demon) {
+    if(skill.id == CHARGE.ID && (totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 0) || demon.potentials.physical > 0)) {
+        return true
+    } else if(skill.id == CONCENTRATE.ID && (totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 1) || demon.stats.str.start <= demon.stats.mag.start) {
+        return true
+    } else {
+        return false
+    }
 }
 
 /**
