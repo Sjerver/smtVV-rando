@@ -167,9 +167,9 @@ function fillCompendiumArr(NKMBaseTable) {
             name: compendiumNames[index],
             offsetNumbers: locations,
             race: { value: NKMBaseTable.readUInt8(locations.race), translation: raceArray[NKMBaseTable.readUInt8(locations.race)] },
-            oldlevel : readInt32LE(locations.level),
+            oldlevel: readInt32LE(locations.level),
             level: { value: readInt32LE(locations.level) },
-            registerable : readInt32LE(locations.HP - 4),
+            registerable: readInt32LE(locations.HP - 4),
             resist: {
                 physical: { value: readInt32LE(locations.innate + 4), translation: translateResist(readInt32LE(locations.innate + 4)) },
                 fire: { value: readInt32LE(locations.innate + 4 * 2), translation: translateResist(readInt32LE(locations.innate + 4 * 2)) },
@@ -319,7 +319,7 @@ function fillSkillArrs(skillData) {
             //While the skillTable starts with id 1, I do not read the ID from the data (which I really should)
             let skillID = index + 1
             let skillName = translateSkillID(index + 1)
-            
+
             //if skill is in the second batch of active skills, we calculate the offset a different way and index = id is working
             if (index >= 800) {
                 skillName = translateSkillID(index)
@@ -859,6 +859,10 @@ function generateSkillLevelList() {
             skillLevels[skill.id].level.push(skill.level)
         }
     }
+    //Define skills that should be available to learn despite not being available to demons
+    let skipNeeded = [240,284,255,283,284,292,293,294,300,301,306,307,310,298,299,320,321,335,336,342,370,390,394,395,849,863,864,865,918,924,925,927]
+    let busted = [259, 277,289,343,883,884,885]
+    let flawless = [295,312,329,330,331,332,333,334,337,338,339,340,341,372,373,392,397,398,861,902,903,904,905,906,908,909,910,911,912,913,914,915,916,917,926]
     //For every skill determine the minimum and maximum level it is obtained at
     skillLevels = skillLevels.map(skill => {
         let minLevel = 99
@@ -875,6 +879,9 @@ function generateSkillLevelList() {
             minLevel = 0
             maxLevel = 0
         }
+        //TODO: Define Levels for each skill exception
+        
+
         return { name: skill.name, id: skill.id, level: [minLevel, maxLevel] }
     })
     return skillLevels
@@ -920,7 +927,7 @@ function generateLevelSkillList(skillLevels) {
             let skill = foundSkills.find(skill => skill.id == unique)
             let id = skill.id
             let name = translateSkillID(id)
-            return {name: name, id: id}
+            return { name: name, id: id }
         })
         return final
     })
@@ -1006,12 +1013,13 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
         let demon = comp[index];
         let possibleSkills = []
         //get all skills that can be learned at the demons level
-        
+
         levelList[demon.level.value].forEach(e => {
             // console.log(demon.name + "" + demon.level.value)
             // console.log(demon.level.value)
-            possibleSkills.push(e)})
-        
+            possibleSkills.push(e)
+        })
+
         //And add the skills learnable at up to 3 level below and above the demons level
         if (demon.level.value < 99) {
             levelList[demon.level.value + 1].forEach(e => possibleSkills.push(e))
@@ -1025,15 +1033,17 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
         if (demon.level.value > 3) {
             levelList[demon.level.value - 3].forEach(e => possibleSkills.push(e))
         }
-        if(demon.level.value < 98) {
+        if (demon.level.value < 98) {
             levelList[demon.level.value + 2].forEach(e => possibleSkills.push(e))
         }
-        if(demon.level.value < 97) {
+        if (demon.level.value < 97) {
             levelList[demon.level.value + 3].forEach(e => possibleSkills.push(e))
         }
         // Create the weighted list of skills and update it with potentials
         let weightedSkills = createWeightedList(possibleSkills)
-        weightedSkills = updateWeightsWithPotential(weightedSkills, demon.potential)
+        weightedSkills = updateWeightsWithPotential(weightedSkills, demon.potential,demon)
+
+        var totalSkills = []
         //If there are skills to be learned
         if (weightedSkills.values.length > 0) {
             // For every skill change the id to a random one that is not already assigned to this demon
@@ -1043,11 +1053,16 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
                 while (uniqueSkill == false) {
                     rng = weightedRando(weightedSkills.values, weightedSkills.weights)
                     if (void (0) === demon.skills.find(e => e.id == rng)) {
-                        //if skill is unique set weight of skill to 0, so it cannot be result of randomization again
-                        uniqueSkill = true
-                        weightedSkills.weights[weightedSkills.values.indexOf(rng)] = 0
+                        if (checkAdditionalSkillConditions(obtainSkillFromID(rng), totalSkills, demon)) {
+                            //if skill is unique set weight of skill to 0, so it cannot be result of randomization again
+                            uniqueSkill = true
+                            weightedSkills.weights[weightedSkills.values.indexOf(rng)] = 0
+                        }
+
                     }
                 }
+                let skillAddition = { id: rng, translation: translateSkillID(rng) }
+                totalSkills.push(skillAddition)
                 return { id: rng, translation: translateSkillID(rng) }
             })
             //Randomly assign learnable skills
@@ -1057,63 +1072,74 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
                 let rng = 0
                 while (uniqueSkill == false) {
                     rng = weightedRando(weightedSkills.values, weightedSkills.weights)
-                    if (void (0) === demon.skills.find(e => e.id == rng) && void (0) === demon.learnedSkills.find(e => e.id == rng)) {             
-                        //if skill is unique set weight of skill to 0, so it cannot be result of randomization again
-                        uniqueSkill = true
-                        weightedSkills.weights[weightedSkills.values.indexOf(rng)] = 0
+                    if (void (0) === demon.skills.find(e => e.id == rng) && void (0) === demon.learnedSkills.find(e => e.id == rng)) {
+                        if (checkAdditionalSkillConditions(obtainSkillFromID(rng), totalSkills, demon)) {
+                            //if skill is unique set weight of skill to 0, so it cannot be result of randomization again
+                            uniqueSkill = true
+                            weightedSkills.weights[weightedSkills.values.indexOf(rng)] = 0
+                        }
                     }
                 }
-                return { id: rng, translation: translateSkillID(rng), level:skill.level }
+                let skillAddition = { id: rng, translation: translateSkillID(rng) }
+                totalSkills.push(skillAddition)
+                return { id: rng, translation: translateSkillID(rng), level: skill.level }
             })
         }
     }
     return comp
 }
 
-function checkAdditionalSkillConditions(skill, totalSkillList, demon) { 
-    if((skill.name == "Charge" || skill.name == "Critical Aura")  && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 0)) || demon.potential.physical > 0)) {
+function checkAdditionalSkillConditions(skill, totalSkillList, demon) {
+    let conditionalSkills = ["Charge","Critical Aura","Concentrate","Curse Siphon","Great Curse Siphon","Virus Carrier","Bowl of Hygieia","Heal Pleroma","High Heal Pleroma","Nation Founder","Healing Hand","Oath of Plenteousness",
+        "Poison Adept", "Poison Master", "Sankosho","Incendiary Stoning","Roaring Mist","Herkeios","Carpet Bolting","Catastrophic Gales","Lighted Wheel","Boon of Sloth","Ceaseless Crucifixion","Biondetta","Nation Builder"
+    ]
+    if((void(0) === conditionalSkills.find(e => e == skill.name) && !skill.name.includes("Pleroma") && !skill.name.includes("Enhancer") && !skill.name.includes("Gestalt"))) {
+        return true
+    }
+
+    if ((skill.name == "Charge" || skill.name == "Critical Aura") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 0)) || demon.potential.physical > 0)) {
         //Check for Charge, Critical Aura when already assigned Str-Based Skill or Demon has positive Physical Potential
         return true
-    } else if(skill.name == "Concentrate" && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 1)) || demon.stats.str.start <= demon.stats.mag.start)) {
+    } else if (skill.name == "Concentrate" && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 1)) || demon.stats.str.start <= demon.stats.mag.start)) {
         //Check for Concentrate when already assigned Mag-Based Skill or Demon has higher base mag than str
         return true
-    } else if((skill.name == "Curse Siphon" || skill.name == "Great Curse Siphon" || skill.name == "Virus Carrier") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 2)) || demon.potential.ailment > 0)) {
+    } else if ((skill.name == "Curse Siphon" || skill.name == "Great Curse Siphon" || skill.name == "Virus Carrier") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 2)) || demon.potential.ailment > 0)) {
         //Check for Curse Siphon, Great Curse Siphon, Virus Carrier when already assigned ailment Skill or Demon has positive ailment Potential
         return true
-    } else if((skill.name == "Bowl of Hygieia" || skill.name == "Heal Pleroma" || skill.name == "High Heal Pleroma" || skill.name == "Nation Founder" || skill.name == "Healing Hand" || skill.name == "Oath of Plenteousness") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 3)) || demon.potential.recover > 0)) {
+    } else if ((skill.name == "Bowl of Hygieia" || skill.name == "Heal Pleroma" || skill.name == "High Heal Pleroma" || skill.name == "Nation Founder" || skill.name == "Healing Hand" || skill.name == "Oath of Plenteousness") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 3)) || demon.potential.recover > 0)) {
         //Check for Bowl of Hygieia, Heal Pleroma, High Heal Pleroma, Nation Founder, Healing Hand, Oath of Plenteousness when already assigned heal Skill or Demon has positive recover Potential
         return true
-    } else if((skill.name == "Poison Adept" || skill.name == "Poison Master") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).ailmentFlags.poison > 0)) || demon.potential.ailment > 0)) {
+    } else if ((skill.name == "Poison Adept" || skill.name == "Poison Master") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).ailmentFlags.poison > 0)) || demon.potential.ailment > 0)) {
         //Check for Poison Adept, Poison Master when already assigned poison-inflicting Skill or Demon has positive ailment Potential
         return true
-    } else if((skill.name == "Phys Pleroma" || skill.name == "High Phys Pleroma" || skill.name == "Phys Enhancer" || skill.name == "Phys Gestalt" || skill.name == "Sankosho")  && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 0)) || demon.potential.physical > 0)) {
+    } else if ((skill.name == "Phys Pleroma" || skill.name == "High Phys Pleroma" || skill.name == "Phys Enhancer" || skill.name == "Phys Gestalt" || skill.name == "Sankosho") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 0)) || demon.potential.physical > 0)) {
         //Check for Phys Pleroma, High Phys Pleroma, Phys Enhancer, Phys Gestalt, Sankosho when already assigned phys element Skill or Demon has positive Physical Potential
         return true
-    } else if((skill.name == "Fire Pleroma" || skill.name == "High Fire Pleroma" || skill.name == "Fire Enhancer" || skill.name == "Fire Gestalt" || skill.name == "Incendiary Stoning") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 1)) || demon.potential.fire > 0)) {
+    } else if ((skill.name == "Fire Pleroma" || skill.name == "High Fire Pleroma" || skill.name == "Fire Enhancer" || skill.name == "Fire Gestalt" || skill.name == "Incendiary Stoning") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 1)) || demon.potential.fire > 0)) {
         //Check for Fire Pleroma, High Fire Pleroma, Fire Enhancer, Fire Gestalt, Incendiary Stoning when already assigned fire element Skill or Demon has positive fire Potential
         return true
-    } else if((skill.name == "Ice Pleroma" || skill.name == "High Ice Pleroma" || skill.name == "Ice Enhancer" || skill.name == "Ice Gestalt" || skill.name == "Roaring Mist") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 2)) || demon.potential.ice > 0)) {
+    } else if ((skill.name == "Ice Pleroma" || skill.name == "High Ice Pleroma" || skill.name == "Ice Enhancer" || skill.name == "Ice Gestalt" || skill.name == "Roaring Mist") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 2)) || demon.potential.ice > 0)) {
         //Check for Ice Pleroma, High Ice Pleroma, Ice Enhancer, Ice Gestalt, Roaring Mist when already assigned ice element Skill or Demon has positive ice Potential
         return true
-    } else if((skill.name == "Elec Pleroma" || skill.name == "High Elec Pleroma" || skill.name == "Elec Enhancer" || skill.name == "Herkeios" || skill.name == "Elec Gestalt" || skill.name == "Carpet Bolting") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 3)) || demon.potential.elec > 0)) {
+    } else if ((skill.name == "Elec Pleroma" || skill.name == "High Elec Pleroma" || skill.name == "Elec Enhancer" || skill.name == "Herkeios" || skill.name == "Elec Gestalt" || skill.name == "Carpet Bolting") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 3)) || demon.potential.elec > 0)) {
         //Check for Elec Pleroma, High Elec Pleroma, Elec Enhancer, Herkeios, Elec Gestalt, Carpet Bolting when already assigned Elec element Skill or Demon has positive elec Potential
         return true
-    } else if((skill.name == "Force Pleroma" || skill.name == "High Force Pleroma" || skill.name == "Force Enhancer" || skill.name == "Force Gestalt" || skill.name == "Catastrophic Gales") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 4)) || demon.potential.force > 0)) {
+    } else if ((skill.name == "Force Pleroma" || skill.name == "High Force Pleroma" || skill.name == "Force Enhancer" || skill.name == "Force Gestalt" || skill.name == "Catastrophic Gales") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 4)) || demon.potential.force > 0)) {
         //Check for Force Pleroma, High Force Pleroma, Force Enhancer, Force Gestalt, Catastrophic Gales when already assigned Force element Skill or Demon has positive Force Potential
         return true
-    } else if((skill.name == "Light Pleroma" || skill.name == "High Light Pleroma" || skill.name == "Light Enhancer" || skill.name == "Light Gestalt" || skill.name == "Lighted Wheel") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 5)) || demon.potential.light > 0)) {
+    } else if ((skill.name == "Light Pleroma" || skill.name == "High Light Pleroma" || skill.name == "Light Enhancer" || skill.name == "Light Gestalt" || skill.name == "Lighted Wheel") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 5)) || demon.potential.light > 0)) {
         //Check for Light Pleroma, High Light Pleroma, Light Enhancer, Light Gestalt, Lighted Wheel when already assigned Light element Skill or Demon has positive Light Potential
         return true
-    } else if((skill.name == "Dark Pleroma" || skill.name == "High Dark Pleroma" || skill.name == "Dark Enhancer" || skill.name == "Dark Gestalt" || skill.name == "Boon of Sloth") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 6)) || demon.potential.dark > 0)) {
+    } else if ((skill.name == "Dark Pleroma" || skill.name == "High Dark Pleroma" || skill.name == "Dark Enhancer" || skill.name == "Dark Gestalt" || skill.name == "Boon of Sloth") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 6)) || demon.potential.dark > 0)) {
         //Check for Dark Pleroma, High Dark Pleroma, Dark Enhancer, Dark Gestalt, Boon of Sloth when already assigned Dark element Skill or Demon has positive Dark Potential
         return true
-    } else if((skill.name == "Almighty Pleroma" || skill.name == "High Almighty Pleroma" || skill.name == "Ceaseless Crucifixion") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 7)) || demon.potential.almighty > 0)) {
+    } else if ((skill.name == "Almighty Pleroma" || skill.name == "High Almighty Pleroma" || skill.name == "Ceaseless Crucifixion") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 7)) || demon.potential.almighty > 0)) {
         //Check for Almighty Pleroma, High Almighty Pleroma, Ceaseless Crucifixion when already assigned Almighty element Skill or Demon has positive Almighty Potential
         return true
-    } else if((skill.name == "Biondetta") && (demon.race.value != 2 && demon.race.value != 3 && demon.race.value != 24 && demon.race.value != 28)) {
+    } else if ((skill.name == "Biondetta") && (demon.race.value != 2 && demon.race.value != 3 && demon.race.value != 24 && demon.race.value != 28)) {
         //Check for Biondetta when demon does not belong to herald, megami, femme, lady race
         return true
-    } else if((skill.name == "Nation Builder") && ((totalSkillList.find(e=> determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType == 4)) || demon.potential.support > 0)) {
+    } else if ((skill.name == "Nation Builder") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 4)) || demon.potential.support > 0)) {
         //Check for Nation Builder when already assigned support type skill or demon has positive support potential
     } else {
         //Skill fullfills no additional skill conditions
@@ -1127,7 +1153,7 @@ function checkAdditionalSkillConditions(skill, totalSkillList, demon) {
 * @param {Object} potentials Object containing the data of skill potentials of a demon
 * @returns weightList updated with the potentials
 */
-function updateWeightsWithPotential(weightList, potentials) {
+function updateWeightsWithPotential(weightList, potentials,demon) {
     // console.log(weightList)
     //For every skill in weight list
     let newWeights = weightList.values.map((element, index) => {
@@ -1140,6 +1166,10 @@ function updateWeightsWithPotential(weightList, potentials) {
         if (skillStructure == "Active") {
             let potentialType = skill.potentialType.translation
             let additionalWeight = 2 * obtainPotentialByName(potentialType, potentials)
+            if(potentialType == "Phys" && demon.stats.str.start < demon.stats.mag.start) {
+                additionalWeight = additionalWeight - 2
+            }
+            // if(skill.name == "Profaned Land") {additonalWeight = additionalWeight * additionalWeight}
             if (additionalWeight < 0) {
                 newWeight = 0
             } else {
@@ -1402,201 +1432,201 @@ function adjustFusionTableToLevels(fusions, comp) {
     raceTable[31].pop()
 
 
-        //For each fusion...
-        fusions.forEach(fusion => {
-            let demon1 = comp[fusion.firstDemon.value]
-            let demon2 = comp[fusion.secondDemon.value]
-            let demon1Race = demon1.race.value
-            let demon2Race = demon2.race.value
-            //obtain the normal race of the resulting demon
-            let targetRace = fusionChartArr.find(element => (element.race1.value == demon1Race && element.race2.value == demon2Race) || (element.race1.value == demon2Race && element.race2.value == demon1Race))
+    //For each fusion...
+    fusions.forEach(fusion => {
+        let demon1 = comp[fusion.firstDemon.value]
+        let demon2 = comp[fusion.secondDemon.value]
+        let demon1Race = demon1.race.value
+        let demon2Race = demon2.race.value
+        //obtain the normal race of the resulting demon
+        let targetRace = fusionChartArr.find(element => (element.race1.value == demon1Race && element.race2.value == demon2Race) || (element.race1.value == demon2Race && element.race2.value == demon1Race))
 
-            // console.log(targetRace)
-            //Check if the fusion results in a valid race
-            if (targetRace !== void (0)) {
-                // Check if the fusion results in an "Element"
-                if (raceArray[targetRace.result.value] === "Element") {
-                    // Element fusions are doable by combining two demons of the same race
-                    // Depending on the ingredients race, a different element is the result of the fusion
-                    switch (raceArray[demon1Race]) {
-                        case "Herald":
-                        case "Deity":
-                        case "Jaki":
-                        case "Kunitsu":
-                        case "Fallen":
-                        case "Snake":
-                        case "Tyrant":
-                        case "Drake":
-                            fusion.result.value = 155 //Flaemis id
-                            fusion.result.translation = comp[155].name
-                            break;
-                        case "Megami":
-                        case "Vile":
-                        case "Avatar":
-                        case "Genma":
-                        case "Wilder":
-                        case "Femme":
-                        case "Brute":
-                        case "Haunt":
-                            fusion.result.value = 156 //Aquans id
-                            fusion.result.translation = comp[156].name
-                            break;
-                        case "Avian":
-                        case "Divine":
-                        case "Yoma":
-                        case "Raptor":
-                        case "Holy":
-                        case "Fairy":
-                        case "Fury":
-                        case "Dragon":
-                            fusion.result.value = 157 //Aeros id
-                            fusion.result.translation = comp[157].name
-                            break;
-                        default:
-                            fusion.result.value = 158 //Erthrys id
-                            fusion.result.translation = comp[158].name
-                            break;
-                    }
-
-                } else {
-                    //if fusion is valid and targetRace is not element
-                    // calculate the resulting demon and save it to the fusion
-                    let resultingDemon = determineNormalFusionResult(demon1.level.value, demon2.level.value, raceTable[targetRace.result.value])
-                    fusion.result.value = resultingDemon.id
-                    fusion.result.translation = comp[resultingDemon.id].name
+        // console.log(targetRace)
+        //Check if the fusion results in a valid race
+        if (targetRace !== void (0)) {
+            // Check if the fusion results in an "Element"
+            if (raceArray[targetRace.result.value] === "Element") {
+                // Element fusions are doable by combining two demons of the same race
+                // Depending on the ingredients race, a different element is the result of the fusion
+                switch (raceArray[demon1Race]) {
+                    case "Herald":
+                    case "Deity":
+                    case "Jaki":
+                    case "Kunitsu":
+                    case "Fallen":
+                    case "Snake":
+                    case "Tyrant":
+                    case "Drake":
+                        fusion.result.value = 155 //Flaemis id
+                        fusion.result.translation = comp[155].name
+                        break;
+                    case "Megami":
+                    case "Vile":
+                    case "Avatar":
+                    case "Genma":
+                    case "Wilder":
+                    case "Femme":
+                    case "Brute":
+                    case "Haunt":
+                        fusion.result.value = 156 //Aquans id
+                        fusion.result.translation = comp[156].name
+                        break;
+                    case "Avian":
+                    case "Divine":
+                    case "Yoma":
+                    case "Raptor":
+                    case "Holy":
+                    case "Fairy":
+                    case "Fury":
+                    case "Dragon":
+                        fusion.result.value = 157 //Aeros id
+                        fusion.result.translation = comp[157].name
+                        break;
+                    default:
+                        fusion.result.value = 158 //Erthrys id
+                        fusion.result.translation = comp[158].name
+                        break;
                 }
 
             } else {
-                //if target race is not a valid fusion
-                // first define what effects the element demons have on the result of each demon
-                // Fusing elements with another demon results in a demon of the same race with either an decreased or increased base level
-                // 0 means unfusable, -1 reduces the level of the resulting demon, 1 increases it
-                let erthys = [0, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1, 1, -1, -1, -1, 0, 0, 1, -1, 1, 0, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, -1, -1, -1, 1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                let aeros = [0, 0, -1, -1, 1, -1, 1, -1, 1, 0, -1, -1, -1, -1, -1, 0, 0, -1, 1, 1, 0, -1, -1, 1, -1, 1, -1, -1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                let aquans = [0, 0, -1, 1, -1, 1, 1, 1, -1, 0, -1, -1, 1, -1, 1, 0, 0, 1, -1, -1, 0, -1, 1, -1, -1, -1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                let flaemis = [0, 0, 1, -1, -1, 1, -1, -1, 1, 0, 1, -1, -1, 1, -1, 0, 0, -1, 1, -1, 0, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, 1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                // if the first demon ingredient is an element
-                if (demon1Race == 15) {
-                    //determine direction based on race of 2nd demon ingredient
-                    let direction
-                    switch (demon1.name) {
-                        case "Erthys":
-                            direction = erthys[demon2Race]
-                            break;
-                        case "Aeros":
-                            direction = aeros[demon2Race]
-                            break;
-                        case "Aquans":
-                            direction = aquans[demon2Race]
-                            break;
-                        case "Flaemis":
-                            direction = flaemis[demon2Race]
-                            break;
-                        default:
-                            break;
+                //if fusion is valid and targetRace is not element
+                // calculate the resulting demon and save it to the fusion
+                let resultingDemon = determineNormalFusionResult(demon1.level.value, demon2.level.value, raceTable[targetRace.result.value])
+                fusion.result.value = resultingDemon.id
+                fusion.result.translation = comp[resultingDemon.id].name
+            }
+
+        } else {
+            //if target race is not a valid fusion
+            // first define what effects the element demons have on the result of each demon
+            // Fusing elements with another demon results in a demon of the same race with either an decreased or increased base level
+            // 0 means unfusable, -1 reduces the level of the resulting demon, 1 increases it
+            let erthys = [0, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1, 1, -1, -1, -1, 0, 0, 1, -1, 1, 0, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, -1, -1, -1, 1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            let aeros = [0, 0, -1, -1, 1, -1, 1, -1, 1, 0, -1, -1, -1, -1, -1, 0, 0, -1, 1, 1, 0, -1, -1, 1, -1, 1, -1, -1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            let aquans = [0, 0, -1, 1, -1, 1, 1, 1, -1, 0, -1, -1, 1, -1, 1, 0, 0, 1, -1, -1, 0, -1, 1, -1, -1, -1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            let flaemis = [0, 0, 1, -1, -1, 1, -1, -1, 1, 0, 1, -1, -1, 1, -1, 0, 0, -1, 1, -1, 0, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, 1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            // if the first demon ingredient is an element
+            if (demon1Race == 15) {
+                //determine direction based on race of 2nd demon ingredient
+                let direction
+                switch (demon1.name) {
+                    case "Erthys":
+                        direction = erthys[demon2Race]
+                        break;
+                    case "Aeros":
+                        direction = aeros[demon2Race]
+                        break;
+                    case "Aquans":
+                        direction = aquans[demon2Race]
+                        break;
+                    case "Flaemis":
+                        direction = flaemis[demon2Race]
+                        break;
+                    default:
+                        break;
+                }
+                let foundResult = false
+                let searchTable = raceTable[demon2Race] //sorted list of demons of a certain race sorted by ascending level
+                if (direction > 0) {
+                    //Since we want to increase the level, start search at 0
+                    for (let index = 0; index < searchTable.length; index++) {
+                        const element = searchTable[index];
+                        if (element.level.value > demon2.level.value && !foundResult) {
+                            fusion.result.value = element.id
+                            fusion.result.translation = element.name
+                            foundResult = true
+                        }
                     }
-                    let foundResult = false
-                    let searchTable = raceTable[demon2Race] //sorted list of demons of a certain race sorted by ascending level
-                    if (direction > 0) {
-                        //Since we want to increase the level, start search at 0
-                        for (let index = 0; index < searchTable.length; index++) {
-                            const element = searchTable[index];
-                            if (element.level.value > demon2.level.value && !foundResult) {
-                                fusion.result.value = element.id
-                                fusion.result.translation = element.name
-                                foundResult = true
-                            }
-                        }
-                        if (!foundResult) {
-                             // if demon is highest level demon
-                            fusion.result.value = 0
-                            fusion.result.translation = "Empty"
-                        }
-                    } else if (direction < 0) {
-                        //Since we want to decrease the level, start search at end of array
-                        for (let index = searchTable.length - 1; index >= 0; index--) {
-                            const element = searchTable[index];
-                            if (element.level.value < demon2.level.value && !foundResult) {
-                                fusion.result.value = element.id
-                                fusion.result.translation = element.name
-                                foundResult = true
-                            }
-                        }
-                        if (!foundResult) {
-                             // if demon is lowest level demon
-                            fusion.result.value = 0
-                            fusion.result.translation = "Empty"
-                        }
-                    } else {
-                        // if the second demon should not fusable with an element
+                    if (!foundResult) {
+                        // if demon is highest level demon
                         fusion.result.value = 0
                         fusion.result.translation = "Empty"
                     }
-                } else if (demon2Race == 15) {
-                    //determine direction based on race of first demon ingredient
-                    let direction
-                    switch (demon2.name) {
-                        case "Erthys":
-                            direction = erthys[demon1Race]
-                            break;
-                        case "Aeros":
-                            direction = aeros[demon1Race]
-                            break;
-                        case "Aquans":
-                            direction = aquans[demon1Race]
-                            break;
-                        case "Flaemis":
-                            direction = flaemis[demon1Race]
-                            break;
-                        default:
-                            break;
+                } else if (direction < 0) {
+                    //Since we want to decrease the level, start search at end of array
+                    for (let index = searchTable.length - 1; index >= 0; index--) {
+                        const element = searchTable[index];
+                        if (element.level.value < demon2.level.value && !foundResult) {
+                            fusion.result.value = element.id
+                            fusion.result.translation = element.name
+                            foundResult = true
+                        }
                     }
-                    let foundResult = false
-                    let searchTable = raceTable[demon1Race]
-                    if (direction > 0) {
-                         //Since we want to increase the level, start search at 0
-                        for (let index = 0; index < searchTable.length; index++) {
-                            const element = searchTable[index];
-                            if (element.level.value > demon1.level.value && !foundResult) {
-                                fusion.result.value = element.id
-                                fusion.result.translation = element.name
-                                foundResult = true
-                            }
-                        }
-                        if (!foundResult) {
-                             // if demon is highest level demon
-                            fusion.result.value = 0
-                            fusion.result.translation = "Empty"
-                        }
-                    } else if (direction < 0) {
-                        //Since we want to decrease the level, start search at end of array
-                        for (let index = searchTable.length - 1; index >= 0; index--) {
-                            const element = searchTable[index];
-                            if (element.level.value < demon1.level.value && !foundResult) {
-                                fusion.result.value = element.id
-                                fusion.result.translation = element.name
-                                foundResult = true
-                            }
-                        }
-                        if (!foundResult) {
-                            // if demon is lowest level demon
-                            fusion.result.value = 0
-                            fusion.result.translation = "Empty"
-                        }
-                    } else {
-                        // if the second demon should not fusable with an element
+                    if (!foundResult) {
+                        // if demon is lowest level demon
                         fusion.result.value = 0
                         fusion.result.translation = "Empty"
                     }
                 } else {
+                    // if the second demon should not fusable with an element
                     fusion.result.value = 0
                     fusion.result.translation = "Empty"
                 }
+            } else if (demon2Race == 15) {
+                //determine direction based on race of first demon ingredient
+                let direction
+                switch (demon2.name) {
+                    case "Erthys":
+                        direction = erthys[demon1Race]
+                        break;
+                    case "Aeros":
+                        direction = aeros[demon1Race]
+                        break;
+                    case "Aquans":
+                        direction = aquans[demon1Race]
+                        break;
+                    case "Flaemis":
+                        direction = flaemis[demon1Race]
+                        break;
+                    default:
+                        break;
+                }
+                let foundResult = false
+                let searchTable = raceTable[demon1Race]
+                if (direction > 0) {
+                    //Since we want to increase the level, start search at 0
+                    for (let index = 0; index < searchTable.length; index++) {
+                        const element = searchTable[index];
+                        if (element.level.value > demon1.level.value && !foundResult) {
+                            fusion.result.value = element.id
+                            fusion.result.translation = element.name
+                            foundResult = true
+                        }
+                    }
+                    if (!foundResult) {
+                        // if demon is highest level demon
+                        fusion.result.value = 0
+                        fusion.result.translation = "Empty"
+                    }
+                } else if (direction < 0) {
+                    //Since we want to decrease the level, start search at end of array
+                    for (let index = searchTable.length - 1; index >= 0; index--) {
+                        const element = searchTable[index];
+                        if (element.level.value < demon1.level.value && !foundResult) {
+                            fusion.result.value = element.id
+                            fusion.result.translation = element.name
+                            foundResult = true
+                        }
+                    }
+                    if (!foundResult) {
+                        // if demon is lowest level demon
+                        fusion.result.value = 0
+                        fusion.result.translation = "Empty"
+                    }
+                } else {
+                    // if the second demon should not fusable with an element
+                    fusion.result.value = 0
+                    fusion.result.translation = "Empty"
+                }
+            } else {
+                fusion.result.value = 0
+                fusion.result.translation = "Empty"
             }
-            // console.log(fusion.result)
-        })
+        }
+        // console.log(fusion.result)
+    })
 
-    
+
 
     //Piece of code logging which fusions were changed
     // oldFusions.forEach((old, index) => {
@@ -1616,7 +1646,7 @@ function adjustFusionTableToLevels(fusions, comp) {
 }
 
 function adjustSpecialFusionTable(fusions, comp) {
-    
+
 }
 
 /**
@@ -1674,6 +1704,17 @@ function createRaceTables(comp) {
     return raceTable
 }
 
+function findUnlearnableSkills(skillLevels) {
+    skillLevels.forEach(skill => {
+        if(skill.level[0] == 0 && skill.level[1] == 0 && !skill.name.startsWith("NOT USED") 
+            && (determineSkillStructureByID(skill.id) == "Active" && obtainSkillFromID(skill.id).magatsuhi.enable == 0)
+        ) {
+            console.log(skill)
+        }
+        
+    })
+}
+
 async function main() {
     let compendiumBuffer = await readNKMBaseTable()
     let skillBuffer = await readSkillData()
@@ -1724,7 +1765,7 @@ async function main() {
     // console.log(raceArray[31])
     // logDemonByName("Preta",compendiumArr)
     // console.log("END RESULT")
-    console.log(newComp[115])
+    // console.log(newComp[115])
     // console.log(newComp[116].skills)
     // console.log(newComp[116].learnedSkills)
     // console.log(obtainSkillFromID(113))
@@ -1735,7 +1776,7 @@ async function main() {
 
     // await writeNormalFusionTable(normalFusionBuffer)
     // await writeNKMBaseTable(compendiumBuffer)
-
+    // findUnlearnableSkills(skillLevels)
 
 }
 
