@@ -6,6 +6,8 @@ SatanLevel ist 239
 Abdiel ist Testsubjekt!
 	<IDs>
 Herald->Megami x1? 1B35D
+			
+
 1B361 (Differnce between )
 1B36
 	<Numbers>

@@ -125,6 +125,7 @@ function fillCompendiumArr(NKMBaseTable) {
     let raceOffset = 0x0C
     let demonOffset = 0x1D0
 
+
     //For all demons in the compendium...
     for (let index = 0; index < 395; index++) {
         //First define all relevant offsets
@@ -860,9 +861,9 @@ function generateSkillLevelList() {
         }
     }
     //Define skills that should be available to learn despite not being available to demons
-    let skipNeeded = [240,284,255,283,284,292,293,294,300,301,306,307,310,298,299,320,321,335,336,342,370,390,394,395,849,863,864,865,918,924,925,927]
-    let busted = [259, 277,289,343,883,884,885]
-    let flawless = [295,312,329,330,331,332,333,334,337,338,339,340,341,372,373,392,397,398,861,902,903,904,905,906,908,909,910,911,912,913,914,915,916,917,926]
+    let skipNeeded = [240, 284, 255, 283, 284, 292, 293, 294, 300, 301, 306, 307, 310, 298, 299, 320, 321, 335, 336, 342, 370, 390, 394, 395, 849, 863, 864, 865, 918, 924, 925, 927]
+    let busted = [259, 277, 289, 343, 883, 884, 885]
+    let flawless = [295, 312, 329, 330, 331, 332, 333, 334, 337, 338, 339, 340, 341, 372, 373, 392, 397, 398, 861, 902, 903, 904, 905, 906, 908, 909, 910, 911, 912, 913, 914, 915, 916, 917, 926]
     //For every skill determine the minimum and maximum level it is obtained at
     skillLevels = skillLevels.map(skill => {
         let minLevel = 99
@@ -880,7 +881,7 @@ function generateSkillLevelList() {
             maxLevel = 0
         }
         //TODO: Define Levels for each skill exception
-        
+
 
         return { name: skill.name, id: skill.id, level: [minLevel, maxLevel] }
     })
@@ -1039,9 +1040,18 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
         if (demon.level.value < 97) {
             levelList[demon.level.value + 3].forEach(e => possibleSkills.push(e))
         }
+        if (demon.level.value > 70) {
+            levelList[demon.level.value - 4].forEach(e => possibleSkills.push(e))
+            levelList[demon.level.value - 5].forEach(e => possibleSkills.push(e))
+        }
+        if (demon.level.value > 90) {
+            levelList[demon.level.value - 6].forEach(e => possibleSkills.push(e))
+            levelList[demon.level.value - 7].forEach(e => possibleSkills.push(e))
+            levelList[demon.level.value - 8].forEach(e => possibleSkills.push(e))
+        }
         // Create the weighted list of skills and update it with potentials
         let weightedSkills = createWeightedList(possibleSkills)
-        weightedSkills = updateWeightsWithPotential(weightedSkills, demon.potential,demon)
+        weightedSkills = updateWeightsWithPotential(weightedSkills, demon.potential, demon)
 
         var totalSkills = []
         //If there are skills to be learned
@@ -1090,56 +1100,56 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
 }
 
 function checkAdditionalSkillConditions(skill, totalSkillList, demon) {
-    let conditionalSkills = ["Charge","Critical Aura","Concentrate","Curse Siphon","Great Curse Siphon","Virus Carrier","Bowl of Hygieia","Heal Pleroma","High Heal Pleroma","Nation Founder","Healing Hand","Oath of Plenteousness",
-        "Poison Adept", "Poison Master", "Sankosho","Incendiary Stoning","Roaring Mist","Herkeios","Carpet Bolting","Catastrophic Gales","Lighted Wheel","Boon of Sloth","Ceaseless Crucifixion","Biondetta","Nation Builder"
+    let conditionalSkills = ["Charge", "Critical Aura", "Concentrate", "Curse Siphon", "Great Curse Siphon", "Virus Carrier", "Bowl of Hygieia", "Heal Pleroma", "High Heal Pleroma", "Nation Founder", "Healing Hand", "Oath of Plenteousness",
+        "Poison Adept", "Poison Master", "Sankosho", "Incendiary Stoning", "Roaring Mist", "Herkeios", "Carpet Bolting", "Catastrophic Gales", "Lighted Wheel", "Boon of Sloth", "Ceaseless Crucifixion", "Biondetta", "Nation Builder"
     ]
-    if((void(0) === conditionalSkills.find(e => e == skill.name) && !skill.name.includes("Pleroma") && !skill.name.includes("Enhancer") && !skill.name.includes("Gestalt"))) {
+    if ((void (0) === conditionalSkills.find(e => e == skill.name) && !skill.name.includes("Pleroma") && !skill.name.includes("Enhancer") && !skill.name.includes("Gestalt"))) {
         return true
     }
 
-    if ((skill.name == "Charge" || skill.name == "Critical Aura") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 0)) || demon.potential.physical > 0)) {
+    if ((skill.name == "Charge" || skill.name == "Critical Aura") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 0)) || demon.potential.physical > 0)) {
         //Check for Charge, Critical Aura when already assigned Str-Based Skill or Demon has positive Physical Potential
         return true
-    } else if (skill.name == "Concentrate" && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 1)) || demon.stats.str.start <= demon.stats.mag.start)) {
+    } else if (skill.name == "Concentrate" && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 1)) || demon.stats.str.start <= demon.stats.mag.start)) {
         //Check for Concentrate when already assigned Mag-Based Skill or Demon has higher base mag than str
         return true
-    } else if ((skill.name == "Curse Siphon" || skill.name == "Great Curse Siphon" || skill.name == "Virus Carrier") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 2)) || demon.potential.ailment > 0)) {
+    } else if ((skill.name == "Curse Siphon" || skill.name == "Great Curse Siphon" || skill.name == "Virus Carrier") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 2)) || demon.potential.ailment > 0)) {
         //Check for Curse Siphon, Great Curse Siphon, Virus Carrier when already assigned ailment Skill or Demon has positive ailment Potential
         return true
-    } else if ((skill.name == "Bowl of Hygieia" || skill.name == "Heal Pleroma" || skill.name == "High Heal Pleroma" || skill.name == "Nation Founder" || skill.name == "Healing Hand" || skill.name == "Oath of Plenteousness") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 3)) || demon.potential.recover > 0)) {
+    } else if ((skill.name == "Bowl of Hygieia" || skill.name == "Heal Pleroma" || skill.name == "High Heal Pleroma" || skill.name == "Nation Founder" || skill.name == "Healing Hand" || skill.name == "Oath of Plenteousness") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 3)) || demon.potential.recover > 0)) {
         //Check for Bowl of Hygieia, Heal Pleroma, High Heal Pleroma, Nation Founder, Healing Hand, Oath of Plenteousness when already assigned heal Skill or Demon has positive recover Potential
         return true
-    } else if ((skill.name == "Poison Adept" || skill.name == "Poison Master") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).ailmentFlags.poison > 0)) || demon.potential.ailment > 0)) {
+    } else if ((skill.name == "Poison Adept" || skill.name == "Poison Master") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).ailmentFlags.poison > 0)) || demon.potential.ailment > 0)) {
         //Check for Poison Adept, Poison Master when already assigned poison-inflicting Skill or Demon has positive ailment Potential
         return true
-    } else if ((skill.name == "Phys Pleroma" || skill.name == "High Phys Pleroma" || skill.name == "Phys Enhancer" || skill.name == "Phys Gestalt" || skill.name == "Sankosho") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 0)) || demon.potential.physical > 0)) {
+    } else if ((skill.name == "Phys Pleroma" || skill.name == "High Phys Pleroma" || skill.name == "Phys Enhancer" || skill.name == "Phys Gestalt" || skill.name == "Sankosho") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 0)) || demon.potential.physical > 0)) {
         //Check for Phys Pleroma, High Phys Pleroma, Phys Enhancer, Phys Gestalt, Sankosho when already assigned phys element Skill or Demon has positive Physical Potential
         return true
-    } else if ((skill.name == "Fire Pleroma" || skill.name == "High Fire Pleroma" || skill.name == "Fire Enhancer" || skill.name == "Fire Gestalt" || skill.name == "Incendiary Stoning") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 1)) || demon.potential.fire > 0)) {
+    } else if ((skill.name == "Fire Pleroma" || skill.name == "High Fire Pleroma" || skill.name == "Fire Enhancer" || skill.name == "Fire Gestalt" || skill.name == "Incendiary Stoning") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 1)) || demon.potential.fire > 0)) {
         //Check for Fire Pleroma, High Fire Pleroma, Fire Enhancer, Fire Gestalt, Incendiary Stoning when already assigned fire element Skill or Demon has positive fire Potential
         return true
-    } else if ((skill.name == "Ice Pleroma" || skill.name == "High Ice Pleroma" || skill.name == "Ice Enhancer" || skill.name == "Ice Gestalt" || skill.name == "Roaring Mist") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 2)) || demon.potential.ice > 0)) {
+    } else if ((skill.name == "Ice Pleroma" || skill.name == "High Ice Pleroma" || skill.name == "Ice Enhancer" || skill.name == "Ice Gestalt" || skill.name == "Roaring Mist") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 2)) || demon.potential.ice > 0)) {
         //Check for Ice Pleroma, High Ice Pleroma, Ice Enhancer, Ice Gestalt, Roaring Mist when already assigned ice element Skill or Demon has positive ice Potential
         return true
-    } else if ((skill.name == "Elec Pleroma" || skill.name == "High Elec Pleroma" || skill.name == "Elec Enhancer" || skill.name == "Herkeios" || skill.name == "Elec Gestalt" || skill.name == "Carpet Bolting") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 3)) || demon.potential.elec > 0)) {
+    } else if ((skill.name == "Elec Pleroma" || skill.name == "High Elec Pleroma" || skill.name == "Elec Enhancer" || skill.name == "Herkeios" || skill.name == "Elec Gestalt" || skill.name == "Carpet Bolting") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 3)) || demon.potential.elec > 0)) {
         //Check for Elec Pleroma, High Elec Pleroma, Elec Enhancer, Herkeios, Elec Gestalt, Carpet Bolting when already assigned Elec element Skill or Demon has positive elec Potential
         return true
-    } else if ((skill.name == "Force Pleroma" || skill.name == "High Force Pleroma" || skill.name == "Force Enhancer" || skill.name == "Force Gestalt" || skill.name == "Catastrophic Gales") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 4)) || demon.potential.force > 0)) {
+    } else if ((skill.name == "Force Pleroma" || skill.name == "High Force Pleroma" || skill.name == "Force Enhancer" || skill.name == "Force Gestalt" || skill.name == "Catastrophic Gales") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 4)) || demon.potential.force > 0)) {
         //Check for Force Pleroma, High Force Pleroma, Force Enhancer, Force Gestalt, Catastrophic Gales when already assigned Force element Skill or Demon has positive Force Potential
         return true
-    } else if ((skill.name == "Light Pleroma" || skill.name == "High Light Pleroma" || skill.name == "Light Enhancer" || skill.name == "Light Gestalt" || skill.name == "Lighted Wheel") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 5)) || demon.potential.light > 0)) {
+    } else if ((skill.name == "Light Pleroma" || skill.name == "High Light Pleroma" || skill.name == "Light Enhancer" || skill.name == "Light Gestalt" || skill.name == "Lighted Wheel") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 5)) || demon.potential.light > 0)) {
         //Check for Light Pleroma, High Light Pleroma, Light Enhancer, Light Gestalt, Lighted Wheel when already assigned Light element Skill or Demon has positive Light Potential
         return true
-    } else if ((skill.name == "Dark Pleroma" || skill.name == "High Dark Pleroma" || skill.name == "Dark Enhancer" || skill.name == "Dark Gestalt" || skill.name == "Boon of Sloth") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 6)) || demon.potential.dark > 0)) {
+    } else if ((skill.name == "Dark Pleroma" || skill.name == "High Dark Pleroma" || skill.name == "Dark Enhancer" || skill.name == "Dark Gestalt" || skill.name == "Boon of Sloth") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 6)) || demon.potential.dark > 0)) {
         //Check for Dark Pleroma, High Dark Pleroma, Dark Enhancer, Dark Gestalt, Boon of Sloth when already assigned Dark element Skill or Demon has positive Dark Potential
         return true
-    } else if ((skill.name == "Almighty Pleroma" || skill.name == "High Almighty Pleroma" || skill.name == "Ceaseless Crucifixion") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 7)) || demon.potential.almighty > 0)) {
+    } else if ((skill.name == "Almighty Pleroma" || skill.name == "High Almighty Pleroma" || skill.name == "Ceaseless Crucifixion") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).element.value == 7)) || demon.potential.almighty > 0)) {
         //Check for Almighty Pleroma, High Almighty Pleroma, Ceaseless Crucifixion when already assigned Almighty element Skill or Demon has positive Almighty Potential
         return true
     } else if ((skill.name == "Biondetta") && (demon.race.value != 2 && demon.race.value != 3 && demon.race.value != 24 && demon.race.value != 28)) {
         //Check for Biondetta when demon does not belong to herald, megami, femme, lady race
         return true
-    } else if ((skill.name == "Nation Builder") && ((void(0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 4)) || demon.potential.support > 0)) {
+    } else if ((skill.name == "Nation Builder") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 4)) || demon.potential.support > 0)) {
         //Check for Nation Builder when already assigned support type skill or demon has positive support potential
     } else {
         //Skill fullfills no additional skill conditions
@@ -1153,7 +1163,7 @@ function checkAdditionalSkillConditions(skill, totalSkillList, demon) {
 * @param {Object} potentials Object containing the data of skill potentials of a demon
 * @returns weightList updated with the potentials
 */
-function updateWeightsWithPotential(weightList, potentials,demon) {
+function updateWeightsWithPotential(weightList, potentials, demon) {
     // console.log(weightList)
     //For every skill in weight list
     let newWeights = weightList.values.map((element, index) => {
@@ -1166,7 +1176,7 @@ function updateWeightsWithPotential(weightList, potentials,demon) {
         if (skillStructure == "Active") {
             let potentialType = skill.potentialType.translation
             let additionalWeight = 2 * obtainPotentialByName(potentialType, potentials)
-            if(potentialType == "Phys" && demon.stats.str.start < demon.stats.mag.start) {
+            if (potentialType == "Phys" && demon.stats.str.start < demon.stats.mag.start) {
                 additionalWeight = additionalWeight - 2
             }
             // if(skill.name == "Profaned Land") {additonalWeight = additionalWeight * additionalWeight}
@@ -1356,7 +1366,7 @@ function weightedRando(values, weights) {
         total = total + w
     })
     // Generate random number with max being the total weight
-    let rng = Math.ceil(Math.random() * total)
+    let rng = Math.floor(Math.random() * total)
 
     let cursor = 0
     // Add weights together until we reach random number and then apply that value
@@ -1704,14 +1714,153 @@ function createRaceTables(comp) {
     return raceTable
 }
 
+function defineLevelSlots(comp) {
+    let slots = []
+    for (let index = 0; index < 100; index++) {
+        slots.push(0)
+    }
+
+    comp.forEach(demon => {
+        if (!demon.name.startsWith('NOT')) {
+            slots[demon.oldlevel]++
+        }
+
+    })
+    permutateFusionTheory(slots)
+}
+
+function permutateFusionTheory(levelDistro) {
+    let preHydra = [0, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 0, 1]
+    let preHydraDemons = []
+
+
+
+}
+
+function determineFusability() {
+
+    let filteredArray = raceArray.map((e, i) => {
+        let special = false
+        if (i > (raceArray.length - 14) || e.startsWith("Element") || e.startsWith("Chaos") || e.startsWith("Fiend") || e.startsWith("Non") || e.startsWith("Unused") || e.startsWith("Mitama")) {
+            special = true
+        }
+        return { name: e, fusable: false, obtained: false, special: special, id: i }
+    })
+    
+    let races = filteredArray.filter(e => e.special == false)
+    // console.log(races.length - raceArray.length)
+    function returnRaceByID(id) {
+        return races.find(f => f.id == id)
+    }
+    let OGraces = races.map(e => {
+        return { name: e.name, fusable: e.fusable, obtained: e.obtained, id: e.id }
+    })
+    OGraces.forEach((first, findex) => {
+        for (let jindex = findex; jindex < OGraces.length; jindex++) {
+            races = OGraces.map(e => {
+                return { name: e.name, fusable: e.fusable, obtained: e.obtained, id: e.id }
+            })
+            var second = races[jindex];
+            returnRaceByID(first.id).obtained = true
+            returnRaceByID(second.id).obtained = true
+            returnRaceByID(first.id).fusable = true
+            returnRaceByID(second.id).fusable = true
+            // console.log(first)
+            // console.log(second)
+
+            // console.log(races)
+
+            let unique = false
+
+            let demonCount = 2
+            let externalDemon = 2
+            let recruits = []
+            recruits.push(first.name)
+            recruits.push(second.name)
+            let currentRaces = []
+            currentRaces.push(first)
+            currentRaces.push(second)
+            let availableFusions = []
+            function calcfusionResult(race1, race2) {
+                let fusion = fusionChartArr.find(f => (f.race1.translation == race1.name && f.race2.translation == race2.name) || (f.race1.translation == race2.name && f.race2.translation == race1.name))
+                if (fusion !== void (0)) {
+                    if (fusion.result.value == 0) {
+                        return fusion
+                    } else {
+                        return races.find(f => f.id == fusion.result.value)
+                    }
+                } else {
+                    return fusion
+                }
+
+            }
+
+            while (void (0) !== races.find((r, i) => r.fusable == false)) {
+                // console.log(races.find((r, i) => r.fusable == false).name)
+                availableFusions = []
+                currentRaces.forEach((race1, i) => {
+                    for (let index = i + 1; index < currentRaces.length; index++) {
+                        let race2 = currentRaces[index];
+                        let fusionResult = calcfusionResult(race1, race2)
+                        if (void (0) != fusionResult && !availableFusions.includes(fusionResult) && fusionResult.obtained == false) {
+                            availableFusions.push(fusionResult)
+                        }
+                    }
+                })
+
+                availableFusions.forEach(fusion => {
+                    fusion.fusable = true
+                    fusion.obtained = true
+                    currentRaces.push(fusion)
+                    demonCount++
+                })
+                if (availableFusions.length == 0) {
+                    unique = false
+                    let newRace = races[Math.floor(Math.random() * (races.length - 14))]
+                    while (!unique) {
+                        if (newRace.id.obtained == true) {
+                            newRace = races[Math.floor(Math.random() * (races.length))]
+                        } else {
+                            unique = true
+                            returnRaceByID(newRace.id).fusable = true
+                            returnRaceByID(newRace.id).obtained = true
+                            demonCount++
+                            externalDemon++
+                            currentRaces.push(newRace)
+                            recruits.push(newRace.name)
+                            // console.log("Recruit; " + newRace.name)
+                        }
+                    }
+                }
+            }
+            // console.log(demonCount)
+            // console.log(externalDemon)
+            console.log(recruits)
+        }
+    })
+
+    // let first = races[Math.floor(Math.random() * (races.length - 14))]
+    // let unique = false
+    // let second = races[Math.floor(Math.random() * (races.length - 14))]
+    // while (!unique) {
+    //     if (second.name == first.name) {
+    //         second = races[Math.floor(Math.random() * (races.length))]
+    //     } else {
+    //         unique = true
+    //     }
+    // }
+
+
+}
+
 function findUnlearnableSkills(skillLevels) {
     skillLevels.forEach(skill => {
-        if(skill.level[0] == 0 && skill.level[1] == 0 && !skill.name.startsWith("NOT USED") 
+        if (skill.level[0] == 0 && skill.level[1] == 0 && !skill.name.startsWith("NOT USED")
             && (determineSkillStructureByID(skill.id) == "Active" && obtainSkillFromID(skill.id).magatsuhi.enable == 0)
         ) {
             console.log(skill)
         }
-        
+
     })
 }
 
@@ -1729,23 +1878,23 @@ async function main() {
     fillSpecialFusionArr(otherFusionBuffer)
 
 
-    let skillLevels = generateSkillLevelList()
+    // let skillLevels = generateSkillLevelList()
     // console.log(skillLevels)
-    let levelSkillList = generateLevelSkillList(skillLevels)
+    // let levelSkillList = generateLevelSkillList(skillLevels)
     // console.log(obtainSkillFromID(928))
     // console.log(skillArr[400].name)
     // console.log(skillArr[401].name)
     // console.log(skillArr.find(e=> e.id == 1))
     // console.log(specialFusionArr[specialFusionArr.length -1])
-    let newComp = assignCompletelyRandomLevels(compendiumArr)
+    // let newComp = assignCompletelyRandomLevels(compendiumArr)
 
-    adjustFusionTableToLevels(normalFusionArr, compendiumArr)
+    // adjustFusionTableToLevels(normalFusionArr, compendiumArr)
 
     // console.log(levelSkillList)
     // console.log(levelSkillList[1])
     // let newComp = assignCompletelyRandomSkills(compendiumArr,levelSkillList)
     // let newComp = assignCompletelyRandomWeightedSkills(compendiumArr, levelSkillList)
-    newComp = assignRandomPotentialWeightedSkills(compendiumArr, levelSkillList)
+    // newComp = assignRandomPotentialWeightedSkills(compendiumArr, levelSkillList)
     // // console.log(skillLevels[1])
     // let newComp = assignCompletelyRandomLevels(compendiumArr)
     // console.log(compendiumArr[155].name)
@@ -1753,13 +1902,13 @@ async function main() {
     // console.log(logDemonByName("Isis",compendiumArr))
     // console.log(compendiumArr.length)
 
-    compendiumBuffer = updateCompendiumBuffer(compendiumBuffer, newComp)
+    // compendiumBuffer = updateCompendiumBuffer(compendiumBuffer, newComp)
     // compendiumBuffer.writeInt32LE(5,0x1B369)
     // console.log(raceArray.length)
     // console.log(compendiumArr[165])
 
     // console.log(normalFusionArr[normalFusionArr.length - 19])
-    updateNormalFusionBuffer(normalFusionBuffer, normalFusionArr)
+    // updateNormalFusionBuffer(normalFusionBuffer, normalFusionArr)
     // console.log(raceArray[6])
     // console.log(raceArray[23])
     // console.log(raceArray[31])
@@ -1777,7 +1926,8 @@ async function main() {
     // await writeNormalFusionTable(normalFusionBuffer)
     // await writeNKMBaseTable(compendiumBuffer)
     // findUnlearnableSkills(skillLevels)
-
+    // defineLevelSlots(newComp)
+    determineFusability()
 }
 
 main()
