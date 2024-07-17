@@ -6,9 +6,10 @@ F King0305 Naho/Jack 0101 Tao0204			2bytes
 68 Jack0A02 Silky0A07 Tao0A02
 6A Jack00 Naho/King/Tao01
 6B Jack00 Naho/King/Tao01
-6C King 0D00	Naho5E0D 	Jack 0D00 Silky57 Tao20
-74 King AF02 	Naho EE1E Jack0000
+6C King 0D00	Naho5E0D 	Jack 0D00 Silky57 Tao20 => SILKY CAN GET RECRUITED
+74 King AF02 	Naho EE1E Jack/Silky0000
 78 Jack64 Tao00
+1B8 Jack0000 Tao FF01
 1C0 Jack 33	Naho/King 78 Silky78
 1C4 Jack 36	Naho/King00 Silky00
 1C8 Jack 33	Naho/King78 Silky78
