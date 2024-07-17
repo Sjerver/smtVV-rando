@@ -4,7 +4,7 @@ SatanLevel ist 239
 
 
 Abdiel ist Testsubjekt!
-	<IDs>
+1B355	<IDs>
 Herald->Megami x1? 1B35D
 			
 
@@ -27,6 +27,8 @@ VitGrowth x4 1B3AD
 MagGrowth x4 1B3B1
 AgiGrowth x4 1B3B5
 LukGrowth x4 1B3B9
+
+NormallyFusable x2 1B3BF //WRONG 
 
 1st Skill x4 1B3D9
 Last Skill x4 1B3F5
@@ -90,9 +92,8 @@ SupportPotential 1B501
 ENEMY DATA 
 First Enemy 88139 -> Second Enemy 882A9
 	Differece = 0x170
-
+0x88135
 Level 0x88139
-
 HP 0x8813D
 MP 0x88141
 Str 0x88145

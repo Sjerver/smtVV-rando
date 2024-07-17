@@ -111,6 +111,14 @@ async function writeNormalFusionTable(result) {
 }
 
 /**
+* Writes the given Buffer to the file UniteCombineTable.uexp.
+* @param {Buffer} result
+*/
+async function writeOtherFusionTable(result) {
+    await fs.writeFile('./rando/Project/Content/Blueprints/Gamedata/BinTable/Unite/UniteTable.uexp', result)
+}
+
+/**
  * Fills the array compendiumArr with data extracted from the Buffer NKMBaseTable.
  * The end array contains data on all demons which are registered in the compendium and usable by the player.
  * @param {Buffer} NKMBaseTable the buffer to get the demon data from
@@ -136,6 +144,7 @@ function fillCompendiumArr(NKMBaseTable) {
             HP: offset + 0x1C,
             firstSkill: offset + 0x70,
             firstLearnedLevel: offset + 0xA0,
+            normallyFusable: offset + 0x56,
             innate: offset + 0x100,
             potential: offset + 0X174
         }
@@ -171,6 +180,7 @@ function fillCompendiumArr(NKMBaseTable) {
             oldlevel: readInt32LE(locations.level),
             level: { value: readInt32LE(locations.level) },
             registerable: readInt32LE(locations.HP - 4),
+            normallyFusable: NKMBaseTable.readInt16LE(locations.normallyFusable), // 0101 means no, 0000 means yes (providing recipe exists)
             resist: {
                 physical: { value: readInt32LE(locations.innate + 4), translation: translateResist(readInt32LE(locations.innate + 4)) },
                 fire: { value: readInt32LE(locations.innate + 4 * 2), translation: translateResist(readInt32LE(locations.innate + 4 * 2)) },
@@ -1319,6 +1329,16 @@ function updateNormalFusionBuffer(buffer, fusions) {
     })
 }
 
+function updateOtherFusionArr(buffer,fusions) {
+    fusions.forEach(fusion => {
+        buffer.writeInt16LE(fusion.demon1.value,fusion.baseOffset + 2)
+        buffer.writeInt16LE(fusion.demon2.value,fusion.baseOffset + 4)
+        buffer.writeInt16LE(fusion.demon3.value,fusion.baseOffset + 6)
+        buffer.writeInt16LE(fusion.demon4.value,fusion.baseOffset + 8)
+        buffer.writeInt16LE(fusion.result.value,fusion.baseOffset + 10)
+    })
+}
+
 /**
  * Check if a certain race of demons contains two demons of the same level
  * @param {Array} comp 
@@ -1633,7 +1653,6 @@ function adjustFusionTableToLevels(fusions, comp) {
                 fusion.result.translation = "Empty"
             }
         }
-        // console.log(fusion.result)
     })
 
 
@@ -1736,6 +1755,7 @@ function permutateFusionTheory(levelDistro) {
 
 
 }
+
 
 function determineFusability() {
 
@@ -1877,38 +1897,40 @@ async function main() {
     fillFusionChart(otherFusionBuffer)
     fillSpecialFusionArr(otherFusionBuffer)
 
-
-    // let skillLevels = generateSkillLevelList()
+    
+    let skillLevels = generateSkillLevelList()
     // console.log(skillLevels)
-    // let levelSkillList = generateLevelSkillList(skillLevels)
+    let levelSkillList = generateLevelSkillList(skillLevels)
     // console.log(obtainSkillFromID(928))
     // console.log(skillArr[400].name)
     // console.log(skillArr[401].name)
     // console.log(skillArr.find(e=> e.id == 1))
     // console.log(specialFusionArr[specialFusionArr.length -1])
     // let newComp = assignCompletelyRandomLevels(compendiumArr)
+    let newComp = assignRandomPotentialWeightedSkills(compendiumArr, levelSkillList)
 
-    // adjustFusionTableToLevels(normalFusionArr, compendiumArr)
 
+
+    adjustFusionTableToLevels(normalFusionArr, compendiumArr)
     // console.log(levelSkillList)
     // console.log(levelSkillList[1])
     // let newComp = assignCompletelyRandomSkills(compendiumArr,levelSkillList)
     // let newComp = assignCompletelyRandomWeightedSkills(compendiumArr, levelSkillList)
-    // newComp = assignRandomPotentialWeightedSkills(compendiumArr, levelSkillList)
+    
     // // console.log(skillLevels[1])
     // let newComp = assignCompletelyRandomLevels(compendiumArr)
     // console.log(compendiumArr[155].name)
     // console.log(compendiumArr[155].race)
     // console.log(logDemonByName("Isis",compendiumArr))
     // console.log(compendiumArr.length)
-
-    // compendiumBuffer = updateCompendiumBuffer(compendiumBuffer, newComp)
+    // compendiumBuffer = updateCompendiumBuffer(compendiumBuffer, compendiumArr)
+    compendiumBuffer = updateCompendiumBuffer(compendiumBuffer, newComp)
     // compendiumBuffer.writeInt32LE(5,0x1B369)
     // console.log(raceArray.length)
-    // console.log(compendiumArr[165])
-
+    // console.log(compendiumArr[365])
+    updateOtherFusionArr(otherFusionBuffer, specialFusionArr)
     // console.log(normalFusionArr[normalFusionArr.length - 19])
-    // updateNormalFusionBuffer(normalFusionBuffer, normalFusionArr)
+    updateNormalFusionBuffer(normalFusionBuffer, normalFusionArr)
     // console.log(raceArray[6])
     // console.log(raceArray[23])
     // console.log(raceArray[31])
@@ -1923,11 +1945,12 @@ async function main() {
     // raceArray.sort()
 
 
-    // await writeNormalFusionTable(normalFusionBuffer)
-    // await writeNKMBaseTable(compendiumBuffer)
+    await writeNormalFusionTable(normalFusionBuffer)
+    await writeNKMBaseTable(compendiumBuffer)
+    await writeOtherFusionTable(otherFusionBuffer)
     // findUnlearnableSkills(skillLevels)
     // defineLevelSlots(newComp)
-    determineFusability()
+    // determineFusability()
 }
 
 main()
