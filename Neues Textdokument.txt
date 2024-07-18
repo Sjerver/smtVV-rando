@@ -1,4 +1,5 @@
 //Playable Data
+Comparisons done: King<->Naho Naho<->jack Jack<->King Jack<->Silky Jack<->Tao Silky<->Tao
 0 ID
 4 NameID
 8 Naho/Jack 11000100 King 21010100		4 bytes
@@ -6,7 +7,7 @@ F King0305 Naho/Jack 0101 Tao0204			2bytes
 68 Jack0A02 Silky0A07 Tao0A02
 6A Jack00 Naho/King/Tao01
 6B Jack00 Naho/King/Tao01
-6C King 0D00	Naho5E0D 	Jack 0D00 Silky57 Tao20 => SILKY CAN GET RECRUITED
+6C King 0D00	Naho5E0D 	Jack 0D00 Silky57 Tao20 => SILKY CAN GET RECRUITED WHEN CHANGING TO D For HeeHo or 8 for Mandrake/Pixie voices
 74 King AF02 	Naho EE1E Jack/Silky0000
 78 Jack64 Tao00
 1B8 Jack0000 Tao FF01
