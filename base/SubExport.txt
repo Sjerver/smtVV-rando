@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CoreItem xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="StructProperty">
+  <TheStats>
+    <SoftObjectProperty>
+      <ValueOffset>209</ValueOffset>
+      <ValueArray>
+        <DataObject xsi:type="HeaderDataObject">
+          <ExportString>/Game/Blueprints/Gamedata/BinTable/Battle/Talk/ToneTable/ToneBoy.ToneBoy</ExportString>
+        </DataObject>
+        <DataObject xsi:type="DataObjectOfInt32">
+          <Value>0</Value>
+        </DataObject>
+        <DataObject xsi:type="DataObjectOfInt32">
+          <Value>0</Value>
+        </DataObject>
+      </ValueArray>
+      <Index>0</Index>
+      <PropertyName>ToneTable_4_17BB439D49E320B28784C183C9AB5D2C</PropertyName>
+      <NameIndex>0</NameIndex>
+      <PropertyType>SoftObjectProperty</PropertyType>
+      <Flag>0</Flag>
+    </SoftObjectProperty>
+    <SoftObjectProperty>
+      <ValueOffset>246</ValueOffset>
+      <ValueArray>
+        <DataObject xsi:type="HeaderDataObject">
+          <ExportString>/Game/Blueprints/Gamedata/BinTable/Battle/Talk/Msg/TalkToneBoy.TalkToneBoy</ExportString>
+        </DataObject>
+        <DataObject xsi:type="DataObjectOfInt32">
+          <Value>0</Value>
+        </DataObject>
+        <DataObject xsi:type="DataObjectOfInt32">
+          <Value>0</Value>
+        </DataObject>
+      </ValueArray>
+      <Index>1</Index>
+      <PropertyName>ScrMsg_5_32ABEE734F77444F8D51CDB36547EBFF</PropertyName>
+      <NameIndex>0</NameIndex>
+      <PropertyType>SoftObjectProperty</PropertyType>
+      <Flag>0</Flag>
+    </SoftObjectProperty>
+    <EnumProperty>
+      <ValueOffset>283</ValueOffset>
+      <ValueArray>
+        <DataObject xsi:type="HeaderDataObject">
+          <ExportString>E_TALK_TONE_TYPE::E_BOY</ExportString>
+        </DataObject>
+        <DataObject xsi:type="HeaderDataObject">
+          <ExportString>E_TALK_TONE_TYPE</ExportString>
+        </DataObject>
+      </ValueArray>
+      <Index>2</Index>
+      <PropertyName>ToneType_8_1847A0554316FD7108A138A09FB470CF</PropertyName>
+      <NameIndex>0</NameIndex>
+      <PropertyType>EnumProperty</PropertyType>
+      <Flag>0</Flag>
+    </EnumProperty>
+  </TheStats>
+  <TheSubs />
+  <Index>1</Index>
+  <NameString>boy</NameString>
+  <SubTypeString>boy</SubTypeString>
+  <isTerminated>true</isTerminated>
+  <Trail>false</Trail>
+</CoreItem>
