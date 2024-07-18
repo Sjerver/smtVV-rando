@@ -1111,10 +1111,20 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
     return comp
 }
 
+/**
+* This function checks whether the given skill passes at least one of several conditions that are predefined before certain skills can be assigned to the demon.
+* In order to check the conditions totalSkillList containing the currently assigned skills of the demon and the demon data itself is necessary.
+* The functions returns true if the skill can be given to the demon and false otherwise.
+* @param {Object} skill The skill for which conditions are checked
+* @param {Array} totalSkillList The currently assigned skills to the demon
+* @param {Object} demon The demon data itself
+* @returns true if the skill passes at least one condition and else otherwise
+*/
 function checkAdditionalSkillConditions(skill, totalSkillList, demon) {
     let conditionalSkills = ["Charge", "Critical Aura", "Concentrate", "Curse Siphon", "Great Curse Siphon", "Virus Carrier", "Bowl of Hygieia", "Heal Pleroma", "High Heal Pleroma", "Nation Founder", "Healing Hand", "Oath of Plenteousness",
         "Poison Adept", "Poison Master", "Sankosho", "Incendiary Stoning", "Roaring Mist", "Herkeios", "Carpet Bolting", "Catastrophic Gales", "Lighted Wheel", "Boon of Sloth", "Ceaseless Crucifixion", "Biondetta", "Nation Builder"
     ]
+    //Return early if skill is not a skill for which special conditions apply.
     if ((void (0) === conditionalSkills.find(e => e == skill.name) && !skill.name.includes("Pleroma") && !skill.name.includes("Enhancer") && !skill.name.includes("Gestalt"))) {
         return true
     }
@@ -1334,6 +1344,12 @@ function updateNormalFusionBuffer(buffer, fusions) {
     })
 }
 
+/**
+ * Write the values in fusions to the respective locations in the buffer
+ * @param {Buffer} buffer of the other fusion table
+ * @param {Array} fusions containing data for all possible special fusions
+ * @returns the updated buffer
+ */
 function updateOtherFusionArr(buffer,fusions) {
     fusions.forEach(fusion => {
         buffer.writeInt16LE(fusion.demon1.value,fusion.baseOffset + 2)
@@ -1738,6 +1754,10 @@ function createRaceTables(comp) {
     return raceTable
 }
 
+/**
+* Defines how many demons start at each level.
+* @param {Array} comp Array containing data on all playable demons
+*/
 function defineLevelSlots(comp) {
     let slots = []
     for (let index = 0; index < 100; index++) {
@@ -1750,20 +1770,13 @@ function defineLevelSlots(comp) {
         }
 
     })
-    permutateFusionTheory(slots)
 }
 
-function permutateFusionTheory(levelDistro) {
-    let preHydra = [0, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 0, 1]
-    let preHydraDemons = []
-
-
-
-}
-
-
+/**
+* Determines which combination of starting races is able to fuse into every other race in the fusion chart and which race can only achieve this with additonal races added.
+*/
 function determineFusability() {
-
+    // Mark races that are not part of the fusion chart
     let filteredArray = raceArray.map((e, i) => {
         let special = false
         if (i > (raceArray.length - 14) || e.startsWith("Element") || e.startsWith("Chaos") || e.startsWith("Fiend") || e.startsWith("Non") || e.startsWith("Unused") || e.startsWith("Mitama")) {
@@ -1771,17 +1784,24 @@ function determineFusability() {
         }
         return { name: e, fusable: false, obtained: false, special: special, id: i }
     })
-    
+
+    //Filter out Races that are not part of the fusion chart
     let races = filteredArray.filter(e => e.special == false)
     // console.log(races.length - raceArray.length)
+
+    // Due to filter index!= id, so new method is needed
     function returnRaceByID(id) {
         return races.find(f => f.id == id)
     }
     let OGraces = races.map(e => {
         return { name: e.name, fusable: e.fusable, obtained: e.obtained, id: e.id }
     })
+    
     OGraces.forEach((first, findex) => {
         for (let jindex = findex; jindex < OGraces.length; jindex++) {
+            //for each pair of races
+
+            //these races get modified so we need to recopy them
             races = OGraces.map(e => {
                 return { name: e.name, fusable: e.fusable, obtained: e.obtained, id: e.id }
             })
@@ -1806,6 +1826,7 @@ function determineFusability() {
             currentRaces.push(first)
             currentRaces.push(second)
             let availableFusions = []
+            // Finds the resulting race of a fusion between race1 and race2
             function calcfusionResult(race1, race2) {
                 let fusion = fusionChartArr.find(f => (f.race1.translation == race1.name && f.race2.translation == race2.name) || (f.race1.translation == race2.name && f.race2.translation == race1.name))
                 if (fusion !== void (0)) {
@@ -1819,10 +1840,11 @@ function determineFusability() {
                 }
 
             }
-
+            //while there is a race that is not fusable yet
             while (void (0) !== races.find((r, i) => r.fusable == false)) {
                 // console.log(races.find((r, i) => r.fusable == false).name)
                 availableFusions = []
+                //add fusable races to availableFusions if they are not already obtained 
                 currentRaces.forEach((race1, i) => {
                     for (let index = i + 1; index < currentRaces.length; index++) {
                         let race2 = currentRaces[index];
@@ -1832,18 +1854,19 @@ function determineFusability() {
                         }
                     }
                 })
-
+                //For each available fusion, set the fused race to fusable and obtained
                 availableFusions.forEach(fusion => {
                     fusion.fusable = true
                     fusion.obtained = true
                     currentRaces.push(fusion)
                     demonCount++
                 })
+                //if there is no available fusionm radomly add another random race to obtained
                 if (availableFusions.length == 0) {
                     unique = false
                     let newRace = races[Math.floor(Math.random() * (races.length - 14))]
                     while (!unique) {
-                        if (newRace.id.obtained == true) {
+                        if (newRace.obtained == true) {
                             newRace = races[Math.floor(Math.random() * (races.length))]
                         } else {
                             unique = true
@@ -1878,6 +1901,10 @@ function determineFusability() {
 
 }
 
+/**
+* Logs all skills that are not normally assigned to a playable demon.
+* @param {Array} skillLevels array of skills and at what they are first and last available at
+*/*
 function findUnlearnableSkills(skillLevels) {
     skillLevels.forEach(skill => {
         if (skill.level[0] == 0 && skill.level[1] == 0 && !skill.name.startsWith("NOT USED")
