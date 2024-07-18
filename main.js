@@ -1161,6 +1161,9 @@ function checkAdditionalSkillConditions(skill, totalSkillList, demon) {
         return true
     } else if ((skill.name == "Nation Builder") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 4)) || demon.potential.support > 0)) {
         //Check for Nation Builder when already assigned support type skill or demon has positive support potential
+    }  else if ((totalSkillList.length +1 == demon.skills.length) && (determineSkillStructureByID(skill.id) == "Active" || void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active")) {
+        //Check if we are at last initial skill and we have at least one active or current one is active
+        return true
     } else {
         //Skill fullfills no additional skill conditions
         return false
