@@ -145,6 +145,7 @@ function fillCompendiumArr(NKMBaseTable) {
             firstSkill: offset + 0x70,
             firstLearnedLevel: offset + 0xA0,
             normallyFusable: offset + 0x56,
+            tone: offset+0x6C,
             innate: offset + 0x100,
             potential: offset + 0X174
         }
@@ -181,6 +182,7 @@ function fillCompendiumArr(NKMBaseTable) {
             level: { value: readInt32LE(locations.level) },
             registerable: readInt32LE(locations.HP - 4),
             normallyFusable: NKMBaseTable.readInt16LE(locations.normallyFusable), // 0101 means no, 0000 means yes (providing recipe exists)
+            tone: { value: NKMBaseTable.readUInt8(locations.tone), translation: "", additionalReadings: [NKMBaseTable.readUInt8(locations.tone) +1, NKMBaseTable.readInt16LE(locations.tone)]},
             resist: {
                 physical: { value: readInt32LE(locations.innate + 4), translation: translateResist(readInt32LE(locations.innate + 4)) },
                 fire: { value: readInt32LE(locations.innate + 4 * 2), translation: translateResist(readInt32LE(locations.innate + 4 * 2)) },
