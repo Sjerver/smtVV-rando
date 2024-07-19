@@ -184,7 +184,7 @@ function fillCompendiumArr(NKMBaseTable) {
             level: { value: readInt32LE(locations.level) },
             registerable: readInt32LE(locations.HP - 4),
             fusability: NKMBaseTable.readInt16LE(locations.fusability), // 0101 means no, 0100 means accident only, 0000 means yes (providing recipe exists)
-            unlockFlags: NKMBaseTable.readInt8LE(locations.unlockFlags),
+            unlockFlags: NKMBaseTable.readUInt8(locations.unlockFlags),
             tone: { value: NKMBaseTable.readUInt8(locations.tone), translation: "", additionalReadings: [NKMBaseTable.readUInt8(locations.tone) + 1, NKMBaseTable.readInt16LE(locations.tone)] },
             resist: {
                 physical: { value: readInt32LE(locations.innate + 4), translation: translateResist(readInt32LE(locations.innate + 4)) },
@@ -649,12 +649,13 @@ function fillSpecialFusionArr(fusionData) {
     }
 }
 
+/**
+ * 
+ * @param {Buffer} enemyData 
+ */
 function fillBasicEnemyArr(enemyData) {
     function read4(ofSet) {
         return enemyData.readInt32LE(ofSet)
-    }
-    function read8(ofSet) {
-        return enemyData.readInt64LE(ofSet)
     }
     function read1(ofSet) {
         return enemyData.readUInt8(ofSet)
@@ -679,6 +680,17 @@ function fillBasicEnemyArr(enemyData) {
             potential: offset + 0x12C
         }
 
+        let listOfSkills = []
+        for (let index = 0; index < 8; index++) {
+            let skillID = read4(locations.firstSkill + 4*index)
+            if (skillID != 0) {
+                listOfSkills.push({ id: skillID, translation: translateSkillID(skillID) })
+            }
+
+        }
+
+        
+
         enemyArr.push({
             id: index,
             name: compendiumNames[index],
@@ -695,11 +707,12 @@ function fillBasicEnemyArr(enemyData) {
             },
             analyze: read1(locations.HP + 28),
             levelDMGcorrection: read1(locations.HP + 30),
-            AI: read8(locations.experience + 12), //55 for normal encounters
+            AI: read4(locations.experience + 12), //55 for normal encounters
             recruitable: read1(locations.HP + 33),
             pressTurns: read1(locations.pressTurns),
             experience: read4(locations.experience),
             money: read4(locations.experience + 4),
+            skills: listOfSkills,
             drops: {
                 item1: {
                     value: read4(locations.item),
@@ -718,40 +731,6 @@ function fillBasicEnemyArr(enemyData) {
                     translation: translateItem(read4(locations.item + 24)),
                     chance: read4(locations.item + 28),
                     quest: read4(locations.item + 32),
-                },
-            },
-            skills: {
-                skill1: {
-                    value: read4(locations.firstSkill),
-                    translation: obtainSkillFromID(read4(locations.firstSkill)).name
-                },
-                skill2: {
-                    value: read4(locations.firstSkill + 4),
-                    translation: obtainSkillFromID(read4(locations.firstSkill + 4)).name
-                },
-                skill3: {
-                    value: read4(locations.firstSkill + 8),
-                    translation: obtainSkillFromID(read4(locations.firstSkill + 8)).name
-                },
-                skill4: {
-                    value: read4(locations.firstSkill + 12),
-                    translation: obtainSkillFromID(read4(locations.firstSkill + 12)).name
-                },
-                skill5: {
-                    value: read4(locations.firstSkill + 16),
-                    translation: obtainSkillFromID(read4(locations.firstSkill + 16)).name
-                },
-                skill6: {
-                    value: read4(locations.firstSkill + 20),
-                    translation: obtainSkillFromID(read4(locations.firstSkill + 20)).name
-                },
-                skill7: {
-                    value: read4(locations.firstSkill + 24),
-                    translation: obtainSkillFromID(read4(locations.firstSkill + 24)).name
-                },
-                skill8: {
-                    value: read4(locations.firstSkill + 28),
-                    translation: obtainSkillFromID(read4(locations.firstSkill + 28)).name
                 },
             },
             innate: {
@@ -2137,7 +2116,7 @@ async function main() {
     // compendiumBuffer.writeInt32LE(472,28201)
     // checkRaceDoubleLevel(compendiumArr)
     // raceArray.sort()
-    // console.log(enemyArr)
+    // console.log(enemyArr[299])
 
 
     await writeNormalFusionTable(normalFusionBuffer)

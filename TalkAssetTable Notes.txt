@@ -1,6 +1,25 @@
+Difference Entry1->Entry2 0x83
+
 29 SizeOfDataTable 
 
-Difference Entry1->Entry2 0x83
+2D Name of first Table
+35 ToneTable4 7C
+3D SoftObjectProperty 79
+45 (C?)
+4E Value2 (in this case none)
+5A SrcMsg_5 78
+62 SoftObjectProperty 79
+6A (C?)
+73 Value2 (in this case none)
+7F ToneTable8 7D
+87 EnumProperty 67
+88 8 (not the text)
+97 Value(in this case E_TALK_TONE_TYPE)
+A0 Value2( in this case E_TALK_TONE_TYPE::E_NONE)
+A8 (115?? equals to None could be one)
+B0 Name of second table
+
+
 4E Entry0 ToneTable Value2
 73 Entry0 SrcMsg Value2
 
