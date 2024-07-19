@@ -212,8 +212,8 @@ function fillCompendiumArr(NKMBaseTable) {
                 dark: readInt32LE(locations.potential + 4 * 6),
                 almighty: readInt32LE(locations.potential + 4 * 7),
                 ailment: readInt32LE(locations.potential + 4 * 8),
-                recover: readInt32LE(locations.potential + 4 * 9),
-                support: readInt32LE(locations.potential + 4 * 10)
+                recover: readInt32LE(locations.potential + 4 * 10),
+                support: readInt32LE(locations.potential + 4 * 9)
             },
             stats: {
                 HP: { start: readInt32LE(locations.HP + 4 * 0), growth: readInt32LE(locations.HP + 4 * 2) },
@@ -682,14 +682,14 @@ function fillBasicEnemyArr(enemyData) {
 
         let listOfSkills = []
         for (let index = 0; index < 8; index++) {
-            let skillID = read4(locations.firstSkill + 4*index)
+            let skillID = read4(locations.firstSkill + 4 * index)
             if (skillID != 0) {
                 listOfSkills.push({ id: skillID, translation: translateSkillID(skillID) })
             }
 
         }
 
-        
+
 
         enemyArr.push({
             id: index,
@@ -763,8 +763,8 @@ function fillBasicEnemyArr(enemyData) {
                 dark: read4(locations.potential + 4 * 6),
                 almighty: read4(locations.potential + 4 * 7),
                 ailment: read4(locations.potential + 4 * 8),
-                recover: read4(locations.potential + 4 * 9),
-                support: read4(locations.potential + 4 * 10)
+                recover: read4(locations.potential + 4 * 10),
+                support: read4(locations.potential + 4 * 9)
             }
         })
     }
@@ -1202,14 +1202,14 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
                 let rng = 0
                 while (uniqueSkill == false) {
                     rng = weightedRando(weightedSkills.values, weightedSkills.weights)
-                    if (void (0) === demon.skills.find(e => e.id == rng)) {
-                        if (checkAdditionalSkillConditions(obtainSkillFromID(rng), totalSkills, demon)) {
-                            //if skill is unique set weight of skill to 0, so it cannot be result of randomization again
-                            uniqueSkill = true
-                            weightedSkills.weights[weightedSkills.values.indexOf(rng)] = 0
-                        }
-
+                    // if (void (0) === demon.skills.find(e => e.id == rng)) {
+                    if (checkAdditionalSkillConditions(obtainSkillFromID(rng), totalSkills, demon)) {
+                        //if skill is unique set weight of skill to 0, so it cannot be result of randomization again
+                        uniqueSkill = true
+                        weightedSkills.weights[weightedSkills.values.indexOf(rng)] = 0
                     }
+
+                    // }
                 }
                 let skillAddition = { id: rng, translation: translateSkillID(rng) }
                 totalSkills.push(skillAddition)
@@ -1222,13 +1222,13 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
                 let rng = 0
                 while (uniqueSkill == false) {
                     rng = weightedRando(weightedSkills.values, weightedSkills.weights)
-                    if (void (0) === demon.skills.find(e => e.id == rng) && void (0) === demon.learnedSkills.find(e => e.id == rng)) {
-                        if (checkAdditionalSkillConditions(obtainSkillFromID(rng), totalSkills, demon)) {
-                            //if skill is unique set weight of skill to 0, so it cannot be result of randomization again
-                            uniqueSkill = true
-                            weightedSkills.weights[weightedSkills.values.indexOf(rng)] = 0
-                        }
+                    // if (void (0) === demon.skills.find(e => e.id == rng) && void (0) === demon.learnedSkills.find(e => e.id == rng)) {
+                    if (checkAdditionalSkillConditions(obtainSkillFromID(rng), totalSkills, demon)) {
+                        //if skill is unique set weight of skill to 0, so it cannot be result of randomization again
+                        uniqueSkill = true
+                        weightedSkills.weights[weightedSkills.values.indexOf(rng)] = 0
                     }
+                    // }
                 }
                 let skillAddition = { id: rng, translation: translateSkillID(rng) }
                 totalSkills.push(skillAddition)
@@ -1252,6 +1252,11 @@ function checkAdditionalSkillConditions(skill, totalSkillList, demon) {
     let conditionalSkills = ["Charge", "Critical Aura", "Concentrate", "Curse Siphon", "Great Curse Siphon", "Virus Carrier", "Bowl of Hygieia", "Heal Pleroma", "High Heal Pleroma", "Nation Founder", "Healing Hand", "Oath of Plenteousness",
         "Poison Adept", "Poison Master", "Sankosho", "Incendiary Stoning", "Roaring Mist", "Herkeios", "Carpet Bolting", "Catastrophic Gales", "Lighted Wheel", "Boon of Sloth", "Ceaseless Crucifixion", "Biondetta", "Nation Builder"
     ]
+    if ((totalSkillList.length + 1 == demon.skills.length) && ((determineSkillStructureByID(skill.id) != "Active") && void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active"))) {
+        //Check if we are at last initial skill and we have at least one active or current one is active
+        return false
+    }
+
     //Return early if skill is not a skill for which special conditions apply.
     if ((void (0) === conditionalSkills.find(e => e == skill.name) && !skill.name.includes("Pleroma") && !skill.name.includes("Enhancer") && !skill.name.includes("Gestalt"))) {
         return true
@@ -1301,9 +1306,6 @@ function checkAdditionalSkillConditions(skill, totalSkillList, demon) {
         return true
     } else if ((skill.name == "Nation Builder") && ((void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active" && obtainSkillFromID(e.id).skillType.value == 4)) || demon.potential.support > 0)) {
         //Check for Nation Builder when already assigned support type skill or demon has positive support potential
-    } else if ((totalSkillList.length + 1 == demon.skills.length) && (determineSkillStructureByID(skill.id) == "Active" || void (0) !== totalSkillList.find(e => determineSkillStructureByID(e.id) == "Active"))) {
-        //Check if we are at last initial skill and we have at least one active or current one is active
-        return true
     } else {
         //Skill fullfills no additional skill conditions
         return false
@@ -1329,7 +1331,9 @@ function updateWeightsWithPotential(weightList, potentials, demon) {
         if (skillStructure == "Active") {
             let potentialType = skill.potentialType.translation
             let additionalWeight = 2 * obtainPotentialByName(potentialType, potentials)
-            if (potentialType == "Phys" && demon.stats.str.start < demon.stats.mag.start) {
+            if (skill.skillType.value == 0 && demon.stats.str.start < demon.stats.mag.start) {
+                additionalWeight = additionalWeight - 2
+            } else if (skill.skillType.value == 1 && demon.stats.str.start > demon.stats.mag.start) {
                 additionalWeight = additionalWeight - 2
             }
             // if(skill.name == "Profaned Land") {additonalWeight = additionalWeight * additionalWeight}
@@ -1830,7 +1834,7 @@ function adjustSpecialFusionTable(fusions, comp) {
 function adjustBasicEnemyArr(enemies, comp) {
     let foes = enemies.map((enemy, index) => {
         let statMods = {
-            
+
         }
 
         let newStats = {
@@ -2100,7 +2104,6 @@ async function main() {
     compendiumBuffer = updateCompendiumBuffer(compendiumBuffer, newComp)
     // compendiumBuffer.writeInt32LE(5,0x1B369)
     // console.log(raceArray.length)
-    // console.log(compendiumArr[365])
     updateOtherFusionArr(otherFusionBuffer, specialFusionArr)
     // console.log(normalFusionArr[normalFusionArr.length - 19])
     updateNormalFusionBuffer(normalFusionBuffer, normalFusionArr)
