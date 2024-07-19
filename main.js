@@ -13,6 +13,7 @@ var innateSkillArr = []
 var normalFusionArr = []
 var fusionChartArr = []
 var specialFusionArr = []
+var enemyArr = []
 
 /**
  * Reads the file that contains the Demon Table.
@@ -646,6 +647,142 @@ function fillSpecialFusionArr(fusionData) {
     }
 }
 
+function fillBasicEnemyArr(enemyData) {
+    function read4(ofSet) {
+        return enemyData.readInt32LE(ofSet)
+    }
+    function read1(ofSet) {
+        return enemyData.readUInt8(ofSet)
+    }
+
+    let startValue = 0x88139
+    let enemyOffset = 0x170
+
+    //For all Enemy version of demons in the compendium
+    for (let index = 0; index < 395; index++) {
+        //First define all relevant offsets
+        let offset = startValue + enemyOffset * index
+        let locations = {
+            level: offset,
+            HP: offset +4,
+            pressTurns: offset + 0x2B,
+            experience: offset + 0x44,
+            item: offset + 0x64,
+            firstSkill: offset + 0x88,
+            innate: offset + 0xB8,
+            resist: offset + 0xBB,
+            potential: offset + 0x12C
+        }
+
+        enemyArr.push({
+            id: index,
+            name: compendiumNames[index],
+            offsetNumbers: locations,
+            level: read4(locations.level),
+            stats: {
+                HP: read4(locations.HP),
+                MP: read4(locations.HP +4),
+                str: read4(locations.HP + 8),
+                vit: read4(locations.HP + 12),
+                mag: read4(locations.HP + 16),
+                agi: read4(locations.HP + 20),
+                luk: read4(locations.HP + 24),
+            },
+            analyze: read1(locations.HP +28),
+            pressTurns: read1(locations.pressTurns),
+            experience: read4(locations.experience),
+            money: read4(locations.experience +4),
+            drops: {
+                item1: {
+                    value: read4(locations.item),
+                    translation: translateItem(read4(locations.item)),
+                    chance: read4(locations.item +4),
+                    quest: read4(locations.item + 8),
+                },
+                item3: {
+                    value: read4(locations.item +12),
+                    translation: translateItem(read4(locations.item +12)),
+                    chance: read4(locations.item +16),
+                    quest: read4(locations.item + 20),
+                },
+                item2: {
+                    value: read4(locations.item +24),
+                    translation: translateItem(read4(locations.item +24)),
+                    chance: read4(locations.item +28),
+                    quest: read4(locations.item +32),
+                },
+            },
+            skills: {
+                skill1: {
+                    value: read4(locations.firstSkill),
+                    translation: obtainSkillbyID(read4(locations.firstSkill)).name
+                },
+                skill2: {
+                    value: read4(locations.firstSkill +4),
+                    translation: obtainSkillbyID(read4(locations.firstSkill +4)).name
+                },
+                skill3: {
+                    value: read4(locations.firstSkill +8),
+                    translation: obtainSkillbyID(read4(locations.firstSkill +8)).name
+                },
+                skill4: {
+                    value: read4(locations.firstSkill +12),
+                    translation: obtainSkillbyID(read4(locations.firstSkill +12)).name
+                },
+                skill5: {
+                    value: read4(locations.firstSkill +16),
+                    translation: obtainSkillbyID(read4(locations.firstSkill +16)).name
+                },
+                skill6: {
+                    value: read4(locations.firstSkill +20),
+                    translation: obtainSkillbyID(read4(locations.firstSkill +20)).name
+                },
+                skill7: {
+                    value: read4(locations.firstSkill +24),
+                    translation: obtainSkillbyID(read4(locations.firstSkill +24)).name
+                },
+                skill8: {
+                    value: read4(locations.firstSkill +28),
+                    translation: obtainSkillbyID(read4(locations.firstSkill +28)).name
+                },
+            },
+            innate: {
+                value: read4(locations.innate),
+                translation obtainSkillbyID(read4(locations.innate)).name
+            },
+            resist: {
+                physical: { value: readInt32LE(locations.innate + 4), translation: translateResist(readInt32LE(locations.innate + 4)) },
+                fire: { value: readInt32LE(locations.innate + 4 * 2), translation: translateResist(readInt32LE(locations.innate + 4 * 2)) },
+                ice: { value: readInt32LE(locations.innate + 4 * 3), translation: translateResist(readInt32LE(locations.innate + 4 * 3)) },
+                electric: { value: readInt32LE(locations.innate + 4 * 4), translation: translateResist(readInt32LE(locations.innate + 4 * 4)) },
+                force: { value: readInt32LE(locations.innate + 4 * 5), translation: translateResist(readInt32LE(locations.innate + 4 * 5)) },
+                light: { value: readInt32LE(locations.innate + 4 * 6), translation: translateResist(readInt32LE(locations.innate + 4 * 6)) },
+                dark: { value: readInt32LE(locations.innate + 4 * 7), translation: translateResist(readInt32LE(locations.innate + 4 * 7)) },
+                almighty: { value: readInt32LE(locations.innate + 4 * 8), translation: translateResist(readInt32LE(locations.innate + 4 * 8)) },
+                poison: { value: readInt32LE(locations.innate + 4 * 9), translation: translateResist(readInt32LE(locations.innate + 4 * 9)) },
+                confusion: { value: readInt32LE(locations.innate + 4 * 11), translation: translateResist(readInt32LE(locations.innate + 4 * 11)) },
+                charm: { value: readInt32LE(locations.innate + 4 * 12), translation: translateResist(readInt32LE(locations.innate + 4 * 12)) },
+                sleep: { value: readInt32LE(locations.innate + 4 * 13), translation: translateResist(readInt32LE(locations.innate + 4 * 13)) },
+                seal: { value: readInt32LE(locations.innate + 4 * 14), translation: translateResist(readInt32LE(locations.innate + 4 * 14)) },
+                mirage: { value: readInt32LE(locations.innate + 4 * 21), translation: translateResist(readInt32LE(locations.innate + 4 * 21)) }
+            },
+            potential: {
+                physical: readInt32LE(locations.potential),
+                fire: readInt32LE(locations.potential + 4 * 1),
+                ice: readInt32LE(locations.potential + 4 * 2),
+                elec: readInt32LE(locations.potential + 4 * 3),
+                force: readInt32LE(locations.potential + 4 * 4),
+                light: readInt32LE(locations.potential + 4 * 5),
+                dark: readInt32LE(locations.potential + 4 * 6),
+                almighty: readInt32LE(locations.potential + 4 * 7),
+                ailment: readInt32LE(locations.potential + 4 * 8),
+                recover: readInt32LE(locations.potential + 4 * 9),
+                support: readInt32LE(locations.potential + 4 * 10)
+            }
+        })
+    }
+}
+
 /**
 * Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
 * @param {Number} id the id of the skill to return
@@ -663,6 +800,10 @@ function obtainSkillFromID(id) {
     } else {
         return skillArr[id - 400]
     }
+}
+
+function translateItem (id) {
+    return ""
 }
 
 /**
@@ -1928,6 +2069,7 @@ async function main() {
     fillNormalFusionArr(normalFusionBuffer)
     fillFusionChart(otherFusionBuffer)
     fillSpecialFusionArr(otherFusionBuffer)
+    fillEnemyArr(compendiumBuffer)
 
     
     let skillLevels = generateSkillLevelList()
