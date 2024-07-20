@@ -23,7 +23,7 @@
 .pak
 .exe
 filelist.txt
-UnrealPak-Without-Compression.bat
+0UnrealPak-Without-Compression.bat
 UnrealPak.exe
 
 # debug
