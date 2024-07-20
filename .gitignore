@@ -19,11 +19,10 @@
 .DS_Store
 ~mods.lnk
 .txt
-.bat
+*.bat
 .pak
 .exe
 filelist.txt
-0UnrealPak-Without-Compression.bat
 UnrealPak.exe
 
 # debug
