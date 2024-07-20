@@ -1916,7 +1916,25 @@ function adjustBasicEnemyArr(enemies, comp) {
         }
 
         let newSkills = playableEqu.skills.map((skill, skillDex) => {
-            return { id: skill.id, translation: skill.translation }
+            let newID = skill.id
+            //Replace Healing Skills with enemy variant
+            // if([97,98,100,101,266,909,279,855].includes(newID))
+            if(newID == 855) {
+                newID = 856 //Sakuya Sakura
+            } else if(newID ==909 || newID == 266) {
+                newID = 887 //Suns Radiance
+            } else if (newID == 270) {
+                newID = 277 //Matriarchs Love
+            } else if(newID == 101) {
+                newID = 384 //Mediarama (Throne,Clotho)
+            } else if(newID == 100) {
+                newID = 383 //Media 
+            } else if(newID == 98) {
+                newID = 382 //Diarama
+            } else if (newID == 97) {
+                newID = 381 // Dia
+            }
+            return { id: newID, translation: translateSkillID(newID) }
         })
 
         let newPressTurns = Math.ceil(Math.random() + (0.10 * enemy.pressTurns))
@@ -2199,6 +2217,7 @@ async function main() {
     adjustFusionTableToLevels(normalFusionArr, compendiumArr)
     // console.log(levelSkillList)
     // console.log(levelSkillList[1])
+    // console.log(skillLevels[100])
     // let newComp = assignCompletelyRandomSkills(compendiumArr,levelSkillList)
     // let newComp = assignCompletelyRandomWeightedSkills(compendiumArr, levelSkillList)
     assignTalkableTones(newComp)
