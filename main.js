@@ -988,7 +988,16 @@ function generateSkillLevelList() {
     let skillLevels = skillNames.map((n, i) => {
         return { name: n, id: i, level: [] }
     })
-
+    let bonusSkills = external.getBonusSkills()
+    function findBonusSkill(id) {
+        let goal = []
+        bonusSkills.forEach(sub => {
+            if(sub[1] == id) {
+                goal = sub
+            }
+        })
+        return goal
+    }
     // For every demon...
     for (let index = 0; index < compendiumArr.length; index++) {
         let demon = compendiumArr[index]
@@ -1005,10 +1014,8 @@ function generateSkillLevelList() {
             skillLevels[skill.id].level.push(skill.level)
         }
     }
-    //Define skills that should be available to learn despite not being available to demons
-    let skipNeeded = [240, 284, 255, 283, 284, 292, 293, 294, 300, 301, 306, 307, 310, 298, 299, 320, 321, 335, 336, 342, 370, 390, 394, 395, 849, 863, 864, 865, 918, 924, 925, 927]
-    let busted = [259, 277, 289, 343, 883, 884, 885]
-    let flawless = [295, 312, 329, 330, 331, 332, 333, 334, 337, 338, 339, 340, 341, 372, 373, 392, 397, 398, 861, 902, 903, 904, 905, 906, 908, 909, 910, 911, 912, 913, 914, 915, 916, 917, 926]
+
+
     //For every skill determine the minimum and maximum level it is obtained at
     skillLevels = skillLevels.map(skill => {
         let minLevel = 99
@@ -1025,9 +1032,11 @@ function generateSkillLevelList() {
             minLevel = 0
             maxLevel = 0
         }
-        //TODO: Define Levels for each skill exception
-
-
+        if(findBonusSkill(skill.id).length > 0) {
+            let tem= findBonusSkill(skill.id)
+            minLevel = tem[2]
+            maxLevel = tem[3]
+        }
         return { name: skill.name, id: skill.id, level: [minLevel, maxLevel] }
     })
     return skillLevels
@@ -2151,7 +2160,7 @@ function determineFusability() {
 function findUnlearnableSkills(skillLevels) {
     skillLevels.forEach(skill => {
         if (skill.level[0] == 0 && skill.level[1] == 0 && !skill.name.startsWith("NOT USED")
-            && (determineSkillStructureByID(skill.id) == "Active" && obtainSkillFromID(skill.id).magatsuhi.enable == 0)
+            && (determineSkillStructureByID(skill.id) != "Active")
         ) {
             console.log(skill)
         }
