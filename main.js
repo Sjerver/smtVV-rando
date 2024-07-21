@@ -2336,7 +2336,12 @@ function shuffleLevel(comp) {
 
     // console.log(slots)
     adjustLearnedSkillLevels(comp)
+    adjustStatsToLevel(comp)
     return comp
+}
+
+function adjustStatsToLevel(comp) {
+
 }
 
 function adjustLearnedSkillLevels(comp) {
@@ -2348,7 +2353,7 @@ function adjustLearnedSkillLevels(comp) {
                 })
             } else {
                 demon.learnedSkills.forEach(skill => {
-                    let skillLevel = Math.max(99, skill.level - demon.level.original + demon.level.value)
+                    let skillLevel = Math.min(99, skill.level - demon.level.original + demon.level.value)
                     skill.level = skillLevel
                 })
             }
