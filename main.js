@@ -2054,7 +2054,7 @@ function adjustBasicEnemyArr(enemies, comp) {
 
         let newPressTurns = Math.ceil(Math.random() + (0.10 * enemy.pressTurns))
         let newExperience = expMod[enemy.level]
-        let newMacca = maccaMod[enemy.macca]
+        let newMacca = maccaMod[enemy.level]
         if (newPressTurns > 1) {
             newExperience = newExperience * newPressTurns
             newMacca = newMacca * Math.floor(newPressTurns * 1.5)
@@ -2165,8 +2165,8 @@ function adjustEncountersToSameLevel(symbolArr, comp, enemyArr) {
                         formation.demons.forEach((d, count) => {
                             if (d > 0) {
                                 //make sure the symbol demon is included in encounter
-                                if (count == 0) {
-                                    formation.demons[count] = symbolFoe.id
+                                if (replacements.some(r => r[0] == d)) {
+                                    formation.demons[count] = replacements.find (r => r[0] == d)[1]
                                 } else {
                                     let demonR = possibilities[Math.floor(Math.random() * possibilities.length)]
                                     formation.demons[count] = demonR.id
@@ -2445,7 +2445,6 @@ async function main() {
     // let newComp = assignCompletelyRandomWeightedSkills(compendiumArr, levelSkillList)
     assignTalkableTones(newComp)
     // // console.log(skillLevels[1])
-    // let newComp = assignCompletelyRandomLevels(compendiumArr)
     // console.log(compendiumArr[155].name)
     // console.log(compendiumArr[155].race)
     // console.log(logDemonByName("Isis",compendiumArr))
@@ -2473,7 +2472,9 @@ async function main() {
     // raceArray.sort()
     // console.log(enemyArr[299])
 
-    await printOutEncounters(newSymbolArr)
+    // await printOutEncounters(newSymbolArr)
+
+
     await writeNormalFusionTable(normalFusionBuffer)
     await writeNKMBaseTable(compendiumBuffer)
     await writeOtherFusionTable(otherFusionBuffer)
@@ -2485,15 +2486,18 @@ async function main() {
 
 async function printOutEncounters(newSymbolArr) {
     let finalString = ""
+    let forArray = []
     newSymbolArr.forEach(entry => {
         if (!entry.symbol.translation.startsWith("NOT USED") && !entry.symbol.translation.startsWith("NO BASIC ENEMY")) {
 
 
             finalString = finalString + "ID: " + entry.id + " " + "Symbol: " + entry.symbol.translation + "\n"
             entry.encounters.forEach(ec => {
-                if (ec.encounter.id != 0 && ec.chance > 0&& !ec.encounter.demons.includes(entry.symbol.id)) {
+                if (ec.encounter.id != 0 && ec.chance > 0
+                    && !ec.encounter.demons.includes(entry.symbol.id)
+                ) {
 
-
+                    forArray.push([ec.encounter.id,ec.encounter.demons])
                     finalString = finalString + "EID: " + ec.encounter.id + " Demons: "
                     ec.encounter.demons.forEach(demon => {
                         finalString = finalString + demon + " "
@@ -2502,6 +2506,7 @@ async function printOutEncounters(newSymbolArr) {
                 }
             })
         }
+       
     })
     await fs.writeFile('./encounterResults.txt', finalString)
 }

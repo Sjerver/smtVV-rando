@@ -1,263 +1,263 @@
 ID: 56 Symbol: Gabriel
-ID: 57 Symbol: Odin
-ID: 59 Symbol: Nahobeeho
+ID: 57 Symbol: Chi You
+ID: 59 Symbol: Mitra
 ID: 60 Symbol: Loup-garou
-ID: 61 Symbol: Horus
-ID: 62 Symbol: King Frost
+ID: 61 Symbol: Mishaguji
+ID: 62 Symbol: Black Ooze
 ID: 63 Symbol: Amanozako
 ID: 64 Symbol: Mothman
-ID: 65 Symbol: Lakshmi
-ID: 66 Symbol: Norn
-ID: 67 Symbol: Orthrus
-ID: 68 Symbol: Red Rider
+ID: 65 Symbol: Rangda
+ID: 66 Symbol: Skadi
+ID: 67 Symbol: Mishaguji
+ID: 68 Symbol: Sarasvati
 ID: 69 Symbol: Surt
-ID: 70 Symbol: Okuninushi
-ID: 71 Symbol: Setanta
+ID: 70 Symbol: Scathach
+ID: 71 Symbol: Parvati
 ID: 72 Symbol: Ame-no-Uzume
-ID: 73 Symbol: Fortuna
-ID: 74 Symbol: Hanuman
+ID: 73 Symbol: Aquans
+ID: 74 Symbol: Isis
 ID: 75 Symbol: Adramelech
-ID: 76 Symbol: Vritra
-ID: 77 Symbol: Power
+ID: 76 Symbol: Pazuzu
+ID: 77 Symbol: Kurama Tengu
 ID: 78 Symbol: Koppa Tengu
-ID: 79 Symbol: Apsaras
-ID: 80 Symbol: Angel
-ID: 81 Symbol: Kodama
-ID: 82 Symbol: Pale Rider
-ID: 83 Symbol: Red Rider
+ID: 79 Symbol: Mokoi
+ID: 80 Symbol: Agathion
+ID: 81 Symbol: Mandrake
+ID: 82 Symbol: Ganesha
+ID: 83 Symbol: Oberon
 ID: 84 Symbol: Anubis
-ID: 85 Symbol: Hariti
-ID: 86 Symbol: Daisoujou
-ID: 87 Symbol: Andras
+ID: 85 Symbol: Karasu Tengu
+ID: 86 Symbol: Kelpie
+ID: 87 Symbol: Archangel
 ID: 88 Symbol: Rakshasa
 ID: 89 Symbol: Poltergeist
 ID: 90 Symbol: Pixie
-ID: 91 Symbol: Queen Medb
-ID: 92 Symbol: Succubus
-ID: 93 Symbol: Qing Long
+ID: 91 Symbol: Loki
+ID: 92 Symbol: Narcissus
+ID: 93 Symbol: Kaiwan
 ID: 94 Symbol: Lilim
-ID: 95 Symbol: Incubus
+ID: 95 Symbol: Feng Huang
 ID: 96 Symbol: Apsaras
-ID: 97 Symbol: Sandman
-ID: 98 Symbol: Nuwa
-ID: 99 Symbol: Inanna
-ID: 100 Symbol: Nebiros
+ID: 97 Symbol: Peallaidh
+ID: 98 Symbol: Abdiel
+ID: 99 Symbol: Vishnu
+ID: 100 Symbol: Mara
 ID: 101 Symbol: Mephisto
-ID: 102 Symbol: Sraosha
+ID: 102 Symbol: Odin
 ID: 103 Symbol: Ishtar
 ID: 104 Symbol: Metatron
-ID: 105 Symbol: Tzitzimitl
+ID: 105 Symbol: Arioch
 ID: 106 Symbol: Belial
-ID: 107 Symbol: Yamata-no-Orochi
-ID: 108 Symbol: Jikokuten
-ID: 109 Symbol: Dionysus
+ID: 107 Symbol: Abaddon
+ID: 108 Symbol: Moloch
+ID: 109 Symbol: Ose
 ID: 110 Symbol: Thoth
 ID: 111 Symbol: Uriel
-ID: 112 Symbol: Loki
-ID: 114 Symbol: Khonsu Ra
+ID: 112 Symbol: Queen Medb
+ID: 114 Symbol: Huang Long
 ID: 115 Symbol: Quetzalcoatl
 ID: 116 Symbol: Kaiwan
-ID: 117 Symbol: Xuanwu
+ID: 117 Symbol: Oni
 ID: 118 Symbol: Ananta
-ID: 119 Symbol: Abaddon
-ID: 120 Symbol: Hayataro
-ID: 121 Symbol: Dominion
+ID: 119 Symbol: Zaou-Gongen
+ID: 120 Symbol: Oyamatsumi
+ID: 121 Symbol: Flauros
 ID: 122 Symbol: Cironnup
 ID: 123 Symbol: Vasuki
-ID: 124 Symbol: Norn
-ID: 125 Symbol: Dís
-ID: 126 Symbol: Aitvaras
-ID: 127 Symbol: Hydra
-ID: 128 Symbol: Melchizedek
-ID: 129 Symbol: Kumbhanda
+ID: 124 Symbol: Mara
+ID: 125 Symbol: Hua Po
+ID: 126 Symbol: Ippon-Datara
+ID: 127 Symbol: Armaiti
+ID: 128 Symbol: Kresnik
+ID: 129 Symbol: Silky
 ID: 130 Symbol: Kaya-no-Hime
-ID: 131 Symbol: Anansi
-ID: 132 Symbol: Scathach
-ID: 133 Symbol: Attis
-ID: 134 Symbol: Shiisaa
-ID: 135 Symbol: Atropos
-ID: 136 Symbol: Horus
+ID: 131 Symbol: Kushinada-Hime
+ID: 132 Symbol: Okuninushi
+ID: 133 Symbol: Naga
+ID: 134 Symbol: Take-Minakata
+ID: 135 Symbol: Cerberus
+ID: 136 Symbol: Orthrus
 ID: 137 Symbol: Loup-garou
 ID: 138 Symbol: Quetzalcoatl
-ID: 139 Symbol: Bugs
-ID: 140 Symbol: Kin-Ki
-ID: 141 Symbol: Bugs
-ID: 142 Symbol: Kushinada-Hime
-ID: 143 Symbol: Bicorn
-ID: 144 Symbol: Shiki-Ouji
-ID: 145 Symbol: Hayataro
-ID: 146 Symbol: High Pixie
-ID: 147 Symbol: Nozuchi
-ID: 148 Symbol: Mermaid
-ID: 149 Symbol: Erthys
+ID: 139 Symbol: Inugami
+ID: 140 Symbol: Anansi
+ID: 141 Symbol: Koppa Tengu
+ID: 142 Symbol: Kin-Ki
+ID: 143 Symbol: Zhen
+ID: 144 Symbol: Mothman
+ID: 145 Symbol: Dormarth
+ID: 146 Symbol: Flaemis
+ID: 147 Symbol: Aquans
+ID: 148 Symbol: Obariyon
+ID: 149 Symbol: Zhu Tun She
 ID: 150 Symbol: Saki Mitama
 ID: 151 Symbol: Kushi Mitama
 ID: 152 Symbol: Nigi Mitama
 ID: 153 Symbol: Ara Mitama
-ID: 154 Symbol: Thoth
+ID: 154 Symbol: Baphomet
 ID: 155 Symbol: Legion
 ID: 156 Symbol: Slime
 ID: 157 Symbol: Shiva
-ID: 158 Symbol: Mot
-ID: 159 Symbol: Lilith
-ID: 160 Symbol: Asura
-ID: 161 Symbol: Vritra
-ID: 162 Symbol: Dionysus
-ID: 163 Symbol: Danu
-ID: 164 Symbol: Inanna
-ID: 165 Symbol: Vasuki
-ID: 166 Symbol: Sui-Ki
-ID: 167 Symbol: Mara
-ID: 168 Symbol: Dakini
-ID: 169 Symbol: Koppa Tengu
-ID: 170 Symbol: Setanta
-ID: 172 Symbol: Girimekhala
-ID: 173 Symbol: Camael
-ID: 174 Symbol: Cironnup
-ID: 175 Symbol: Bishamonten
-ID: 176 Symbol: Jikokuten
+ID: 158 Symbol: Fuu-Ki
+ID: 159 Symbol: Zaou-Gongen
+ID: 160 Symbol: Raphael
+ID: 161 Symbol: Clotho
+ID: 162 Symbol: Belphegor
+ID: 163 Symbol: Baal
+ID: 164 Symbol: Amon
+ID: 165 Symbol: Kali
+ID: 166 Symbol: Cybele
+ID: 167 Symbol: Skadi
+ID: 168 Symbol: Isis
+ID: 169 Symbol: Berith
+ID: 170 Symbol: Hariti
+ID: 172 Symbol: Eisheth
+ID: 173 Symbol: Futsunushi
+ID: 174 Symbol: Attis
+ID: 175 Symbol: Lachesis
+ID: 176 Symbol: Moloch
 ID: 177 Symbol: Black Frost
 ID: 178 Symbol: Zouchouten
 ID: 179 Symbol: Surt
-ID: 180 Symbol: Alice
-ID: 181 Symbol: Kushinada-Hime
-ID: 182 Symbol: Eligor
-ID: 183 Symbol: Scathach
-ID: 184 Symbol: Take-Minakata
+ID: 180 Symbol: Dormarth
+ID: 181 Symbol: Nue
+ID: 182 Symbol: Sukuna-Hikona
+ID: 183 Symbol: Hecatoncheires
+ID: 184 Symbol: Legion
 ID: 185 Symbol: Ganesha
-ID: 186 Symbol: Mot
-ID: 187 Symbol: Hayataro
-ID: 188 Symbol: Qing Long
-ID: 189 Symbol: Gremlin
+ID: 186 Symbol: Siegfried
+ID: 187 Symbol: Dormarth
+ID: 188 Symbol: Kaiwan
+ID: 189 Symbol: Neko Shogun
 ID: 191 Symbol: Mada
 ID: 192 Symbol: Eisheth
-ID: 193 Symbol: Pazuzu
+ID: 193 Symbol: Vritra
 ID: 194 Symbol: Orthrus
-ID: 195 Symbol: Thoth
-ID: 196 Symbol: Abdiel
+ID: 195 Symbol: Black Ooze
+ID: 196 Symbol: Nuwa
 ID: 197 Symbol: Beelzebub
 ID: 198 Symbol: Michael
-ID: 199 Symbol: Gabriel
+ID: 199 Symbol: Zeus
 ID: 200 Symbol: Sraosha
-ID: 201 Symbol: Raphael
-ID: 202 Symbol: Samael
+ID: 201 Symbol: Asura
+ID: 202 Symbol: Sandalphon
 ID: 203 Symbol: Mithras
 ID: 204 Symbol: Futsunushi
-ID: 205 Symbol: Fafnir
-ID: 206 Symbol: Cerberus
-ID: 207 Symbol: Onyankopon
-ID: 208 Symbol: Kurama Tengu
-ID: 209 Symbol: Principality
-ID: 210 Symbol: Archangel
-ID: 211 Symbol: Angel
-ID: 212 Symbol: Adramelech
-ID: 213 Symbol: Yurlungur
+ID: 205 Symbol: Barong
+ID: 206 Symbol: Atropos
+ID: 207 Symbol: Flauros
+ID: 208 Symbol: Amabie
+ID: 209 Symbol: Nezha Taizi
+ID: 210 Symbol: Flaemis
+ID: 211 Symbol: Agathion
+ID: 212 Symbol: Fionn mac Cumhaill
+ID: 213 Symbol: Konohana Sakuya
 ID: 214 Symbol: Mara
-ID: 215 Symbol: Koppa Tengu
-ID: 216 Symbol: Koumokuten
-ID: 217 Symbol: Eligor
-ID: 218 Symbol: Forneus
+ID: 215 Symbol: Kikuri-Hime
+ID: 216 Symbol: Belphegor
+ID: 217 Symbol: Artemis
+ID: 218 Symbol: Hare of Inaba
 ID: 219 Symbol: Andras
-ID: 220 Symbol: Hecatoncheires
+ID: 220 Symbol: Chimera
 ID: 221 Symbol: Cerberus
-ID: 222 Symbol: Macabre
-ID: 223 Symbol: Loup-garou
+ID: 222 Symbol: Zhuque
+ID: 223 Symbol: Atavaka
 ID: 224 Symbol: Lilim
-ID: 225 Symbol: Feng Huang
+ID: 225 Symbol: Incubus
 ID: 226 Symbol: Anzu
 ID: 227 Symbol: Bicorn
-ID: 228 Symbol: Narcissus
+ID: 228 Symbol: Muu Shuwuu
 ID: 229 Symbol: Onmoraki
 ID: 230 Symbol: Gogmagog
-ID: 231 Symbol: Rangda
-ID: 232 Symbol: Isis
+ID: 231 Symbol: Lakshmi
+ID: 232 Symbol: Dakini
 ID: 233 Symbol: Cerberus
-ID: 234 Symbol: Daisoujou
-ID: 235 Symbol: Bishamonten
+ID: 234 Symbol: Kelpie
+ID: 235 Symbol: Lachesis
 ID: 236 Symbol: Clotho
-ID: 237 Symbol: Poltergeist
+ID: 237 Symbol: Jack Frost
 ID: 238 Symbol: Zouchouten
-ID: 239 Symbol: Aeros
+ID: 239 Symbol: Mermaid
 ID: 240 Symbol: Leanan Sidhe
-ID: 241 Symbol: Ongyo-Ki
-ID: 242 Symbol: Mothman
+ID: 241 Symbol: Tzitzimitl
+ID: 242 Symbol: Anahita
 ID: 243 Symbol: Cybele
 ID: 244 Symbol: Mot
-ID: 245 Symbol: Nue
-ID: 246 Symbol: Halphas
-ID: 247 Symbol: Ippon-Datara
+ID: 245 Symbol: Kushinada-Hime
+ID: 246 Symbol: Azumi
+ID: 247 Symbol: Aitvaras
 ID: 248 Symbol: Cait Sith
-ID: 249 Symbol: Xuanwu
-ID: 250 Symbol: Hecatoncheires
-ID: 251 Symbol: Kelpie
-ID: 252 Symbol: Jack-o'-Lantern
-ID: 253 Symbol: Azumi
+ID: 249 Symbol: Oni
+ID: 250 Symbol: Decarabia
+ID: 251 Symbol: Daisoujou
+ID: 252 Symbol: Rakshasa
+ID: 253 Symbol: Unicorn
 ID: 254 Symbol: Makami
-ID: 255 Symbol: Nyami Nyami
-ID: 256 Symbol: Succubus
+ID: 255 Symbol: Tsuchigumo
+ID: 256 Symbol: Thunderbird
 ID: 257 Symbol: Hare of Inaba
-ID: 258 Symbol: Koropokkur
-ID: 259 Symbol: Leanan Sidhe
+ID: 258 Symbol: Turbo Granny
+ID: 259 Symbol: Ippon-Datara
 ID: 260 Symbol: Kodama
-ID: 261 Symbol: Hare of Inaba
-ID: 262 Symbol: Anubis
-ID: 263 Symbol: Jack Frost
-ID: 264 Symbol: Aeros
+ID: 261 Symbol: Basilisk
+ID: 262 Symbol: Kumbhanda
+ID: 263 Symbol: Manananggal
+ID: 264 Symbol: Mermaid
 ID: 265 Symbol: Preta
 ID: 266 Symbol: Trumpeter
-ID: 267 Symbol: Atropos
-ID: 268 Symbol: Efreet
-ID: 269 Symbol: Red Rider
-ID: 270 Symbol: Macabre
-ID: 271 Symbol: Alice
-ID: 272 Symbol: Hell Biker
-ID: 273 Symbol: Daisoujou
-ID: 274 Symbol: Titania
-ID: 275 Symbol: Matador
+ID: 267 Symbol: Garuda
+ID: 268 Symbol: Pazuzu
+ID: 269 Symbol: Oberon
+ID: 270 Symbol: Zhuque
+ID: 271 Symbol: Naga Raja
+ID: 272 Symbol: Lamia
+ID: 273 Symbol: Loa
+ID: 274 Symbol: Pale Rider
+ID: 275 Symbol: Berith
 ID: 276 Symbol: Lilith
-ID: 277 Symbol: Ose
-ID: 278 Symbol: Baal
-ID: 279 Symbol: Cait Sith
-ID: 280 Symbol: Melchizedek
-ID: 281 Symbol: Narcissus
+ID: 277 Symbol: Koumokuten
+ID: 278 Symbol: Danu
+ID: 279 Symbol: Daemon
+ID: 280 Symbol: Kudlak
+ID: 281 Symbol: Muu Shuwuu
 ID: 282 Symbol: Alilat
-ID: 283 Symbol: Macabre
-ID: 284 Symbol: Mastema
+ID: 283 Symbol: Senri
+ID: 284 Symbol: Maria
 ID: 285 Symbol: Inanna
-ID: 286 Symbol: Azazel
-ID: 287 Symbol: Turdak
+ID: 286 Symbol: Cleopatra
+ID: 287 Symbol: Unicorn
 ID: 288 Symbol: Hayataro
 ID: 289 Symbol: Nahobeeho
 ID: 290 Symbol: Sandman
-ID: 291 Symbol: Anzu
-ID: 292 Symbol: Ongyo-Ki
-ID: 293 Symbol: Turdak
+ID: 291 Symbol: Mad Gasser
+ID: 292 Symbol: Tzitzimitl
+ID: 293 Symbol: Halphas
 ID: 294 Symbol: Neko Shogun
 ID: 295 Symbol: Melchizedek
-ID: 296 Symbol: Hua Po
-ID: 297 Symbol: Efreet
+ID: 296 Symbol: Basilisk
+ID: 297 Symbol: Pazuzu
 ID: 298 Symbol: Fortuna
-ID: 299 Symbol: Vouivre
-ID: 300 Symbol: Zhu Tun She
-ID: 301 Symbol: Zhuque
-ID: 302 Symbol: Cherub
-ID: 305 Symbol: Agrat
+ID: 299 Symbol: Jack-o'-Lantern
+ID: 300 Symbol: Erthys
+ID: 301 Symbol: Senri
+ID: 302 Symbol: Adramelech
+ID: 305 Symbol: Kinmamon
 ID: 306 Symbol: Parvati
 ID: 307 Symbol: Satan
-ID: 308 Symbol: Huang Long
-ID: 309 Symbol: Dominion
-ID: 310 Symbol: Sandalphon
-ID: 311 Symbol: Koropokkur
-ID: 312 Symbol: Nuwa
+ID: 308 Symbol: Khonsu Ra
+ID: 309 Symbol: Yurlungur
+ID: 310 Symbol: Saturnus
+ID: 311 Symbol: Turbo Granny
+ID: 312 Symbol: Abdiel
 ID: 313 Symbol: Masakado
-ID: 314 Symbol: Onyankopon
+ID: 314 Symbol: Flauros
 ID: 315 Symbol: Amabie
-ID: 316 Symbol: Abaddon
-ID: 317 Symbol: Gurulu
-ID: 318 Symbol: Fuu-Ki
-ID: 319 Symbol: Girimekhala
-ID: 320 Symbol: Khonsu Ra
-ID: 322 Symbol: Norn
+ID: 316 Symbol: Lilith
+ID: 317 Symbol: Kinmamon
+ID: 318 Symbol: Siegfried
+ID: 319 Symbol: Eisheth
+ID: 320 Symbol: Huang Long
+ID: 322 Symbol: Mara
 ID: 326 Symbol: Slime
 ID: 327 Symbol: Ara Mitama
 ID: 328 Symbol: Nigi Mitama
@@ -280,69 +280,59 @@ ID: 344 Symbol: Preta
 ID: 345 Symbol: Neko Shogun
 ID: 346 Symbol: Preta
 ID: 347 Symbol: Onmoraki
-ID: 348 Symbol: Kodama
-ID: 349 Symbol: Kodama
+ID: 348 Symbol: Mandrake
+ID: 349 Symbol: Mandrake
 ID: 350 Symbol: Kodama
-ID: 351 Symbol: Kodama
+ID: 351 Symbol: Mandrake
 ID: 352 Symbol: Slime
 ID: 353 Symbol: Neko Shogun
 ID: 354 Symbol: Neko Shogun
 ID: 355 Symbol: Neko Shogun
 ID: 356 Symbol: Neko Shogun
-ID: 357 Symbol: Cait Sith
-ID: 358 Symbol: Angel
-ID: 359 Symbol: Cait Sith
-ID: 360 Symbol: Cait Sith
-ID: 361 Symbol: Cait Sith
-EID: 1029 Demons: 336 336 0 0 0 0 
-ID: 362 Symbol: Cait Sith
-ID: 363 Symbol: Cait Sith
-EID: 1030 Demons: 336 336 45 0 0 0 
-ID: 364 Symbol: Cait Sith
-ID: 365 Symbol: Cait Sith
-ID: 366 Symbol: Cait Sith
-EID: 1039 Demons: 336 336 336 45 0 0 
+ID: 357 Symbol: Daemon
+ID: 358 Symbol: Agathion
+ID: 359 Symbol: Daemon
+ID: 360 Symbol: Daemon
+ID: 361 Symbol: Mandrake
+ID: 362 Symbol: Daemon
+ID: 363 Symbol: Mandrake
+ID: 364 Symbol: Daemon
+ID: 365 Symbol: Daemon
+ID: 366 Symbol: Mandrake
 ID: 367 Symbol: Sandman
 ID: 368 Symbol: Sandman
-ID: 369 Symbol: Sandman
-ID: 370 Symbol: Sandman
-ID: 371 Symbol: Sandman
-ID: 372 Symbol: Sandman
-ID: 373 Symbol: Sandman
-ID: 374 Symbol: Sandman
-ID: 375 Symbol: Sandman
-EID: 1015 Demons: 140 317 0 0 0 0 
-ID: 376 Symbol: Cait Sith
-ID: 377 Symbol: Cait Sith
-ID: 378 Symbol: Sandman
-ID: 379 Symbol: Halphas
-ID: 380 Symbol: Nyami Nyami
-ID: 381 Symbol: Halphas
-ID: 382 Symbol: Halphas
-ID: 383 Symbol: Nyami Nyami
-ID: 384 Symbol: Halphas
-ID: 385 Symbol: Halphas
-ID: 386 Symbol: Nyami Nyami
-ID: 387 Symbol: Sandman
-ID: 388 Symbol: Sandman
-EID: 1024 Demons: 140 317 140 0 0 0 
-EID: 2104 Demons: 140 317 317 140 0 0 
-EID: 1083 Demons: 140 140 317 0 0 0 
-ID: 389 Symbol: Sandman
-ID: 390 Symbol: Sandman
-EID: 1024 Demons: 140 317 140 0 0 0 
-EID: 2104 Demons: 140 317 317 140 0 0 
-EID: 1083 Demons: 140 140 317 0 0 0 
-ID: 391 Symbol: Aeros
-ID: 392 Symbol: Aeros
-ID: 393 Symbol: Nyami Nyami
+ID: 369 Symbol: Peallaidh
+ID: 370 Symbol: Peallaidh
+ID: 371 Symbol: Peallaidh
+ID: 372 Symbol: Peallaidh
+ID: 373 Symbol: Peallaidh
+ID: 374 Symbol: Peallaidh
+ID: 375 Symbol: Daemon
+ID: 376 Symbol: Daemon
+ID: 377 Symbol: Daemon
+ID: 378 Symbol: Peallaidh
+ID: 379 Symbol: Azumi
+ID: 380 Symbol: Tsuchigumo
+ID: 381 Symbol: Azumi
+ID: 382 Symbol: Azumi
+ID: 383 Symbol: Tsuchigumo
+ID: 384 Symbol: Azumi
+ID: 385 Symbol: Azumi
+ID: 386 Symbol: Tsuchigumo
+ID: 387 Symbol: Peallaidh
+ID: 388 Symbol: Daemon
+ID: 389 Symbol: Peallaidh
+ID: 390 Symbol: Daemon
+ID: 391 Symbol: Mermaid
+ID: 392 Symbol: Mermaid
+ID: 393 Symbol: Tsuchigumo
 ID: 394 Symbol: Preta
-ID: 395 Symbol: Azumi
-ID: 396 Symbol: Cait Sith
+ID: 395 Symbol: Unicorn
+ID: 396 Symbol: Daemon
 ID: 397 Symbol: Bicorn
-ID: 398 Symbol: Azumi
+ID: 398 Symbol: Unicorn
 ID: 399 Symbol: Preta
-ID: 400 Symbol: Azumi
+ID: 400 Symbol: Unicorn
 ID: 401 Symbol: Preta
 ID: 402 Symbol: Bicorn
 ID: 403 Symbol: Bicorn
@@ -351,873 +341,662 @@ ID: 405 Symbol: Cait Sith
 ID: 406 Symbol: Cait Sith
 ID: 407 Symbol: Cait Sith
 ID: 408 Symbol: Sandman
-ID: 409 Symbol: Zhu Tun She
-ID: 410 Symbol: Turdak
-ID: 411 Symbol: Bicorn
-ID: 412 Symbol: Bicorn
+ID: 409 Symbol: Erthys
+ID: 410 Symbol: Halphas
+ID: 411 Symbol: Zhen
+ID: 412 Symbol: Zhen
 ID: 413 Symbol: Apsaras
 ID: 414 Symbol: Bicorn
 ID: 415 Symbol: Apsaras
 ID: 416 Symbol: Apsaras
 ID: 417 Symbol: Apsaras
-ID: 418 Symbol: Bicorn
-ID: 419 Symbol: Nyami Nyami
+ID: 418 Symbol: Zhen
+ID: 419 Symbol: Tsuchigumo
 ID: 420 Symbol: Apsaras
 ID: 421 Symbol: Apsaras
 ID: 422 Symbol: Apsaras
 ID: 423 Symbol: Apsaras
-ID: 424 Symbol: Leanan Sidhe
-ID: 425 Symbol: Leanan Sidhe
-ID: 426 Symbol: Leanan Sidhe
+ID: 424 Symbol: Ippon-Datara
+ID: 425 Symbol: Ippon-Datara
+ID: 426 Symbol: Ippon-Datara
 ID: 427 Symbol: Bicorn
 ID: 428 Symbol: Bicorn
 ID: 429 Symbol: Bicorn
-ID: 430 Symbol: Aitvaras
-ID: 431 Symbol: Aitvaras
-ID: 432 Symbol: Aitvaras
-ID: 433 Symbol: Aitvaras
-ID: 434 Symbol: Aitvaras
+ID: 430 Symbol: Ippon-Datara
+ID: 431 Symbol: Ippon-Datara
+ID: 432 Symbol: Ippon-Datara
+ID: 433 Symbol: Ippon-Datara
+ID: 434 Symbol: Ippon-Datara
 ID: 435 Symbol: Fortuna
-ID: 436 Symbol: Apsaras
-EID: 1130 Demons: 146 146 0 0 0 0 
+ID: 436 Symbol: Zhen
 ID: 437 Symbol: Apsaras
-ID: 438 Symbol: Aeros
-ID: 439 Symbol: Aeros
-ID: 440 Symbol: Ippon-Datara
-ID: 441 Symbol: Ippon-Datara
-ID: 442 Symbol: Ippon-Datara
-ID: 443 Symbol: Ippon-Datara
-ID: 444 Symbol: Ippon-Datara
-EID: 1155 Demons: 43 69 69 0 0 0 
-ID: 445 Symbol: Ippon-Datara
-ID: 446 Symbol: Bicorn
-ID: 447 Symbol: Nyami Nyami
-ID: 448 Symbol: Nyami Nyami
+ID: 438 Symbol: Mermaid
+ID: 439 Symbol: Mermaid
+ID: 440 Symbol: Aitvaras
+ID: 441 Symbol: Aitvaras
+ID: 442 Symbol: Aitvaras
+ID: 443 Symbol: Aitvaras
+ID: 444 Symbol: Apsaras
+ID: 445 Symbol: Aitvaras
+ID: 446 Symbol: Zhen
+ID: 447 Symbol: Tsuchigumo
+ID: 448 Symbol: Tsuchigumo
 ID: 449 Symbol: Fortuna
 ID: 591 Symbol: Slime
 ID: 592 Symbol: Preta
 ID: 593 Symbol: Onmoraki
 ID: 594 Symbol: Kodama
 ID: 595 Symbol: Cait Sith
-ID: 596 Symbol: Angel
-ID: 597 Symbol: Cait Sith
-ID: 598 Symbol: Bicorn
-ID: 599 Symbol: Bicorn
-ID: 600 Symbol: Azumi
-ID: 601 Symbol: Leanan Sidhe
-ID: 602 Symbol: Ippon-Datara
-EID: 1155 Demons: 43 69 69 0 0 0 
-ID: 603 Symbol: Aeros
+ID: 596 Symbol: Agathion
+ID: 597 Symbol: Daemon
+ID: 598 Symbol: Zhen
+ID: 599 Symbol: Zhen
+ID: 600 Symbol: Unicorn
+ID: 601 Symbol: Ippon-Datara
+ID: 602 Symbol: Apsaras
+ID: 603 Symbol: Mermaid
 ID: 614 Symbol: Andras
 ID: 615 Symbol: Rakshasa
 ID: 616 Symbol: Rakshasa
 ID: 617 Symbol: Rakshasa
 ID: 618 Symbol: Andras
-ID: 619 Symbol: Incubus
-ID: 620 Symbol: Xuanwu
-ID: 621 Symbol: Jack-o'-Lantern
-ID: 622 Symbol: Incubus
-ID: 623 Symbol: Incubus
-EID: 458 Demons: 172 216 0 0 0 0 
+ID: 619 Symbol: Feng Huang
+ID: 620 Symbol: Oni
+ID: 621 Symbol: Rakshasa
+ID: 622 Symbol: Feng Huang
+ID: 623 Symbol: Legion
 ID: 624 Symbol: Makami
-ID: 625 Symbol: Incubus
-EID: 518 Demons: 172 216 0 0 0 0 
-EID: 458 Demons: 172 216 0 0 0 0 
-EID: 452 Demons: 324 172 129 0 0 0 
-EID: 453 Demons: 172 108 57 0 0 0 
-ID: 626 Symbol: Legion
-EID: 460 Demons: 57 108 0 0 0 0 
+ID: 625 Symbol: Legion
+ID: 626 Symbol: Rakshasa
 ID: 627 Symbol: Rakshasa
-ID: 628 Symbol: Jack-o'-Lantern
+ID: 628 Symbol: Rakshasa
 ID: 629 Symbol: Rakshasa
-ID: 630 Symbol: Jack-o'-Lantern
-ID: 631 Symbol: Xuanwu
+ID: 630 Symbol: Rakshasa
+ID: 631 Symbol: Oni
 ID: 632 Symbol: Andras
-ID: 633 Symbol: Incubus
+ID: 633 Symbol: Feng Huang
 ID: 634 Symbol: Andras
 ID: 635 Symbol: Andras
 ID: 636 Symbol: Koppa Tengu
-ID: 637 Symbol: Incubus
+ID: 637 Symbol: Feng Huang
 ID: 638 Symbol: Koppa Tengu
-EID: 463 Demons: 172 108 0 0 0 0 
 ID: 639 Symbol: Makami
-ID: 640 Symbol: Bugs
-ID: 641 Symbol: Bugs
-ID: 642 Symbol: Xuanwu
-ID: 643 Symbol: Bugs
-ID: 644 Symbol: Koppa Tengu
-ID: 645 Symbol: Poltergeist
-ID: 646 Symbol: Poltergeist
-ID: 647 Symbol: Bugs
-EID: 532 Demons: 343 58 0 0 0 0 
-ID: 648 Symbol: Poltergeist
-ID: 649 Symbol: Mothman
-ID: 650 Symbol: Mothman
-ID: 651 Symbol: Poltergeist
-ID: 652 Symbol: Mothman
-EID: 550 Demons: 343 58 0 0 0 0 
+ID: 640 Symbol: Inugami
+ID: 641 Symbol: Inugami
+ID: 642 Symbol: Oni
+ID: 643 Symbol: Inugami
+ID: 644 Symbol: Kikuri-Hime
+ID: 645 Symbol: Jack Frost
+ID: 646 Symbol: Jack Frost
+ID: 647 Symbol: Inugami
+ID: 648 Symbol: Jack Frost
+ID: 649 Symbol: Anahita
+ID: 650 Symbol: Anahita
+ID: 651 Symbol: Jack Frost
+ID: 652 Symbol: Anahita
 ID: 653 Symbol: Poltergeist
 ID: 654 Symbol: Poltergeist
 ID: 655 Symbol: Poltergeist
 ID: 656 Symbol: Poltergeist
-ID: 657 Symbol: Koppa Tengu
+ID: 657 Symbol: Kikuri-Hime
 ID: 658 Symbol: Cironnup
 ID: 659 Symbol: Cironnup
 ID: 660 Symbol: Cironnup
-ID: 661 Symbol: Bugs
-ID: 662 Symbol: Xuanwu
-ID: 663 Symbol: Bugs
-ID: 664 Symbol: Bugs
-ID: 665 Symbol: Bugs
-EID: 530 Demons: 97 318 0 0 0 0 
-EID: 533 Demons: 42 268 194 0 0 0 
-ID: 666 Symbol: Bugs
+ID: 661 Symbol: Koppa Tengu
+ID: 662 Symbol: Oni
+ID: 663 Symbol: Koppa Tengu
+ID: 664 Symbol: Koppa Tengu
+ID: 665 Symbol: Inugami
+ID: 666 Symbol: Koppa Tengu
 ID: 667 Symbol: Cironnup
-ID: 668 Symbol: Mothman
-EID: 551 Demons: 128 202 0 0 0 0 
-EID: 553 Demons: 128 128 106 0 0 0 
-ID: 669 Symbol: Bugs
-ID: 670 Symbol: Bugs
-ID: 671 Symbol: Bugs
-EID: 2179 Demons: 108 108 57 0 0 0 
-ID: 672 Symbol: Koropokkur
-ID: 673 Symbol: Koropokkur
-ID: 674 Symbol: Poltergeist
-ID: 675 Symbol: Poltergeist
-ID: 676 Symbol: Koropokkur
+ID: 668 Symbol: Anahita
+ID: 669 Symbol: Inugami
+ID: 670 Symbol: Inugami
+ID: 671 Symbol: Jack-o'-Lantern
+ID: 672 Symbol: Turbo Granny
+ID: 673 Symbol: Turbo Granny
+ID: 674 Symbol: Jack Frost
+ID: 675 Symbol: Jack Frost
+ID: 676 Symbol: Turbo Granny
 ID: 677 Symbol: Cironnup
-ID: 678 Symbol: Koropokkur
-ID: 679 Symbol: Poltergeist
-ID: 680 Symbol: Koropokkur
+ID: 678 Symbol: Turbo Granny
+ID: 679 Symbol: Jack Frost
+ID: 680 Symbol: Turbo Granny
 ID: 681 Symbol: Cironnup
-ID: 682 Symbol: Koropokkur
-ID: 683 Symbol: Shiki-Ouji
-ID: 684 Symbol: Shiki-Ouji
-ID: 685 Symbol: Koropokkur
-EID: 637 Demons: 311 122 0 0 0 0 
-ID: 686 Symbol: Shiki-Ouji
-ID: 687 Symbol: Poltergeist
-ID: 688 Symbol: Poltergeist
-ID: 689 Symbol: Koropokkur
-ID: 690 Symbol: Shiki-Ouji
-ID: 691 Symbol: Jack Frost
-ID: 692 Symbol: Jack Frost
-ID: 693 Symbol: Daisoujou
-ID: 694 Symbol: Daisoujou
-EID: 643 Demons: 334 334 0 0 0 0 
-ID: 695 Symbol: Daisoujou
-ID: 696 Symbol: Daisoujou
-ID: 697 Symbol: Daisoujou
-EID: 649 Demons: 343 302 0 0 0 0 
-ID: 698 Symbol: Shiki-Ouji
-ID: 699 Symbol: Daisoujou
-EID: 672 Demons: 311 122 0 0 0 0 
-ID: 700 Symbol: Daisoujou
-ID: 701 Symbol: Daisoujou
-EID: 643 Demons: 334 334 0 0 0 0 
-EID: 638 Demons: 334 175 0 0 0 0 
-ID: 702 Symbol: Attis
-ID: 703 Symbol: Daisoujou
-EID: 688 Demons: 202 106 0 0 0 0 
-ID: 704 Symbol: Attis
+ID: 682 Symbol: Turbo Granny
+ID: 683 Symbol: Mothman
+ID: 684 Symbol: Mothman
+ID: 685 Symbol: Turbo Granny
+ID: 686 Symbol: Mothman
+ID: 687 Symbol: Jack Frost
+ID: 688 Symbol: Jack Frost
+ID: 689 Symbol: Turbo Granny
+ID: 690 Symbol: Mothman
+ID: 691 Symbol: Manananggal
+ID: 692 Symbol: Manananggal
+ID: 693 Symbol: Kelpie
+ID: 694 Symbol: Turbo Granny
+ID: 695 Symbol: Kelpie
+ID: 696 Symbol: Kelpie
+ID: 697 Symbol: Jack Frost
+ID: 698 Symbol: Mothman
+ID: 699 Symbol: Kelpie
+ID: 700 Symbol: Kelpie
+ID: 701 Symbol: Turbo Granny
+ID: 702 Symbol: Naga
+ID: 703 Symbol: Kelpie
+ID: 704 Symbol: Naga
 ID: 705 Symbol: Hare of Inaba
-ID: 706 Symbol: Shiki-Ouji
-EID: 673 Demons: 381 341 0 0 0 0 
+ID: 706 Symbol: Mothman
 ID: 707 Symbol: Hare of Inaba
-ID: 708 Symbol: Shiki-Ouji
-EID: 673 Demons: 381 341 0 0 0 0 
+ID: 708 Symbol: Mothman
 ID: 709 Symbol: Hare of Inaba
-ID: 710 Symbol: Poltergeist
-EID: 656 Demons: 381 113 0 0 0 0 
+ID: 710 Symbol: Jack Frost
 ID: 711 Symbol: Hare of Inaba
-ID: 712 Symbol: Daisoujou
-EID: 690 Demons: 381 271 0 0 0 0 
+ID: 712 Symbol: Kelpie
 ID: 713 Symbol: Hare of Inaba
 ID: 714 Symbol: Hare of Inaba
-ID: 715 Symbol: Attis
-EID: 699 Demons: 381 341 0 0 0 0 
+ID: 715 Symbol: Naga
 ID: 716 Symbol: Cironnup
-ID: 717 Symbol: Eligor
+ID: 717 Symbol: Artemis
 ID: 718 Symbol: Hare of Inaba
-ID: 719 Symbol: Attis
+ID: 719 Symbol: Naga
 ID: 720 Symbol: Hare of Inaba
-ID: 721 Symbol: Attis
-EID: 2196 Demons: 381 113 271 0 0 0 
-EID: 699 Demons: 381 341 0 0 0 0 
-EID: 2195 Demons: 381 113 46 0 0 0 
-ID: 722 Symbol: Daisoujou
-ID: 723 Symbol: Daisoujou
-ID: 724 Symbol: Daisoujou
-ID: 725 Symbol: Daisoujou
-ID: 726 Symbol: Daisoujou
-ID: 727 Symbol: Dís
-ID: 728 Symbol: Daisoujou
-ID: 729 Symbol: Daisoujou
-ID: 730 Symbol: Daisoujou
-ID: 731 Symbol: Jack Frost
-ID: 732 Symbol: Dís
-ID: 733 Symbol: Daisoujou
-ID: 734 Symbol: Daisoujou
-ID: 735 Symbol: Daisoujou
-ID: 736 Symbol: Hare of Inaba
-ID: 737 Symbol: Hare of Inaba
-ID: 738 Symbol: Daisoujou
-EID: 758 Demons: 381 341 0 0 0 0 
-ID: 739 Symbol: Dís
-ID: 740 Symbol: Hare of Inaba
-ID: 741 Symbol: Daisoujou
-EID: 758 Demons: 381 341 0 0 0 0 
-ID: 742 Symbol: Dís
-ID: 743 Symbol: Daisoujou
-ID: 744 Symbol: Hare of Inaba
-ID: 745 Symbol: Daisoujou
-EID: 758 Demons: 381 341 0 0 0 0 
-ID: 746 Symbol: Jack Frost
-ID: 747 Symbol: Jack Frost
-ID: 748 Symbol: Jack Frost
-ID: 749 Symbol: Kelpie
-ID: 750 Symbol: Kelpie
-ID: 751 Symbol: Daisoujou
-EID: 761 Demons: 55 299 0 0 0 0 
-ID: 752 Symbol: Jack Frost
-ID: 753 Symbol: Kelpie
-ID: 754 Symbol: Dís
-ID: 755 Symbol: Kelpie
-ID: 756 Symbol: Eligor
-ID: 757 Symbol: Koppa Tengu
-ID: 758 Symbol: Kelpie
-ID: 759 Symbol: Hua Po
-EID: 2204 Demons: 381 271 0 0 0 0 
-ID: 760 Symbol: Kelpie
-ID: 761 Symbol: Dís
+ID: 721 Symbol: Naga
+ID: 722 Symbol: Kelpie
+ID: 723 Symbol: Kelpie
+ID: 724 Symbol: Kelpie
+ID: 725 Symbol: Kelpie
+ID: 726 Symbol: Kelpie
+ID: 727 Symbol: Hua Po
+ID: 728 Symbol: Kelpie
+ID: 729 Symbol: Kelpie
+ID: 730 Symbol: Kelpie
+ID: 731 Symbol: Manananggal
+ID: 732 Symbol: Hua Po
+ID: 733 Symbol: Kelpie
+ID: 734 Symbol: Kelpie
+ID: 735 Symbol: Kelpie
+ID: 736 Symbol: Basilisk
+ID: 737 Symbol: Basilisk
+ID: 738 Symbol: Kelpie
+ID: 739 Symbol: Hua Po
+ID: 740 Symbol: Basilisk
+ID: 741 Symbol: Kelpie
+ID: 742 Symbol: Hua Po
+ID: 743 Symbol: Kelpie
+ID: 744 Symbol: Basilisk
+ID: 745 Symbol: Kelpie
+ID: 746 Symbol: Manananggal
+ID: 747 Symbol: Manananggal
+ID: 748 Symbol: Manananggal
+ID: 749 Symbol: Daisoujou
+ID: 750 Symbol: Daisoujou
+ID: 751 Symbol: Kelpie
+ID: 752 Symbol: Manananggal
+ID: 753 Symbol: Daisoujou
+ID: 754 Symbol: Hua Po
+ID: 755 Symbol: Daisoujou
+ID: 756 Symbol: Artemis
+ID: 757 Symbol: Kikuri-Hime
+ID: 758 Symbol: Daisoujou
+ID: 759 Symbol: Basilisk
+ID: 760 Symbol: Daisoujou
+ID: 761 Symbol: Hua Po
 ID: 762 Symbol: Lilim
-ID: 763 Symbol: Thoth
-ID: 764 Symbol: Dís
-ID: 765 Symbol: Thoth
-EID: 775 Demons: 46 271 0 0 0 0 
+ID: 763 Symbol: Baphomet
+ID: 764 Symbol: Hua Po
+ID: 765 Symbol: Baphomet
 ID: 766 Symbol: Lilim
-ID: 767 Symbol: Hua Po
-EID: 2204 Demons: 381 271 0 0 0 0 
+ID: 767 Symbol: Basilisk
 ID: 768 Symbol: Quetzalcoatl
 ID: 769 Symbol: Quetzalcoatl
 ID: 770 Symbol: Quetzalcoatl
 ID: 771 Symbol: Quetzalcoatl
-ID: 772 Symbol: Dís
-ID: 773 Symbol: Eligor
-ID: 774 Symbol: Koppa Tengu
+ID: 772 Symbol: Hua Po
+ID: 773 Symbol: Artemis
+ID: 774 Symbol: Kikuri-Hime
 ID: 775 Symbol: Quetzalcoatl
 ID: 776 Symbol: Lilim
 ID: 777 Symbol: Lilim
 ID: 778 Symbol: Lilim
-ID: 779 Symbol: Forneus
+ID: 779 Symbol: Hare of Inaba
 ID: 780 Symbol: Lilim
-ID: 781 Symbol: Forneus
-ID: 782 Symbol: Forneus
+ID: 781 Symbol: Hare of Inaba
+ID: 782 Symbol: Hare of Inaba
 ID: 783 Symbol: Lilim
-EID: 859 Demons: 95 137 0 0 0 0 
-ID: 784 Symbol: Forneus
-ID: 785 Symbol: Forneus
+ID: 784 Symbol: Hare of Inaba
+ID: 785 Symbol: Hare of Inaba
 ID: 786 Symbol: Quetzalcoatl
-EID: 882 Demons: 271 381 0 0 0 0 
-ID: 787 Symbol: Forneus
-ID: 788 Symbol: Forneus
-ID: 789 Symbol: Forneus
-ID: 790 Symbol: Eligor
-ID: 791 Symbol: Koppa Tengu
-ID: 792 Symbol: Forneus
-ID: 793 Symbol: Thoth
+ID: 787 Symbol: Hare of Inaba
+ID: 788 Symbol: Hare of Inaba
+ID: 789 Symbol: Hare of Inaba
+ID: 790 Symbol: Artemis
+ID: 791 Symbol: Kikuri-Hime
+ID: 792 Symbol: Hare of Inaba
+ID: 793 Symbol: Baphomet
 ID: 794 Symbol: Parvati
-ID: 795 Symbol: Thoth
+ID: 795 Symbol: Baphomet
 ID: 796 Symbol: Parvati
-ID: 797 Symbol: Dís
-ID: 798 Symbol: Dís
-EID: 937 Demons: 14 171 14 87 0 0 
-ID: 799 Symbol: Thoth
-ID: 800 Symbol: Hariti
-ID: 801 Symbol: Eligor
-ID: 802 Symbol: Koppa Tengu
-EID: 902 Demons: 270 270 31 31 0 0 
-ID: 803 Symbol: Dís
-EID: 935 Demons: 14 235 235 0 0 0 
-EID: 2229 Demons: 14 87 235 0 0 0 
-EID: 937 Demons: 14 171 14 87 0 0 
-EID: 834 Demons: 14 87 87 0 0 0 
+ID: 797 Symbol: Hua Po
+ID: 798 Symbol: Baphomet
+ID: 799 Symbol: Baphomet
+ID: 800 Symbol: Karasu Tengu
+ID: 801 Symbol: Artemis
+ID: 802 Symbol: Kikuri-Hime
+ID: 803 Symbol: Baphomet
 ID: 804 Symbol: Parvati
-EID: 2229 Demons: 14 87 235 0 0 0 
-ID: 805 Symbol: Dís
-ID: 806 Symbol: Thoth
-ID: 807 Symbol: Thoth
+ID: 805 Symbol: Hua Po
+ID: 806 Symbol: Black Ooze
+ID: 807 Symbol: Black Ooze
 ID: 808 Symbol: Parvati
-ID: 809 Symbol: Thoth
+ID: 809 Symbol: Black Ooze
 ID: 972 Symbol: Rakshasa
-ID: 973 Symbol: Incubus
+ID: 973 Symbol: Feng Huang
 ID: 974 Symbol: Koppa Tengu
-EID: 463 Demons: 172 108 0 0 0 0 
 ID: 975 Symbol: Poltergeist
 ID: 976 Symbol: Cironnup
-ID: 977 Symbol: Bugs
+ID: 977 Symbol: Koppa Tengu
 ID: 978 Symbol: Hare of Inaba
-ID: 979 Symbol: Poltergeist
-ID: 980 Symbol: Dís
-ID: 981 Symbol: Attis
-EID: 699 Demons: 381 341 0 0 0 0 
+ID: 979 Symbol: Jack Frost
+ID: 980 Symbol: Hua Po
+ID: 981 Symbol: Naga
 ID: 982 Symbol: Zouchouten
 ID: 983 Symbol: Zouchouten
 ID: 984 Symbol: Zouchouten
-ID: 985 Symbol: Succubus
-ID: 986 Symbol: Hayataro
-ID: 987 Symbol: Succubus
-ID: 988 Symbol: Narcissus
-ID: 989 Symbol: Narcissus
-ID: 990 Symbol: Succubus
-ID: 991 Symbol: Hayataro
-EID: 1253 Demons: 65 283 0 0 0 0 
-EID: 1262 Demons: 65 104 223 0 0 0 
-EID: 1243 Demons: 65 223 141 0 0 0 
-ID: 992 Symbol: Hayataro
-EID: 1262 Demons: 65 104 223 0 0 0 
-EID: 1243 Demons: 65 223 141 0 0 0 
-ID: 993 Symbol: Hayataro
-ID: 994 Symbol: Narcissus
-EID: 1262 Demons: 65 104 223 0 0 0 
-EID: 1247 Demons: 65 289 65 289 0 0 
-ID: 995 Symbol: Narcissus
-ID: 996 Symbol: Power
-ID: 997 Symbol: Narcissus
-EID: 1261 Demons: 152 223 355 141 0 0 
-ID: 998 Symbol: Anubis
+ID: 985 Symbol: Thunderbird
+ID: 986 Symbol: Dormarth
+ID: 987 Symbol: Thunderbird
+ID: 988 Symbol: Muu Shuwuu
+ID: 989 Symbol: Muu Shuwuu
+ID: 990 Symbol: Thunderbird
+ID: 991 Symbol: Dormarth
+ID: 992 Symbol: Dormarth
+ID: 993 Symbol: Dormarth
+ID: 994 Symbol: Muu Shuwuu
+ID: 995 Symbol: Muu Shuwuu
+ID: 996 Symbol: Kurama Tengu
+ID: 997 Symbol: Muu Shuwuu
+ID: 998 Symbol: Kumbhanda
 ID: 999 Symbol: Zouchouten
 ID: 1000 Symbol: Hayataro
 ID: 1001 Symbol: Hayataro
-ID: 1002 Symbol: Succubus
-ID: 1003 Symbol: Succubus
-ID: 1004 Symbol: Macabre
-ID: 1005 Symbol: Succubus
+ID: 1002 Symbol: Narcissus
+ID: 1003 Symbol: Narcissus
+ID: 1004 Symbol: Senri
+ID: 1005 Symbol: Narcissus
 ID: 1006 Symbol: Orthrus
-ID: 1007 Symbol: Hayataro
-ID: 1008 Symbol: Succubus
-ID: 1009 Symbol: Macabre
-EID: 1328 Demons: 65 283 0 0 0 0 
-EID: 1342 Demons: 65 354 130 0 0 0 
-ID: 1010 Symbol: Succubus
-ID: 1011 Symbol: Hayataro
-EID: 1329 Demons: 65 283 332 0 0 0 
-EID: 1333 Demons: 65 141 355 0 0 0 
-ID: 1012 Symbol: Qing Long
-ID: 1013 Symbol: Macabre
-ID: 1014 Symbol: Hayataro
-ID: 1015 Symbol: Macabre
-EID: 1342 Demons: 65 354 130 0 0 0 
-ID: 1016 Symbol: Macabre
-ID: 1017 Symbol: Anubis
-ID: 1018 Symbol: Anubis
-ID: 1019 Symbol: Macabre
-ID: 1020 Symbol: Anubis
-ID: 1021 Symbol: Anubis
-ID: 1022 Symbol: Macabre
-EID: 1342 Demons: 65 354 130 0 0 0 
-ID: 1023 Symbol: Macabre
-ID: 1024 Symbol: Zhuque
-ID: 1025 Symbol: Anubis
-ID: 1026 Symbol: Hayataro
-ID: 1027 Symbol: Succubus
-ID: 1028 Symbol: Macabre
-EID: 1359 Demons: 96 96 66 0 0 0 
-EID: 1362 Demons: 96 66 66 224 0 0 
-EID: 1358 Demons: 96 96 96 224 0 0 
-ID: 1029 Symbol: Horus
-ID: 1030 Symbol: Hayataro
-ID: 1031 Symbol: Macabre
-EID: 1342 Demons: 65 354 130 0 0 0 
-ID: 1032 Symbol: Zhuque
-ID: 1033 Symbol: Zhuque
-ID: 1034 Symbol: Koumokuten
-ID: 1035 Symbol: Koumokuten
-ID: 1036 Symbol: Qing Long
-EID: 1406 Demons: 205 269 0 0 0 0 
-EID: 1418 Demons: 205 224 224 0 0 0 
-ID: 1037 Symbol: Horus
-ID: 1038 Symbol: Hayataro
-EID: 1329 Demons: 65 283 332 0 0 0 
-EID: 1440 Demons: 65 104 104 0 0 0 
-ID: 1039 Symbol: Qing Long
-ID: 1040 Symbol: Horus
-EID: 1352 Demons: 326 130 0 0 0 0 
-ID: 1041 Symbol: Koumokuten
-ID: 1042 Symbol: Horus
-EID: 1352 Demons: 326 130 0 0 0 0 
-ID: 1043 Symbol: Horus
+ID: 1007 Symbol: Oyamatsumi
+ID: 1008 Symbol: Narcissus
+ID: 1009 Symbol: Senri
+ID: 1010 Symbol: Narcissus
+ID: 1011 Symbol: Oyamatsumi
+ID: 1012 Symbol: Kaiwan
+ID: 1013 Symbol: Senri
+ID: 1014 Symbol: Oyamatsumi
+ID: 1015 Symbol: Senri
+ID: 1016 Symbol: Kaiwan
+ID: 1017 Symbol: Kumbhanda
+ID: 1018 Symbol: Kumbhanda
+ID: 1019 Symbol: Senri
+ID: 1020 Symbol: Kumbhanda
+ID: 1021 Symbol: Kumbhanda
+ID: 1022 Symbol: Senri
+ID: 1023 Symbol: Senri
+ID: 1024 Symbol: Senri
+ID: 1025 Symbol: Kumbhanda
+ID: 1026 Symbol: Oyamatsumi
+ID: 1027 Symbol: Narcissus
+ID: 1028 Symbol: Kaiwan
+ID: 1029 Symbol: Orthrus
+ID: 1030 Symbol: Oyamatsumi
+ID: 1031 Symbol: Senri
+ID: 1032 Symbol: Senri
+ID: 1033 Symbol: Senri
+ID: 1034 Symbol: Belphegor
+ID: 1035 Symbol: Belphegor
+ID: 1036 Symbol: Kaiwan
+ID: 1037 Symbol: Orthrus
+ID: 1038 Symbol: Oyamatsumi
+ID: 1039 Symbol: Kaiwan
+ID: 1040 Symbol: Orthrus
+ID: 1041 Symbol: Belphegor
+ID: 1042 Symbol: Orthrus
+ID: 1043 Symbol: Orthrus
 ID: 1044 Symbol: Anzu
 ID: 1045 Symbol: Anzu
-ID: 1046 Symbol: Koumokuten
+ID: 1046 Symbol: Belphegor
 ID: 1047 Symbol: Anzu
-ID: 1048 Symbol: Koumokuten
-ID: 1049 Symbol: Horus
-ID: 1050 Symbol: Horus
-ID: 1051 Symbol: Hayataro
-ID: 1052 Symbol: Hayataro
-ID: 1053 Symbol: Horus
-ID: 1054 Symbol: Hayataro
-ID: 1055 Symbol: Hayataro
-ID: 1056 Symbol: Qing Long
-ID: 1057 Symbol: Hanuman
-ID: 1058 Symbol: Koumokuten
-ID: 1059 Symbol: Qing Long
-ID: 1060 Symbol: Isis
-ID: 1061 Symbol: Isis
-ID: 1062 Symbol: Horus
+ID: 1048 Symbol: Belphegor
+ID: 1049 Symbol: Orthrus
+ID: 1050 Symbol: Orthrus
+ID: 1051 Symbol: Oyamatsumi
+ID: 1052 Symbol: Oyamatsumi
+ID: 1053 Symbol: Orthrus
+ID: 1054 Symbol: Oyamatsumi
+ID: 1055 Symbol: Oyamatsumi
+ID: 1056 Symbol: Kaiwan
+ID: 1057 Symbol: Isis
+ID: 1058 Symbol: Belphegor
+ID: 1059 Symbol: Kaiwan
+ID: 1060 Symbol: Dakini
+ID: 1061 Symbol: Dakini
+ID: 1062 Symbol: Orthrus
 ID: 1063 Symbol: Anzu
 ID: 1064 Symbol: Anzu
-ID: 1065 Symbol: Red Rider
-ID: 1066 Symbol: Isis
-ID: 1067 Symbol: Qing Long
-ID: 1068 Symbol: Red Rider
-EID: 2720 Demons: 287 287 0 0 0 0 
-EID: 2721 Demons: 287 174 174 287 0 0 
-EID: 2727 Demons: 287 174 174 287 0 0 
-ID: 1069 Symbol: Isis
+ID: 1065 Symbol: Oberon
+ID: 1066 Symbol: Dakini
+ID: 1067 Symbol: Kaiwan
+ID: 1068 Symbol: Mad Gasser
+ID: 1069 Symbol: Dakini
 ID: 1070 Symbol: Anzu
-ID: 1071 Symbol: Horus
-ID: 1072 Symbol: Horus
-ID: 1073 Symbol: Isis
-ID: 1074 Symbol: Koumokuten
-ID: 1075 Symbol: Hayataro
-ID: 1076 Symbol: Horus
-EID: 1521 Demons: 287 174 236 287 0 0 
-ID: 1077 Symbol: Hayataro
-ID: 1078 Symbol: Anzu
-ID: 1079 Symbol: Power
+ID: 1071 Symbol: Orthrus
+ID: 1072 Symbol: Orthrus
+ID: 1073 Symbol: Dakini
+ID: 1074 Symbol: Belphegor
+ID: 1075 Symbol: Oyamatsumi
+ID: 1076 Symbol: Orthrus
+ID: 1077 Symbol: Oyamatsumi
+ID: 1078 Symbol: Mad Gasser
+ID: 1079 Symbol: Kurama Tengu
 ID: 1080 Symbol: Orthrus
-EID: 2730 Demons: 256 37 387 0 0 0 
-EID: 1452 Demons: 287 256 174 0 0 0 
-EID: 1510 Demons: 256 34 152 193 0 0 
-ID: 1081 Symbol: Hanuman
-EID: 2730 Demons: 256 37 387 0 0 0 
-EID: 1511 Demons: 193 256 297 0 0 0 
-EID: 1527 Demons: 256 287 287 0 0 0 
-ID: 1189 Symbol: Hayataro
-ID: 1190 Symbol: Hayataro
-EID: 1253 Demons: 65 283 0 0 0 0 
-ID: 1191 Symbol: Succubus
-ID: 1192 Symbol: Succubus
-ID: 1193 Symbol: Hayataro
-EID: 1265 Demons: 332 65 0 0 0 0 
-EID: 1256 Demons: 65 283 332 0 0 0 
-ID: 1194 Symbol: Succubus
-ID: 1195 Symbol: Succubus
-EID: 1239 Demons: 206 303 206 0 0 0 
-ID: 1196 Symbol: Horus
-EID: 1340 Demons: 152 141 355 0 0 0 
-ID: 1197 Symbol: Horus
-EID: 1340 Demons: 152 141 355 0 0 0 
-ID: 1198 Symbol: Succubus
-EID: 1439 Demons: 152 212 0 0 0 0 
-ID: 1199 Symbol: Succubus
+ID: 1081 Symbol: Isis
+ID: 1189 Symbol: Dormarth
+ID: 1190 Symbol: Dormarth
+ID: 1191 Symbol: Thunderbird
+ID: 1192 Symbol: Thunderbird
+ID: 1193 Symbol: Muu Shuwuu
+ID: 1194 Symbol: Muu Shuwuu
+ID: 1195 Symbol: Zouchouten
+ID: 1196 Symbol: Orthrus
+ID: 1197 Symbol: Orthrus
+ID: 1198 Symbol: Oyamatsumi
+ID: 1199 Symbol: Narcissus
 ID: 1200 Symbol: Anzu
 ID: 1201 Symbol: Anzu
 ID: 1202 Symbol: Anzu
-ID: 1203 Symbol: Hanuman
-ID: 1204 Symbol: Hayataro
-EID: 1514 Demons: 205 183 13 72 0 0 
-EID: 1533 Demons: 205 353 24 0 0 0 
-EID: 1532 Demons: 205 72 183 269 0 0 
-EID: 1522 Demons: 205 135 13 23 0 0 
-ID: 1205 Symbol: Isis
-EID: 1505 Demons: 13 234 135 0 0 0 
-ID: 1206 Symbol: Kin-Ki
-ID: 1207 Symbol: Kin-Ki
-ID: 1208 Symbol: Kin-Ki
-ID: 1209 Symbol: Kushinada-Hime
-ID: 1210 Symbol: Kushinada-Hime
-ID: 1211 Symbol: Kushinada-Hime
-ID: 1212 Symbol: Kushinada-Hime
-ID: 1213 Symbol: Kin-Ki
-ID: 1214 Symbol: Kin-Ki
-ID: 1215 Symbol: Kin-Ki
-ID: 1216 Symbol: Kin-Ki
-ID: 1217 Symbol: Kin-Ki
-ID: 1218 Symbol: Kushinada-Hime
-ID: 1219 Symbol: Kushinada-Hime
-ID: 1220 Symbol: Kushinada-Hime
-ID: 1221 Symbol: Kushinada-Hime
-ID: 1222 Symbol: Kushinada-Hime
-ID: 1223 Symbol: Kushinada-Hime
-ID: 1224 Symbol: Kushinada-Hime
-ID: 1225 Symbol: Kin-Ki
-ID: 1226 Symbol: Kin-Ki
-ID: 1227 Symbol: Kin-Ki
-ID: 1228 Symbol: Kin-Ki
-ID: 1229 Symbol: Kushinada-Hime
-ID: 1230 Symbol: Kushinada-Hime
-ID: 1231 Symbol: Kushinada-Hime
-EID: 1601 Demons: 314 41 145 0 0 0 
-ID: 1232 Symbol: Kushinada-Hime
-ID: 1233 Symbol: Kushinada-Hime
-ID: 1234 Symbol: Kushinada-Hime
-ID: 1235 Symbol: Kushinada-Hime
-ID: 1236 Symbol: Kushinada-Hime
-ID: 1237 Symbol: Kushinada-Hime
-EID: 1601 Demons: 314 41 145 0 0 0 
-ID: 1238 Symbol: Kushinada-Hime
-ID: 1239 Symbol: Kin-Ki
-ID: 1240 Symbol: Kushinada-Hime
-EID: 1601 Demons: 314 41 145 0 0 0 
-ID: 1241 Symbol: Kin-Ki
-ID: 1242 Symbol: Kushinada-Hime
-ID: 1243 Symbol: Kushinada-Hime
-ID: 1244 Symbol: Kushinada-Hime
-EID: 1601 Demons: 314 41 145 0 0 0 
-ID: 1245 Symbol: Nue
-ID: 1246 Symbol: Nue
-ID: 1247 Symbol: Pazuzu
-ID: 1248 Symbol: Nue
-ID: 1249 Symbol: Nue
-ID: 1250 Symbol: Nue
-ID: 1251 Symbol: Nue
-ID: 1252 Symbol: Kushinada-Hime
-ID: 1253 Symbol: Nue
-ID: 1254 Symbol: Kushinada-Hime
-ID: 1255 Symbol: Kushinada-Hime
-ID: 1256 Symbol: Kushinada-Hime
-ID: 1257 Symbol: Pazuzu
-EID: 1617 Demons: 145 314 0 0 0 0 
-ID: 1258 Symbol: Nue
-ID: 1259 Symbol: Nue
-ID: 1260 Symbol: Dominion
-ID: 1261 Symbol: Dominion
-ID: 1262 Symbol: Dominion
-ID: 1263 Symbol: Dominion
-ID: 1264 Symbol: Dominion
-ID: 1265 Symbol: Yurlungur
-ID: 1266 Symbol: Dominion
-ID: 1267 Symbol: Dominion
-ID: 1268 Symbol: Kushinada-Hime
-ID: 1269 Symbol: Nue
-EID: 2840 Demons: 213 41 41 0 0 0 
-ID: 1270 Symbol: Kushinada-Hime
-ID: 1271 Symbol: Nue
-EID: 1675 Demons: 213 41 41 139 0 0 
-ID: 1272 Symbol: Yurlungur
-ID: 1273 Symbol: Yurlungur
-ID: 1274 Symbol: Yurlungur
-ID: 1275 Symbol: Yurlungur
-ID: 1276 Symbol: Nue
-ID: 1277 Symbol: Nue
-ID: 1278 Symbol: Yurlungur
-EID: 1605 Demons: 145 314 213 0 0 0 
-EID: 1611 Demons: 145 139 139 0 0 0 
-EID: 1677 Demons: 145 126 126 314 0 0 
-ID: 1279 Symbol: Kushinada-Hime
-EID: 1617 Demons: 145 314 0 0 0 0 
-EID: 1657 Demons: 145 301 47 0 0 0 
-EID: 1670 Demons: 145 99 0 0 0 0 
-ID: 1280 Symbol: Nue
-ID: 1281 Symbol: Kushinada-Hime
-ID: 1282 Symbol: Kushinada-Hime
-ID: 1283 Symbol: Nue
-ID: 1284 Symbol: Nue
-ID: 1285 Symbol: Nue
-ID: 1286 Symbol: Dominion
-ID: 1287 Symbol: Dominion
-EID: 1657 Demons: 145 301 47 0 0 0 
-ID: 1288 Symbol: Dominion
-ID: 1289 Symbol: Yurlungur
-ID: 1290 Symbol: Yurlungur
-EID: 1670 Demons: 145 99 0 0 0 0 
-ID: 1291 Symbol: Yurlungur
-ID: 1292 Symbol: Nue
-ID: 1293 Symbol: Efreet
-EID: 2824 Demons: 145 36 182 99 0 0 
-ID: 1302 Symbol: Hecatoncheires
+ID: 1203 Symbol: Isis
+ID: 1204 Symbol: Belphegor
+ID: 1205 Symbol: Dakini
+ID: 1206 Symbol: Anansi
+ID: 1207 Symbol: Anansi
+ID: 1208 Symbol: Anansi
+ID: 1209 Symbol: Kin-Ki
+ID: 1210 Symbol: Kin-Ki
+ID: 1211 Symbol: Kin-Ki
+ID: 1212 Symbol: Kin-Ki
+ID: 1213 Symbol: Anansi
+ID: 1214 Symbol: Anansi
+ID: 1215 Symbol: Anansi
+ID: 1216 Symbol: Anansi
+ID: 1217 Symbol: Anansi
+ID: 1218 Symbol: Kin-Ki
+ID: 1219 Symbol: Kin-Ki
+ID: 1220 Symbol: Kin-Ki
+ID: 1221 Symbol: Kin-Ki
+ID: 1222 Symbol: Kin-Ki
+ID: 1223 Symbol: Kin-Ki
+ID: 1224 Symbol: Kin-Ki
+ID: 1225 Symbol: Anansi
+ID: 1226 Symbol: Anansi
+ID: 1227 Symbol: Anansi
+ID: 1228 Symbol: Anansi
+ID: 1229 Symbol: Kin-Ki
+ID: 1230 Symbol: Kin-Ki
+ID: 1231 Symbol: Kin-Ki
+ID: 1232 Symbol: Kin-Ki
+ID: 1233 Symbol: Kin-Ki
+ID: 1234 Symbol: Kin-Ki
+ID: 1235 Symbol: Kin-Ki
+ID: 1236 Symbol: Kin-Ki
+ID: 1237 Symbol: Kin-Ki
+ID: 1238 Symbol: Kin-Ki
+ID: 1239 Symbol: Anansi
+ID: 1240 Symbol: Kin-Ki
+ID: 1241 Symbol: Anansi
+ID: 1242 Symbol: Kin-Ki
+ID: 1243 Symbol: Kin-Ki
+ID: 1244 Symbol: Kin-Ki
+ID: 1245 Symbol: Kushinada-Hime
+ID: 1246 Symbol: Kushinada-Hime
+ID: 1247 Symbol: Vritra
+ID: 1248 Symbol: Kushinada-Hime
+ID: 1249 Symbol: Kushinada-Hime
+ID: 1250 Symbol: Kushinada-Hime
+ID: 1251 Symbol: Kushinada-Hime
+ID: 1252 Symbol: Kin-Ki
+ID: 1253 Symbol: Kushinada-Hime
+ID: 1254 Symbol: Kin-Ki
+ID: 1255 Symbol: Kin-Ki
+ID: 1256 Symbol: Kin-Ki
+ID: 1257 Symbol: Vritra
+ID: 1258 Symbol: Kushinada-Hime
+ID: 1259 Symbol: Kushinada-Hime
+ID: 1260 Symbol: Flauros
+ID: 1261 Symbol: Flauros
+ID: 1262 Symbol: Flauros
+ID: 1263 Symbol: Flauros
+ID: 1264 Symbol: Flauros
+ID: 1265 Symbol: Konohana Sakuya
+ID: 1266 Symbol: Flauros
+ID: 1267 Symbol: Flauros
+ID: 1268 Symbol: Kin-Ki
+ID: 1269 Symbol: Kin-Ki
+ID: 1270 Symbol: Kin-Ki
+ID: 1271 Symbol: Kin-Ki
+ID: 1272 Symbol: Konohana Sakuya
+ID: 1273 Symbol: Konohana Sakuya
+ID: 1274 Symbol: Konohana Sakuya
+ID: 1275 Symbol: Konohana Sakuya
+ID: 1276 Symbol: Kushinada-Hime
+ID: 1277 Symbol: Kushinada-Hime
+ID: 1278 Symbol: Kushinada-Hime
+ID: 1279 Symbol: Vritra
+ID: 1280 Symbol: Kushinada-Hime
+ID: 1281 Symbol: Kin-Ki
+ID: 1282 Symbol: Kin-Ki
+ID: 1283 Symbol: Kushinada-Hime
+ID: 1284 Symbol: Kushinada-Hime
+ID: 1285 Symbol: Kushinada-Hime
+ID: 1286 Symbol: Flauros
+ID: 1287 Symbol: Flauros
+ID: 1288 Symbol: Flauros
+ID: 1289 Symbol: Konohana Sakuya
+ID: 1290 Symbol: Konohana Sakuya
+ID: 1291 Symbol: Konohana Sakuya
+ID: 1292 Symbol: Pazuzu
+ID: 1293 Symbol: Pazuzu
+ID: 1302 Symbol: Decarabia
 ID: 1303 Symbol: Clotho
-ID: 1304 Symbol: Clotho
-EID: 1700 Demons: 136 12 0 0 0 0 
-EID: 2870 Demons: 136 280 12 0 0 0 
+ID: 1304 Symbol: Loup-garou
 ID: 1305 Symbol: Loup-garou
 ID: 1306 Symbol: Loup-garou
-ID: 1307 Symbol: Hecatoncheires
-ID: 1308 Symbol: Hecatoncheires
-EID: 1718 Demons: 301 352 0 0 0 0 
-EID: 1708 Demons: 136 301 12 0 0 0 
-ID: 1309 Symbol: Hecatoncheires
-EID: 1705 Demons: 136 12 280 0 0 0 
-ID: 1310 Symbol: Hecatoncheires
-EID: 1729 Demons: 301 36 182 0 0 0 
-EID: 1720 Demons: 301 273 26 0 0 0 
-ID: 1311 Symbol: Hecatoncheires
-ID: 1312 Symbol: Queen Medb
-ID: 1313 Symbol: Hecatoncheires
-EID: 1723 Demons: 64 312 191 0 0 0 
-EID: 1719 Demons: 64 273 215 0 0 0 
-EID: 1722 Demons: 64 26 215 0 0 0 
-ID: 1314 Symbol: Hecatoncheires
-EID: 1722 Demons: 64 26 215 0 0 0 
-ID: 1315 Symbol: Hecatoncheires
+ID: 1307 Symbol: Chimera
+ID: 1308 Symbol: Decarabia
+ID: 1309 Symbol: Chimera
+ID: 1310 Symbol: Chimera
+ID: 1311 Symbol: Decarabia
+ID: 1312 Symbol: Loki
+ID: 1313 Symbol: Decarabia
+ID: 1314 Symbol: Decarabia
+ID: 1315 Symbol: Decarabia
 ID: 1316 Symbol: Loup-garou
 ID: 1317 Symbol: Loup-garou
-ID: 1318 Symbol: Hecatoncheires
-EID: 1722 Demons: 64 26 215 0 0 0 
+ID: 1318 Symbol: Chimera
 ID: 1319 Symbol: Clotho
 ID: 1320 Symbol: Loup-garou
-ID: 1321 Symbol: Queen Medb
-EID: 1732 Demons: 322 273 26 0 0 0 
-EID: 1713 Demons: 322 221 0 0 0 0 
+ID: 1321 Symbol: Ganesha
 ID: 1322 Symbol: Loup-garou
-ID: 1323 Symbol: Hecatoncheires
-EID: 1720 Demons: 301 273 26 0 0 0 
-ID: 1324 Symbol: Queen Medb
-EID: 1735 Demons: 301 99 0 0 0 0 
-ID: 1325 Symbol: Melchizedek
+ID: 1323 Symbol: Chimera
+ID: 1324 Symbol: Loki
+ID: 1325 Symbol: Kudlak
 ID: 1326 Symbol: Mara
-ID: 1327 Symbol: Hecatoncheires
-ID: 1328 Symbol: Queen Medb
-EID: 1732 Demons: 322 273 26 0 0 0 
-EID: 1736 Demons: 322 51 0 0 0 0 
-EID: 1740 Demons: 322 221 0 0 0 0 
+ID: 1327 Symbol: Chimera
+ID: 1328 Symbol: Ganesha
 ID: 1329 Symbol: Clotho
-EID: 1719 Demons: 64 273 215 0 0 0 
-EID: 1736 Demons: 322 51 0 0 0 0 
-ID: 1330 Symbol: Queen Medb
+ID: 1330 Symbol: Loki
 ID: 1331 Symbol: Loup-garou
-EID: 1710 Demons: 249 119 116 0 0 0 
-ID: 1332 Symbol: Queen Medb
-EID: 2868 Demons: 136 249 322 26 0 0 
-EID: 2922 Demons: 301 99 0 0 0 0 
-ID: 1333 Symbol: Bishamonten
-ID: 1334 Symbol: Hecatoncheires
-EID: 1720 Demons: 301 273 26 0 0 0 
-EID: 1719 Demons: 64 273 215 0 0 0 
-ID: 1335 Symbol: Atropos
-ID: 1336 Symbol: Hecatoncheires
-EID: 1708 Demons: 136 301 12 0 0 0 
+ID: 1332 Symbol: Melchizedek
+ID: 1333 Symbol: Lachesis
+ID: 1334 Symbol: Decarabia
+ID: 1335 Symbol: Cerberus
+ID: 1336 Symbol: Decarabia
 ID: 1337 Symbol: Mara
-ID: 1338 Symbol: Hecatoncheires
-ID: 1339 Symbol: Hecatoncheires
-ID: 1340 Symbol: Atropos
+ID: 1338 Symbol: Chimera
+ID: 1339 Symbol: Decarabia
+ID: 1340 Symbol: Cerberus
 ID: 1341 Symbol: Cybele
 ID: 1342 Symbol: Cybele
 ID: 1343 Symbol: Cybele
 ID: 1344 Symbol: Cybele
-EID: 1786 Demons: 298 134 254 0 0 0 
 ID: 1345 Symbol: Cybele
 ID: 1346 Symbol: Cybele
-EID: 1786 Demons: 298 134 254 0 0 0 
 ID: 1347 Symbol: Clotho
-EID: 1771 Demons: 191 298 89 0 0 0 
-ID: 1348 Symbol: Cybele
-EID: 1772 Demons: 203 301 36 0 0 0 
-ID: 1349 Symbol: Atropos
-EID: 1772 Demons: 203 301 36 0 0 0 
-ID: 1350 Symbol: Atropos
+ID: 1348 Symbol: Lachesis
+ID: 1349 Symbol: Cerberus
+ID: 1350 Symbol: Cerberus
 ID: 1351 Symbol: Clotho
-EID: 1719 Demons: 64 273 215 0 0 0 
-ID: 1352 Symbol: Hecatoncheires
-EID: 1720 Demons: 301 273 26 0 0 0 
-EID: 1729 Demons: 301 36 182 0 0 0 
-ID: 1353 Symbol: Bishamonten
-ID: 1354 Symbol: Hecatoncheires
+ID: 1352 Symbol: Chimera
+ID: 1353 Symbol: Lachesis
+ID: 1354 Symbol: Chimera
 ID: 1355 Symbol: Mara
-ID: 1356 Symbol: Hecatoncheires
+ID: 1356 Symbol: Chimera
 ID: 1357 Symbol: Cybele
 ID: 1358 Symbol: Mara
-ID: 1359 Symbol: Hecatoncheires
-ID: 1360 Symbol: Hecatoncheires
-EID: 1729 Demons: 301 36 182 0 0 0 
+ID: 1359 Symbol: Chimera
+ID: 1360 Symbol: Chimera
 ID: 1361 Symbol: Clotho
-EID: 1736 Demons: 322 51 0 0 0 0 
-ID: 1362 Symbol: Hecatoncheires
+ID: 1362 Symbol: Chimera
 ID: 1363 Symbol: Nahobeeho
 ID: 1364 Symbol: Nahobeeho
 ID: 1365 Symbol: Nahobeeho
-ID: 1366 Symbol: Queen Medb
-ID: 1367 Symbol: Queen Medb
-EID: 1821 Demons: 134 134 0 0 0 0 
-EID: 1822 Demons: 134 254 134 0 0 0 
-ID: 1368 Symbol: Melchizedek
-ID: 1369 Symbol: Clotho
-EID: 1823 Demons: 134 280 136 0 0 0 
-EID: 2907 Demons: 275 280 12 136 0 0 
-EID: 1839 Demons: 136 12 280 0 0 0 
-EID: 1785 Demons: 298 351 134 278 0 0 
-ID: 1370 Symbol: Cerberus
-ID: 1371 Symbol: Queen Medb
-EID: 1826 Demons: 134 221 358 0 0 0 
-EID: 1832 Demons: 358 249 249 0 0 0 
-EID: 1788 Demons: 298 278 0 0 0 0 
-ID: 1372 Symbol: Cerberus
-ID: 1373 Symbol: Azazel
-ID: 1374 Symbol: Cerberus
-EID: 2890 Demons: 60 60 0 0 0 0 
-ID: 1375 Symbol: Loup-garou
-EID: 1844 Demons: 84 103 0 0 0 0 
-ID: 1376 Symbol: Queen Medb
-EID: 1820 Demons: 136 103 391 0 0 0 
-ID: 1377 Symbol: Queen Medb
-EID: 1832 Demons: 358 249 249 0 0 0 
-EID: 1840 Demons: 136 358 0 0 0 0 
-ID: 1378 Symbol: Melchizedek
-EID: 1740 Demons: 322 221 0 0 0 0 
-EID: 2872 Demons: 64 40 0 0 0 0 
-ID: 1379 Symbol: Azazel
-ID: 1380 Symbol: Azazel
-ID: 1381 Symbol: Melchizedek
-EID: 2891 Demons: 60 60 0 0 0 0 
-ID: 1382 Symbol: Melchizedek
-EID: 2891 Demons: 60 60 0 0 0 0 
-ID: 1383 Symbol: Atropos
-EID: 1844 Demons: 84 103 0 0 0 0 
-EID: 1837 Demons: 249 40 40 0 0 0 
-EID: 1831 Demons: 134 278 351 0 0 0 
-ID: 1384 Symbol: Azazel
-ID: 1385 Symbol: Cherub
-ID: 1386 Symbol: Cherub
-ID: 1387 Symbol: Loup-garou
-EID: 1844 Demons: 84 103 0 0 0 0 
-EID: 2908 Demons: 275 295 0 0 0 0 
-ID: 1388 Symbol: Loup-garou
-EID: 1843 Demons: 84 180 180 0 0 0 
-EID: 2908 Demons: 275 295 0 0 0 0 
-ID: 1389 Symbol: Loup-garou
-EID: 1830 Demons: 84 391 0 0 0 0 
-EID: 2908 Demons: 275 295 0 0 0 0 
-ID: 1390 Symbol: Loup-garou
-EID: 1841 Demons: 84 391 0 0 0 0 
-EID: 1819 Demons: 84 180 0 0 0 0 
-ID: 1391 Symbol: Loup-garou
-EID: 1841 Demons: 84 391 0 0 0 0 
-EID: 1842 Demons: 84 84 180 0 0 0 
-EID: 2908 Demons: 275 295 0 0 0 0 
-ID: 1392 Symbol: Atropos
-EID: 1837 Demons: 249 40 40 0 0 0 
-ID: 1393 Symbol: Melchizedek
+ID: 1366 Symbol: Loki
+ID: 1367 Symbol: Atropos
+ID: 1368 Symbol: Kudlak
+ID: 1369 Symbol: Loup-garou
+ID: 1370 Symbol: Atropos
+ID: 1371 Symbol: Ganesha
+ID: 1372 Symbol: Atropos
+ID: 1373 Symbol: Cleopatra
+ID: 1374 Symbol: Atropos
+ID: 1375 Symbol: Zaou-Gongen
+ID: 1376 Symbol: Loki
+ID: 1377 Symbol: Ganesha
+ID: 1378 Symbol: Kudlak
+ID: 1379 Symbol: Cleopatra
+ID: 1380 Symbol: Cleopatra
+ID: 1381 Symbol: Kudlak
+ID: 1382 Symbol: Kudlak
+ID: 1383 Symbol: Cerberus
+ID: 1384 Symbol: Cleopatra
+ID: 1385 Symbol: Adramelech
+ID: 1386 Symbol: Adramelech
+ID: 1387 Symbol: Zaou-Gongen
+ID: 1388 Symbol: Zaou-Gongen
+ID: 1389 Symbol: Zaou-Gongen
+ID: 1390 Symbol: Zaou-Gongen
+ID: 1391 Symbol: Zaou-Gongen
+ID: 1392 Symbol: Cerberus
+ID: 1393 Symbol: Kudlak
 ID: 1394 Symbol: Mot
 ID: 1395 Symbol: Mot
 ID: 1396 Symbol: Mot
 ID: 1397 Symbol: Eisheth
 ID: 1398 Symbol: Mot
-ID: 1399 Symbol: Rangda
-ID: 1400 Symbol: Mot
+ID: 1399 Symbol: Lakshmi
+ID: 1400 Symbol: Lakshmi
 ID: 1401 Symbol: Mot
 ID: 1402 Symbol: Mot
-ID: 1403 Symbol: Mot
-EID: 1890 Demons: 296 21 21 21 0 0 
-EID: 1886 Demons: 296 296 296 0 0 0 
-ID: 1404 Symbol: Rangda
-ID: 1405 Symbol: Rangda
-ID: 1406 Symbol: Rangda
-ID: 1407 Symbol: Melchizedek
+ID: 1403 Symbol: Lakshmi
+ID: 1404 Symbol: Lakshmi
+ID: 1405 Symbol: Lakshmi
+ID: 1406 Symbol: Lakshmi
+ID: 1407 Symbol: Kudlak
 ID: 1408 Symbol: Mot
 ID: 1409 Symbol: Eisheth
 ID: 1410 Symbol: Eisheth
 ID: 1411 Symbol: Mot
 ID: 1412 Symbol: Eisheth
-ID: 1413 Symbol: Melchizedek
+ID: 1413 Symbol: Kudlak
 ID: 1414 Symbol: Eisheth
-ID: 1415 Symbol: Mot
-EID: 2880 Demons: 392 385 291 0 0 0 
-EID: 2932 Demons: 392 392 392 0 0 0 
-EID: 2881 Demons: 392 273 322 215 0 0 
-ID: 1416 Symbol: Mot
-EID: 2880 Demons: 392 385 291 0 0 0 
-EID: 2932 Demons: 392 392 392 0 0 0 
-EID: 2881 Demons: 392 273 322 215 0 0 
+ID: 1415 Symbol: Kinmamon
+ID: 1416 Symbol: Kinmamon
 ID: 1522 Symbol: Loup-garou
-EID: 1709 Demons: 322 273 26 0 0 0 
-EID: 1710 Demons: 249 119 116 0 0 0 
 ID: 1523 Symbol: Loup-garou
 ID: 1524 Symbol: Loup-garou
 ID: 1525 Symbol: Loup-garou
-EID: 1710 Demons: 249 119 116 0 0 0 
-ID: 1526 Symbol: Hecatoncheires
-ID: 1527 Symbol: Loup-garou
-EID: 1774 Demons: 322 203 300 0 0 0 
-EID: 1720 Demons: 301 273 26 0 0 0 
-EID: 1719 Demons: 64 273 215 0 0 0 
-ID: 1528 Symbol: Hecatoncheires
-ID: 1529 Symbol: Melchizedek
-ID: 1530 Symbol: Melchizedek
-EID: 1740 Demons: 322 221 0 0 0 0 
-ID: 1531 Symbol: Loup-garou
-EID: 1837 Demons: 249 40 40 0 0 0 
-EID: 1833 Demons: 249 119 40 346 0 0 
-EID: 1835 Demons: 249 40 119 0 0 0 
-ID: 1532 Symbol: Loup-garou
-EID: 1829 Demons: 134 249 346 0 0 0 
-EID: 1818 Demons: 249 64 119 0 0 0 
-EID: 1835 Demons: 249 40 119 0 0 0 
-ID: 1533 Symbol: Cerberus
-ID: 1534 Symbol: Cerberus
-ID: 1535 Symbol: Loup-garou
-EID: 1841 Demons: 84 391 0 0 0 0 
-EID: 1842 Demons: 84 84 180 0 0 0 
-ID: 1536 Symbol: Loup-garou
-EID: 1844 Demons: 84 103 0 0 0 0 
-ID: 1537 Symbol: Loup-garou
-EID: 1843 Demons: 84 180 180 0 0 0 
-EID: 1842 Demons: 84 84 180 0 0 0 
-ID: 1538 Symbol: Loup-garou
-EID: 1830 Demons: 84 391 0 0 0 0 
+ID: 1526 Symbol: Chimera
+ID: 1527 Symbol: Decarabia
+ID: 1528 Symbol: Decarabia
+ID: 1529 Symbol: Kudlak
+ID: 1530 Symbol: Kudlak
+ID: 1531 Symbol: Kudlak
+ID: 1532 Symbol: Kudlak
+ID: 1533 Symbol: Atropos
+ID: 1534 Symbol: Atropos
+ID: 1535 Symbol: Zaou-Gongen
+ID: 1536 Symbol: Zaou-Gongen
+ID: 1537 Symbol: Zaou-Gongen
+ID: 1538 Symbol: Zaou-Gongen
 ID: 1539 Symbol: Mot
-ID: 1540 Symbol: Mot
-ID: 1541 Symbol: Vasuki
-ID: 1542 Symbol: Vasuki
-ID: 1543 Symbol: Vasuki
-ID: 1544 Symbol: Vasuki
-ID: 1545 Symbol: Adramelech
-ID: 1546 Symbol: Adramelech
-ID: 1547 Symbol: Adramelech
-ID: 1548 Symbol: Adramelech
-ID: 1549 Symbol: Adramelech
-ID: 1550 Symbol: Adramelech
-ID: 1551 Symbol: Adramelech
-ID: 1552 Symbol: Adramelech
-ID: 1553 Symbol: Vasuki
-ID: 1554 Symbol: Adramelech
-ID: 1555 Symbol: Vasuki
-ID: 1556 Symbol: Vasuki
-ID: 1557 Symbol: Adramelech
-ID: 1558 Symbol: Adramelech
-ID: 1559 Symbol: Adramelech
-ID: 1560 Symbol: Adramelech
-ID: 1561 Symbol: Adramelech
-ID: 1562 Symbol: Adramelech
-ID: 1563 Symbol: Adramelech
-ID: 1564 Symbol: Adramelech
-ID: 1565 Symbol: Adramelech
-ID: 1566 Symbol: Adramelech
-ID: 1567 Symbol: Adramelech
-ID: 1568 Symbol: Adramelech
-ID: 1569 Symbol: Adramelech
-ID: 1570 Symbol: Vasuki
-ID: 1571 Symbol: Vasuki
-ID: 1572 Symbol: Vasuki
-ID: 1573 Symbol: Vasuki
-ID: 1574 Symbol: Adramelech
-ID: 1575 Symbol: Vasuki
-ID: 1576 Symbol: Vasuki
-ID: 1577 Symbol: Vasuki
-ID: 1578 Symbol: Adramelech
-ID: 1579 Symbol: Ongyo-Ki
-ID: 1580 Symbol: Ongyo-Ki
-ID: 1581 Symbol: Ongyo-Ki
-ID: 1582 Symbol: Sraosha
-ID: 1583 Symbol: Sraosha
-ID: 1584 Symbol: Ongyo-Ki
-ID: 1585 Symbol: Ongyo-Ki
-ID: 1586 Symbol: Ongyo-Ki
-ID: 1587 Symbol: Ongyo-Ki
-ID: 1588 Symbol: Sraosha
-ID: 1589 Symbol: Sraosha
-ID: 1590 Symbol: Sraosha
-ID: 1591 Symbol: Sraosha
+ID: 1540 Symbol: Eisheth
+ID: 1541 Symbol: Kali
+ID: 1542 Symbol: Kali
+ID: 1543 Symbol: Kali
+ID: 1544 Symbol: Kali
+ID: 1545 Symbol: Fionn mac Cumhaill
+ID: 1546 Symbol: Fionn mac Cumhaill
+ID: 1547 Symbol: Fionn mac Cumhaill
+ID: 1548 Symbol: Fionn mac Cumhaill
+ID: 1549 Symbol: Fionn mac Cumhaill
+ID: 1550 Symbol: Fionn mac Cumhaill
+ID: 1551 Symbol: Fionn mac Cumhaill
+ID: 1552 Symbol: Fionn mac Cumhaill
+ID: 1553 Symbol: Kali
+ID: 1554 Symbol: Fionn mac Cumhaill
+ID: 1555 Symbol: Kali
+ID: 1556 Symbol: Kali
+ID: 1557 Symbol: Fionn mac Cumhaill
+ID: 1558 Symbol: Fionn mac Cumhaill
+ID: 1559 Symbol: Fionn mac Cumhaill
+ID: 1560 Symbol: Fionn mac Cumhaill
+ID: 1561 Symbol: Fionn mac Cumhaill
+ID: 1562 Symbol: Fionn mac Cumhaill
+ID: 1563 Symbol: Fionn mac Cumhaill
+ID: 1564 Symbol: Fionn mac Cumhaill
+ID: 1565 Symbol: Fionn mac Cumhaill
+ID: 1566 Symbol: Fionn mac Cumhaill
+ID: 1567 Symbol: Fionn mac Cumhaill
+ID: 1568 Symbol: Fionn mac Cumhaill
+ID: 1569 Symbol: Fionn mac Cumhaill
+ID: 1570 Symbol: Kali
+ID: 1571 Symbol: Kali
+ID: 1572 Symbol: Kali
+ID: 1573 Symbol: Kali
+ID: 1574 Symbol: Fionn mac Cumhaill
+ID: 1575 Symbol: Kali
+ID: 1576 Symbol: Kali
+ID: 1577 Symbol: Kali
+ID: 1578 Symbol: Fionn mac Cumhaill
+ID: 1579 Symbol: Tzitzimitl
+ID: 1580 Symbol: Tzitzimitl
+ID: 1581 Symbol: Tzitzimitl
+ID: 1582 Symbol: Odin
+ID: 1583 Symbol: Odin
+ID: 1584 Symbol: Tzitzimitl
+ID: 1585 Symbol: Tzitzimitl
+ID: 1586 Symbol: Tzitzimitl
+ID: 1587 Symbol: Tzitzimitl
+ID: 1588 Symbol: Odin
+ID: 1589 Symbol: Odin
+ID: 1590 Symbol: Odin
+ID: 1591 Symbol: Odin
 ID: 1592 Symbol: Mada
 ID: 1593 Symbol: Mada
 ID: 1594 Symbol: Mada
 ID: 1595 Symbol: Mada
 ID: 1596 Symbol: Mada
-ID: 1597 Symbol: Mada
-EID: 1980 Demons: 310 310 310 238 0 0 
-EID: 1981 Demons: 310 82 238 0 0 0 
+ID: 1597 Symbol: Tzitzimitl
 ID: 1598 Symbol: Mada
 ID: 1599 Symbol: Mada
 ID: 1600 Symbol: Mada
@@ -1225,15 +1004,15 @@ ID: 1601 Symbol: Mada
 ID: 1602 Symbol: Mada
 ID: 1603 Symbol: Mada
 ID: 1604 Symbol: Mada
-ID: 1605 Symbol: Ongyo-Ki
+ID: 1605 Symbol: Tzitzimitl
 ID: 1606 Symbol: Mada
-ID: 1607 Symbol: Sraosha
-ID: 1608 Symbol: Sraosha
-ID: 1609 Symbol: Sraosha
-ID: 1610 Symbol: Sraosha
-ID: 1611 Symbol: Sraosha
-ID: 1612 Symbol: Sraosha
-ID: 1613 Symbol: Sraosha
+ID: 1607 Symbol: Odin
+ID: 1608 Symbol: Odin
+ID: 1609 Symbol: Odin
+ID: 1610 Symbol: Odin
+ID: 1611 Symbol: Odin
+ID: 1612 Symbol: Odin
+ID: 1613 Symbol: Odin
 ID: 1614 Symbol: Mada
 ID: 1615 Symbol: Mada
 ID: 1616 Symbol: Mada
@@ -1242,15 +1021,13 @@ ID: 1618 Symbol: Mada
 ID: 1619 Symbol: Mada
 ID: 1620 Symbol: Mada
 ID: 1621 Symbol: Mada
-ID: 1622 Symbol: Sraosha
-EID: 2016 Demons: 231 19 38 0 0 0 
-ID: 1623 Symbol: Sraosha
-ID: 1624 Symbol: Sraosha
-ID: 1625 Symbol: Sraosha
-EID: 2016 Demons: 231 19 38 0 0 0 
-ID: 1626 Symbol: Sraosha
-ID: 1627 Symbol: Sraosha
-ID: 1628 Symbol: Ongyo-Ki
+ID: 1622 Symbol: Odin
+ID: 1623 Symbol: Odin
+ID: 1624 Symbol: Odin
+ID: 1625 Symbol: Odin
+ID: 1626 Symbol: Odin
+ID: 1627 Symbol: Odin
+ID: 1628 Symbol: Tzitzimitl
 ID: 1629 Symbol: Mada
 ID: 1630 Symbol: Mada
 ID: 1631 Symbol: Mada
@@ -1259,522 +1036,316 @@ ID: 1633 Symbol: Mada
 ID: 1634 Symbol: Mada
 ID: 1635 Symbol: Mada
 ID: 1636 Symbol: Mada
-ID: 1637 Symbol: Ongyo-Ki
+ID: 1637 Symbol: Tzitzimitl
 ID: 1638 Symbol: Mada
 ID: 1639 Symbol: Mada
-ID: 1640 Symbol: Ongyo-Ki
-ID: 1641 Symbol: Ongyo-Ki
-ID: 1642 Symbol: Ongyo-Ki
-ID: 1643 Symbol: Succubus
-ID: 1644 Symbol: Succubus
-ID: 1645 Symbol: Succubus
-ID: 1646 Symbol: Succubus
-ID: 1647 Symbol: Succubus
-ID: 1648 Symbol: Succubus
-ID: 1649 Symbol: Succubus
-ID: 1650 Symbol: Succubus
-ID: 1651 Symbol: Succubus
-EID: 1235 Demons: 206 206 0 0 0 0 
-ID: 1652 Symbol: Succubus
-ID: 1653 Symbol: Succubus
-ID: 1654 Symbol: Succubus
-ID: 1655 Symbol: Succubus
-ID: 1656 Symbol: Succubus
-ID: 1657 Symbol: Succubus
-ID: 1658 Symbol: Succubus
-ID: 1659 Symbol: Succubus
-ID: 1660 Symbol: Succubus
-ID: 1661 Symbol: Hayataro
-ID: 1662 Symbol: Succubus
-EID: 1235 Demons: 206 206 0 0 0 0 
-EID: 2321 Demons: 206 356 0 0 0 0 
-EID: 2288 Demons: 206 206 206 0 0 0 
-ID: 1663 Symbol: Hayataro
-ID: 1664 Symbol: Succubus
-EID: 1242 Demons: 152 206 0 0 0 0 
-ID: 1665 Symbol: Succubus
-ID: 1666 Symbol: Succubus
-ID: 1667 Symbol: Succubus
-ID: 1668 Symbol: Hayataro
-ID: 1669 Symbol: Succubus
-EID: 1244 Demons: 152 104 212 141 0 0 
-EID: 2289 Demons: 152 206 356 303 0 0 
+ID: 1640 Symbol: Tzitzimitl
+ID: 1641 Symbol: Tzitzimitl
+ID: 1642 Symbol: Tzitzimitl
+ID: 1643 Symbol: Thunderbird
+ID: 1644 Symbol: Thunderbird
+ID: 1645 Symbol: Thunderbird
+ID: 1646 Symbol: Thunderbird
+ID: 1647 Symbol: Thunderbird
+ID: 1648 Symbol: Thunderbird
+ID: 1649 Symbol: Thunderbird
+ID: 1650 Symbol: Thunderbird
+ID: 1651 Symbol: Zouchouten
+ID: 1652 Symbol: Thunderbird
+ID: 1653 Symbol: Thunderbird
+ID: 1654 Symbol: Narcissus
+ID: 1655 Symbol: Narcissus
+ID: 1656 Symbol: Thunderbird
+ID: 1657 Symbol: Narcissus
+ID: 1658 Symbol: Thunderbird
+ID: 1659 Symbol: Narcissus
+ID: 1660 Symbol: Narcissus
+ID: 1661 Symbol: Dormarth
+ID: 1662 Symbol: Zouchouten
+ID: 1663 Symbol: Dormarth
+ID: 1664 Symbol: Zouchouten
+ID: 1665 Symbol: Narcissus
+ID: 1666 Symbol: Narcissus
+ID: 1667 Symbol: Narcissus
+ID: 1668 Symbol: Dormarth
+ID: 1669 Symbol: Zouchouten
 ID: 1670 Symbol: Hayataro
 ID: 1671 Symbol: Hayataro
 ID: 1672 Symbol: Hayataro
-ID: 1673 Symbol: Succubus
-ID: 1674 Symbol: Narcissus
+ID: 1673 Symbol: Narcissus
+ID: 1674 Symbol: Muu Shuwuu
 ID: 1675 Symbol: Hayataro
-ID: 1676 Symbol: Narcissus
+ID: 1676 Symbol: Muu Shuwuu
 ID: 1677 Symbol: Hayataro
-EID: 2658 Demons: 332 283 0 0 0 0 
 ID: 1678 Symbol: Hayataro
-ID: 1679 Symbol: Narcissus
+ID: 1679 Symbol: Muu Shuwuu
 ID: 1680 Symbol: Hayataro
-EID: 2658 Demons: 332 283 0 0 0 0 
-ID: 1681 Symbol: Narcissus
-ID: 1682 Symbol: Hayataro
-ID: 1683 Symbol: Hayataro
-ID: 1684 Symbol: Narcissus
+ID: 1681 Symbol: Muu Shuwuu
+ID: 1682 Symbol: Oyamatsumi
+ID: 1683 Symbol: Dormarth
+ID: 1684 Symbol: Muu Shuwuu
 ID: 1685 Symbol: Hayataro
-ID: 1686 Symbol: Hayataro
-ID: 1687 Symbol: Hayataro
-ID: 1688 Symbol: Hayataro
-ID: 1689 Symbol: Succubus
-ID: 1690 Symbol: Anubis
-ID: 1691 Symbol: Anubis
-ID: 1692 Symbol: Hayataro
-ID: 1693 Symbol: Narcissus
+ID: 1686 Symbol: Dormarth
+ID: 1687 Symbol: Dormarth
+ID: 1688 Symbol: Oyamatsumi
+ID: 1689 Symbol: Thunderbird
+ID: 1690 Symbol: Kumbhanda
+ID: 1691 Symbol: Kumbhanda
+ID: 1692 Symbol: Oyamatsumi
+ID: 1693 Symbol: Muu Shuwuu
 ID: 1694 Symbol: Hayataro
-ID: 1695 Symbol: Anubis
-EID: 2390 Demons: 152 141 0 0 0 0 
+ID: 1695 Symbol: Kumbhanda
 ID: 1696 Symbol: Hayataro
-ID: 1697 Symbol: Narcissus
-EID: 2393 Demons: 120 53 0 0 0 0 
-EID: 2394 Demons: 120 152 0 0 0 0 
-ID: 1698 Symbol: Hayataro
-ID: 1699 Symbol: Horus
-ID: 1700 Symbol: Macabre
-ID: 1701 Symbol: Macabre
-ID: 1702 Symbol: Zhuque
-ID: 1703 Symbol: Anubis
-ID: 1704 Symbol: Zhuque
-ID: 1705 Symbol: Macabre
-ID: 1706 Symbol: Anubis
-EID: 2680 Demons: 256 279 387 0 0 0 
-EID: 2428 Demons: 279 354 130 0 0 0 
-ID: 1707 Symbol: Anubis
-ID: 1708 Symbol: Hayataro
-ID: 1709 Symbol: Macabre
-ID: 1710 Symbol: Zhuque
-ID: 1711 Symbol: Macabre
-ID: 1712 Symbol: Macabre
-EID: 1342 Demons: 65 354 130 0 0 0 
-ID: 1713 Symbol: Zhuque
-ID: 1714 Symbol: Anubis
-EID: 2671 Demons: 279 130 130 0 0 0 
-EID: 2672 Demons: 279 354 130 354 0 0 
-ID: 1715 Symbol: Macabre
+ID: 1697 Symbol: Kurama Tengu
+ID: 1698 Symbol: Oyamatsumi
+ID: 1699 Symbol: Orthrus
+ID: 1700 Symbol: Senri
+ID: 1701 Symbol: Senri
+ID: 1702 Symbol: Senri
+ID: 1703 Symbol: Kumbhanda
+ID: 1704 Symbol: Senri
+ID: 1705 Symbol: Senri
+ID: 1706 Symbol: Senri
+ID: 1707 Symbol: Kumbhanda
+ID: 1708 Symbol: Oyamatsumi
+ID: 1709 Symbol: Senri
+ID: 1710 Symbol: Senri
+ID: 1711 Symbol: Senri
+ID: 1712 Symbol: Senri
+ID: 1713 Symbol: Senri
+ID: 1714 Symbol: Senri
+ID: 1715 Symbol: Senri
 ID: 1716 Symbol: Hayataro
-ID: 1717 Symbol: Macabre
-EID: 1342 Demons: 65 354 130 0 0 0 
-ID: 1718 Symbol: Power
-ID: 1719 Symbol: Zhuque
-ID: 1720 Symbol: Macabre
-ID: 1721 Symbol: Macabre
-ID: 1722 Symbol: Macabre
-ID: 1723 Symbol: Horus
-ID: 1724 Symbol: Zhuque
-ID: 1725 Symbol: Macabre
-EID: 1342 Demons: 65 354 130 0 0 0 
-EID: 1408 Demons: 205 65 86 0 0 0 
-ID: 1726 Symbol: Horus
+ID: 1717 Symbol: Senri
+ID: 1718 Symbol: Kurama Tengu
+ID: 1719 Symbol: Senri
+ID: 1720 Symbol: Kaiwan
+ID: 1721 Symbol: Kaiwan
+ID: 1722 Symbol: Kaiwan
+ID: 1723 Symbol: Orthrus
+ID: 1724 Symbol: Senri
+ID: 1725 Symbol: Senri
+ID: 1726 Symbol: Orthrus
 ID: 1727 Symbol: Orthrus
-ID: 1728 Symbol: Horus
-EID: 2476 Demons: 326 354 0 0 0 0 
-ID: 1729 Symbol: Zhuque
-ID: 1730 Symbol: Horus
-ID: 1731 Symbol: Horus
-ID: 1732 Symbol: Zhuque
-ID: 1733 Symbol: Macabre
-EID: 1342 Demons: 65 354 130 0 0 0 
-EID: 2493 Demons: 135 65 23 234 0 0 
+ID: 1728 Symbol: Orthrus
+ID: 1729 Symbol: Senri
+ID: 1730 Symbol: Orthrus
+ID: 1731 Symbol: Orthrus
+ID: 1732 Symbol: Senri
+ID: 1733 Symbol: Senri
 ID: 1734 Symbol: Anzu
-ID: 1735 Symbol: Horus
-EID: 2476 Demons: 326 354 0 0 0 0 
-ID: 1736 Symbol: Horus
-ID: 1737 Symbol: Orthrus
-EID: 1401 Demons: 205 269 86 0 0 0 
-EID: 2485 Demons: 205 269 269 86 0 0 
-EID: 2486 Demons: 205 72 183 269 0 0 
-ID: 1738 Symbol: Orthrus
-EID: 1409 Demons: 13 23 0 0 0 0 
-EID: 2487 Demons: 13 183 86 0 0 0 
-EID: 2488 Demons: 13 279 130 0 0 0 
-EID: 1414 Demons: 205 86 269 0 0 0 
-ID: 1739 Symbol: Macabre
-EID: 1408 Demons: 205 65 86 0 0 0 
-EID: 2493 Demons: 135 65 23 234 0 0 
-ID: 1740 Symbol: Horus
-EID: 2476 Demons: 326 354 0 0 0 0 
-ID: 1741 Symbol: Orthrus
-EID: 2483 Demons: 205 183 0 0 0 0 
-EID: 2487 Demons: 13 183 86 0 0 0 
-EID: 2486 Demons: 205 72 183 269 0 0 
-ID: 1742 Symbol: Orthrus
-EID: 1409 Demons: 13 23 0 0 0 0 
-EID: 1401 Demons: 205 269 86 0 0 0 
-EID: 2488 Demons: 13 279 130 0 0 0 
-EID: 1414 Demons: 205 86 269 0 0 0 
-ID: 1743 Symbol: Orthrus
-EID: 2483 Demons: 205 183 0 0 0 0 
-EID: 1401 Demons: 205 269 86 0 0 0 
-EID: 2487 Demons: 13 183 86 0 0 0 
-ID: 1744 Symbol: Orthrus
-EID: 1409 Demons: 13 23 0 0 0 0 
-EID: 1401 Demons: 205 269 86 0 0 0 
-EID: 2488 Demons: 13 279 130 0 0 0 
-EID: 1414 Demons: 205 86 269 0 0 0 
-ID: 1745 Symbol: Horus
-ID: 1746 Symbol: Macabre
-EID: 2707 Demons: 205 96 224 0 0 0 
-ID: 1747 Symbol: Macabre
-EID: 1421 Demons: 13 23 234 0 0 0 
-EID: 1406 Demons: 205 269 0 0 0 0 
-EID: 1420 Demons: 205 135 96 0 0 0 
-ID: 1748 Symbol: Horus
+ID: 1735 Symbol: Orthrus
+ID: 1736 Symbol: Orthrus
+ID: 1737 Symbol: Belphegor
+ID: 1738 Symbol: Belphegor
+ID: 1739 Symbol: Senri
+ID: 1740 Symbol: Orthrus
+ID: 1741 Symbol: Belphegor
+ID: 1742 Symbol: Belphegor
+ID: 1743 Symbol: Belphegor
+ID: 1744 Symbol: Belphegor
+ID: 1745 Symbol: Orthrus
+ID: 1746 Symbol: Kaiwan
+ID: 1747 Symbol: Kaiwan
+ID: 1748 Symbol: Orthrus
 ID: 1749 Symbol: Orthrus
-EID: 2730 Demons: 256 37 387 0 0 0 
-ID: 1750 Symbol: Horus
-ID: 1751 Symbol: Macabre
-EID: 1406 Demons: 205 269 0 0 0 0 
-EID: 2707 Demons: 205 96 224 0 0 0 
-EID: 1420 Demons: 205 135 96 0 0 0 
-ID: 1752 Symbol: Macabre
-ID: 1753 Symbol: Orthrus
-EID: 2483 Demons: 205 183 0 0 0 0 
-EID: 1401 Demons: 205 269 86 0 0 0 
-EID: 1406 Demons: 205 269 0 0 0 0 
-EID: 2544 Demons: 205 205 0 0 0 0 
+ID: 1750 Symbol: Orthrus
+ID: 1751 Symbol: Kaiwan
+ID: 1752 Symbol: Kaiwan
+ID: 1753 Symbol: Belphegor
 ID: 1754 Symbol: Anzu
-ID: 1755 Symbol: Power
-EID: 2534 Demons: 326 34 193 193 0 0 
-EID: 2535 Demons: 34 193 297 0 0 0 
-ID: 1756 Symbol: Horus
-ID: 1757 Symbol: Macabre
-EID: 1406 Demons: 205 269 0 0 0 0 
-ID: 1758 Symbol: Macabre
-EID: 1421 Demons: 13 23 234 0 0 0 
-ID: 1759 Symbol: Orthrus
-EID: 2483 Demons: 205 183 0 0 0 0 
-EID: 1401 Demons: 205 269 86 0 0 0 
-EID: 1406 Demons: 205 269 0 0 0 0 
-EID: 2544 Demons: 205 205 0 0 0 0 
-ID: 1760 Symbol: Macabre
-EID: 1420 Demons: 205 135 96 0 0 0 
-ID: 1761 Symbol: Koumokuten
-EID: 2672 Demons: 279 354 130 354 0 0 
-EID: 2488 Demons: 13 279 130 0 0 0 
-ID: 1762 Symbol: Macabre
-EID: 1406 Demons: 205 269 0 0 0 0 
-EID: 1420 Demons: 205 135 96 0 0 0 
-ID: 1763 Symbol: Orthrus
-EID: 2545 Demons: 205 72 0 0 0 0 
-EID: 1401 Demons: 205 269 86 0 0 0 
-EID: 1406 Demons: 205 269 0 0 0 0 
-EID: 2544 Demons: 205 205 0 0 0 0 
-ID: 1764 Symbol: Horus
-ID: 1765 Symbol: Orthrus
-EID: 2545 Demons: 205 72 0 0 0 0 
-EID: 1401 Demons: 205 269 86 0 0 0 
-EID: 1406 Demons: 205 269 0 0 0 0 
-EID: 2544 Demons: 205 205 0 0 0 0 
-ID: 1766 Symbol: Horus
-EID: 2571 Demons: 193 193 0 0 0 0 
-ID: 1767 Symbol: Horus
-EID: 1517 Demons: 96 193 297 0 0 0 
-EID: 1515 Demons: 152 212 223 0 0 0 
-EID: 1510 Demons: 256 34 152 193 0 0 
-ID: 1768 Symbol: Macabre
-EID: 1420 Demons: 205 135 96 0 0 0 
-ID: 1769 Symbol: Macabre
-EID: 1517 Demons: 96 193 297 0 0 0 
-ID: 1770 Symbol: Macabre
-EID: 1517 Demons: 96 193 297 0 0 0 
-EID: 1420 Demons: 205 135 96 0 0 0 
-ID: 1771 Symbol: Horus
-EID: 1517 Demons: 96 193 297 0 0 0 
-EID: 2576 Demons: 193 193 34 0 0 0 
-EID: 2578 Demons: 193 193 34 193 0 0 
-EID: 2582 Demons: 193 297 0 0 0 0 
-ID: 1772 Symbol: Horus
-EID: 1507 Demons: 193 34 297 0 0 0 
-EID: 2576 Demons: 193 193 34 0 0 0 
-EID: 2579 Demons: 193 193 34 297 0 0 
-EID: 1510 Demons: 256 34 152 193 0 0 
-ID: 1773 Symbol: Horus
-EID: 2575 Demons: 193 34 0 0 0 0 
-EID: 2576 Demons: 193 193 34 0 0 0 
-EID: 2582 Demons: 193 297 0 0 0 0 
-ID: 1774 Symbol: Horus
-EID: 2575 Demons: 193 34 0 0 0 0 
-EID: 2576 Demons: 193 193 34 0 0 0 
-EID: 2579 Demons: 193 193 34 297 0 0 
-ID: 1775 Symbol: Horus
-EID: 2571 Demons: 193 193 0 0 0 0 
-EID: 1515 Demons: 152 212 223 0 0 0 
-ID: 1776 Symbol: Macabre
-EID: 1406 Demons: 205 269 0 0 0 0 
-ID: 1777 Symbol: Macabre
-EID: 1406 Demons: 205 269 0 0 0 0 
-ID: 1778 Symbol: Horus
-EID: 2575 Demons: 193 34 0 0 0 0 
-EID: 1507 Demons: 193 34 297 0 0 0 
-EID: 2576 Demons: 193 193 34 0 0 0 
-EID: 2582 Demons: 193 297 0 0 0 0 
-ID: 1779 Symbol: Horus
-EID: 1517 Demons: 96 193 297 0 0 0 
-EID: 1507 Demons: 193 34 297 0 0 0 
-EID: 2578 Demons: 193 193 34 193 0 0 
-ID: 1780 Symbol: Macabre
-EID: 1406 Demons: 205 269 0 0 0 0 
-EID: 1420 Demons: 205 135 96 0 0 0 
-ID: 1781 Symbol: Macabre
-EID: 1517 Demons: 96 193 297 0 0 0 
-ID: 1782 Symbol: Isis
-EID: 1449 Demons: 287 236 0 0 0 0 
-EID: 1528 Demons: 287 287 236 0 0 0 
-EID: 2559 Demons: 287 236 236 0 0 0 
-ID: 1783 Symbol: Isis
-EID: 1449 Demons: 287 236 0 0 0 0 
-EID: 1528 Demons: 287 287 236 0 0 0 
-EID: 2559 Demons: 287 236 236 0 0 0 
-ID: 1784 Symbol: Horus
-EID: 2575 Demons: 193 34 0 0 0 0 
-EID: 2573 Demons: 193 34 297 34 0 0 
-EID: 1515 Demons: 152 212 223 0 0 0 
-EID: 1511 Demons: 193 256 297 0 0 0 
-ID: 1785 Symbol: Qing Long
-ID: 1786 Symbol: Anzu
-ID: 1787 Symbol: Anzu
+ID: 1755 Symbol: Isis
+ID: 1756 Symbol: Orthrus
+ID: 1757 Symbol: Kaiwan
+ID: 1758 Symbol: Kaiwan
+ID: 1759 Symbol: Belphegor
+ID: 1760 Symbol: Kaiwan
+ID: 1761 Symbol: Senri
+ID: 1762 Symbol: Kaiwan
+ID: 1763 Symbol: Belphegor
+ID: 1764 Symbol: Orthrus
+ID: 1765 Symbol: Belphegor
+ID: 1766 Symbol: Dakini
+ID: 1767 Symbol: Dakini
+ID: 1768 Symbol: Kaiwan
+ID: 1769 Symbol: Kaiwan
+ID: 1770 Symbol: Kaiwan
+ID: 1771 Symbol: Dakini
+ID: 1772 Symbol: Dakini
+ID: 1773 Symbol: Dakini
+ID: 1774 Symbol: Dakini
+ID: 1775 Symbol: Dakini
+ID: 1776 Symbol: Kaiwan
+ID: 1777 Symbol: Kaiwan
+ID: 1778 Symbol: Dakini
+ID: 1779 Symbol: Dakini
+ID: 1780 Symbol: Kaiwan
+ID: 1781 Symbol: Kaiwan
+ID: 1782 Symbol: Anzu
+ID: 1783 Symbol: Anzu
+ID: 1784 Symbol: Dakini
+ID: 1785 Symbol: Kaiwan
+ID: 1786 Symbol: Mad Gasser
+ID: 1787 Symbol: Mad Gasser
 ID: 1788 Symbol: Isis
-ID: 1789 Symbol: Macabre
-EID: 1517 Demons: 96 193 297 0 0 0 
-ID: 1790 Symbol: Isis
-ID: 1791 Symbol: Anzu
-ID: 1792 Symbol: Qing Long
-ID: 1793 Symbol: Anzu
-ID: 1794 Symbol: Qing Long
-ID: 1795 Symbol: Qing Long
+ID: 1789 Symbol: Kaiwan
+ID: 1790 Symbol: Oberon
+ID: 1791 Symbol: Mad Gasser
+ID: 1792 Symbol: Kaiwan
+ID: 1793 Symbol: Mad Gasser
+ID: 1794 Symbol: Kaiwan
+ID: 1795 Symbol: Kaiwan
 ID: 1796 Symbol: Anzu
-EID: 1453 Demons: 34 193 0 0 0 0 
-EID: 2610 Demons: 193 236 0 0 0 0 
-ID: 1797 Symbol: Anzu
-ID: 1798 Symbol: Qing Long
-ID: 1799 Symbol: Isis
-EID: 1528 Demons: 287 287 236 0 0 0 
-EID: 2559 Demons: 287 236 236 0 0 0 
-ID: 1800 Symbol: Macabre
-EID: 1420 Demons: 205 135 96 0 0 0 
-ID: 1801 Symbol: Anzu
-ID: 1802 Symbol: Anzu
-ID: 1803 Symbol: Anzu
-ID: 1804 Symbol: Anzu
-ID: 1805 Symbol: Anzu
-ID: 1806 Symbol: Macabre
-EID: 1422 Demons: 96 13 66 66 0 0 
-EID: 2607 Demons: 96 287 224 0 0 0 
-ID: 1807 Symbol: Macabre
-EID: 1422 Demons: 96 13 66 66 0 0 
-EID: 2607 Demons: 96 287 224 0 0 0 
-ID: 1808 Symbol: Macabre
-EID: 1422 Demons: 96 13 66 66 0 0 
-EID: 2607 Demons: 96 287 224 0 0 0 
-ID: 1809 Symbol: Anzu
-ID: 1810 Symbol: Qing Long
-ID: 1811 Symbol: Qing Long
-ID: 1812 Symbol: Anzu
-ID: 1813 Symbol: Qing Long
-ID: 1814 Symbol: Qing Long
-ID: 1815 Symbol: Qing Long
-ID: 1816 Symbol: Succubus
-ID: 1817 Symbol: Succubus
-ID: 1818 Symbol: Succubus
-ID: 1819 Symbol: Succubus
-EID: 1259 Demons: 152 212 0 0 0 0 
-EID: 2286 Demons: 152 104 223 141 0 0 
-ID: 1820 Symbol: Succubus
-EID: 1259 Demons: 152 212 0 0 0 0 
-EID: 2286 Demons: 152 104 223 141 0 0 
+ID: 1797 Symbol: Mad Gasser
+ID: 1798 Symbol: Kaiwan
+ID: 1799 Symbol: Anzu
+ID: 1800 Symbol: Kaiwan
+ID: 1801 Symbol: Mad Gasser
+ID: 1802 Symbol: Mad Gasser
+ID: 1803 Symbol: Mad Gasser
+ID: 1804 Symbol: Mad Gasser
+ID: 1805 Symbol: Mad Gasser
+ID: 1806 Symbol: Kaiwan
+ID: 1807 Symbol: Kaiwan
+ID: 1808 Symbol: Kaiwan
+ID: 1809 Symbol: Mad Gasser
+ID: 1810 Symbol: Kaiwan
+ID: 1811 Symbol: Kaiwan
+ID: 1812 Symbol: Mad Gasser
+ID: 1813 Symbol: Kaiwan
+ID: 1814 Symbol: Kaiwan
+ID: 1815 Symbol: Kaiwan
+ID: 1816 Symbol: Thunderbird
+ID: 1817 Symbol: Narcissus
+ID: 1818 Symbol: Narcissus
+ID: 1819 Symbol: Dormarth
+ID: 1820 Symbol: Dormarth
 ID: 1821 Symbol: Hayataro
 ID: 1822 Symbol: Hayataro
 ID: 1823 Symbol: Hayataro
-ID: 1824 Symbol: Narcissus
-ID: 1825 Symbol: Narcissus
-ID: 1826 Symbol: Narcissus
-ID: 1827 Symbol: Anubis
-EID: 2390 Demons: 152 141 0 0 0 0 
-ID: 1828 Symbol: Anubis
-EID: 2390 Demons: 152 141 0 0 0 0 
-ID: 1829 Symbol: Anubis
-EID: 2390 Demons: 152 141 0 0 0 0 
-ID: 1830 Symbol: Anubis
-EID: 2390 Demons: 152 141 0 0 0 0 
-ID: 1831 Symbol: Hayataro
-EID: 2392 Demons: 65 256 332 283 0 0 
-EID: 2393 Demons: 120 53 0 0 0 0 
-EID: 2395 Demons: 332 65 289 0 0 0 
-ID: 1832 Symbol: Zhuque
-ID: 1833 Symbol: Succubus
-EID: 1341 Demons: 326 354 0 0 0 0 
-ID: 1834 Symbol: Zhuque
-ID: 1835 Symbol: Succubus
-EID: 1341 Demons: 326 354 0 0 0 0 
-ID: 1836 Symbol: Zhuque
-ID: 1837 Symbol: Succubus
-EID: 1341 Demons: 326 354 0 0 0 0 
-ID: 1838 Symbol: Macabre
-EID: 1370 Demons: 13 135 234 0 0 0 
-EID: 1427 Demons: 13 135 234 234 0 0 
-EID: 2482 Demons: 13 135 23 234 0 0 
-ID: 1839 Symbol: Macabre
-EID: 1370 Demons: 13 135 234 0 0 0 
-EID: 1427 Demons: 13 135 234 234 0 0 
-EID: 2482 Demons: 13 135 23 234 0 0 
-ID: 1840 Symbol: Macabre
-EID: 1370 Demons: 13 135 234 0 0 0 
-EID: 1427 Demons: 13 135 234 234 0 0 
-EID: 2482 Demons: 13 135 23 234 0 0 
-ID: 1841 Symbol: Koumokuten
-EID: 1409 Demons: 13 23 0 0 0 0 
-ID: 1842 Symbol: Koumokuten
-EID: 1409 Demons: 13 23 0 0 0 0 
+ID: 1824 Symbol: Muu Shuwuu
+ID: 1825 Symbol: Muu Shuwuu
+ID: 1826 Symbol: Muu Shuwuu
+ID: 1827 Symbol: Kumbhanda
+ID: 1828 Symbol: Kumbhanda
+ID: 1829 Symbol: Kumbhanda
+ID: 1830 Symbol: Kumbhanda
+ID: 1831 Symbol: Kurama Tengu
+ID: 1832 Symbol: Senri
+ID: 1833 Symbol: Senri
+ID: 1834 Symbol: Senri
+ID: 1835 Symbol: Senri
+ID: 1836 Symbol: Senri
+ID: 1837 Symbol: Senri
+ID: 1838 Symbol: Orthrus
+ID: 1839 Symbol: Orthrus
+ID: 1840 Symbol: Orthrus
+ID: 1841 Symbol: Belphegor
+ID: 1842 Symbol: Belphegor
 ID: 1843 Symbol: Anzu
 ID: 1844 Symbol: Anzu
-ID: 1845 Symbol: Power
-EID: 2533 Demons: 326 224 0 0 0 0 
-EID: 2534 Demons: 326 34 193 193 0 0 
-EID: 2535 Demons: 34 193 297 0 0 0 
-EID: 2543 Demons: 34 13 0 0 0 0 
-ID: 1846 Symbol: Macabre
-ID: 1847 Symbol: Macabre
-ID: 1848 Symbol: Anzu
-ID: 1849 Symbol: Anzu
-ID: 1850 Symbol: Anzu
-ID: 1851 Symbol: Anzu
-ID: 1852 Symbol: Anzu
-ID: 1853 Symbol: Anzu
-ID: 1854 Symbol: Anzu
-ID: 1986 Symbol: Kin-Ki
-ID: 1987 Symbol: Kin-Ki
-ID: 1988 Symbol: Kin-Ki
-ID: 1989 Symbol: Kin-Ki
-ID: 1990 Symbol: Kushinada-Hime
-ID: 1991 Symbol: Kushinada-Hime
-ID: 1992 Symbol: Kushinada-Hime
-ID: 1993 Symbol: Kushinada-Hime
-ID: 1994 Symbol: Kushinada-Hime
-ID: 1995 Symbol: Kushinada-Hime
-ID: 1996 Symbol: Kushinada-Hime
+ID: 1845 Symbol: Isis
+ID: 1846 Symbol: Kaiwan
+ID: 1847 Symbol: Kaiwan
+ID: 1848 Symbol: Mad Gasser
+ID: 1849 Symbol: Mad Gasser
+ID: 1850 Symbol: Mad Gasser
+ID: 1851 Symbol: Mad Gasser
+ID: 1852 Symbol: Mad Gasser
+ID: 1853 Symbol: Mad Gasser
+ID: 1854 Symbol: Mad Gasser
+ID: 1986 Symbol: Anansi
+ID: 1987 Symbol: Anansi
+ID: 1988 Symbol: Anansi
+ID: 1989 Symbol: Anansi
+ID: 1990 Symbol: Kin-Ki
+ID: 1991 Symbol: Kin-Ki
+ID: 1992 Symbol: Kin-Ki
+ID: 1993 Symbol: Kin-Ki
+ID: 1994 Symbol: Kin-Ki
+ID: 1995 Symbol: Kin-Ki
+ID: 1996 Symbol: Kin-Ki
 ID: 1997 Symbol: Kin-Ki
-EID: 1566 Demons: 213 41 139 0 0 0 
-EID: 1572 Demons: 213 139 41 0 0 0 
-ID: 1998 Symbol: Kin-Ki
-ID: 1999 Symbol: Kin-Ki
-ID: 2000 Symbol: Kin-Ki
-ID: 2001 Symbol: Kushinada-Hime
-ID: 2002 Symbol: Kushinada-Hime
-ID: 2003 Symbol: Kushinada-Hime
+ID: 1998 Symbol: Anansi
+ID: 1999 Symbol: Anansi
+ID: 2000 Symbol: Anansi
+ID: 2001 Symbol: Kin-Ki
+ID: 2002 Symbol: Kin-Ki
+ID: 2003 Symbol: Kin-Ki
 ID: 2004 Symbol: Kin-Ki
-EID: 1577 Demons: 213 145 0 0 0 0 
-EID: 1573 Demons: 213 139 41 139 0 0 
-EID: 1572 Demons: 213 139 41 0 0 0 
-ID: 2005 Symbol: Kushinada-Hime
-ID: 2006 Symbol: Kushinada-Hime
-ID: 2007 Symbol: Kushinada-Hime
-ID: 2008 Symbol: Nue
-ID: 2009 Symbol: Kushinada-Hime
-ID: 2010 Symbol: Nue
-ID: 2011 Symbol: Nue
-ID: 2012 Symbol: Nue
-ID: 2013 Symbol: Kushinada-Hime
-EID: 1601 Demons: 314 41 145 0 0 0 
-ID: 2014 Symbol: Kushinada-Hime
-ID: 2015 Symbol: Kushinada-Hime
-EID: 1601 Demons: 314 41 145 0 0 0 
-ID: 2016 Symbol: Nue
-EID: 1566 Demons: 213 41 139 0 0 0 
-ID: 2017 Symbol: Nue
-ID: 2018 Symbol: Kushinada-Hime
-EID: 1604 Demons: 145 314 0 0 0 0 
-ID: 2019 Symbol: Kushinada-Hime
-EID: 1601 Demons: 314 41 145 0 0 0 
-ID: 2020 Symbol: Kushinada-Hime
-ID: 2021 Symbol: Nue
-ID: 2022 Symbol: Nue
-ID: 2023 Symbol: Nue
-ID: 2024 Symbol: Kushinada-Hime
-ID: 2025 Symbol: Kushinada-Hime
-ID: 2026 Symbol: Kushinada-Hime
-EID: 1601 Demons: 314 41 145 0 0 0 
-ID: 2027 Symbol: Kushinada-Hime
-EID: 1601 Demons: 314 41 145 0 0 0 
-ID: 2028 Symbol: Kushinada-Hime
-EID: 1604 Demons: 145 314 0 0 0 0 
-ID: 2029 Symbol: Kushinada-Hime
-ID: 2030 Symbol: Kushinada-Hime
-ID: 2031 Symbol: Nue
-EID: 1573 Demons: 213 139 41 139 0 0 
-ID: 2032 Symbol: Nue
-ID: 2033 Symbol: Nue
-ID: 2034 Symbol: Nue
-ID: 2035 Symbol: Kushinada-Hime
-EID: 1601 Demons: 314 41 145 0 0 0 
-ID: 2036 Symbol: Kushinada-Hime
-ID: 2037 Symbol: Kushinada-Hime
-ID: 2038 Symbol: Kushinada-Hime
-ID: 2039 Symbol: Kushinada-Hime
-ID: 2040 Symbol: Kushinada-Hime
-ID: 2041 Symbol: Dominion
-ID: 2042 Symbol: Dominion
-ID: 2043 Symbol: Dominion
-ID: 2044 Symbol: Dominion
-ID: 2045 Symbol: Pazuzu
-ID: 2046 Symbol: Kushinada-Hime
-ID: 2047 Symbol: Nue
-ID: 2048 Symbol: Nue
-EID: 1651 Demons: 255 105 0 0 0 0 
-EID: 1606 Demons: 213 233 0 0 0 0 
-ID: 2049 Symbol: Efreet
-ID: 2050 Symbol: Yurlungur
-ID: 2051 Symbol: Yurlungur
-ID: 2052 Symbol: Yurlungur
-ID: 2053 Symbol: Yurlungur
-EID: 1670 Demons: 145 99 0 0 0 0 
-ID: 2054 Symbol: Yurlungur
-ID: 2055 Symbol: Yurlungur
-ID: 2056 Symbol: Yurlungur
-ID: 2057 Symbol: Efreet
-ID: 2058 Symbol: Efreet
-ID: 2059 Symbol: Kushinada-Hime
-EID: 1651 Demons: 255 105 0 0 0 0 
-EID: 1657 Demons: 145 301 47 0 0 0 
-EID: 2827 Demons: 145 47 0 0 0 0 
-EID: 1670 Demons: 145 99 0 0 0 0 
-ID: 2060 Symbol: Efreet
-EID: 2824 Demons: 145 36 182 99 0 0 
-ID: 2061 Symbol: Yurlungur
-ID: 2062 Symbol: Yurlungur
-ID: 2063 Symbol: Yurlungur
-ID: 2064 Symbol: Efreet
-EID: 1654 Demons: 255 32 105 0 0 0 
-EID: 1662 Demons: 105 105 255 0 0 0 
-ID: 2065 Symbol: Nue
-EID: 1654 Demons: 255 32 105 0 0 0 
-EID: 1662 Demons: 105 105 255 0 0 0 
-ID: 2066 Symbol: Yurlungur
-EID: 2825 Demons: 47 352 0 0 0 0 
-ID: 2067 Symbol: Efreet
-ID: 2068 Symbol: Efreet
-ID: 2069 Symbol: Efreet
-ID: 2070 Symbol: Efreet
-ID: 2071 Symbol: Dominion
-EID: 2829 Demons: 47 301 301 301 0 0 
-EID: 2826 Demons: 145 47 352 0 0 0 
-EID: 2839 Demons: 145 213 0 0 0 0 
-ID: 2072 Symbol: Dominion
-EID: 2824 Demons: 145 36 182 99 0 0 
-EID: 2831 Demons: 47 99 301 47 0 0 
-EID: 2840 Demons: 213 41 41 0 0 0 
-ID: 2073 Symbol: Nue
-EID: 1650 Demons: 255 32 105 0 0 0 
-EID: 1641 Demons: 255 386 32 0 0 0 
-EID: 2843 Demons: 255 386 386 0 0 0 
-ID: 2074 Symbol: Dominion
-ID: 2075 Symbol: Dominion
-ID: 2076 Symbol: Dominion
-ID: 2077 Symbol: Dominion
-ID: 2078 Symbol: Dominion
-EID: 1657 Demons: 145 301 47 0 0 0 
-ID: 2079 Symbol: Dominion
-ID: 2080 Symbol: Dominion
+ID: 2005 Symbol: Kin-Ki
+ID: 2006 Symbol: Kin-Ki
+ID: 2007 Symbol: Kin-Ki
+ID: 2008 Symbol: Kushinada-Hime
+ID: 2009 Symbol: Kin-Ki
+ID: 2010 Symbol: Kushinada-Hime
+ID: 2011 Symbol: Kushinada-Hime
+ID: 2012 Symbol: Kushinada-Hime
+ID: 2013 Symbol: Kin-Ki
+ID: 2014 Symbol: Kin-Ki
+ID: 2015 Symbol: Kin-Ki
+ID: 2016 Symbol: Kin-Ki
+ID: 2017 Symbol: Kin-Ki
+ID: 2018 Symbol: Kin-Ki
+ID: 2019 Symbol: Kin-Ki
+ID: 2020 Symbol: Kin-Ki
+ID: 2021 Symbol: Kushinada-Hime
+ID: 2022 Symbol: Kushinada-Hime
+ID: 2023 Symbol: Kushinada-Hime
+ID: 2024 Symbol: Kin-Ki
+ID: 2025 Symbol: Kin-Ki
+ID: 2026 Symbol: Kin-Ki
+ID: 2027 Symbol: Kin-Ki
+ID: 2028 Symbol: Kin-Ki
+ID: 2029 Symbol: Kin-Ki
+ID: 2030 Symbol: Kin-Ki
+ID: 2031 Symbol: Kin-Ki
+ID: 2032 Symbol: Kushinada-Hime
+ID: 2033 Symbol: Kushinada-Hime
+ID: 2034 Symbol: Kushinada-Hime
+ID: 2035 Symbol: Kin-Ki
+ID: 2036 Symbol: Kin-Ki
+ID: 2037 Symbol: Kin-Ki
+ID: 2038 Symbol: Kin-Ki
+ID: 2039 Symbol: Kin-Ki
+ID: 2040 Symbol: Kin-Ki
+ID: 2041 Symbol: Flauros
+ID: 2042 Symbol: Flauros
+ID: 2043 Symbol: Flauros
+ID: 2044 Symbol: Flauros
+ID: 2045 Symbol: Vritra
+ID: 2046 Symbol: Kin-Ki
+ID: 2047 Symbol: Kushinada-Hime
+ID: 2048 Symbol: Vritra
+ID: 2049 Symbol: Pazuzu
+ID: 2050 Symbol: Konohana Sakuya
+ID: 2051 Symbol: Konohana Sakuya
+ID: 2052 Symbol: Konohana Sakuya
+ID: 2053 Symbol: Konohana Sakuya
+ID: 2054 Symbol: Konohana Sakuya
+ID: 2055 Symbol: Konohana Sakuya
+ID: 2056 Symbol: Konohana Sakuya
+ID: 2057 Symbol: Pazuzu
+ID: 2058 Symbol: Pazuzu
+ID: 2059 Symbol: Vritra
+ID: 2060 Symbol: Pazuzu
+ID: 2061 Symbol: Konohana Sakuya
+ID: 2062 Symbol: Konohana Sakuya
+ID: 2063 Symbol: Konohana Sakuya
+ID: 2064 Symbol: Konohana Sakuya
+ID: 2065 Symbol: Konohana Sakuya
+ID: 2066 Symbol: Konohana Sakuya
+ID: 2067 Symbol: Pazuzu
+ID: 2068 Symbol: Pazuzu
+ID: 2069 Symbol: Pazuzu
+ID: 2070 Symbol: Pazuzu
+ID: 2071 Symbol: Pazuzu
+ID: 2072 Symbol: Pazuzu
+ID: 2073 Symbol: Flauros
+ID: 2074 Symbol: Flauros
+ID: 2075 Symbol: Flauros
+ID: 2076 Symbol: Flauros
+ID: 2077 Symbol: Flauros
+ID: 2078 Symbol: Flauros
+ID: 2079 Symbol: Flauros
+ID: 2080 Symbol: Flauros
