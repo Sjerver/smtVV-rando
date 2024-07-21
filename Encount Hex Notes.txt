@@ -1,6 +1,6 @@
 Icons
 1stEncounter #0x55	2ndEncounter 0xB9
-Flags 0x54
+Flags 0x55
 Symbol (DemonID) 0x59
 PossibleEncounter0 0x79		(Encounter ID
 PossibleEncounter0Chance 0x7B
@@ -12,7 +12,7 @@ PossibleEncounter15Chance 0xB3
 
 1st Encounter #0x32D55 2ndEncounter #0x32D71h
 0x32D55 Flags (2size)
-0x32D57 Music (2size)
+0x32D57 Music (2size) (no it is not)
 0x32D59 1stDemon
 0x32D5B 2ndDemon
 0x32D5D 3rdDemon

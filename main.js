@@ -18,6 +18,8 @@ var normalFusionArr = []
 var fusionChartArr = []
 var specialFusionArr = []
 var enemyArr = []
+var encountSymbolArr = []
+var encountArr = []
 
 
 /**
@@ -92,6 +94,12 @@ async function readSkillNames() {
     return fileContents
 }
 
+async function readEncounterData() {
+    var fileContents = (await fs.readFile('./base/EncountData.uexp'))
+
+    return fileContents
+}
+
 /**
  * Writes the given Buffer to the file NKMBaseTable.uexp.
  * @param {Buffer} result 
@@ -122,6 +130,14 @@ async function writeNormalFusionTable(result) {
 */
 async function writeOtherFusionTable(result) {
     await fs.writeFile('./rando/Project/Content/Blueprints/Gamedata/BinTable/Unite/UniteTable.uexp', result)
+}
+
+/**
+ * Writes the given Buffer to the file NKMBaseTable.uexp.
+ * @param {Buffer} result 
+ */
+async function writeEncounterData(result) {
+    await fs.writeFile('./rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EncountData.uexp', result)
 }
 
 /**
@@ -771,6 +787,74 @@ function fillBasicEnemyArr(enemyData) {
                 recover: read4(locations.potential + 4 * 10),
                 support: read4(locations.potential + 4 * 9)
             }
+        })
+    }
+}
+
+function fillEncountSymbolArr(encounters) {
+    function read2(ofSet) {
+        return encounters.readInt16LE(ofSet)
+    }
+    function read4(ofSet) {
+        return encounters.readInt32LE(ofSet)
+    }
+
+    let start = 0x55
+    let size = 0x64
+
+    for (let index = 0; index < 2081; index++) {
+        let offset= start + size * index
+
+        let locations = {
+            flags: offset,
+            symbol: offset + 4,
+            encounter1: offset + 0x24,
+            encounter1Chance: offset + 0x26
+        }
+
+        let possEnc = []
+        for(let i = 0; i < 16; i++) {
+            let encId = read2(locations.encounter1 + 4 * i)
+            possEnc.push({encounterID: encId, encounter: encountArr[encId],chance: read2(locations.encounter1Chance + 4 * index)})
+        }
+
+        let id = read2(locations.symbol)
+        let translation = "NO BASIC ENEMY"
+        if(id < compendiumArr.length) {
+            translation = compendiumArr[read2(locations.symbol)].name
+        }
+
+        encountSymbolArr.push({
+            id: index,
+            symbol: {id: id, translation: translation },
+            offsetNumbers: locations,
+            flags: read4(locations.flags),
+            encounters: possEnc
+        })
+    }
+    
+}
+
+function fillEncountArr(encounters) {
+    function read2(ofSet) {
+        return encounters.readInt16LE(ofSet)
+    }
+
+    let start = 0x32D55
+    let size = 0x1C
+
+    for (let index = 0; index < 3001; index++) {
+        let offset = start + size * index
+        let locations = {
+            flags: offset,
+            demon: offset + 4,
+        }
+
+        encountArr.push({
+            id: index,
+            offsetNumbers: locations,
+            flags: read2(offset),
+            demons: [read2(offset +4), read2(offset + 6), read2(offset + 8), read2(offset + 10), read2(offset + 8), read2(offset + 12)],
         })
     }
 }
@@ -2191,6 +2275,7 @@ async function main() {
     let skillBuffer = await readSkillData()
     let normalFusionBuffer = await readNormalFusionTables()
     let otherFusionBuffer = await readOtherFusionTables()
+    let encountBuffer = await readEncounterData()
     await readDemonNames()
     await readSkillNames()
     fillCompendiumArr(compendiumBuffer)
@@ -2199,6 +2284,8 @@ async function main() {
     fillFusionChart(otherFusionBuffer)
     fillSpecialFusionArr(otherFusionBuffer)
     fillBasicEnemyArr(compendiumBuffer)
+    fillEncountArr(encountBuffer)
+    fillEncountSymbolArr(encountBuffer)
 
 
     let skillLevels = generateSkillLevelList()
@@ -2248,11 +2335,13 @@ async function main() {
     // checkRaceDoubleLevel(compendiumArr)
     // raceArray.sort()
     // console.log(enemyArr[299])
+    console.log(encountSymbolArr[87].encounters)
 
 
     await writeNormalFusionTable(normalFusionBuffer)
     await writeNKMBaseTable(compendiumBuffer)
     await writeOtherFusionTable(otherFusionBuffer)
+    await writeEncounterData(encountBuffer)
     // findUnlearnableSkills(skillLevels)
     // defineLevelSlots(newComp)
     // determineFusability()
