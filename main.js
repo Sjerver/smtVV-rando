@@ -201,8 +201,7 @@ function fillCompendiumArr(NKMBaseTable) {
             name: compendiumNames[index],
             offsetNumbers: locations,
             race: { value: NKMBaseTable.readUInt8(locations.race), translation: raceArray[NKMBaseTable.readUInt8(locations.race)] },
-            oldlevel: readInt32LE(locations.level),
-            level: { value: readInt32LE(locations.level) },
+            level: { value: readInt32LE(locations.level), original: readInt32LE(locations.level) },
             registerable: readInt32LE(locations.HP - 4),
             fusability: NKMBaseTable.readInt16LE(locations.fusability), // 0101 means no, 0100 means accident only, 0000 means yes (providing recipe exists)
             unlockFlags: NKMBaseTable.readUInt8(locations.unlockFlags),
@@ -397,7 +396,7 @@ function fillSkillArrs(skillData) {
                 rank: read1(locations.hpDrain + 3),
                 skillType: {
                     value: read1(locations.skillType),
-                    tranlsation: translateSkillType(read1(locations.skillType))
+                    translation: translateSkillType(read1(locations.skillType))
                 },
                 potentialType: {
                     value: read1(locations.icon + 1),
@@ -727,7 +726,7 @@ function fillBasicEnemyArr(enemyData) {
                 luk: read4(locations.HP + 24),
             },
             analyze: read1(locations.HP + 28),
-            levelDMGcorrection: read1(locations.HP + 30),
+            levelDMGCorrection: read1(locations.HP + 30),
             AI: read4(locations.experience + 12), //55 for normal encounters
             recruitable: read1(locations.HP + 33),
             pressTurns: read1(locations.pressTurns),
@@ -803,7 +802,7 @@ function fillEncountSymbolArr(encounters) {
     let size = 0x64
 
     for (let index = 0; index < 2081; index++) {
-        let offset= start + size * index
+        let offset = start + size * index
 
         let locations = {
             flags: offset,
@@ -813,26 +812,30 @@ function fillEncountSymbolArr(encounters) {
         }
 
         let possEnc = []
-        for(let i = 0; i < 16; i++) {
+        for (let i = 0; i < 16; i++) {
             let encId = read2(locations.encounter1 + 4 * i)
-            possEnc.push({encounterID: encId, encounter: encountArr[encId],chance: read2(locations.encounter1Chance + 4 * index)})
+            possEnc.push({
+                encounterID: encId,
+                encounter: encountArr[encId],
+                chance: read2(locations.encounter1Chance + 4 * i)
+            })
         }
 
         let id = read2(locations.symbol)
         let translation = "NO BASIC ENEMY"
-        if(id < compendiumArr.length) {
+        if (id < compendiumArr.length) {
             translation = compendiumArr[read2(locations.symbol)].name
         }
 
         encountSymbolArr.push({
             id: index,
-            symbol: {id: id, translation: translation },
+            symbol: { id: id, translation: translation },
             offsetNumbers: locations,
             flags: read4(locations.flags),
             encounters: possEnc
         })
     }
-    
+
 }
 
 function fillEncountArr(encounters) {
@@ -852,9 +855,10 @@ function fillEncountArr(encounters) {
 
         encountArr.push({
             id: index,
+            updated: false,
             offsetNumbers: locations,
             flags: read2(offset),
-            demons: [read2(offset +4), read2(offset + 6), read2(offset + 8), read2(offset + 10), read2(offset + 8), read2(offset + 12)],
+            demons: [read2(offset + 4), read2(offset + 6), read2(offset + 8), read2(offset + 10), read2(offset + 12), read2(offset + 14)],
         })
     }
 }
@@ -1076,7 +1080,7 @@ function generateSkillLevelList() {
     function findBonusSkill(id) {
         let goal = []
         bonusSkills.forEach(sub => {
-            if(sub[1] == id) {
+            if (sub[1] == id) {
                 goal = sub
             }
         })
@@ -1116,8 +1120,8 @@ function generateSkillLevelList() {
             minLevel = 0
             maxLevel = 0
         }
-        if(findBonusSkill(skill.id).length > 0) {
-            let tem= findBonusSkill(skill.id)
+        if (findBonusSkill(skill.id).length > 0) {
+            let tem = findBonusSkill(skill.id)
             minLevel = tem[2]
             maxLevel = tem[3]
         }
@@ -1253,14 +1257,14 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
         let possibleSkills = []
         //get all skills that can be learned at the demons level
 
-        if(demon.level.value > 0) {
+        if (demon.level.value > 0) {
             levelList[demon.level.value].forEach(e => {
                 // console.log(demon.name + "" + demon.level.value)
                 // console.log(demon.level.value)
                 possibleSkills.push(e)
             })
         }
-        
+
 
         //And add the skills learnable at up to 3 level below and above the demons level
         if (demon.level.value < 99) {
@@ -1606,6 +1610,9 @@ function updateBasicEnemyBuffer(buffer, foes) {
     function write4(value, loc) {
         buffer.writeInt32LE(value, loc)
     }
+    function write1(value, loc) {
+        buffer.writeUInt8(value, loc)
+    }
     foes.forEach(foe => {
         let offsets = foe.offsetNumbers
         write4(foe.level, offsets.level)
@@ -1617,8 +1624,32 @@ function updateBasicEnemyBuffer(buffer, foes) {
         write4(foe.money, offsets.experience + 4)
         write4(foe.AI, offsets.experience + 12)
         write4(foe.recruitable, offsets.HP + 33)
+        write1(foe.levelDMGCorrection, offsets.HP + 30)
 
     })
+    return buffer
+}
+
+function updateEncounterBuffer(buffer, symbolArr) {
+    function write4(value, loc) {
+        buffer.writeInt32LE(value, loc)
+    }
+    function write2(value, loc) {
+        buffer.writeInt16LE(value, loc)
+    }
+
+    symbolArr.forEach(symbolEntry => {
+        let offsets = symbolEntry.offsetNumbers
+        write2(symbolEntry.symbol.id, offsets.symbol)
+        symbolEntry.encounters.forEach(encounterEntry => {
+            let enc = encounterEntry.encounter
+            let encOffsets = enc.offsetNumbers
+            enc.demons.forEach((demon, i) => {
+                write2(demon, encOffsets.demon + 2 * i)
+            })
+        })
+    })
+
     return buffer
 }
 
@@ -2003,17 +2034,17 @@ function adjustBasicEnemyArr(enemies, comp) {
             let newID = skill.id
             //Replace Healing Skills with enemy variant
             // if([97,98,100,101,266,909,279,855].includes(newID))
-            if(newID == 855) {
+            if (newID == 855) {
                 newID = 856 //Sakuya Sakura
-            } else if(newID ==909 || newID == 266) {
+            } else if (newID == 909 || newID == 266) {
                 newID = 887 //Suns Radiance
             } else if (newID == 270) {
                 newID = 277 //Matriarchs Love
-            } else if(newID == 101) {
+            } else if (newID == 101) {
                 newID = 384 //Mediarama (Throne,Clotho)
-            } else if(newID == 100) {
+            } else if (newID == 100) {
                 newID = 383 //Media 
-            } else if(newID == 98) {
+            } else if (newID == 98) {
                 newID = 382 //Diarama
             } else if (newID == 97) {
                 newID = 381 // Dia
@@ -2034,6 +2065,7 @@ function adjustBasicEnemyArr(enemies, comp) {
             name: enemy.name,
             offsetNumbers: enemy.offsetNumbers,
             level: newLevel,
+            originalLevel: enemy.level,
             stats: newStats,
             analyze: 1,
             levelDMGCorrection: 1,
@@ -2051,6 +2083,108 @@ function adjustBasicEnemyArr(enemies, comp) {
     })
 
     return foes
+}
+
+function adjustEncountersToSameLevel(symbolArr, comp, enemyArr) {
+
+    // will be in form [OG ID, NEW ID]
+    let replacements = []
+    //Excluding unused, Old Lilith (id=71), Tao , Yoko
+    let foes = enemyArr.filter(e => e.id != 71 && !e.name.includes("Mitama") && !e.name.startsWith("NOT USED") && e.id != 364 && e.id != 365 && e.id != 366)
+
+    function getEnemiesAtLevel(lv) {
+        return foes.filter(e => e.level == lv)
+    }
+
+    function getFoeWithID(id) {
+        return foes.find(f => f.id == id)
+    }
+
+    let newSymbolArr = symbolArr.map((encount, index) => {
+        if (encount.symbol.id == 71 || encount.symbol.id == 365 || encount.symbol.id == 364 || encount.symbol.id == 366 || encount.symbol.id == 0 || encount.symbol.id > 395 || encount.symbol.translation.includes("Mitama") || encount.symbol.translation.startsWith("NOT USED")) {
+            return encount
+        }
+        let replaceEnc = encount
+        let symbolFoe
+        let currentLV = getFoeWithID(encount.symbol.id).originalLevel
+        let possibilities = getEnemiesAtLevel(currentLV)
+        //check if replacement for symbol already exists
+        if (!replacements.some(r => r[0] == encount.symbol.id)) {
+
+            let enemy = possibilities[Math.floor(Math.random() * possibilities.length)]
+
+            replacements.push([encount.symbol.id, enemy.id])
+            symbolFoe = enemy
+        } else {
+            symbolFoe = getFoeWithID(replacements.find(r => r[0] == encount.symbol.id)[1])
+        }
+
+        replaceEnc.encounters.forEach(form => {
+            if (form.chance > 0) {
+                let formation = form.encounter
+                if (formation.id != 0) {
+
+                    //Check if this encounter has been updated already
+                    if (formation.updated) {
+                        //check if symbol demon isn't in encounter
+                        if (!formation.demons.includes(symbolFoe.id)) {
+                            let valid = false
+                            //Is there a demon in encounter that has no replacement defined
+                            formation.demons.forEach(d => {
+                                if (d > 0 && !replacements.some(r => r[0] == d)) {
+                                    valid = true
+                                    d = symbolFoe.id
+                                }
+                            })
+                            //Is there a demon more than once
+                            if (!valid) {
+                                let counter = []
+                                formation.demons.forEach((d, j) => {
+                                    if (counter.some(r => r[0] == d)) {
+                                        counter.find(r => r[0] == d)[1] += 1
+                                    } else {
+                                        if (d > 0) {
+                                            counter.push([d, 1])
+                                        }
+
+                                    }
+                                })
+                                if (counter.some(c => c[1] > 1)) {
+                                    let cID = counter.indexOf(counter.find(c => c[1] > 1))
+                                    valid = true
+                                    formation.demons[cID] = symbolFoe.id
+                                }
+                            }
+                            //Replace symbolFoe with one of the demon in encounter
+                            if (!valid) {
+                                symbolFoe = getFoeWithID(formation.demons[0])
+                            }
+                        }
+                    } else {
+                        // let possibilities = getEnemiesAtLevel(symbolFoe.level)
+                        formation.demons.forEach((d, count) => {
+                            if (d > 0) {
+                                //make sure the symbol demon is included in encounter
+                                if (count == 0) {
+                                    formation.demons[count] = symbolFoe.id
+                                } else {
+                                    let demonR = possibilities[Math.floor(Math.random() * possibilities.length)]
+                                    formation.demons[count] = demonR.id
+                                }
+                            }
+
+                        })
+                    }
+                    formation.updated = true
+                }
+            }
+        })
+        replaceEnc.symbol.id = symbolFoe.id
+        replaceEnc.symbol.translation = symbolFoe.name
+
+        return replaceEnc
+    })
+    return newSymbolArr
 }
 
 /**
@@ -2120,7 +2254,7 @@ function defineLevelSlots(comp) {
 
     comp.forEach(demon => {
         if (!demon.name.startsWith('NOT')) {
-            slots[demon.oldlevel]++
+            slots[demon.level.original]++
         }
 
     })
@@ -2287,7 +2421,7 @@ async function main() {
     fillEncountArr(encountBuffer)
     fillEncountSymbolArr(encountBuffer)
 
-
+    // console.log(encountSymbolArr[56].encounters)
     let skillLevels = generateSkillLevelList()
     // console.log(skillLevels)
     let levelSkillList = generateLevelSkillList(skillLevels)
@@ -2300,6 +2434,8 @@ async function main() {
     let newComp = assignRandomPotentialWeightedSkills(compendiumArr, levelSkillList)
 
     let newBasicEnemyArr = adjustBasicEnemyArr(enemyArr, newComp)
+
+    let newSymbolArr = adjustEncountersToSameLevel(encountSymbolArr, newComp, newBasicEnemyArr)
 
     adjustFusionTableToLevels(normalFusionArr, compendiumArr)
     // console.log(levelSkillList)
@@ -2325,6 +2461,7 @@ async function main() {
     // console.log(raceArray[6])
     // console.log(raceArray[23])
     // console.log(raceArray[31])
+    encountBuffer = updateEncounterBuffer(encountBuffer, newSymbolArr)
     // logDemonByName("Preta",compendiumArr)
     // console.log("END RESULT")
     // console.log(newComp[115])
@@ -2335,9 +2472,8 @@ async function main() {
     // checkRaceDoubleLevel(compendiumArr)
     // raceArray.sort()
     // console.log(enemyArr[299])
-    console.log(encountSymbolArr[87].encounters)
 
-
+    await printOutEncounters(newSymbolArr)
     await writeNormalFusionTable(normalFusionBuffer)
     await writeNKMBaseTable(compendiumBuffer)
     await writeOtherFusionTable(otherFusionBuffer)
@@ -2345,6 +2481,29 @@ async function main() {
     // findUnlearnableSkills(skillLevels)
     // defineLevelSlots(newComp)
     // determineFusability()
+}
+
+async function printOutEncounters(newSymbolArr) {
+    let finalString = ""
+    newSymbolArr.forEach(entry => {
+        if (!entry.symbol.translation.startsWith("NOT USED") && !entry.symbol.translation.startsWith("NO BASIC ENEMY")) {
+
+
+            finalString = finalString + "ID: " + entry.id + " " + "Symbol: " + entry.symbol.translation + "\n"
+            entry.encounters.forEach(ec => {
+                if (ec.encounter.id != 0 && ec.chance > 0&& !ec.encounter.demons.includes(entry.symbol.id)) {
+
+
+                    finalString = finalString + "EID: " + ec.encounter.id + " Demons: "
+                    ec.encounter.demons.forEach(demon => {
+                        finalString = finalString + demon + " "
+                    })
+                    finalString = finalString + "\n"
+                }
+            })
+        }
+    })
+    await fs.writeFile('./encounterResults.txt', finalString)
 }
 
 main()
