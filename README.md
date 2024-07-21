@@ -4,6 +4,7 @@ This randomizer currently features no settings or GUI and therefore its features
 
 Currently this randomizer randomizes the following things:
 - Encounters get replaced with a demon at the same level as the original encounter
+- For all playable demons and normal map encounters: Level (including EXP and Money adjustment), Press Turns (10%, doubled if normally two turns)
 - All compendium demons and basic enemies get random skills that would be appropriate for their level
   Appropriateness for their level is based on the skill distribution of the main game, including Nahobino only and some Enemy only Skills.
   Skills are also weighted by how often they appear in the main game, the corresponding potential for the skill from the demon, and whether the demon has more strength or magic.
@@ -16,7 +17,7 @@ Basic gameplay changes:
 - For some unique skills the animations might not play properly but the game should continue if the animation is skipped
 
 These things are planned to be able to be randomized:
-- Level, Race, Stats, Potentials, Innates of demons
+- Race, Stats, Potentials, Innates of demons
 - Special Fusions and demons which need to be unlocked for fusion
 - Item Drops
 - Shops
