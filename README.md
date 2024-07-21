@@ -28,7 +28,7 @@ To use the randomizer download the repo and execute the following command in the
 
 node main.js
 
-The folder "Rando" then features the result. Using UnrealPak you can then create pak file with this folder.
+The folder "Rando" then features the result. Using UnrealPak you can then create a .pak file with this folder.
 Then open the directory of the game via Steam and navigate to SMT5V/Project/Content/Paks.
-Here create a folder named "~mods" and put the pak file in it.
-The mod should now work when loading the game
+Here create a folder named "~mods" and put the .pak file in it.
+The mod should now work when loading the game.
