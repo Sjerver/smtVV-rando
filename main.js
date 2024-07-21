@@ -1,6 +1,7 @@
 import { read } from 'fs';
 import * as fs from 'fs/promises';
 import * as external from './numbers.js'
+import readline from 'node:readline';
 
 const raceArray = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 
@@ -2280,7 +2281,7 @@ function shuffleLevel(comp) {
     function getLowestFreeLevel() {
         let min = 99
         slots.forEach((slot,lv) => {
-            if(slot > 0) {
+            if(slot > 0 && lv < min) {
                 min = lv
             }
         })
@@ -2289,55 +2290,75 @@ function shuffleLevel(comp) {
 
     let badIDs = [71, 365, 364, 366]
 
+    let raceLevels = raceArray.map(r => {
+        return []
+    })
+
     let validDemons = comp.filter(demon => !demon.unlockFlags[0] > 0 && demon.race.translation != "Element" && !demon.name.startsWith('NOT') && !badIDs.includes(demon.id) && !demon.name.includes('Mitama'))
     let elements = comp.filter(d => d.race.translation == "Element")
     let flaggedDemons = comp.filter(demon => demon.unlockFlags[0] > 0).sort((a,b) => b.minUnlock - a.minUnlock)
 
     flaggedDemons.forEach((e,index) => {
         let validLevel = false
-        let newLevel = Math.ceil(Math.random() * (getHighestFreeLevel() - e.minUnlock)) + (e.minUnlock)
+        let newLevel = getRandomLevel(slots,getHighestFreeLevel(),e.minUnlock)
         //Think about cases where maybe no slot is available
         while (!validLevel) {
-            newLevel = Math.ceil(Math.random() * (getHighestFreeLevel() - e.minUnlock)) + (e.minUnlock)
-            if (slots[newLevel] > 0) {
+            newLevel = getRandomLevel(slots,getHighestFreeLevel(),e.minUnlock)
+            if (slots[newLevel] > 0 && !raceLevels[raceArray.indexOf(e.race.translation)].includes(newLevel)) {
                 validLevel = true
             }
         }
         slots[newLevel] = slots[newLevel] - 1
         comp[e.id].level.value = newLevel
+        raceLevels[raceArray.indexOf( e.race.translation)].push(newLevel)
     })
 
     //assign elemments levels below 20
     elements.forEach((e,index)  => {
         let validLevel = false
-        let newLevel = Math.ceil(Math.random() * 20)
+        let newLevel = getRandomLevel(slots,25,15)
         while (!validLevel) {
-            newLevel = Math.ceil(Math.random() * 20)
-            if (slots[newLevel] > 0) {
+            newLevel = getRandomLevel(slots,25,15)
+            if (slots[newLevel] > 0 && !raceLevels[raceArray.indexOf(e.race.translation)].includes(newLevel)) {
                 validLevel = true
             }
         }
         slots[newLevel] = slots[newLevel] - 1
         comp[e.id].level.value = newLevel
+        raceLevels[raceArray.indexOf(e.race.translation)].push(newLevel)
     })
 
     validDemons.forEach((e,index)  => {
         let validLevel = false
-        let newLevel = Math.ceil(Math.random() * (getHighestFreeLevel() - getLowestFreeLevel())) +  getLowestFreeLevel() 
+        let newLevel = getRandomLevel(slots,getHighestFreeLevel(),getLowestFreeLevel())
         while (!validLevel) {
-            newLevel = Math.ceil(Math.random() * (getHighestFreeLevel() - getLowestFreeLevel())) +  getLowestFreeLevel() 
-            if (slots[newLevel] > 0) {
+            newLevel = getRandomLevel(slots,getHighestFreeLevel(),getLowestFreeLevel())
+            if (slots[newLevel] > 0 && !raceLevels[raceArray.indexOf( e.race.translation)].includes(newLevel)) {
                 validLevel = true
             }
         }
         slots[newLevel] = slots[newLevel] - 1
         comp[e.id].level.value = newLevel
+        raceLevels[raceArray.indexOf(e.race.translation)].push(newLevel)
     })
 
     // console.log(slots)
     adjustLearnedSkillLevels(comp)
     adjustStatsToLevel(comp)
     return comp
+}
+
+function getRandomLevel(slots,max,min) {
+    let validLevels = []
+    slots.forEach((s,i) => {
+       if(i >= min && i <= max && s>0) {
+        validLevels.push(i)
+       }
+    })
+
+    let rng = validLevels[Math.floor(Math.random() * validLevels.length)]
+
+    return rng
 }
 
 function adjustStatsToLevel(comp) {
@@ -2527,7 +2548,7 @@ function findUnlearnableSkills(skillLevels) {
     })
 }
 
-async function main() {
+async function fullRando() {
     let compendiumBuffer = await readNKMBaseTable()
     let skillBuffer = await readSkillData()
     let normalFusionBuffer = await readNormalFusionTables()
@@ -2609,6 +2630,43 @@ async function main() {
     // determineFusability()
 }
 
+async function noLevelRando() {
+    let compendiumBuffer = await readNKMBaseTable()
+    let skillBuffer = await readSkillData()
+    let normalFusionBuffer = await readNormalFusionTables()
+    let otherFusionBuffer = await readOtherFusionTables()
+    let encountBuffer = await readEncounterData()
+    await readDemonNames()
+    await readSkillNames()
+    fillCompendiumArr(compendiumBuffer)
+    fillSkillArrs(skillBuffer)
+    fillNormalFusionArr(normalFusionBuffer)
+    fillFusionChart(otherFusionBuffer)
+    fillSpecialFusionArr(otherFusionBuffer)
+    fillBasicEnemyArr(compendiumBuffer)
+    fillEncountArr(encountBuffer)
+    fillEncountSymbolArr(encountBuffer)
+    let skillLevels = generateSkillLevelList()
+    let levelSkillList = generateLevelSkillList(skillLevels)
+    let newComp = assignRandomPotentialWeightedSkills(compendiumArr, levelSkillList)
+
+    let newBasicEnemyArr = adjustBasicEnemyArr(enemyArr, newComp)
+    let newSymbolArr = adjustEncountersToSameLevel(encountSymbolArr, newComp, newBasicEnemyArr)
+    adjustFusionTableToLevels(normalFusionArr, compendiumArr)
+    assignTalkableTones(newComp)
+
+    compendiumBuffer = updateBasicEnemyBuffer(compendiumBuffer, newBasicEnemyArr)
+    compendiumBuffer = updateCompendiumBuffer(compendiumBuffer, newComp)
+    otherFusionBuffer = updateOtherFusionBuffer(otherFusionBuffer, specialFusionArr)
+    normalFusionBuffer = updateNormalFusionBuffer(normalFusionBuffer, normalFusionArr)
+    encountBuffer = updateEncounterBuffer(encountBuffer, newSymbolArr)
+
+    await writeNormalFusionTable(normalFusionBuffer)
+    await writeNKMBaseTable(compendiumBuffer)
+    await writeOtherFusionTable(otherFusionBuffer)
+    await writeEncounterData(encountBuffer)
+}
+
 async function printOutEncounters(newSymbolArr) {
     let finalString = ""
     let forArray = []
@@ -2634,6 +2692,23 @@ async function printOutEncounters(newSymbolArr) {
 
     })
     await fs.writeFile('./encounterResults.txt', finalString)
+}
+
+async function main() {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      });
+    rl.question("Level randomization is currently not fully implemented. \n Type y to randomize levels and n to not randomized levels. \n", answer => {
+        if(answer == "y") {
+            fullRando()
+        } else if(answer == "n"){
+            noLevelRando()
+        } else {
+            console.log("Invalid")
+        }
+        rl.close();
+      })
 }
 
 main()
