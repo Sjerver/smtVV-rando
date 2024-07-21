@@ -3,7 +3,7 @@ This is a randomizer for the Steam version of Shin Megami Tensei V Vengeance.
 This randomizer currently features no settings or GUI and therefore its features might change while no user input is possible.
 
 Currently this randomizer randomizes the following things:
-- Encounters get replaced with the demon at the same level
+- Encounters get replaced with a demon at the same level as the original encounter
 - All compendium demons and basic enemies get random skills that would be appropriate for their level
   Appropriateness for their level is based on the skill distribution of the main game, including Nahobino only and some Enemy only Skills.
   Skills are also weighted by how often they appear in the main game, the corresponding potential for the skill from the demon, and whether the demon has more strength or magic.
