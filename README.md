@@ -24,6 +24,7 @@ These things are planned to be able to be randomized:
 - Magatsuhi Skills
 
 
+In order to use this randomzer NodeJS is required to be installed.
 To use the randomizer download the repo and execute the following command in the terminal after navigating to the folder.
 
 node main.js

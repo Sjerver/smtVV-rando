@@ -204,7 +204,7 @@ function fillCompendiumArr(NKMBaseTable) {
             level: { value: readInt32LE(locations.level), original: readInt32LE(locations.level) },
             registerable: readInt32LE(locations.HP - 4),
             fusability: NKMBaseTable.readInt16LE(locations.fusability), // 0101 means no, 0100 means accident only, 0000 means yes (providing recipe exists)
-            unlockFlags: NKMBaseTable.readUInt8(locations.unlockFlags),
+            unlockFlags: [NKMBaseTable.readUInt8(locations.unlockFlags), NKMBaseTable.readUInt8(locations.unlockFlags +1)],
             tone: { value: NKMBaseTable.readUInt8(locations.tone), translation: "", secondary: NKMBaseTable.readUInt8(locations.tone + 1) },
             resist: {
                 physical: { value: readInt32LE(locations.innate + 4), translation: translateResist(readInt32LE(locations.innate + 4)) },
@@ -250,6 +250,7 @@ function fillCompendiumArr(NKMBaseTable) {
         })
 
     }
+    defineLevelForUnlockFlags(compendiumArr)
 }
 
 /**
@@ -644,6 +645,7 @@ function fillSpecialFusionArr(fusionData) {
 
         specialFusionArr.push({
             id: read2(offset),
+            resultLevel: compendiumArr[read2(offset + 10)].level.original,
             baseOffset: offset,
             demon1: {
                 value: read2(offset + 2),
@@ -1567,7 +1569,8 @@ function updateCompendiumBuffer(buffer, newComp) {
         //Write the level of the demon to the buffer
         buffer.writeInt32LE(demon.level.value, demon.offsetNumbers.level)
         buffer.writeInt16LE(demon.fusability, demon.offsetNumbers.fusability)
-        buffer.writeUInt8(demon.unlockFlags, demon.offsetNumbers.unlockFlags)
+        buffer.writeUInt8(demon.unlockFlags[0], demon.offsetNumbers.unlockFlags)
+        buffer.writeUInt8(demon.unlockFlags[1], demon.offsetNumbers.unlockFlags +1)
         buffer.writeUInt8(demon.tone.value, demon.offsetNumbers.tone)
         buffer.writeUInt8(demon.tone.secondary, demon.offsetNumbers.tone + 1)
     })
@@ -2166,7 +2169,7 @@ function adjustEncountersToSameLevel(symbolArr, comp, enemyArr) {
                             if (d > 0) {
                                 //make sure the symbol demon is included in encounter
                                 if (replacements.some(r => r[0] == d)) {
-                                    formation.demons[count] = replacements.find (r => r[0] == d)[1]
+                                    formation.demons[count] = replacements.find(r => r[0] == d)[1]
                                 } else {
                                     let demonR = possibilities[Math.floor(Math.random() * possibilities.length)]
                                     formation.demons[count] = demonR.id
@@ -2251,12 +2254,127 @@ function defineLevelSlots(comp) {
     for (let index = 0; index < 100; index++) {
         slots.push(0)
     }
-
+    let badIDs = [71, 365, 364, 366]
     comp.forEach(demon => {
-        if (!demon.name.startsWith('NOT')) {
+        if (!demon.name.startsWith('NOT') && !badIDs.includes(demon.id) && !demon.name.includes('Mitama')) {
             slots[demon.level.original]++
         }
 
+    })
+    return slots
+}
+
+function shuffleLevel(comp) {
+    let slots = defineLevelSlots(comp)
+
+    function getHighestFreeLevel() {
+        let max = 1
+        slots.forEach((slot,lv) => {
+            if(slot > 0) {
+                max = lv
+            }
+        })
+        return max
+    }
+
+    function getLowestFreeLevel() {
+        let min = 99
+        slots.forEach((slot,lv) => {
+            if(slot > 0) {
+                min = lv
+            }
+        })
+        return min
+    }
+
+    let badIDs = [71, 365, 364, 366]
+
+    let validDemons = comp.filter(demon => !demon.unlockFlags[0] > 0 && demon.race.translation != "Element" && !demon.name.startsWith('NOT') && !badIDs.includes(demon.id) && !demon.name.includes('Mitama'))
+    let elements = comp.filter(d => d.race.translation == "Element")
+    let flaggedDemons = comp.filter(demon => demon.unlockFlags[0] > 0).sort((a,b) => b.minUnlock - a.minUnlock)
+
+    flaggedDemons.forEach((e,index) => {
+        let validLevel = false
+        let newLevel = Math.ceil(Math.random() * (getHighestFreeLevel() - e.minUnlock)) + (e.minUnlock)
+        //Think about cases where maybe no slot is available
+        while (!validLevel) {
+            newLevel = Math.ceil(Math.random() * (getHighestFreeLevel() - e.minUnlock)) + (e.minUnlock)
+            if (slots[newLevel] > 0) {
+                validLevel = true
+            }
+        }
+        slots[newLevel] = slots[newLevel] - 1
+        comp[e.id].level.value = newLevel
+    })
+
+    //assign elemments levels below 20
+    elements.forEach((e,index)  => {
+        let validLevel = false
+        let newLevel = Math.ceil(Math.random() * 20)
+        while (!validLevel) {
+            newLevel = Math.ceil(Math.random() * 20)
+            if (slots[newLevel] > 0) {
+                validLevel = true
+            }
+        }
+        slots[newLevel] = slots[newLevel] - 1
+        comp[e.id].level.value = newLevel
+    })
+
+    validDemons.forEach((e,index)  => {
+        let validLevel = false
+        let newLevel = Math.ceil(Math.random() * (getHighestFreeLevel() - getLowestFreeLevel())) +  getLowestFreeLevel() 
+        while (!validLevel) {
+            newLevel = Math.ceil(Math.random() * (getHighestFreeLevel() - getLowestFreeLevel())) +  getLowestFreeLevel() 
+            if (slots[newLevel] > 0) {
+                validLevel = true
+            }
+        }
+        slots[newLevel] = slots[newLevel] - 1
+        comp[e.id].level.value = newLevel
+    })
+
+    // console.log(slots)
+    adjustLearnedSkillLevels(comp)
+    return comp
+}
+
+function adjustLearnedSkillLevels(comp) {
+    comp.forEach(demon => {
+        if(demon.level.original != demon.level.value) {
+            if(demon.learnedSkills.length > 0 && demon.level.value == 99) {
+                demon.learnedSkills.forEach(skill => {
+                    demon.skills.push(skill)
+                })
+            } else {
+                demon.learnedSkills.forEach(skill => {
+                    let skillLevel = Math.max(99, skill.level - demon.level.original + demon.level.value)
+                    skill.level = skillLevel
+                })
+            }
+        }
+    })
+}
+
+
+function getMinLevelPerSpecialFusion() {
+    let levels = []
+
+    specialFusionArr.forEach(fusion => {
+        levels.push([fusion.resultLevel, fusion.result.value])
+    })
+}
+
+/**
+ * Defines the minimum level belonging to each unlock flag.
+ * This value is later transferred when flags are randomized.
+ * @param {*} comp 
+ */
+function defineLevelForUnlockFlags (comp) {
+    comp.forEach(demon => {
+        if(demon.unlockFlags[0] > 0) {
+            demon.minUnlock = demon.level.original
+        }
     })
 }
 
@@ -2431,7 +2549,9 @@ async function main() {
     // console.log(skillArr.find(e=> e.id == 1))
     // console.log(specialFusionArr[specialFusionArr.length -1])
     // let newComp = assignCompletelyRandomLevels(compendiumArr)
-    let newComp = assignRandomPotentialWeightedSkills(compendiumArr, levelSkillList)
+
+    let newComp = shuffleLevel(compendiumArr)
+    newComp = assignRandomPotentialWeightedSkills(compendiumArr, levelSkillList)
 
     let newBasicEnemyArr = adjustBasicEnemyArr(enemyArr, newComp)
 
@@ -2497,7 +2617,7 @@ async function printOutEncounters(newSymbolArr) {
                     && !ec.encounter.demons.includes(entry.symbol.id)
                 ) {
 
-                    forArray.push([ec.encounter.id,ec.encounter.demons])
+                    forArray.push([ec.encounter.id, ec.encounter.demons])
                     finalString = finalString + "EID: " + ec.encounter.id + " Demons: "
                     ec.encounter.demons.forEach(demon => {
                         finalString = finalString + demon + " "
@@ -2506,7 +2626,7 @@ async function printOutEncounters(newSymbolArr) {
                 }
             })
         }
-       
+
     })
     await fs.writeFile('./encounterResults.txt', finalString)
 }
