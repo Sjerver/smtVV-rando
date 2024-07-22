@@ -1,0 +1,7 @@
+
+
+0 size2 map (3D for minato, 3E for shinagawa, 10 for empyrean, 3C Shinjuku, 3F Chiyoda)
+2 size2? chest ID 
+10 size2 item id 0000 might be macca
+12 size1 amount
+14 macca

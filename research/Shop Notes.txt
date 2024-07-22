@@ -1,0 +1,3 @@
+2nd Table in shop for Miman
+7A5 	Miman Number
+7AD	Item1 (essences would be this)

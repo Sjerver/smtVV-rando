@@ -1,0 +1,18 @@
+Entry start first: 45, second: A5 size:0x60
+
+0 size0x20 Either starts with 30 or String for .umap file in folder level
+20 size2 ID in table
+23 size4? ???
+2A size1? some kind of flag	(always set??)
+2B size1? another flag		(nuwa has this)
+2E size1-2? Battle Theme
+30 size1? always 2??
+38 size2 Some kind of demon id no idea what the effect is though
+48 size2 1st demon in battle
+4A size2 2nd demon in battle
+4E size2 3rd demon in battle
+51 size2 4th demon in battle
+53 size2 5th demon in battle
+55 size2 6th demon in battle
+
+5C size1? ???
