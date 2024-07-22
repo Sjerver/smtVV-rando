@@ -2207,7 +2207,7 @@ function adjustEncountersToSameLevel(symbolArr, comp, enemyArr) {
                             let valid = false
                             //Is there a demon in encounter that has no replacement defined that can be replaced
                             formation.demons.forEach(d => {
-                                if (d > 0 && !replacements.some(r => r[0] == d)) {
+                                if (d > 0 && !replacements.some(r => r[0] == d) && !comp[d].name.includes("Mitama")) {
                                     valid = true
                                     d = symbolFoe.id
                                 }
@@ -2219,7 +2219,7 @@ function adjustEncountersToSameLevel(symbolArr, comp, enemyArr) {
                                     if (counter.some(r => r[0] == d)) {
                                         counter.find(r => r[0] == d)[1] += 1
                                     } else {
-                                        if (d > 0) {
+                                        if (d > 0 && !comp[d].name.includes("Mitama")) {
                                             counter.push([d, 1])
                                         }
                                     }
@@ -2240,7 +2240,7 @@ function adjustEncountersToSameLevel(symbolArr, comp, enemyArr) {
                         //for each demon in encounter battle
                         formation.demons.forEach((d, count) => {
                             //dont replace empty slots or mitamas
-                            if (d > 0 || !comp[d].name.includes("Mitama")) {
+                            if (d > 0 && !comp[d].name.includes("Mitama")) {
                                 //insert replacement if defined, random demon else
                                 if (replacements.some(r => r[0] == d)) {
                                     formation.demons[count] = replacements.find(r => r[0] == d)[1]
