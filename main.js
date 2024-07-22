@@ -95,6 +95,10 @@ async function readSkillNames() {
     return fileContents
 }
 
+/**
+* Reads the file that contains the encounter tables as a buffer.
+* @returns the buffer containing the encounter tables.
+*/
 async function readEncounterData() {
     var fileContents = (await fs.readFile('./base/EncountData.uexp'))
 
@@ -134,7 +138,7 @@ async function writeOtherFusionTable(result) {
 }
 
 /**
- * Writes the given Buffer to the file NKMBaseTable.uexp.
+ * Writes the given Buffer to the file EncountData.uexp.
  * @param {Buffer} result 
  */
 async function writeEncounterData(result) {
@@ -673,7 +677,7 @@ function fillSpecialFusionArr(fusionData) {
 }
 
 /**
- * 
+ * Fills the Array enemyArr with data for all basic enemy versions of playable demons.
  * @param {Buffer} enemyData 
  */
 function fillBasicEnemyArr(enemyData) {
@@ -687,7 +691,7 @@ function fillBasicEnemyArr(enemyData) {
     let startValue = 0x88139
     let enemyOffset = 0x170
 
-    //For all Enemy version of demons in the compendium
+    //For all Enemy version of playable demon indeces
     for (let index = 0; index < 395; index++) {
         //First define all relevant offsets
         let offset = startValue + enemyOffset * index
@@ -702,7 +706,7 @@ function fillBasicEnemyArr(enemyData) {
             resist: offset + 0xBB,
             potential: offset + 0x12C
         }
-
+        
         let listOfSkills = []
         for (let index = 0; index < 8; index++) {
             let skillID = read4(locations.firstSkill + 4 * index)
@@ -711,8 +715,6 @@ function fillBasicEnemyArr(enemyData) {
             }
 
         }
-
-
 
         enemyArr.push({
             id: index,
@@ -793,6 +795,10 @@ function fillBasicEnemyArr(enemyData) {
     }
 }
 
+/**
+* Fills the erray encountSymbolArr with information regarding the encouners on the overworld you can run into, called symbols.
+* @param {Buffer} encounters buffer containing data encounter data
+*/
 function fillEncountSymbolArr(encounters) {
     function read2(ofSet) {
         return encounters.readInt16LE(ofSet)
@@ -804,6 +810,7 @@ function fillEncountSymbolArr(encounters) {
     let start = 0x55
     let size = 0x64
 
+    //The tables standard size for symbols is 2081
     for (let index = 0; index < 2081; index++) {
         let offset = start + size * index
 
@@ -814,18 +821,19 @@ function fillEncountSymbolArr(encounters) {
             encounter1Chance: offset + 0x26
         }
 
+        //each symbol has 16 encounters with different chances attached
         let possEnc = []
         for (let i = 0; i < 16; i++) {
             let encId = read2(locations.encounter1 + 4 * i)
             possEnc.push({
                 encounterID: encId,
-                encounter: encountArr[encId],
+                encounter: encountArr[encId], //This links to the encounter battle where the list of demons is located.
                 chance: read2(locations.encounter1Chance + 4 * i)
             })
         }
 
         let id = read2(locations.symbol)
-        let translation = "NO BASIC ENEMY"
+        let translation = "NO BASIC ENEMY" //Since non base demons arent saved anywhere currently use this filler name
         if (id < compendiumArr.length) {
             translation = compendiumArr[read2(locations.symbol)].name
         }
@@ -841,6 +849,10 @@ function fillEncountSymbolArr(encounters) {
 
 }
 
+/**
+* Fills the array encountArr with data on all encounter battles.
+* @param {Buffer} encounters
+*/
 function fillEncountArr(encounters) {
     function read2(ofSet) {
         return encounters.readInt16LE(ofSet)
@@ -849,6 +861,7 @@ function fillEncountArr(encounters) {
     let start = 0x32D55
     let size = 0x1C
 
+    //Table in EncountData is of this size
     for (let index = 0; index < 3001; index++) {
         let offset = start + size * index
         let locations = {
@@ -885,12 +898,18 @@ function obtainSkillFromID(id) {
     }
 }
 
+/**
+* //UNIMPLEMENTED
+* This function translates the id of an item to its name.
+* @param {Number} id of an item
+* @returns the name of the item
+*/
 function translateItem(id) {
     return ""
 }
 
 /**
-* Translates the given value of a skill modifier to its an understable description of its effect in game.
+* Translates the given value of a skill modifier to an understable description of its effect in game.
 * //UNCOMPLETE
 * @param {Number} value the value of the modifier
 * @returns the description of the given modifier value
@@ -1119,10 +1138,12 @@ function generateSkillLevelList() {
                 minLevel = element
             }
         })
+        //if skill has no levels set to 0
         if (skill.level.length == 0) {
             minLevel = 0
             maxLevel = 0
         }
+        //Add pre-defined level for certain enemy only skills and nahobino only skills 
         if (findBonusSkill(skill.id).length > 0) {
             let tem = findBonusSkill(skill.id)
             minLevel = tem[2]
@@ -1258,8 +1279,8 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
     for (let index = 0; index < comp.length; index++) {
         let demon = comp[index];
         let possibleSkills = []
+        
         //get all skills that can be learned at the demons level
-
         if (demon.level.value > 0) {
             levelList[demon.level.value].forEach(e => {
                 // console.log(demon.name + "" + demon.level.value)
@@ -1267,8 +1288,6 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
                 possibleSkills.push(e)
             })
         }
-
-
         //And add the skills learnable at up to 3 level below and above the demons level
         if (demon.level.value < 99) {
             levelList[demon.level.value + 1].forEach(e => possibleSkills.push(e))
@@ -1297,6 +1316,7 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
             levelList[demon.level.value - 7].forEach(e => possibleSkills.push(e))
             levelList[demon.level.value - 8].forEach(e => possibleSkills.push(e))
         }
+        
         // Create the weighted list of skills and update it with potentials
         let weightedSkills = createWeightedList(possibleSkills)
         weightedSkills = updateWeightsWithPotential(weightedSkills, demon.potential, demon)
@@ -1316,7 +1336,6 @@ function assignRandomPotentialWeightedSkills(comp, levelList) {
                             uniqueSkill = true
                             weightedSkills.weights[weightedSkills.values.indexOf(rng)] = 0
                         }
-
                     }
                 }
                 let skillAddition = { id: rng, translation: translateSkillID(rng) }
@@ -1428,7 +1447,6 @@ function checkAdditionalSkillConditions(skill, totalSkillList, demon) {
 * @returns weightList updated with the potentials
 */
 function updateWeightsWithPotential(weightList, potentials, demon) {
-    // console.log(weightList)
     //For every skill in weight list
     let newWeights = weightList.values.map((element, index) => {
         //start with old weight
@@ -1452,7 +1470,7 @@ function updateWeightsWithPotential(weightList, potentials, demon) {
                 newWeight = newWeight + additionalWeight
             }
         } else {
-            //Maybe do available passive logic here????
+            //Placeholder in case I want to modify weights for passive skills
         }
         return newWeight
     })
@@ -1511,7 +1529,7 @@ function obtainPotentialByName(name, potentials) {
  * Based on array of skills creates two arrays where each skill is only included once.
  * Skills that were originally present more than once have increased weight.
  * @param {Array} possibleSkills Array of skills 
- * @returns an array of values and an array of weights
+ * @returns an object with an array of values and an array of weights and an array of names for the skills
  */
 function createWeightedList(possibleSkills) {
     let ids = []
@@ -1567,7 +1585,7 @@ function updateCompendiumBuffer(buffer, newComp) {
             buffer.writeInt32LE(skill.level, demon.offsetNumbers.firstLearnedLevel + 8 * index)
         })
 
-        //Write the level of the demon to the buffer
+        //Write various attributes of the demon to the buffer
         buffer.writeInt32LE(demon.level.value, demon.offsetNumbers.level)
         buffer.writeInt16LE(demon.fusability, demon.offsetNumbers.fusability)
         buffer.writeUInt8(demon.unlockFlags[0], demon.offsetNumbers.unlockFlags)
@@ -1610,6 +1628,12 @@ function updateOtherFusionBuffer(buffer, fusions) {
     return buffer
 }
 
+/**
+ * Write the values in foes to the respective locations in the buffer
+ * @param {Buffer} buffer of the NKMBBase table
+ * @param {Array} foes containing data on all basic enemies
+ * @returns the updated buffer
+ */
 function updateBasicEnemyBuffer(buffer, foes) {
     function write4(value, loc) {
         buffer.writeInt32LE(value, loc)
@@ -1634,6 +1658,12 @@ function updateBasicEnemyBuffer(buffer, foes) {
     return buffer
 }
 
+/**
+ * Write the values in symbolArr to the respective locations in the buffer
+ * @param {Buffer} buffer of the EncountData table
+ * @param {Array} symbolArr containing data on all symbol encounters and their encounter battles
+ * @returns the updated buffer
+ */
 function updateEncounterBuffer(buffer, symbolArr) {
     function write4(value, loc) {
         buffer.writeInt32LE(value, loc)
@@ -1641,13 +1671,15 @@ function updateEncounterBuffer(buffer, symbolArr) {
     function write2(value, loc) {
         buffer.writeInt16LE(value, loc)
     }
-
+    // For each overworld encounter
     symbolArr.forEach(symbolEntry => {
         let offsets = symbolEntry.offsetNumbers
         write2(symbolEntry.symbol.id, offsets.symbol)
+        //go through its list of encounter battles
         symbolEntry.encounters.forEach(encounterEntry => {
             let enc = encounterEntry.encounter
             let encOffsets = enc.offsetNumbers
+            //and write the data for every demon
             enc.demons.forEach((demon, i) => {
                 write2(demon, encOffsets.demon + 2 * i)
             })
@@ -1996,6 +2028,10 @@ function adjustSpecialFusionTable(fusions, comp) {
 
 }
 
+/**
+* Randomize the tone of each playable demon that does not have a tone with talk data assigned.
+* @param {Array} comp array containing data on all playable demons
+*/
 function assignTalkableTones(comp) {
     let workingTones = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19, 22]
     comp.forEach(demon => {
@@ -2010,10 +2046,21 @@ function assignTalkableTones(comp) {
     })
 }
 
+/**
+* Adjusts the data of basic enemies to be in line with the data of playable demons.
+* Each enemy has stat modifier based on the orignal enemy and player stats that is the applied to the new player stats.
+* Skills are copied over from the player version as well as level. Level then is used to determine the new exp and macca values.
+* Press Turns are random with a higher chance if the enemy originally had two.
+* @param {Array} enemies Array containing data on all basic enemies
+* @param {Array} enemies Array containing data on playable demons
+* returns the array of basic enemies based on the data of playable demons
+*/
 function adjustBasicEnemyArr(enemies, comp) {
     let foes = enemies.map((enemy, index) => {
         let playableEqu = comp[index]
+        //Copy level from player version
         let newLevel = playableEqu.level.value
+        //Based on original enemy and player stats
         let statMods = {
             HP: enemy.stats.HP / playableEqu.stats.HP.og,
             MP: enemy.stats.MP / playableEqu.stats.MP.og,
@@ -2023,7 +2070,7 @@ function adjustBasicEnemyArr(enemies, comp) {
             agi: enemy.stats.agi / playableEqu.stats.agi.og,
             luk: enemy.stats.luk / playableEqu.stats.luk.og,
         }
-
+        //Modifiy new player stats to gain new enemy stats
         let newStats = {
             HP: playableEqu.stats.HP.start * statMods.HP,
             MP: playableEqu.stats.MP.start * statMods.MP,
@@ -2033,7 +2080,7 @@ function adjustBasicEnemyArr(enemies, comp) {
             agi: playableEqu.stats.agi.start * statMods.agi,
             luk: playableEqu.stats.luk.start * statMods.luk,
         }
-
+        
         let newSkills = playableEqu.skills.map((skill, skillDex) => {
             let newID = skill.id
             //Replace Healing Skills with enemy variant
@@ -2055,10 +2102,11 @@ function adjustBasicEnemyArr(enemies, comp) {
             }
             return { id: newID, translation: translateSkillID(newID) }
         })
-
+        
         let newPressTurns = Math.ceil(Math.random() + (0.10 * enemy.pressTurns))
         let newExperience = expMod[enemy.level]
         let newMacca = maccaMod[enemy.level]
+        //In original data enemies with two press turns like Oni have multiplied EXP and Macca values
         if (newPressTurns > 1) {
             newExperience = newExperience * newPressTurns
             newMacca = newMacca * Math.floor(newPressTurns * 1.5)
@@ -2071,16 +2119,16 @@ function adjustBasicEnemyArr(enemies, comp) {
             level: newLevel,
             originalLevel: enemy.level,
             stats: newStats,
-            analyze: 1,
-            levelDMGCorrection: 1,
-            AI: 55,
-            recruitable: 1,
+            analyze: 1,                     //I am not quite certain what this does, but all basic enemies in the original data have this
+            levelDMGCorrection: 1,          //Influences damage calculation and also seems to be an requirement for recruitment
+            AI: 55,                         //AI for random encounters
+            recruitable: 1,                 //Also required to be able to recruit the demon
             pressTurns: newPressTurns,
             experience: newExperience,
             money: newMacca,
             skills: newSkills,
             drops: enemy.drops,
-            innate: playableEqu.innate,
+            innate: playableEqu.innate,     //copy innate from player version
             resist: enemy.resist,
             potential: enemy.potential
         }
@@ -2089,22 +2137,42 @@ function adjustBasicEnemyArr(enemies, comp) {
     return foes
 }
 
+/**
+* Adjusts the data for all encounters and replaces the demons with demons around the same level.
+* 
+* @param {Array} symbolArr array of symbol encounters
+* @param {Array} comp array of all playable demons
+* @param {Array} enemyArr array of enemy counterparts for all playable demons
+* returns the adjusted array of symbol encounters 
+*/
 function adjustEncountersToSameLevel(symbolArr, comp, enemyArr) {
 
     // will be in form [OG ID, NEW ID]
     let replacements = []
-    //Excluding unused, Old Lilith (id=71), Tao , Yoko
+    //Excluding unused, Old Lilith (id=71), Tao , Yoko, Mitama
     let foes = enemyArr.filter(e => e.id != 71 && !e.name.includes("Mitama") && !e.name.startsWith("NOT USED") && e.id != 364 && e.id != 365 && e.id != 366)
 
+    /**
+    * Returns the array of all enemies at the specified level
+    * @param {Number} lv specified level
+    * @returns array of all enemies at the specified level
+    */
     function getEnemiesAtLevel(lv) {
         return foes.filter(e => e.level == lv)
     }
 
+    /**
+    * Returns the enemy with the specified id from the filtered enemy arrray
+    * @param {Number} id of enemy
+    * @returns he enemy with the specified id
+    */
     function getFoeWithID(id) {
         return foes.find(f => f.id == id)
     }
 
+    // For every symbol encounter
     let newSymbolArr = symbolArr.map((encount, index) => {
+        // dont change symbol if unused, mitama, Old Lilith, Tao, Yoko or not an basic enemy
         if (encount.symbol.id == 71 || encount.symbol.id == 365 || encount.symbol.id == 364 || encount.symbol.id == 366 || encount.symbol.id == 0 || encount.symbol.id > 395 || encount.symbol.translation.includes("Mitama") || encount.symbol.translation.startsWith("NOT USED")) {
             return encount
         }
@@ -2114,18 +2182,22 @@ function adjustEncountersToSameLevel(symbolArr, comp, enemyArr) {
         let possibilities = getEnemiesAtLevel(currentLV)
         //check if replacement for symbol already exists
         if (!replacements.some(r => r[0] == encount.symbol.id)) {
-
+            // if it doesnt generate random replacement
             let enemy = possibilities[Math.floor(Math.random() * possibilities.length)]
 
             replacements.push([encount.symbol.id, enemy.id])
             symbolFoe = enemy
         } else {
+            //if it does get replacement
             symbolFoe = getFoeWithID(replacements.find(r => r[0] == encount.symbol.id)[1])
         }
 
+        //For every encounter battle for the current symbol encounter
         replaceEnc.encounters.forEach(form => {
+            //That can actually appear
             if (form.chance > 0) {
                 let formation = form.encounter
+                //and is not the basic dummy encounter
                 if (formation.id != 0) {
 
                     //Check if this encounter has been updated already
@@ -2133,14 +2205,14 @@ function adjustEncountersToSameLevel(symbolArr, comp, enemyArr) {
                         //check if symbol demon isn't in encounter
                         if (!formation.demons.includes(symbolFoe.id)) {
                             let valid = false
-                            //Is there a demon in encounter that has no replacement defined
+                            //Is there a demon in encounter that has no replacement defined that can be replaced
                             formation.demons.forEach(d => {
                                 if (d > 0 && !replacements.some(r => r[0] == d)) {
                                     valid = true
                                     d = symbolFoe.id
                                 }
                             })
-                            //Is there a demon more than once
+                            //Is there a demon more than once in encounter battle that can be replaced
                             if (!valid) {
                                 let counter = []
                                 formation.demons.forEach((d, j) => {
@@ -2150,7 +2222,6 @@ function adjustEncountersToSameLevel(symbolArr, comp, enemyArr) {
                                         if (d > 0) {
                                             counter.push([d, 1])
                                         }
-
                                     }
                                 })
                                 if (counter.some(c => c[1] > 1)) {
@@ -2159,16 +2230,18 @@ function adjustEncountersToSameLevel(symbolArr, comp, enemyArr) {
                                     formation.demons[cID] = symbolFoe.id
                                 }
                             }
-                            //Replace symbolFoe with one of the demon in encounter
+                            //Replace symbolFoe with one of the demons in encounter
                             if (!valid) {
                                 symbolFoe = getFoeWithID(formation.demons[0])
                             }
                         }
                     } else {
-                        // let possibilities = getEnemiesAtLevel(symbolFoe.level)
+                        //encounter has not been updated yet
+                        //for each demon in encounter battle
                         formation.demons.forEach((d, count) => {
-                            if (d > 0) {
-                                //make sure the symbol demon is included in encounter
+                            //dont replace empty slots or mitamas
+                            if (d > 0 || !comp[d].name.includes("Mitama")) {
+                                //insert replacement if defined, random demon else
                                 if (replacements.some(r => r[0] == d)) {
                                     formation.demons[count] = replacements.find(r => r[0] == d)[1]
                                 } else {
@@ -2265,9 +2338,16 @@ function defineLevelSlots(comp) {
     return slots
 }
 
+/**
+* Shuffles the levels of all playable demons and does adjustments to data based on that shuffling.
+* @param {Array} comp the array of playable demons
+* returns the array of playable demons with shuffled levels
+*/
 function shuffleLevel(comp) {
+    //Array that defines for each index=Level how many demons can have this level
     let slots = defineLevelSlots(comp)
 
+    // Returns the highest free level in the slots array
     function getHighestFreeLevel() {
         let max = 1
         slots.forEach((slot,lv) => {
@@ -2278,6 +2358,7 @@ function shuffleLevel(comp) {
         return max
     }
 
+    // Returns the lowest free level in the slots array
     function getLowestFreeLevel() {
         let min = 99
         slots.forEach((slot,lv) => {
@@ -2288,23 +2369,30 @@ function shuffleLevel(comp) {
         return min
     }
 
+    //ids that should not be included in shuffling levels: Old Lilith, Yoko, Tao
     let badIDs = [71, 365, 364, 366]
 
+    //For each race build up new array with empty subarrays
     let raceLevels = raceArray.map(r => {
         return []
     })
 
+    // Valid demons are all demons whose level can be unconditionally randomized
     let validDemons = comp.filter(demon => !demon.unlockFlags[0] > 0 && demon.race.translation != "Element" && !demon.name.startsWith('NOT') && !badIDs.includes(demon.id) && !demon.name.includes('Mitama'))
+    // elements contain all 4 demons of the element race
     let elements = comp.filter(d => d.race.translation == "Element")
+    //Contains all demons who can only be fused after their fusion is unlocked via flag 
     let flaggedDemons = comp.filter(demon => demon.unlockFlags[0] > 0).sort((a,b) => b.minUnlock - a.minUnlock)
 
+    //For all flagged demons...
     flaggedDemons.forEach((e,index) => {
         let validLevel = false
+        //assign new level based on highest free level as max and the minimum level unlock level based on flag
         let newLevel = getRandomLevel(slots,getHighestFreeLevel(),e.minUnlock)
-        //Think about cases where maybe no slot is available
         while (!validLevel) {
             newLevel = getRandomLevel(slots,getHighestFreeLevel(),e.minUnlock)
             if (slots[newLevel] > 0 && !raceLevels[raceArray.indexOf(e.race.translation)].includes(newLevel)) {
+                //make sure slot is available and no demon of the same race has the same level
                 validLevel = true
             }
         }
@@ -2313,13 +2401,14 @@ function shuffleLevel(comp) {
         raceLevels[raceArray.indexOf( e.race.translation)].push(newLevel)
     })
 
-    //assign elemments levels below 20
+    //assign elemments levels between level 15 and 25
     elements.forEach((e,index)  => {
         let validLevel = false
         let newLevel = getRandomLevel(slots,25,15)
         while (!validLevel) {
             newLevel = getRandomLevel(slots,25,15)
             if (slots[newLevel] > 0 && !raceLevels[raceArray.indexOf(e.race.translation)].includes(newLevel)) {
+                //make sure slot is available and no demon of the same race has the same level
                 validLevel = true
             }
         }
@@ -2334,6 +2423,7 @@ function shuffleLevel(comp) {
         while (!validLevel) {
             newLevel = getRandomLevel(slots,getHighestFreeLevel(),getLowestFreeLevel())
             if (slots[newLevel] > 0 && !raceLevels[raceArray.indexOf( e.race.translation)].includes(newLevel)) {
+                //make sure slot is available and no demon of the same race has the same level
                 validLevel = true
             }
         }
@@ -2348,6 +2438,13 @@ function shuffleLevel(comp) {
     return comp
 }
 
+/**
+* Returns a random level that is free based on the array slots and between max and min.
+* @param {Array} slots defines which level are still free to randomize into
+* @param {Number} max the maximum generated level
+* @param {Number} min the minimum generated level
+* returns the randomly generated level under the constraints
+*/
 function getRandomLevel(slots,max,min) {
     let validLevels = []
     slots.forEach((s,i) => {
@@ -2365,6 +2462,11 @@ function adjustStatsToLevel(comp) {
 
 }
 
+/**
+* Adjust the levels of a demons learned skills to match their new level.
+* If a demon is now level 99, moves the learned skills to the normal skill array.
+* @param {Array} comp array containing data on all demons
+*/
 function adjustLearnedSkillLevels(comp) {
     comp.forEach(demon => {
         if(demon.level.original != demon.level.value) {
@@ -2382,19 +2484,24 @@ function adjustLearnedSkillLevels(comp) {
     })
 }
 
-
+/**
+* Function that assembles an array containing arrays with each special fusions resulting demon id and their level.
+* returns an array containing arrays with each special fusions resulting demon id and their level.
+*/
 function getMinLevelPerSpecialFusion() {
     let levels = []
 
     specialFusionArr.forEach(fusion => {
         levels.push([fusion.resultLevel, fusion.result.value])
     })
+
+    return levels
 }
 
 /**
  * Defines the minimum level belonging to each unlock flag.
  * This value is later transferred when flags are randomized.
- * @param {*} comp 
+ * @param {*} comp array of all playable demons
  */
 function defineLevelForUnlockFlags (comp) {
     comp.forEach(demon => {
@@ -2548,6 +2655,9 @@ function findUnlearnableSkills(skillLevels) {
     })
 }
 
+/**
+* Executes the full randomization process including level randomization.
+*/
 async function fullRando() {
     let compendiumBuffer = await readNKMBaseTable()
     let skillBuffer = await readSkillData()
@@ -2630,6 +2740,9 @@ async function fullRando() {
     // determineFusability()
 }
 
+/**
+* Executes the randomization process excluding level randomization.
+*/
 async function noLevelRando() {
     let compendiumBuffer = await readNKMBaseTable()
     let skillBuffer = await readSkillData()
@@ -2667,6 +2780,11 @@ async function noLevelRando() {
     await writeEncounterData(encountBuffer)
 }
 
+/**
+* Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.
+* Used for debugging purposes to prevent camera glitches in battle encounters.
+* @param {Array} newSymbolArr array of symbol encounters
+*/
 async function printOutEncounters(newSymbolArr) {
     let finalString = ""
     let forArray = []
