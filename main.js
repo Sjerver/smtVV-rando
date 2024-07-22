@@ -2774,6 +2774,8 @@ async function noLevelRando() {
     normalFusionBuffer = updateNormalFusionBuffer(normalFusionBuffer, normalFusionArr)
     encountBuffer = updateEncounterBuffer(encountBuffer, newSymbolArr)
 
+    findEncounterBattle(1011,newSymbolArr)
+
     await writeNormalFusionTable(normalFusionBuffer)
     await writeNKMBaseTable(compendiumBuffer)
     await writeOtherFusionTable(otherFusionBuffer)
@@ -2810,6 +2812,16 @@ async function printOutEncounters(newSymbolArr) {
 
     })
     await fs.writeFile('./encounterResults.txt', finalString)
+}
+
+function findEncounterBattle(id2, symbolEncs) {
+    symbolEncs.forEach(symbol => {
+        symbol.encounters.forEach(ec => {
+            if(ec.encounter.id == id2) {
+                console.log(symbol)
+            }
+        })
+    })
 }
 
 async function main() {

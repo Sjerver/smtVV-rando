@@ -1,0 +1,16 @@
+Abscess Data
+
+first 45 size 20
+
+0 empty
+C Encounter from EncountData Table 2
+10 
+11 
+12 
+14 Miracle
+15 Miracle
+16 Miracle
+17 Miracle 
+18 Miracle
+19 Miracle
+
