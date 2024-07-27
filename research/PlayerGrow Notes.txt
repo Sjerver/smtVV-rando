@@ -1,0 +1,3 @@
+0x2B10 Physical Resist Base Nahobino
+
+0x2C69 Starting Skill

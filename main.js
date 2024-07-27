@@ -1644,14 +1644,14 @@ function updateBasicEnemyBuffer(buffer, foes) {
     foes.forEach(foe => {
         let offsets = foe.offsetNumbers
         write4(foe.level, offsets.level)
-        write4(foe.pressTurns, offsets.pressTurns)
+        write1(foe.pressTurns, offsets.pressTurns)
         foe.skills.forEach((skill, index) => {
             write4(skill.id, offsets.firstSkill + 4 * index)
         })
         write4(foe.experience, offsets.experience)
         write4(foe.money, offsets.experience + 4)
         write4(foe.AI, offsets.experience + 12)
-        write4(foe.recruitable, offsets.HP + 33)
+        write1(foe.recruitable, offsets.HP + 33)
         write1(foe.levelDMGCorrection, offsets.HP + 30)
 
     })
