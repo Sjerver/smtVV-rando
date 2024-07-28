@@ -78,6 +78,7 @@ class Randomizer:
         with open(paths.CHARACTER_NAME_IN, 'r') as file:
             fileContents = file.read()   
             tempArray = fileContents.split("MessageLabel=")
+            tempArray.pop(0)
             for element in tempArray:
                 sliceStart = element.find("MessageTextPages_3=")
                 sliceEnd = element.find("Voice=")
@@ -96,7 +97,7 @@ class Randomizer:
             for element in tempArray:
                 sliceStart = element.find("MessageTextPages_3=")
                 sliceEnd = element.find("Voice=")
-                self.skillNames.append(element[sliceStart + 19:sliceEnd - 9])
+                self.skillNames.append(element[sliceStart + 19:sliceEnd - 7])
         return fileContents
     
     '''
@@ -871,13 +872,19 @@ class Randomizer:
                 possibleSkills = possibleSkills + levelList[demon.level.value + 2]
             if demon.level.value < 97:
                 possibleSkills = possibleSkills + levelList[demon.level.value + 3]
+            #Increase skill pool for demons above level 70 due to diminishing demon numbers
             if demon.level.value > 70:
                 possibleSkills = possibleSkills + levelList[demon.level.value - 4]
                 possibleSkills = possibleSkills + levelList[demon.level.value - 5]
+            #Increase skill pool for demons above level 90 due to diminishing demon numbers
             if demon.level.value > 90:
                 possibleSkills = possibleSkills + levelList[demon.level.value - 6]
                 possibleSkills = possibleSkills + levelList[demon.level.value - 7]
                 possibleSkills = possibleSkills + levelList[demon.level.value - 8]
+            #Increase skill pool for demons at level 1 due to low number of available skills
+            if demon.level.value == 1:
+                possibleSkills = possibleSkills + levelList[demon.level.value + 4]
+                possibleSkills = possibleSkills + levelList[demon.level.value + 5]
         
             #Create the weighted list of skills and update it with potentials
             weightedSkills = self.createWeightedList(possibleSkills)
@@ -914,7 +921,7 @@ class Randomizer:
                     while not uniqueSkill:
                         rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
                         if attempts <= 0:
-                            print("Something went wrong in leanred skill rando at level " + str(demon.level.value))
+                            print("Something went wrong in leanred skill rando at level " + str(demon.level.value) + "for demon " + str(demon.name))
                             weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                             uniqueSkill = True
                         if not any(e.ind == rng for e in totalSkills):
@@ -1184,13 +1191,13 @@ class Randomizer:
         for foe in foes:
             offsets = foe.offsetNumbers
             buffer.write_word(foe.level, offsets['level'])
-            buffer.write_word(foe.pressTurns, offsets['pressTurns'])
+            buffer.write_byte(foe.pressTurns, offsets['pressTurns'])
             for index, skill in enumerate(foe.skills):
                 buffer.write_word(skill.ind, offsets['firstSkill'] + 4 * index)
             buffer.write_word(foe.experience, offsets['experience'])
             buffer.write_word(foe.money, offsets['experience'] + 4)
             buffer.write_word(foe.AI, offsets['experience'] + 12)
-            buffer.write_word(foe.recruitable, offsets['HP'] + 33)
+            buffer.write_byte(foe.recruitable, offsets['HP'] + 33)
             buffer.write_byte(foe.levelDMGCorrection, offsets['HP'] + 30)
         return buffer
     
@@ -1319,8 +1326,8 @@ class Randomizer:
             #obtain the normal race of the resulting demon
             targetRace = next((val for x, val in enumerate(self.fusionChartArr) if (val.race1.value == demon1Race and val.race2.value == demon2Race) or (val.race1.value == demon2Race and val.race2.value == demon1Race)), None)
             #console.log(targetRace)
-            #Check if the fusion results in a valid race
-            if targetRace:
+            #Check if the fusion results in a valid race && a demon of this race is available for fusion
+            if targetRace and len(raceTable[targetRace.result.value]) > 0:
                 #Check if the fusion results in an "Element"
                 if RACE_ARRAY[targetRace.result.value] == "Element":
                     #Element fusions are doable by combining two demons of the same race
@@ -1575,11 +1582,17 @@ class Randomizer:
             replaceEnc = encount
             symbolFoe = None
             currentLV = getFoeWithID(encount.symbol.ind, foes).originalLevel
-            possibilities = getEnemiesAtLevel(currentLV)
+            #get enemies at level which have not been featured as a replacement
+            #ensures 1:1 replacement
+            poss2 = getEnemiesAtLevel(currentLV)
+            possibilities = [p for p in getEnemiesAtLevel(currentLV) if not any(r[1] == p.ind for r in replacements)]
+            '''
+            Should not be needed with 1:1 replacements
             leeway = 1
             while not possibilities: #If no demons available try again at a different level
                 possibilities = getEnemiesAtLevel(currentLV + random.randint(leeway * -1, leeway))
                 leeway += 1
+            '''
             #check if replacement for symbol already exists
             if not any(r[0] == encount.symbol.ind for r in replacements):#!replacements.some(r => r[0] == encount.symbol.ind)) {
                 #if it doesnt generate random replacement
@@ -1606,7 +1619,7 @@ class Randomizer:
                                 valid = False
                                 #Is there a demon in encounter that has no replacement defined that can be replaced
                                 for d in formation.demons:
-                                    if d > 0 and not any(r[0] == d for r in replacements) and 'Mitama' not in comp[d].name:
+                                    if d > 0 and any(r[0] == d for r in replacements) and 'Mitama' not in comp[d].name:
                                         valid = True
                                         d = symbolFoe.ind
                                 #Is there a demon more than once in encounter battle that can be replaced
@@ -1634,9 +1647,9 @@ class Randomizer:
                                     #insert replacement if defined, random demon else
                                     if any(r[0] == d for r in replacements):
                                         formation.demons[count] = next(r for x, r in enumerate(replacements) if r[0] == d)[1]
-                                    else:
-                                        demonR = random.choice(possibilities)
-                                        formation.demons[count] = demonR.ind
+                                    # else:
+                                    #     demonR = random.choice(possibilities)
+                                    #     formation.demons[count] = demonR.ind
                         formation.updated = True
             replaceEnc.symbol.ind = symbolFoe.ind
             replaceEnc.symbol.translation = symbolFoe.name
@@ -2034,7 +2047,7 @@ class Randomizer:
         #RACE_ARRAY.sort()
         #print(enemyArr[299])
 
-        #await printOutEncounters(newSymbolArr)
+        #self.printOutEncounters(newSymbolArr)
 
 
         self.writeNormalFusionTable(normalFusionBuffer.buffer)
@@ -2097,11 +2110,11 @@ class Randomizer:
         forArray = []
         for entry in newSymbolArr:
             if not entry.symbol.translation.startswith('NOT USED') and not entry.symbol.translation.startswith("NO BASIC ENEMY"):
-                finalString = finalString + 'ID: ' + entry.ind + ' ' + 'Symbol: ' + entry.symbol.translation + '\n'
+                finalString = finalString + 'ID: ' + str(entry.ind) + ' ' + 'Symbol: ' + entry.symbol.translation + '\n'
                 for ec in entry.encounters:
                     if ec.encounter.ind != 0 and ec.chance > 0 and entry.symbol.ind not in ec.encounter.demons:
                         forArray.append([ec.encounter.ind, ec.encounter.demons])
-                        finalString = finalString + 'EID: ' + ec.encounter.ind + ' Demons: '
+                        finalString = finalString + 'EID: ' + str(ec.encounter.ind)+ ' Demons: '
                         for demon in ec.encounter.demons:
                             finalString = finalString + demon + ' '
                         finalString = finalString + '\n'
