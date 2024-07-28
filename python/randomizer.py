@@ -4,6 +4,7 @@ from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Sk
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter
 from base_classes.base import Translated_Value, Weight_List
+from base_classes.nahobino import Nahobino, LevelStats
 import util.numbers as numbers
 import util.paths as paths
 import util.translation as translation
@@ -32,6 +33,7 @@ class Randomizer:
         self.enemyArr = []
         self.encountSymbolArr = []
         self.encountArr = []
+        self.nahobino = Nahobino()
         
     '''
     Reads the file that contains the demon table.
@@ -110,6 +112,15 @@ class Randomizer:
         return fileContents
     
     '''
+    Reads the file that contains the main character data as a buffer.
+        Returns: 
+            The buffer containing the main character data.
+    '''
+    def readMCData(self):
+        fileContents = Table(paths.MAIN_CHAR_DATA_IN)
+        return fileContents
+    
+    '''
     Writes the given Buffer to the file NKMBaseTable.uexp.
         Parameters:
             result (Buffer): The demon data to write 
@@ -162,6 +173,17 @@ class Randomizer:
         if not os.path.exists(paths.MAP_FOLDER_OUT):
             os.mkdir(paths.MAP_FOLDER_OUT)
         with open(paths.ENCOUNT_DATA_OUT, 'wb') as file:
+            file.write(result)
+
+    '''
+    Writes the given Buffer to the file PlayerGrow.uexp.
+        Parameters:
+            result (Buffer): The main character data to write 
+    '''
+    def writeMCData(self, result):
+        if not os.path.exists(paths.COMMON_FOLDER_OUT):
+            os.mkdir(paths.COMMON_FOLDER_OUT)
+        with open(paths.MAIN_CHAR_DATA_OUT, 'wb') as file:
             file.write(result)
             
     '''
@@ -683,6 +705,45 @@ class Randomizer:
             self.encountArr.append(Encounter(index, locations, encounters.read_halfword(offset), demons))
             
     '''
+    Fills the nahobino object with data from the playerGrow file.
+        Parameters:
+            playerGrow (Table): table containing data on the main character
+    '''
+    def fillNahobino(self, playGrow):
+
+        start = 0x1685
+        size = 0x1C
+        locations = {
+            'startingSkill': 0x2C69,
+            'statStart': start,
+            'affStart': 0x2B10
+        }
+
+        #Table in PlayerGrow is defined for level 0 until level 150
+        for index in range(151):
+            offset = start + size * index
+            self.nahobino.stats.append(LevelStats(index,playGrow.read_word(offset + 4 * 0),playGrow.read_word(offset + 4 * 1),playGrow.read_word(offset + 4 * 2),playGrow.read_word(offset + 4 * 3),playGrow.read_word(offset + 4 * 4),playGrow.read_word(offset + 4 * 5),playGrow.read_word(offset + 4 * 6)))
+        
+        self.nahobino.offsetNumbers = locations
+        
+        self.nahobino.startingSkill = playGrow.read_word(locations['startingSkill'])
+       
+        self.nahobino.resist.physical = Translated_Value(playGrow.read_word(locations['affStart'] + 4 * 0),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 * 0)))
+        self.nahobino.resist.fire = Translated_Value(playGrow.read_word(locations['affStart'] + 4 * 1),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *1)))
+        self.nahobino.resist.ice = Translated_Value(playGrow.read_word(locations['affStart'] + 4 * 2),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *2)))
+        self.nahobino.resist.electric = Translated_Value(playGrow.read_word(locations['affStart'] + 4 *3),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *3)))
+        self.nahobino.resist.force = Translated_Value(playGrow.read_word(locations['affStart'] + 4 *4),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *4)))
+        self.nahobino.resist.light = Translated_Value(playGrow.read_word(locations['affStart'] + 4 * 5),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *5)))
+        self.nahobino.resist.dark = Translated_Value(playGrow.read_word(locations['affStart'] + 4 * 6),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *6)))
+        self.nahobino.resist.almighty = Translated_Value(playGrow.read_word(locations['affStart'] + 4 * 7),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *7)))
+        self.nahobino.resist.poison = Translated_Value(playGrow.read_word(locations['affStart'] + 4 * 8),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *8)))
+        self.nahobino.resist.confusion = Translated_Value(playGrow.read_word(locations['affStart'] + 4 * 10),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *10)))
+        self.nahobino.resist.charm = Translated_Value(playGrow.read_word(locations['affStart'] + 4  * 11),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *11)))
+        self.nahobino.resist.sleep = Translated_Value(playGrow.read_word(locations['affStart'] + 4 * 12),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *12)))
+        self.nahobino.resist.seal = Translated_Value(playGrow.read_word(locations['affStart'] + 4 * 13),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *13)))
+        self.nahobino.resist.mirage = Translated_Value(playGrow.read_word(locations['affStart'] + 4  *20),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 * 20)))
+
+    '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
         Parameters:
             ind (Number): the id of the skill to return
@@ -1131,6 +1192,14 @@ class Randomizer:
     '''
     def updateCompendiumBuffer(self, buffer, newComp):
         for demon in newComp:
+            #Write stats of the demon to the buffer
+            buffer.write_word(demon.stats.HP.start,demon.offsetNumbers['HP'] + 4 * 0)
+            buffer.write_word(demon.stats.MP.start,demon.offsetNumbers['HP'] + 4 * 1)
+            buffer.write_word(demon.stats.str.start,demon.offsetNumbers['HP'] + 4 * 4)
+            buffer.write_word(demon.stats.vit.start,demon.offsetNumbers['HP'] + 4 * 5)
+            buffer.write_word(demon.stats.mag.start,demon.offsetNumbers['HP'] + 4 * 6)
+            buffer.write_word(demon.stats.agi.start,demon.offsetNumbers['HP'] + 4 * 7)
+            buffer.write_word(demon.stats.luk.start,demon.offsetNumbers['HP'] + 4 * 8)
             #Write the id of the demons skills to the buffer
             for index, skill in enumerate(demon.skills):
                 buffer.write_word(skill.ind, demon.offsetNumbers['firstSkill'] + 4 * index)
@@ -1190,6 +1259,15 @@ class Randomizer:
     def updateBasicEnemyBuffer(self, buffer, foes):
         for foe in foes:
             offsets = foe.offsetNumbers
+            #Write stats of the enemy demon to the buffer
+            buffer.write_word(foe.stats.HP, offsets['HP'] + 4 * 0)
+            buffer.write_word(foe.stats.MP,offsets['HP'] + 4 * 1)
+            buffer.write_word(foe.stats.str,offsets['HP'] + 4 * 2)
+            buffer.write_word(foe.stats.vit,offsets['HP'] + 4 * 3)
+            buffer.write_word(foe.stats.mag,offsets['HP'] + 4 * 4)
+            buffer.write_word(foe.stats.agi,offsets['HP'] + 4 * 5)
+            buffer.write_word(foe.stats.luk,offsets['HP'] + 4 * 6)
+
             buffer.write_word(foe.level, offsets['level'])
             buffer.write_byte(foe.pressTurns, offsets['pressTurns'])
             for index, skill in enumerate(foe.skills):
@@ -1223,6 +1301,17 @@ class Randomizer:
                     buffer.write_halfword(demon, encOffsets['demon'] + 2 * index)
         return buffer
     
+    '''
+   Writes the values from the naho object to their respective locations in the table buffer
+        Parameters:        
+            buffer (Table)
+            naho (Nahobino) 
+    '''
+    def updateMCBuffer(self, buffer, naho):
+        offsets = naho.offsetNumbers
+        #buffer.write_word(naho.startingSkill,offsets['startingSkill'])
+        return buffer
+
     '''
     Check if a certain race of demons contains two demons of the same level
         Parameters:        
@@ -1478,14 +1567,14 @@ class Randomizer:
             playableEqu = comp[index]
             #Copy level from player version
             newLevel = playableEqu.level.value
-            #Based on original enemy and player stats
+            #Based on original enemy and player version stats, later applied to replacement enemies
             statMods = Stats(enemy.stats.HP / playableEqu.stats.HP.og, enemy.stats.MP / playableEqu.stats.MP.og,  enemy.stats.str / playableEqu.stats.str.og,
                 enemy.stats.mag / playableEqu.stats.mag.og, enemy.stats.vit / playableEqu.stats.vit.og,
                 enemy.stats.agi / playableEqu.stats.agi.og, enemy.stats.luk / playableEqu.stats.luk.og)
-            #Modifiy new player stats to gain new enemy stats
-            newStats = Stats(playableEqu.stats.HP.start * statMods.HP, playableEqu.stats.MP.start * statMods.MP, playableEqu.stats.str.start * statMods.str,
-                playableEqu.stats.vit.start * statMods.vit, playableEqu.stats.mag.start * statMods.mag,
-                playableEqu.stats.agi.start * statMods.agi, playableEqu.stats.luk.start * statMods.luk)
+            #new Stats just copies the values from the playable version, get adjusted later after it replacements are decided
+            newStats = Stats(playableEqu.stats.HP.start, playableEqu.stats.MP.start, playableEqu.stats.str.start,
+                playableEqu.stats.vit.start, playableEqu.stats.mag.start,
+                playableEqu.stats.agi.start, playableEqu.stats.luk.start)
             newSkills = []
             for skill in playableEqu.skills:
                 newID = skill.ind
@@ -1521,6 +1610,7 @@ class Randomizer:
             newFoe.level = newLevel
             newFoe.originalLevel = enemy.level
             newFoe.stats = newStats
+            newFoe.statMods = statMods
             newFoe.analyze = 1                   #I am not quite certain what this does, but all basic enemies in the original data have this
             newFoe.levelDMGCorrection = 1        #Influences damage calculation and also seems to be an requirement for recruitment
             newFoe.AI = 55                       #AI for random encounters
@@ -1655,8 +1745,28 @@ class Randomizer:
             replaceEnc.symbol.translation = symbolFoe.name
 
             newSymbolArr.append(replaceEnc)
+
+        self.adjustBasicEnemyStats(replacements, enemyArr)
         return newSymbolArr
     
+    '''
+    Adjust the stats of the enemies based on which enemy they replace as a symbol encounter
+        Parameters:
+            replacements (Array): Contains pairs of replacements [OGID, NEWID]
+            foes (Array): List of basic enemies
+    '''
+    def adjustBasicEnemyStats(self, replacements, foes):
+        for pair in replacements:
+            replaced = foes[pair[0]]
+            replacement = foes[pair[1]]
+
+            statMods = replaced.statMods
+            newStats = Stats(math.floor(replacement.stats.HP * statMods.HP), math.floor(replacement.stats.MP * statMods.MP), math.floor(replacement.stats.str * statMods.str),
+                math.floor(replacement.stats.vit * statMods.vit), math.floor(replacement.stats.mag * statMods.mag),
+                math.floor(replacement.stats.agi * statMods.agi), math.floor(replacement.stats.luk * statMods.luk))
+            
+            replacement.stats = newStats
+
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
     Resulting demon is the demon with an level higher than the average of the two levels.
@@ -1811,7 +1921,7 @@ class Randomizer:
             raceLevels[RACE_ARRAY.index(e.race.translation)].append(newLevel)
         #print(slots)
         self.adjustLearnedSkillLevels(comp)
-        self.adjustStatsToLevel(comp)
+        comp = self.adjustStatsToLevel(comp)
         return comp
     
     '''
@@ -1834,8 +1944,38 @@ class Randomizer:
             rng = 1
         return rng
     
+    '''
+    Adjusts the stats of demons to their new level based on multipliers of the nahobinos stats at the original and new level
+        Parameters:
+            comp (Array(Compendium_Demon)): Array containing data on all demons
+    '''
     def adjustStatsToLevel(self, comp):
-        pass
+        for demon in comp:
+            #Get Nahobinos base stats at original and new level
+            nahoOGLevel = self.nahobino.stats[demon.level.original]
+            nahoNewLevel = self.nahobino.stats[demon.level.value]
+
+            #Define multipliers from nahobino stats at original level to og stats
+            modifiers = Stats(
+                demon.stats.HP.og / nahoOGLevel.HP,
+                demon.stats.MP.og / nahoOGLevel.MP,
+                demon.stats.str.og / nahoOGLevel.str,
+                demon.stats.vit.og / nahoOGLevel.vit,
+                demon.stats.mag.og / nahoOGLevel.mag,
+                demon.stats.agi.og / nahoOGLevel.agi,
+                demon.stats.luk.og / nahoOGLevel.luk
+            )
+            #Apply these multipliers to the nahobinos stats at new level to gain new level
+            demon.stats.HP.start = math.floor(nahoNewLevel.HP * modifiers.HP)
+            demon.stats.MP.start = math.floor(nahoNewLevel.MP * modifiers.MP)
+            demon.stats.str.start = math.floor(nahoNewLevel.str * modifiers.str)
+            demon.stats.vit.start = math.floor(nahoNewLevel.vit * modifiers.vit)
+            demon.stats.mag.start = math.floor(nahoNewLevel.mag * modifiers.mag)
+            demon.stats.agi.start = math.floor(nahoNewLevel.agi * modifiers.agi)
+            demon.stats.luk.start = math.floor(nahoNewLevel.luk * modifiers.luk)
+        return comp
+
+        
     
     '''
     Adjust the levels of a demons learned skills to match their new level.
@@ -1986,6 +2126,7 @@ class Randomizer:
         normalFusionBuffer = self.readNormalFusionTables()
         otherFusionBuffer = self.readOtherFusionTables()
         encountBuffer = self.readEncounterData()
+        playGrowBuffer = self.readMCData()
         self.readDemonNames()
         self.readSkillNames()
         self.fillCompendiumArr(compendiumBuffer)
@@ -1996,6 +2137,7 @@ class Randomizer:
         self.fillBasicEnemyArr(compendiumBuffer)
         self.fillEncountArr(encountBuffer)
         self.fillEncountSymbolArr(encountBuffer)
+        self.fillNahobino(playGrowBuffer)
 
         #print(encountSymbolArr[56].encounters)
         skillLevels = self.generateSkillLevelList()
@@ -2036,6 +2178,7 @@ class Randomizer:
         #print(RACE_ARRAY[23])
         #print(RACE_ARRAY[31])
         encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
+        playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
         #self.logDemonByName("Preta",compendiumArr)
         #print("END RESULT")
         #print(newComp[115])
@@ -2054,6 +2197,7 @@ class Randomizer:
         self.writeNKMBaseTable(compendiumBuffer.buffer)
         self.writeOtherFusionTable(otherFusionBuffer.buffer)
         self.writeEncounterData(encountBuffer.buffer)
+        self.writeMCData(playGrowBuffer.buffer)
         #findUnlearnableSkills(skillLevels)
         #defineLevelSlots(newComp)
         #determineFusability()
@@ -2067,6 +2211,7 @@ class Randomizer:
         normalFusionBuffer = self.readNormalFusionTables()
         otherFusionBuffer = self.readOtherFusionTables()
         encountBuffer = self.readEncounterData()
+        playGrowBuffer = self.readMCData()
         self.readDemonNames()
         self.readSkillNames()
         self.fillCompendiumArr(compendiumBuffer)
@@ -2077,6 +2222,7 @@ class Randomizer:
         self.fillBasicEnemyArr(compendiumBuffer)
         self.fillEncountArr(encountBuffer)
         self.fillEncountSymbolArr(encountBuffer)
+        self.fillNahobino(playGrowBuffer)
         skillLevels = self.generateSkillLevelList()
         levelSkillList = self.generateLevelSkillList(skillLevels)
         newComp = self.assignRandomPotentialWeightedSkills(self.compendiumArr, levelSkillList)
@@ -2091,6 +2237,7 @@ class Randomizer:
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
         normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
         encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
+        playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
 
         self.findEncounterBattle(1011,newSymbolArr)
 
@@ -2098,6 +2245,7 @@ class Randomizer:
         self.writeNKMBaseTable(compendiumBuffer.buffer)
         self.writeOtherFusionTable(otherFusionBuffer.buffer)
         self.writeEncounterData(encountBuffer.buffer)
+        self.writeMCData(playGrowBuffer.buffer)
         
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.

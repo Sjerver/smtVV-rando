@@ -23,6 +23,7 @@ class Enemy_Demon:
         self.offsetNumbers = {}
         self.level = None
         self.stats = None
+        self.statMods = None
         self.analyze = None
         self.levelDMGCorrection = None
         self.AI = None
