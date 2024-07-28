@@ -24,6 +24,8 @@
 .exe
 filelist.txt
 UnrealPak.exe
+*.pyc
+/.vscode
 
 # debug
 npm-debug.log*

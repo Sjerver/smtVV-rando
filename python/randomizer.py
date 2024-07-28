@@ -81,7 +81,7 @@ class Randomizer:
             for element in tempArray:
                 sliceStart = element.find("MessageTextPages_3=")
                 sliceEnd = element.find("Voice=")
-                self.compendiumNames.append(element[sliceStart + 19:sliceEnd - 9])
+                self.compendiumNames.append(element[sliceStart + 19:sliceEnd - 7])
         return fileContents
     
     '''
@@ -471,7 +471,7 @@ class Randomizer:
         startValue = 0xC5
         fusionOffset = 0x7C
 
-        #For every fusion (37401 = ((n-1)*(n))/2 with n being the number of registerable demons)
+        #For every fusion (37401 = ((n-1)*(n))/2 with n being the number of fusable(excludes Tao/Yoko for example) registerable demons)
         for index in range(37401):
             offset = startValue + index * fusionOffset
             locations = {
