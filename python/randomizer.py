@@ -1403,7 +1403,7 @@ class Randomizer:
             newRace = list(filter(lambda demon: demon.ind not in specialFusions, race))
             raceTable[index] = newRace
 
-        #Remove old Lilith as valid result
+        #Remove old Lilith as valid result. Index for Night is 31: Change this when implementing race rando
         raceTable[31].pop()
 
         #For each fusion...
@@ -1922,6 +1922,7 @@ class Randomizer:
         #print(slots)
         self.adjustLearnedSkillLevels(comp)
         comp = self.adjustStatsToLevel(comp)
+        self.adjustFusionFlagsToLevel(comp)
         return comp
     
     '''
@@ -1943,6 +1944,28 @@ class Randomizer:
         else:
             rng = 1
         return rng
+    
+    '''
+    Adjusts the fusion flags on demons based on their initial level pairing in comp
+        Parameters:
+            comp (List(Compendium_Demon)): Array containing data on all demons
+    '''
+    def adjustFusionFlagsToLevel(self,comp):
+        flagPairs = []
+        for demon in comp:
+            if demon.unlockFlags[0] > 1:
+                flagPairs.append([[demon.unlockFlags[0],demon.unlockFlags[1]],demon.level.original])
+                demon.unlockFlags[0] = 0
+                demon.unlockFlags[1] = 0
+        
+        for demon in comp:
+            if any(l[1] == demon.level.value for l in flagPairs):
+                pair = next(l for l in flagPairs if l[1] == demon.level.value)
+                index = flagPairs.index(pair)
+
+                demon.unlockFlags = pair[0]
+                flagPairs.pop(index)
+
     
     '''
     Adjusts the stats of demons to their new level based on multipliers of the nahobinos stats at the original and new level
