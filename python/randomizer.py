@@ -1398,13 +1398,13 @@ class Randomizer:
                     #determine direction based on race of first demon ingredient
                     direction = 0
                     match demon2.name:
-                        case 'NOT USED:CHR_NAME_1': #Erthys
+                        case 'Erthrys': #Erthys
                             direction = erthys[demon1Race]
-                        case 'Aer': #Aeros
+                        case 'Aeros': #Aeros
                             direction = aeros[demon1Race]
-                        case 'Aqua': #Aquans
+                        case 'Aquans': #Aquans
                             direction = aquans[demon1Race]
-                        case 'Flaem': #Flaemis
+                        case 'Flaemis': #Flaemis
                             direction = flaemis[demon1Race]
                     foundResult = False
                     searchTable = raceTable[demon1Race]
