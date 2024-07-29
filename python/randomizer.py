@@ -1454,13 +1454,13 @@ class Randomizer:
                     #determine direction based on race of 2nd demon ingredient
                     direction = 0
                     match demon1.name:
-                        case 'NOT USED:CHR_NAME_1': #Erthys
+                        case 'Erthys':
                             direction = erthys[demon2Race]
-                        case 'Aer': #Aeros
+                        case 'Aeros':
                             direction = aeros[demon2Race]
-                        case 'Aqua': #Aquans
+                        case 'Aquans':
                             direction = aquans[demon2Race]
-                        case 'Flaem': #Flaemis
+                        case 'Flaemis':
                             direction = flaemis[demon2Race]
                     foundResult = False
                     searchTable = raceTable[demon2Race] #sorted list of demons of a certain race sorted by ascending level
@@ -1494,13 +1494,13 @@ class Randomizer:
                     #determine direction based on race of first demon ingredient
                     direction = 0
                     match demon2.name:
-                        case 'Erthrys': #Erthys
+                        case 'Erthys':
                             direction = erthys[demon1Race]
-                        case 'Aeros': #Aeros
+                        case 'Aeros':
                             direction = aeros[demon1Race]
-                        case 'Aquans': #Aquans
+                        case 'Aquans':
                             direction = aquans[demon1Race]
-                        case 'Flaemis': #Flaemis
+                        case 'Flaemis':
                             direction = flaemis[demon1Race]
                     foundResult = False
                     searchTable = raceTable[demon1Race]
@@ -1838,7 +1838,8 @@ class Randomizer:
     '''
     def shuffleLevel(self, comp):
         #Array that defines for each index=Level how many demons can have this level
-        slots = self.defineLevelSlots(comp)
+        slots = self.defineLevelSlots(comp)   
+
         #Returns the highest free level in the slots array
         def getHighestFreeLevel():
             max = 1
@@ -1868,7 +1869,6 @@ class Randomizer:
         #Contains all demons who can only be fused after their fusion is unlocked via flag 
         flaggedDemons = list(filter(lambda demon: demon.unlockFlags[0] > 0, comp))
         flaggedDemons.sort(key = lambda a: a.minUnlock, reverse=True)
-
         #assign elemments levels between level 15 and 25
         for e in elements:
             validLevel = False
@@ -1884,7 +1884,8 @@ class Randomizer:
         #For all flagged demons...
         for e in flaggedDemons:
             validLevel = False
-            somethingWrong = False #Band-aid fix to stop infinite loop
+            somethingWrong = False 
+            attempts = 100 #Band-aid fix to stop infinite loop
             #assign new level based on highest free level as max and the minimum level unlock level based on flag
             while not validLevel:
                 if getHighestFreeLevel() < e.minUnlock or somethingWrong:
@@ -1894,7 +1895,8 @@ class Randomizer:
                 if slots[newLevel] > 0 and newLevel not in raceLevels[RACE_ARRAY.index(e.race.translation)]:
                     #make sure slot is available and no demon of the same race has the same level
                     validLevel = True
-                else:
+                attempts -= 1
+                if attempts < 0:
                     somethingWrong = True
             slots[newLevel] = slots[newLevel] - 1
             comp[e.ind].level.value = newLevel
@@ -1913,10 +1915,6 @@ class Randomizer:
                     if attempts <= 0:
                         validLevel = True
             slots[newLevel] = slots[newLevel] - 1
-            if sum(slots) == slots[1]:
-                firstSlot = slots[1]
-                slots = [1] * 100
-                slots[1] = firstSlot #Adding 100 levels because currently there are 15 more demons that need a level than possible levels and that breaks the program
             comp[e.ind].level.value = newLevel
             raceLevels[RACE_ARRAY.index(e.race.translation)].append(newLevel)
         #print(slots)
