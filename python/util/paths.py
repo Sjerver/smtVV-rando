@@ -20,3 +20,4 @@ MAIN_CHAR_DATA_OUT = '../rando/Project/Content/Blueprints/Gamedata/BinTable/Comm
 COMMON_FOLDER_OUT = '../rando/Project/Content/Blueprints/Gamedata/BinTable/Common'
 
 ENCOUNTERS_DEBUG = '../encounterResults.txt'
+FUSION_DEBUG = '../fusionResults.txt'

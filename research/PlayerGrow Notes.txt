@@ -8,3 +8,5 @@ HP, MP, STR, VIT, MAG, AGI, LUK
 0x2B10 Physical Resist Base Nahobino
 
 0x2C69 Starting Skill
+
+0x2D05 Innate Skill

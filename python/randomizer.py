@@ -1534,8 +1534,31 @@ class Randomizer:
                     fusion.result.value = 0
                     fusion.result.translation = "Empty"
 
-    def adjustSpecialFusionTable(self,fusions, comp):
-        pass
+    '''
+    Adjusts the special fusions in specialFusionArr with the new fusions based on the randomization in shuffleLevel.
+    Also sets the fusability flags accordingly.
+        Parameters:
+            fusions (Array) Array containing data on the new special fusions
+            comp (Array) Array containing data on all playable demons
+    '''
+    def adjustSpecialFusionTable(self,fusions,comp):
+        for index, fusion in enumerate(fusions):
+            #Set original demons fusability to 0
+            # seperate in case an og special fusion is still a special version
+            replaced = self.specialFusionArr[index]
+            comp[replaced.result.ind].fusability = 0 
+
+        for index, fusion in enumerate(fusions):
+            replaced = self.specialFusionArr[index]
+            #Set new result demons fusability to 0
+            comp[fusion.result.value].fusability = 257
+
+            replaced.resultLevel = fusion.resultLevel
+            replaced.demon1 = fusion.demon1
+            replaced.demon2 = fusion.demon2
+            replaced.demon3 = fusion.demon3
+            replaced.demon4 = fusion.demon4
+            replaced.result = fusion.result
     
     '''
     Randomize the tone of each playable demon that does not have a tone with talk data assigned.
@@ -1597,8 +1620,8 @@ class Randomizer:
                 newSkills.append(Translated_Value(newID, translation.translateSkillID(newID, self.skillNames)))
         
             newPressTurns = math.ceil(random.random() + (0.10 * enemy.pressTurns))
-            newExperience = self.expMod[enemy.level]
-            newMacca = self.maccaMod[enemy.level]
+            newExperience = self.expMod[newLevel]
+            newMacca = self.maccaMod[newLevel]
             #In original data enemies with two press turns like Oni have multiplied EXP and Macca values
             if newPressTurns > 1:
                 newExperience = newExperience * newPressTurns
@@ -1674,7 +1697,6 @@ class Randomizer:
             currentLV = getFoeWithID(encount.symbol.ind, foes).originalLevel
             #get enemies at level which have not been featured as a replacement
             #ensures 1:1 replacement
-            poss2 = getEnemiesAtLevel(currentLV)
             possibilities = [p for p in getEnemiesAtLevel(currentLV) if not any(r[1] == p.ind for r in replacements)]
             '''
             Should not be needed with 1:1 replacements
@@ -1684,7 +1706,7 @@ class Randomizer:
                 leeway += 1
             '''
             #check if replacement for symbol already exists
-            if not any(r[0] == encount.symbol.ind for r in replacements):#!replacements.some(r => r[0] == encount.symbol.ind)) {
+            if not any(r[0] == encount.symbol.ind for r in replacements) and len(possibilities) > 0:#!replacements.some(r => r[0] == encount.symbol.ind)) {
                 #if it doesnt generate random replacement
                 enemy = random.choice(possibilities)
 
@@ -1826,17 +1848,46 @@ class Randomizer:
         badIDs = [71, 365, 364, 366]
         for demon in comp:
             if not demon.name.startswith('NOT') and demon.ind not in badIDs and 'Mitama' not in demon.name:
-                slots[demon.level.original] = slots[demon.level.original] + 1
+                slots[demon.level.value] = slots[demon.level.value] + 1
         return slots
     
     '''
+    Adds additional race fusion combinations to the fusionChartArr, to allow their normal fusion.    
+    '''
+    def addAdditionalFusionsToFusionChart(self):
+        def getInd(race):
+            return RACE_ARRAY.index(race)
+        
+        fusionCombo = [
+            ["Herald","Drake","Primal"], #in reference Samael and Mastema being required for Satan
+            ["Herald","Tyrant","Devil"], #in reference to Metatron + Beelzebub being the special fusion for Lucifer
+            ["Beast","Kunitsu","UMA"], #a rabbit is a beast and Hare of Inaba supports the Kunitsu
+            ["Kunitsu","Wilder","UMA"], #Wilder is similiar to Beast, but really just wanted a second one
+            ["Lady","Megami","Enigma"], #both Enigma demons are female and Kinmamon is Megami in SoulHackers 2
+            ["Femme","Megami","Enigma"], #same reasoning as above
+            ["Vile","Lady","Qadistu"], # Qadistu are the wives or ladies of Samael, Vile in other games
+            ["Drake","Lady","Qadistu"], # Qadistu are the wives or ladies of Samael who is a Drake
+            ["Vile","Fury","Fiend"], #Vile for the connection to death and Fury to symbolize the strength of Fiend
+            ["Foul","Wargod","Fiend"], #Foul for stench of death and many empty fusions, Wargod for battle prowess of Fiend
+            ["Haunt","Wargod","Fiend"] #Haunt for the connection to death, Wargod for battle prowess of Fiend
+        ]
+
+        for fc in fusionCombo:
+            if(fc not in self.fusionChartArr):
+                self.fusionChartArr.append(Fusion_Chart_Node(None,Translated_Value(getInd(fc[0]),fc[0]),Translated_Value(getInd(fc[1]),fc[1]),Translated_Value(getInd(fc[2]),fc[2])))
+                self.fusionChartArr.append(Fusion_Chart_Node(None,Translated_Value(getInd(fc[1]),fc[1]),Translated_Value(getInd(fc[0]),fc[0]),Translated_Value(getInd(fc[2]),fc[2])))
+
+    '''
     Shuffles the levels of all playable demons and does adjustments to data based on that shuffling.
+    The shuffling process takes the fusions of demons into account by assembling the fusion tree from the bottom.
         Parameters:
             comp (Array(Compendium_Demon)): The array of playable demons
         Returns:
             The array of playable demons with shuffled levels
     '''
     def shuffleLevel(self, comp):
+        self.addAdditionalFusionsToFusionChart()
+
         #Array that defines for each index=Level how many demons can have this level
         slots = self.defineLevelSlots(comp)   
 
@@ -1863,7 +1914,7 @@ class Randomizer:
         raceLevels = [ [] for _ in range(len(RACE_ARRAY)) ]
 
         #Valid demons are all demons whose level can be unconditionally randomized
-        validDemons = list(filter(lambda demon: demon.unlockFlags[0] <= 0 and demon.race.translation != 'Element' and not demon.name.startswith('NOT') and demon.ind not in badIDs and 'Mitama' not in demon.name, comp))
+        validDemons = list(filter(lambda demon:  demon.race.translation != 'Element' and not demon.name.startswith('NOT') and demon.ind not in badIDs and 'Mitama' not in demon.name, comp))
         #elements contain all 4 demons of the element race
         elements = list(filter(lambda d: d.race.translation == 'Element', comp))
         #Contains all demons who can only be fused after their fusion is unlocked via flag 
@@ -1881,48 +1932,245 @@ class Randomizer:
             comp[e.ind].level.value = newLevel
             raceLevels[RACE_ARRAY.index(e.race.translation)].append(newLevel)
 
-        #For all flagged demons...
-        for e in flaggedDemons:
-            validLevel = False
-            somethingWrong = False 
-            attempts = 100 #Band-aid fix to stop infinite loop
-            #assign new level based on highest free level as max and the minimum level unlock level based on flag
-            while not validLevel:
-                if getHighestFreeLevel() < e.minUnlock or somethingWrong:
-                    newLevel = self.getRandomLevel(slots, getHighestFreeLevel(), getLowestFreeLevel()) #Something went wrong, no levels are free above minUnlock
-                else:
-                    newLevel = self.getRandomLevel(slots, getHighestFreeLevel(), e.minUnlock)
-                if slots[newLevel] > 0 and newLevel not in raceLevels[RACE_ARRAY.index(e.race.translation)]:
-                    #make sure slot is available and no demon of the same race has the same level
-                    validLevel = True
-                attempts -= 1
-                if attempts < 0:
-                    somethingWrong = True
-            slots[newLevel] = slots[newLevel] - 1
-            comp[e.ind].level.value = newLevel
-            raceLevels[RACE_ARRAY.index(e.race.translation)].append(newLevel)
+        #Array containing the 10 base demons and every demon with a newly assigned level
+        base = []
+        # list of every fusion combination for demons in base
+        fusions = []
+        # list of all newly generated special fusions
+        specialFusions = []
+        # list of levels of all original special fusions
+        specialFLevels = self.getMinLevelPerSpecialFusion() 
+        #print(specialFLevels)
 
-        for index, e in enumerate(validDemons):
-            validLevel = False
-            attempts = 100 #Band-aid fix to stop infinite loop
-            while not validLevel:
-                newLevel = self.getRandomLevel(slots, getHighestFreeLevel(), getLowestFreeLevel())
-                if slots[newLevel] > 0 and newLevel not in raceLevels[RACE_ARRAY.index(e.race.translation)]:
-                    #make sure slot is available and no demon of the same race has the same level
-                    validLevel = True
-                else:
-                    attempts -= 1
-                    if attempts <= 0:
-                        validLevel = True
-            slots[newLevel] = slots[newLevel] - 1
-            comp[e.ind].level.value = newLevel
-            raceLevels[RACE_ARRAY.index(e.race.translation)].append(newLevel)
+
+        for demon in validDemons:
+            #changes fusion flags for Hare of Inaba, Kinmamon, Amabie
+            if demon.fusability == 256:
+                demon.fusability = 0
+
+        
+        levelCorrection = 0
+        #until we have 10 base demons
+        while len(base) < 10:
+            #choose random demon
+            demon = random.choice(validDemons)
+            # get lowest level,
+            curLevel = getLowestFreeLevel()
+
+            if len(base) == 0 :
+                #add demon to base
+                base.append(demon)
+                #set demons new level in compendium
+                comp[demon.ind].level.value = curLevel
+                #decrease slots for the assigned level
+                slots[curLevel] -= 1
+                #remove demon from validDemon list
+                validDemons.pop(validDemons.index(demon))
+                # add level to the appropriate race level list
+                raceLevels[demon.race.value].append(curLevel)
+            else:
+                if curLevel in raceLevels[demon.race.value]:
+                        # prevents two demons of the same race sharing the same level
+                        continue
+                if len(base) >= 4:
+                    #levelCorrection is needed to skip the level 5 demons for the base 10
+                    #Only one of the level 5 demons is normally recruitable, but base 10 need to be recruitable
+                    levelCorrection = levelCorrection + 0.5
+                    curLevel = getLowestFreeLevel() + math.ceil(levelCorrection)
+
+                raceLevels[demon.race.value].append(curLevel)
+                comp[demon.ind].level.value = curLevel
+                slots[curLevel] = slots[curLevel] -1
+
+                # This loop adds all fusions based on the newly added demon and demons in base
+                # since resulting demon currently unclear creates dummy fusion result
+                for b in base:
+                    if(self.isValidFusion(demon,b)):
+                        race1 = demon.race.translation
+                        race2 = b.race.translation
+                        target = next((f for x, f in enumerate(self.fusionChartArr) if (f.race1.translation == race1 and f.race2.translation == race2) or (f.race1.translation == race2 and f.race2.translation == race1)), None).result
+                        dummy = Compendium_Demon()
+                        dummy.ind = -1
+                        dummy.name = "Fake"
+                        dummy.race = target
+                        dummy.level = Demon_Level(math.ceil((demon.level.value + b.level.value) / 2) +1, curLevel)
+                        fusions.append([demon,b,dummy])
+                # add demon to base and remove from valid demons
+                base.append(demon)
+                validDemons.pop(validDemons.index(demon))
+        
+        #Check if demons in the base 10 can fuse into each other
+        for b in base:
+            possibleFusions = [f for f in fusions if f[2].race.translation == b.race.translation and f[2].ind == -1 and f[2].level.value <= b.level.value]
+            for p in possibleFusions:
+                p[2] = b
+
+        attempts = 0
+        #attempts usually average around 40 by my tests
+        while len(validDemons) > 0 and attempts < 300:
+            demon = random.choice(validDemons)
+        
+            curLevel = getLowestFreeLevel()
+            #print(str(curLevel) + "/" + str(attempts))
+
+            #check if demon of same race and level already exists, skip if yes
+            if curLevel in raceLevels[demon.race.value]:
+                attempts += 1
+                continue
+            #if special fusion
+            if curLevel in specialFLevels:
+                raceLevels[demon.race.value].append(curLevel)
+                comp[demon.ind].level.value = curLevel
+                slots[curLevel] = slots[curLevel] -1
+                #generate new fusion add it to specialFusions list and remove special fusion level
+                specialFusions.append(self.generateSpecialFusion(demon, [b for b in base if b.level.value < demon.level.value]))
+                specialFLevels.pop(specialFLevels.index(curLevel))
+
+                # also add combinations of special fusion result and base demons to fusions list
+                for b in base:
+                    if(self.isValidFusion(demon,b)):
+                        race1 = demon.race.translation
+                        race2 = b.race.translation
+                        target = next((f for x, f in enumerate(self.fusionChartArr) if (f.race1.translation == race1 and f.race2.translation == race2) or (f.race1.translation == race2 and f.race2.translation == race1)), None).result
+                        dummy = Compendium_Demon()
+                        dummy.ind = -1
+                        dummy.name = "Fake"
+                        dummy.race = target
+                        dummy.level = Demon_Level(math.ceil((demon.level.value + b.level.value) / 2) + 1, curLevel)
+                        fusions.append([demon,b,dummy])
+                
+                base.append(demon)
+                validDemons.pop(validDemons.index(demon))
+            else:
+                #if no special fusion at this level available
+                #determine fusions that could lead to demon of same race and lower level
+                possibleFusions = [f for f in fusions if f[2].race.translation == demon.race.translation and f[2].ind == -1 and f[2].level.value <= curLevel]
+                for p in possibleFusions:
+                    p[2] = demon
+                if(len(possibleFusions) == 0):
+                    # if no possible fusions exist, try again from start
+                    attempts += 1
+                    continue
+                raceLevels[demon.race.value].append(curLevel)
+                comp[demon.ind].level.value = curLevel
+                slots[curLevel] = slots[curLevel] -1
+                
+                for b in base:
+                    if(self.isValidFusion(demon,b)):
+                        race1 = demon.race.translation
+                        race2 = b.race.translation
+                        target = next((f for x, f in enumerate(self.fusionChartArr) if (f.race1.translation == race1 and f.race2.translation == race2) or (f.race1.translation == race2 and f.race2.translation == race1)), None).result
+                        dummy = Compendium_Demon()
+                        dummy.ind = -1
+                        dummy.name = "Fake"
+                        dummy.race = target
+                        dummy.level = Demon_Level(math.ceil((demon.level.value + b.level.value) / 2) +1, curLevel)
+                        fusions.append([demon,b,dummy])
+                base.append(demon)
+                validDemons.pop(validDemons.index(demon))
+
+        #do not continue if attempts elapse 300
+        if attempts >= 300:
+            print("Could not assign all levels properly")
+            return False
+            
+
+        # #For all flagged demons...
+        # for e in flaggedDemons:
+        #     validLevel = False
+        #     somethingWrong = False 
+        #     attempts = 100 #Band-aid fix to stop infinite loop
+        #     #assign new level based on highest free level as max and the minimum level unlock level based on flag
+        #     while not validLevel:
+        #         if getHighestFreeLevel() < e.minUnlock or somethingWrong:
+        #             newLevel = self.getRandomLevel(slots, getHighestFreeLevel(), getLowestFreeLevel()) #Something went wrong, no levels are free above minUnlock
+        #         else:
+        #             newLevel = self.getRandomLevel(slots, getHighestFreeLevel(), e.minUnlock)
+        #         if slots[newLevel] > 0 and newLevel not in raceLevels[RACE_ARRAY.index(e.race.translation)]:
+        #             #make sure slot is available and no demon of the same race has the same level
+        #             validLevel = True
+        #         attempts -= 1
+        #         if attempts < 0:
+        #             somethingWrong = True
+        #     slots[newLevel] = slots[newLevel] - 1
+        #     comp[e.ind].level.value = newLevel
+        #     raceLevels[RACE_ARRAY.index(e.race.translation)].append(newLevel)
+
+        # for index, e in enumerate(validDemons):
+        #     validLevel = False
+        #     attempts = 100 #Band-aid fix to stop infinite loop
+        #     while not validLevel:
+        #         newLevel = self.getRandomLevel(slots, getHighestFreeLevel(), getLowestFreeLevel())
+        #         if slots[newLevel] > 0 and newLevel not in raceLevels[RACE_ARRAY.index(e.race.translation)]:
+        #             #make sure slot is available and no demon of the same race has the same level
+        #             validLevel = True
+        #         else:
+        #             attempts -= 1
+        #             if attempts <= 0:
+        #                 validLevel = True
+        #     slots[newLevel] = slots[newLevel] - 1
+        #     comp[e.ind].level.value = newLevel
+        #     raceLevels[RACE_ARRAY.index(e.race.translation)].append(newLevel)
+
+
+        #slots = self.defineLevelSlots(comp)
         #print(slots)
         self.adjustLearnedSkillLevels(comp)
         comp = self.adjustStatsToLevel(comp)
         self.adjustFusionFlagsToLevel(comp)
+        self.adjustSpecialFusionTable(specialFusions,comp)
         return comp
     
+    '''
+    Checks if the the fusion of two demons results in a valid race.
+        Parameters:
+            demon1 (Compendium_Demon): first ingredient demon
+            demon2 (Compendium_Demon): second ingredient demon
+        Returns:
+            Whether the two demons can be fused to obtain a demon or not
+    '''
+    def isValidFusion(self,demon1,demon2):
+        r1 = demon1.race.translation
+        r2 = demon2.race.translation
+        return any((f.race1.translation == r1 and f.race2.translation == r2) or (f.race1.translation == r2 and f.race2.translation == r1) for f in self.fusionChartArr)
+
+    '''
+    Generates a new Special_Fusion object for demon as a result with ingrediens from base.
+    Number of ingredients used is random between 2 and 4.
+        Parameters:
+            demon (Compendium_Demon): result of the assembled special fusion
+            base (List(Compendium_Demon)): list of possible ingredients for demon
+        Returns:
+            The newly assembled special fusion
+    '''
+    def generateSpecialFusion(self, demon, base):
+
+        ingNumber = random.randint(2,4)
+        ingredients = []
+
+        fusion = Special_Fusion()
+        fusion.resultLevel = demon.level.value
+        fusion.result = Translated_Value(demon.ind, demon.name)
+
+        for index in range(ingNumber):
+            ing = random.choice(base)
+            ingredients.append(Translated_Value(ing.ind, ing.name))
+        
+        fusion.demon1 = ingredients[0]
+        fusion.demon2 = ingredients[1]
+        if len(ingredients) > 2:
+            fusion.demon3 = ingredients[2]
+        else:
+            fusion.demon3 = Translated_Value(0,self.compendiumArr[0].name)
+
+        if len(ingredients) > 3:
+            fusion.demon4 = ingredients[3]
+        else:
+            fusion.demon4 = Translated_Value(0,self.compendiumArr[0].name)
+
+
+        return fusion
+
     '''
     Returns a random level that is free based on the array slots and between max and min.
         Parameters:
@@ -1950,15 +2198,18 @@ class Randomizer:
     '''
     def adjustFusionFlagsToLevel(self,comp):
         flagPairs = []
-        for demon in comp:
+        filtered = list(filter(lambda e: e.ind != 71 and 'Mitama' not in e.name and not e.name.startswith('NOT USED') and e.ind != 364 and e.ind != 365 and e.ind != 366, comp))
+        
+        for demon in filtered:
             if demon.unlockFlags[0] > 1:
                 flagPairs.append([[demon.unlockFlags[0],demon.unlockFlags[1]],demon.level.original])
                 demon.unlockFlags[0] = 0
                 demon.unlockFlags[1] = 0
         
-        for demon in comp:
+        for demon in filtered:
             if any(l[1] == demon.level.value for l in flagPairs):
-                pair = next(l for l in flagPairs if l[1] == demon.level.value)
+                pairs = [l for l in flagPairs if l[1] == demon.level.value]
+                pair = random.choice(pairs)
                 index = flagPairs.index(pair)
 
                 demon.unlockFlags = pair[0]
@@ -2015,12 +2266,12 @@ class Randomizer:
                         skill.level = skillLevel
                         
     '''
-    Function that assembles an array containing arrays with each special fusions resulting demon id and their level.
+    Function that assembles an array with each special fusions level.
         Returns:
-            An array containing arrays with each special fusions resulting demon id and their level.
+            An arraywith each special fusions resulting level.
     '''
     def getMinLevelPerSpecialFusion(self):
-        return list(map(lambda fusion: [fusion.resultLevel, fusion.result.value], self.specialFusionArr))
+        return list(map(lambda fusion: fusion.resultLevel, self.specialFusionArr))
 
     '''
     Defines the minimum level belonging to each unlock flag.
@@ -2098,7 +2349,7 @@ class Randomizer:
                     #add fusable races to availableFusions if they are not already obtained 
                     for i, race1 in enumerate(currentRaces):
                         for index in range(i+1, len(currentRaces)):
-                            race2 = currentRaces[index];
+                            race2 = currentRaces[index]
                             fusionResult = calcfusionResult(race1, race2)
                             if fusionResult and fusionResult not in availableFusions and fusionResult.obtained == False:
                                 availableFusions.append(fusionResult)
@@ -2137,7 +2388,16 @@ class Randomizer:
         for skill in skillLevels:
             if skill.level[0] == 0 and skill.level[1] == 0 and not skill.name.startswith("NOT USED") and self.determineSkillStructureByID(skill.id) != "Active":
                 print(skill)
-                
+
+    '''
+    Resets the level of each demon in the compendium to their original value.
+        Parameters:
+            comp (Array)
+    '''
+    def resetLevelToOriginal(self,comp):
+        for demon in comp:
+            demon.level = Demon_Level(demon.level.original,demon.level.original)
+
     '''
         Executes the full randomization process including level randomization.
     '''
@@ -2170,7 +2430,17 @@ class Randomizer:
         #print(skillArr.find(e=> e.id == 1))
         #print(specialFusionArr[-1])
         #newComp = self.assignCompletelyRandomLevels(compendiumArr)
-        newComp = self.shuffleLevel(self.compendiumArr)
+        newComp = False
+        attempts = 0
+        while not newComp and attempts < 10:
+            newComp = self.shuffleLevel(self.compendiumArr)
+            if not newComp:
+                self.resetLevelToOriginal(self.compendiumArr)
+                attempts += 1
+        if attempts >= 10:
+            print('Major issue with generating demon levels and fusions')
+            return False
+        
         newComp = self.assignRandomPotentialWeightedSkills(self.compendiumArr, levelSkillList)
         newBasicEnemyArr = self.adjustBasicEnemyArr(self.enemyArr, newComp)
         newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, newBasicEnemyArr)
@@ -2212,7 +2482,7 @@ class Randomizer:
         #print(enemyArr[299])
 
         #self.printOutEncounters(newSymbolArr)
-
+        #self.printOutFusions(self.normalFusionArr)
 
         self.writeNormalFusionTable(normalFusionBuffer.buffer)
         self.writeNKMBaseTable(compendiumBuffer.buffer)
@@ -2295,6 +2565,19 @@ class Randomizer:
             for ec in symbol.encounters:
                 if(ec.encounter.ind == id2):
                     print(symbol)
+
+    '''
+    Prints out a list of all normal fusions.
+    Used for debugging purposes.
+        Parameters:
+            fusions (Array): Array of normal fusions
+    '''
+    def printOutFusions(self, fusions):
+        finalString = ""
+        for fusion in fusions:
+            finalString = finalString + fusion.firstDemon.translation + " + " + fusion.secondDemon.translation + " = " + fusion.result.translation + '\n'
+        with open(paths.FUSION_DEBUG, 'w') as file:
+            file.write(finalString)
                     
 if __name__ == '__main__':
     rando = Randomizer()
