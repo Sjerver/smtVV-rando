@@ -34,17 +34,31 @@ ELEMENT_MAP = {
     29: 'Recovery',
     32: 'Physical'
 }
+FLAG_MAP = {
+    0x2C0000003E01: 'Reaching Shinagawa',
+    0x490000008B01: 'Reaching Taito',
+    0x60040000E101: 'Defeat Surt / ',
+    0x370000006201: 'Shingawa Clear',
+    0x69000000A101: 'Got all Empyrean Keys',
+    0x6C000000A601: 'Alignment Lock',
+    0x210300000000: 'Godborn',
+    0x0E000000F500: 'Defeat Hydra',
+    0x300000005001: 'Defeat Fionn (Shinagawa)',
+    0xFB1F: 'Tsukuyomi Essence Base',
+    0xFC1F: 'Tsukuyomi Essence Median',
+    0xFD1F: 'Tsukuyomi Essence Ultimus',
+    0xE81E: 'Unlock Lucifer'
+}
 
 '''
-UNIMPLEMENTED
 This function translates the id of an item to its name.
     Paramters:
         ind (Number): id of an item
     Returns:
         The name of the item
 '''
-def translateItem(ind):
-    return ""
+def translateItem(ind, itemNames):
+    return itemNames[ind]
     
 '''
 INCOMPLETE
@@ -146,4 +160,9 @@ Returns a text description of the given skill passive element type value.
 def translatePassiveElementType(value):
     if value in ELEMENT_MAP:
         return ELEMENT_MAP[value]
+    return ""
+
+def translateFlag(value):
+    if value in FLAG_MAP:
+        return FLAG_MAP[value]
     return ""

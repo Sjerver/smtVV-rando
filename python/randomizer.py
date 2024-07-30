@@ -5,6 +5,7 @@ from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Nod
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
+from base_classes.item import Essence, Shop_Entry
 import util.numbers as numbers
 import util.paths as paths
 import util.translation as translation
@@ -22,6 +23,7 @@ class Randomizer:
 
         self.compendiumNames = []
         self.skillNames = []
+        self.itemNames = []
 
         self.compendiumArr = []
         self.skillArr = []
@@ -34,6 +36,8 @@ class Randomizer:
         self.encountSymbolArr = []
         self.encountArr = []
         self.nahobino = Nahobino()
+        self.essenceArr = []
+        self.shopArr = []
         
     '''
     Reads the file that contains the demon table.
@@ -77,7 +81,7 @@ class Randomizer:
             The buffer containing CharacterNames
     '''
     def readDemonNames(self):
-        with open(paths.CHARACTER_NAME_IN, 'r') as file:
+        with open(paths.CHARACTER_NAME_IN, 'r', encoding="utf-8") as file:
             fileContents = file.read()   
             tempArray = fileContents.split("MessageLabel=")
             tempArray.pop(0)
@@ -93,13 +97,29 @@ class Randomizer:
             The buffer containing SkillNames
     '''
     def readSkillNames(self):
-        with open(paths.SKILL_NAME_IN, 'r') as file:
+        with open(paths.SKILL_NAME_IN, 'r', encoding="utf-8") as file:
             fileContents = file.read()   
             tempArray = fileContents.split("MessageLabel=")
             for element in tempArray:
                 sliceStart = element.find("MessageTextPages_3=")
                 sliceEnd = element.find("Voice=")
                 self.skillNames.append(element[sliceStart + 19:sliceEnd - 7])
+        return fileContents
+    
+    '''
+    Reads the text file containing Item Names and filters out just the names and saves all names in array itemNames.
+        Returns: 
+            The buffer containing itemNames
+    '''
+    def readItemNames(self):
+        with open(paths.ITEM_NAME_IN, 'r', encoding="utf-8") as file:
+            fileContents = file.read()   
+            tempArray = fileContents.split("MessageLabel=")
+            tempArray.pop(0)
+            for element in tempArray:
+                sliceStart = element.find("MessageTextPages_3=")
+                sliceEnd = element.find("Voice=")
+                self.itemNames.append(element[sliceStart + 19:sliceEnd - 7])
         return fileContents
     
     '''
@@ -118,6 +138,24 @@ class Randomizer:
     '''
     def readMCData(self):
         fileContents = Table(paths.MAIN_CHAR_DATA_IN)
+        return fileContents
+    
+    '''
+    Reads the file that contains the item data as a buffer.
+        Returns: 
+            The buffer containing the item data.
+    '''
+    def readItemData(self):
+        fileContents = Table(paths.ITEM_DATA_IN)
+        return fileContents
+    
+    '''
+    Reads the file that contains the shop data as a buffer.
+        Returns: 
+            The buffer containing the shop data.
+    '''
+    def readShopData(self):
+        fileContents = Table(paths.SHOP_DATA_IN)
         return fileContents
     
     '''
@@ -184,6 +222,28 @@ class Randomizer:
         if not os.path.exists(paths.COMMON_FOLDER_OUT):
             os.mkdir(paths.COMMON_FOLDER_OUT)
         with open(paths.MAIN_CHAR_DATA_OUT, 'wb') as file:
+            file.write(result)
+
+    '''
+    Writes the given Buffer to the file ItemTable.uexp.
+        Parameters:
+            result (Buffer): The item data to write 
+    '''
+    def writeItemData(self, result):
+        if not os.path.exists(paths.ITEM_FOLDER_OUT):
+            os.mkdir(paths.ITEM_FOLDER_OUT)
+        with open(paths.ITEM_DATA_OUT, 'wb') as file:
+            file.write(result)
+
+    '''
+    Writes the given Buffer to the file ShopTable.uexp.
+        Parameters:
+            result (Buffer): The item data to write 
+    '''
+    def writeShopData(self, result):
+        if not os.path.exists(paths.FACILITY_FOLDER_OUT):
+            os.mkdir(paths.FACILITY_FOLDER_OUT)
+        with open(paths.SHOP_DATA_OUT, 'wb') as file:
             file.write(result)
             
     '''
@@ -598,11 +658,11 @@ class Randomizer:
             demon.experience = enemyData.read_word(locations['experience'])
             demon.money = enemyData.read_word(locations['experience'] + 4)
             demon.skills = listOfSkills
-            itemDrop1 = Item_Drop(enemyData.read_word(locations['item']), translation.translateItem(enemyData.read_word(locations['item'])),
+            itemDrop1 = Item_Drop(enemyData.read_word(locations['item']), translation.translateItem(enemyData.read_word(locations['item']),self.itemNames),
                                                       enemyData.read_word(locations['item'] + 4), enemyData.read_word(locations['item'] + 8))
-            itemDrop3 = Item_Drop(enemyData.read_word(locations['item'] + 12), translation.translateItem(enemyData.read_word(locations['item'] + 12)),
+            itemDrop3 = Item_Drop(enemyData.read_word(locations['item'] + 12), translation.translateItem(enemyData.read_word(locations['item'] + 12),self.itemNames),
                                                       enemyData.read_word(locations['item'] + 16), enemyData.read_word(locations['item'] + 20))
-            itemDrop2 = Item_Drop(enemyData.read_word(locations['item'] + 24), translation.translateItem(enemyData.read_word(locations['item'] + 24)),
+            itemDrop2 = Item_Drop(enemyData.read_word(locations['item'] + 24), translation.translateItem(enemyData.read_word(locations['item'] + 24),self.itemNames),
                                                       enemyData.read_word(locations['item'] + 28), enemyData.read_word(locations['item'] + 32))
             demon.drops = Item_Drops(itemDrop1, itemDrop2, itemDrop3)
             demon.innate = Translated_Value(enemyData.read_word(locations['innate']), self.obtainSkillFromID(enemyData.read_word(locations['innate'])).name)
@@ -742,6 +802,47 @@ class Randomizer:
         self.nahobino.resist.sleep = Translated_Value(playGrow.read_word(locations['affStart'] + 4 * 12),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *12)))
         self.nahobino.resist.seal = Translated_Value(playGrow.read_word(locations['affStart'] + 4 * 13),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 *13)))
         self.nahobino.resist.mirage = Translated_Value(playGrow.read_word(locations['affStart'] + 4  *20),translation.translateResist(playGrow.read_word(locations['affStart'] + 4 * 20)))
+
+
+    '''
+    Fills the array essenceArr with data on all essence items.
+        Parameters:
+            items (Buffer) the buffer containing data on all items
+    '''
+    def fillEssenceArr(self,items):
+        
+        start = 0x6E59
+        size = 0x18
+
+        # ID of first essence is 311, last essence is 615
+        for index in range(304):
+            offset = start + size * index
+            essence = Essence()
+            essence.demon = Translated_Value(items.read_word(offset),self.compendiumNames[items.read_word(offset)])
+            essence.price = items.read_word(offset +12)
+            essence.offset = offset
+            essence.ind = 311 + index
+            essence.name = self.itemNames[311 + index]
+            
+            self.essenceArr.append(essence)
+
+    '''
+    Fills the array shopArr with data on all buyable items.
+        Parameters:
+            items (Buffer) the buffer containing all shop data
+    '''
+    def fillShopArr(self, shopData):
+        start = 0x55
+        size = 16
+
+        for index in range(116):
+            offset = start + size * index
+            entry = Shop_Entry()
+            entry.offset = offset
+            entry.item = Translated_Value(shopData.read_halfword(offset),translation.translateItem(shopData.read_halfword(offset),self.itemNames))
+            entry.unlock = Translated_Value(shopData.read_dblword(offset +4), translation.translateFlag(shopData.read_dblword(offset+4)))
+
+            self.shopArr.append(entry)
 
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
@@ -1277,6 +1378,11 @@ class Randomizer:
             buffer.write_word(foe.AI, offsets['experience'] + 12)
             buffer.write_byte(foe.recruitable, offsets['HP'] + 33)
             buffer.write_byte(foe.levelDMGCorrection, offsets['HP'] + 30)
+
+            #write item drops
+            buffer.write_word(foe.drops.item1.value, offsets['item'])
+            buffer.write_word(foe.drops.item2.value, offsets['item'] +12)
+            buffer.write_word(foe.drops.item3.value, offsets['item'] +24)
         return buffer
     
     '''
@@ -1302,7 +1408,7 @@ class Randomizer:
         return buffer
     
     '''
-   Writes the values from the naho object to their respective locations in the table buffer
+    Writes the values from the naho object to their respective locations in the table buffer
         Parameters:        
             buffer (Table)
             naho (Nahobino) 
@@ -1311,6 +1417,28 @@ class Randomizer:
         offsets = naho.offsetNumbers
         #buffer.write_word(naho.startingSkill,offsets['startingSkill'])
         return buffer
+
+    '''
+    Writes the values from the essences to their respective locations in the table buffer
+        Parameters:        
+            buffer (Table)
+            essence (Array) 
+    '''
+    def updateEssenceData(self,buffer,essence):
+        for e in essence:
+            offset = e.offset
+            buffer.write_word(e.price, offset +12)
+
+    '''
+    Writes the values from the shop entries to their respective locations in the table buffer
+        Parameters:        
+            buffer (Table)
+            entries (Array) 
+    '''
+    def updateShopBuffer(self, buffer, entries):
+        for entry in entries:
+            buffer.write_halfword(entry.item.value, entry.offset)
+            buffer.write_dblword(entry.unlock.value, entry.offset + 4)
 
     '''
     Check if a certain race of demons contains two demons of the same level
@@ -1626,6 +1754,9 @@ class Randomizer:
             if newPressTurns > 1:
                 newExperience = newExperience * newPressTurns
                 newMacca = newMacca * math.floor(newPressTurns * 1.5)
+            #later overwritten for replacements
+            newDrops = Item_Drops(enemy.drops.item1,enemy.drops.item2,enemy.drops.item3)
+            
             newFoe = Enemy_Demon()
             newFoe.ind = enemy.ind
             newFoe.name = enemy.name
@@ -1642,7 +1773,8 @@ class Randomizer:
             newFoe.experience = newExperience
             newFoe.money = newMacca
             newFoe.skills = newSkills
-            newFoe.drops = enemy.drops
+            newFoe.drops = newDrops
+            newFoe.oldDrops = enemy.drops
             newFoe.innate = playableEqu.innate   #copy innate from player version
             newFoe.resist = enemy.resist
             newFoe.potential = enemy.potential
@@ -1769,8 +1901,46 @@ class Randomizer:
             newSymbolArr.append(replaceEnc)
 
         self.adjustBasicEnemyStats(replacements, enemyArr)
+        self.adjustBasicEnemyDrops(replacements, enemyArr)
         return newSymbolArr
     
+    '''
+    Based on the given pairs of replacements, moves item drops from the old to the new demon, while changing the essence to the
+    new one. Also removes all drops from now non-encounterable demons.
+        Parameters:
+            replacements(List) list of pairs of demons [OGID, NEWID]
+            foes(Array) containing all enemies
+    '''
+    def adjustBasicEnemyDrops(self, replacements, foes):
+        for pair in replacements:
+            # for every pair of replacements copy item drops from replaced to replacement
+            replaced = foes[pair[0]]
+            replacement = foes[pair[1]]
+            replacement.drops = Item_Drops(replaced.oldDrops.item1,replaced.oldDrops.item2,replaced.oldDrops.item3)
+            #print(pair)
+            #print("Replacement: " + replacement.name + " Replaced: " + replaced.name)
+
+            #Adjust essence to belong to the replacement demon
+            if "Essence" in replacement.drops.item2.translation:
+                item = next(e for e in self.essenceArr if replacement.ind == e.demon.value)
+
+                replacement.drops.item2.value = item.ind
+                replacement.drops.item2.translation = item.name
+            if "Essence" in replacement.drops.item3.translation:
+                item = next(e for e in self.essenceArr if replacement.ind == e.demon.value)
+
+                replacement.drops.item3.value = item.ind
+                replacement.drops.item3.translation = item.name
+
+        replacedList = [r[1] for r in replacements]
+        nonEncounter = [f for f in foes if f.ind not in replacedList]
+        # Delete item drops for demon who cannot be encountered on overworld
+        for n in nonEncounter:
+            print(n.name)
+            emptyItem = Item_Drop(0,"",0,0)
+            n.drops = Item_Drops(emptyItem,emptyItem,emptyItem)
+    
+
     '''
     Adjust the stats of the enemies based on which enemy they replace as a symbol encounter
         Parameters:
@@ -2408,8 +2578,11 @@ class Randomizer:
         otherFusionBuffer = self.readOtherFusionTables()
         encountBuffer = self.readEncounterData()
         playGrowBuffer = self.readMCData()
+        itemBuffer = self.readItemData()
+        shopBuffer = self.readShopData()
         self.readDemonNames()
         self.readSkillNames()
+        self.readItemNames()
         self.fillCompendiumArr(compendiumBuffer)
         self.fillSkillArrs(skillBuffer)
         self.fillNormalFusionArr(normalFusionBuffer)
@@ -2419,6 +2592,8 @@ class Randomizer:
         self.fillEncountArr(encountBuffer)
         self.fillEncountSymbolArr(encountBuffer)
         self.fillNahobino(playGrowBuffer)
+        self.fillEssenceArr(itemBuffer)
+        self.fillShopArr(shopBuffer)
 
         #print(encountSymbolArr[56].encounters)
         skillLevels = self.generateSkillLevelList()
@@ -2470,6 +2645,8 @@ class Randomizer:
         #print(RACE_ARRAY[31])
         encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
         playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
+        itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
+        shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr)
         #self.logDemonByName("Preta",compendiumArr)
         #print("END RESULT")
         #print(newComp[115])
@@ -2489,6 +2666,8 @@ class Randomizer:
         self.writeOtherFusionTable(otherFusionBuffer.buffer)
         self.writeEncounterData(encountBuffer.buffer)
         self.writeMCData(playGrowBuffer.buffer)
+        self.writeItemData(itemBuffer.buffer)
+        self.writeShopData(shopBuffer.buffer)
         #findUnlearnableSkills(skillLevels)
         #defineLevelSlots(newComp)
         #determineFusability()
@@ -2503,8 +2682,11 @@ class Randomizer:
         otherFusionBuffer = self.readOtherFusionTables()
         encountBuffer = self.readEncounterData()
         playGrowBuffer = self.readMCData()
+        itemBuffer = self.readItemData()
+        shopBuffer = self.readShopData()
         self.readDemonNames()
         self.readSkillNames()
+        self.readItemNames()
         self.fillCompendiumArr(compendiumBuffer)
         self.fillSkillArrs(skillBuffer)
         self.fillNormalFusionArr(normalFusionBuffer)
@@ -2514,6 +2696,9 @@ class Randomizer:
         self.fillEncountArr(encountBuffer)
         self.fillEncountSymbolArr(encountBuffer)
         self.fillNahobino(playGrowBuffer)
+        self.fillEssenceArr(itemBuffer)
+        self.fillShopArr(shopBuffer)
+
         skillLevels = self.generateSkillLevelList()
         levelSkillList = self.generateLevelSkillList(skillLevels)
         newComp = self.assignRandomPotentialWeightedSkills(self.compendiumArr, levelSkillList)
@@ -2529,6 +2714,8 @@ class Randomizer:
         normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
         encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
         playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
+        itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
+        shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr)
 
         self.findEncounterBattle(1011,newSymbolArr)
 
@@ -2537,6 +2724,8 @@ class Randomizer:
         self.writeOtherFusionTable(otherFusionBuffer.buffer)
         self.writeEncounterData(encountBuffer.buffer)
         self.writeMCData(playGrowBuffer.buffer)
+        self.writeItemData(itemBuffer.buffer)
+        self.writeShopData(shopBuffer.buffer)
         
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.

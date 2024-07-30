@@ -1,3 +1,14 @@
-2nd Table in shop for Miman
-7A5 	Miman Number
-7AD	Item1 (essences would be this)
+1st Table in Shop (size 16)
+55 item id		2 bytes
+57 shop order id	2 bytes
+59 Unlock Flag		8 bytes (I think all of this is flag)
+60 empty		4 bytes
+
+
+2nd Table in shop for Miman (size 72)
+7A5 	Miman Number	4bytes
+7A9	???		4bytes
+7AD	Item1 		2bytes
+7AF	Amount1		2bytes
+
+up to 16 items
