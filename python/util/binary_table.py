@@ -5,7 +5,7 @@ from io import BytesIO
 # code modified from https://github.com/samfin/mmbn3-random/tree/cleanup
 class Table(object):
     def __init__(self, table_file_path):
-        self.buffer = bytearray(self.load_file(table_file_path).read())
+        self.buffer = bytearray(self.loadFile(table_file_path).read())
         self.w_offset = 0
         self.r_offset = 0
         self.stack = []
@@ -17,9 +17,9 @@ class Table(object):
     def seek(self, offset):
         self.seekr(offset)
         self.seekw(offset)
-    def save_offsets(self):
+    def saveOffsets(self):
         self.stack.append((self.r_offset, self.w_offset))
-    def load_offsets(self):
+    def loadOffsets(self):
         self.r_offset, self.w_offset = self.stack.pop()
 
     # Generally, providing an offset = don't change the state
@@ -36,13 +36,13 @@ class Table(object):
         assert(offset + n <= len(self.buffer))
         return self.buffer[offset : offset + n]
 
-    def read_byte(self, offset = -1):
+    def readByte(self, offset = -1):
         return ord(self.read(1, offset))
-    def read_halfword(self, offset = -1):
+    def readHalfword(self, offset = -1):
         return struct.unpack('<H', self.read(2, offset))[0]
-    def read_word(self, offset = -1):
+    def readWord(self, offset = -1):
         return struct.unpack('<I', self.read(4, offset))[0]
-    def read_dblword(self, offset = -1):
+    def readDblword(self, offset = -1):
         return struct.unpack('<Q', self.read(8, offset))[0]
 
     def write(self, data, offset = -1):
@@ -55,14 +55,14 @@ class Table(object):
         for i in range(len(data)):
             self.buffer[offset + i] = data[i]
 
-    def write_byte(self, x, offset = -1):
+    def writeByte(self, x, offset = -1):
         return self.write(struct.pack('<B', x), offset)
-    def write_halfword(self, x, offset = -1):
+    def writeHalfword(self, x, offset = -1):
         return self.write(struct.pack('<H', x), offset)
-    def write_word(self, x, offset = -1):
+    def writeWord(self, x, offset = -1):
         return self.write(struct.pack('<I', x), offset)
-    def write_dblword(self, x, offset = -1):
+    def writeDblword(self, x, offset = -1):
         return self.write(struct.pack('<Q', x), offset)
     
-    def load_file(self, file_path):
+    def loadFile(self, file_path):
         return open(file_path, 'rb')
