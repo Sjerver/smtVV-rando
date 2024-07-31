@@ -191,17 +191,17 @@ class Randomizer:
                                                      translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 14)))
             demon.resist.mirage = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 21),
                                                      translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 21)))
-            demon.potential.physical = NKMBaseTable.readWord(locations['potential'])
-            demon.potential.fire = NKMBaseTable.readWord(locations['potential'] + 4 * 1)
-            demon.potential.ice = NKMBaseTable.readWord(locations['potential'] + 4 * 2)
-            demon.potential.elec = NKMBaseTable.readWord(locations['potential'] + 4 * 3)
-            demon.potential.force = NKMBaseTable.readWord(locations['potential'] + 4 * 4)
-            demon.potential.light = NKMBaseTable.readWord(locations['potential'] + 4 * 5)
-            demon.potential.dark = NKMBaseTable.readWord(locations['potential'] + 4 * 6)
-            demon.potential.almighty = NKMBaseTable.readWord(locations['potential'] + 4 * 7)
-            demon.potential.ailment = NKMBaseTable.readWord(locations['potential'] + 4 * 8)
-            demon.potential.recover = NKMBaseTable.readWord(locations['potential'] + 4 * 10)
-            demon.potential.support = NKMBaseTable.readWord(locations['potential'] + 4 * 9)
+            demon.potential.physical = self.readPotentialFromTable(NKMBaseTable,locations['potential'])
+            demon.potential.fire = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 1)
+            demon.potential.ice = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 2)
+            demon.potential.elec = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 3)
+            demon.potential.force = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 4)
+            demon.potential.light = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 5)
+            demon.potential.dark = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 6)
+            demon.potential.almighty = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 7)
+            demon.potential.ailment = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 8)
+            demon.potential.recover = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 10)
+            demon.potential.support = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 9)
             demonHP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 0), NKMBaseTable.readWord(locations['HP'] + 4 * 2), NKMBaseTable.readWord(locations['HP'] + 4 * 0))
             demonMP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 1), NKMBaseTable.readWord(locations['HP'] + 4 * 3),  NKMBaseTable.readWord(locations['HP'] + 4 * 1))
             demonStr = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 4), NKMBaseTable.readWord(locations['HP'] + 4 * 9),  NKMBaseTable.readWord(locations['HP'] + 4 * 4))
@@ -558,17 +558,17 @@ class Randomizer:
                                                      translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 14)))
             demon.resist.mirage = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 21),
                                                      translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 21)))
-            demon.potential.physical = enemyData.readWord(locations['potential'])
-            demon.potential.fire = enemyData.readWord(locations['potential'] + 4 * 1)
-            demon.potential.ice = enemyData.readWord(locations['potential'] + 4 * 2)
-            demon.potential.elec = enemyData.readWord(locations['potential'] + 4 * 3)
-            demon.potential.force = enemyData.readWord(locations['potential'] + 4 * 4)
-            demon.potential.light = enemyData.readWord(locations['potential'] + 4 * 5)
-            demon.potential.dark = enemyData.readWord(locations['potential'] + 4 * 6)
-            demon.potential.almighty = enemyData.readWord(locations['potential'] + 4 * 7)
-            demon.potential.ailment = enemyData.readWord(locations['potential'] + 4 * 8)
-            demon.potential.recover = enemyData.readWord(locations['potential'] + 4 * 10)
-            demon.potential.support = enemyData.readWord(locations['potential'] + 4 * 9)
+            demon.potential.physical = self.readPotentialFromTable(enemyData,locations['potential'])
+            demon.potential.fire = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 1)
+            demon.potential.ice = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 2)
+            demon.potential.elec = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 3)
+            demon.potential.force = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 4)
+            demon.potential.light = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 5)
+            demon.potential.dark = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 6)
+            demon.potential.almighty = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 7)
+            demon.potential.ailment = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 8)
+            demon.potential.recover = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 10)
+            demon.potential.support = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 9)
             self.enemyArr.append(demon)
             
     '''
@@ -725,6 +725,31 @@ class Randomizer:
             return self.innateSkillArr[ind - 531]
         else:
             return self.skillArr[ind - 400]
+
+    '''
+    Returns the value of the potential at the offset in the table as either positive or negative.
+        Parameters:
+            table(Table)
+            offset(Integer)
+        Returns:
+            the value of the potential that can also be negative
+    '''
+    def readPotentialFromTable(self,table,offset):
+        potentialValue = table.readWord(offset)
+        if potentialValue > 100: #negative potential
+            potentialValue = -1 * (0x100000000 - potentialValue)
+        return potentialValue
+
+    '''
+    Writes the value of the potential at the offset in the table. If potential is negative revert it to how it should be written.
+        Parameters:
+            table(Table)
+            offset(Integer)
+    '''
+    def writePotentialToTable(self,table,offset,potentialValue):
+        if potentialValue < 0: #negative potential
+            potentialValue = (0x100000000 + potentialValue)
+        table.writeWord(potentialValue,offset)
     
     '''
     Generate a list of the levels each skill is obtained at
@@ -1053,8 +1078,6 @@ class Randomizer:
             if skillStructure == "Active":
                 potentialType = skill.potentialType.translation
                 potentialValue = self.obtainPotentialByName(potentialType, potentials)
-                if potentialValue > 100: #negative potential
-                    potentialValue = -1 * (0x100000000 - potentialValue)
                 additionalWeight = 2 * potentialValue
                 if skill.skillType.value == 0 and demon.stats.str.start < demon.stats.mag.start:
                     additionalWeight = additionalWeight - 2
@@ -1558,7 +1581,7 @@ class Randomizer:
             comp (Array) Array containing data on all playable demons
     '''
     def assignTalkableTones(self, comp):
-        workingTones = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19, 22]
+        workingTones = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19]
         for demon in comp:
             if demon.tone.value not in workingTones:
                 demon.tone.value = random.choice(workingTones)
