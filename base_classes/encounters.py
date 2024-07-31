@@ -20,3 +20,11 @@ class Possible_Encounter:
         self.encounterID = encounterID
         self.encounter = encounter #This links to the encounter battle where the list of demons is located.
         self.chance = chance
+
+class Event_Encounter:
+    def __init__(self):
+        self.ind = None
+        self.levelpath = None
+        self.track = None
+        self.demons = None
+        self.offsets = {}

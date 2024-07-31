@@ -2,7 +2,7 @@ from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
-from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter
+from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
 from base_classes.item import Essence, Shop_Entry
@@ -35,9 +35,12 @@ class Randomizer:
         self.enemyArr = []
         self.encountSymbolArr = []
         self.encountArr = []
-        self.nahobino = Nahobino()
         self.essenceArr = []
         self.shopArr = []
+        self.eventEncountArr = []
+
+        self.nahobino = Nahobino()
+        
         
     '''
     Reads a file containing game data into a Table with a bytearray
@@ -191,17 +194,17 @@ class Randomizer:
                                                      translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 14)))
             demon.resist.mirage = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 21),
                                                      translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 21)))
-            demon.potential.physical = self.readPotentialFromTable(NKMBaseTable,locations['potential'])
-            demon.potential.fire = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 1)
-            demon.potential.ice = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 2)
-            demon.potential.elec = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 3)
-            demon.potential.force = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 4)
-            demon.potential.light = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 5)
-            demon.potential.dark = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 6)
-            demon.potential.almighty = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 7)
-            demon.potential.ailment = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 8)
-            demon.potential.recover = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 10)
-            demon.potential.support = self.readPotentialFromTable(NKMBaseTable,locations['potential'] + 4 * 9)
+            demon.potential.physical = NKMBaseTable.readWord(locations['potential'])
+            demon.potential.fire = NKMBaseTable.readWord(locations['potential'] + 4 * 1)
+            demon.potential.ice = NKMBaseTable.readWord(locations['potential'] + 4 * 2)
+            demon.potential.elec = NKMBaseTable.readWord(locations['potential'] + 4 * 3)
+            demon.potential.force = NKMBaseTable.readWord(locations['potential'] + 4 * 4)
+            demon.potential.light = NKMBaseTable.readWord(locations['potential'] + 4 * 5)
+            demon.potential.dark = NKMBaseTable.readWord(locations['potential'] + 4 * 6)
+            demon.potential.almighty = NKMBaseTable.readWord(locations['potential'] + 4 * 7)
+            demon.potential.ailment = NKMBaseTable.readWord(locations['potential'] + 4 * 8)
+            demon.potential.recover = NKMBaseTable.readWord(locations['potential'] + 4 * 10)
+            demon.potential.support = NKMBaseTable.readWord(locations['potential'] + 4 * 9)
             demonHP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 0), NKMBaseTable.readWord(locations['HP'] + 4 * 2), NKMBaseTable.readWord(locations['HP'] + 4 * 0))
             demonMP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 1), NKMBaseTable.readWord(locations['HP'] + 4 * 3),  NKMBaseTable.readWord(locations['HP'] + 4 * 1))
             demonStr = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 4), NKMBaseTable.readWord(locations['HP'] + 4 * 9),  NKMBaseTable.readWord(locations['HP'] + 4 * 4))
@@ -558,17 +561,17 @@ class Randomizer:
                                                      translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 14)))
             demon.resist.mirage = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 21),
                                                      translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 21)))
-            demon.potential.physical = self.readPotentialFromTable(enemyData,locations['potential'])
-            demon.potential.fire = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 1)
-            demon.potential.ice = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 2)
-            demon.potential.elec = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 3)
-            demon.potential.force = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 4)
-            demon.potential.light = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 5)
-            demon.potential.dark = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 6)
-            demon.potential.almighty = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 7)
-            demon.potential.ailment = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 8)
-            demon.potential.recover = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 10)
-            demon.potential.support = self.readPotentialFromTable(enemyData,locations['potential'] + 4 * 9)
+            demon.potential.physical = enemyData.readWord(locations['potential'])
+            demon.potential.fire = enemyData.readWord(locations['potential'] + 4 * 1)
+            demon.potential.ice = enemyData.readWord(locations['potential'] + 4 * 2)
+            demon.potential.elec = enemyData.readWord(locations['potential'] + 4 * 3)
+            demon.potential.force = enemyData.readWord(locations['potential'] + 4 * 4)
+            demon.potential.light = enemyData.readWord(locations['potential'] + 4 * 5)
+            demon.potential.dark = enemyData.readWord(locations['potential'] + 4 * 6)
+            demon.potential.almighty = enemyData.readWord(locations['potential'] + 4 * 7)
+            demon.potential.ailment = enemyData.readWord(locations['potential'] + 4 * 8)
+            demon.potential.recover = enemyData.readWord(locations['potential'] + 4 * 10)
+            demon.potential.support = enemyData.readWord(locations['potential'] + 4 * 9)
             self.enemyArr.append(demon)
             
     '''
@@ -707,6 +710,33 @@ class Randomizer:
             entry.unlock = Translated_Value(shopData.readDblword(offset +4), translation.translateFlag(shopData.readDblword(offset+4)))
 
             self.shopArr.append(entry)
+    
+    '''
+    Fills the array shopArr with data on all buyable items.
+        Parameters:
+            data (Buffer) the buffer containing all shop data
+    '''
+    def fillEventEncountArr(self, data):
+        start = 0x45
+        size = 0x60
+
+        for index in range(252):
+            offset = start + size * index
+            encounter = Event_Encounter()
+            encounter.ind = data.readHalfword(offset + 0x20) 
+            encounter.levelpath = data.read32chars(offset)
+            encounter.offsets = {
+                'demons': offset + 0x48,
+                'track': offset + 0x2E,
+                'levelpath': offset
+            }
+            encounter.track = data.readHalfword(offset + 0x2E)
+            demons = []
+            for number in range(9):
+                demons.append(Translated_Value(data.readHalfword(offset + 0x48 + 2 * number),self.compendiumNames[data.readHalfword(offset + 0x48 + 2 * number)]))
+
+            encounter.demons = demons
+            self.eventEncountArr.append(encounter)
 
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
@@ -725,31 +755,6 @@ class Randomizer:
             return self.innateSkillArr[ind - 531]
         else:
             return self.skillArr[ind - 400]
-
-    '''
-    Returns the value of the potential at the offset in the table as either positive or negative.
-        Parameters:
-            table(Table)
-            offset(Integer)
-        Returns:
-            the value of the potential that can also be negative
-    '''
-    def readPotentialFromTable(self,table,offset):
-        potentialValue = table.readWord(offset)
-        if potentialValue > 100: #negative potential
-            potentialValue = -1 * (0x100000000 - potentialValue)
-        return potentialValue
-
-    '''
-    Writes the value of the potential at the offset in the table. If potential is negative revert it to how it should be written.
-        Parameters:
-            table(Table)
-            offset(Integer)
-    '''
-    def writePotentialToTable(self,table,offset,potentialValue):
-        if potentialValue < 0: #negative potential
-            potentialValue = (0x100000000 + potentialValue)
-        table.writeWord(potentialValue,offset)
     
     '''
     Generate a list of the levels each skill is obtained at
@@ -944,9 +949,12 @@ class Randomizer:
             totalSkills = []
             #If there are skills to be learned
             if len(weightedSkills.values) > 0:
+
                 #For every skill change the id to a random one that is not already assigned to this demon
                 for index in range(len(demon.skills)):
                     uniqueSkill = False
+                    if demon.skills[index].value == 0: 
+                        continue
                     rng = 0
                     attempts = 100
                     while not uniqueSkill:
@@ -1000,7 +1008,8 @@ class Randomizer:
         conditionalSkills = ["Charge", "Critical Aura", "Concentrate", "Curse Siphon", "Great Curse Siphon", "Virus Carrier", "Bowl of Hygieia", "Heal Pleroma", "High Heal Pleroma", "Nation Founder", "Healing Hand", "Oath of Plenteousness",
             "Poison Adept", "Poison Master", "Sankosho", "Incendiary Stoning", "Roaring Mist", "Herkeios", "Carpet Bolting", "Catastrophic Gales", "Lighted Wheel", "Boon of Sloth", "Ceaseless Crucifixion", "Biondetta", "Nation Builder"
         ]
-        if (len(totalSkillList) + 1 == len(demon.skills)) and ((self.determineSkillStructureByID(skill.ind) != "Active") and any(self.determineSkillStructureByID(e.ind) == "Active" for e in totalSkillList)):
+        nonEmpty = [d for d in demon.skills if d.ind != 0]
+        if (len(totalSkillList) + 1 == len(nonEmpty)) and ((self.determineSkillStructureByID(skill.ind) != "Active") and not any(self.determineSkillStructureByID(e.ind) == "Active" for e in totalSkillList)):
             #Check if we are at last initial skill and we have at least one active or current one is active
             return False
 
@@ -1083,7 +1092,7 @@ class Randomizer:
                     additionalWeight = additionalWeight - 2
                 elif skill.skillType.value == 1 and demon.stats.str.start > demon.stats.mag.start:
                     additionalWeight = additionalWeight - 2
-                #if(skill.name == "Profaned Land") {additonalWeight = additionalWeight * additionalWeight}
+                
                 if additionalWeight < 0:
                     newWeight = 0
                 else:
@@ -1326,6 +1335,19 @@ class Randomizer:
         for entry in entries:
             buffer.writeHalfword(entry.item.value, entry.offset)
             buffer.writeDblword(entry.unlock.value, entry.offset + 4)
+
+    '''
+    Writes the values from the event encounter array to their respective locations in the table buffer
+        Parameters:        
+            buffer (Table)
+            evEncount (Array)
+    '''
+    def updateEventEncountBuffer(self,buffer,evEncount):
+        for enc in evEncount:
+            buffer.writeHalfword(enc.track, enc.offsets['track'])
+            #buffer.write32chars(enc.levelpath, enc.offsets['levelpath'])
+            for index, demon in enumerate(enc.demons):
+                buffer.writeHalfword(demon.value , enc.offsets['demons'] + 2 * index)
 
     '''
     Check if a certain race of demons contains two demons of the same level
@@ -1909,6 +1931,24 @@ class Randomizer:
         return slots
     
     '''
+    Changes the pixie in the talk tutorial to a level 2 demon.
+        Parameters:
+             comp (Array(Compendium_Demon)): Array containing data on all playable demons
+             evEncount (Array(Event_Encounter)): Array containing data on all eventEncounter
+    '''
+    def adjustTutorialPixie(self, comp, evEncount):
+        #Encounter with Event Pixie has id 7 in eventEncount table
+        encounter = next(e for e in evEncount if e.ind == 7)
+
+        possibilities = [d for d in comp if d.level.value == 2]
+
+        demon = random.choice(possibilities)
+
+        encounter.demons[0].value = demon.ind
+        encounter.demons[0].translation = demon.name
+        
+
+    '''
     Adds additional race fusion combinations to the fusionChartArr, to allow their normal fusion.    
     '''
     def addAdditionalFusionsToFusionChart(self):
@@ -2176,8 +2216,32 @@ class Randomizer:
         comp = self.adjustStatsToLevel(comp)
         self.adjustFusionFlagsToLevel(comp)
         self.adjustSpecialFusionTable(specialFusions,comp)
+        
         return comp
     
+
+    '''
+    Randomly adjust the amount of skills a demon starts with based on their level.
+        Parameters:
+            comp (Array(Compendium_Demon)): Array containing data on all playable demons
+    '''
+    def adjustSkillSlotsToLevel(self,comp):
+        for demon in comp:
+            if demon.level.value != demon.level.original:
+                minS = 4 * math.ceil(demon.level.value / 25)
+                maxS = max(minS,min(16, 5 + math.ceil(demon.level.value / 6)))
+                slots = math.ceil(random.randint(minS, maxS) /4)
+
+                while len(demon.skills) < slots:
+                    demon.skills.append(Translated_Value(1,translation.translateSkillID(1,self.skillNames)))
+                if len(demon.skills) > slots:
+                    for index, skill in enumerate(demon.skills):
+                        if index >= slots:
+                            demon.skills[index].value = 0
+                            demon.skills[index].ind = 0
+                            demon.skills[index].translation = translation.translateSkillID(0,self.skillNames)
+    
+
     '''
     Checks if the the fusion of two demons results in a valid race.
         Parameters:
@@ -2467,6 +2531,7 @@ class Randomizer:
         playGrowBuffer = self.readBinaryTable(paths.MAIN_CHAR_DATA_IN)
         itemBuffer = self.readBinaryTable(paths.ITEM_DATA_IN)
         shopBuffer = self.readBinaryTable(paths.SHOP_DATA_IN)
+        eventEncountBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -2481,6 +2546,7 @@ class Randomizer:
         self.fillNahobino(playGrowBuffer)
         self.fillEssenceArr(itemBuffer)
         self.fillShopArr(shopBuffer)
+        self.fillEventEncountArr(eventEncountBuffer)
 
         #print(encountSymbolArr[56].encounters)
         skillLevels = self.generateSkillLevelList()
@@ -2502,12 +2568,14 @@ class Randomizer:
         if attempts >= 10:
             print('Major issue with generating demon levels and fusions')
             return False
-        
+        self.adjustSkillSlotsToLevel(newComp)
         newComp = self.assignRandomPotentialWeightedSkills(self.compendiumArr, levelSkillList)
         newBasicEnemyArr = self.adjustBasicEnemyArr(self.enemyArr, newComp)
         newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, newBasicEnemyArr)
 
         self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
+        
+        self.adjustTutorialPixie(newComp,self.eventEncountArr)
         #print(levelSkillList)
         #print(levelSkillList[1])
         #print(skillLevels[100])
@@ -2534,6 +2602,9 @@ class Randomizer:
         playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
         self.updateEssenceData(itemBuffer,self.essenceArr)
         self.updateShopBuffer(shopBuffer, self.shopArr)
+        self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr)
+
+        
         #self.logDemonByName("Preta",compendiumArr)
         #print("END RESULT")
         #print(newComp[115])
@@ -2555,6 +2626,7 @@ class Randomizer:
         self.writeBinaryTable(playGrowBuffer.buffer, paths.MAIN_CHAR_DATA_OUT, paths.COMMON_FOLDER_OUT)
         self.writeBinaryTable(itemBuffer.buffer, paths.ITEM_DATA_OUT, paths.ITEM_FOLDER_OUT)
         self.writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_FOLDER_OUT)
+        self.writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT, paths.MAP_FOLDER_OUT)
         #findUnlearnableSkills(skillLevels)
         #defineLevelSlots(newComp)
         #determineFusability()
@@ -2571,6 +2643,7 @@ class Randomizer:
         playGrowBuffer = self.readBinaryTable(paths.MAIN_CHAR_DATA_IN)
         itemBuffer = self.readBinaryTable(paths.ITEM_DATA_IN)
         shopBuffer = self.readBinaryTable(paths.SHOP_DATA_IN)
+        eventEncountBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -2612,6 +2685,7 @@ class Randomizer:
         self.writeBinaryTable(playGrowBuffer.buffer, paths.MAIN_CHAR_DATA_OUT, paths.COMMON_FOLDER_OUT)
         self.writeBinaryTable(itemBuffer.buffer, paths.ITEM_DATA_OUT, paths.ITEM_FOLDER_OUT)
         self.writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_FOLDER_OUT)
+        self.writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT)
         
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.

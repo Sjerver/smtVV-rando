@@ -39,11 +39,13 @@ class Table(object):
     def readByte(self, offset = -1):
         return ord(self.read(1, offset))
     def readHalfword(self, offset = -1):
-        return struct.unpack('<H', self.read(2, offset))[0]
+        return struct.unpack('<h', self.read(2, offset))[0]
     def readWord(self, offset = -1):
-        return struct.unpack('<I', self.read(4, offset))[0]
+        return struct.unpack('<i', self.read(4, offset))[0]
     def readDblword(self, offset = -1):
-        return struct.unpack('<Q', self.read(8, offset))[0]
+        return struct.unpack('<q', self.read(8, offset))[0]
+    def read32chars(self, offset = -1):
+        return struct.unpack('32s', self.read(32, offset))[0]
 
     def write(self, data, offset = -1):
         if offset == -1:
@@ -58,11 +60,11 @@ class Table(object):
     def writeByte(self, x, offset = -1):
         return self.write(struct.pack('<B', x), offset)
     def writeHalfword(self, x, offset = -1):
-        return self.write(struct.pack('<H', x), offset)
+        return self.write(struct.pack('<h', x), offset)
     def writeWord(self, x, offset = -1):
-        return self.write(struct.pack('<I', x), offset)
+        return self.write(struct.pack('<i', x), offset)
     def writeDblword(self, x, offset = -1):
-        return self.write(struct.pack('<Q', x), offset)
+        return self.write(struct.pack('<q', x), offset)
     
     def loadFile(self, file_path):
         return open(file_path, 'rb')

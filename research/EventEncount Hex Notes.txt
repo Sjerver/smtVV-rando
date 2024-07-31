@@ -1,6 +1,6 @@
 Entry start first: 45, second: A5 size:0x60
 
-0 size0x20 Either starts with 30 or String for .umap file in folder level
+0 size0x20 Either starts with 30 or String for .umap file in folder level; decides how camera works
 20 size2 ID in table
 23 size4? ???
 2A size1? some kind of flag	(always set??)
