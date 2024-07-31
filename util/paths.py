@@ -24,8 +24,8 @@ MAIN_CHAR_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Common/
 COMMON_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Common'
 ITEM_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Item'
 ITEM_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Item/ItemTable.uexp'
-SHOP_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Facility/ShopTable.uexp'
-FACILITY_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Facility'
+SHOP_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Facility/Table/ShopTable.uexp'
+FACILITY_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Facility/Table'
 EVENT_ENCOUNT_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EventEncountData.uexp'
 
 ENCOUNTERS_DEBUG = 'debug/encounterResults.txt'

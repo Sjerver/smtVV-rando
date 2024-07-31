@@ -1324,6 +1324,7 @@ class Randomizer:
         for e in essence:
             offset = e.offset
             buffer.writeWord(e.price, offset +12)
+        return buffer
 
     '''
     Writes the values from the shop entries to their respective locations in the table buffer
@@ -1335,6 +1336,7 @@ class Randomizer:
         for entry in entries:
             buffer.writeHalfword(entry.item.value, entry.offset)
             buffer.writeDblword(entry.unlock.value, entry.offset + 4)
+        return buffer
 
     '''
     Writes the values from the event encounter array to their respective locations in the table buffer
@@ -1348,6 +1350,7 @@ class Randomizer:
             #buffer.write32chars(enc.levelpath, enc.offsets['levelpath'])
             for index, demon in enumerate(enc.demons):
                 buffer.writeHalfword(demon.value , enc.offsets['demons'] + 2 * index)
+        return buffer
 
     '''
     Check if a certain race of demons contains two demons of the same level
@@ -1946,7 +1949,29 @@ class Randomizer:
 
         encounter.demons[0].value = demon.ind
         encounter.demons[0].translation = demon.name
-        
+
+    '''
+    Adjusts the essence in the shop to demons of the same level as the original.
+        Parameters:
+            shop (Array(Shop_Entry)) shop entry array
+            essences (Array(Essence)) essence array containing price and demon information
+            domp (Array(Compendium_Demon)) array of demons with new and old levels
+    '''
+    def adjustShopEssences(self, shop, essences, comp):
+        badIDs = [71, 365, 364, 366]
+        validDemons = list(filter(lambda demon: not demon.name.startswith('NOT') and demon.ind not in badIDs and 'Mitama' not in demon.name, comp))
+        newDemonEssences = []
+        for entry in shop:
+            if "Essence" in entry.item.translation and not "Aogami" in entry.item.translation and not "Tsukuyomi" in entry.item.translation:
+                ogEssence = next(e for e in essences if e.ind == entry.item.value)
+                level = comp[ogEssence.demon.value].level.original
+                possibilities = [d for d in validDemons if d.level.value == level and d.ind not in newDemonEssences]
+                demon = random.choice(possibilities)
+                newDemonEssences.append(demon.ind)
+                essence = next(e for e in essences if demon.ind == e.demon.value)
+                essence.price = ogEssence.price
+                entry.item = Translated_Value(essence.ind, essence.name)
+                
 
     '''
     Adds additional race fusion combinations to the fusionChartArr, to allow their normal fusion.    
@@ -2240,7 +2265,10 @@ class Randomizer:
                             demon.skills[index].value = 0
                             demon.skills[index].ind = 0
                             demon.skills[index].translation = translation.translateSkillID(0,self.skillNames)
-    
+            if demon.level.value != demon.level.original and demon.level.original == 99:
+                demon.learnedSkills.append(Translated_Value(1,translation.translateSkillID(1,self.skillNames),level=demon.level.value +1))
+                demon.learnedSkills.append(Translated_Value(1,translation.translateSkillID(1,self.skillNames),level=demon.level.value +2))
+                demon.learnedSkills.append(Translated_Value(1,translation.translateSkillID(1,self.skillNames),level=demon.level.value +3))
 
     '''
     Checks if the the fusion of two demons results in a valid race.
@@ -2582,6 +2610,7 @@ class Randomizer:
         #newComp = assignCompletelyRandomSkills(compendiumArr,levelSkillList)
         #newComp = assignCompletelyRandomWeightedSkills(compendiumArr, levelSkillList)
         self.assignTalkableTones(newComp)
+        self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)
         #print(skillLevels[1])
         #print(compendiumArr[155].name)
         #print(compendiumArr[155].race)
@@ -2600,9 +2629,9 @@ class Randomizer:
         #print(RACE_ARRAY[31])
         encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
         playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
-        self.updateEssenceData(itemBuffer,self.essenceArr)
-        self.updateShopBuffer(shopBuffer, self.shopArr)
-        self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr)
+        itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
+        shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr)
+        eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr)
 
         
         #self.logDemonByName("Preta",compendiumArr)
@@ -2674,8 +2703,8 @@ class Randomizer:
         normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
         encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
         playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
-        self.updateEssenceData(itemBuffer,self.essenceArr)
-        self.updateShopBuffer(shopBuffer, self.shopArr)
+        itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
+        shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr)
         self.findEncounterBattle(1011,newSymbolArr)
 
         self.writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)

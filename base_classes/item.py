@@ -4,6 +4,7 @@ class Essence:
         self.price = None
         self.offset = None
         self.name = None
+        self.ind = None
 
 class Shop_Entry:
     def __init__(self):
