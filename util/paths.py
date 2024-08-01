@@ -10,6 +10,8 @@ ITEM_NAME_IN = 'base/Text/ItemName.uasset.txt'
 ITEM_DATA_IN = 'base/ItemTable.uexp'
 SHOP_DATA_IN = 'base/ShopTable.uexp'
 EVENT_ENCOUNT_IN = 'base/EventEncountData.uexp'
+MISSION_DATA_IN = 'base/MissionTable.uexp'
+MISSION_NAME_IN = 'base/Text/MissionInfo.uasset.txt'
 
 NKM_BASE_TABLE_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uexp'
 DEVIL_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil'
@@ -27,6 +29,8 @@ ITEM_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Item/ItemTab
 SHOP_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Facility/Table/ShopTable.uexp'
 FACILITY_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Facility/Table'
 EVENT_ENCOUNT_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EventEncountData.uexp'
+MISSION_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Mission/MissionTable.uexp'
+MISSION_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Mission'
 
 ENCOUNTERS_DEBUG = 'debug/encounterResults.txt'
 FUSION_DEBUG = 'debug/fusionResults.txt'

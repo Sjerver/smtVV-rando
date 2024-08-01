@@ -861,6 +861,9 @@ class Randomizer:
        
         allSkills = []
         for level in levelList:
+            if level == 0:
+                #Prevents Magatsuhi skills from being in demons skill pools
+                continue
             for skill in level:
                 allSkills.append(skill)
         allSkills = set(allSkills)
@@ -891,7 +894,7 @@ class Randomizer:
                     if not any(e.ind == newID for e in totalSkills):
                         uniqueSkill = True
                 newName = translation.translateSkillID(newID, self.skillNames)
-                skillAddition = Translated_Value(newID, newName)
+                skillAddition = Translated_Value(newID, newName, level=demon.learnedSkills[index].level)
                 totalSkills.append(skillAddition)
                 demon.learnedSkills[index] = skillAddition
         return comp
@@ -2661,6 +2664,7 @@ class Randomizer:
         itemBuffer = self.readBinaryTable(paths.ITEM_DATA_IN)
         shopBuffer = self.readBinaryTable(paths.SHOP_DATA_IN)
         eventEncountBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_IN)
+        missionBuffer = self.readBinaryTable(paths.MISSION_DATA_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -2693,11 +2697,11 @@ class Randomizer:
                 return False
             self.adjustSkillSlotsToLevel(newComp)
 
-        if config.potentialWeightedSkills and config.randomSkill and config.scaledSkills:    
+        if config.potentialWeightedSkills and config.randomSkills and config.scaledSkills:    
             newComp = self.assignRandomPotentialWeightedSkills(self.compendiumArr, levelSkillList)
-        elif config.randomSkill and config.scaledSkills:
+        elif config.randomSkills and config.scaledSkills:
             newComp = self.assignCompletelyRandomWeightedSkills(self.compendiumArr, levelSkillList)
-        elif config.randomSkill:
+        elif config.randomSkills:
             newComp = self.assignCompletelyRandomSkills(self.compendiumArr, levelSkillList)
         else:
             newComp = self.compendiumArr
@@ -2707,13 +2711,15 @@ class Randomizer:
         if config.randomDemonLevels:
             newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, newBasicEnemyArr)
             self.adjustTutorialPixie(newComp,self.eventEncountArr)
+            self.assignTalkableTones(newComp)
+            self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
         else:
             newSymbolArr = self.encountSymbolArr
 
         if config.randomDemonLevels:
-            self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
+            
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)
-            self.assignTalkableTones(newComp)
+            
         
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, newBasicEnemyArr)
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, newComp)
@@ -2726,6 +2732,7 @@ class Randomizer:
         eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr)
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
+        #self.findUnlearnableSkills(skillLevels)
 
         self.writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
         self.writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
@@ -2735,7 +2742,8 @@ class Randomizer:
         self.writeBinaryTable(itemBuffer.buffer, paths.ITEM_DATA_OUT, paths.ITEM_FOLDER_OUT)
         self.writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_FOLDER_OUT)
         self.writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT, paths.MAP_FOLDER_OUT)
-        #findUnlearnableSkills(skillLevels)
+        self.writeBinaryTable(missionBuffer.buffer,paths.MISSION_DATA_OUT,paths.MISSION_FOLDER_OUT)
+        
         
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.

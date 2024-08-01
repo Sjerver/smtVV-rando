@@ -14,3 +14,10 @@ C Encounter from EncountData Table 2
 18 Miracle
 19 Miracle
 
+
+
+Last 3 Entries grant:
+- Inheritance Violation
+- Rank Violation
+- Moral Transcendence
+
