@@ -8,6 +8,7 @@
 .exe
 filelist.txt
 UnrealPak.exe
+config.ini
 *.pyc
 /.vscode
 

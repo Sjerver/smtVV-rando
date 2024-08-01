@@ -6,12 +6,15 @@ from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encoun
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
 from base_classes.item import Essence, Shop_Entry
+from base_classes.settings import Settings
 import util.numbers as numbers
 import util.paths as paths
 import util.translation as translation
 import math
 import os
 import random
+import gui
+import string
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 
@@ -40,6 +43,9 @@ class Randomizer:
         self.eventEncountArr = []
 
         self.nahobino = Nahobino()
+        
+        self.configSettings = Settings()
+        self.textSeed = ""
         
         
     '''
@@ -2546,6 +2552,15 @@ class Randomizer:
     def resetLevelToOriginal(self,comp):
         for demon in comp:
             demon.level = Demon_Level(demon.level.original,demon.level.original)
+            
+    '''
+        Generates a random seed if none was provided by the user and sets the random seed
+    '''
+    def createSeed(self):
+         if self.textSeed == "":
+             self.textSeed = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+             print('Your generated seed is: {}\n'.format(self.textSeed))
+         random.seed(self.textSeed)
 
     '''
         Executes the full randomization process including level randomization.
@@ -2714,7 +2729,7 @@ class Randomizer:
         self.writeBinaryTable(playGrowBuffer.buffer, paths.MAIN_CHAR_DATA_OUT, paths.COMMON_FOLDER_OUT)
         self.writeBinaryTable(itemBuffer.buffer, paths.ITEM_DATA_OUT, paths.ITEM_FOLDER_OUT)
         self.writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_FOLDER_OUT)
-        self.writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT)
+        self.writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT, paths.MAP_FOLDER_OUT)
         
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.
@@ -2759,12 +2774,14 @@ class Randomizer:
                     
 if __name__ == '__main__':
     rando = Randomizer()
-    print('Level randomization is currently not fully implemented. \n Type y to randomize levels and n to not randomized levels. \n')
-    answer = input()
-    if(answer == 'y'):
-        rando.fullRando()
-    elif(answer == 'n'):
-        rando.noLevelRando()
-    else:
-        print('Invalid')
+    print('Warning: Level randomization is currently not fully implemented')
+    try:
+        rando.configSettings, rando.textSeed = gui.createGUI(rando.configSettings)
+        rando.createSeed()
+        if(rando.configSettings.randomDemonLevels):
+            rando.fullRando()
+        else:
+            rando.noLevelRando()
+    except OSError:
+        print("Error while using GUI")
     input('Press [Enter] to exit')
