@@ -850,27 +850,54 @@ class Randomizer:
         return levelList
     
     '''
-    Assigns every demon a random skill that could be learned at their level
+    Assigns every demon a random skill that can be learned by a demon normally or is one of the working enemy only or nahobino/guest skills.
         Parameters:
             comp (Array): The array of demons
-            levelList (Array(Skill_Level)): The list of levels and their learnable skills
+            levelList
         Returns:
             The edited compendium
     '''
     def assignCompletelyRandomSkills(self, comp, levelList):
+       
+        allSkills = []
+        for level in levelList:
+            for skill in level:
+                allSkills.append(skill)
+        allSkills = set(allSkills)
+        possibleSkills = list(allSkills)
         #For every demon
         for demon in comp:
+            totalSkills = []
             #get all skills that can be learned at the demons level
-            possibleSkills = levelList[demon.level.value]
             #Replace every initially learned skill of the demon with a random skill of the possible skills
             for index in range(len(demon.skills)):
-                newID = random.choice(possibleSkills).ind
+                uniqueSkill = False
+                if demon.skills[index].value == 0: 
+                        continue
+                while not uniqueSkill:
+                    newID = random.choice(possibleSkills).ind
+                    if not any(e.ind == newID for e in totalSkills):
+                        uniqueSkill = True
                 newName = translation.translateSkillID(newID, self.skillNames)
-                demon.skills[index] = Translated_Value(newID, newName)
+                skillAddition = Translated_Value(newID, newName)
+                totalSkills.append(skillAddition)
+                demon.skills[index] = skillAddition
+            for index in range(len(demon.learnedSkills)):
+                uniqueSkill = False
+                if demon.learnedSkills[index].value == 0: 
+                        continue
+                while not uniqueSkill:
+                    newID = random.choice(possibleSkills).ind
+                    if not any(e.ind == newID for e in totalSkills):
+                        uniqueSkill = True
+                newName = translation.translateSkillID(newID, self.skillNames)
+                skillAddition = Translated_Value(newID, newName)
+                totalSkills.append(skillAddition)
+                demon.learnedSkills[index] = skillAddition
         return comp
     
     '''
-    Assigns every demon new skills randomized based on weights by including the levels above and below them
+    Assigns every demon new skills randomized based on weights by including several levels above and below them
         Parameters:
             comp (Array): The array of demons
             levelList (Array(Skill_Level)): The list of levels and their learnable skills
@@ -883,24 +910,81 @@ class Randomizer:
             possibleSkills = []
             #get all skills that can be learned at the demons level
             possibleSkills = levelList[demon.level.value]
-            #And add the skills at learned at the level below and on top
+            #And add the skills learnable at up to 3 level below and above the demons level
             if demon.level.value < 99:
                 possibleSkills = possibleSkills + levelList[demon.level.value + 1]
             if demon.level.value > 1:
                 possibleSkills = possibleSkills + levelList[demon.level.value - 1]
+            if demon.level.value > 2:
+                possibleSkills = possibleSkills + levelList[demon.level.value - 2]
+            if demon.level.value > 3:
+                possibleSkills = possibleSkills + levelList[demon.level.value - 3]
+            if demon.level.value < 98:
+                possibleSkills = possibleSkills + levelList[demon.level.value + 2]
+            if demon.level.value < 97:
+                possibleSkills = possibleSkills + levelList[demon.level.value + 3]
+            #Increase skill pool for demons above level 70 due to diminishing demon numbers
+            if demon.level.value > 70:
+                possibleSkills = possibleSkills + levelList[demon.level.value - 4]
+                possibleSkills = possibleSkills + levelList[demon.level.value - 5]
+            #Increase skill pool for demons above level 90 due to diminishing demon numbers
+            if demon.level.value > 90:
+                possibleSkills = possibleSkills + levelList[demon.level.value - 6]
+                possibleSkills = possibleSkills + levelList[demon.level.value - 7]
+                possibleSkills = possibleSkills + levelList[demon.level.value - 8]
+            #Increase skill pool for demons at level 1 due to low number of available skills
+            if demon.level.value == 1:
+                possibleSkills = possibleSkills + levelList[demon.level.value + 4]
+                possibleSkills = possibleSkills + levelList[demon.level.value + 5]
             #Create the weighted list of skills
             weightedSkills = self.createWeightedList(possibleSkills)
+            totalSkills = []
+            #If there are skills to be learned
             if len(weightedSkills.values) > 0:
-                #For every skill change the id to a random one that is not already assigned
+
+                #For every skill change the id to a random one that is not already assigned to this demon
                 for index in range(len(demon.skills)):
                     uniqueSkill = False
+                    if demon.skills[index].value == 0: 
+                        continue
                     rng = 0
+                    attempts = 100
                     while not uniqueSkill:
                         rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
-                        if not any(e.ind == rng for e in demon.skills):
+                        if attempts <= 0:
+                            print("Something went wrong in skill rando at level " + str(demon.level.value))
+                            weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                             uniqueSkill = True
-                    demon.skills[index] = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
-            #if(demon.ind ==345) {console.log(demon.skills)}
+                            break
+                        if not any(e.ind == rng for e in totalSkills):
+                            # TODO: Decide if this check is needed for only scaled skills
+                            #if self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon):
+                                uniqueSkill = True
+                                weightedSkills.weights[weightedSkills.values.index(rng)] = 0
+                        attempts -= 1
+                    skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
+                    totalSkills.append(skillAddition)
+                    demon.skills[index] = skillAddition
+                #Randomly assign learnable skills
+                for index in range(len(demon.learnedSkills)):
+                    uniqueSkill = False
+                    rng = 0
+                    attempts = 100
+                    while not uniqueSkill:
+                        rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
+                        if attempts <= 0:
+                            print("Something went wrong in leanred skill rando at level " + str(demon.level.value) + "for demon " + str(demon.name))
+                            weightedSkills.weights[weightedSkills.values.index(rng)] = 0
+                            uniqueSkill = True
+                        if not any(e.ind == rng for e in totalSkills):
+                            # TODO: Decide if this check is needed for only scaled skills
+                            #if self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon):
+                                uniqueSkill = True
+                                weightedSkills.weights[weightedSkills.values.index(rng)] = 0
+                        attempts -= 1
+                    skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
+                    totalSkills.append(skillAddition)
+                    demon.learnedSkills[index] = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames), level=demon.learnedSkills[index].level)
         return comp
 
     '''
@@ -2564,8 +2648,10 @@ class Randomizer:
 
     '''
         Executes the full randomization process including level randomization.
+        Parameters:
+            config (Settings) 
     '''
-    def fullRando(self):
+    def fullRando(self, config):
         compendiumBuffer = self.readBinaryTable(paths.NKM_BASE_TABLE_IN)
         skillBuffer = self.readBinaryTable(paths.SKILL_DATA_IN)
         normalFusionBuffer = self.readBinaryTable(paths.UNITE_COMBINE_TABLE_IN)
@@ -2591,75 +2677,53 @@ class Randomizer:
         self.fillShopArr(shopBuffer)
         self.fillEventEncountArr(eventEncountBuffer)
 
-        #print(encountSymbolArr[56].encounters)
         skillLevels = self.generateSkillLevelList()
-        #print(skillLevels)
         levelSkillList = self.generateLevelSkillList(skillLevels)
-        #print(obtainSkillFromID(928))
-        #print(skillArr[400].name)
-        #print(skillArr[401].name)
-        #print(skillArr.find(e=> e.id == 1))
-        #print(specialFusionArr[-1])
-        #newComp = self.assignCompletelyRandomLevels(compendiumArr)
-        newComp = False
-        attempts = 0
-        while not newComp and attempts < 10:
-            newComp = self.shuffleLevel(self.compendiumArr)
-            if not newComp:
-                self.resetLevelToOriginal(self.compendiumArr)
-                attempts += 1
-        if attempts >= 10:
-            print('Major issue with generating demon levels and fusions')
-            return False
-        self.adjustSkillSlotsToLevel(newComp)
-        newComp = self.assignRandomPotentialWeightedSkills(self.compendiumArr, levelSkillList)
-        newBasicEnemyArr = self.adjustBasicEnemyArr(self.enemyArr, newComp)
-        newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, newBasicEnemyArr)
+       
+        if config.randomDemonLevels:
+            newComp = False
+            attempts = 0
+            while not newComp and attempts < 10:
+                newComp = self.shuffleLevel(self.compendiumArr)
+                if not newComp:
+                    self.resetLevelToOriginal(self.compendiumArr)
+                    attempts += 1
+            if attempts >= 10:
+                print('Major issue with generating demon levels and fusions')
+                return False
+            self.adjustSkillSlotsToLevel(newComp)
 
-        self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
+        if config.potentialWeightedSkills and config.randomSkill and config.scaledSkills:    
+            newComp = self.assignRandomPotentialWeightedSkills(self.compendiumArr, levelSkillList)
+        elif config.randomSkill and config.scaledSkills:
+            newComp = self.assignCompletelyRandomWeightedSkills(self.compendiumArr, levelSkillList)
+        elif config.randomSkill:
+            newComp = self.assignCompletelyRandomSkills(self.compendiumArr, levelSkillList)
+        else:
+            newComp = self.compendiumArr
+        #TODO: Consider case for potential weight without level dependency
+
+        newBasicEnemyArr = self.adjustBasicEnemyArr(self.enemyArr, newComp)
+        if config.randomDemonLevels:
+            newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, newBasicEnemyArr)
+            self.adjustTutorialPixie(newComp,self.eventEncountArr)
+        else:
+            newSymbolArr = self.encountSymbolArr
+
+        if config.randomDemonLevels:
+            self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
+            self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)
+            self.assignTalkableTones(newComp)
         
-        self.adjustTutorialPixie(newComp,self.eventEncountArr)
-        #print(levelSkillList)
-        #print(levelSkillList[1])
-        #print(skillLevels[100])
-        #newComp = assignCompletelyRandomSkills(compendiumArr,levelSkillList)
-        #newComp = assignCompletelyRandomWeightedSkills(compendiumArr, levelSkillList)
-        self.assignTalkableTones(newComp)
-        self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)
-        #print(skillLevels[1])
-        #print(compendiumArr[155].name)
-        #print(compendiumArr[155].race)
-        #print(logDemonByName("Isis",compendiumArr))
-        #print(len(compendiumArr))
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, newBasicEnemyArr)
-        #compendiumBuffer = updateCompendiumBuffer(compendiumBuffer, compendiumArr)
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, newComp)
-        #compendiumBuffer.writeInt32LE(5,0x1B369)
-        #print(len(RACE_ARRAY))
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
-        #print(normalFusionArr[-19])
         normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
-        #print(RACE_ARRAY[6])
-        #print(RACE_ARRAY[23])
-        #print(RACE_ARRAY[31])
         encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
         playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
         itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
         shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr)
         eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr)
-
-        
-        #self.logDemonByName("Preta",compendiumArr)
-        #print("END RESULT")
-        #print(newComp[115])
-        #print(newComp[116].skills)
-        #print(newComp[116].learnedSkills)
-        #print(obtainSkillFromID(113))
-        #compendiumBuffer.writeInt32LE(472,28201)
-        #checkRaceDoubleLevel(compendiumArr)
-        #RACE_ARRAY.sort()
-        #print(enemyArr[299])
-
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
 
@@ -2672,64 +2736,6 @@ class Randomizer:
         self.writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_FOLDER_OUT)
         self.writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT, paths.MAP_FOLDER_OUT)
         #findUnlearnableSkills(skillLevels)
-        #defineLevelSlots(newComp)
-        #determineFusability()
-
-    '''
-        Executes the randomization process excluding level randomization.
-    '''
-    def noLevelRando(self):
-        compendiumBuffer = self.readBinaryTable(paths.NKM_BASE_TABLE_IN)
-        skillBuffer = self.readBinaryTable(paths.SKILL_DATA_IN)
-        normalFusionBuffer = self.readBinaryTable(paths.UNITE_COMBINE_TABLE_IN)
-        otherFusionBuffer = self.readBinaryTable(paths.UNITE_TABLE_IN)
-        encountBuffer = self.readBinaryTable(paths.ENCOUNT_DATA_IN)
-        playGrowBuffer = self.readBinaryTable(paths.MAIN_CHAR_DATA_IN)
-        itemBuffer = self.readBinaryTable(paths.ITEM_DATA_IN)
-        shopBuffer = self.readBinaryTable(paths.SHOP_DATA_IN)
-        eventEncountBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_IN)
-        self.readDemonNames()
-        self.readSkillNames()
-        self.readItemNames()
-        self.fillCompendiumArr(compendiumBuffer)
-        self.fillSkillArrs(skillBuffer)
-        self.fillNormalFusionArr(normalFusionBuffer)
-        self.fillFusionChart(otherFusionBuffer)
-        self.fillSpecialFusionArr(otherFusionBuffer)
-        self.fillBasicEnemyArr(compendiumBuffer)
-        self.fillEncountArr(encountBuffer)
-        self.fillEncountSymbolArr(encountBuffer)
-        self.fillNahobino(playGrowBuffer)
-        self.fillEssenceArr(itemBuffer)
-        self.fillShopArr(shopBuffer)
-
-        skillLevels = self.generateSkillLevelList()
-        levelSkillList = self.generateLevelSkillList(skillLevels)
-        newComp = self.assignRandomPotentialWeightedSkills(self.compendiumArr, levelSkillList)
-
-        newBasicEnemyArr = self.adjustBasicEnemyArr(self.enemyArr, newComp)
-        newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, newBasicEnemyArr)
-        self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
-        self.assignTalkableTones(newComp)
-
-        compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, newBasicEnemyArr)
-        compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, newComp)
-        otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
-        normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
-        encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
-        playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
-        itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
-        shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr)
-        self.findEncounterBattle(1011,newSymbolArr)
-
-        self.writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
-        self.writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
-        self.writeBinaryTable(otherFusionBuffer.buffer, paths.UNITE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
-        self.writeBinaryTable(encountBuffer.buffer, paths.ENCOUNT_DATA_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(playGrowBuffer.buffer, paths.MAIN_CHAR_DATA_OUT, paths.COMMON_FOLDER_OUT)
-        self.writeBinaryTable(itemBuffer.buffer, paths.ITEM_DATA_OUT, paths.ITEM_FOLDER_OUT)
-        self.writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_FOLDER_OUT)
-        self.writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT, paths.MAP_FOLDER_OUT)
         
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.
@@ -2778,10 +2784,9 @@ if __name__ == '__main__':
     try:
         rando.configSettings, rando.textSeed = gui.createGUI(rando.configSettings)
         rando.createSeed()
-        if(rando.configSettings.randomDemonLevels):
-            rando.fullRando()
-        else:
-            rando.noLevelRando()
+        
+        rando.fullRando(rando.configSettings)
+       
     except OSError:
         print("Error while using GUI")
     input('Press [Enter] to exit')
