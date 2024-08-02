@@ -6,6 +6,7 @@ class Nahobino:
         self.resist = Affinities()
         self.stats = []
         self.offsetNumbers = {}
+        self.innate = None
 
 class LevelStats:
     def __init__(self, level, HP, MP, strength, vit, mag, agi, luk):

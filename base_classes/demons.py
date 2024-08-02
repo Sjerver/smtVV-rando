@@ -14,7 +14,7 @@ class Compendium_Demon:
         self.stats = None
         self.innate = None
         self.skills = []
-        self.learned_skills = []
+        self.learnedSkills = []
     
 class Enemy_Demon:
     def __init__(self):

@@ -250,7 +250,7 @@ class Randomizer:
         #For every skill (there are 950 skills in Vanilla)...
         for index in range(950):
             #check if skill is in passive area 
-            if index >= 400 and index < 801:
+            if index >= 400 and index < 800:
                 offset = passiveStartValue + passiveOffset * (index - 400)
                 locations = {
                     'hpIncrease': offset,
@@ -305,9 +305,9 @@ class Randomizer:
 
                 #if skill is in the second batch of active skills, we calculate the offset a different way and index = id is working
                 if (index >= 800):
-                    skillName = translation.translateSkillID(index, self.skillNames)
-                    skillID = index
-                    offset = secondBatchStart + skillOffset * (index - 801)
+                    skillName = translation.translateSkillID(index , self.skillNames)
+                    skillID = index 
+                    offset = secondBatchStart + skillOffset * (index  - 800)
                 locations = {
                     'cost': offset + 8,
                     'skillType': offset + 10,
@@ -649,7 +649,8 @@ class Randomizer:
         locations = {
             'startingSkill': 0x2C69,
             'statStart': start,
-            'affStart': 0x2B10
+            'affStart': 0x2B10,
+            'innate': 0x2D05
         }
 
         #Table in PlayerGrow is defined for level 0 until level 150
@@ -660,7 +661,8 @@ class Randomizer:
         self.nahobino.offsetNumbers = locations
         
         self.nahobino.startingSkill = playGrow.readWord(locations['startingSkill'])
-       
+        self.nahobino.innate = playGrow.readWord(locations['innate'])
+
         self.nahobino.resist.physical = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 0),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 * 0)))
         self.nahobino.resist.fire = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 1),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *1)))
         self.nahobino.resist.ice = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 2),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *2)))
@@ -1087,6 +1089,58 @@ class Randomizer:
         return comp
     
     '''
+    Randomly assigns innate skills to all compendium demons. 
+        Parameters:
+            comp (Array(Compendium_Demon)) array of all demons
+
+    '''
+    def assignRandomInnates(self, comp):
+        # These are normally enemy only and won't work on player side
+        # Bit Conversion, Cleansing Jolt, Fire Star, Ice Star, Elemental Star, God's Aid, Ironclad Defense, King's Ascendancy, Mitama Soul, Musmahhuu, Synergistic Replication, Unwavering Faith, World Ingurgitation, Star Fragment
+        badInnates = [697,698, 561, 562, 563, 695, 576, 660, 700, 706, 642, 696, 707, 699]
+        
+        # These don't work besides on their original demons
+        # Moirae Cutter, Moirae Spinner, Moirae Measurer
+        limited = [573, 574, 575]
+        possibleInnates = [s for s in self.innateSkillArr if s.ind not in badInnates and "NOT USED" not in s.name]
+    
+        demons = [d for d in comp if "Mitama" not in d.name]
+
+        for demon in demons:
+            validSkill = False
+            attempt = 0
+            while not validSkill and attempt < 20:
+                attempt += 1
+                innate = random.choice(possibleInnates)
+                if innate.ind in limited and not innate.ind == demon.innate.value:
+                    continue
+                # Prevents that useless innates are assigned to a demon
+                if self.checkAdditionalSkillConditions(innate, [], demon):
+                    validSkill = True
+            demon.innate.value = innate.ind
+            demon.innate.translation = innate.name
+
+    '''
+    Assigns a random innate skill to the nahobino.
+        Parameters:
+            naho (Nahobino)
+    '''
+    def assignRandomInnateToNahobino(self, naho):
+         # These are normally enemy only and won't work on player side
+        # Bit Conversion, Cleansing Jolt, Fire Star, Ice Star, Elemental Star, God's Aid, Ironclad Defense, King's Ascendancy, Mitama Soul, Musmahhuu, Synergistic Replication, Unwavering Faith, World Ingurgitation, Star Fragment
+        badInnates = [697,698, 561, 562, 563, 695, 576, 660, 700, 706, 642, 696, 707, 699]
+
+        # Skills that won't work on the nahobino: Moirae Cutter, Moirae Spinner, Moirae Measurer, Figment of Darkness, Pine Tree's Rebirth, Heart of Devotion, Wanton Rebel, Power Menace,
+        # Myopic Pressure, Demonic Mediation, Allure, Mother of Ploys, Monstrous Offering, Skyward Withdrawal, Four Horsemen, Curious Dance, Runes of Wisdom, Eye of Ra, Brewing Storm,
+        # Eye of Horus, Planck of Norn, Rallying Aid, Fairy King's Melody, Trumpets of Judgment, Heavenly Reversal
+        badInnates = badInnates + [573, 574, 575, 629, 637, 628, 549, 550, 551, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 542, 543, 544, 545, 546, 547, 548]
+
+        possibleInnates = [s for s in self.innateSkillArr if s.ind not in badInnates and "NOT USED" not in s.name]
+
+        innate = random.choice(possibleInnates)
+        naho.innate = innate.ind
+
+    '''
     This function checks whether the given skill passes at least one of several conditions that are predefined before certain skills can be assigned to the demon.
     In order to check the conditions totalSkillList containing the currently assigned skills of the demon and the demon data itself is necessary.
     The functions returns true if the skill can be given to the demon and false otherwise.
@@ -1299,6 +1353,7 @@ class Randomizer:
                 buffer.writeWord(skill.level, demon.offsetNumbers['firstLearnedLevel'] + 8 * index)
             #Write various attributes of the demon to the buffer
             buffer.writeWord(demon.level.value, demon.offsetNumbers['level'])
+            buffer.writeWord(demon.innate.value, demon.offsetNumbers['innate'])
             buffer.writeHalfword(demon.fusability, demon.offsetNumbers['fusability'])
             buffer.writeByte(demon.unlockFlags[0], demon.offsetNumbers['unlockFlags'])
             buffer.writeByte(demon.unlockFlags[1], demon.offsetNumbers['unlockFlags'] +1)
@@ -1367,6 +1422,7 @@ class Randomizer:
             buffer.writeWord(foe.AI, offsets['experience'] + 12)
             buffer.writeByte(foe.recruitable, offsets['HP'] + 33)
             buffer.writeByte(foe.levelDMGCorrection, offsets['HP'] + 30)
+            buffer.writeWord(foe.innate.value, offsets['innate'])
 
             #write item drops
             buffer.writeWord(foe.drops.item1.value, offsets['item'])
@@ -1405,6 +1461,7 @@ class Randomizer:
     def updateMCBuffer(self, buffer, naho):
         offsets = naho.offsetNumbers
         #buffer.writeWord(naho.startingSkill,offsets['startingSkill'])
+        buffer.writeWord(naho.innate,offsets['innate'])
         return buffer
 
     '''
@@ -2707,6 +2764,10 @@ class Randomizer:
             newComp = self.compendiumArr
         #TODO: Consider case for potential weight without level dependency
 
+        if config.randomInnates:
+            self.assignRandomInnates(newComp)
+            self.assignRandomInnateToNahobino(self.nahobino)
+
         newBasicEnemyArr = self.adjustBasicEnemyArr(self.enemyArr, newComp)
         if config.randomDemonLevels:
             newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, newBasicEnemyArr)
@@ -2716,8 +2777,7 @@ class Randomizer:
         else:
             newSymbolArr = self.encountSymbolArr
 
-        if config.randomDemonLevels:
-            
+        if config.randomShopEssences:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)
             
         
