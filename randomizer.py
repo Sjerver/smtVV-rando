@@ -862,14 +862,16 @@ class Randomizer:
     def assignCompletelyRandomSkills(self, comp, levelList):
        
         allSkills = []
-        for level in levelList:
-            if level == 0:
+        for index, level in enumerate(levelList):
+            if index == 0:
                 #Prevents Magatsuhi skills from being in demons skill pools
                 continue
             for skill in level:
                 allSkills.append(skill)
-        allSkills = set(allSkills)
-        possibleSkills = list(allSkills)
+        uniqueSkills = {skill.ind for skill in allSkills}
+        possibleSkills = []
+        for ind in uniqueSkills:
+            possibleSkills.append(next(skill for skill in allSkills if skill.ind == ind))
         #For every demon
         for demon in comp:
             totalSkills = []
@@ -1139,6 +1141,42 @@ class Randomizer:
 
         innate = random.choice(possibleInnates)
         naho.innate = innate.ind
+
+    '''
+    Assigns the Nahobino a random starting skill, either completely random or a low level skill depending on value of scaled.
+    Due to the combat tutorial the skill has to be active as well as cost at most 60 MP.
+        Parameters:
+            naho (Nahobino): Data of main character
+            levelList (Array(SkillLevel)): list of which skills can be learned at which level
+            scaled (Boolean): whether or not the random skill is forced to be a low level skill
+    '''
+    def assignRandomStartingSkill(self, naho, levelList, scaled):
+        if not scaled:
+            allSkills = []
+            for index,level in enumerate(levelList):
+                if index == 0:
+                    #Prevents Magatsuhi skills from being in demons skill pools
+                    continue
+                for skill in level:
+                    allSkills.append(skill)
+        else:
+            allSkills = levelList[1] + levelList[2]  + levelList[3] + levelList[4]  +levelList[5]  +levelList[6]   
+            
+        uniqueSkills = {skill.ind for skill in allSkills}
+        possibleSkills = []
+        for ind in uniqueSkills:
+            possibleSkills.append(next(skill for skill in allSkills if skill.ind == ind))
+
+        # Nahobino needs active skill due to Tutorial
+        possibleSkills = [s for s in possibleSkills if self.determineSkillStructureByID(s.ind) == "Active"]
+        
+        # Cost needs to be not more than 60
+        possibleSkills = [s for s in possibleSkills if self.obtainSkillFromID(s.ind).cost <= 60]
+
+        start = random.choice(possibleSkills)
+
+        naho.startingSkill = start.ind
+
 
     '''
     This function checks whether the given skill passes at least one of several conditions that are predefined before certain skills can be assigned to the demon.
@@ -1460,7 +1498,7 @@ class Randomizer:
     '''
     def updateMCBuffer(self, buffer, naho):
         offsets = naho.offsetNumbers
-        #buffer.writeWord(naho.startingSkill,offsets['startingSkill'])
+        buffer.writeWord(naho.startingSkill,offsets['startingSkill'])
         buffer.writeWord(naho.innate,offsets['innate'])
         return buffer
 
@@ -2763,6 +2801,9 @@ class Randomizer:
         else:
             newComp = self.compendiumArr
         #TODO: Consider case for potential weight without level dependency
+
+        if config.randomSkills:
+            self.assignRandomStartingSkill(self.nahobino, levelSkillList, config.scaledSkills)
 
         if config.randomInnates:
             self.assignRandomInnates(newComp)
