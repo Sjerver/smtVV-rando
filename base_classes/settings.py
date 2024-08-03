@@ -7,6 +7,7 @@ class Settings(object):
         self.potentialWeightedSkills = False        # Weight demon skills based on their skill potentials and stats
         self.randomPotentials = False               # Randomize demon skill potentials
         self.scaledPotentials = False               # Scale demon potentials based on level
+        self.multipleUniques = False                # Allows unique skills to be assigned to more than one demon
         self.randomMusic = False                    # Boss music is randomized
         self.checkBasedMusic = False                # Boss music is based on check rather than boss demon
         self.randomShopItems = False                # Randomizes what items are sold in the shop
@@ -20,3 +21,5 @@ class Settings(object):
         self.mixedRandomizeOverworldBosses = False  # Randomize punishing foes with all bosses
         self.selfRandomizeSuperbosses = False       # Randomize superbosses only with each other
         self.mixedRandomizeSuperbosses = False      # Randomize superbosses foes with all bosses
+        self.randomInheritance = False              # Randomize to which demons unique skills belong to
+        self.freeInheritance = False                # Make unique skills freely inheritable

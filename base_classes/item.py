@@ -11,3 +11,14 @@ class Shop_Entry:
         self.item = None
         self.unlock = None
         self.offset = None
+
+class Miman_Reward:
+    def __init__(self):
+        self.items = []
+        self.miman = None
+        self.offset = None
+
+class Reward_Item:
+    def __init__(self):
+        self.item = None
+        self.amount = None

@@ -29,9 +29,12 @@ def createGUI(configSettings):
     persistentFrameRight = tk.Frame(persistentFrame, width=500, height=170)
     persistentFrameRight.grid(row=1, column=1)
     persistentFrameRight.pack_propagate(False)
-    page1FrameTop = tk.Frame(page1Frame, width=1000, height=250, background="#cccccc")
-    page1FrameTop.grid(row=0, column=0, columnspan = 2, sticky = tk.W+tk.E)
+    page1FrameTop = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
+    page1FrameTop.grid(row=0, column=0, columnspan = 1, sticky = tk.W+tk.E)
     page1FrameTop.pack_propagate(False)
+    page1FrameTopLeft = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
+    page1FrameTopLeft.grid(row=0, column=1, columnspan = 1, sticky = tk.W+tk.E)
+    page1FrameTopLeft.pack_propagate(False)
     page1FrameLeft = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
     page1FrameLeft.grid(row=1, column=0)
     page1FrameLeft.pack_propagate(False)
@@ -141,15 +144,26 @@ def createGUI(configSettings):
     demonLabel = tk.Label(page1FrameTop, text="Demon Randomizer")
     demonLabel.pack()
 
-    listDemon = tk.Listbox(page1FrameTop, selectmode = "multiple", width=100, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listDemon = tk.Listbox(page1FrameTop, selectmode = "multiple", width=75, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listDemon.insert(0, "Randomize Levels")
     listDemon.insert(1, "Randomize Skills")
     listDemon.insert(2, "Scale Skills to Level")
-    listDemon.insert(3, "Randomize Innate Skills (N)")
+    listDemon.insert(3, "Randomize Innate Skills")
     listDemon.insert(4, "Weight Skills by Potentials")
     listDemon.insert(5, "Randomize Potentials (N)")
     listDemon.insert(6, "Scale Potentials to Level (N)")
+    listDemon.insert(7, "Unique Skills can show up more than once")
     listDemon.pack()
+
+    inheritanceLabel = tk.Label(page1FrameTopLeft, text="Unique Skill Inheritance")
+    inheritanceLabel.pack()
+
+    listInheritance = tk.Listbox(page1FrameTopLeft,selectmode= "single",exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listInheritance.insert(0, "Vanilla")
+    listInheritance.insert(1, "Random")
+    listInheritance.insert(2, "Free")
+    listInheritance.selection_set(0)
+    listInheritance.pack()
 
     musicLabel = tk.Label(page1FrameLeft, text="Boss Music Setting (N)")
     musicLabel.pack()
@@ -164,7 +178,7 @@ def createGUI(configSettings):
     itemLabel = tk.Label(page1FrameRight, text="Item Randomizer")
     itemLabel.pack()
 
-    listItem = tk.Listbox(page1FrameRight, selectmode = "multiple", width = 80, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listItem = tk.Listbox(page1FrameRight, selectmode = "multiple", width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listItem.insert(0, "Randomize Shop Items")
     listItem.insert(1, "Randomize Shop Essences")
     listItem.insert(2, "Randomize Enemy Drops")
@@ -232,6 +246,14 @@ def createGUI(configSettings):
                 listDemon.selection_set(5)
             if configur.get('Demon', 'ScaledPotentials') == 'true':
                 listDemon.selection_set(6)
+            if configur.get('Demon', 'multipleUniques') == 'true':
+                listDemon.selection_set(7)
+            if configur.get('Inheritance', 'RandomInheritance') == 'true':
+                listInheritance.selection_clear(0)
+                listInheritance.selection_set(1)
+            if configur.get('Inheritance', 'FreeInheritance') == 'true':
+                listInheritance.selection_clear(0)
+                listInheritance.selection_set(2)
             if configur.get('Music', 'RandomMusic') == 'true':
                 listMusic.selection_clear(0)
                 listMusic.selection_set(2)
@@ -280,6 +302,7 @@ def createGUI(configSettings):
     demonFlags = [False for i in range(listDemon.size())]
     for i in listDemon.curselection():
         demonFlags[i] = True
+    inheritanceChoice = listInheritance.curselection()
     musicChoice = listMusic.curselection()
     itemFlags = [False for i in range(listItem.size())]
     for i in listItem.curselection():
@@ -333,6 +356,24 @@ def createGUI(configSettings):
         configur.set('Demon', 'ScaledPotentials', 'true')
     else:
         configur.set('Demon', 'ScaledPotentials', 'false')
+
+    if demonFlags[7]:
+        configSettings.multipleUniques = True
+        configur.set('Demon', 'multipleUniques', 'true')
+    else:
+        configur.set('Demon', 'multipleUniques', 'false')
+
+    if len(inheritanceChoice) > 0 and inheritanceChoice[0] == 1:
+        configSettings.randomInheritance = True
+        configur.set('Inheritance', 'RandomInheritance', 'true')
+    else:
+        configur.set('Inheritance', 'RandomInheritance', 'false')
+    
+    if len(inheritanceChoice) > 0 and inheritanceChoice[0] == 2:
+        configSettings.freeInheritance = True
+        configur.set('Inheritance', 'FreeInheritance', 'true')
+    else:
+        configur.set('Inheritance', 'FreeInheritance', 'false')
             
     if len(musicChoice) > 0 and musicChoice[0] == 2:
         configSettings.randomMusic = True
@@ -421,8 +462,10 @@ def createGUI(configSettings):
 def createConfigFile(configur):
     configur.read('config.ini')
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
-                                 'RandomPotentials': False, 'ScaledPotentials': False}
+                                 'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False}
+    configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
     configur['Boss'] = {'NormalBossesSelf': False, 'NormalBossesMixed': False, 'AbscessBossesSelf': False, 'AbscessBossesMixed': False,
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False}
+   

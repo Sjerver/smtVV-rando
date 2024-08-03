@@ -3,6 +3,7 @@ class Active_Skill:
         self.ind = None
         self.name = None
         self.offsetNumber = {}
+        self.owner = None
         self.cost = None
         self.rank = None
         self.skillType = None
@@ -31,6 +32,7 @@ class Passive_Skill:
     def __init__(self):
         self.ind = None
         self.name = None
+        self.owner = None
         self.skillType = None
         self.offsetNumber = {}
         self.hpIncrease = None
@@ -123,3 +125,10 @@ class Skill_Level:
         self.name = name
         self.ind = ind
         self.level = level
+
+class Skill_Owner:
+    def __init__(self, ind, name):
+        self.name = name
+        self.ind = ind
+        self.ogName = name
+        self.original = ind

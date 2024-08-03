@@ -1,11 +1,11 @@
 from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level
-from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level
+from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
-from base_classes.item import Essence, Shop_Entry
+from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item
 from base_classes.settings import Settings
 import util.numbers as numbers
 import util.paths as paths
@@ -41,6 +41,8 @@ class Randomizer:
         self.essenceArr = []
         self.shopArr = []
         self.eventEncountArr = []
+        self.mimanRewardsArr = []
+        self.protofiendArr = []
 
         self.nahobino = Nahobino()
         
@@ -258,6 +260,7 @@ class Randomizer:
                     'element': offset + 17,
                     'physResist': offset + 34,
                     'effect': offset + 52,
+                    'owner': offset - 4,
                 }
                 #check if innate
                 skillType2 = ''
@@ -271,6 +274,14 @@ class Randomizer:
                 toPush.name = translation.translateSkillID(index + 1, self.skillNames)
                 toPush.skillType = skillType2
                 toPush.offsetNumber = locations
+                
+                ownerID = skillData.readWord(locations['owner'])
+                if ownerID < 0:
+                    ownerName = "Nahobino"
+                else:
+                    ownerName = self.compendiumNames[ownerID]
+                toPush.owner = Skill_Owner(ownerID, ownerName)
+                
                 toPush.hpIncrease = skillData.readByte(locations['hpIncrease'])
                 toPush.mpIncrease = skillData.readByte(locations['hpIncrease'] + 1)
                 toPush.counterChance = skillData.readByte(locations['hpIncrease'] + 3)
@@ -312,6 +323,7 @@ class Randomizer:
                     'cost': offset + 8,
                     'skillType': offset + 10,
                     'element': offset + 12,
+                    'owner': offset +  24,
                     'icon': offset + 28,
                     'target': offset + 0x22,
                     'minHit': offset + 0x24,
@@ -337,6 +349,14 @@ class Randomizer:
                 toPush.ind = skillID
                 toPush.name = skillName
                 toPush.offsetNumber = locations
+
+                ownerID = skillData.readWord(locations['owner'])
+                if ownerID < 0:
+                    ownerName = "Nahobino"
+                else:
+                    ownerName = self.compendiumNames[ownerID]
+                toPush.owner = Skill_Owner(ownerID, ownerName)
+
                 toPush.cost = skillData.readHalfword(locations['cost'])
                 toPush.rank = skillData.readByte(locations['hpDrain'] + 3)
                 toPush.skillType = Translated_Value(skillData.readByte(locations['skillType']),
@@ -747,6 +767,63 @@ class Randomizer:
             self.eventEncountArr.append(encounter)
 
     '''
+    Fills the array protofiendArr with data on all protofiends that serve as the source for their essence data.
+        Parameters:
+            NKMBaseTable (Buffer) the buffer containing all playable demon data
+    '''
+    def fillProtofiendArr(self, NKMBaseTable):
+        relevantIDs = numbers.PROTOFIEND_IDS
+
+        
+        demonOffset = 0x1D0
+        startValue = 0x69 + relevantIDs[0] * demonOffset
+
+        for index, demonID in enumerate(relevantIDs):
+            offset = startValue + demonOffset * index
+            locations = {
+                'level': offset,
+                'firstSkill': offset + 0x70,
+                'potential': offset + 0X174,
+                'HP': offset + 0x1C
+            }
+
+            #Then read the list of initial skills learned
+            listOfSkills = []
+            for i in range(8):
+                skillID = NKMBaseTable.readWord(locations['firstSkill'] + 4 * i)
+                if skillID != 0:
+                    listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))
+            
+            demon = Compendium_Demon()
+            demon.ind = demonID
+            demon.name = self.compendiumNames[demonID]
+            demon.offsetNumbers = locations
+            demon.level = Demon_Level(NKMBaseTable.readWord(locations['level']), NKMBaseTable.readWord(locations['level']))
+            demon.skills = listOfSkills
+            demon.potential.physical = NKMBaseTable.readWord(locations['potential'])
+            demon.potential.fire = NKMBaseTable.readWord(locations['potential'] + 4 * 1)
+            demon.potential.ice = NKMBaseTable.readWord(locations['potential'] + 4 * 2)
+            demon.potential.elec = NKMBaseTable.readWord(locations['potential'] + 4 * 3)
+            demon.potential.force = NKMBaseTable.readWord(locations['potential'] + 4 * 4)
+            demon.potential.light = NKMBaseTable.readWord(locations['potential'] + 4 * 5)
+            demon.potential.dark = NKMBaseTable.readWord(locations['potential'] + 4 * 6)
+            demon.potential.almighty = NKMBaseTable.readWord(locations['potential'] + 4 * 7)
+            demon.potential.ailment = NKMBaseTable.readWord(locations['potential'] + 4 * 8)
+            demon.potential.recover = NKMBaseTable.readWord(locations['potential'] + 4 * 10)
+            demon.potential.support = NKMBaseTable.readWord(locations['potential'] + 4 * 9)
+            demonHP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 0), NKMBaseTable.readWord(locations['HP'] + 4 * 2), NKMBaseTable.readWord(locations['HP'] + 4 * 0))
+            demonMP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 1), NKMBaseTable.readWord(locations['HP'] + 4 * 3),  NKMBaseTable.readWord(locations['HP'] + 4 * 1))
+            demonStr = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 4), NKMBaseTable.readWord(locations['HP'] + 4 * 9),  NKMBaseTable.readWord(locations['HP'] + 4 * 4))
+            demonVit = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 5), NKMBaseTable.readWord(locations['HP'] + 4 * 10),  NKMBaseTable.readWord(locations['HP'] + 4 * 5))
+            demonMag = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 6), NKMBaseTable.readWord(locations['HP'] + 4 * 11),  NKMBaseTable.readWord(locations['HP'] + 4 * 6))
+            demonAgi = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 7), NKMBaseTable.readWord(locations['HP'] + 4 * 12),  NKMBaseTable.readWord(locations['HP'] + 4 * 7))
+            demonLuk = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 8), NKMBaseTable.readWord(locations['HP'] + 4 * 13),  NKMBaseTable.readWord(locations['HP'] + 4 * 8))
+            demon.stats = Stats(demonHP, demonMP, demonStr, demonVit, demonMag, demonAgi, demonLuk)
+            
+
+            self.protofiendArr.append(demon)
+
+    '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
         Parameters:
             ind (Number): the id of the skill to return
@@ -850,240 +927,124 @@ class Randomizer:
                 final.append(Skill_Level(name, skill.ind))
             levelList.append(final)
         return levelList
-    
-    '''
-    Assigns every demon a random skill that can be learned by a demon normally or is one of the working enemy only or nahobino/guest skills.
-        Parameters:
-            comp (Array): The array of demons
-            levelList
-        Returns:
-            The edited compendium
-    '''
-    def assignCompletelyRandomSkills(self, comp, levelList):
-       
-        allSkills = []
-        for index, level in enumerate(levelList):
-            if index == 0:
-                #Prevents Magatsuhi skills from being in demons skill pools
-                continue
-            for skill in level:
-                allSkills.append(skill)
-        uniqueSkills = {skill.ind for skill in allSkills}
-        possibleSkills = []
-        for ind in uniqueSkills:
-            possibleSkills.append(next(skill for skill in allSkills if skill.ind == ind))
-        #For every demon
-        for demon in comp:
-            totalSkills = []
-            #get all skills that can be learned at the demons level
-            #Replace every initially learned skill of the demon with a random skill of the possible skills
-            for index in range(len(demon.skills)):
-                uniqueSkill = False
-                if demon.skills[index].value == 0: 
-                        continue
-                while not uniqueSkill:
-                    newID = random.choice(possibleSkills).ind
-                    if not any(e.ind == newID for e in totalSkills):
-                        uniqueSkill = True
-                newName = translation.translateSkillID(newID, self.skillNames)
-                skillAddition = Translated_Value(newID, newName)
-                totalSkills.append(skillAddition)
-                demon.skills[index] = skillAddition
-            for index in range(len(demon.learnedSkills)):
-                uniqueSkill = False
-                if demon.learnedSkills[index].value == 0: 
-                        continue
-                while not uniqueSkill:
-                    newID = random.choice(possibleSkills).ind
-                    if not any(e.ind == newID for e in totalSkills):
-                        uniqueSkill = True
-                newName = translation.translateSkillID(newID, self.skillNames)
-                skillAddition = Translated_Value(newID, newName, level=demon.learnedSkills[index].level)
-                totalSkills.append(skillAddition)
-                demon.learnedSkills[index] = skillAddition
-        return comp
-    
-    '''
-    Assigns every demon new skills randomized based on weights by including several levels above and below them
-        Parameters:
-            comp (Array): The array of demons
-            levelList (Array(Skill_Level)): The list of levels and their learnable skills
-        Returns:
-            The edited compendium
-    '''
-    def assignCompletelyRandomWeightedSkills(self, comp, levelList):
-        #For every demon...
-        for demon in comp:
-            possibleSkills = []
-            #get all skills that can be learned at the demons level
-            possibleSkills = levelList[demon.level.value]
-            #And add the skills learnable at up to 3 level below and above the demons level
-            if demon.level.value < 99:
-                possibleSkills = possibleSkills + levelList[demon.level.value + 1]
-            if demon.level.value > 1:
-                possibleSkills = possibleSkills + levelList[demon.level.value - 1]
-            if demon.level.value > 2:
-                possibleSkills = possibleSkills + levelList[demon.level.value - 2]
-            if demon.level.value > 3:
-                possibleSkills = possibleSkills + levelList[demon.level.value - 3]
-            if demon.level.value < 98:
-                possibleSkills = possibleSkills + levelList[demon.level.value + 2]
-            if demon.level.value < 97:
-                possibleSkills = possibleSkills + levelList[demon.level.value + 3]
-            #Increase skill pool for demons above level 70 due to diminishing demon numbers
-            if demon.level.value > 70:
-                possibleSkills = possibleSkills + levelList[demon.level.value - 4]
-                possibleSkills = possibleSkills + levelList[demon.level.value - 5]
-            #Increase skill pool for demons above level 90 due to diminishing demon numbers
-            if demon.level.value > 90:
-                possibleSkills = possibleSkills + levelList[demon.level.value - 6]
-                possibleSkills = possibleSkills + levelList[demon.level.value - 7]
-                possibleSkills = possibleSkills + levelList[demon.level.value - 8]
-            #Increase skill pool for demons at level 1 due to low number of available skills
-            if demon.level.value == 1:
-                possibleSkills = possibleSkills + levelList[demon.level.value + 4]
-                possibleSkills = possibleSkills + levelList[demon.level.value + 5]
-            #Create the weighted list of skills
-            weightedSkills = self.createWeightedList(possibleSkills)
-            totalSkills = []
-            #If there are skills to be learned
-            if len(weightedSkills.values) > 0:
-
-                #For every skill change the id to a random one that is not already assigned to this demon
-                for index in range(len(demon.skills)):
-                    uniqueSkill = False
-                    if demon.skills[index].value == 0: 
-                        continue
-                    rng = 0
-                    attempts = 100
-                    while not uniqueSkill:
-                        rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
-                        if attempts <= 0:
-                            print("Something went wrong in skill rando at level " + str(demon.level.value))
-                            weightedSkills.weights[weightedSkills.values.index(rng)] = 0
-                            uniqueSkill = True
-                            break
-                        if not any(e.ind == rng for e in totalSkills):
-                            # TODO: Decide if this check is needed for only scaled skills
-                            #if self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon):
-                                uniqueSkill = True
-                                weightedSkills.weights[weightedSkills.values.index(rng)] = 0
-                        attempts -= 1
-                    skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
-                    totalSkills.append(skillAddition)
-                    demon.skills[index] = skillAddition
-                #Randomly assign learnable skills
-                for index in range(len(demon.learnedSkills)):
-                    uniqueSkill = False
-                    rng = 0
-                    attempts = 100
-                    while not uniqueSkill:
-                        rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
-                        if attempts <= 0:
-                            print("Something went wrong in leanred skill rando at level " + str(demon.level.value) + "for demon " + str(demon.name))
-                            weightedSkills.weights[weightedSkills.values.index(rng)] = 0
-                            uniqueSkill = True
-                        if not any(e.ind == rng for e in totalSkills):
-                            # TODO: Decide if this check is needed for only scaled skills
-                            #if self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon):
-                                uniqueSkill = True
-                                weightedSkills.weights[weightedSkills.values.index(rng)] = 0
-                        attempts -= 1
-                    skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
-                    totalSkills.append(skillAddition)
-                    demon.learnedSkills[index] = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames), level=demon.learnedSkills[index].level)
-        return comp
 
     '''
-    Assigns every demon new skills randomized based on weights.
-    The weights are compromised of the skills learnable at the demons level and up to 3 level below and above them.
-    Additionally the weights are adjusted to match the skill potential of demons, making skills with positive potential more likely and negative potential less likely if not impossible.
+    Assigns every demon new skills randomized using weights based on the passed settings.
+    The range of skills available can either be all or level ranges around the demons level.
+    Additionally, the weights are either the same for every skill or adjusted based on level range or potential and stat of demon.
+    Furthermore the process ensures that each demon starts with at least one active skill.
         Parameters: 
             comp (Array): The array of demons
             levelList (Array(Skill_Level)): The list of levels and their learnable skills
+            settings (Settings): settings set in gui
         Returns:
             The edited compendium
     '''
-    def assignRandomPotentialWeightedSkills(self, comp, levelList):
+    def assignRandomSkills(self, comp, levelList, settings):
+        #If the skills aren't supposed to be scaled based on level, assemble list where each valid skill appears exactly once
+        if not settings.scaledSkills:
+            levelAggregrate = []
+            for index, level in enumerate(levelList):
+                if index == 0:
+                    #Prevents Magatsuhi skills from being in demons skill pools
+                    continue
+                for skill in level:
+                    levelAggregrate.append(skill)
+            uniqueSkills = {skill.ind for skill in levelAggregrate}
+            allSkills = []
+            for ind in uniqueSkills:
+                    allSkills.append(next(skill for skill in allSkills if skill.ind == ind))
+
+
         #For every demon...
         for demon in comp:
             possibleSkills = []
+            if settings.scaledSkills:
+                #get all skills that can be learned at the demons level
+                if demon.level.value > 0:
+                    possibleSkills = levelList[demon.level.value]
+                #And add the skills learnable at up to 3 level below and above the demons level
+                if demon.level.value < 99:
+                    possibleSkills = possibleSkills + levelList[demon.level.value + 1]
+                if demon.level.value > 1:
+                    possibleSkills = possibleSkills + levelList[demon.level.value - 1]
+                if demon.level.value > 2:
+                    possibleSkills = possibleSkills + levelList[demon.level.value - 2]
+                if demon.level.value > 3:
+                    possibleSkills = possibleSkills + levelList[demon.level.value - 3]
+                if demon.level.value < 98:
+                    possibleSkills = possibleSkills + levelList[demon.level.value + 2]
+                if demon.level.value < 97:
+                    possibleSkills = possibleSkills + levelList[demon.level.value + 3]
+                #Increase skill pool for demons above level 70 due to diminishing demon numbers
+                if demon.level.value > 70:
+                    possibleSkills = possibleSkills + levelList[demon.level.value - 4]
+                    possibleSkills = possibleSkills + levelList[demon.level.value - 5]
+                #Increase skill pool for demons above level 90 due to diminishing demon numbers
+                if demon.level.value > 90:
+                    possibleSkills = possibleSkills + levelList[demon.level.value - 6]
+                    possibleSkills = possibleSkills + levelList[demon.level.value - 7]
+                    possibleSkills = possibleSkills + levelList[demon.level.value - 8]
+                #Increase skill pool for demons at level 1 due to low number of available skills
+                if demon.level.value == 1:
+                    possibleSkills = possibleSkills + levelList[demon.level.value + 4]
+                    possibleSkills = possibleSkills + levelList[demon.level.value + 5]
+            else:
+                #No level scaling so copy list of all skilsl
+                possibleSkills = allSkills.copy()
         
-            #get all skills that can be learned at the demons level
-            if demon.level.value > 0:
-                possibleSkills = levelList[demon.level.value]
-            #And add the skills learnable at up to 3 level below and above the demons level
-            if demon.level.value < 99:
-                possibleSkills = possibleSkills + levelList[demon.level.value + 1]
-            if demon.level.value > 1:
-                possibleSkills = possibleSkills + levelList[demon.level.value - 1]
-            if demon.level.value > 2:
-                possibleSkills = possibleSkills + levelList[demon.level.value - 2]
-            if demon.level.value > 3:
-                possibleSkills = possibleSkills + levelList[demon.level.value - 3]
-            if demon.level.value < 98:
-                possibleSkills = possibleSkills + levelList[demon.level.value + 2]
-            if demon.level.value < 97:
-                possibleSkills = possibleSkills + levelList[demon.level.value + 3]
-            #Increase skill pool for demons above level 70 due to diminishing demon numbers
-            if demon.level.value > 70:
-                possibleSkills = possibleSkills + levelList[demon.level.value - 4]
-                possibleSkills = possibleSkills + levelList[demon.level.value - 5]
-            #Increase skill pool for demons above level 90 due to diminishing demon numbers
-            if demon.level.value > 90:
-                possibleSkills = possibleSkills + levelList[demon.level.value - 6]
-                possibleSkills = possibleSkills + levelList[demon.level.value - 7]
-                possibleSkills = possibleSkills + levelList[demon.level.value - 8]
-            #Increase skill pool for demons at level 1 due to low number of available skills
-            if demon.level.value == 1:
-                possibleSkills = possibleSkills + levelList[demon.level.value + 4]
-                possibleSkills = possibleSkills + levelList[demon.level.value + 5]
-        
-            #Create the weighted list of skills and update it with potentials
+            #Create the weighted list of skills and update it with potentials if necessary
             weightedSkills = self.createWeightedList(possibleSkills)
-            weightedSkills = self.updateWeightsWithPotential(weightedSkills, demon.potential, demon)
+            if settings.potentialWeightedSkills:
+                weightedSkills = self.updateWeightsWithPotential(weightedSkills, demon.potential, demon)
 
             totalSkills = []
             #If there are skills to be learned
             if len(weightedSkills.values) > 0:
 
-                #For every skill change the id to a random one that is not already assigned to this demon
+                #For every skill...
                 for index in range(len(demon.skills)):
-                    uniqueSkill = False
-                    if demon.skills[index].value == 0: 
+                    foundSkill = False
+                    if demon.skills[index].value == 0:
+                        # Don't set empty skill slots 
                         continue
                     rng = 0
                     attempts = 100
-                    while not uniqueSkill:
+                    while not foundSkill:
+                        # until valid skill is found
                         rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
                         if attempts <= 0:
                             print("Something went wrong in skill rando at level " + str(demon.level.value))
                             weightedSkills.weights[weightedSkills.values.index(rng)] = 0
-                            uniqueSkill = True
+                            foundSkill = True
                             break
-                        if not any(e.ind == rng for e in totalSkills):
-                            if self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon):
-                                uniqueSkill = True
-                                weightedSkills.weights[weightedSkills.values.index(rng)] = 0
+                        # Ensure Demon has at least one active skill and no skill appears twice
+                        if not any(e.ind == rng for e in totalSkills) and self.ensureAtLeastOneActive(totalSkills, demon, rng):
+                            #Check if skill passes additional conditions or skip that check if skills are not supposed to be weighted by stats and potentials
+                            if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon)):
+                                if self.checkUniqueSkillCondtiions(self.obtainSkillFromID(rng),demon,comp,settings):
+                                    foundSkill = True
+                                    weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
                     totalSkills.append(skillAddition)
                     demon.skills[index] = skillAddition
-                #Randomly assign learnable skills
+                #Randomly assign learnable skills; same justifications as starting skills
                 for index in range(len(demon.learnedSkills)):
-                    uniqueSkill = False
+                    foundSkill = False
                     rng = 0
                     attempts = 100
-                    while not uniqueSkill:
+                    while not foundSkill:
                         rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
                         if attempts <= 0:
                             print("Something went wrong in leanred skill rando at level " + str(demon.level.value) + "for demon " + str(demon.name))
                             weightedSkills.weights[weightedSkills.values.index(rng)] = 0
-                            uniqueSkill = True
+                            foundSkill = True
                         if not any(e.ind == rng for e in totalSkills):
-                            if self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon):
-                                uniqueSkill = True
-                                weightedSkills.weights[weightedSkills.values.index(rng)] = 0
+                            if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon)):
+                                if self.checkUniqueSkillCondtiions(self.obtainSkillFromID(rng),demon,comp,settings):
+                                    foundSkill = True
+                                    weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
                     totalSkills.append(skillAddition)
@@ -1172,11 +1133,180 @@ class Randomizer:
         
         # Cost needs to be not more than 60
         possibleSkills = [s for s in possibleSkills if self.obtainSkillFromID(s.ind).cost <= 60]
-
+        # TODO: Unique Skill logic is missing here
         start = random.choice(possibleSkills)
 
         naho.startingSkill = start.ind
 
+    '''
+    Assigns every protofiend new skills randomized using weights based on the passed settings.
+    The range of skills available can either be all or level ranges around the protofiends level.
+    Additionally, the weights are either the same for every skill or adjusted based on level range or potential and stat of demon.
+    Furthermore the process ensures that each demon starts with at least one active skill.
+        Parameters: 
+            comp (Array): The array of demons
+            levelList (Array(Skill_Level)): The list of levels and their learnable skills
+            settings (Settings): settings set in gui
+        Returns:
+            The edited compendium
+    '''
+    def assignRandomSkillsToProtofiend(self, protofiends, levelList, settings):
+         #If the skills aren't supposed to be scaled based on level, assemble list where each valid skill appears exactly once
+        if not settings.scaledSkills:
+            levelAggregrate = []
+            for index, level in enumerate(levelList):
+                if index == 0:
+                    #Prevents Magatsuhi skills from being in demons skill pools
+                    continue
+                for skill in level:
+                    levelAggregrate.append(skill)
+            uniqueSkills = {skill.ind for skill in levelAggregrate}
+            allSkills = []
+            for ind in uniqueSkills:
+                    allSkills.append(next(skill for skill in allSkills if skill.ind == ind))
+        
+        for protofiend in protofiends:
+            possibleSkills = []
+            if settings.scaledSkills:
+                #get all skills that can be learned at the demons level
+                if protofiend.level.value > 0:
+                    possibleSkills = levelList[protofiend.level.value]
+                #And add the skills learnable at up to 3 level below and above the demons level
+                if protofiend.level.value < 99:
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 1]
+                if protofiend.level.value > 1:
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 1]
+                if protofiend.level.value > 2:
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 2]
+                if protofiend.level.value > 3:
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 3]
+                if protofiend.level.value < 98:
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 2]
+                if protofiend.level.value < 97:
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 3]
+                #Increase skill pool for demons above level 70 due to diminishing demon numbers
+                if protofiend.level.value > 70:
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 4]
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 5]
+                #Increase skill pool for demons above level 90 due to diminishing demon numbers
+                if protofiend.level.value > 90:
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 6]
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 7]
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 8]
+                #Increase skill pool for demons at level 1 due to low number of available skills
+                if protofiend.level.value == 1:
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 4]
+                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 5]
+            else:
+                #No level scaling so copy list of all skilsl
+                possibleSkills = allSkills.copy()
+
+             #Create the weighted list of skills and update it with potentials if necessary
+            weightedSkills = self.createWeightedList(possibleSkills)
+            totalSkills = []
+            #If there are skills to be learned
+            if len(weightedSkills.values) > 0:
+
+                #For every skill...
+                for index in range(len(protofiend.skills)):
+                    foundSkill = False
+                    if protofiend.skills[index].value == 0:
+                        # Don't set empty skill slots 
+                        continue
+                    rng = 0
+                    attempts = 100
+                    while not foundSkill:
+                        # until valid skill is found
+                        rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
+                        if attempts <= 0:
+                            print("Something went wrong in skill rando at level " + str(protofiend.level.value))
+                            weightedSkills.weights[weightedSkills.values.index(rng)] = 0
+                            foundSkill = True
+                            break
+                        # Ensure Demon has at least one active skill and no skill appears twice
+                        if not any(e.ind == rng for e in totalSkills) and self.ensureAtLeastOneActive(totalSkills, protofiend, rng):
+                            #Check if skill passes additional conditions or skip that check if skills are not supposed to be weighted by stats and potentials
+                            if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, protofiend)):
+                                if self.checkUniqueSkillCondtiions(self.obtainSkillFromID(rng),protofiend,self.compendiumArr,settings):
+                                    foundSkill = True
+                                    weightedSkills.weights[weightedSkills.values.index(rng)] = 0
+                        attempts -= 1
+                    skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
+                    totalSkills.append(skillAddition)
+                    protofiend.skills[index] = skillAddition
+
+    
+    
+    '''
+    Check to see if adding the skill with index skillIndex to the demons skill list would leave him with at least one active starting skill.
+        Parameters:
+            totalSkills (Array): list of skills currently assigned to the demon
+            demon (Compendium_Demon): the demon for which the condition is checked
+            skillIndex (Integer): the id of the skill
+        Returns:
+            false if adding this skill would leave the demon without an active starting skill and true otherwise
+    '''
+    def ensureAtLeastOneActive(self,totalSkills, demon, skillIndex):
+        nonEmpty = [d for d in demon.skills if d.ind != 0]
+        if (len(totalSkills) + 1 == len(nonEmpty)) and ((self.determineSkillStructureByID(skillIndex) != "Active") and not any(self.determineSkillStructureByID(e.ind) == "Active" for e in totalSkills)):
+            #Check if we are at last initial skill and we have at least one active or current one is active
+            return False
+        return True
+
+    '''
+    Checks if the passed skill can be assigned to the demon according to the rules set for unique skills.
+    Should a non unique skill be passed, always returns true.
+        Parameters:
+            skill (): the skill in question, can be passive or active
+            demon (Compendium_Demon): the demon on who the skill should be assigned to
+            comp (Array(Compendium_Demon)): list of all demons
+            settings (Settings): settings describing the unique skill inheritance rules
+        Returns:
+            if assigning the skill to the demon follows the set unique skill inheritance rules
+    '''
+    def checkUniqueSkillCondtiions(self, skill, demon, comp, settings):
+        if settings.multipleUniques:
+        # Unique skill can appear twice
+            # check if skill is unique skill
+            if skill.owner.ind == 0:
+                return True
+            if settings.freeInheritance:
+                # if unique skills should be freely inheritable
+                skill.owner.ind = 0
+                skill.owner.name = comp[0].name
+            elif settings.randomInheritance and skill.owner.ind == skill.owner.original:
+                # if unique skills should be randomly reassigned and skill has not been already reassigned
+                if demon.ind in numbers.PROTOFIEND_IDS:
+                    skill.owner.ind = -1
+                    skill.owner.name = "Nahobino"
+                else:
+                    skill.owner.ind = demon.ind
+                    skill.owner.name = demon.name    
+            return True  
+        else:
+        # Unique skills can not appear twice
+            if skill.owner.ind != skill.owner.original:
+                # skill has already been reassigned, or set to free inheritance
+                return False
+            if skill.owner.ind == 0:
+                # Skill is not unique
+                return True
+            if settings.freeInheritance:
+                # if unique skills should be freely inheritable
+                skill.owner.ind = 0
+                skill.owner.name = comp[0].name
+            elif settings.randomInheritance:
+                # if unique skills should be randomly reassigned
+                if demon.ind in numbers.PROTOFIEND_IDS:
+                    skill.owner.ind = -1
+                    skill.owner.name = "Nahobino"
+                else:
+                    skill.owner.ind = demon.ind
+                    skill.owner.name = demon.name  
+            elif skill.owner.original != demon.ind:
+                # Vanilla inheritance and demon is not the original demon
+                return False
+        return True
 
     '''
     This function checks whether the given skill passes at least one of several conditions that are predefined before certain skills can be assigned to the demon.
@@ -1193,10 +1323,6 @@ class Randomizer:
         conditionalSkills = ["Charge", "Critical Aura", "Concentrate", "Curse Siphon", "Great Curse Siphon", "Virus Carrier", "Bowl of Hygieia", "Heal Pleroma", "High Heal Pleroma", "Nation Founder", "Healing Hand", "Oath of Plenteousness",
             "Poison Adept", "Poison Master", "Sankosho", "Incendiary Stoning", "Roaring Mist", "Herkeios", "Carpet Bolting", "Catastrophic Gales", "Lighted Wheel", "Boon of Sloth", "Ceaseless Crucifixion", "Biondetta", "Nation Builder"
         ]
-        nonEmpty = [d for d in demon.skills if d.ind != 0]
-        if (len(totalSkillList) + 1 == len(nonEmpty)) and ((self.determineSkillStructureByID(skill.ind) != "Active") and not any(self.determineSkillStructureByID(e.ind) == "Active" for e in totalSkillList)):
-            #Check if we are at last initial skill and we have at least one active or current one is active
-            return False
 
         #Return early if skill is not a skill for which special conditions apply.
         if skill.name not in conditionalSkills and "Pleroma" not in skill.name and "Enhancer" not in skill.name and "Gestalt" not in skill.name:
@@ -1538,6 +1664,43 @@ class Randomizer:
             #buffer.write32chars(enc.levelpath, enc.offsets['levelpath'])
             for index, demon in enumerate(enc.demons):
                 buffer.writeHalfword(demon.value , enc.offsets['demons'] + 2 * index)
+        return buffer
+    
+    '''
+    Writes the values from the protofiend array to their respective locations in the table buffer
+        Parameters:        
+            buffer (Table)
+            protofiends (Array)
+    '''
+    def updateProtofiendBuffer(self, buffer, protofiends):
+        for demon in protofiends:
+            #Write the id of the demons skills to the buffer
+            for index, skill in enumerate(demon.skills):
+                buffer.writeWord(skill.ind, demon.offsetNumbers['firstSkill'] + 4 * index)
+        return buffer
+
+    '''
+    Writes certain values from the skill arrays to their respective locations in the table buffer
+        Parameters:        
+            buffer (Table)
+            activeSkills (Array(Active_Skill))
+            passiveSkills (Array(Passive_Skill))
+    '''
+    def updateSkillBuffer(self, buffer, activeSkills, passiveSkills, innates):
+        for index,skill in enumerate(activeSkills):
+            if index == 0:
+                # skip filler entry
+                continue
+            buffer.writeWord(skill.owner.ind, skill.offsetNumber['owner'])
+
+
+        for skill in passiveSkills:
+            buffer.writeWord(skill.owner.ind, skill.offsetNumber['owner'])
+
+
+        for skill in innates:
+            pass
+        
         return buffer
 
     '''
@@ -2775,6 +2938,7 @@ class Randomizer:
         self.fillEssenceArr(itemBuffer)
         self.fillShopArr(shopBuffer)
         self.fillEventEncountArr(eventEncountBuffer)
+        self.fillProtofiendArr(compendiumBuffer)
 
         skillLevels = self.generateSkillLevelList()
         levelSkillList = self.generateLevelSkillList(skillLevels)
@@ -2791,19 +2955,16 @@ class Randomizer:
                 print('Major issue with generating demon levels and fusions')
                 return False
             self.adjustSkillSlotsToLevel(newComp)
+        else: newComp = self.compendiumArr
 
-        if config.potentialWeightedSkills and config.randomSkills and config.scaledSkills:    
-            newComp = self.assignRandomPotentialWeightedSkills(self.compendiumArr, levelSkillList)
-        elif config.randomSkills and config.scaledSkills:
-            newComp = self.assignCompletelyRandomWeightedSkills(self.compendiumArr, levelSkillList)
-        elif config.randomSkills:
-            newComp = self.assignCompletelyRandomSkills(self.compendiumArr, levelSkillList)
-        else:
-            newComp = self.compendiumArr
-        #TODO: Consider case for potential weight without level dependency
+        
+        #TODO: Consider case for potential weight or level dependency without random skills
 
         if config.randomSkills:
+            self.assignRandomSkillsToProtofiend(self.protofiendArr, levelSkillList, config)
+            newComp = self.assignRandomSkills(newComp,levelSkillList, config)
             self.assignRandomStartingSkill(self.nahobino, levelSkillList, config.scaledSkills)
+            
 
         if config.randomInnates:
             self.assignRandomInnates(newComp)
@@ -2824,6 +2985,7 @@ class Randomizer:
         
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, newBasicEnemyArr)
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, newComp)
+        skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr)
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
         normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
         encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
@@ -2831,12 +2993,14 @@ class Randomizer:
         itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
         shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr)
         eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr)
+        compendiumBuffer = self.updateProtofiendBuffer(compendiumBuffer, self.protofiendArr)
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
 
         self.writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
         self.writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
+        self.writeBinaryTable(skillBuffer.buffer, paths.SKILL_DATA_OUT, paths.SKILL_FOLDER_OUT)
         self.writeBinaryTable(otherFusionBuffer.buffer, paths.UNITE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
         self.writeBinaryTable(encountBuffer.buffer, paths.ENCOUNT_DATA_OUT, paths.MAP_FOLDER_OUT)
         self.writeBinaryTable(playGrowBuffer.buffer, paths.MAIN_CHAR_DATA_OUT, paths.COMMON_FOLDER_OUT)
