@@ -895,9 +895,11 @@ class Randomizer:
                 'track': offset + 0x2E,
                 'levelpath': offset,
                 'unknownDemon': offset + 0x38,
-                '23Flag': offset + 0x23
+                '23Flag': offset + 0x23,
+                'battlefield': offset + 0x24
             }
-            encounter.unknown23Flag = data.readWord(offset + 0x23)
+            encounter.unknown23Flag = data.readByte(offset + 0x23)
+            encounter.battlefield = data.readByte(offset + 0x24)
             encounter.track = data.readHalfword(offset + 0x2E)
             encounter.unknownDemon = Translated_Value(data.readHalfword(offset + 0x38),self.enemyNames[data.readHalfword(offset + 0x38)])
             demons = []
@@ -1861,7 +1863,8 @@ class Randomizer:
     '''
     def updateEventEncountBuffer(self,buffer,evEncount):
         for enc in evEncount:
-            buffer.writeWord(enc.unknown23Flag, enc.offsets['23Flag'])
+            buffer.writeByte(enc.unknown23Flag, enc.offsets['23Flag'])
+            buffer.writeByte(enc.battlefield, enc.offsets['battlefield'])
             buffer.writeHalfword(enc.track, enc.offsets['track'])
             buffer.write32chars(enc.levelpath, enc.offsets['levelpath'])
             buffer.writeHalfword(enc.unknownDemon.value, enc.offsets['unknownDemon'])
