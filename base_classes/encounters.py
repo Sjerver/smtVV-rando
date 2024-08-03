@@ -28,3 +28,5 @@ class Event_Encounter:
         self.track = None
         self.demons = None
         self.offsets = {}
+        self.unknownDemon = None
+        self.unknown23Flag = None

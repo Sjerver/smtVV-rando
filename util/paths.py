@@ -12,6 +12,7 @@ SHOP_DATA_IN = 'base/ShopTable.uexp'
 EVENT_ENCOUNT_IN = 'base/EventEncountData.uexp'
 MISSION_DATA_IN = 'base/MissionTable.uexp'
 MISSION_NAME_IN = 'base/Text/MissionInfo.uasset.txt'
+NKM_CSV_IN = 'base/NKM_Enemy_Data.csv'
 
 NKM_BASE_TABLE_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uexp'
 DEVIL_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil'
@@ -34,3 +35,5 @@ MISSION_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Mission
 
 ENCOUNTERS_DEBUG = 'debug/encounterResults.txt'
 FUSION_DEBUG = 'debug/fusionResults.txt'
+BOSSES_DEBUG = 'debug/bossEncounters.csv'
+BOSS_SPOILER = 'debug/bossSpoilerLog.txt'
