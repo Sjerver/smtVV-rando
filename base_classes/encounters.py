@@ -28,3 +28,19 @@ class Event_Encounter:
         self.track = None
         self.demons = None
         self.offsets = {}
+        self.unknownDemon = None
+        self.unknown23Flag = None
+        self.originalIndex = None
+        
+    '''
+    Tests if two encounters share identical demons, usually due to VR battles
+        Parameters:
+            other(Event_Encounter): The encounter to compare demons to
+        Returns:
+            True if all demons are identical between the two encounters, False otherwise.
+    '''
+    def compareDemons(self, other):
+        for index, demon in enumerate(self.demons):
+            if demon.value != other.demons[index].value:
+                return False
+        return True

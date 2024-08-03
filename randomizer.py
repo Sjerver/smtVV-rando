@@ -1,5 +1,6 @@
+from multiprocessing import Value
 from util.binary_table import Table
-from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level
+from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter
@@ -15,6 +16,8 @@ import os
 import random
 import gui
 import string
+import pandas as pd
+import copy
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 
@@ -41,6 +44,11 @@ class Randomizer:
         self.essenceArr = []
         self.shopArr = []
         self.eventEncountArr = []
+        self.bossArr = []
+        self.enemyNames = []
+        self.staticBossArr = []
+        self.bossFlagArr = []
+        self.bossDuplicateMap = {}
         self.mimanRewardsArr = []
         self.protofiendArr = []
 
@@ -107,6 +115,15 @@ class Randomizer:
                 sliceEnd = element.find("Voice=")
                 self.itemNames.append(element[sliceStart + 19:sliceEnd - 7])
         return fileContents
+    
+    '''
+    Reads the csv file contaning names for all enemy demons including bosses and saves all names in list enemyNames
+        Returns: 
+            The list of enemy names
+    '''
+    def readDataminedEnemyNames(self):
+        df = pd.read_csv(paths.NKM_CSV_IN, skiprows=4)
+        self.enemyNames = df['Name'].values.tolist()
             
     '''
     Writes the given Buffer to the file specified by filePath
@@ -601,6 +618,107 @@ class Randomizer:
             self.enemyArr.append(demon)
             
     '''
+    Fills the Array bossArr with data for all special enemy demons.
+        Parameters:
+            enemyData (Table): the buffer to get the enemy data from 
+    '''
+    def fillBossArr(self, enemyData):
+
+        startValue = 0x88139
+        enemyOffset = 0x170
+        
+        for index in range(395): #Dummy data for playable demons to match id's better
+            self.bossArr.append(Enemy_Demon())
+            self.staticBossArr.append(Enemy_Demon())
+
+        #For all Enemy version of playable demon indeces
+        for index in range(395, 1200):
+            #First define all relevant offsets
+            offset = startValue + enemyOffset * index
+            locations = {
+                'level': offset,
+                'HP': offset + 4,
+                'pressTurns': offset + 0x2B,
+                'experience': offset + 0x44,
+                'item': offset + 0x64,
+                'firstSkill': offset + 0x88,
+                'innate': offset + 0xB8,
+                'resist': offset + 0xBB,
+                'potential': offset + 0x12C
+            }
+        
+            listOfSkills = []
+            for i in range(8):
+                skillID = enemyData.readWord(locations['firstSkill'] + 4 * i)
+                if skillID != 0:
+                    listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))       
+            demon = Enemy_Demon()
+            demon.ind = index
+            demon.name = self.compendiumNames[index]
+            demon.offsetNumbers = locations
+            demon.level = enemyData.readWord(locations['level'])
+            demon.stats = Stats(enemyData.readWord(locations['HP']), enemyData.readWord(locations['HP'] + 4), enemyData.readWord(locations['HP'] + 8),
+                                    enemyData.readWord(locations['HP'] + 12), enemyData.readWord(locations['HP'] + 16),
+                                    enemyData.readWord(locations['HP'] + 20), enemyData.readWord(locations['HP'] + 24)) #HP, MP, str, vit, mag, agi, luk
+            demon.analyze = enemyData.readByte(locations['HP'] + 28)
+            demon.levelDMGCorrection = enemyData.readByte(locations['HP'] + 30)
+            demon.AI = enemyData.readWord(locations['experience'] + 12) #55 for normal encounters
+            demon.recruitable = enemyData.readByte(locations['HP'] + 33)
+            demon.pressTurns = enemyData.readByte(locations['pressTurns'])
+            demon.experience = enemyData.readWord(locations['experience'])
+            demon.money = enemyData.readWord(locations['experience'] + 4)
+            demon.skills = listOfSkills
+            itemDrop1 = Item_Drop(enemyData.readWord(locations['item']), translation.translateItem(enemyData.readWord(locations['item']),self.itemNames),
+                                                      enemyData.readWord(locations['item'] + 4), enemyData.readWord(locations['item'] + 8))
+            itemDrop3 = Item_Drop(enemyData.readWord(locations['item'] + 12), translation.translateItem(enemyData.readWord(locations['item'] + 12),self.itemNames),
+                                                      enemyData.readWord(locations['item'] + 16), enemyData.readWord(locations['item'] + 20))
+            itemDrop2 = Item_Drop(enemyData.readWord(locations['item'] + 24), translation.translateItem(enemyData.readWord(locations['item'] + 24),self.itemNames),
+                                                      enemyData.readWord(locations['item'] + 28), enemyData.readWord(locations['item'] + 32))
+            demon.drops = Item_Drops(itemDrop1, itemDrop2, itemDrop3)
+            demon.innate = Translated_Value(enemyData.readWord(locations['innate']), self.obtainSkillFromID(enemyData.readWord(locations['innate'])).name)
+            demon.resist.physical = Translated_Value(enemyData.readWord(locations['innate'] + 4),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4)))
+            demon.resist.fire = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 2),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 2)))
+            demon.resist.ice = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 3),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 3)))
+            demon.resist.electric = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 4),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 4)))
+            demon.resist.force = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 5),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 5)))
+            demon.resist.light = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 6),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 6)))
+            demon.resist.dark = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 7),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 7)))
+            demon.resist.almighty = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 8),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 8)))
+            demon.resist.poison = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 9),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 9)))
+            demon.resist.confusion = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 11),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 11)))
+            demon.resist.charm = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 12),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 12)))
+            demon.resist.sleep = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 13),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 13)))
+            demon.resist.seal = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 14),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 14)))
+            demon.resist.mirage = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 21),
+                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 21)))
+            demon.potential.physical = enemyData.readWord(locations['potential'])
+            demon.potential.fire = enemyData.readWord(locations['potential'] + 4 * 1)
+            demon.potential.ice = enemyData.readWord(locations['potential'] + 4 * 2)
+            demon.potential.elec = enemyData.readWord(locations['potential'] + 4 * 3)
+            demon.potential.force = enemyData.readWord(locations['potential'] + 4 * 4)
+            demon.potential.light = enemyData.readWord(locations['potential'] + 4 * 5)
+            demon.potential.dark = enemyData.readWord(locations['potential'] + 4 * 6)
+            demon.potential.almighty = enemyData.readWord(locations['potential'] + 4 * 7)
+            demon.potential.ailment = enemyData.readWord(locations['potential'] + 4 * 8)
+            demon.potential.recover = enemyData.readWord(locations['potential'] + 4 * 10)
+            demon.potential.support = enemyData.readWord(locations['potential'] + 4 * 9)
+            self.bossArr.append(demon)
+            self.staticBossArr.append(copy.deepcopy(demon))
+            
+    '''
     Fills the erray encountSymbolArr with information regarding the encouners on the overworld you can run into, called symbols.
         Parameters:
             encounters (Table): buffer containing encounter data
@@ -740,14 +858,15 @@ class Randomizer:
             self.shopArr.append(entry)
     
     '''
-    Fills the array shopArr with data on all buyable items.
+    Fills the array eventEncountArr with data on all event (boss) encounters.
         Parameters:
-            data (Buffer) the buffer containing all shop data
+            data (Buffer) the buffer containing all event encounter data
     '''
     def fillEventEncountArr(self, data):
         start = 0x45
         size = 0x60
-
+        #encounterDebugData = []
+        demonDict = {}
         for index in range(252):
             offset = start + size * index
             encounter = Event_Encounter()
@@ -756,15 +875,75 @@ class Randomizer:
             encounter.offsets = {
                 'demons': offset + 0x48,
                 'track': offset + 0x2E,
-                'levelpath': offset
+                'levelpath': offset,
+                'unknownDemon': offset + 0x38,
+                '23Flag': offset + 0x23
             }
+            encounter.unknown23Flag = data.readWord(offset + 0x23)
             encounter.track = data.readHalfword(offset + 0x2E)
+            encounter.unknownDemon = Translated_Value(data.readHalfword(offset + 0x38),self.enemyNames[data.readHalfword(offset + 0x38)])
             demons = []
             for number in range(9):
-                demons.append(Translated_Value(data.readHalfword(offset + 0x48 + 2 * number),self.compendiumNames[data.readHalfword(offset + 0x48 + 2 * number)]))
+                demons.append(Translated_Value(data.readHalfword(offset + 0x48 + 2 * number),self.enemyNames[data.readHalfword(offset + 0x48 + 2 * number)]))
 
             encounter.demons = demons
+            encounter.originalIndex = index
+            #Check if encounter is a duplicate and store that information in bossDuplicateMap if so
+            originalIndex = next((x for x, val in enumerate(self.eventEncountArr) if val.compareDemons(encounter)), -1)
+            if originalIndex > -1:
+                self.bossDuplicateMap[index] = originalIndex
+
             self.eventEncountArr.append(encounter)
+            '''
+            encounterDebugObject = {
+                'id': encounter.ind,
+                'track': encounter.track,
+                'levelpath': encounter.levelpath,
+                'demon1Name': self.enemyNames[encounter.demons[0].value],
+                'demon1ID': encounter.demons[0].value,
+                'demon2Name': self.enemyNames[encounter.demons[1].value],
+                'demon2ID': encounter.demons[1].value,
+                'demon3Name': self.enemyNames[encounter.demons[2].value],
+                'demon3ID': encounter.demons[2].value,
+                'demon4Name': self.enemyNames[encounter.demons[3].value],
+                'demon4ID': encounter.demons[3].value,
+                'demon5Name': self.enemyNames[encounter.demons[4].value],
+                'demon5ID': encounter.demons[4].value,
+                'demon6Name': self.enemyNames[encounter.demons[5].value],
+                'demon6ID': encounter.demons[5].value,
+                'demon7Name': self.enemyNames[encounter.demons[6].value],
+                'demon7ID': encounter.demons[6].value,
+                'demon8Name': self.enemyNames[encounter.demons[7].value],
+                'demon8ID': encounter.demons[7].value,
+                'demon9Name': self.enemyNames[encounter.demons[8].value],
+                'demon9ID': encounter.demons[8].value,
+            }
+            encounterDebugData.append(encounterDebugObject)
+           
+
+        debugDF = pd.DataFrame(encounterDebugData)
+        debugDF.to_csv(paths.BOSSES_DEBUG)
+        '''
+        
+    '''
+    Fills the array bossFlagArr with data on boss flags.
+        Parameters:
+            data (Buffer) the buffer containing all boss flag data
+    '''
+    def fillBossFlagArr(self, data):
+        start = 0x45
+        size = 0x24
+        
+        for index in range(130):
+            offset = start + size * index
+            bossFlags = Boss_Flags()
+            bossFlags.offset = offset
+            bossFlags.demonID = data.readHalfword(offset)
+            flags = []
+            for i in range(6):
+                flags.append(data.readByte(offset + 4 * (i + 1)))
+            bossFlags.flags = flags
+            self.bossFlagArr.append(bossFlags)
 
     '''
     Fills the array protofiendArr with data on all protofiends that serve as the source for their essence data.
@@ -822,6 +1001,8 @@ class Randomizer:
             
 
             self.protofiendArr.append(demon)
+
+   
 
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
@@ -1660,10 +1841,24 @@ class Randomizer:
     '''
     def updateEventEncountBuffer(self,buffer,evEncount):
         for enc in evEncount:
+            buffer.writeWord(enc.unknown23Flag, enc.offsets['23Flag'])
             buffer.writeHalfword(enc.track, enc.offsets['track'])
-            #buffer.write32chars(enc.levelpath, enc.offsets['levelpath'])
+            buffer.write32chars(enc.levelpath, enc.offsets['levelpath'])
+            buffer.writeHalfword(enc.unknownDemon.value, enc.offsets['unknownDemon'])
             for index, demon in enumerate(enc.demons):
                 buffer.writeHalfword(demon.value , enc.offsets['demons'] + 2 * index)
+        return buffer
+    
+    '''
+    Writes the values from the boss flag array to their respective locations in the table buffer
+        Parameters:        
+            buffer (Table)
+    '''
+    def updateBossFlagBuffer(self,buffer):
+        for bossFlags in self.bossFlagArr:
+            buffer.writeHalfword(bossFlags.demonID, bossFlags.offset)
+            for index in range(6):
+                buffer.writeByte(bossFlags.flags[index], bossFlags.offset + 4 * (index + 1))
         return buffer
     
     '''
@@ -2221,6 +2416,69 @@ class Randomizer:
                 math.floor(replacement.stats.agi * statMods.agi), math.floor(replacement.stats.luk * statMods.luk))
             
             replacement.stats = newStats
+            
+    '''
+    Randomizes main story and sidequest bosses in eventEncountArr. The array is filtered to exclude problematic and duplicate encounters before shuffling
+    TODO: Exclude superbosses and group duplicate fights together
+        Parameters:
+            eventEncountArr(Array(Event_Encounter)): The list of boss encounters to randomize
+    '''
+    def randomizeBosses(self, eventEncountArr):
+        filteredEncounters = [e for index, e in enumerate(eventEncountArr) if index not in numbers.BANNED_BOSSES and index not in self.bossDuplicateMap.keys()]
+        shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
+        with open(paths.BOSS_SPOILER, 'w') as spoilerLog: #Create spoiler log
+            for index, encounter in enumerate(filteredEncounters):
+                spoilerLog.write(encounter.demons[0].translation + " replaced by " + shuffledEncounters[index].demons[0].translation + "\n")
+        for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
+            self.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons)
+            self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
+            eventEncountArr[encounter.originalIndex] = encounter
+        for index, encounter in enumerate(eventEncountArr): #Set duplicate encounters to use the same demons as their new counterparts
+            if index in self.bossDuplicateMap.keys():
+                self.updateShuffledEncounterInformation(encounter, eventEncountArr[self.bossDuplicateMap[index]])
+            
+    '''
+    Balances the stats of boss demons to their new location
+        Parameters:
+            oldEncounter (List(Translated_Value)): The original demons at the check
+            newEncounter (List(Translated_Value)): The demons replacing the old encounter
+    '''
+    def balanceBossEncounter(self, oldEncounter, newEncounter):
+        for index, demon in enumerate(newEncounter):
+            if demon.value > 0:
+                oldID = oldEncounter[index].value
+                if oldID == 0:
+                    oldID = oldEncounter[0].value
+                referenceDemon = self.staticBossArr[oldID]
+                replacementDemon = self.bossArr[demon.value]
+                replacementDemon.stats = referenceDemon.stats
+                replacementDemon.experience = referenceDemon.experience
+                replacementDemon.money = referenceDemon.money
+                replacementDemon.level = referenceDemon.level
+                #replacementDemon.pressTurns = referenceDemon.pressTurns
+
+    '''
+    Replaces demons and important flags in an encounter with its randomized replacement
+        Parameters:
+            encounterToUpdate(Event_Encounter): The encounter to adjust
+            referenceEncounter(Event_Encoutner): The encounter to pull data from
+    '''
+    def updateShuffledEncounterInformation(self, encounterToUpdate, referenceEncounter):
+        encounterToUpdate.demons = referenceEncounter.demons
+        encounterToUpdate.unknownDemon = referenceEncounter.unknownDemon
+        encounterToUpdate.unknown23Flag = referenceEncounter.unknown23Flag
+        encounterToUpdate.levelpath = referenceEncounter.levelpath
+        
+    '''
+    Fixes certain boss flags so that they work outside of their normal location
+    Currently only snake Nuwa (ID 435) is patched to add flag 0x18
+    '''
+    def patchBossFlags(self):
+        nuwaFlags = next(r for x, r in enumerate(self.bossFlagArr) if r.demonID == 435)
+        for flag in nuwaFlags.flags:
+            if flag == 0:
+                flag = 0x18
+                break
 
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
@@ -2923,15 +3181,19 @@ class Randomizer:
         shopBuffer = self.readBinaryTable(paths.SHOP_DATA_IN)
         eventEncountBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_IN)
         missionBuffer = self.readBinaryTable(paths.MISSION_DATA_IN)
+        bossFlagBuffer = self.readBinaryTable(paths.BOSS_FLAG_DATA_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
+        self.readDataminedEnemyNames()
         self.fillCompendiumArr(compendiumBuffer)
         self.fillSkillArrs(skillBuffer)
         self.fillNormalFusionArr(normalFusionBuffer)
         self.fillFusionChart(otherFusionBuffer)
         self.fillSpecialFusionArr(otherFusionBuffer)
         self.fillBasicEnemyArr(compendiumBuffer)
+        self.fillBossArr(compendiumBuffer)
+        self.fillBossFlagArr(bossFlagBuffer)
         self.fillEncountArr(encountBuffer)
         self.fillEncountSymbolArr(encountBuffer)
         self.fillNahobino(playGrowBuffer)
@@ -2982,8 +3244,12 @@ class Randomizer:
         if config.randomShopEssences:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)
             
+        if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
+            self.randomizeBosses(self.eventEncountArr)
+            self.patchBossFlags()
         
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, newBasicEnemyArr)
+        compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[395:])
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, newComp)
         skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr)
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
@@ -2993,6 +3259,7 @@ class Randomizer:
         itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
         shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr)
         eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr)
+        bossFlagBuffer = self.updateBossFlagBuffer(bossFlagBuffer)
         compendiumBuffer = self.updateProtofiendBuffer(compendiumBuffer, self.protofiendArr)
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
@@ -3008,6 +3275,7 @@ class Randomizer:
         self.writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_FOLDER_OUT)
         self.writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT, paths.MAP_FOLDER_OUT)
         self.writeBinaryTable(missionBuffer.buffer,paths.MISSION_DATA_OUT,paths.MISSION_FOLDER_OUT)
+        self.writeBinaryTable(bossFlagBuffer.buffer, paths.BOSS_FLAG_DATA_OUT, paths.BOSS_FOLDER_OUT)
         
         
     '''
@@ -3060,6 +3328,6 @@ if __name__ == '__main__':
         
         rando.fullRando(rando.configSettings)
        
-    except OSError:
-        print("Error while using GUI")
+    except RuntimeError:
+        print('GUI closed - randomization was canceled')
     input('Press [Enter] to exit')

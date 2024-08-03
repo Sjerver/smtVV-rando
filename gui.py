@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import NORMAL, filedialog
 from configparser import ConfigParser, NoOptionError, NoSectionError
 import os
 
@@ -184,7 +183,7 @@ def createGUI(configSettings):
     listItem.insert(2, "Randomize Enemy Drops")
     listItem.pack()
         
-    bossLabel = tk.Label(page2FrameLeft, text="Boss Randomizer (N)")
+    bossLabel = tk.Label(page2FrameLeft, text="Boss Randomizer")
     bossLabel.pack()
 
     listBoss = tk.Listbox(page2FrameLeft, selectmode = "single", width=50, exportselection=False, selectbackground = VENGEANCE_PURPLE)
@@ -297,22 +296,25 @@ def createGUI(configSettings):
         
     window.mainloop()
     
-    #Store all GUI selections into variables before closing the GUI
-    textSeed = seedEntry.get()
-    demonFlags = [False for i in range(listDemon.size())]
-    for i in listDemon.curselection():
-        demonFlags[i] = True
-    inheritanceChoice = listInheritance.curselection()
-    musicChoice = listMusic.curselection()
-    itemFlags = [False for i in range(listItem.size())]
-    for i in listItem.curselection():
-        itemFlags[i] = True
-    bossChoice = listBoss.curselection()
-    abscessChoice = listAbscess.curselection()
-    punishingChoice = listPunishing.curselection()
-    superbossChoice = listSuperboss.curselection()
+    try:
+        #Store all GUI selections into variables before closing the GUI
+        textSeed = seedEntry.get()
+        demonFlags = [False for i in range(listDemon.size())]
+        for i in listDemon.curselection():
+            demonFlags[i] = True
+        inheritanceChoice = listInheritance.curselection()
+        musicChoice = listMusic.curselection()
+        itemFlags = [False for i in range(listItem.size())]
+        for i in listItem.curselection():
+            itemFlags[i] = True
+        bossChoice = listBoss.curselection()
+        abscessChoice = listAbscess.curselection()
+        punishingChoice = listPunishing.curselection()
+        superbossChoice = listSuperboss.curselection()
         
-    window.destroy()
+        window.destroy()
+    except tk.TclError:
+        raise(RuntimeError)        
 
     #Set the config settings
     if demonFlags[0]:

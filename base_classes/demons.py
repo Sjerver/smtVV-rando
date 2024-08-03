@@ -101,3 +101,9 @@ class Demon_Level:
     def __init__(self, value, original):
         self.value = value
         self.original = original
+        
+class Boss_Flags:
+    def __init__(self):
+        self.demonID = None
+        self.flags = []
+        self.offset = None
