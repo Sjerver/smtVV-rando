@@ -157,6 +157,7 @@ class Randomizer:
             offset = startValue + demonOffset * index
             locations = {
                 'race': offset - raceOffset,
+                'nameID': offset - 0x10,
                 'level': offset,
                 'HP': offset + 0x1C,
                 'firstSkill': offset + 0x70,
@@ -183,7 +184,12 @@ class Randomizer:
                                                                 level=NKMBaseTable.readWord(locations['firstLearnedLevel'] + 8 * i)))
             demon = Compendium_Demon()
             demon.ind = index
-            demon.name = self.compendiumNames[index]
+            demon.nameID = NKMBaseTable.readWord(locations['nameID'])
+            if demon.nameID == 58 and index != 58:
+                # Placeholder Jack Frosts
+                demon.name = "NOT USED"
+            else:
+                demon.name = self.compendiumNames[demon.nameID]
             demon.offsetNumbers = locations
             demon.race = Translated_Value(NKMBaseTable.readByte(locations['race']), RACE_ARRAY[NKMBaseTable.readByte(locations['race'])])
             demon.level = Demon_Level(NKMBaseTable.readWord(locations['level']), NKMBaseTable.readWord(locations['level']))
@@ -537,6 +543,7 @@ class Randomizer:
             offset = startValue + enemyOffset * index
             locations = {
                 'level': offset,
+                'nameID': 0x69 + 0x1D0 * index - 0x10,
                 'HP': offset + 4,
                 'pressTurns': offset + 0x2B,
                 'experience': offset + 0x44,
@@ -554,7 +561,12 @@ class Randomizer:
                     listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))       
             demon = Enemy_Demon()
             demon.ind = index
-            demon.name = self.compendiumNames[index]
+            demon.nameID = enemyData.readWord(locations['nameID'])
+            if demon.nameID == 58 and (index != 58 and index!= 941):
+                # Placeholder Jack Frosts
+                demon.name = "NOT USED"
+            else:
+                demon.name = self.compendiumNames[demon.nameID]
             demon.offsetNumbers = locations
             demon.level = enemyData.readWord(locations['level'])
             demon.stats = Stats(enemyData.readWord(locations['HP']), enemyData.readWord(locations['HP'] + 4), enemyData.readWord(locations['HP'] + 8),
@@ -637,6 +649,7 @@ class Randomizer:
             offset = startValue + enemyOffset * index
             locations = {
                 'level': offset,
+                'nameID': 0x69 + 0x1D0*index - 0x10,
                 'HP': offset + 4,
                 'pressTurns': offset + 0x2B,
                 'experience': offset + 0x44,
@@ -654,7 +667,12 @@ class Randomizer:
                     listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))       
             demon = Enemy_Demon()
             demon.ind = index
-            demon.name = self.compendiumNames[index]
+            demon.nameID = enemyData.readWord(locations['nameID'])
+            if demon.nameID == 58 and (index != 58 and index!= 941):
+                # Placeholder Jack Frosts
+                demon.name = "NOT USED"
+            else:
+                demon.name = self.compendiumNames[demon.nameID]
             demon.offsetNumbers = locations
             demon.level = enemyData.readWord(locations['level'])
             demon.stats = Stats(enemyData.readWord(locations['HP']), enemyData.readWord(locations['HP'] + 4), enemyData.readWord(locations['HP'] + 8),
@@ -883,7 +901,7 @@ class Randomizer:
             encounter.track = data.readHalfword(offset + 0x2E)
             encounter.unknownDemon = Translated_Value(data.readHalfword(offset + 0x38),self.enemyNames[data.readHalfword(offset + 0x38)])
             demons = []
-            for number in range(9):
+            for number in range(8):
                 demons.append(Translated_Value(data.readHalfword(offset + 0x48 + 2 * number),self.enemyNames[data.readHalfword(offset + 0x48 + 2 * number)]))
 
             encounter.demons = demons
@@ -961,6 +979,7 @@ class Randomizer:
             offset = startValue + demonOffset * index
             locations = {
                 'level': offset,
+                'nameID': offset - 4,
                 'firstSkill': offset + 0x70,
                 'potential': offset + 0X174,
                 'HP': offset + 0x1C
@@ -975,7 +994,8 @@ class Randomizer:
             
             demon = Compendium_Demon()
             demon.ind = demonID
-            demon.name = self.compendiumNames[demonID]
+            demon.nameID = NKMBaseTable.readWord(locations['nameID'])
+            demon.name = self.compendiumNames[demon.nameID]
             demon.offsetNumbers = locations
             demon.level = Demon_Level(NKMBaseTable.readWord(locations['level']), NKMBaseTable.readWord(locations['level']))
             demon.skills = listOfSkills
@@ -2424,8 +2444,9 @@ class Randomizer:
             eventEncountArr(Array(Event_Encounter)): The list of boss encounters to randomize
     '''
     def randomizeBosses(self, eventEncountArr):
-        filteredEncounters = [e for index, e in enumerate(eventEncountArr) if index not in numbers.BANNED_BOSSES and index not in self.bossDuplicateMap.keys()]
+        filteredEncounters = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index not in numbers.BANNED_BOSSES and index not in self.bossDuplicateMap.keys()]
         shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
+        shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters]
         with open(paths.BOSS_SPOILER, 'w') as spoilerLog: #Create spoiler log
             for index, encounter in enumerate(filteredEncounters):
                 spoilerLog.write(encounter.demons[0].translation + " replaced by " + shuffledEncounters[index].demons[0].translation + "\n")
@@ -2651,6 +2672,7 @@ class Randomizer:
         #Contains all demons who can only be fused after their fusion is unlocked via flag 
         flaggedDemons = list(filter(lambda demon: demon.unlockFlags[0] > 0, comp))
         flaggedDemons.sort(key = lambda a: a.minUnlock, reverse=True)
+       
         #assign elemments levels between level 15 and 25
         for e in elements:
             validLevel = False

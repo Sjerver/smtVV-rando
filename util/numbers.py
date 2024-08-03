@@ -1,7 +1,7 @@
 PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,110,1111,1112,1113,1114,1115,1116,1117,1118]
 
 
-BANNED_BOSSES = [0, 7, 33, 53, 89] #Dummy Abbadon, Tutorial Pixie, Hydra (game hangs when supposed to lose limbs), Dummy Mandrake+Shiva, Dummy Demi-Fiend
+BANNED_BOSSES = [0, 7, 33, 42, 48, 53, 89] #Dummy Abbadon, Tutorial Pixie, Hydra (game hangs when supposed to lose limbs), Normal Cleopatra, Normal Andras, Dummy Mandrake+Shiva, Dummy Demi-Fiend
 
 BOSS_SUMMONS = {
     519: [517, 518],    #Khonsu Ra - Anubis and Thoth

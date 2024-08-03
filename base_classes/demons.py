@@ -2,6 +2,7 @@ class Compendium_Demon:
     def __init__(self):
         self.ind = None
         self.name = None
+        self.nameID = None
         self.offsetNumbers = {}
         self.race = None
         self.level = None
@@ -20,6 +21,7 @@ class Enemy_Demon:
     def __init__(self):
         self.ind = None
         self.name = None
+        self.nameID = None
         self.offsetNumbers = {}
         self.level = None
         self.stats = None
