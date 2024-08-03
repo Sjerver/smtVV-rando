@@ -1,5 +1,6 @@
+from multiprocessing import Value
 from util.binary_table import Table
-from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level
+from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter
@@ -46,6 +47,8 @@ class Randomizer:
         self.bossArr = []
         self.enemyNames = []
         self.staticBossArr = []
+        self.bossFlagArr = []
+        self.bossDuplicateMap = {}
 
         self.nahobino = Nahobino()
         
@@ -835,14 +838,15 @@ class Randomizer:
             self.shopArr.append(entry)
     
     '''
-    Fills the array shopArr with data on all buyable items.
+    Fills the array eventEncountArr with data on all event (boss) encounters.
         Parameters:
-            data (Buffer) the buffer containing all shop data
+            data (Buffer) the buffer containing all event encounter data
     '''
     def fillEventEncountArr(self, data):
         start = 0x45
         size = 0x60
         #encounterDebugData = []
+        demonDict = {}
         for index in range(252):
             offset = start + size * index
             encounter = Event_Encounter()
@@ -863,6 +867,12 @@ class Randomizer:
                 demons.append(Translated_Value(data.readHalfword(offset + 0x48 + 2 * number),self.enemyNames[data.readHalfword(offset + 0x48 + 2 * number)]))
 
             encounter.demons = demons
+            encounter.originalIndex = index
+            #Check if encounter is a duplicate and store that information in bossDuplicateMap if so
+            originalIndex = next((x for x, val in enumerate(self.eventEncountArr) if val.compareDemons(encounter)), -1)
+            if originalIndex > -1:
+                self.bossDuplicateMap[index] = originalIndex
+
             self.eventEncountArr.append(encounter)
             '''
             encounterDebugObject = {
@@ -894,6 +904,26 @@ class Randomizer:
         debugDF = pd.DataFrame(encounterDebugData)
         debugDF.to_csv(paths.BOSSES_DEBUG)
         '''
+        
+    '''
+    Fills the array bossFlagArr with data on boss flags.
+        Parameters:
+            data (Buffer) the buffer containing all boss flag data
+    '''
+    def fillBossFlagArr(self, data):
+        start = 0x45
+        size = 0x24
+        
+        for index in range(130):
+            offset = start + size * index
+            bossFlags = Boss_Flags()
+            bossFlags.offset = offset
+            bossFlags.demonID = data.readHalfword(offset)
+            flags = []
+            for i in range(6):
+                flags.append(data.readByte(offset + 4 * (i + 1)))
+            bossFlags.flags = flags
+            self.bossFlagArr.append(bossFlags)
 
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
@@ -1652,6 +1682,18 @@ class Randomizer:
             for index, demon in enumerate(enc.demons):
                 buffer.writeHalfword(demon.value , enc.offsets['demons'] + 2 * index)
         return buffer
+    
+    '''
+    Writes the values from the boss flag array to their respective locations in the table buffer
+        Parameters:        
+            buffer (Table)
+    '''
+    def updateBossFlagBuffer(self,buffer):
+        for bossFlags in self.bossFlagArr:
+            buffer.writeHalfword(bossFlags.demonID, bossFlags.offset)
+            for index in range(6):
+                buffer.writeByte(bossFlags.flags[index], bossFlags.offset + 4 * (index + 1))
+        return buffer
 
     '''
     Check if a certain race of demons contains two demons of the same level
@@ -2173,22 +2215,24 @@ class Randomizer:
             replacement.stats = newStats
             
     '''
-    Randomizes main story and sidequest bosses in eventEncountArr
-    TODO: Exclude superbosses and group duplicate fights together, and adjust demons to match their new checks
+    Randomizes main story and sidequest bosses in eventEncountArr. The array is filtered to exclude problematic and duplicate encounters before shuffling
+    TODO: Exclude superbosses and group duplicate fights together
         Parameters:
             eventEncountArr(Array(Event_Encounter)): The list of boss encounters to randomize
     '''
     def randomizeBosses(self, eventEncountArr):
-        shuffledEncounters = sorted(eventEncountArr, key=lambda x: random.random())
-        with open(paths.BOSS_SPOILER, 'w') as spoilerLog:
-            for index, encounter in enumerate(eventEncountArr):
+        filteredEncounters = [e for index, e in enumerate(eventEncountArr) if index not in numbers.BANNED_BOSSES and index not in self.bossDuplicateMap.keys()]
+        shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
+        with open(paths.BOSS_SPOILER, 'w') as spoilerLog: #Create spoiler log
+            for index, encounter in enumerate(filteredEncounters):
                 spoilerLog.write(encounter.demons[0].translation + " replaced by " + shuffledEncounters[index].demons[0].translation + "\n")
-        for index, encounter in enumerate(eventEncountArr):
+        for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
             self.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons)
-            encounter.demons = shuffledEncounters[index].demons
-            encounter.unknownDemon = shuffledEncounters[index].unknownDemon
-            encounter.unknown23Flag = shuffledEncounters[index].unknown23Flag
-            encounter.levelpath = shuffledEncounters[index].levelpath
+            self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
+            eventEncountArr[encounter.originalIndex] = encounter
+        for index, encounter in enumerate(eventEncountArr): #Set duplicate encounters to use the same demons as their new counterparts
+            if index in self.bossDuplicateMap.keys():
+                self.updateShuffledEncounterInformation(encounter, eventEncountArr[self.bossDuplicateMap[index]])
             
     '''
     Balances the stats of boss demons to their new location
@@ -2207,7 +2251,31 @@ class Randomizer:
                 replacementDemon.stats = referenceDemon.stats
                 replacementDemon.experience = referenceDemon.experience
                 replacementDemon.money = referenceDemon.money
-                replacementDemon.pressTurns = referenceDemon.pressTurns
+                replacementDemon.level = referenceDemon.level
+                #replacementDemon.pressTurns = referenceDemon.pressTurns
+
+    '''
+    Replaces demons and important flags in an encounter with its randomized replacement
+        Parameters:
+            encounterToUpdate(Event_Encounter): The encounter to adjust
+            referenceEncounter(Event_Encoutner): The encounter to pull data from
+    '''
+    def updateShuffledEncounterInformation(self, encounterToUpdate, referenceEncounter):
+        encounterToUpdate.demons = referenceEncounter.demons
+        encounterToUpdate.unknownDemon = referenceEncounter.unknownDemon
+        encounterToUpdate.unknown23Flag = referenceEncounter.unknown23Flag
+        encounterToUpdate.levelpath = referenceEncounter.levelpath
+        
+    '''
+    Fixes certain boss flags so that they work outside of their normal location
+    Currently only snake Nuwa (ID 435) is patched to add flag 0x18
+    '''
+    def patchBossFlags(self):
+        nuwaFlags = next(r for x, r in enumerate(self.bossFlagArr) if r.demonID == 435)
+        for flag in nuwaFlags.flags:
+            if flag == 0:
+                flag = 0x18
+                break
 
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
@@ -2910,6 +2978,7 @@ class Randomizer:
         shopBuffer = self.readBinaryTable(paths.SHOP_DATA_IN)
         eventEncountBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_IN)
         missionBuffer = self.readBinaryTable(paths.MISSION_DATA_IN)
+        bossFlagBuffer = self.readBinaryTable(paths.BOSS_FLAG_DATA_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -2921,6 +2990,7 @@ class Randomizer:
         self.fillSpecialFusionArr(otherFusionBuffer)
         self.fillBasicEnemyArr(compendiumBuffer)
         self.fillBossArr(compendiumBuffer)
+        self.fillBossFlagArr(bossFlagBuffer)
         self.fillEncountArr(encountBuffer)
         self.fillEncountSymbolArr(encountBuffer)
         self.fillNahobino(playGrowBuffer)
@@ -2970,7 +3040,9 @@ class Randomizer:
         if config.randomShopEssences:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)
             
-        self.randomizeBosses(self.eventEncountArr)
+        if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
+            self.randomizeBosses(self.eventEncountArr)
+            self.patchBossFlags()
         
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, newBasicEnemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[395:])
@@ -2982,6 +3054,7 @@ class Randomizer:
         itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
         shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr)
         eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr)
+        bossFlagBuffer = self.updateBossFlagBuffer(bossFlagBuffer)
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
@@ -2995,6 +3068,7 @@ class Randomizer:
         self.writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_FOLDER_OUT)
         self.writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT, paths.MAP_FOLDER_OUT)
         self.writeBinaryTable(missionBuffer.buffer,paths.MISSION_DATA_OUT,paths.MISSION_FOLDER_OUT)
+        self.writeBinaryTable(bossFlagBuffer.buffer, paths.BOSS_FLAG_DATA_OUT, paths.BOSS_FOLDER_OUT)
         
         
     '''
@@ -3047,6 +3121,6 @@ if __name__ == '__main__':
         
         rando.fullRando(rando.configSettings)
        
-    except OSError:
-        print("Error while using GUI")
+    except RuntimeError:
+        print('GUI closed - randomization was canceled')
     input('Press [Enter] to exit')

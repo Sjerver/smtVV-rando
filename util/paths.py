@@ -13,6 +13,7 @@ EVENT_ENCOUNT_IN = 'base/EventEncountData.uexp'
 MISSION_DATA_IN = 'base/MissionTable.uexp'
 MISSION_NAME_IN = 'base/Text/MissionInfo.uasset.txt'
 NKM_CSV_IN = 'base/NKM_Enemy_Data.csv'
+BOSS_FLAG_DATA_IN = 'base/BossFlag.uexp'
 
 NKM_BASE_TABLE_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uexp'
 DEVIL_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil'
@@ -32,6 +33,8 @@ FACILITY_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Facili
 EVENT_ENCOUNT_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EventEncountData.uexp'
 MISSION_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Mission/MissionTable.uexp'
 MISSION_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Mission'
+BOSS_FLAG_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Boss/BossFlag.uexp'
+BOSS_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Boss'
 
 ENCOUNTERS_DEBUG = 'debug/encounterResults.txt'
 FUSION_DEBUG = 'debug/fusionResults.txt'

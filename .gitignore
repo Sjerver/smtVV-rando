@@ -11,6 +11,8 @@ UnrealPak.exe
 config.ini
 *.pyc
 /.vscode
+rando/
+debug/bossSpoilerLog.txt
 
 # local env files
 .env.local
