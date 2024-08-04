@@ -20,7 +20,7 @@ import pandas as pd
 import copy
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
-
+DEV_CHEATS = False
 
 class Randomizer:
     def __init__(self):
@@ -152,7 +152,7 @@ class Randomizer:
 
 
         #For all demons in the compendium...
-        for index in range(395):
+        for index in range(numbers.NORMAL_ENEMY_COUNT):
             #First define all relevant offsets
             offset = startValue + demonOffset * index
             locations = {
@@ -538,7 +538,7 @@ class Randomizer:
         enemyOffset = 0x170
 
         #For all Enemy version of playable demon indeces
-        for index in range(395):
+        for index in range(numbers.NORMAL_ENEMY_COUNT):
             #First define all relevant offsets
             offset = startValue + enemyOffset * index
             locations = {
@@ -639,12 +639,12 @@ class Randomizer:
         startValue = 0x88139
         enemyOffset = 0x170
         
-        for index in range(395): #Dummy data for playable demons to match id's better
+        for index in range(numbers.NORMAL_ENEMY_COUNT): #Dummy data for playable demons to match id's better
             self.bossArr.append(Enemy_Demon())
             self.staticBossArr.append(Enemy_Demon())
 
         #For all Enemy version of playable demon indeces
-        for index in range(395, 1200):
+        for index in range(numbers.NORMAL_ENEMY_COUNT, 1200):
             #First define all relevant offsets
             offset = startValue + enemyOffset * index
             locations = {
@@ -2302,7 +2302,7 @@ class Randomizer:
         newSymbolArr = []
         for encount in symbolArr:
             #dont change symbol if unused, mitama, Old Lilith, Tao, Yoko or not an basic enemy
-            if encount.symbol.ind == 71 or encount.symbol.ind == 365 or encount.symbol.ind == 364 or encount.symbol.ind == 366 or encount.symbol.ind == 0 or encount.symbol.ind > 395 or "Mitama" in encount.symbol.translation or encount.symbol.translation.startswith("NOT USED"):
+            if encount.symbol.ind == 71 or encount.symbol.ind == 365 or encount.symbol.ind == 364 or encount.symbol.ind == 366 or encount.symbol.ind == 0 or encount.symbol.ind > numbers.NORMAL_ENEMY_COUNT or "Mitama" in encount.symbol.translation or encount.symbol.translation.startswith("NOT USED"):
                 newSymbolArr.append(encount)
                 continue
             replaceEnc = encount
@@ -2462,19 +2462,35 @@ class Randomizer:
                 self.updateShuffledEncounterInformation(encounter, eventEncountArr[self.bossDuplicateMap[index]])
             
     '''
-    Balances the stats of boss demons to their new location
+    Balances the stats of boss demons, including summoned adds to their new location
         Parameters:
             oldEncounter (List(Translated_Value)): The original demons at the check
             newEncounter (List(Translated_Value)): The demons replacing the old encounter
     '''
     def balanceBossEncounter(self, oldEncounter, newEncounter):
+        oldSummons = []
+        oldSummonIndex = 0
+        newSummons = []
+        newSummonIndex = 0
+        if newEncounter[0].value in numbers.BOSS_SUMMONS.keys():
+            newSummons = numbers.BOSS_SUMMONS[newEncounter[0].value]
+        if oldEncounter[0].value in numbers.BOSS_SUMMONS.keys():
+            oldSummons = numbers.BOSS_SUMMONS[oldEncounter[0].value]
         for index, demon in enumerate(newEncounter):
-            if demon.value > 0:
+            if demon.value > 0 or newSummonIndex < len(newSummons):
                 oldID = oldEncounter[index].value
                 if oldID == 0:
-                    oldID = oldEncounter[0].value
+                    if oldSummonIndex < len(oldSummons):
+                        oldID = oldSummons[oldSummonIndex]
+                        oldSummonIndex += 1
+                    else:
+                        oldID = oldEncounter[0].value
                 referenceDemon = self.staticBossArr[oldID]
-                replacementDemon = self.bossArr[demon.value]
+                if demon.value == 0:
+                    replacementDemon = self.bossArr[newSummons[newSummonIndex]]
+                    newSummonIndex += 1
+                else:
+                    replacementDemon = self.bossArr[demon.value]
                 replacementDemon.stats = referenceDemon.stats
                 replacementDemon.experience = referenceDemon.experience
                 replacementDemon.money = referenceDemon.money
@@ -2492,7 +2508,9 @@ class Randomizer:
         encounterToUpdate.unknownDemon = referenceEncounter.unknownDemon
         encounterToUpdate.unknown23Flag = referenceEncounter.unknown23Flag
         encounterToUpdate.levelpath = referenceEncounter.levelpath
-        
+        if not self.configSettings.checkBasedMusic and not self.configSettings.randomMusic:
+            encounterToUpdate.track = referenceEncounter.track
+            
     '''
     Fixes certain boss flags so that they work outside of their normal location
     Currently only snake Nuwa (ID 435) is patched to add flag 0x18
@@ -2503,6 +2521,20 @@ class Randomizer:
             if flag == 0:
                 flag = 0x18
                 break
+            
+    '''
+    Randomizes Boss music for all encounters in eventEncountArr, excluding regular battle theme and 'no bgm change' tracks
+    '''
+    def randomizeEventEncounterTracks(self):
+        trackList = set()
+        for encounter in self.eventEncountArr:
+            if encounter.track not in [0, 255]:
+                trackList.add(encounter.track)
+        trackList = list(trackList)
+        #print(trackList)
+        for encounter in self.eventEncountArr:
+            if encounter.track not in [0, 255]:
+                encounter.track = random.choice(trackList)
 
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
@@ -3182,13 +3214,38 @@ class Randomizer:
             demon.level = Demon_Level(demon.level.original,demon.level.original)
             
     '''
-        Generates a random seed if none was provided by the user and sets the random seed
+    Generates a random seed if none was provided by the user and sets the random seed
     '''
     def createSeed(self):
          if self.textSeed == "":
              self.textSeed = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
              print('Your generated seed is: {}\n'.format(self.textSeed))
          random.seed(self.textSeed)
+         
+    '''
+    Makes the game easier for testing purposes. All enemy hp is set to 10 and Nahobino's stats are increased
+    TODO - fix Nahobino stats so they actually work
+    '''
+    def applyCheats(self):
+        for demon in self.enemyArr:
+            demon.stats.HP = 10
+            demon.stats.str = 2
+            demon.stats.vit = 2
+            demon.stats.mag = 2
+            demon.stats.agi = 2
+        for demon in self.bossArr[numbers.NORMAL_ENEMY_COUNT:]:
+            demon.stats.HP = 10
+            demon.stats.str = 2
+            demon.stats.vit = 2
+            demon.stats.mag = 2
+            demon.stats.agi = 2
+        self.nahobino.HP = 999
+        self.nahobino.MP = 999
+        self.nahobino.str = 99
+        self.nahobino.vit = 99
+        self.nahobino.mag = 99
+        self.nahobino.agi = 99
+        self.nahobino.luk = 99
 
     '''
         Executes the full randomization process including level randomization.
@@ -3257,9 +3314,9 @@ class Randomizer:
             self.assignRandomInnates(newComp)
             self.assignRandomInnateToNahobino(self.nahobino)
 
-        newBasicEnemyArr = self.adjustBasicEnemyArr(self.enemyArr, newComp)
+        self.enemyArr = self.adjustBasicEnemyArr(self.enemyArr, newComp)
         if config.randomDemonLevels:
-            newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, newBasicEnemyArr)
+            newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, self.enemyArr)
             self.adjustTutorialPixie(newComp,self.eventEncountArr)
             self.assignTalkableTones(newComp)
             self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
@@ -3272,9 +3329,15 @@ class Randomizer:
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.randomizeBosses(self.eventEncountArr)
             self.patchBossFlags()
+            
+        if config.randomMusic:
+            self.randomizeEventEncounterTracks()
+            
+        if DEV_CHEATS:
+            self.applyCheats()
         
-        compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, newBasicEnemyArr)
-        compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[395:])
+        compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
+        compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, newComp)
         skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr)
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)

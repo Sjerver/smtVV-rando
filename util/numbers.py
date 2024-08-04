@@ -1,7 +1,9 @@
 PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,110,1111,1112,1113,1114,1115,1116,1117,1118]
 
 
-BANNED_BOSSES = [0, 7, 33, 42, 48, 53, 89] #Dummy Abbadon, Tutorial Pixie, Hydra (game hangs when supposed to lose limbs), Normal Cleopatra, Normal Andras, Dummy Mandrake+Shiva, Dummy Demi-Fiend
+BANNED_BOSSES = [0, 7, 32, #Dummy Abbadon, Tutorial Pixie, Tutorial Preta
+                 33, #Hydra (game hangs when supposed to lose limbs)
+                 42, 48, 53, 89] #Normal Cleopatra, Normal Andras, Dummy Mandrake+Shiva, Dummy Demi-Fiend
 
 BOSS_SUMMONS = {
     519: [517, 518],    #Khonsu Ra - Anubis and Thoth
@@ -12,8 +14,11 @@ BOSS_SUMMONS = {
     839: [846, 847, 848, 849], #Huang Long - Qing Long, Zhuque, Baihu, Xuanwu
     760: [761, 762, 763, 764, 765, 766, 767], #Samael - Lilith's Shadow, Agrat's Shadow x2, Eisheth's Shadow x2, Naamah's Shadow x2
     569: [570, 571, 572, 573, 574, 575], #Lilith - Agrat x2, Eisheth x2, Naamah x2
-    473: [474, 475] #Alilat - Flauros, Ose
+    473: [474, 475], #Alilat - Flauros, Ose
+    681: [682, 683, 684, 685, 686, 687, 688, 689, 690, 691, 692, 693] #Satan - Arahabaki, Titania, Sarasvati, Yatagarasu, Ganesha, Kumphanda, Fafnir, Mada, Sraosha, Hariti, Kaiwan, Macabre
 }
+
+NORMAL_ENEMY_COUNT = 395
 
 def getMaccaValues ():
     return [0,10,13,15,16,17,18,20,21,23,24,26,28,29,31,33,34,36,38,40,41,44,46,49,51,55,58,61,65,68,71,74,78,82,87,90,94,98,103,107,111,116,121,126,131,137,142,147,153,159,164,170,177,184,190,198,204,212,218,225,233,241,249,257,264,273,281,290,298,307,315,356,374,415,456,542,629,758,887,1016,1145,1274,1403,1532,1661,1790,1919,2048,2177,2306,2435,2564,2693,2822,2951,3080,3209,3338,3467,3596]

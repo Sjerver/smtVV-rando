@@ -164,7 +164,7 @@ def createGUI(configSettings):
     listInheritance.selection_set(0)
     listInheritance.pack()
 
-    musicLabel = tk.Label(page1FrameLeft, text="Boss Music Setting (N)")
+    musicLabel = tk.Label(page1FrameLeft, text="Boss Music Setting")
     musicLabel.pack()
 
     listMusic = tk.Listbox(page1FrameLeft, selectmode = "single", exportselection=False, selectbackground = NAHOBINO_BLUE)
