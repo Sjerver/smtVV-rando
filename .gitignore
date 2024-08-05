@@ -11,11 +11,24 @@ UnrealPak.exe
 config.ini
 *.pyc
 /.vscode
-rando/
-debug/bossSpoilerLog.txt
 
 # local env files
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# output files
+rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Event/BattleEventTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Boss/BossFlag.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Mission/MissionTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EventEncountData.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Facility/Table/ShopTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Item/ItemTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Common/PlayerGrow.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EncountData.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Unite/UniteTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Unite/UniteCombineTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Skill/SkillData.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uexp
+debug/bossSpoilerLog.txt
