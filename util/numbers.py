@@ -1,22 +1,12 @@
 PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,110,1111,1112,1113,1114,1115,1116,1117,1118]
 
-
+#Encounter IDs that should not be randomized
 BANNED_BOSSES = [0, 7, 32, #Dummy Abbadon, Tutorial Pixie, Tutorial Preta
                  33, #Hydra (game hangs when supposed to lose limbs)
-                 42, 48, 53, 89] #Normal Cleopatra, Normal Andras, Dummy Mandrake+Shiva, Dummy Demi-Fiend
-
-BOSS_SUMMONS = {
-    519: [517, 518],    #Khonsu Ra - Anubis and Thoth
-    845: [871, 872, 873, 874, 875], #Shiva - Ganesha, Kali, Dakini, Ananta and Parvati
-    934: [940, 941, 942, 943, 944, 945, 946], #Demi-Fiend - Cerberus, Jack Frost, Pixie, Thor, Girimekhala, Parvati, Cu Chulainn
-    529: [531, 532, 533], #Lucifer True Ending - Brimstone Star, Cocytus Star, Morning Star
-    537: [538, 539], #Lucifer Normal Endings - Brimstone Star, Cocytus Star
-    839: [846, 847, 848, 849], #Huang Long - Qing Long, Zhuque, Baihu, Xuanwu
-    760: [761, 762, 763, 764, 765, 766, 767], #Samael - Lilith's Shadow, Agrat's Shadow x2, Eisheth's Shadow x2, Naamah's Shadow x2
-    569: [570, 571, 572, 573, 574, 575], #Lilith - Agrat x2, Eisheth x2, Naamah x2
-    473: [474, 475], #Alilat - Flauros, Ose
-    681: [682, 683, 684, 685, 686, 687, 688, 689, 690, 691, 692, 693] #Satan - Arahabaki, Titania, Sarasvati, Yatagarasu, Ganesha, Kumphanda, Fafnir, Mada, Sraosha, Hariti, Kaiwan, Macabre
-}
+                 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, #Normal Cleopatra, Dummy Pretas x 5, Normal Andras, Dummy Mandrake, Attis, Shiva, King Frost, then all 4,
+                 57, 58, 59, 60, 63, 64, 65, #School dungeon fights with overlapping demons(Temp)
+                 89, 129, 159, 160, #Dummy Demi-Fiend, Mananangal/Incubus overlap with school(Temp), Zhens in gasser sidequest that overlap with each other(Temp)
+                 232, 233, 234, 235, 236, 237] #Area 3 Powers that overlap with each other(Temp)
 
 NORMAL_ENEMY_COUNT = 395
 

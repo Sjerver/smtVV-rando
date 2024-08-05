@@ -8,6 +8,7 @@ from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
 from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item
 from base_classes.settings import Settings
+import util.boss_logic as bossLogic
 import util.numbers as numbers
 import util.paths as paths
 import util.translation as translation
@@ -2454,7 +2455,8 @@ class Randomizer:
             for index, encounter in enumerate(filteredEncounters):
                 spoilerLog.write(encounter.demons[0].translation + " replaced by " + shuffledEncounters[index].demons[0].translation + "\n")
         for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
-            self.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons)
+            #self.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons)
+            bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr)
             self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
             eventEncountArr[encounter.originalIndex] = encounter
         for index, encounter in enumerate(eventEncountArr): #Set duplicate encounters to use the same demons as their new counterparts
