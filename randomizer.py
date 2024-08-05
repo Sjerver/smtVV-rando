@@ -3,7 +3,7 @@ from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
-from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter
+from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
 from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item
@@ -52,6 +52,7 @@ class Randomizer:
         self.bossDuplicateMap = {}
         self.mimanRewardsArr = []
         self.protofiendArr = []
+        self.battleEventArr = []
 
         self.nahobino = Nahobino()
         
@@ -138,6 +139,10 @@ class Randomizer:
             os.mkdir(folderPath)
         with open(filePath, 'wb') as file:
             file.write(result)
+
+    def writeFolder(self, folderPath):
+        if not os.path.exists(folderPath):
+            os.mkdir(folderPath)
             
     '''
     Fills the array compendiumArr with data extracted from the Buffer NKMBaseTable.
@@ -889,7 +894,7 @@ class Randomizer:
         for index in range(252):
             offset = start + size * index
             encounter = Event_Encounter()
-            encounter.ind = data.readHalfword(offset + 0x20) 
+            encounter.ind = data.readByte(offset + 0x20) 
             encounter.levelpath = data.read32chars(offset)
             encounter.offsets = {
                 'demons': offset + 0x48,
@@ -1025,7 +1030,23 @@ class Randomizer:
 
             self.protofiendArr.append(demon)
 
-   
+    '''
+    Fills the array battleEventArr with data on all battle events and in which encounters they occur.
+        Parameters:
+            data (Buffer) the buffer containing all battle event tabke data
+    '''
+    def fillBattleEventArr(self, data):
+
+        start = 0x45
+        size = 0x50
+
+        for index in range(36):
+            offset = start + size * index
+            eventIndex = data.readByte(offset + 0x20)
+
+            event = Battle_Event(eventIndex, offset)
+            self.battleEventArr.append(event)
+
 
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
@@ -1897,6 +1918,50 @@ class Randomizer:
             for index, skill in enumerate(demon.skills):
                 buffer.writeWord(skill.ind, demon.offsetNumbers['firstSkill'] + 4 * index)
         return buffer
+    
+    '''
+    Writes the values from the battle event array to their respective locations in the table buffer and increases the file size if necessary.
+        Parameters:        
+            buffer (Table)
+            data (Array)
+    '''
+    def updateBattleEventsBuffer(self, buffer, data, uassetBuffer):
+        print(len(data))
+        if len(data) > 36:
+            sizeWord = buffer.readWord(0x10)
+            
+
+            totalSize = buffer.readWord(0x39)
+
+            for index, event in enumerate(data):
+                if index >= 36:
+                    entry = []
+                    for i in range (0,0x50,4):
+                        entry.append(buffer.readWord(data[event.referenceID].offset + i))
+                    for i, value in enumerate(entry):
+                        buffer.buffer.insert(-16,0)
+                        buffer.buffer.insert(-16,0)
+                        buffer.buffer.insert(-16,0)
+                        buffer.buffer.insert(-16,0)
+                        buffer.writeWord(value,totalSize + 0x45 + i * 4)
+                    totalSize = totalSize + 0x50
+                    sizeWord = sizeWord + 0x50
+            buffer.writeWord(totalSize, 0x39)
+            buffer.writeWord(sizeWord,0x10)
+            buffer.writeWord(sizeWord -4, 0x21)
+            self.updateBattleEventUasset(uassetBuffer, totalSize + 0x51)
+        for event in data:
+            buffer.writeByte(event.encounterID, event.offset + 0x20)
+
+        return buffer
+    
+    '''
+    Updates the value for the size of the EventBattleTable.uexp in the buffer referring to the EventBattleTable.uasset.
+    '''
+    def updateBattleEventUasset(self, buffer, newSize):
+        #updated = buffer.readWord(0x25A)+increase
+        buffer.writeWord(newSize ,0x25A)
+
 
     '''
     Writes certain values from the skill arrays to their respective locations in the table buffer
@@ -2448,21 +2513,48 @@ class Randomizer:
             eventEncountArr(Array(Event_Encounter)): The list of boss encounters to randomize
     '''
     def randomizeBosses(self, eventEncountArr):
+        encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
+
         filteredEncounters = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index not in numbers.BANNED_BOSSES and index not in self.bossDuplicateMap.keys()]
         shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
         shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters]
         with open(paths.BOSS_SPOILER, 'w') as spoilerLog: #Create spoiler log
             for index, encounter in enumerate(filteredEncounters):
-                spoilerLog.write(encounter.demons[0].translation + " replaced by " + shuffledEncounters[index].demons[0].translation + "\n")
+                spoilerLog.write(str(encounter.ind) + " " + encounter.demons[0].translation + " replaced by " + str(shuffledEncounters[index].ind) + " " + shuffledEncounters[index].demons[0].translation + "\n")
         for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
             #self.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons)
-            bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr)
+            bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind)
             self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
             eventEncountArr[encounter.originalIndex] = encounter
+
+            if shuffledEncounters[index].ind in encountersWithBattleEvents:
+                #if new encounter needs event
+                eventInds = [jIndex for jIndex, e in enumerate(encountersWithBattleEvents) if e == shuffledEncounters[index].ind]
+                for ind in eventInds:
+                    self.battleEventArr[ind].encounterID = encounter.ind
+            
+
+        encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
         for index, encounter in enumerate(eventEncountArr): #Set duplicate encounters to use the same demons as their new counterparts
             if index in self.bossDuplicateMap.keys():
                 self.updateShuffledEncounterInformation(encounter, eventEncountArr[self.bossDuplicateMap[index]])
-            
+
+                # If duplicate has event (nuwa simulator)
+                if encounter.ind in encountersWithBattleEvents:
+                    eventInds = [jIndex for jIndex,e in enumerate(encountersWithBattleEvents) if e == encounter.ind] 
+                    for ind in eventInds:
+                        # check if reference still has a event (new nuwa has event)
+                        if eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
+                            self.battleEventArr[ind].encounterID = eventEncountArr[self.bossDuplicateMap[index]].ind
+                        else:
+                            self.battleEventArr[ind].encounterID = 0
+                elif eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
+                #reference has event but not duplicate  (nuwa replacement)
+                    eventInds = [jIndex for jIndex,e in enumerate(encountersWithBattleEvents) if e == eventEncountArr[self.bossDuplicateMap[index]].ind] 
+                    for ind in eventInds:
+                        self.battleEventArr.append(Battle_Event(encounter.ind,(len(self.battleEventArr)) * 0x50 + 0x45))
+                        self.battleEventArr[-1].referenceID = ind
+                    
     '''
     Balances the stats of boss demons, including summoned adds to their new location
         Parameters:
@@ -2518,10 +2610,10 @@ class Randomizer:
     Currently only snake Nuwa (ID 435) is patched to add flag 0x18
     '''
     def patchBossFlags(self):
-        nuwaFlags = next(r for x, r in enumerate(self.bossFlagArr) if r.demonID == 435)
-        for flag in nuwaFlags.flags:
+        nuwaFlags = next(r for  r in self.bossFlagArr if r.demonID == 435)
+        for i, flag in enumerate(nuwaFlags.flags):
             if flag == 0:
-                flag = 0x18
+                nuwaFlags.flags[i] = 0x18
                 break
             
     '''
@@ -3214,6 +3306,14 @@ class Randomizer:
     def resetLevelToOriginal(self,comp):
         for demon in comp:
             demon.level = Demon_Level(demon.level.original,demon.level.original)
+
+    def removeBattleTutorials(self):
+        #Tutorial Daemon
+        self.battleEventArr[1].encounterID = 0
+        #Magatsuhi Tutorial Pretas
+        self.battleEventArr[12].encounterID = 0
+        #Guest Tutorial Glasya-Labolas
+        self.battleEventArr[35].enounterID = 0
             
     '''
     Generates a random seed if none was provided by the user and sets the random seed
@@ -3266,6 +3366,8 @@ class Randomizer:
         eventEncountBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_IN)
         missionBuffer = self.readBinaryTable(paths.MISSION_DATA_IN)
         bossFlagBuffer = self.readBinaryTable(paths.BOSS_FLAG_DATA_IN)
+        battleEventsBuffer = self.readBinaryTable(paths.BATTLE_EVENTS_IN)
+        battleEventUassetBuffer = self.readBinaryTable(paths.BATTLE_EVENT_UASSET_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -3285,6 +3387,9 @@ class Randomizer:
         self.fillShopArr(shopBuffer)
         self.fillEventEncountArr(eventEncountBuffer)
         self.fillProtofiendArr(compendiumBuffer)
+        self.fillBattleEventArr(battleEventsBuffer)
+
+        self.removeBattleTutorials()
 
         skillLevels = self.generateSkillLevelList()
         levelSkillList = self.generateLevelSkillList(skillLevels)
@@ -3351,9 +3456,13 @@ class Randomizer:
         eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr)
         bossFlagBuffer = self.updateBossFlagBuffer(bossFlagBuffer)
         compendiumBuffer = self.updateProtofiendBuffer(compendiumBuffer, self.protofiendArr)
+        battleEventsBuffer = self.updateBattleEventsBuffer(battleEventsBuffer, self.battleEventArr, battleEventUassetBuffer)
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
+
+        self.writeFolder(paths.FACILITY_FOLDER_OUT)
+        self.writeFolder(paths.BATTLE_FOLDER_OUT)
 
         self.writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
         self.writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
@@ -3362,11 +3471,12 @@ class Randomizer:
         self.writeBinaryTable(encountBuffer.buffer, paths.ENCOUNT_DATA_OUT, paths.MAP_FOLDER_OUT)
         self.writeBinaryTable(playGrowBuffer.buffer, paths.MAIN_CHAR_DATA_OUT, paths.COMMON_FOLDER_OUT)
         self.writeBinaryTable(itemBuffer.buffer, paths.ITEM_DATA_OUT, paths.ITEM_FOLDER_OUT)
-        self.writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_FOLDER_OUT)
+        self.writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_TABLE_FOLDER_OUT)
         self.writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT, paths.MAP_FOLDER_OUT)
         self.writeBinaryTable(missionBuffer.buffer,paths.MISSION_DATA_OUT,paths.MISSION_FOLDER_OUT)
         self.writeBinaryTable(bossFlagBuffer.buffer, paths.BOSS_FLAG_DATA_OUT, paths.BOSS_FOLDER_OUT)
-        
+        self.writeBinaryTable(battleEventsBuffer.buffer, paths.BATTLE_EVENTS_OUT, paths.BATTLE_EVENT_FOLDER_OUT)
+        self.writeBinaryTable(battleEventUassetBuffer.buffer,paths.BATTLE_EVENT_UASSET_OUT,paths.BATTLE_EVENTS_OUT)
         
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.

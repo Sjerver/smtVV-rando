@@ -1,5 +1,6 @@
 import copy
 import random
+import math
 
 #Boss IDs that summon other enemies
 BOSS_SUMMONS = {
@@ -91,11 +92,19 @@ Balances the stats of boss demons, including summoned adds to their new location
         demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
         bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
 '''
-def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr):
+def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr, oldEncounterID, newEncounterID):
     oldEncounterData = Boss_Metadata(oldEncounter)
     newEncounterData = Boss_Metadata(newEncounter)
     oldEncounterData.calculateTotals(demonReferenceArr)
     newEncounterData.calculateTotals(demonReferenceArr)
+
+    #Halve HP of Snake Nuwa Check
+    if oldEncounterID == 35:
+        oldEncounterData.totalHP = oldEncounterData.totalHP // 2
+    #Double HP if Snake Nuwa is Replacement
+    if newEncounterID == 35:
+        oldEncounterData.totalHP = oldEncounterData.totalHP * 2
+
     if oldEncounterData.minionType and newEncounterData.minionType:
         balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
     elif oldEncounterData.partnerType and newEncounterData.partnerType:

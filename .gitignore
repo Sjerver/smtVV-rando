@@ -20,6 +20,7 @@ config.ini
 
 # output files
 rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Event/BattleEventTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Event/BattleEventTable.uasset
 rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Boss/BossFlag.uexp
 rando/Project/Content/Blueprints/Gamedata/BinTable/Mission/MissionTable.uexp
 rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EventEncountData.uexp

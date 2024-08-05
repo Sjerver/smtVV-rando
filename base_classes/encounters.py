@@ -44,3 +44,9 @@ class Event_Encounter:
             if demon.value != other.demons[index].value:
                 return False
         return True
+
+class Battle_Event:
+    def __init__(self, encounterID, offset):
+        self.offset = offset
+        self.encounterID = encounterID
+        self.referenceID = -1

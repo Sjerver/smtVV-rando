@@ -2,7 +2,7 @@ PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,110,1111,1112,111
 
 #Encounter IDs that should not be randomized
 BANNED_BOSSES = [0, 7, 32, #Dummy Abbadon, Tutorial Pixie, Tutorial Preta
-                 33, #Hydra (game hangs when supposed to lose limbs)
+                 #33, #Hydra (game hangs when supposed to lose limbs)
                  42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, #Normal Cleopatra, Dummy Pretas x 5, Normal Andras, Dummy Mandrake, Attis, Shiva, King Frost, then all 4,
                  57, 58, 59, 60, 63, 64, 65, #School dungeon fights with overlapping demons(Temp)
                  89, 129, 159, 160, #Dummy Demi-Fiend, Mananangal/Incubus overlap with school(Temp), Zhens in gasser sidequest that overlap with each other(Temp)
