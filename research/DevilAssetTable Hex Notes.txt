@@ -1,0 +1,16 @@
+
+
+Entry 001 (Satan)
+Demon ID: 0x220	(4 bytes)
+ClassAssetID 0x23D (4 bytes)
+DMAssetID 0x287	(4 bytes)
+DevilPostData:
+	ValidArea 0x2DD	(4 bytes)
+	VerticalMax 0x2FA (4 bytes)
+	HorizontalMax 0x317 (4 bytes)
+	TallMax 0x334	(4 bytes)
+	PostChip
+		24 Integers 4 bytes each starting from 0x35D
+
+Entry 002 (Lucifer)
+Demon ID: 0x3F2

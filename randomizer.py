@@ -2037,7 +2037,7 @@ class Randomizer:
             data (Array)
     '''
     def updateBattleEventsBuffer(self, buffer, data, uassetBuffer):
-        print(len(data))
+        #print(len(data))
         if len(data) > 36:
             sizeWord = buffer.readWord(0x10)
             
