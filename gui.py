@@ -149,8 +149,8 @@ def createGUI(configSettings):
     listDemon.insert(2, "Scale Skills to Level")
     listDemon.insert(3, "Randomize Innate Skills")
     listDemon.insert(4, "Weight Skills by Potentials")
-    listDemon.insert(5, "Randomize Potentials (N)")
-    listDemon.insert(6, "Scale Potentials to Level (N)")
+    listDemon.insert(5, "Randomize Potentials")
+    listDemon.insert(6, "Scale Potentials to Level")
     listDemon.insert(7, "Unique Skills can show up more than once")
     listDemon.pack()
 

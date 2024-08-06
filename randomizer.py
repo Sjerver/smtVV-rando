@@ -1674,7 +1674,106 @@ class Randomizer:
                 return potentials.support
             case _:
                 return 0
-            
+    '''
+    Scales the potentials of demons to their new level based on their original level.
+        Parameters:
+            comp (List(Compendium_Demon)): list of demons
+    '''
+    def scalePotentials(self,comp):
+        def absSum(numbers):
+            sum = 0
+            for n in numbers:
+                sum += abs(n)
+            return sum
+
+        for demon in comp:
+            #Collect demons potentials
+            potentials = []
+            potentials.append(demon.potential.physical)
+            potentials.append(demon.potential.fire)
+            potentials.append(demon.potential.ice)
+            potentials.append(demon.potential.elec)
+            potentials.append(demon.potential.force)
+            potentials.append(demon.potential.light)
+            potentials.append(demon.potential.dark)
+            potentials.append(demon.potential.almighty)
+            potentials.append(demon.potential.ailment)
+            potentials.append(demon.potential.support)
+            potentials.append(demon.potential.recover)
+
+            absolutePotentialSum = absSum(potentials)
+            #Calculate absolute percentage of potentials
+            percentages = []
+            for pot in potentials:
+                if pot != 0:
+                    percentages.append(pot / absolutePotentialSum)
+                else:
+                    percentages.append(0)
+            # scale potential to new level
+            newAbsPotSum = round(numbers.POTENTIAL_SCALING_FACTOR * (demon.level.value - demon.level.original) + absolutePotentialSum)
+
+            demon.potential.physical = math.ceil(max(-7,min(7,newAbsPotSum * percentages[0])))
+            demon.potential.fire = math.ceil(max(-7,min(7,newAbsPotSum * percentages[1])))
+            demon.potential.ice = math.ceil(max(-7,min(7,newAbsPotSum * percentages[2])))
+            demon.potential.elec = math.ceil(max(-7,min(7,newAbsPotSum * percentages[3])))
+            demon.potential.force = math.ceil(max(-7,min(7,newAbsPotSum * percentages[4])))
+            demon.potential.light = math.ceil(max(-7,min(7,newAbsPotSum * percentages[5])))
+            demon.potential.dark = math.ceil(max(-7,min(7,newAbsPotSum * percentages[6])))
+            demon.potential.almighty = math.ceil(max(-7,min(7,newAbsPotSum * percentages[7])))
+            demon.potential.ailment = math.ceil(max(-7,min(7,newAbsPotSum * percentages[8])))
+            demon.potential.support = math.ceil(max(-5,min(5,newAbsPotSum * percentages[9])))
+            demon.potential.recover = math.ceil(max(-5,min(5,newAbsPotSum * percentages[10])))
+
+    '''
+    Randomizes the potentials of demons. First defines how many potentials the demon should have and then assigns a percentage weight to them.
+    These percentage weights are then used to assign potentials by first calculating the absolute potential sum via function that describes the trend of vanilla potentials.
+        Parameters:
+            comp (List(Compendium_Demon)): list of demons
+    '''
+    def randomizePotentials(self, comp):
+
+        for demon in comp:
+            percentages = []
+            for i in range(random.randint(3,9)):
+                percentages.append(random.randint(0,50))
+
+            while sum(percentages) != 100:
+                randomN = random.randint(0,len(percentages)-1)
+                if sum(percentages) < 100:
+                    percentages[randomN] += 1
+                else:
+                    percentages[randomN] -= 1
+            negatives = 1
+            for index,percentage in enumerate(percentages):
+                if random.randrange(0,100) < (100 / negatives):
+                    percentages[index] = percentage * -1
+                    negatives += 1
+
+            while len(percentages) < 11:
+                percentages.append(0)
+            percentages = sorted(percentages, key=lambda x: random.random())
+            newPotentials = []
+            #follows rough trends of potentials in base demons
+            absPotAmount = round(numbers.POTENTIAL_SCALING_FACTOR * demon.level.value + numbers.BASE_POTENTIAL_VALUE)
+            for index,percentage in enumerate(percentages):
+                percentage = percentage / 100
+                # 7 is the base game max and min that occurs
+                maxV = 7
+                if(index > 8):
+                    maxV = 5
+                newPotentials.append(math.ceil(max(-1 * maxV,min(maxV,absPotAmount * percentage))))
+            demon.potential.physical = newPotentials[0]
+            demon.potential.fire = newPotentials[1]
+            demon.potential.ice = newPotentials[2]
+            demon.potential.elec = newPotentials[3]
+            demon.potential.force = newPotentials[4]
+            demon.potential.light = newPotentials[5]
+            demon.potential.dark = newPotentials[6]
+            demon.potential.almighty = newPotentials[7]
+            demon.potential.ailment = newPotentials[8]
+            demon.potential.support = newPotentials[9]
+            demon.potential.recover = newPotentials[10]
+                         
     '''
     Based on array of skills creates two arrays where each skill is only included once.
     Skills that were originally present more than once have increased weight.
@@ -1748,6 +1847,18 @@ class Randomizer:
             buffer.writeByte(demon.unlockFlags[1], demon.offsetNumbers['unlockFlags'] +1)
             buffer.writeByte(demon.tone.value, demon.offsetNumbers['tone'])
             buffer.writeByte(demon.tone.secondary, demon.offsetNumbers['tone'] + 1)
+            #write potentials
+            buffer.writeWord(demon.potential.physical, demon.offsetNumbers['potential'] + 4 * 0)
+            buffer.writeWord(demon.potential.fire, demon.offsetNumbers['potential'] + 4 * 1)
+            buffer.writeWord(demon.potential.ice, demon.offsetNumbers['potential'] + 4 * 2)
+            buffer.writeWord(demon.potential.elec, demon.offsetNumbers['potential'] + 4 * 3)
+            buffer.writeWord(demon.potential.force, demon.offsetNumbers['potential'] + 4 * 4)
+            buffer.writeWord(demon.potential.light, demon.offsetNumbers['potential'] + 4 * 5)
+            buffer.writeWord(demon.potential.dark, demon.offsetNumbers['potential'] + 4 * 6)
+            buffer.writeWord(demon.potential.almighty, demon.offsetNumbers['potential'] + 4 * 7)
+            buffer.writeWord(demon.potential.ailment, demon.offsetNumbers['potential'] + 4 * 8)
+            buffer.writeWord(demon.potential.support, demon.offsetNumbers['potential'] + 4 * 9)
+            buffer.writeWord(demon.potential.recover, demon.offsetNumbers['potential'] + 4 * 10)
         return buffer
     
     '''
@@ -2324,7 +2435,7 @@ class Randomizer:
             newFoe.oldDrops = enemy.drops
             newFoe.innate = playableEqu.innate   #copy innate from player version
             newFoe.resist = enemy.resist
-            newFoe.potential = enemy.potential
+            newFoe.potential = playableEqu.potential
             foes.append(newFoe)
         return foes
     
@@ -3360,6 +3471,9 @@ class Randomizer:
         skillLevels = self.generateSkillLevelList()
         levelSkillList = self.generateLevelSkillList(skillLevels)
        
+        if config.randomPotentials:
+            self.randomizePotentials(self.compendiumArr)
+
         if config.randomDemonLevels:
             newComp = False
             attempts = 0
@@ -3375,6 +3489,9 @@ class Randomizer:
         else: newComp = self.compendiumArr
 
         
+        if config.scaledPotentials:
+            self.scalePotentials(newComp)
+
         #TODO: Consider case for potential weight or level dependency without random skills
 
         if config.randomSkills:
