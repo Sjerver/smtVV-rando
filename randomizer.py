@@ -2355,7 +2355,7 @@ class Randomizer:
 
         '''
         Returns the enemy with the specified id from the filtered enemy arrray
-            Paramters:
+            Parameters:
                 ind (Number): ID of enemy
                 foes (Array(Enemy_Demon)): Array of enemy demons 
             Returns:
@@ -2539,17 +2539,17 @@ class Randomizer:
             if index in self.bossDuplicateMap.keys():
                 self.updateShuffledEncounterInformation(encounter, eventEncountArr[self.bossDuplicateMap[index]])
 
-                # If duplicate has event (nuwa simulator)
+                # If duplicate has event
                 if encounter.ind in encountersWithBattleEvents:
                     eventInds = [jIndex for jIndex,e in enumerate(encountersWithBattleEvents) if e == encounter.ind] 
                     for ind in eventInds:
-                        # check if reference still has a event (new nuwa has event)
+                        # check if reference still has a event 
                         if eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
                             self.battleEventArr[ind].encounterID = eventEncountArr[self.bossDuplicateMap[index]].ind
                         else:
                             self.battleEventArr[ind].encounterID = 0
                 elif eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
-                #reference has event but not duplicate  (nuwa replacement)
+                #reference has event but not duplicate 
                     eventInds = [jIndex for jIndex,e in enumerate(encountersWithBattleEvents) if e == eventEncountArr[self.bossDuplicateMap[index]].ind] 
                     for ind in eventInds:
                         self.battleEventArr.append(Battle_Event(encounter.ind,(len(self.battleEventArr)) * 0x50 + 0x45))
@@ -3307,13 +3307,16 @@ class Randomizer:
         for demon in comp:
             demon.level = Demon_Level(demon.level.original,demon.level.original)
 
+    '''
+    Sets the encounter ID for the tutorial battle events to not occur.
+    '''
     def removeBattleTutorials(self):
         #Tutorial Daemon
-        self.battleEventArr[1].encounterID = 0
+        self.battleEventArr[1].encounterID = 255
         #Magatsuhi Tutorial Pretas
-        self.battleEventArr[12].encounterID = 0
+        self.battleEventArr[12].encounterID = 255
         #Guest Tutorial Glasya-Labolas
-        self.battleEventArr[35].enounterID = 0
+        self.battleEventArr[35].enounterID = 255
             
     '''
     Generates a random seed if none was provided by the user and sets the random seed
