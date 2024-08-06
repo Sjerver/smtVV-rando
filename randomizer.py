@@ -2522,7 +2522,6 @@ class Randomizer:
             for index, encounter in enumerate(filteredEncounters):
                 spoilerLog.write(str(encounter.ind) + " " + encounter.demons[0].translation + " replaced by " + str(shuffledEncounters[index].ind) + " " + shuffledEncounters[index].demons[0].translation + "\n")
         for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
-            #self.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons)
             bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind)
             self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
             eventEncountArr[encounter.originalIndex] = encounter
@@ -2554,42 +2553,6 @@ class Randomizer:
                     for ind in eventInds:
                         self.battleEventArr.append(Battle_Event(encounter.ind,(len(self.battleEventArr)) * 0x50 + 0x45))
                         self.battleEventArr[-1].referenceID = ind
-                    
-    '''
-    Balances the stats of boss demons, including summoned adds to their new location
-        Parameters:
-            oldEncounter (List(Translated_Value)): The original demons at the check
-            newEncounter (List(Translated_Value)): The demons replacing the old encounter
-    '''
-    def balanceBossEncounter(self, oldEncounter, newEncounter):
-        oldSummons = []
-        oldSummonIndex = 0
-        newSummons = []
-        newSummonIndex = 0
-        if newEncounter[0].value in numbers.BOSS_SUMMONS.keys():
-            newSummons = numbers.BOSS_SUMMONS[newEncounter[0].value]
-        if oldEncounter[0].value in numbers.BOSS_SUMMONS.keys():
-            oldSummons = numbers.BOSS_SUMMONS[oldEncounter[0].value]
-        for index, demon in enumerate(newEncounter):
-            if demon.value > 0 or newSummonIndex < len(newSummons):
-                oldID = oldEncounter[index].value
-                if oldID == 0:
-                    if oldSummonIndex < len(oldSummons):
-                        oldID = oldSummons[oldSummonIndex]
-                        oldSummonIndex += 1
-                    else:
-                        oldID = oldEncounter[0].value
-                referenceDemon = self.staticBossArr[oldID]
-                if demon.value == 0:
-                    replacementDemon = self.bossArr[newSummons[newSummonIndex]]
-                    newSummonIndex += 1
-                else:
-                    replacementDemon = self.bossArr[demon.value]
-                replacementDemon.stats = referenceDemon.stats
-                replacementDemon.experience = referenceDemon.experience
-                replacementDemon.money = referenceDemon.money
-                replacementDemon.level = referenceDemon.level
-                #replacementDemon.pressTurns = referenceDemon.pressTurns
 
     '''
     Replaces demons and important flags in an encounter with its randomized replacement
@@ -3436,6 +3399,7 @@ class Randomizer:
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.randomizeBosses(self.eventEncountArr)
             self.patchBossFlags()
+            bossLogic.patchSpecialBossDemons(self.bossArr)
             
         if config.randomMusic:
             self.randomizeEventEncounterTracks()

@@ -1,6 +1,5 @@
 import copy
 import random
-import math
 
 #Boss IDs that summon other enemies
 BOSS_SUMMONS = {
@@ -10,8 +9,8 @@ BOSS_SUMMONS = {
     529: [531, 532, 533], #Lucifer True Ending - Brimstone Star, Cocytus Star, Morning Star
     537: [538, 539], #Lucifer Normal Endings - Brimstone Star, Cocytus Star
     839: [846, 847, 848, 849], #Huang Long - Qing Long, Zhuque, Baihu, Xuanwu
-    760: [761, 762, 763, 764, 765, 766, 767], #Samael - Lilith's Shadow, Agrat's Shadow x2, Eisheth's Shadow x2, Naamah's Shadow x2
-    569: [570, 571, 572, 573, 574, 575], #Lilith - Agrat x2, Eisheth x2, Naamah x2
+    760: [761, 762, 764, 766], #Samael - Lilith's Shadow, Agrat's Shadow, Eisheth's Shadow, Naamah's Shadow
+    569: [570, 572, 574], #Lilith - Agrat, Eisheth, Naamah
     473: [474, 475], #Alilat - Flauros, Ose
     681: [682, 683, 684, 685, 686, 687, 688, 689, 690, 691, 692, 693], #Satan - Arahabaki, Titania, Sarasvati, Yatagarasu, Ganesha, Kumphanda, Fafnir, Mada, Sraosha, Hariti, Kaiwan, Macabre
     463: [464], #Arioch - Decarabia
@@ -19,7 +18,6 @@ BOSS_SUMMONS = {
     925: [936], #Red Rider - Power
     926: [937], #Black Rider - Legion
     927: [938], #Pale Rider - Loa
-    561: [563], #Yuzuru - Second copy of Hayataro that gives 0 exp
 }
 
 #Boss IDs (first in the encounter) with multiple enemies of equal strength
@@ -35,6 +33,22 @@ MINION_BOSSES = [452, 473, 519, 520, 525, #Lahmu(Tentacles), Alilat(Flauros/Ose)
                  760, 776, 816, 839, 845, #Samael(Shadows), Atavaka(Rakshasa), Moloch(Orobos/Flauros), Huang Long(Holy Beasts), Shiva(Ananta/Friends),
                  877, 924, 925, 926, 927, 934] #Zaou-Gongen(Kurama), All Four Riders(Call X), Demi-Fiend(Pixie/Friends)
 
+#For bosses that can die and be resummoned (Hayataro etc), there's a second copy of the demon that needs to match stats with the original
+REVIVED_DEMON_DUPLICATE_MAP = {
+    562: 563, #Hayataro
+    570: 571, #Agrat
+    572: 573, #Eisheth
+    574: 575, #Naamah
+    762: 763, #Agrat's Shadow
+    764: 765, #Eisheth's Shadow
+    766: 767  #Naamah's Shadow
+}
+
+#Phase 1, 2, and 3 of Lucifer need to have their HP and stats synced (Phase 3 has triple the HP of the others)
+LUCIFER_PHASES = [529, 534, 535]
+
+#HP Penalty for single target bosses/bonus for multi-target bosses to account for AOE skills
+GROUP_HP_MODIFIER = 0.8
 
 class Boss_Metadata(object):
     def __init__(self, demons):
@@ -42,6 +56,7 @@ class Boss_Metadata(object):
         self.totalHP = 0
         self.totalEXP = 0
         self.totalMacca = 0
+        self.hpShares = {} #Holds the relative amount of the total HP each demon has 
         self.demons = demons #List(Translated_Value)
         if demons[0].value in BOSS_SUMMONS.keys():
             self.summons = BOSS_SUMMONS[demons[0].value]
@@ -54,7 +69,6 @@ class Boss_Metadata(object):
             else:
                 self.countPerDemon[demon] = 1
                 
-
     '''
     Calculates the HP value, EXP total, and Macca total that will be used to balance a new encounter.
     If the boss is a single strong demon with minions, it returns the strong demon's HP, otherwise it sums the HP of all demons in the encounter
@@ -72,6 +86,11 @@ class Boss_Metadata(object):
             self.totalMacca += demonReferenceArr[demon].money * count
         if self.minionType:
             self.totalHP = demonReferenceArr[self.demons[0].value].stats.HP * self.countPerDemon[self.demons[0].value]
+        self.hpPercents = {}
+        for demon, count in self.countPerDemon.items():
+            if demon == 0:
+                continue
+            self.hpPercents[demon] = demonReferenceArr[demon].stats.HP * count / self.totalHP
 
     '''
     Returns a List of demon IDs that are present in the encounter in order whether at the start or through a summon
@@ -83,6 +102,19 @@ class Boss_Metadata(object):
                 allDemons.append(demon.value)
         allDemons = allDemons + self.summons
         return allDemons
+    
+    '''
+    Returns the total number of notable demons in the encounter for the purpose of calculating a HP bonus/penalty  
+    '''
+    def getCountOfDemonsExcludingMinions(self):
+        if self.minionType:
+            return self.countPerDemon[self.demons[0].value]
+        totalCount = 0
+        for demon, count in self.countPerDemon.items():
+            if demon == 0:
+                continue
+            totalCount += count
+        return totalCount
 
 '''
 Balances the stats of boss demons, including summoned adds to their new location
@@ -127,22 +159,17 @@ TODO: Account for 'revive' demons (Hayataro etc) that are effectively duplicates
             bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
 '''
 def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
-    oldHPPool = oldEncounterData.totalHP
+    oldHPPool = calculateHPPool(oldEncounterData, newEncounterData)
+    #print(str(oldHPPool) + " HP for old encounter " + oldEncounterData.demons[0].translation + " to " + newEncounterData.demons[0].translation)
     newDemons = newEncounterData.getAllDemonsInEncounter()
     oldDemons = oldEncounterData.getAllDemonsInEncounter()
-    #print(newDemons)
-    if not newEncounterData.minionType:
-        oldHPPool = oldHPPool // len(newDemons)
     for index, ind in enumerate(newDemons):
         replacementDemon = bossArr[ind]
         referenceDemon = demonReferenceArr[oldDemons[0]]
         if oldEncounterData.partnerType:
             referenceDemon = demonReferenceArr[random.choice(oldDemons)]
-        newHP = oldHPPool // newEncounterData.countPerDemon[ind]
-        if newEncounterData.minionType and index > 0:
-            newHP = newHP * demonReferenceArr[ind].stats.HP // demonReferenceArr[newDemons[0]].stats.HP
         replacementDemon.stats = copy.deepcopy(referenceDemon.stats)
-        replacementDemon.stats.HP = newHP
+        replacementDemon.stats.HP = round(oldHPPool * newEncounterData.hpPercents[ind] / newEncounterData.countPerDemon[ind])
         if index == 0:
             replacementDemon.experience = oldEncounterData.totalEXP // newEncounterData.countPerDemon[ind]
             replacementDemon.money = oldEncounterData.totalMacca // newEncounterData.countPerDemon[ind]
@@ -193,7 +220,8 @@ If the number of demons is equal between the two encounters, HP will be transfer
             bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
 '''
 def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
-    oldHPPool = oldEncounterData.totalHP
+    oldHPPool = calculateHPPool(oldEncounterData, newEncounterData)
+    #print(str(oldHPPool) + " HP for old encounter " + oldEncounterData.demons[0].translation + " to " + newEncounterData.demons[0].translation)
     newDemons = newEncounterData.getAllDemonsInEncounter()
     oldDemons = oldEncounterData.getAllDemonsInEncounter()
     if len(newDemons) != len(oldDemons):
@@ -214,5 +242,51 @@ def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceAr
         if len(newDemons) == len(oldDemons):
             replacementDemon.stats.HP = referenceDemon.stats.HP * oldEncounterData.countPerDemon[shuffledOldDemons[index]] // newEncounterData.countPerDemon[ind]
         else:
-            replacementDemon.stats.HP = oldHPPool // newEncounterData.countPerDemon[ind]
+            replacementDemon.stats.HP = round(oldHPPool * newEncounterData.hpPercents[ind] / newEncounterData.countPerDemon[ind])
         replacementDemon.level = referenceDemon.level
+        
+'''
+Calculates a modified HP Pool for a replacement boss encounter to use based on the total HP of the old encounter's demons and the number of demons in each encounter
+    Parameters:
+        oldEncounter (List(Translated_Value)): The original demons at the check
+        newEncounter (List(Translated_Value)): The demons replacing the old encounter
+    Returns:
+        The calculated HP total to split among the new encounter demons
+'''
+def calculateHPPool(oldEncounterData, newEncounterData):
+    pool = oldEncounterData.totalHP
+    oldDemonCount = oldEncounterData.getCountOfDemonsExcludingMinions()
+    newDemonCount = newEncounterData.getCountOfDemonsExcludingMinions()
+    multiplier = 1.0
+    modifier = GROUP_HP_MODIFIER
+    while oldDemonCount > newDemonCount: #More demons in the old encounter, apply a HP penalty
+        multiplier = multiplier * modifier
+        modifier = modifier + (1 - modifier) ** 2
+        oldDemonCount -= 1
+    while newDemonCount > oldDemonCount: #More demons in the new encounter, apply a HP bonus
+        multiplier = multiplier / modifier
+        modifier = modifier + (1 - modifier) ** 2
+        newDemonCount -= 1
+    modifiedPool = round(pool * multiplier)
+    return modifiedPool
+    
+
+'''
+Fixes some special cases after boss randomization has been done
+Demons that can be revived have a second version in the data that needs to sync with the original's stats
+True Lucifer's phase 2 and phase 3 versions need to be synced as well, and their HP is reduced to account for the multiple phases
+    Parameters:
+        bossArr (List(Enemy_Demon)): The list of boss demons to patch
+'''
+def patchSpecialBossDemons(bossArr):
+    for base, duplicate in REVIVED_DEMON_DUPLICATE_MAP.items():
+        referenceDemon = bossArr[base]
+        demonToPatch = bossArr[duplicate]
+        demonToPatch.stats = copy.deepcopy(referenceDemon.stats)
+    luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
+    luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
+    luciferPhase3 = bossArr[LUCIFER_PHASES[2]]
+    luciferPhase2.stats = copy.deepcopy(luciferPhase1.stats) #Lucifer has some stat variance between phases but eh
+    luciferPhase3.stats = copy.deepcopy(luciferPhase1.stats)
+    luciferPhase2.stats.HP = luciferPhase2.stats.HP // 3
+    luciferPhase1.stats.HP = luciferPhase1.stats.HP // 3
