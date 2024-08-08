@@ -1,153 +1,166 @@
-1 Shohei Yakumo replaced by 69 Lahmu
-2 Chernobog replaced by 128 Metatron
-3 Okuninushi replaced by 88 Shiva
-4 Camael replaced by 18 Koumokuten
-5 Moloch replaced by 91 Thunderbird
-6 Lucifer replaced by 8 Abdiel
-8 Abdiel replaced by 173 Anansi
-9 Vasuki replaced by 168 Masakado
-10 Zeus replaced by 68 Fionn mac Cumhaill
-11 Odin replaced by 240 Mara
-12 Lucifer replaced by 172 Onyankopon
-13 Melchizedek replaced by 164 Mastema
-14 Sraosha replaced by 6 Lucifer
-15 Alilat replaced by 16 Arahabaki
-16 Arahabaki replaced by 137 Naamah
-17 Zouchouten replaced by 115 Pale Rider
-18 Koumokuten replaced by 169 Masakado
-19 Jikokuten replaced by 61 Aitvaras
-20 Bishamonten replaced by 87 Inanna
-21 Khonsu replaced by 66 Manananggal
-22 Asura replaced by 38 Khonsu Ra
-23 Amon replaced by 119 Cleopatra
-24 Fionn mac Cumhaill replaced by 22 Asura
-25 Gabriel replaced by 39 Abdiel
-26 Baal replaced by 104 Dionysus
-27 Zeus replaced by 95 Abaddon
-28 Huang Long replaced by 135 Glasya-Labolas
-29 Belial replaced by 249 Cherub
-30 Michael replaced by 3 Okuninushi
-31 Maria replaced by 72 Belphegor
-33 Hydra replaced by 36 Pazuzu
-34 Eligor replaced by 239 Gurulu
-35 Nuwa replaced by 166 Konohana Sakuya
-36 Pazuzu replaced by 161 Zeus
-37 Anahita replaced by 40 Nuwa
-38 Khonsu Ra replaced by 75 Ishtar
-39 Abdiel replaced by 111 Hell Biker
-40 Nuwa replaced by 80 Ishtar
-41 Tsukuyomi replaced by 142 Yuzuru Atsuta
-54 Anzu replaced by 170 Yakshini
-55 Lahmu replaced by 11 Odin
-56 Andras replaced by 230 Saturnus
-61 Aitvaras replaced by 84 Shiki-Ouji
-62 Tsuchigumo replaced by 145 Nozuchi
-66 Manananggal replaced by 5 Moloch
-67 Loup-garou replaced by 138 Lahmu
-68 Fionn mac Cumhaill replaced by 157 Satan
-69 Lahmu replaced by 178 Thor
-70 Lahmu replaced by 17 Zouchouten
-72 Belphegor replaced by 54 Anzu
-73 Loki replaced by 162 Beelzebub
-74 Surt replaced by 103 Lilim
-75 Ishtar replaced by 101 Zaou-Gongen
-76 Ishtar replaced by 114 Black Rider
-77 Ishtar replaced by 78 Ishtar
-78 Ishtar replaced by 102 Principality
-79 Ishtar replaced by 175 Kresnik
-80 Ishtar replaced by 21 Khonsu
-81 Ishtar replaced by 126 Jatayu
-82 Ishtar replaced by 93 Girimekhala
-83 Arioch replaced by 27 Zeus
-84 Shiki-Ouji replaced by 105 Black Frost
-85 King Frost replaced by 177 Atavaka
-86 Danu replaced by 73 Loki
-87 Inanna replaced by 15 Alilat
-88 Shiva replaced by 9 Vasuki
-90 Oyamatsumi replaced by 86 Danu
-91 Thunderbird replaced by 146 Turbo Granny
-92 Chimera replaced by 37 Anahita
-93 Girimekhala replaced by 70 Lahmu
-94 Hecatoncheires replaced by 67 Loup-garou
-95 Abaddon replaced by 144 Dormarth
-97 Leanan Sidhe replaced by 25 Gabriel
-98 Apsaras replaced by 113 Red Rider
-100 Amanozako replaced by 134 Preta
-101 Zaou-Gongen replaced by 152 Khonsu
-102 Principality replaced by 140 Eisheth
-103 Lilim replaced by 31 Maria
-104 Dionysus replaced by 41 Tsukuyomi
-105 Black Frost replaced by 248 Dominion
-106 Futsunushi replaced by 132 Preta
-107 Adramelech replaced by 20 Bishamonten
-108 Seth replaced by 62 Tsuchigumo
-109 Matador replaced by 141 Eisheth
-110 Daisoujou replaced by 23 Amon
-111 Hell Biker replaced by 28 Huang Long
-112 White Rider replaced by 33 Hydra
-113 Red Rider replaced by 165 Samael
-114 Black Rider replaced by 133 Oni
-115 Pale Rider replaced by 81 Ishtar
-116 Mother Harlot replaced by 10 Zeus
-117 Trumpeter replaced by 106 Futsunushi
-118 Artemis replaced by 156 Abdiel
-119 Cleopatra replaced by 176 Yamata-no-Orochi
-120 Mephisto replaced by 4 Camael
-121 Demi-fiend replaced by 1 Shohei Yakumo
-125 Garuda replaced by 151 Abdiel
-126 Jatayu replaced by 98 Apsaras
-127 Makami replaced by 24 Fionn mac Cumhaill
-128 Metatron replaced by 109 Matador
-130 Qing Long replaced by 14 Sraosha
-131 Zhuque replaced by 154 Agrat
-132 Preta replaced by 83 Arioch
-133 Oni replaced by 110 Daisoujou
+1 Shohei Yakumo replaced by 27 Zeus
+2 Chernobog replaced by 84 Shiki-Ouji
+3 Okuninushi replaced by 98 Apsaras
+4 Camael replaced by 121 Demi-fiend
+5 Moloch replaced by 41 Tsukuyomi
+6 Lucifer replaced by 75 Ishtar
+8 Abdiel replaced by 240 Mara
+9 Vasuki replaced by 2 Chernobog
+10 Zeus replaced by 87 Inanna
+11 Odin replaced by 100 Amanozako
+12 Lucifer replaced by 28 Huang Long
+13 Melchizedek replaced by 58 Incubus
+14 Sraosha replaced by 33 Hydra
+15 Alilat replaced by 18 Koumokuten
+16 Arahabaki replaced by 12 Lucifer
+17 Zouchouten replaced by 6 Lucifer
+18 Koumokuten replaced by 140 Eisheth
+19 Jikokuten replaced by 101 Zaou-Gongen
+20 Bishamonten replaced by 93 Girimekhala
+21 Khonsu replaced by 111 Hell Biker
+22 Asura replaced by 173 Anansi
+23 Amon replaced by 3 Okuninushi
+24 Fionn mac Cumhaill replaced by 39 Abdiel
+25 Gabriel replaced by 60 Andras
+26 Baal replaced by 88 Shiva
+27 Zeus replaced by 175 Kresnik
+28 Huang Long replaced by 145 Nozuchi
+29 Belial replaced by 64 Manananggal
+30 Michael replaced by 114 Black Rider
+31 Maria replaced by 21 Khonsu
+33 Hydra replaced by 40 Nuwa
+34 Eligor replaced by 156 Abdiel
+35 Nuwa replaced by 15 Alilat
+36 Pazuzu replaced by 77 Ishtar
+37 Anahita replaced by 163 Tehom
+38 Khonsu Ra replaced by 248 Dominion
+39 Abdiel replaced by 86 Danu
+40 Nuwa replaced by 97 Leanan Sidhe
+41 Tsukuyomi replaced by 178 Thor
+54 Anzu replaced by 142 Yuzuru Atsuta
+55 Lahmu replaced by 70 Lahmu
+56 Andras replaced by 30 Michael
+57 Rakshasa replaced by 141 Eisheth
+58 Incubus replaced by 239 Gurulu
+59 Rakshasa replaced by 232 Power
+60 Andras replaced by 16 Arahabaki
+61 Aitvaras replaced by 112 White Rider
+62 Tsuchigumo replaced by 9 Vasuki
+63 Oni replaced by 25 Gabriel
+64 Manananggal replaced by 110 Daisoujou
+65 Shiki-Ouji replaced by 143 Tiamat
+66 Manananggal replaced by 119 Cleopatra
+67 Loup-garou replaced by 104 Dionysus
+68 Fionn mac Cumhaill replaced by 138 Lahmu
+69 Lahmu replaced by 165 Samael
+70 Lahmu replaced by 174 Kudlak
+72 Belphegor replaced by 228 Andras
+73 Loki replaced by 78 Ishtar
+74 Surt replaced by 134 Preta
+75 Ishtar replaced by 144 Dormarth
+76 Ishtar replaced by 126 Jatayu
+77 Ishtar replaced by 160 Zhen
+78 Ishtar replaced by 26 Baal
+79 Ishtar replaced by 35 Nuwa
+80 Ishtar replaced by 10 Zeus
+81 Ishtar replaced by 65 Shiki-Ouji
+82 Ishtar replaced by 171 Vouivre
+83 Arioch replaced by 113 Red Rider
+84 Shiki-Ouji replaced by 81 Ishtar
+85 King Frost replaced by 94 Hecatoncheires
+86 Danu replaced by 242 Isis
+87 Inanna replaced by 177 Atavaka
+88 Shiva replaced by 161 Zeus
+90 Oyamatsumi replaced by 125 Garuda
+91 Thunderbird replaced by 179 Norn
+92 Chimera replaced by 17 Zouchouten
+93 Girimekhala replaced by 38 Khonsu Ra
+94 Hecatoncheires replaced by 95 Abaddon
+95 Abaddon replaced by 106 Futsunushi
+97 Leanan Sidhe replaced by 5 Moloch
+98 Apsaras replaced by 233 Power
+100 Amanozako replaced by 76 Ishtar
+101 Zaou-Gongen replaced by 157 Satan
+102 Principality replaced by 238 Gogmagog
+103 Lilim replaced by 153 Shohei Yakumo
+104 Dionysus replaced by 115 Pale Rider
+105 Black Frost replaced by 23 Amon
+106 Futsunushi replaced by 105 Black Frost
+107 Adramelech replaced by 107 Adramelech
+108 Seth replaced by 234 Power
+109 Matador replaced by 8 Abdiel
+110 Daisoujou replaced by 132 Preta
+111 Hell Biker replaced by 59 Rakshasa
+112 White Rider replaced by 63 Oni
+113 Red Rider replaced by 103 Lilim
+114 Black Rider replaced by 22 Asura
+115 Pale Rider replaced by 136 Naamah
+116 Mother Harlot replaced by 176 Yamata-no-Orochi
+117 Trumpeter replaced by 127 Makami
+118 Artemis replaced by 130 Qing Long
+119 Cleopatra replaced by 137 Naamah
+120 Mephisto replaced by 13 Melchizedek
+121 Demi-fiend replaced by 19 Jikokuten
+125 Garuda replaced by 230 Saturnus
+126 Jatayu replaced by 158 Zhen
+127 Makami replaced by 91 Thunderbird
+128 Metatron replaced by 120 Mephisto
+130 Qing Long replaced by 170 Yakshini
+131 Zhuque replaced by 14 Sraosha
+132 Preta replaced by 85 King Frost
+133 Oni replaced by 155 Lilith
 134 Preta replaced by 116 Mother Harlot
-135 Glasya-Labolas replaced by 56 Andras
-136 Naamah replaced by 29 Belial
-137 Naamah replaced by 19 Jikokuten
-138 Lahmu replaced by 34 Eligor
-139 Lahmu replaced by 130 Qing Long
-140 Eisheth replaced by 125 Garuda
-141 Eisheth replaced by 76 Ishtar
-142 Yuzuru Atsuta replaced by 90 Oyamatsumi
-143 Tiamat replaced by 238 Gogmagog
-144 Dormarth replaced by 97 Leanan Sidhe
-145 Nozuchi replaced by 153 Shohei Yakumo
-146 Turbo Granny replaced by 121 Demi-fiend
-147 Pisaca replaced by 120 Mephisto
-151 Abdiel replaced by 228 Andras
-152 Khonsu replaced by 82 Ishtar
-153 Shohei Yakumo replaced by 155 Lilith
-154 Agrat replaced by 92 Chimera
-155 Lilith replaced by 167 Dagda
-156 Abdiel replaced by 55 Lahmu
-157 Satan replaced by 35 Nuwa
-158 Zhen replaced by 107 Adramelech
-161 Zeus replaced by 30 Michael
-162 Beelzebub replaced by 127 Makami
-163 Tehom replaced by 139 Lahmu
-164 Mastema replaced by 85 King Frost
-165 Samael replaced by 74 Surt
-166 Konohana Sakuya replaced by 100 Amanozako
-167 Dagda replaced by 112 White Rider
-168 Masakado replaced by 163 Tehom
-169 Masakado replaced by 13 Melchizedek
-170 Yakshini replaced by 94 Hecatoncheires
-171 Vouivre replaced by 131 Zhuque
-172 Onyankopon replaced by 136 Naamah
-173 Anansi replaced by 174 Kudlak
-174 Kudlak replaced by 179 Norn
-175 Kresnik replaced by 77 Ishtar
-176 Yamata-no-Orochi replaced by 12 Lucifer
-177 Atavaka replaced by 242 Isis
-178 Thor replaced by 171 Vouivre
-179 Norn replaced by 2 Chernobog
-228 Andras replaced by 26 Baal
-230 Saturnus replaced by 108 Seth
-238 Gogmagog replaced by 118 Artemis
-239 Gurulu replaced by 158 Zhen
-240 Mara replaced by 147 Pisaca
-242 Isis replaced by 79 Ishtar
-248 Dominion replaced by 117 Trumpeter
-249 Cherub replaced by 143 Tiamat
+135 Glasya-Labolas replaced by 61 Aitvaras
+136 Naamah replaced by 147 Pisaca
+137 Naamah replaced by 83 Arioch
+138 Lahmu replaced by 168 Masakado
+139 Lahmu replaced by 20 Bishamonten
+140 Eisheth replaced by 4 Camael
+141 Eisheth replaced by 166 Konohana Sakuya
+142 Yuzuru Atsuta replaced by 146 Turbo Granny
+143 Tiamat replaced by 56 Andras
+144 Dormarth replaced by 133 Oni
+145 Nozuchi replaced by 131 Zhuque
+146 Turbo Granny replaced by 54 Anzu
+147 Pisaca replaced by 80 Ishtar
+151 Abdiel replaced by 109 Matador
+152 Khonsu replaced by 135 Glasya-Labolas
+153 Shohei Yakumo replaced by 117 Trumpeter
+154 Agrat replaced by 62 Tsuchigumo
+155 Lilith replaced by 118 Artemis
+156 Abdiel replaced by 34 Eligor
+157 Satan replaced by 74 Surt
+158 Zhen replaced by 167 Dagda
+159 Zhen replaced by 73 Loki
+160 Zhen replaced by 72 Belphegor
+161 Zeus replaced by 69 Lahmu
+162 Beelzebub replaced by 92 Chimera
+163 Tehom replaced by 31 Maria
+164 Mastema replaced by 24 Fionn mac Cumhaill
+165 Samael replaced by 67 Loup-garou
+166 Konohana Sakuya replaced by 11 Odin
+167 Dagda replaced by 36 Pazuzu
+168 Masakado replaced by 102 Principality
+169 Masakado replaced by 169 Masakado
+170 Yakshini replaced by 108 Seth
+171 Vouivre replaced by 57 Rakshasa
+172 Onyankopon replaced by 154 Agrat
+173 Anansi replaced by 90 Oyamatsumi
+174 Kudlak replaced by 139 Lahmu
+175 Kresnik replaced by 162 Beelzebub
+176 Yamata-no-Orochi replaced by 151 Abdiel
+177 Atavaka replaced by 172 Onyankopon
+178 Thor replaced by 79 Ishtar
+179 Norn replaced by 1 Shohei Yakumo
+228 Andras replaced by 66 Manananggal
+230 Saturnus replaced by 82 Ishtar
+232 Power replaced by 29 Belial
+233 Power replaced by 55 Lahmu
+234 Power replaced by 159 Zhen
+235 Power replaced by 249 Cherub
+238 Gogmagog replaced by 128 Metatron
+239 Gurulu replaced by 37 Anahita
+240 Mara replaced by 152 Khonsu
+242 Isis replaced by 235 Power
+248 Dominion replaced by 68 Fionn mac Cumhaill
+249 Cherub replaced by 164 Mastema

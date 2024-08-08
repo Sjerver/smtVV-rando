@@ -1,6 +1,6 @@
 from multiprocessing import Value
 from util.binary_table import Table
-from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags
+from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Asset_Entry, Duplicate
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event
@@ -19,6 +19,7 @@ import gui
 import string
 import pandas as pd
 import copy
+import shutil
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 DEV_CHEATS = False
@@ -53,6 +54,8 @@ class Randomizer:
         self.mimanRewardsArr = []
         self.protofiendArr = []
         self.battleEventArr = []
+        self.devilAssetArr = []
+        self.overlapCopies = []
 
         self.nahobino = Nahobino()
         
@@ -143,6 +146,12 @@ class Randomizer:
     def writeFolder(self, folderPath):
         if not os.path.exists(folderPath):
             os.mkdir(folderPath)
+
+    def copyFile(self, toCopy, pasteTo, folderPath):
+        if not os.path.exists(folderPath):
+            os.mkdir(folderPath)
+        if not os.path.exists(pasteTo):
+            shutil.copy(toCopy,pasteTo)
             
     '''
     Fills the array compendiumArr with data extracted from the Buffer NKMBaseTable.
@@ -1047,6 +1056,48 @@ class Randomizer:
             event = Battle_Event(eventIndex, offset)
             self.battleEventArr.append(event)
 
+    '''
+    Fills the array devilAssetArr with data on what assets are used by which demon.
+        Parameters:
+            data (Buffer) the buffer containing all demon asset table data
+    '''
+    def fillDevilAssetArr(self, data):
+
+        start = 0x4E
+        size = 0x1D2
+
+        for index in range(1200):
+            offset = start + size * index
+
+            locations =  {
+                'demon': offset,
+                'classAssetID': offset + 0x1D,
+                'DMAssetID': offset + 0x67,
+                'validArea': offset + 0xBD,
+                'verticalMax': offset + 0xDA,
+                'horizontalMax': offset + 0xF7,
+                'tallMax': offset + 0x114,
+                'postChip': offset + 0x13D
+            }
+
+            entry = Asset_Entry()
+            entry.demonID = data.readWord(offset)
+            entry.classAssetID = data.readWord(locations['classAssetID'])
+            entry.dmAssetID = data.readWord(locations['DMAssetID'])
+            entry.validArea = data.readWord(locations['validArea'])
+            entry.verticalMax = data.readWord(locations['verticalMax'])
+            entry.horizontalMax = data.readWord(locations['horizontalMax'])
+            entry.tallMax = data.readWord(locations['tallMax'])
+
+            postChips = []
+            for i in range(25):
+                postChips.append(data.readWord(locations['postChip'] + i * 4))
+            entry.postChips = postChips
+            entry.locations = locations
+
+
+            self.devilAssetArr.append(entry)
+
 
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
@@ -1813,7 +1864,23 @@ class Randomizer:
             return 'Innate'
         else:
             return 'Active'
-        
+
+    '''
+    Writes the data from overlapCopies to the buffer, so that it can be used as the basis for future randomization.
+        Paramters:
+            overlapCopies (Duplicate): data from the overlapping demons and which dummy demon should get their data
+            buffer (Table): buffer containing demon data
+    '''
+    def writeOverlapCopiesToBuffer(self, overlapCopies, buffer):
+        compStart = 0x59
+        enemyStart = 0x88139
+        for overlap in overlapCopies:
+            for i, word in enumerate(overlap.compData):
+               buffer.writeWord(word,compStart + overlap.ind * 0x1D0 + i * 4)
+            for i, word in enumerate(overlap.enemyData):
+               buffer.writeWord(word,enemyStart + overlap.ind * 0x170 + i * 4)
+        return buffer
+
     '''
     Write the values in newComp to the respective locations in the buffer
         Parameters:
@@ -2073,6 +2140,24 @@ class Randomizer:
         #updated = buffer.readWord(0x25A)+increase
         buffer.writeWord(newSize ,0x25A)
 
+    '''
+    Writes certain values from the devil asset array to their respective locations in the table buffer
+        Parameters:        
+            buffer (Table)
+            data (List(Asset_Entry))
+    '''
+    def updateDevilAssetBuffer(self, buffer, data):
+        for index, entry in enumerate(data):
+            #buffer.writeWord(entry.demonID,entry.locations['demon'])
+            buffer.writeWord(entry.classAssetID,entry.locations['classAssetID'])
+            buffer.writeWord(entry.dmAssetID,entry.locations['DMAssetID'])
+            buffer.writeWord(entry.validArea,entry.locations['validArea'])
+            buffer.writeWord(entry.verticalMax,entry.locations['verticalMax'])
+            buffer.writeWord(entry.horizontalMax,entry.locations['horizontalMax'])
+            buffer.writeWord(entry.tallMax,entry.locations['tallMax'])
+            for i in range(24):
+                buffer.writeWord(entry.postChips[i],entry.locations['postChip'] + i *4)
+        return buffer
 
     '''
     Writes certain values from the skill arrays to their respective locations in the table buffer
@@ -3391,7 +3476,67 @@ class Randomizer:
         self.battleEventArr[12].encounterID = 255
         #Guest Tutorial Glasya-Labolas
         self.battleEventArr[35].enounterID = 255
-            
+
+    '''
+    Creates a copy of the new entry with the binary offset data of the old entry.
+        Parameters:
+            newEntry (Asset_Entry): the new asset entry data to copy
+            oldEntry (Asset_Entry): the old asset entry to get the location in the binary table from
+        Returns: the copy of the new entry with the binary offset data of the old entry
+    '''
+    def copyAssetsToSlot(self, oldEntry, newEntry):
+        copyEntry = Asset_Entry()
+        copyEntry.demonID = oldEntry.demonID
+        copyEntry.classAssetID = newEntry.classAssetID
+        copyEntry.verticalMax = newEntry.verticalMax
+        copyEntry.validArea = newEntry.validArea
+        copyEntry.dmAssetID = newEntry.dmAssetID
+        copyEntry.horizontalMax = newEntry.horizontalMax
+        copyEntry.tallMax = newEntry.tallMax
+        copyEntry.postChips = newEntry.postChips
+        copyEntry.locations = oldEntry.locations
+
+        return copyEntry
+    
+    '''
+    #TODO: Write this + comments in the function
+    '''
+    def createOverlapCopies(self, NKMBaseTable):
+        dummies = copy.deepcopy(numbers.DUMMY_DEMONS)
+        for source, targetIDs in numbers.DUPLICATE_SOURCES.items():
+            duplicate = Duplicate()
+
+            sourceCompData = []
+            compStart = 0x59
+            for i in range(0, 0x1D0 -4, 4):
+                sourceCompData.append(NKMBaseTable.readWord(compStart + source * 0x1D0 + i))
+            sourceEnemyData = []
+            enemyStart = 0x88139
+            for i in range(0, 0x170 -4, 4):
+                sourceEnemyData.append(NKMBaseTable.readWord(enemyStart + source * 0x170 + i))
+
+            duplicate.compData = sourceCompData
+            duplicate.enemyData = sourceEnemyData
+            duplicate.sourceInd = source
+
+            for index, target in enumerate(targetIDs):
+                if index == len(targetIDs) -1:
+                    continue
+                newID = dummies[0]
+
+                newDupe = copy.deepcopy(duplicate)
+                newDupe.ind = newID
+                self.overlapCopies.append(newDupe)
+
+                for index,demon in enumerate(self.eventEncountArr[target].demons):
+                    if demon.value == source:
+                        self.eventEncountArr[target].demons[index] = Translated_Value(newID,self.enemyNames[source])
+
+                self.devilAssetArr[newID] = self.copyAssetsToSlot(self.devilAssetArr[newID], self.devilAssetArr[source])
+
+                dummies.pop(0)
+
+
     '''
     Generates a random seed if none was provided by the user and sets the random seed
     '''
@@ -3445,6 +3590,7 @@ class Randomizer:
         bossFlagBuffer = self.readBinaryTable(paths.BOSS_FLAG_DATA_IN)
         battleEventsBuffer = self.readBinaryTable(paths.BATTLE_EVENTS_IN)
         battleEventUassetBuffer = self.readBinaryTable(paths.BATTLE_EVENT_UASSET_IN)
+        devilAssetTableBuffer = self.readBinaryTable(paths.DEVIL_ASSET_TABLE_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -3455,16 +3601,25 @@ class Randomizer:
         self.fillFusionChart(otherFusionBuffer)
         self.fillSpecialFusionArr(otherFusionBuffer)
         self.fillBasicEnemyArr(compendiumBuffer)
-        self.fillBossArr(compendiumBuffer)
-        self.fillBossFlagArr(bossFlagBuffer)
         self.fillEncountArr(encountBuffer)
         self.fillEncountSymbolArr(encountBuffer)
+        self.fillEventEncountArr(eventEncountBuffer)
+        self.fillBattleEventArr(battleEventsBuffer)
+        self.fillDevilAssetArr(devilAssetTableBuffer)
+
+        self.createOverlapCopies(compendiumBuffer)
+        compendiumBuffer = self.writeOverlapCopiesToBuffer(self.overlapCopies, compendiumBuffer)
+
+        self.fillBossArr(compendiumBuffer)
+        self.fillBossFlagArr(bossFlagBuffer)
         self.fillNahobino(playGrowBuffer)
         self.fillEssenceArr(itemBuffer)
         self.fillShopArr(shopBuffer)
-        self.fillEventEncountArr(eventEncountBuffer)
         self.fillProtofiendArr(compendiumBuffer)
-        self.fillBattleEventArr(battleEventsBuffer)
+        
+        
+
+        
 
         self.removeBattleTutorials()
 
@@ -3527,6 +3682,8 @@ class Randomizer:
         if DEV_CHEATS:
             self.applyCheats()
         
+       
+
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, newComp)
@@ -3541,6 +3698,7 @@ class Randomizer:
         bossFlagBuffer = self.updateBossFlagBuffer(bossFlagBuffer)
         compendiumBuffer = self.updateProtofiendBuffer(compendiumBuffer, self.protofiendArr)
         battleEventsBuffer = self.updateBattleEventsBuffer(battleEventsBuffer, self.battleEventArr, battleEventUassetBuffer)
+        devilAssetTableBuffer = self.updateDevilAssetBuffer(devilAssetTableBuffer, self.devilAssetArr)
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
@@ -3561,6 +3719,7 @@ class Randomizer:
         self.writeBinaryTable(bossFlagBuffer.buffer, paths.BOSS_FLAG_DATA_OUT, paths.BOSS_FOLDER_OUT)
         self.writeBinaryTable(battleEventsBuffer.buffer, paths.BATTLE_EVENTS_OUT, paths.BATTLE_EVENT_FOLDER_OUT)
         self.writeBinaryTable(battleEventUassetBuffer.buffer,paths.BATTLE_EVENT_UASSET_OUT,paths.BATTLE_EVENTS_OUT)
+        self.writeBinaryTable(devilAssetTableBuffer.buffer, paths.DEVIL_ASSET_TABLE_OUT, paths.ASSET_TABLE_FOLDER_OUT)
         
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.

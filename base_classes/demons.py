@@ -109,3 +109,23 @@ class Boss_Flags:
         self.demonID = None
         self.flags = []
         self.offset = None
+
+class Asset_Entry:
+    def __init__(self):
+        self.demonID = None
+        self.classAssetID = None
+        self.dmAssetID = None
+        self.validArea = None
+        self.verticalMax = None
+        self.horizontalMax = None
+        self.tallMax = None
+        self.postChips = None
+
+
+class Duplicate:
+    def __init__(self):
+        self.compData = None
+        self.enemyData = None
+        self.sourceInd = None
+        self.ind = None
+        

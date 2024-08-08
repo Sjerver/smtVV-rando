@@ -4,9 +4,25 @@ PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,110,1111,1112,111
 BANNED_BOSSES = [0, 7, 32, #Dummy Abbadon, Tutorial Pixie, Tutorial Preta
                  #33, #Hydra (game hangs when supposed to lose limbs)
                  42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, #Normal Cleopatra, Dummy Pretas x 5, Normal Andras, Dummy Mandrake, Attis, Shiva, King Frost, then all 4,
-                 57, 58, 59, 60, 63, 64, 65, #School dungeon fights with overlapping demons(Temp)
-                 89, 129, 159, 160, #Dummy Demi-Fiend, Mananangal/Incubus overlap with school(Temp), Zhens in gasser sidequest that overlap with each other(Temp)
-                 232, 233, 234, 235, 236, 237] #Area 3 Powers that overlap with each other(Temp)
+                 #57, 58, 59, 60, 63, 64, 65, #School dungeon fights with overlapping demons(Temp)
+                 89, #Dummy Demi-Fiend
+                 #129, 159, 160, #Mananangal/Incubus overlap with school(Temp), Zhens in gasser sidequest that overlap with each other(Temp)
+                 #232, 233, 234, 235, 236, 237 #Area 3 Powers that overlap with each other(Temp)
+                 ] 
+
+#Demons that overlap in Event Encounters and in which ones they do
+DUPLICATE_SOURCES = {442 : [61 ,65], #School Aitvaras
+                     443 : [56, 58, 60], #School Andras
+                     444 : [56, 57, 59, 60, 63], #School Rakshasa 
+                     445 : [57, 58, 61, 64, 129], #School Incubus + Extra One(?)
+                     446 : [62, 63], #School Oni 
+                     447 : [64, 66, 129], #School Manangal + Extra One(?)
+                     448 : [65, 66], #School Shiki-Ouji 
+                     484 : [232, 233, 234, 235, 236, 237, 248], #Area 3 Powers
+                     756 : [158, 159, 160], #Mad Gasser Quest Zhens
+}
+#Selection of dummy demons to be overwritten with overlapping demons
+DUMMY_DEMONS= [487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510]
 
 NORMAL_ENEMY_COUNT = 395
 
