@@ -15,6 +15,7 @@ class Settings(object):
         self.randomEnemyDrops = False               # Randomizes items that enemies drop
         self.selfRandomizeNormalBosses = False      # Randomize story and sidequest bosses only with each other
         self.mixedRandomizeNormalBosses = False     # Randomize story and sidequest bosses with all bosses
+        self.randomizeLucifer = False               # Include the final boss in randomization (goes into the normal boss pool)
         self.selfRandomizeAbscessBosses = False     # Randomize abscess bosses only with each other
         self.mixedRandomizeAbscessBosses = False    # Randomize abscess bosses with all bosses
         self.selfRandomizeOverworldBosses = False   # Randomize punishing foes only with each other

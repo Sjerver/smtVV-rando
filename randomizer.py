@@ -2710,23 +2710,27 @@ class Randomizer:
     '''
     def randomizeBosses(self, eventEncountArr):
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
-
-        filteredEncounters = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index not in numbers.BANNED_BOSSES and index not in self.bossDuplicateMap.keys()]
-        shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
-        shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters]
+        
+        encounterPools = bossLogic.createBossEncounterPools(eventEncountArr, self.bossDuplicateMap, self.configSettings)
+        if not encounterPools:
+            return
         with open(paths.BOSS_SPOILER, 'w') as spoilerLog: #Create spoiler log
-            for index, encounter in enumerate(filteredEncounters):
-                spoilerLog.write(str(encounter.ind) + " " + encounter.demons[0].translation + " replaced by " + str(shuffledEncounters[index].ind) + " " + shuffledEncounters[index].demons[0].translation + "\n")
-        for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
-            bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind)
-            self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
-            eventEncountArr[encounter.originalIndex] = encounter
+            for filteredEncounters in encounterPools:
+                #filteredEncounters = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index not in numbers.BANNED_BOSSES and index not in self.bossDuplicateMap.keys()]
+                shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
+                shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
+                for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
+                    spoilerLog.write(str(encounter.ind) + " " + encounter.demons[0].translation + " replaced by " + str(shuffledEncounters[index].ind) + " " + shuffledEncounters[index].demons[0].translation + "\n")
+                for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
+                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind)
+                    self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
+                    eventEncountArr[encounter.originalIndex] = encounter
 
-            if shuffledEncounters[index].ind in encountersWithBattleEvents:
-                #if new encounter needs event
-                eventInds = [jIndex for jIndex, e in enumerate(encountersWithBattleEvents) if e == shuffledEncounters[index].ind]
-                for ind in eventInds:
-                    self.battleEventArr[ind].encounterID = encounter.ind
+                    if shuffledEncounters[index].ind in encountersWithBattleEvents:
+                        #if new encounter needs event
+                        eventInds = [jIndex for jIndex, e in enumerate(encountersWithBattleEvents) if e == shuffledEncounters[index].ind]
+                        for ind in eventInds:
+                            self.battleEventArr[ind].encounterID = encounter.ind
             
 
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
@@ -3670,11 +3674,11 @@ class Randomizer:
 
         if config.randomShopEssences:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)
-            
+           
+        self.randomizeBosses(self.eventEncountArr)
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
-            self.randomizeBosses(self.eventEncountArr)
             self.patchBossFlags()
-            bossLogic.patchSpecialBossDemons(self.bossArr)
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings)
             
         if config.randomMusic:
             self.randomizeEventEncounterTracks()

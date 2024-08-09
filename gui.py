@@ -186,11 +186,10 @@ def createGUI(configSettings):
     bossLabel = tk.Label(page2FrameLeft, text="Boss Randomizer")
     bossLabel.pack()
 
-    listBoss = tk.Listbox(page2FrameLeft, selectmode = "single", width=50, exportselection=False, selectbackground = VENGEANCE_PURPLE)
-    listBoss.insert(0, "Vanilla normal bosses")
-    listBoss.insert(1, "Randomize normal bosses with each other")
-    listBoss.insert(2, "Randomize normal bosses with all bosses")
-    listBoss.selection_set(0)
+    listBoss = tk.Listbox(page2FrameLeft, selectmode = "multiple", width=50, exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listBoss.insert(0, "Randomize normal bosses with each other only")
+    listBoss.insert(1, "Randomize normal bosses with all bosses")
+    listBoss.insert(2, "Randomize Lucifer")
     listBoss.pack()
     
     abscessLabel = tk.Label(page2FrameLeft, text="Abscess Bosses (N)")
@@ -213,7 +212,7 @@ def createGUI(configSettings):
     listPunishing.selection_set(0)
     listPunishing.pack()
     
-    superbossLabel = tk.Label(page2FrameRight, text="Superbosses (N)")
+    superbossLabel = tk.Label(page2FrameRight, text="Superbosses")
     superbossLabel.pack()
 
     listSuperboss = tk.Listbox(page2FrameRight, selectmode = "single", width=50, exportselection=False, selectbackground = VENGEANCE_PURPLE)
@@ -266,10 +265,10 @@ def createGUI(configSettings):
             if configur.get('Item', 'RandomEnemyDrops') == 'true':
                 listItem.selection_set(2)
             if configur.get('Boss', 'NormalBossesSelf') == 'true':
-                listBoss.selection_clear(0)
-                listBoss.selection_set(1)
+                listBoss.selection_set(0)
             if configur.get('Boss', 'NormalBossesMixed') == 'true':
-                listBoss.selection_clear(0)
+                listBoss.selection_set(1)
+            if configur.get('Boss', 'RandomizeLucifer') == 'true':
                 listBoss.selection_set(2)
             if configur.get('Boss', 'AbscessBossesSelf') == 'true':
                 listAbscess.selection_clear(0)
@@ -307,7 +306,9 @@ def createGUI(configSettings):
         itemFlags = [False for i in range(listItem.size())]
         for i in listItem.curselection():
             itemFlags[i] = True
-        bossChoice = listBoss.curselection()
+        bossFlags = [False for i in range(listBoss.size())]
+        for i in listBoss.curselection():
+            bossFlags[i] = True
         abscessChoice = listAbscess.curselection()
         punishingChoice = listPunishing.curselection()
         superbossChoice = listSuperboss.curselection()
@@ -390,10 +391,10 @@ def createGUI(configSettings):
         configur.set('Music', 'CheckBasedMusic', 'false')
         
     if itemFlags[0]:
-        configur.set('Item', 'RandomShopItems', 'false')
-    else:
         configSettings.randomShopItems = True
         configur.set('Item', 'RandomShopItems', 'true')
+    else:
+        configur.set('Item', 'RandomShopItems', 'false')
         
     if itemFlags[1]:
         configSettings.randomShopEssences = True
@@ -407,17 +408,23 @@ def createGUI(configSettings):
     else:
         configur.set('Item', 'RandomEnemyDrops', 'false')
             
-    if len(bossChoice) > 0 and bossChoice[0] == 1:
+    if bossFlags[0]:
         configSettings.selfRandomizeNormalBosses = True
         configur.set('Boss', 'NormalBossesSelf', 'true')
     else:
         configur.set('Boss', 'NormalBossesSelf', 'false')
 
-    if len(bossChoice) > 0 and bossChoice[0] == 2:
+    if bossFlags[1]:
         configSettings.mixedRandomizeNormalBosses = True
         configur.set('Boss', 'NormalBossesMixed', 'true')
     else:
         configur.set('Boss', 'NormalBossesMixed', 'false')
+        
+    if bossFlags[2]:
+        configSettings.randomizeLucifer = True
+        configur.set('Boss', 'RandomizeLucifer', 'true')
+    else:
+        configur.set('Boss', 'RandomizeLucifer', 'false')
             
     if len(abscessChoice) > 0 and abscessChoice[0] == 1:
         configSettings.selfRandomizeAbscessBosses = True
@@ -468,6 +475,6 @@ def createConfigFile(configur):
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False}
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
-    configur['Boss'] = {'NormalBossesSelf': False, 'NormalBossesMixed': False, 'AbscessBossesSelf': False, 'AbscessBossesMixed': False,
+    configur['Boss'] = {'NormalBossesSelf': False, 'NormalBossesMixed': False, 'RandomizeLucifer': False, 'AbscessBossesSelf': False, 'AbscessBossesMixed': False,
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False}
    

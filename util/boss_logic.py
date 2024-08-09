@@ -1,6 +1,16 @@
 import copy
 import random
 
+#Encounter IDs that should not be randomized
+BANNED_BOSSES = [0, 7, 32, #Dummy Abbadon, Tutorial Pixie, Tutorial Preta
+                 #33, #Hydra (game hangs when supposed to lose limbs)
+                 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, #Normal Cleopatra, Dummy Pretas x 5, Normal Andras, Dummy Mandrake, Attis, Shiva, King Frost, then all 4,
+                 #57, 58, 59, 60, 63, 64, 65, #School dungeon fights with overlapping demons(Temp)
+                 89, #Dummy Demi-Fiend
+                 #129, 159, 160, #Mananangal/Incubus overlap with school(Temp), Zhens in gasser sidequest that overlap with each other(Temp)
+                 #232, 233, 234, 235, 236, 237 #Area 3 Powers that overlap with each other(Temp)
+                 ] 
+
 #Boss IDs that summon other enemies
 BOSS_SUMMONS = {
     519: [517, 518],    #Khonsu Ra - Anubis and Thoth
@@ -49,6 +59,18 @@ LUCIFER_PHASES = [529, 534, 535]
 
 #HP Penalty for single target bosses/bonus for multi-target bosses to account for AOE skills
 GROUP_HP_MODIFIER = 0.8
+
+#Event Encounter IDs that contain Lucifer (normal and true version), excluding VR battle duplicates
+LUCIFER_ENCOUNTERS = [6, 12]
+
+#Event Encounter IDs that contain superbosses (Shiva, Demi-Fiend, Satan, Masakado x2)
+SUPERBOSS_ENCOUNTERS = [88, 121, 157, 168, 169]
+
+BOSS_HP_MODIFIERS = {
+    435: 0.5, #Snake Nuwa's replacement should have half HP
+    529: 3 #True Lucifer's replacement will have triple HP (not completely accurate but fine for now)
+}
+
 
 class Boss_Metadata(object):
     def __init__(self, demons):
@@ -153,8 +175,8 @@ If the old encounter has multiple 'strong' demons, stats for new demons will be 
 TODO: Calculate proper HP ratios for the new encounter and split the HP pool that way, add a hp bonus for multi-demon encounters to account for AOE skills
 TODO: Account for 'revive' demons (Hayataro etc) that are effectively duplicates that currently bloat the hp pool
     Parameters:
-            oldEncounter (List(Translated_Value)): The original demons at the check
-            newEncounter (List(Translated_Value)): The demons replacing the old encounter
+            oldEncounter (List(Boss_Metadata)): The original demons at the check
+            newEncounter (List(Boss_Metadata)): The demons replacing the old encounter
             demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
             bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
 '''
@@ -184,8 +206,8 @@ Balances two boss encounters that feature minions. The main new demon will get i
 The old minion pool is shuffled, and if there are more new minions than old minions, the old pool will be stacked and shuffled until there's enough
 Minion HP and stats will be taken from random old minions
     Parameters:
-            oldEncounter (List(Translated_Value)): The original demons at the check
-            newEncounter (List(Translated_Value)): The demons replacing the old encounter
+            oldEncounter (List(Boss_Metadata)): The original demons at the check
+            newEncounter (List(Boss_Metadata)): The demons replacing the old encounter
             demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
             bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
 '''
@@ -214,8 +236,8 @@ Balances two boss encounters that feature multiple demons. Each new demon will g
 The old demon pool is shuffled, and if there are more new demons than old demons, the old pool will be stacked and shuffled until there's enough
 If the number of demons is equal between the two encounters, HP will be transfered directly between demons, otherwise the HP pool formula from the default function is used
     Parameters:
-            oldEncounter (List(Translated_Value)): The original demons at the check
-            newEncounter (List(Translated_Value)): The demons replacing the old encounter
+            oldEncounter (List(Boss_Metadata)): The original demons at the check
+            newEncounter (List(Boss_Metadata)): The demons replacing the old encounter
             demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
             bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
 '''
@@ -248,8 +270,8 @@ def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceAr
 '''
 Calculates a modified HP Pool for a replacement boss encounter to use based on the total HP of the old encounter's demons and the number of demons in each encounter
     Parameters:
-        oldEncounter (List(Translated_Value)): The original demons at the check
-        newEncounter (List(Translated_Value)): The demons replacing the old encounter
+        oldEncounter (List(Boss_Metadata)): The original demons at the check
+        newEncounter (List(Boss_Metadata)): The demons replacing the old encounter
     Returns:
         The calculated HP total to split among the new encounter demons
 '''
@@ -268,6 +290,10 @@ def calculateHPPool(oldEncounterData, newEncounterData):
         modifier = modifier + (1 - modifier) ** 2
         newDemonCount -= 1
     modifiedPool = round(pool * multiplier)
+    if oldEncounterData.demons[0].value in BOSS_HP_MODIFIERS.keys():
+        modifiedPool = round(modifiedPool * BOSS_HP_MODIFIERS[oldEncounterData.demons[0].value])
+    if newEncounterData.demons[0].value in BOSS_HP_MODIFIERS.keys():
+        modifiedPool = round(modifiedPool / BOSS_HP_MODIFIERS[newEncounterData.demons[0].value])
     return modifiedPool
     
 
@@ -277,16 +303,47 @@ Demons that can be revived have a second version in the data that needs to sync 
 True Lucifer's phase 2 and phase 3 versions need to be synced as well, and their HP is reduced to account for the multiple phases
     Parameters:
         bossArr (List(Enemy_Demon)): The list of boss demons to patch
+        configSettings (Settings): Settings determining what types of bosses were randomized
 '''
-def patchSpecialBossDemons(bossArr):
+def patchSpecialBossDemons(bossArr, configSettings):
     for base, duplicate in REVIVED_DEMON_DUPLICATE_MAP.items():
         referenceDemon = bossArr[base]
         demonToPatch = bossArr[duplicate]
         demonToPatch.stats = copy.deepcopy(referenceDemon.stats)
-    luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
-    luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
-    luciferPhase3 = bossArr[LUCIFER_PHASES[2]]
-    luciferPhase2.stats = copy.deepcopy(luciferPhase1.stats) #Lucifer has some stat variance between phases but eh
-    luciferPhase3.stats = copy.deepcopy(luciferPhase1.stats)
-    luciferPhase2.stats.HP = luciferPhase2.stats.HP // 3
-    luciferPhase1.stats.HP = luciferPhase1.stats.HP // 3
+    if configSettings.randomizeLucifer:
+        luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
+        luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
+        luciferPhase3 = bossArr[LUCIFER_PHASES[2]]
+        luciferPhase2.stats = copy.deepcopy(luciferPhase1.stats) #Lucifer has some stat variance between phases but eh
+        luciferPhase3.stats = copy.deepcopy(luciferPhase1.stats)
+        luciferPhase3.stats.HP = luciferPhase2.stats.HP * 3
+    
+
+'''
+Creates the pools of boss encounters that should be randomized within themselves
+    Parameters:
+        eventEncountArr (List(Event_Encounter)): The list of event encounters containing most bosses
+        bossDuplicateMap (Dict(int, int)): A dict that maps duplicate encounters to their original version
+        configSettings (Settings): Settings determining what types of bosses should be randomized
+    Returns:
+        A List of lists containing deep copied Event Encounters to randomize
+'''
+def createBossEncounterPools(eventEncountArr, bossDuplicateMap, configSettings):
+    bossPools = []
+    mixedPool = []
+    normalPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index not in BANNED_BOSSES and index not in bossDuplicateMap.keys()
+                    and index not in LUCIFER_ENCOUNTERS and index not in SUPERBOSS_ENCOUNTERS]
+    if configSettings.randomizeLucifer:
+        normalPool = normalPool + [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in LUCIFER_ENCOUNTERS]
+    superbossPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in SUPERBOSS_ENCOUNTERS]
+    if configSettings.mixedRandomizeNormalBosses:
+        mixedPool = mixedPool + normalPool
+    elif configSettings.selfRandomizeNormalBosses:
+        bossPools.append(normalPool)
+    if configSettings.mixedRandomizeSuperbosses:
+        mixedPool = mixedPool + superbossPool
+    elif configSettings.selfRandomizeSuperbosses:
+        bossPools.append(superbossPool)
+    if mixedPool:
+        bossPools.append(mixedPool)
+    return bossPools
