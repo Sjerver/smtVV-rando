@@ -3503,13 +3503,18 @@ class Randomizer:
         return copyEntry
     
     '''
-    #TODO: Write this + comments in the function
+    Create copies of demons that appear in multiple non-duplicate event encounters that replace unused demons. Get the entire source player and enemy entries from NKMBaseTable to replace unused data.
+    Adjust demons in encounters to reference the copies and adjust assets of copies to use the originals.
+        Parameters:
+            NKMBaseTable (Table): binary table containing all demon, both player and enemy, data
     '''
     def createOverlapCopies(self, NKMBaseTable):
         dummies = copy.deepcopy(numbers.DUMMY_DEMONS)
         for source, targetIDs in numbers.DUPLICATE_SOURCES.items():
-            duplicate = Duplicate()
+        #for every demon and the encounters they appear in...
 
+            #assemble demon data to copy
+            duplicate = Duplicate()
             sourceCompData = []
             compStart = 0x59
             for i in range(0, 0x1D0 -4, 4):
@@ -3524,6 +3529,9 @@ class Randomizer:
             duplicate.sourceInd = source
 
             for index, target in enumerate(targetIDs):
+            #for every encounter the source demon appears in...
+
+                #grab a new id to replace
                 if index == len(targetIDs) -1:
                     continue
                 newID = dummies[0]
@@ -3532,6 +3540,7 @@ class Randomizer:
                 newDupe.ind = newID
                 self.overlapCopies.append(newDupe)
 
+                #replace source demon with new id
                 for index,demon in enumerate(self.eventEncountArr[target].demons):
                     if demon.value == source:
                         self.eventEncountArr[target].demons[index] = Translated_Value(newID,self.enemyNames[source])
