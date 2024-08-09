@@ -7,6 +7,7 @@ from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encoun
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
 from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item
+from base_classes.quests import Mission, Mission_Reward, Mission_Condition
 from base_classes.settings import Settings
 import util.boss_logic as bossLogic
 import util.numbers as numbers
@@ -56,6 +57,7 @@ class Randomizer:
         self.battleEventArr = []
         self.devilAssetArr = []
         self.overlapCopies = []
+        self.missionArr = []
 
         self.nahobino = Nahobino()
         
@@ -1038,6 +1040,41 @@ class Randomizer:
             
 
             self.protofiendArr.append(demon)
+    '''
+    Fills the array missionArr with data on all missions.
+        Parameters:
+            data (Buffer) the buffer containing all mission data
+    '''
+    def fillMissionArr(self, data):
+
+        start = 0x45
+        entrySize = 372
+
+        for index in range(224):
+            offset = start + entrySize * index
+
+            locations = {
+                'ind': offset,
+                'rewardID': offset +8,
+                'rewardAmount': offset +10,
+                'rewardMacca': offset + 24,
+                'conditions': offset + 0x20
+            }
+
+            mission = Mission()
+            mission.offsets = locations
+            mission.ind = data.readHalfword(locations['ind'])
+            mission.reward.amount = data.readHalfword(locations['rewardAmount'])
+            mission.reward.ind = data.readHalfword(locations['rewardID'])
+            mission.macca = data.readWord(locations['rewardMacca'])
+            for i in range(4):
+                cType = data.readWord(locations['conditions'] + 0x10 * i)
+                cID = data.readWord(locations['conditions'] + 0x10 * i + 4)
+                cAmount = data.readWord(locations['conditions'] + 0x10 * i + 8)
+                mission.conditions.append(Mission_Condition(cType, cID, cAmount))
+            self.missionArr.append(mission)
+
+
 
     '''
     Fills the array battleEventArr with data on all battle events and in which encounters they occur.
@@ -1275,6 +1312,16 @@ class Randomizer:
                 weightedSkills = self.updateWeightsWithPotential(weightedSkills, demon.potential, demon)
 
             totalSkills = []
+
+            #BANDAID TO PREVENT IMPOSSIBLE SKILL ASSIGNMENT DUE TO POTENTIAL RANDO
+            viableSkills = 0
+            for skill in weightedSkills.values:
+                if skill > 0:
+                    viableSkills += 1
+            if viableSkills < 5:
+                for skill in weightedSkills.values:
+                    skill += 1
+
             #If there are skills to be learned
             if len(weightedSkills.values) > 0:
 
@@ -2160,6 +2207,22 @@ class Randomizer:
         return buffer
 
     '''
+    Writes certain values from the mission array to their respective locations in the table buffer
+        Parameters:
+            buffer (Table): buffer
+            data (List(Mission)): list of missions
+    '''
+    def updateMissionBuffer(self,buffer,data):
+        for mission in data:
+            buffer.writeHalfword(mission.reward.amount, mission.offsets['rewardAmount'])
+            buffer.writeHalfword(mission.reward.ind, mission.offsets['rewardID'])
+            buffer.writeWord(mission.macca, mission.offsets['rewardMacca'])
+            for i in range(4):
+                buffer.writeWord(mission.conditions[i].type, mission.offsets['conditions'] + 0x10 * i)
+                buffer.writeWord(mission.conditions[i].ind, mission.offsets['conditions'] + 0x10 * i + 4)
+                buffer.writeWord(mission.conditions[i].amount, mission.offsets['conditions'] + 0x10 * i + 8)
+        return buffer
+    '''
     Writes certain values from the skill arrays to their respective locations in the table buffer
         Parameters:        
             buffer (Table)
@@ -2645,6 +2708,7 @@ class Randomizer:
 
         self.adjustBasicEnemyStats(replacements, enemyArr)
         self.adjustBasicEnemyDrops(replacements, enemyArr)
+        self.missionArr = self.adjustMissionsRequiringNormalDemons(replacements,enemyArr, self.missionArr)
         return newSymbolArr
     
     '''
@@ -2710,6 +2774,15 @@ class Randomizer:
     '''
     def randomizeBosses(self, eventEncountArr):
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
+
+        #Exceptions for A Gold Dragons Arrival
+        fourHolyBeastEncounters = [130,131] #Qing Long, Zhuque
+        fourHolyBeastMission = self.missionArr[48]
+        #get all missions that require a boss to be killed
+        eventEncountMissions = []
+        for mission in self.missionArr:
+                if any(mission.ind != 48 and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
+                    eventEncountMissions.append([mission,mission.conditions[0].ind])
         
         encounterPools = bossLogic.createBossEncounterPools(eventEncountArr, self.bossDuplicateMap, self.configSettings)
         if not encounterPools:
@@ -2723,6 +2796,41 @@ class Randomizer:
                     spoilerLog.write(str(encounter.ind) + " " + encounter.demons[0].translation + " replaced by " + str(shuffledEncounters[index].ind) + " " + shuffledEncounters[index].demons[0].translation + "\n")
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind)
+                    
+                    #go through all mission that require boss to be kileld
+                    for pair in eventEncountMissions:
+                        if any(demon.value == pair[1] for demon in encounter.demons):
+                        #if a demon from old encounter appears as first mission condition
+                            demonAmounts = {}
+                            for demon in shuffledEncounters[index].demons:
+                               #count how often demons in encounter appears
+                               if demon.value == 0:
+                                   continue
+                               if demon.value in demonAmounts.keys():
+                                   demonAmounts.update({demon.value: demonAmounts.get(demon.value) + 1})
+                               else: 
+                                   demonAmounts.update({demon.value: 1})
+                            # make sure we have not more than 4 demons as conditions
+                            if len(demonAmounts) > 4:
+                                while len(demonAmounts) > 4:
+                                    demonAmounts.popitem()
+                            
+                            #empty conditions
+                            for i in range(4):
+                                pair[0].conditions[i].type = 0
+                                pair[0].conditions[i].ind = 0
+                                pair[0].conditions[i].amounts = 0
+                            i = 0
+                            #replace conditions with new demons
+                            for keyDemon, amounts in demonAmounts.items():
+                                pair[0].conditions[i].type = 1
+                                pair[0].conditions[i].ind = keyDemon
+                                pair[0].conditions[i].amounts = amounts
+                                i = i + 1
+                    if encounter.ind in fourHolyBeastEncounters:
+                        hBIndex = fourHolyBeastEncounters.index(encounter.ind)
+                        fourHolyBeastMission.conditions[hBIndex].ind = shuffledEncounters[index].demons[0].value
+      
                     self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
                     eventEncountArr[encounter.originalIndex] = encounter
 
@@ -2731,6 +2839,8 @@ class Randomizer:
                         eventInds = [jIndex for jIndex, e in enumerate(encountersWithBattleEvents) if e == shuffledEncounters[index].ind]
                         for ind in eventInds:
                             self.battleEventArr[ind].encounterID = encounter.ind
+            for mission in eventEncountMissions:
+                self.missionArr[mission[0].ind] = mission[0]    
             
 
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
@@ -3450,7 +3560,33 @@ class Randomizer:
                 #print(demonCount)
                 #print(externalDemon)
                 #print(recruits)
-                
+
+    '''
+    Updates all missions that require the defeat of basic enemies with their replacements and missions that require you to bring a demon with a demon of the same level.
+        Parameters:
+            replacements (List([Integer,Integer])): list of which demon replaces which demon encounter wise
+            foes (List(Enemy_Demon)): list of all basic enemies
+            missionArr (List(Mission)): list of all missions
+        Returns the adjusted mission list
+    '''
+    def adjustMissionsRequiringNormalDemons(self, replacements, foes, missionArr):
+        replacementSources = [r[0] for r in replacements]
+        for mission in missionArr:
+        #for every mission...    
+            for condition in mission.conditions:
+                #for every condition
+                if (condition.type == 1 or condition.type == 5) and condition.ind < numbers.NORMAL_ENEMY_COUNT:
+                #Condition requires demoon to kill or in party and that demon is a normal enemy
+                    if condition.ind in replacementSources:
+                        #use replacement if existent 
+                        condition.ind = replacements[replacementSources.index(condition.ind)][1]
+                    else:
+                        #else find demon of the same level as original demon
+                        level = next(demon.level.original for demon in self.compendiumArr if demon.ind == condition.ind)
+                        sameLevel = next(demon.ind for demon in self.compendiumArr if demon.level.value == level)
+                        condition.ind = sameLevel
+        return missionArr
+
     '''
     Logs all skills that are not normally assigned to a playable demon.
         Parameters:
@@ -3620,6 +3756,7 @@ class Randomizer:
         self.fillBattleEventArr(battleEventsBuffer)
         self.fillDevilAssetArr(devilAssetTableBuffer)
 
+        #Requires asset arr, eventEncounter and needs to be before bossArr
         self.createOverlapCopies(compendiumBuffer)
         compendiumBuffer = self.writeOverlapCopiesToBuffer(self.overlapCopies, compendiumBuffer)
 
@@ -3629,6 +3766,7 @@ class Randomizer:
         self.fillEssenceArr(itemBuffer)
         self.fillShopArr(shopBuffer)
         self.fillProtofiendArr(compendiumBuffer)
+        self.fillMissionArr(missionBuffer)
         
         
 
@@ -3712,6 +3850,7 @@ class Randomizer:
         compendiumBuffer = self.updateProtofiendBuffer(compendiumBuffer, self.protofiendArr)
         battleEventsBuffer = self.updateBattleEventsBuffer(battleEventsBuffer, self.battleEventArr, battleEventUassetBuffer)
         devilAssetTableBuffer = self.updateDevilAssetBuffer(devilAssetTableBuffer, self.devilAssetArr)
+        missionBuffer = self.updateMissionBuffer(missionBuffer, self.missionArr)
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
