@@ -9,6 +9,7 @@ from base_classes.nahobino import Nahobino, LevelStats
 from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item
 from base_classes.quests import Mission, Mission_Reward, Mission_Condition
 from base_classes.settings import Settings
+from base_classes.miracles import Abscess
 import util.boss_logic as bossLogic
 import util.numbers as numbers
 import util.paths as paths
@@ -58,6 +59,7 @@ class Randomizer:
         self.devilAssetArr = []
         self.overlapCopies = []
         self.missionArr = []
+        self.abscessArr = []
 
         self.nahobino = Nahobino()
         
@@ -931,36 +933,6 @@ class Randomizer:
                 self.bossDuplicateMap[index] = originalIndex
 
             self.eventEncountArr.append(encounter)
-            '''
-            encounterDebugObject = {
-                'id': encounter.ind,
-                'track': encounter.track,
-                'levelpath': encounter.levelpath,
-                'demon1Name': self.enemyNames[encounter.demons[0].value],
-                'demon1ID': encounter.demons[0].value,
-                'demon2Name': self.enemyNames[encounter.demons[1].value],
-                'demon2ID': encounter.demons[1].value,
-                'demon3Name': self.enemyNames[encounter.demons[2].value],
-                'demon3ID': encounter.demons[2].value,
-                'demon4Name': self.enemyNames[encounter.demons[3].value],
-                'demon4ID': encounter.demons[3].value,
-                'demon5Name': self.enemyNames[encounter.demons[4].value],
-                'demon5ID': encounter.demons[4].value,
-                'demon6Name': self.enemyNames[encounter.demons[5].value],
-                'demon6ID': encounter.demons[5].value,
-                'demon7Name': self.enemyNames[encounter.demons[6].value],
-                'demon7ID': encounter.demons[6].value,
-                'demon8Name': self.enemyNames[encounter.demons[7].value],
-                'demon8ID': encounter.demons[7].value,
-                'demon9Name': self.enemyNames[encounter.demons[8].value],
-                'demon9ID': encounter.demons[8].value,
-            }
-            encounterDebugData.append(encounterDebugObject)
-           
-
-        debugDF = pd.DataFrame(encounterDebugData)
-        debugDF.to_csv(paths.BOSSES_DEBUG)
-        '''
         
     '''
     Fills the array bossFlagArr with data on boss flags.
@@ -1134,6 +1106,38 @@ class Randomizer:
 
 
             self.devilAssetArr.append(entry)
+            
+    '''
+    Fills the array abscessArr with data on abscess encounters and miracles.
+        Parameters:
+            data (Buffer) the buffer containing all abcess data
+    '''
+    def fillAbscessArr(self, data):
+
+        start = 0x45
+        size = 0x20
+
+        for index in range(83):
+            offset = start + size * index
+
+            locations =  {
+                'encounter': offset + 0xc,
+                'miracles': offset + 0x14
+            }
+
+            abscess = Abscess()
+            abscess.offsetNumber = locations
+            abscess.encounter = data.readHalfword(locations['encounter'])
+
+            miracles = []
+            for i in range(6):
+                miracles.append(data.readByte(locations['miracles'] + i))
+            abscess.miracles = miracles
+            #if abscess.encounter > 0 and len(abscess.miracles) > 0:
+            #    demons = self.encountArr[abscess.encounter].demons
+            #    print(demons)
+
+            self.abscessArr.append(abscess)
 
 
     '''
@@ -3740,6 +3744,7 @@ class Randomizer:
         battleEventsBuffer = self.readBinaryTable(paths.BATTLE_EVENTS_IN)
         battleEventUassetBuffer = self.readBinaryTable(paths.BATTLE_EVENT_UASSET_IN)
         devilAssetTableBuffer = self.readBinaryTable(paths.DEVIL_ASSET_TABLE_IN)
+        abscessBuffer = self.readBinaryTable(paths.ABSCESS_TABLE_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -3755,6 +3760,7 @@ class Randomizer:
         self.fillEventEncountArr(eventEncountBuffer)
         self.fillBattleEventArr(battleEventsBuffer)
         self.fillDevilAssetArr(devilAssetTableBuffer)
+        self.fillAbscessArr(abscessBuffer)
 
         #Requires asset arr, eventEncounter and needs to be before bossArr
         self.createOverlapCopies(compendiumBuffer)

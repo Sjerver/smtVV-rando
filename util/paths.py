@@ -19,6 +19,7 @@ BATTLE_EVENT_UASSET_IN = 'base/BattleEventTable.uasset'
 EVENT_ENCOUNT_POST_DATA_TABLE_IN = 'base/EventEncountPostDataTable.uexp'
 EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN = 'base/EventEncountPostDataTable.uasset'
 DEVIL_ASSET_TABLE_IN = 'base/DevilAssetTable.uexp'
+ABSCESS_TABLE_IN = 'base/D_BaseTable.uexp'
 
 NKM_BASE_TABLE_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uexp'
 DEVIL_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil'
