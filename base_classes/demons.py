@@ -121,6 +121,11 @@ class Asset_Entry:
         self.tallMax = None
         self.postChips = None
 
+class UI_Entry:
+    def __init__(self):
+        self.assetID = None
+        self.assetString = None
+        self.offsetNumber = None
 
 class Duplicate:
     def __init__(self):

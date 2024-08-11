@@ -1,0 +1,8 @@
+start: 0x45
+size: 44
+
+First Entry:
+0x45 Asset ID of the Demon (4 bytes)
+0x49 String to demons face (unknown size, minimum 6, 20 max and makes sense)
+0x69 ID in this Table (4 bytes)
+0x6D unknown (4 bytes)

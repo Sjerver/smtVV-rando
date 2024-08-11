@@ -16,6 +16,8 @@ DUMMY_DEMONS= [487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 
 
 NORMAL_ENEMY_COUNT = 395
 
+TOTAL_DEMON_COUNT = 1201
+
 #Obtained by creating a linear trend function for the potential of compendium demons
 POTENTIAL_SCALING_FACTOR = 0.167
 BASE_POTENTIAL_VALUE = 6.67

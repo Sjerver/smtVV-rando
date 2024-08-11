@@ -1,6 +1,6 @@
 from multiprocessing import Value
 from util.binary_table import Table
-from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Asset_Entry, Duplicate
+from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Asset_Entry, UI_Entry, Duplicate
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event
@@ -60,6 +60,7 @@ class Randomizer:
         self.overlapCopies = []
         self.missionArr = []
         self.abscessArr = []
+        self.devilUIArr = []
 
         self.nahobino = Nahobino()
         
@@ -1139,6 +1140,24 @@ class Randomizer:
 
             self.abscessArr.append(abscess)
 
+    def fillDevilUIArr(self, data):
+        start = 0x45
+        size = 44
+
+        for index in range(numbers.TOTAL_DEMON_COUNT):
+            offset = start + size * index
+
+            locations = {
+                'assetID': offset,
+                'assetString': offset + 4,
+            }
+
+            entry = UI_Entry()
+            entry.assetID = data.readWord(locations['assetID'])
+            entry.assetString = data.read32chars(locations['assetString'])
+            entry.offsetNumber = locations
+
+            self.devilUIArr.append(entry)
 
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
@@ -1463,7 +1482,6 @@ class Randomizer:
         # Cost needs to be not more than 60
         possibleSkills = [s for s in possibleSkills if self.obtainSkillFromID(s.ind).cost <= 60]
         '''   
-        # TODO: Unique Skill logic is missing here
         validity = False
         skill = self.obtainSkillFromID(random.choice(possibleSkills).ind)
         while not validity:
@@ -2279,6 +2297,12 @@ class Randomizer:
         for skill in innates:
             pass
         
+        return buffer
+
+    def updateDevilUIBuffer(self, buffer, devilUITable):
+        for entry in devilUITable:
+            buffer.writeWord(entry.assetID, entry.offsetNumber['assetID'])
+            buffer.write32chars(entry.assetString, entry.offsetNumber['assetString'])
         return buffer
 
     '''
@@ -3692,7 +3716,8 @@ class Randomizer:
                 sourceCompData.append(NKMBaseTable.readWord(compStart + source * 0x1D0 + i))
             sourceEnemyData = []
             enemyStart = 0x88139
-            for i in range(0, 0x170 -4, 4):
+            #-4 to reflect size minus id bytes, -12 to not copy last 3 entries which seem to depend on id
+            for i in range(0, 0x170 -4 -12, 4):
                 sourceEnemyData.append(NKMBaseTable.readWord(enemyStart + source * 0x170 + i))
 
             duplicate.compData = sourceCompData
@@ -3717,6 +3742,8 @@ class Randomizer:
                         self.eventEncountArr[target].demons[index] = Translated_Value(newID,self.enemyNames[source])
 
                 self.devilAssetArr[newID] = self.copyAssetsToSlot(self.devilAssetArr[newID], self.devilAssetArr[source])
+                self.devilUIArr[newID].assetID = self.devilUIArr[source].assetID
+                self.devilUIArr[newID].assetString = self.devilUIArr[source].assetString
 
                 dummies.pop(0)
 
@@ -3776,6 +3803,7 @@ class Randomizer:
         battleEventUassetBuffer = self.readBinaryTable(paths.BATTLE_EVENT_UASSET_IN)
         devilAssetTableBuffer = self.readBinaryTable(paths.DEVIL_ASSET_TABLE_IN)
         abscessBuffer = self.readBinaryTable(paths.ABSCESS_TABLE_IN)
+        devilUIBuffer = self.readBinaryTable(paths.DEVIL_UI_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -3792,6 +3820,7 @@ class Randomizer:
         self.fillBattleEventArr(battleEventsBuffer)
         self.fillDevilAssetArr(devilAssetTableBuffer)
         self.fillAbscessArr(abscessBuffer)
+        self.fillDevilUIArr(devilUIBuffer)
 
         #Requires asset arr, eventEncounter and needs to be before bossArr
         self.createOverlapCopies(compendiumBuffer)
@@ -3889,6 +3918,7 @@ class Randomizer:
         battleEventsBuffer = self.updateBattleEventsBuffer(battleEventsBuffer, self.battleEventArr, battleEventUassetBuffer)
         devilAssetTableBuffer = self.updateDevilAssetBuffer(devilAssetTableBuffer, self.devilAssetArr)
         missionBuffer = self.updateMissionBuffer(missionBuffer, self.missionArr)
+        devilUIBuffer = self.updateDevilUIBuffer(devilUIBuffer, self.devilUIArr)
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
@@ -3910,6 +3940,7 @@ class Randomizer:
         self.writeBinaryTable(battleEventsBuffer.buffer, paths.BATTLE_EVENTS_OUT, paths.BATTLE_EVENT_FOLDER_OUT)
         self.writeBinaryTable(battleEventUassetBuffer.buffer,paths.BATTLE_EVENT_UASSET_OUT,paths.BATTLE_EVENTS_OUT)
         self.writeBinaryTable(devilAssetTableBuffer.buffer, paths.DEVIL_ASSET_TABLE_OUT, paths.ASSET_TABLE_FOLDER_OUT)
+        self.writeBinaryTable(devilUIBuffer.buffer, paths.DEVIL_UI_OUT, paths.UI_GRAPHCIS_FOLDER_OUT)
         
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.
