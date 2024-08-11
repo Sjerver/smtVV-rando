@@ -110,23 +110,6 @@ class Boss_Flags:
         self.flags = []
         self.offset = None
 
-class Asset_Entry:
-    def __init__(self):
-        self.demonID = None
-        self.classAssetID = None
-        self.dmAssetID = None
-        self.validArea = None
-        self.verticalMax = None
-        self.horizontalMax = None
-        self.tallMax = None
-        self.postChips = None
-
-class UI_Entry:
-    def __init__(self):
-        self.assetID = None
-        self.assetString = None
-        self.offsetNumber = None
-
 class Duplicate:
     def __init__(self):
         self.compData = None

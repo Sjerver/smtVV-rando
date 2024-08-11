@@ -21,6 +21,7 @@ EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN = 'base/EventEncountPostDataTable.uasset
 DEVIL_ASSET_TABLE_IN = 'base/DevilAssetTable.uexp'
 ABSCESS_TABLE_IN = 'base/D_BaseTable.uexp'
 DEVIL_UI_IN = 'base/DevilUIGraphicsTable.uexp'
+TALK_CAMERA_OFFSETS_IN = 'base/TalkCameraOffsetTable.uexp'
 
 NKM_BASE_TABLE_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uexp'
 DEVIL_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil'
@@ -51,9 +52,12 @@ EVENT_ENCOUNT_POST_DATA_TABLE_OUT = 'rando/Project/Content/Blueprints/Common/Ass
 EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT = 'rando/Project/Content/Blueprints/Common/AssetTable/EncountPostTable/EventEncountPostDataTable.uasset'
 DEVIL_ASSET_TABLE_OUT = 'rando/Project/Content/Blueprints/Common/AssetTable/DevilAssetTable.uexp'
 ASSET_TABLE_FOLDER_OUT = 'rando/Project/Content/Blueprints/Common/AssetTable'
-ENCOUNT_POST_TABLE_FOLDER_OUT = 'rando/Project/Content/Blueprints/Common/AssetTable/EncountPostTable/'
+ENCOUNT_POST_TABLE_FOLDER_OUT = 'rando/Project/Content/Blueprints/Common/AssetTable/EncountPostTable'
 DEVIL_UI_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/UIGraphcis/DevilUIGraphicsTable.uexp'
-UI_GRAPHCIS_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/UIGraphcis/'
+UI_GRAPHCIS_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/UIGraphcis'
+CAMP_STATUS_FOLDER_OUT = 'rando/Project/Content/Blueprints/Camp/Status'
+CAMP_FOLDER_OUT = 'rando/Project/Content/Blueprints/Camp'
+TALK_CAMERA_OFFSETS_OUT = 'rando/Project/Content/Blueprints/Camp/Status/TalkCameraOffsetTable.uexp'
 
 ENCOUNTERS_DEBUG = 'debug/encounterResults.txt'
 FUSION_DEBUG = 'debug/fusionResults.txt'

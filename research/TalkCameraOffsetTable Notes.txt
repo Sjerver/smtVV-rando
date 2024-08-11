@@ -1,0 +1,12 @@
+Start: 0x4E
+Size: 0x132
+
+1st Entry
+
+0x4E Demon ID	(4 Bytes Integer)
+0x6B EyeOffset X (4 BytesFloat)
+0x88 EyeOffset Y
+0xA5 EyeOffset Z
+0xC2 LookOffset X
+...
+0x119 DyingOffset X

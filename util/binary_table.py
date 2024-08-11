@@ -46,6 +46,8 @@ class Table(object):
         return struct.unpack('<q', self.read(8, offset))[0]
     def read32chars(self, offset = -1):
         return struct.unpack('32s', self.read(32, offset))[0]
+    def readFloat(self, offset = -1):
+        return struct.unpack('<f', self.read(4, offset))[0]
 
     def write(self, data, offset = -1):
         if offset == -1:
@@ -67,6 +69,8 @@ class Table(object):
         return self.write(struct.pack('<q', x), offset)
     def write32chars(self, x, offset = -1):
         return self.write(struct.pack('32s', x), offset)
+    def writeFloat(self, x, offset = -1):
+        return self.write(struct.pack('<f', x), offset)
     
     def loadFile(self, file_path):
         return open(file_path, 'rb')

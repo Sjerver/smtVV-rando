@@ -1,6 +1,6 @@
 from multiprocessing import Value
 from util.binary_table import Table
-from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Asset_Entry, UI_Entry, Duplicate
+from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event
@@ -10,6 +10,7 @@ from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item
 from base_classes.quests import Mission, Mission_Reward, Mission_Condition
 from base_classes.settings import Settings
 from base_classes.miracles import Abscess
+from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
 import util.boss_logic as bossLogic
 import util.numbers as numbers
 import util.paths as paths
@@ -61,6 +62,7 @@ class Randomizer:
         self.missionArr = []
         self.abscessArr = []
         self.devilUIArr = []
+        self.talkCameraOffsets = []
 
         self.nahobino = Nahobino()
         
@@ -1159,6 +1161,29 @@ class Randomizer:
 
             self.devilUIArr.append(entry)
 
+    def fillTalkCameraArr(self, data):
+        start = 0x4E
+        size = 0x132
+
+        for index in range(numbers.TOTAL_DEMON_COUNT):
+            offset = start + size * index
+
+            locations = {
+                'demonID': offset,
+                'eyeOffset': offset + 29,
+                'lookOffset': offset + 29 * 4,
+                'dyingOffset': offset + 29 * 7
+            }
+
+            entry = Talk_Camera_Offset_Entry()
+            entry.offsetNumber = locations
+            entry.demonID = index
+            entry.eyeOffset = Position(data.readFloat(locations['eyeOffset']),data.readFloat(locations['eyeOffset'] + 29), data.readFloat(locations['eyeOffset'] + 29 * 2))
+            entry.lookOffset = Position(data.readFloat(locations['lookOffset']),data.readFloat(locations['lookOffset'] + 29), data.readFloat(locations['lookOffset'] + 29 * 2))
+            entry.dyingOffset = Position(data.readFloat(locations['dyingOffset']),data.readFloat(locations['dyingOffset'] + 29), data.readFloat(locations['dyingOffset'] + 29 * 2))
+            
+            self.talkCameraOffsets.append(entry)
+
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
         Parameters:
@@ -1896,7 +1921,7 @@ class Randomizer:
                     percentages[randomN] -= 1
             negatives = 1
             for index,percentage in enumerate(percentages):
-                if random.randrange(0,100) < (100 / negatives):
+                if random.randrange(0,100) < (100 / negatives) and negatives < (len(percentages)/2):
                     percentages[index] = percentage * -1
                     negatives += 1
 
@@ -2095,6 +2120,18 @@ class Randomizer:
             buffer.writeWord(foe.drops.item1.value, offsets['item'])
             buffer.writeWord(foe.drops.item2.value, offsets['item'] +12)
             buffer.writeWord(foe.drops.item3.value, offsets['item'] +24)
+
+            buffer.writeWord(foe.potential.physical,offsets['potential'] + 4 * 0)
+            buffer.writeWord(foe.potential.fire,offsets['potential'] + 4 * 1)
+            buffer.writeWord(foe.potential.ice,offsets['potential'] + 4 * 2)
+            buffer.writeWord(foe.potential.elec,offsets['potential'] + 4 * 3)
+            buffer.writeWord(foe.potential.force,offsets['potential'] + 4 * 4)
+            buffer.writeWord(foe.potential.light,offsets['potential'] + 4 * 5)
+            buffer.writeWord(foe.potential.dark,offsets['potential'] + 4 * 6)
+            buffer.writeWord(foe.potential.almighty,offsets['potential'] + 4 * 7)
+            buffer.writeWord(foe.potential.ailment,offsets['potential'] + 4 * 8)
+            buffer.writeWord(foe.potential.recover,offsets['potential'] + 4 * 10)
+            buffer.writeWord(foe.potential.support,offsets['potential'] + 4 * 9)
         return buffer
     
     '''
@@ -2305,6 +2342,18 @@ class Randomizer:
             buffer.write32chars(entry.assetString, entry.offsetNumber['assetString'])
         return buffer
 
+    def updateTalkCameraBuffer(self, buffer, data):
+        for entry in data:
+            buffer.writeFloat(entry.eyeOffset.x, entry.offsetNumber['eyeOffset'])
+            buffer.writeFloat(entry.eyeOffset.y, entry.offsetNumber['eyeOffset'] + 29)
+            buffer.writeFloat(entry.eyeOffset.z, entry.offsetNumber['eyeOffset'] + 29 * 2)
+            buffer.writeFloat(entry.lookOffset.x, entry.offsetNumber['lookOffset'])
+            buffer.writeFloat(entry.lookOffset.y, entry.offsetNumber['lookOffset'] + 29)
+            buffer.writeFloat(entry.lookOffset.z, entry.offsetNumber['lookOffset'] + 29 * 2)
+            buffer.writeFloat(entry.dyingOffset.x, entry.offsetNumber['dyingOffset'])
+            buffer.writeFloat(entry.dyingOffset.y, entry.offsetNumber['dyingOffset'] + 29)
+            buffer.writeFloat(entry.dyingOffset.z, entry.offsetNumber['dyingOffset'] + 29 * 2)
+        return buffer
     '''
     Check if a certain race of demons contains two demons of the same level
         Parameters:        
@@ -3744,6 +3793,10 @@ class Randomizer:
                 self.devilAssetArr[newID] = self.copyAssetsToSlot(self.devilAssetArr[newID], self.devilAssetArr[source])
                 self.devilUIArr[newID].assetID = self.devilUIArr[source].assetID
                 self.devilUIArr[newID].assetString = self.devilUIArr[source].assetString
+                self.talkCameraOffsets[newID].demonID = self.talkCameraOffsets[source].demonID
+                self.talkCameraOffsets[newID].eyeOffset = self.talkCameraOffsets[source].eyeOffset
+                self.talkCameraOffsets[newID].lookOffset = self.talkCameraOffsets[source].lookOffset
+                self.talkCameraOffsets[newID].dyingOffset = self.talkCameraOffsets[source].dyingOffset
 
                 dummies.pop(0)
 
@@ -3804,6 +3857,7 @@ class Randomizer:
         devilAssetTableBuffer = self.readBinaryTable(paths.DEVIL_ASSET_TABLE_IN)
         abscessBuffer = self.readBinaryTable(paths.ABSCESS_TABLE_IN)
         devilUIBuffer = self.readBinaryTable(paths.DEVIL_UI_IN)
+        talkCameraBuffer = self.readBinaryTable(paths.TALK_CAMERA_OFFSETS_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -3821,6 +3875,7 @@ class Randomizer:
         self.fillDevilAssetArr(devilAssetTableBuffer)
         self.fillAbscessArr(abscessBuffer)
         self.fillDevilUIArr(devilUIBuffer)
+        self.fillTalkCameraArr(talkCameraBuffer)
 
         #Requires asset arr, eventEncounter and needs to be before bossArr
         self.createOverlapCopies(compendiumBuffer)
@@ -3919,12 +3974,14 @@ class Randomizer:
         devilAssetTableBuffer = self.updateDevilAssetBuffer(devilAssetTableBuffer, self.devilAssetArr)
         missionBuffer = self.updateMissionBuffer(missionBuffer, self.missionArr)
         devilUIBuffer = self.updateDevilUIBuffer(devilUIBuffer, self.devilUIArr)
+        talkCameraBuffer = self.updateTalkCameraBuffer(talkCameraBuffer, self.talkCameraOffsets)
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
 
         self.writeFolder(paths.FACILITY_FOLDER_OUT)
         self.writeFolder(paths.BATTLE_FOLDER_OUT)
+        self.writeFolder(paths.CAMP_FOLDER_OUT)
 
         self.writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
         self.writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
@@ -3941,6 +3998,7 @@ class Randomizer:
         self.writeBinaryTable(battleEventUassetBuffer.buffer,paths.BATTLE_EVENT_UASSET_OUT,paths.BATTLE_EVENTS_OUT)
         self.writeBinaryTable(devilAssetTableBuffer.buffer, paths.DEVIL_ASSET_TABLE_OUT, paths.ASSET_TABLE_FOLDER_OUT)
         self.writeBinaryTable(devilUIBuffer.buffer, paths.DEVIL_UI_OUT, paths.UI_GRAPHCIS_FOLDER_OUT)
+        self.writeBinaryTable(talkCameraBuffer.buffer,paths.TALK_CAMERA_OFFSETS_OUT,paths.CAMP_STATUS_FOLDER_OUT)
         
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.
