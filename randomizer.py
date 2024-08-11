@@ -1270,7 +1270,7 @@ class Randomizer:
             uniqueSkills = {skill.ind for skill in levelAggregrate}
             allSkills = []
             for ind in uniqueSkills:
-                    allSkills.append(next(skill for skill in allSkills if skill.ind == ind))
+                    allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
 
 
         #For every demon...
@@ -1349,7 +1349,7 @@ class Randomizer:
                         if not any(e.ind == rng for e in totalSkills) and self.ensureAtLeastOneActive(totalSkills, demon, rng):
                             #Check if skill passes additional conditions or skip that check if skills are not supposed to be weighted by stats and potentials
                             if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon)):
-                                if self.checkUniqueSkillCondtiions(self.obtainSkillFromID(rng),demon,comp,settings):
+                                if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),demon,comp,settings):
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
@@ -1369,7 +1369,7 @@ class Randomizer:
                             foundSkill = True
                         if not any(e.ind == rng for e in totalSkills):
                             if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon)):
-                                if self.checkUniqueSkillCondtiions(self.obtainSkillFromID(rng),demon,comp,settings):
+                                if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),demon,comp,settings):
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
@@ -1438,8 +1438,8 @@ class Randomizer:
             levelList (Array(SkillLevel)): list of which skills can be learned at which level
             scaled (Boolean): whether or not the random skill is forced to be a low level skill
     '''
-    def assignRandomStartingSkill(self, naho, levelList, scaled):
-        if not scaled:
+    def assignRandomStartingSkill(self, naho, levelList, settings):
+        if not settings.scaledSkills:
             allSkills = []
             for index,level in enumerate(levelList):
                 if index == 0:
@@ -1454,16 +1454,47 @@ class Randomizer:
         possibleSkills = []
         for ind in uniqueSkills:
             possibleSkills.append(next(skill for skill in allSkills if skill.ind == ind))
-
+        ''' 
+        No longer needed due to Tutorial Removal
         # Nahobino needs active skill due to Tutorial
         possibleSkills = [s for s in possibleSkills if self.determineSkillStructureByID(s.ind) == "Active"]
         
+        
         # Cost needs to be not more than 60
         possibleSkills = [s for s in possibleSkills if self.obtainSkillFromID(s.ind).cost <= 60]
+        '''   
         # TODO: Unique Skill logic is missing here
-        start = random.choice(possibleSkills)
+        validity = False
+        skill = self.obtainSkillFromID(random.choice(possibleSkills).ind)
+        while not validity:
+            skill = self.obtainSkillFromID(random.choice(possibleSkills).ind)
+            if settings.multipleUniques:
+            # Unique skill can appear twice
+                # check if skill is unique skill
+                if skill.owner.ind == 0:
+                    validity = True
+                elif settings.freeInheritance:
+                    skill.owner.ind = 0
+                    skill.owner.name = self.compendiumArr[0].name
+                elif settings.randomInheritance and skill.owner.ind == skill.owner.original:
+                    # if unique skills should be randomly reassigned and skill has not been already reassigned
+                    skill.owner.ind = -1
+                    skill.owner.name = "Nahobino"
+                validity = True
+            else:
+                if skill.owner.ind == 0:
+                    validity = True
+                if settings.freeInheritance:
+                    skill.owner.ind = 0
+                    skill.owner.name = self.compendiumArr[0].name
+                    validity = True
+                elif settings.randomInheritance:
+                     # if unique skills should be randomly reassigned and skill has not been already reassigned
+                    skill.owner.ind = -1
+                    skill.owner.name = "Nahobino"
+                    validity = True
 
-        naho.startingSkill = start.ind
+        naho.startingSkill = skill.ind
 
     '''
     Assigns every protofiend new skills randomized using weights based on the passed settings.
@@ -1490,7 +1521,7 @@ class Randomizer:
             uniqueSkills = {skill.ind for skill in levelAggregrate}
             allSkills = []
             for ind in uniqueSkills:
-                    allSkills.append(next(skill for skill in allSkills if skill.ind == ind))
+                    allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
         
         for protofiend in protofiends:
             possibleSkills = []
@@ -1554,7 +1585,7 @@ class Randomizer:
                         if not any(e.ind == rng for e in totalSkills) and self.ensureAtLeastOneActive(totalSkills, protofiend, rng):
                             #Check if skill passes additional conditions or skip that check if skills are not supposed to be weighted by stats and potentials
                             if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, protofiend)):
-                                if self.checkUniqueSkillCondtiions(self.obtainSkillFromID(rng),protofiend,self.compendiumArr,settings):
+                                if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),protofiend,self.compendiumArr,settings):
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
@@ -1591,7 +1622,7 @@ class Randomizer:
         Returns:
             if assigning the skill to the demon follows the set unique skill inheritance rules
     '''
-    def checkUniqueSkillCondtiions(self, skill, demon, comp, settings):
+    def checkUniqueSkillConditions(self, skill, demon, comp, settings):
         if settings.multipleUniques:
         # Unique skill can appear twice
             # check if skill is unique skill
@@ -3807,9 +3838,10 @@ class Randomizer:
         #TODO: Consider case for potential weight or level dependency without random skills
 
         if config.randomSkills:
+            self.assignRandomStartingSkill(self.nahobino, levelSkillList, config)
             self.assignRandomSkillsToProtofiend(self.protofiendArr, levelSkillList, config)
             newComp = self.assignRandomSkills(newComp,levelSkillList, config)
-            self.assignRandomStartingSkill(self.nahobino, levelSkillList, config.scaledSkills)
+            
             
 
         if config.randomInnates:
