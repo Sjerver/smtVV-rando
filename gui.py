@@ -181,6 +181,7 @@ def createGUI(configSettings):
     listItem.insert(0, "Randomize Shop Items")
     listItem.insert(1, "Randomize Shop Essences")
     listItem.insert(2, "Randomize Enemy Drops")
+    listItem.insert(3, "Randomize Miracle Unlocks")
     listItem.pack()
         
     bossLabel = tk.Label(page2FrameLeft, text="Boss Randomizer")
@@ -264,6 +265,8 @@ def createGUI(configSettings):
                 listItem.selection_set(1)
             if configur.get('Item', 'RandomEnemyDrops') == 'true':
                 listItem.selection_set(2)
+            if configur.get('Item', 'RandomMiracleUnlocks') == 'true':
+                listItem.selection_set(3)
             if configur.get('Boss', 'NormalBossesSelf') == 'true':
                 listBoss.selection_set(0)
             if configur.get('Boss', 'NormalBossesMixed') == 'true':
@@ -407,6 +410,12 @@ def createGUI(configSettings):
         configur.set('Item', 'RandomEnemyDrops', 'true')
     else:
         configur.set('Item', 'RandomEnemyDrops', 'false')
+        
+    if itemFlags[3]:
+        configSettings.randomMiracleUnlocks = True
+        configur.set('Item', 'RandomMiracleUnlocks', 'true')
+    else:
+        configur.set('Item', 'RandomMiracleUnlocks', 'false')
             
     if bossFlags[0]:
         configSettings.selfRandomizeNormalBosses = True
@@ -472,7 +481,7 @@ def createConfigFile(configur):
     configur.read('config.ini')
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False}
-    configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False}
+    configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False, 'RandomMiracleUnlocks': False}
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
     configur['Boss'] = {'NormalBossesSelf': False, 'NormalBossesMixed': False, 'RandomizeLucifer': False, 'AbscessBossesSelf': False, 'AbscessBossesMixed': False,

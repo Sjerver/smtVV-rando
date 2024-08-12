@@ -53,6 +53,7 @@ EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT = 'rando/Project/Content/Blueprints/Com
 DEVIL_ASSET_TABLE_OUT = 'rando/Project/Content/Blueprints/Common/AssetTable/DevilAssetTable.uexp'
 ASSET_TABLE_FOLDER_OUT = 'rando/Project/Content/Blueprints/Common/AssetTable'
 ENCOUNT_POST_TABLE_FOLDER_OUT = 'rando/Project/Content/Blueprints/Common/AssetTable/EncountPostTable'
+ABSCESS_TABLE_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Map/D_BaseTable.uexp'
 DEVIL_UI_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/UIGraphcis/DevilUIGraphicsTable.uexp'
 UI_GRAPHCIS_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/UIGraphcis'
 CAMP_STATUS_FOLDER_OUT = 'rando/Project/Content/Blueprints/Camp/Status'

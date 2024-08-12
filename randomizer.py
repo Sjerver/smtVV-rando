@@ -2354,6 +2354,14 @@ class Randomizer:
             buffer.writeFloat(entry.dyingOffset.y, entry.offsetNumber['dyingOffset'] + 29)
             buffer.writeFloat(entry.dyingOffset.z, entry.offsetNumber['dyingOffset'] + 29 * 2)
         return buffer
+
+    def updateAbscessBuffer(self, buffer, data):
+        for abscess in data:
+            buffer.writeHalfword(abscess.encounter, abscess.offsetNumber['encounter'])
+            for i in range(6):
+                buffer.writeByte(abscess.miracles[i], abscess.offsetNumber['miracles'] + i)
+        return buffer
+
     '''
     Check if a certain race of demons contains two demons of the same level
         Parameters:        
@@ -3010,6 +3018,59 @@ class Randomizer:
         for encounter in self.eventEncountArr:
             if encounter.track not in [0, 255]:
                 encounter.track = random.choice(trackList)
+
+
+    '''
+    Shuffles the miracle rewards from abscesses, including endgame miracles
+    TODO: Guarantee certain miracles appear before a certain point in the game
+    TODO: Handle duplicate miracles
+    TODO: Mess with starting miracles
+    '''
+    def randomizeMiracleRewards(self):
+        miracleList = []
+        rewardCounts = []
+        for abscess in self.abscessArr: #First gather all the miracles in a list and the number of miracles each abscess gives
+            rewardCount = 0
+            for miracle in abscess.miracles:
+                if miracle > 0:
+                    rewardCount += 1
+                    miracleList.append(miracle)
+            rewardCounts.append(rewardCount)
+        
+        shuffledMiracles = sorted(miracleList, key=lambda x: random.random())
+        #print(shuffledMiracles)
+        for dependentMiracles in numbers.MIRACLE_DEPENDENCIES: #For progressive miracles put them in order
+            indices = []
+            unused = []
+            for miracle in dependentMiracles:
+                try:
+                    indices.append(shuffledMiracles.index(miracle))
+                    unused.append(False)
+                except ValueError:
+                    indices.append(-1)
+                    unused.append(True)
+            for i in range(len(unused)-1,-1,-1): #Remove miracles that are not obtained from an abscess
+                if unused[i]:
+                    del indices[i]
+                    del dependentMiracles[i]
+            indices.sort()
+            for smallIndex, largeIndex in enumerate(indices):
+                shuffledMiracles[largeIndex] = dependentMiracles[smallIndex]
+        #print(shuffledMiracles)
+
+        #Add a deepcopy if we add a dedicated miracle class
+        abscessIndex = 0
+        miracleIndex = 0
+        for miracle in shuffledMiracles: #Put the shuffled miracles in order to preserve the number of miracles per abscess and avoid DUMMY data
+            while rewardCounts[abscessIndex] == 0:
+                abscessIndex += 1
+                miracleIndex = 0
+            rewardCounts[abscessIndex] = rewardCounts[abscessIndex] - 1
+            self.abscessArr[abscessIndex].miracles[miracleIndex] = miracle
+            miracleIndex += 1
+        print(rewardCounts)
+            
+        
 
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
@@ -3952,6 +4013,9 @@ class Randomizer:
         if config.randomMusic:
             self.randomizeEventEncounterTracks()
             
+        if config.randomMiracleUnlocks:
+            self.randomizeMiracleRewards()
+            
         if DEV_CHEATS:
             self.applyCheats()
         
@@ -3975,6 +4039,7 @@ class Randomizer:
         missionBuffer = self.updateMissionBuffer(missionBuffer, self.missionArr)
         devilUIBuffer = self.updateDevilUIBuffer(devilUIBuffer, self.devilUIArr)
         talkCameraBuffer = self.updateTalkCameraBuffer(talkCameraBuffer, self.talkCameraOffsets)
+        abscessBuffer = self.updateAbscessBuffer(abscessBuffer, self.abscessArr)
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
@@ -3999,6 +4064,7 @@ class Randomizer:
         self.writeBinaryTable(devilAssetTableBuffer.buffer, paths.DEVIL_ASSET_TABLE_OUT, paths.ASSET_TABLE_FOLDER_OUT)
         self.writeBinaryTable(devilUIBuffer.buffer, paths.DEVIL_UI_OUT, paths.UI_GRAPHCIS_FOLDER_OUT)
         self.writeBinaryTable(talkCameraBuffer.buffer,paths.TALK_CAMERA_OFFSETS_OUT,paths.CAMP_STATUS_FOLDER_OUT)
+        self.writeBinaryTable(abscessBuffer.buffer, paths.ABSCESS_TABLE_OUT, paths.MAP_FOLDER_OUT)
         
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.
