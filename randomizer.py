@@ -1142,6 +1142,11 @@ class Randomizer:
 
             self.abscessArr.append(abscess)
 
+    '''
+    Fills the array devilUIArr with data on the demons ui elements, like their face in the status menu.
+        Parameters:
+            data (Buffer) the buffer containing all data on which ui elements demons use
+    '''
     def fillDevilUIArr(self, data):
         start = 0x45
         size = 44
@@ -1160,7 +1165,12 @@ class Randomizer:
             entry.offsetNumber = locations
 
             self.devilUIArr.append(entry)
-
+            
+    '''
+    Fills the array talkCameraOffsets with data regarding camera in the status menu in battle for all demons
+        Parameters:
+            data (Buffer) the buffer containing all data regarding camera in the status menu in battle for all demons
+    '''
     def fillTalkCameraArr(self, data):
         start = 0x4E
         size = 0x132
@@ -1426,7 +1436,6 @@ class Randomizer:
     Randomly assigns innate skills to all compendium demons. 
         Parameters:
             comp (Array(Compendium_Demon)) array of all demons
-
     '''
     def assignRandomInnates(self, comp):
         # These are normally enemy only and won't work on player side
@@ -2336,12 +2345,24 @@ class Randomizer:
         
         return buffer
 
+    '''
+    Writes certain values from the devil ui list to their respective locations in the table buffer
+        Parameters:
+            buffer (Table): buffer
+            data (List(UI_Entry)): list of ui entries
+    '''
     def updateDevilUIBuffer(self, buffer, devilUITable):
         for entry in devilUITable:
             buffer.writeWord(entry.assetID, entry.offsetNumber['assetID'])
             buffer.write32chars(entry.assetString, entry.offsetNumber['assetString'])
         return buffer
 
+    '''
+    Writes certain values from the talk camera offset list to their respective locations in the table buffer
+        Parameters:
+            buffer (Table): buffer
+            data (List(Talk_Camera_Offset_Entry)): list of talk camera offsets of demons
+    '''
     def updateTalkCameraBuffer(self, buffer, data):
         for entry in data:
             buffer.writeFloat(entry.eyeOffset.x, entry.offsetNumber['eyeOffset'])
