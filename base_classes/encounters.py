@@ -31,6 +31,7 @@ class Event_Encounter:
         self.unknownDemon = None
         self.unknown23Flag = None
         self.originalIndex = None
+        self.positions = EventEncountPost()
         
     '''
     Tests if two encounters share identical demons, usually due to VR battles
@@ -50,3 +51,9 @@ class Battle_Event:
         self.offset = offset
         self.encounterID = encounterID
         self.referenceID = -1
+
+class EventEncountPost:
+    def __init__(self):
+        self.demons = []
+        self.addDemons = []
+        self.offsetNumber = None

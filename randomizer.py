@@ -2209,7 +2209,7 @@ class Randomizer:
             buffer (Table)
             evEncount (Array)
     '''
-    def updateEventEncountBuffer(self,buffer,evEncount):
+    def updateEventEncountBuffer(self,buffer,evEncount, postBuffer):
         for enc in evEncount:
             buffer.writeByte(enc.unknown23Flag, enc.offsets['23Flag'])
             buffer.writeByte(enc.battlefield, enc.offsets['battlefield'])
@@ -2218,6 +2218,12 @@ class Randomizer:
             buffer.writeHalfword(enc.unknownDemon.value, enc.offsets['unknownDemon'])
             for index, demon in enumerate(enc.demons):
                 buffer.writeHalfword(demon.value , enc.offsets['demons'] + 2 * index)
+            for index, pos in enumerate(enc.positions.demons):
+                postBuffer.writeFloat(pos.x, enc.positions.offsetNumber['demon1'] + 0xE * index)
+                postBuffer.writeFloat(pos.y, enc.positions.offsetNumber['demon1'] + 4 + 0xE * index)
+            for index, pos in enumerate(enc.positions.addDemons):
+                postBuffer.writeFloat(pos.x, enc.positions.offsetNumber['addDemon1'] + 0xC * index)
+                postBuffer.writeFloat(pos.y, enc.positions.offsetNumber['addDemon1'] + 4 + 0xC * index)
         return buffer
     
     '''
@@ -2968,6 +2974,8 @@ class Randomizer:
         encounterToUpdate.unknownDemon = referenceEncounter.unknownDemon
         encounterToUpdate.unknown23Flag = referenceEncounter.unknown23Flag
         encounterToUpdate.levelpath = referenceEncounter.levelpath
+        encounterToUpdate.positions.demons = referenceEncounter.positions.demons
+        encounterToUpdate.positions.addDemons = referenceEncounter.positions.addDemons
         if not self.configSettings.checkBasedMusic and not self.configSettings.randomMusic:
             encounterToUpdate.track = referenceEncounter.track
             
@@ -3094,6 +3102,22 @@ class Randomizer:
                 hBIndex = fourHolyBeastEncounters.index(encounter.ind)
                 fourHolyBeastMission.conditions[hBIndex].ind = shuffledEncounters[index].demons[0].value
 
+    def addPositionsToEventEncountArr(self, data, eventEncountArr):
+        start = 0xCE
+        size = 0x18F
+
+        for index, element in enumerate(eventEncountArr):
+            offset = start + size * index
+            locations = {
+                'demon1': offset,
+                'addDemon1': offset + 0xB6
+            }
+            for i in range(8):
+                element.positions.demons.append(Position(data.readFloat(locations['demon1'] + 0xE * i),data.readFloat(locations['demon1'] + 4 + 0xE * i)))
+            for i in range(4):
+                element.positions.addDemons.append(Position(data.readFloat(locations['addDemon1'] + 0xC * i),data.readFloat(locations['addDemon1'] + 4 + 0xC * i)))
+            element.positions.offsetNumber = locations
+        return eventEncountArr
 
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
@@ -3942,6 +3966,7 @@ class Randomizer:
         abscessBuffer = self.readBinaryTable(paths.ABSCESS_TABLE_IN)
         devilUIBuffer = self.readBinaryTable(paths.DEVIL_UI_IN)
         talkCameraBuffer = self.readBinaryTable(paths.TALK_CAMERA_OFFSETS_IN)
+        eventEncountPostBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -3973,7 +3998,7 @@ class Randomizer:
         self.fillProtofiendArr(compendiumBuffer)
         self.fillMissionArr(missionBuffer)
         
-        
+        self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
 
         
 
@@ -4056,7 +4081,7 @@ class Randomizer:
         playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
         itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
         shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr)
-        eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr)
+        eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr, eventEncountPostBuffer)
         bossFlagBuffer = self.updateBossFlagBuffer(bossFlagBuffer)
         compendiumBuffer = self.updateProtofiendBuffer(compendiumBuffer, self.protofiendArr)
         battleEventsBuffer = self.updateBattleEventsBuffer(battleEventsBuffer, self.battleEventArr, battleEventUassetBuffer)
@@ -4090,7 +4115,10 @@ class Randomizer:
         self.writeBinaryTable(devilUIBuffer.buffer, paths.DEVIL_UI_OUT, paths.UI_GRAPHCIS_FOLDER_OUT)
         self.writeBinaryTable(talkCameraBuffer.buffer,paths.TALK_CAMERA_OFFSETS_OUT,paths.CAMP_STATUS_FOLDER_OUT)
         self.writeBinaryTable(abscessBuffer.buffer, paths.ABSCESS_TABLE_OUT, paths.MAP_FOLDER_OUT)
-        
+        self.writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+
+        self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.
     Used for debugging purposes to prevent camera glitches in battle encounters.
