@@ -49,6 +49,7 @@ class Randomizer:
         self.essenceArr = []
         self.shopArr = []
         self.eventEncountArr = []
+        self.staticEventEncountArr = []
         self.bossArr = []
         self.enemyNames = []
         self.staticBossArr = []
@@ -936,6 +937,7 @@ class Randomizer:
                 self.bossDuplicateMap[index] = originalIndex
 
             self.eventEncountArr.append(encounter)
+            self.staticEventEncountArr.append(copy.deepcopy(encounter))
         
     '''
     Fills the array bossFlagArr with data on boss flags.
@@ -2911,15 +2913,6 @@ class Randomizer:
     '''
     def randomizeBosses(self, eventEncountArr):
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
-
-        #Exceptions for A Gold Dragons Arrival
-        fourHolyBeastEncounters = [130,131] #Qing Long, Zhuque
-        fourHolyBeastMission = self.missionArr[48]
-        #get all missions that require a boss to be killed
-        eventEncountMissions = []
-        for mission in self.missionArr:
-                if any(mission.ind != 48 and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
-                    eventEncountMissions.append([mission,mission.conditions[0].ind])
         
         encounterPools = bossLogic.createBossEncounterPools(eventEncountArr, self.bossDuplicateMap, self.configSettings)
         if not encounterPools:
@@ -2933,40 +2926,6 @@ class Randomizer:
                     spoilerLog.write(str(encounter.ind) + " " + encounter.demons[0].translation + " replaced by " + str(shuffledEncounters[index].ind) + " " + shuffledEncounters[index].demons[0].translation + "\n")
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind)
-                    
-                    #go through all mission that require boss to be kileld
-                    for pair in eventEncountMissions:
-                        if any(demon.value == pair[1] for demon in encounter.demons):
-                        #if a demon from old encounter appears as first mission condition
-                            demonAmounts = {}
-                            for demon in shuffledEncounters[index].demons:
-                               #count how often demons in encounter appears
-                               if demon.value == 0:
-                                   continue
-                               if demon.value in demonAmounts.keys():
-                                   demonAmounts.update({demon.value: demonAmounts.get(demon.value) + 1})
-                               else: 
-                                   demonAmounts.update({demon.value: 1})
-                            # make sure we have not more than 4 demons as conditions
-                            if len(demonAmounts) > 4:
-                                while len(demonAmounts) > 4:
-                                    demonAmounts.popitem()
-                            
-                            #empty conditions
-                            for i in range(4):
-                                pair[0].conditions[i].type = 0
-                                pair[0].conditions[i].ind = 0
-                                pair[0].conditions[i].amounts = 0
-                            i = 0
-                            #replace conditions with new demons
-                            for keyDemon, amounts in demonAmounts.items():
-                                pair[0].conditions[i].type = 1
-                                pair[0].conditions[i].ind = keyDemon
-                                pair[0].conditions[i].amounts = amounts
-                                i = i + 1
-                    if encounter.ind in fourHolyBeastEncounters:
-                        hBIndex = fourHolyBeastEncounters.index(encounter.ind)
-                        fourHolyBeastMission.conditions[hBIndex].ind = shuffledEncounters[index].demons[0].value
       
                     self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
                     eventEncountArr[encounter.originalIndex] = encounter
@@ -2976,9 +2935,6 @@ class Randomizer:
                         eventInds = [jIndex for jIndex, e in enumerate(encountersWithBattleEvents) if e == shuffledEncounters[index].ind]
                         for ind in eventInds:
                             self.battleEventArr[ind].encounterID = encounter.ind
-            for mission in eventEncountMissions:
-                self.missionArr[mission[0].ind] = mission[0]    
-            
 
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
         for index, encounter in enumerate(eventEncountArr): #Set duplicate encounters to use the same demons as their new counterparts
@@ -3091,7 +3047,53 @@ class Randomizer:
             miracleIndex += 1
         print(rewardCounts)
             
-        
+    
+    def adjustEventEncountMissionConditions(self, shuffledEncounters, originalEncounters):
+        #Exceptions for A Gold Dragons Arrival
+        fourHolyBeastEncounters = [130,131] #Qing Long, Zhuque
+        fourHolyBeastMission = self.missionArr[48]
+        #get all missions that require a boss to be killed
+        eventEncountMissions = []
+        for mission in self.missionArr:
+                if any(mission.ind != 48 and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
+                    eventEncountMissions.append([mission,mission.conditions[0].ind])
+        for index, encounter in enumerate(originalEncounters):
+            if encounter.demons[0] == shuffledEncounters[index].demons[0]:
+                continue
+            #go through all mission that require boss to be killed
+            for pair in eventEncountMissions:
+                if any(demon.value == pair[1] for demon in encounter.demons):
+                #if a demon from old encounter appears as first mission condition
+                    demonAmounts = {}
+                    for demon in shuffledEncounters[index].demons:
+                        #count how often demons in encounter appears
+                        if demon.value == 0:
+                            continue
+                        if demon.value in demonAmounts.keys():
+                            demonAmounts.update({demon.value: demonAmounts.get(demon.value) + 1})
+                        else: 
+                            demonAmounts.update({demon.value: 1})
+                        # make sure we have not more than 4 demons as conditions
+                    if len(demonAmounts) > 4:
+                        while len(demonAmounts) > 4:
+                            demonAmounts.popitem()
+                            
+                    #empty conditions
+                    for i in range(4):
+                        pair[0].conditions[i].type = 0
+                        pair[0].conditions[i].ind = 0
+                        pair[0].conditions[i].amount = 0
+                    i = 0
+                    #replace conditions with new demons
+                    for keyDemon, amounts in demonAmounts.items():
+                        pair[0].conditions[i].type = 1
+                        pair[0].conditions[i].ind = keyDemon
+                        pair[0].conditions[i].amount = amounts
+                        i = i + 1
+            if encounter.ind in fourHolyBeastEncounters:
+                hBIndex = fourHolyBeastEncounters.index(encounter.ind)
+                fourHolyBeastMission.conditions[hBIndex].ind = shuffledEncounters[index].demons[0].value
+
 
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
@@ -4030,7 +4032,9 @@ class Randomizer:
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
             bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings)
-            
+        
+        self.adjustEventEncountMissionConditions(self.eventEncountArr, self.staticEventEncountArr)
+
         if config.randomMusic:
             self.randomizeEventEncounterTracks()
             
