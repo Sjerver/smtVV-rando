@@ -3053,7 +3053,6 @@ class Randomizer:
             rewardCounts[abscessIndex] = rewardCounts[abscessIndex] - 1
             self.abscessArr[abscessIndex].miracles[miracleIndex] = miracle
             miracleIndex += 1
-        print(rewardCounts)
             
     
     def adjustEventEncountMissionConditions(self, shuffledEncounters, originalEncounters):
@@ -3834,6 +3833,13 @@ class Randomizer:
         self.battleEventArr[35].enounterID = 255
 
     '''
+    Patches tutorial Daemon's HP to be beatable without Zio
+    '''
+    def patchTutorialDaemon(self):
+        daemon = self.bossArr[numbers.TUTORIAL_DAEMON_ID]
+        daemon.stats.HP = 27 #Should die to 3 basic attacks always
+
+    '''
     Creates a copy of the new entry with the binary offset data of the old entry.
         Parameters:
             newEntry (Asset_Entry): the new asset entry data to copy
@@ -4066,10 +4072,12 @@ class Randomizer:
         if config.randomMiracleUnlocks:
             self.randomizeMiracleRewards()
             
+        self.patchTutorialDaemon()
+            
         if DEV_CHEATS:
             self.applyCheats()
         
-       
+        
 
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
