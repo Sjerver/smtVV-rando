@@ -4173,9 +4173,14 @@ class Randomizer:
         #self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
 
+        self.writeFolder(paths.BLUEPRINTS_FOLDER_OUT)
+        self.writeFolder(paths.GAMEDATA_FOLDER_OUT)
+        self.writeFolder(paths.BINTABLE_FOLDER_OUT)
         self.writeFolder(paths.FACILITY_FOLDER_OUT)
         self.writeFolder(paths.BATTLE_FOLDER_OUT)
         self.writeFolder(paths.CAMP_FOLDER_OUT)
+        self.writeFolder(paths.MIRACLE_TOP_FOLDER_OUT)
+        self.writeFolder(paths.COMMON_TOP_FOLDER_OUT)
 
         self.writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
         self.writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
