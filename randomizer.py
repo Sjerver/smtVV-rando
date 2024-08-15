@@ -2227,8 +2227,20 @@ class Randomizer:
             buffer (Table)
             evEncount (Array)
     '''
-    def updateEventEncountBuffer(self,buffer,evEncount, postBuffer):
-        for enc in evEncount:
+    def updateEventEncountBuffer(self,buffer,evEncount, uassetBuffer):
+        sizeWord = buffer.readWord(0x10)
+        totalSize = buffer.readWord(0x39)
+        
+        for ind, enc in enumerate(evEncount):
+            if ind >= 252:
+                for i in range (0,96,4):
+                    buffer.buffer.insert(-16,0)
+                    buffer.buffer.insert(-16,0)
+                    buffer.buffer.insert(-16,0)
+                    buffer.buffer.insert(-16,0)
+                totalSize = totalSize + 96
+                sizeWord = sizeWord + 96
+            buffer.writeByte(enc.ind, enc.offsets['23Flag']-3)
             buffer.writeByte(enc.unknown23Flag, enc.offsets['23Flag'])
             buffer.writeByte(enc.battlefield, enc.offsets['battlefield'])
             buffer.writeHalfword(enc.track, enc.offsets['track'])
@@ -2236,14 +2248,25 @@ class Randomizer:
             buffer.writeHalfword(enc.unknownDemon.value, enc.offsets['unknownDemon'])
             for index, demon in enumerate(enc.demons):
                 buffer.writeHalfword(demon.value , enc.offsets['demons'] + 2 * index)
-            for index, pos in enumerate(enc.positions.demons):
-                postBuffer.writeFloat(pos.x, enc.positions.offsetNumber['demon1'] + 0xE * index)
-                postBuffer.writeFloat(pos.y, enc.positions.offsetNumber['demon1'] + 4 + 0xE * index)
-            for index, pos in enumerate(enc.positions.addDemons):
-                postBuffer.writeFloat(pos.x, enc.positions.offsetNumber['addDemon1'] + 0xC * index)
-                postBuffer.writeFloat(pos.y, enc.positions.offsetNumber['addDemon1'] + 4 + 0xC * index)
+        
+        buffer.writeWord(totalSize, 0x39)
+        buffer.writeWord(sizeWord,0x10)
+        buffer.writeWord(sizeWord -4, 0x21)
+        uassetBuffer.writeWord(totalSize + 0x51, 0x251)
+            
+            
         return buffer
     
+    def updateEventEncountPostBuffer(self,buffer,evEncount):
+        for ind, enc in enumerate(evEncount):
+            if(ind < 252):
+                for index, pos in enumerate(enc.positions.demons):
+                    buffer.writeFloat(pos.x, enc.positions.offsetNumber['demon1'] + 0xE * index)
+                    buffer.writeFloat(pos.y, enc.positions.offsetNumber['demon1'] + 4 + 0xE * index)
+                for index, pos in enumerate(enc.positions.addDemons):
+                    buffer.writeFloat(pos.x, enc.positions.offsetNumber['addDemon1'] + 0xC * index)
+                    buffer.writeFloat(pos.y, enc.positions.offsetNumber['addDemon1'] + 4 + 0xC * index)
+        return buffer
     '''
     Writes the values from the boss flag array to their respective locations in the table buffer
         Parameters:        
@@ -3980,6 +4003,19 @@ class Randomizer:
 
                 dummies.pop(0)
 
+    def addEventEncounter(self):
+        newEvEnc = copy.deepcopy(self.eventEncountArr[0])
+        newEvEnc.ind = self.eventEncountArr[-1].ind +1
+        offset = 0x45 + 0x60 * newEvEnc.ind
+        newEvEnc.offsets = {
+                'demons': offset + 0x48,
+                'track': offset + 0x2E,
+                'levelpath': offset,
+                'unknownDemon': offset + 0x38,
+                '23Flag': offset + 0x23,
+                'battlefield': offset + 0x24
+            }
+        self.eventEncountArr.append(newEvEnc)
 
     '''
     Generates a random seed if none was provided by the user and sets the random seed
@@ -4040,6 +4076,7 @@ class Randomizer:
         talkCameraBuffer = self.readBinaryTable(paths.TALK_CAMERA_OFFSETS_IN)
         eventEncountPostBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_IN)
         miracleBuffer = self.readBinaryTable(paths.MIRACLE_TABLE_IN)
+        eventEncountUassetBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_UASSET_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -4147,6 +4184,8 @@ class Randomizer:
         if DEV_CHEATS:
             self.applyCheats()
         
+
+        #self.addEventEncounter()
         
 
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
@@ -4159,7 +4198,8 @@ class Randomizer:
         playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
         itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
         shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr)
-        eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr, eventEncountPostBuffer)
+        eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr, eventEncountUassetBuffer)
+        eventEncountPostBuffer = self.updateEventEncountPostBuffer(eventEncountPostBuffer, self.eventEncountArr)
         bossFlagBuffer = self.updateBossFlagBuffer(bossFlagBuffer)
         compendiumBuffer = self.updateProtofiendBuffer(compendiumBuffer, self.protofiendArr)
         battleEventsBuffer = self.updateBattleEventsBuffer(battleEventsBuffer, self.battleEventArr, battleEventUassetBuffer)
@@ -4201,6 +4241,7 @@ class Randomizer:
         self.writeBinaryTable(abscessBuffer.buffer, paths.ABSCESS_TABLE_OUT, paths.MAP_FOLDER_OUT)
         self.writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         self.writeBinaryTable(miracleBuffer.buffer, paths.MIRACLE_TABLE_OUT, paths.MIRACLE_FOLDER_OUT)
+        self.writeBinaryTable(eventEncountUassetBuffer.buffer, paths.EVENT_ENCOUNT_UASSET_OUT, paths.MAP_FOLDER_OUT)
 
         self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
 

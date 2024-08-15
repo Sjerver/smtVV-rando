@@ -1,0 +1,8 @@
+In UEXP:
+    0x10 is size
+    0x21 is size -4
+    0x39 is total table size
+
+
+In UASSET:
+    Size of File - 0x5B is total table size + 0x51 for files that only contain one table

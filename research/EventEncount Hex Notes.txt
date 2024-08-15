@@ -1,7 +1,8 @@
 Entry start first: 45, second: A5 size:0x60
 
 0 size0x20 Either starts with 30 or String for .umap file in folder level; decides how camera works
-20 size2 ID in table
+20 size1 ID in table
+21 size1 ID of next battle (used in Virtual Trainer, works outside of it aswell)
 23 size1 3 if LevelString, 0 otherwise
 24 size1? seems to refer to the battlefield (e.g. all battles in empyrean have 02, result in black void otherwise)
 2A size1? some kind of flag	(always set??)
