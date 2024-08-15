@@ -9,7 +9,7 @@ from base_classes.nahobino import Nahobino, LevelStats
 from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item
 from base_classes.quests import Mission, Mission_Reward, Mission_Condition
 from base_classes.settings import Settings
-from base_classes.miracles import Abscess
+from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
 import util.boss_logic as bossLogic
 import util.numbers as numbers
@@ -64,6 +64,7 @@ class Randomizer:
         self.abscessArr = []
         self.devilUIArr = []
         self.talkCameraOffsets = []
+        self.miracleArr = []
 
         self.nahobino = Nahobino()
         
@@ -1195,6 +1196,23 @@ class Randomizer:
             entry.dyingOffset = Position(data.readFloat(locations['dyingOffset']),data.readFloat(locations['dyingOffset'] + 29), data.readFloat(locations['dyingOffset'] + 29 * 2))
             
             self.talkCameraOffsets.append(entry)
+
+    '''
+    Fills the array miracleArr with data on miracle prices.
+        Parameters:
+            data (Buffer) the buffer containing all miracle data
+    '''
+    def fillMiracleArr(self, data):
+
+        start = 0x59
+        size = 0x14
+        
+        self.miracleArr.append(Miracle(0, 0)) #Dummy miracle to better align with abscess indexing
+
+        for index in range(144):
+            offset = start + size * index
+            miracle = Miracle(offset, data.readHalfword(offset + 0xc))
+            self.miracleArr.append(miracle)
 
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
@@ -2384,11 +2402,28 @@ class Randomizer:
             buffer.writeFloat(entry.dyingOffset.z, entry.offsetNumber['dyingOffset'] + 29 * 2)
         return buffer
 
-    def updateAbscessBuffer(self, buffer, data):
-        for abscess in data:
+
+    '''
+    Writes encounter and miracle information from the abscess array to their respective locations in the table buffer
+        Parameters:
+            buffer (Table): buffer
+    '''
+    def updateAbscessBuffer(self, buffer):
+        for abscess in self.abscessArr:
             buffer.writeHalfword(abscess.encounter, abscess.offsetNumber['encounter'])
             for i in range(6):
                 buffer.writeByte(abscess.miracles[i], abscess.offsetNumber['miracles'] + i)
+        return buffer
+    
+    '''
+    Writes miracle updated costs from the miracle array to their respective locations in the table buffer
+        Parameters:
+            buffer (Table): buffer
+    '''
+    def updateMiracleBuffer(self, buffer):
+        for miracle in self.miracleArr:
+            if miracle.offsetNumber > 0: #Ignore Dummy miracle
+                buffer.writeHalfword(miracle.cost, miracle.offsetNumber + 0xc)
         return buffer
 
     '''
@@ -3014,6 +3049,7 @@ class Randomizer:
     def randomizeMiracleRewards(self):
         miracleList = []
         rewardCounts = []
+        vanillaAbscessArr = copy.deepcopy(self.abscessArr)
         for abscess in self.abscessArr: #First gather all the miracles in a list and the number of miracles each abscess gives
             rewardCount = 0
             for miracle in abscess.miracles:
@@ -3054,6 +3090,36 @@ class Randomizer:
             self.abscessArr[abscessIndex].miracles[miracleIndex] = miracle
             miracleIndex += 1
             
+        if self.configSettings.randomMiracleCosts:
+            self.randomizeMiracleCosts(originalAbscessArr=vanillaAbscessArr)
+            
+    '''
+    Randomizes the cost of miracles constrained by the highest miracle cost seen by this point in the game
+        Parameters:
+            originalAbscessArr (List(Abscess)): The list of abscesses containing miracle rewards in vanilla in the event that miracle rewards were randomized
+    '''
+    def randomizeMiracleCosts(self, originalAbscessArr = None):
+        if not originalAbscessArr:
+            originalAbscessArr = self.abscessArr
+            
+        originalMiracles = copy.deepcopy(self.miracleArr)
+        minimumCost = 5 // 5 #Miracle costs are in increments of 5 so we'll work in the base unit and multiply back up at the end
+        maximumCost = 35 // 5
+        
+        for startingMiracleIndex in numbers.STARTING_MIRACLES: #Update starting miracle costs
+            self.miracleArr[startingMiracleIndex].cost = random.randint(minimumCost, maximumCost) * 5
+            
+        for abscessIndex, originalAbscess in enumerate(originalAbscessArr):
+            for miracleIndex in originalAbscess.miracles:
+                if miracleIndex > 0 and originalMiracles[miracleIndex].cost // 5 > maximumCost:
+                    maximumCost = originalMiracles[miracleIndex].cost // 5 #Update the maximum 'seen' glory cost
+                
+            updatedAbscess = self.abscessArr[abscessIndex]
+            for miracleIndex in updatedAbscess.miracles:
+                if miracleIndex > 0:
+                    self.miracleArr[miracleIndex].cost = random.randint(minimumCost, maximumCost) * 5 #Update abscess reward miracle costs
+            
+
     
     def adjustEventEncountMissionConditions(self, shuffledEncounters, originalEncounters):
         #Exceptions for A Gold Dragons Arrival
@@ -3973,6 +4039,7 @@ class Randomizer:
         devilUIBuffer = self.readBinaryTable(paths.DEVIL_UI_IN)
         talkCameraBuffer = self.readBinaryTable(paths.TALK_CAMERA_OFFSETS_IN)
         eventEncountPostBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_IN)
+        miracleBuffer = self.readBinaryTable(paths.MIRACLE_TABLE_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -3991,6 +4058,7 @@ class Randomizer:
         self.fillAbscessArr(abscessBuffer)
         self.fillDevilUIArr(devilUIBuffer)
         self.fillTalkCameraArr(talkCameraBuffer)
+        self.fillMiracleArr(miracleBuffer)
 
         #Requires asset arr, eventEncounter and needs to be before bossArr
         self.createOverlapCopies(compendiumBuffer)
@@ -4071,6 +4139,8 @@ class Randomizer:
             
         if config.randomMiracleUnlocks:
             self.randomizeMiracleRewards()
+        elif config.randomMiracleCosts: #If randomizing unlocks handle costs there as it is slightly more complicated
+            self.randomizeMiracleCosts()
             
         self.patchTutorialDaemon()
             
@@ -4097,7 +4167,8 @@ class Randomizer:
         missionBuffer = self.updateMissionBuffer(missionBuffer, self.missionArr)
         devilUIBuffer = self.updateDevilUIBuffer(devilUIBuffer, self.devilUIArr)
         talkCameraBuffer = self.updateTalkCameraBuffer(talkCameraBuffer, self.talkCameraOffsets)
-        abscessBuffer = self.updateAbscessBuffer(abscessBuffer, self.abscessArr)
+        abscessBuffer = self.updateAbscessBuffer(abscessBuffer)
+        miracleBuffer = self.updateMiracleBuffer(miracleBuffer)
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
@@ -4124,6 +4195,7 @@ class Randomizer:
         self.writeBinaryTable(talkCameraBuffer.buffer,paths.TALK_CAMERA_OFFSETS_OUT,paths.CAMP_STATUS_FOLDER_OUT)
         self.writeBinaryTable(abscessBuffer.buffer, paths.ABSCESS_TABLE_OUT, paths.MAP_FOLDER_OUT)
         self.writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        self.writeBinaryTable(miracleBuffer.buffer, paths.MIRACLE_TABLE_OUT, paths.MIRACLE_FOLDER_OUT)
 
         self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
 

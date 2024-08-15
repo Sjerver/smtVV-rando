@@ -22,6 +22,7 @@ DEVIL_ASSET_TABLE_IN = 'base/DevilAssetTable.uexp'
 ABSCESS_TABLE_IN = 'base/D_BaseTable.uexp'
 DEVIL_UI_IN = 'base/DevilUIGraphicsTable.uexp'
 TALK_CAMERA_OFFSETS_IN = 'base/TalkCameraOffsetTable.uexp'
+MIRACLE_TABLE_IN = 'base/GodParameterDataTable.uexp'
 
 NKM_BASE_TABLE_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uexp'
 DEVIL_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil'
@@ -59,6 +60,8 @@ UI_GRAPHCIS_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/UIG
 CAMP_STATUS_FOLDER_OUT = 'rando/Project/Content/Blueprints/Camp/Status'
 CAMP_FOLDER_OUT = 'rando/Project/Content/Blueprints/Camp'
 TALK_CAMERA_OFFSETS_OUT = 'rando/Project/Content/Blueprints/Camp/Status/TalkCameraOffsetTable.uexp'
+MIRACLE_TABLE_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/GodParameter/Table/GodParameterDataTable.uexp'
+MIRACLE_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/GodParameter/Table'
 
 ENCOUNTERS_DEBUG = 'debug/encounterResults.txt'
 FUSION_DEBUG = 'debug/fusionResults.txt'

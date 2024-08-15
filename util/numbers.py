@@ -49,6 +49,9 @@ MIRACLE_DEPENDENCIES = [
     [138, 139] #Estoma Field
 ]
 
+#IDs of miracles obtained when you first unlock the cathedral of shadows
+STARTING_MIRACLES = [13, 27, 49, 75, 80, 85, 90]
+
 TUTORIAL_DAEMON_ID = 430
 
 def getMaccaValues ():

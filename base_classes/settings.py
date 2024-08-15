@@ -14,6 +14,7 @@ class Settings(object):
         self.randomShopEssences = False             # Randomizes what essences are sold in the shop
         self.randomEnemyDrops = False               # Randomizes items that enemies drop
         self.randomMiracleUnlocks = False           # Shuffles what miracles are unlocked at each abscess
+        self.randomMiracleCosts = False             # Randomizes the glory cost of miracles
         self.selfRandomizeNormalBosses = False      # Randomize story and sidequest bosses only with each other
         self.mixedRandomizeNormalBosses = False     # Randomize story and sidequest bosses with all bosses
         self.randomizeLucifer = False               # Include the final boss in randomization (goes into the normal boss pool)

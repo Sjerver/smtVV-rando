@@ -1,0 +1,12 @@
+GodParameterDataTable.uexp
+
+starts at 0x59
+entries are size 0x14 (Second entry is 0x6D)
+144 entries total
+
+0x0 byte is miracle ID
+0x2 byte is unknown, sometimes same as ID
+0x4 byte is ID of perquisite miracle to unlcok
+0x6 word is unknown
+0xc halfword is glory cost
+0x10 byte is unknown

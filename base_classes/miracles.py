@@ -3,3 +3,8 @@ class Abscess(object):
         self.offsetNumber = {}
         self.encounter = None
         self.miracles = []
+        
+class Miracle(object):
+    def __init__(self, offsetNumber, cost):
+        self.offsetNumber = offsetNumber
+        self.cost = cost
