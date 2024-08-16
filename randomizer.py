@@ -70,6 +70,8 @@ class Randomizer:
         
         self.configSettings = Settings()
         self.textSeed = ""
+
+        self.elementals = [155,156,157,158]
         
         
     '''
@@ -526,6 +528,7 @@ class Randomizer:
             race2 = Translated_Value(fusionData.readByte(offset + 1), RACE_ARRAY[fusionData.readByte(offset + 1)])
             result = Translated_Value(fusionData.readByte(offset + 2), RACE_ARRAY[fusionData.readByte(offset + 2)])
             self.fusionChartArr.append(Fusion_Chart_Node(offset, race1, race2, result))
+            #print(race1.translation + " + " + race2.translation + " = " + result.translation)
             
     '''
     Fills the array fusionChartArray with data extracted from the Buffer fusionData.
@@ -2062,6 +2065,7 @@ class Randomizer:
                 buffer.writeWord(skill.level, demon.offsetNumbers['firstLearnedLevel'] + 8 * index)
             #Write various attributes of the demon to the buffer
             buffer.writeWord(demon.level.value, demon.offsetNumbers['level'])
+            buffer.writeByte(demon.race.value, demon.offsetNumbers['race'])
             buffer.writeWord(demon.innate.value, demon.offsetNumbers['innate'])
             buffer.writeHalfword(demon.fusability, demon.offsetNumbers['fusability'])
             buffer.writeByte(demon.unlockFlags[0], demon.offsetNumbers['unlockFlags'])
@@ -2560,17 +2564,17 @@ class Randomizer:
                     #Depending on the ingredients race, a different element is the result of the fusion
                     match RACE_ARRAY[demon1Race]:
                         case "Herald" | "Deity" | "Jaki" | "Kunitsu" | "Fallen" | "Snake" | "Tyrant" | "Drake":
-                            fusion.result.value = 155 #Flaemis id
-                            fusion.result.translation = comp[155].name
+                            fusion.result.value = self.elementals[0] #Flaemis id or replacements
+                            fusion.result.translation = comp[self.elementals[0]].name
                         case "Megami" | "Vile" | "Avatar" | "Genma" | "Wilder" | "Femme" | "Brute" | "Haunt":
-                            fusion.result.value = 156 #Aquans id
-                            fusion.result.translation = comp[156].name
+                            fusion.result.value = self.elementals[1] #Aquans id or replacements
+                            fusion.result.translation = comp[self.elementals[1]].name
                         case "Avian" | "Divine" | "Yoma" | "Raptor" | "Holy" | "Fairy" | "Fury" | "Dragon":
-                            fusion.result.value = 157 #Aeros id
-                            fusion.result.translation = comp[157].name
+                            fusion.result.value = self.elementals[2] #Aeros id or replacements
+                            fusion.result.translation = comp[self.elementals[2]].name
                         case _:
-                            fusion.result.value = 158 #Erthrys id
-                            fusion.result.translation = comp[158].name
+                            fusion.result.value = self.elementals[3] #Erthrys id or replacements
+                            fusion.result.translation = comp[self.elementals[3]].name
                 else:
                     #if fusion is valid and targetRace is not element
                     #calculate the resulting demon and save it to the fusion
@@ -2590,14 +2594,13 @@ class Randomizer:
                 if demon1Race == 15:
                     #determine direction based on race of 2nd demon ingredient
                     direction = 0
-                    match demon1.name:
-                        case 'Erthys':
-                            direction = erthys[demon2Race]
-                        case 'Aeros':
+                    if demon1.ind == self.elementals[3]:
+                        direction = erthys[demon2Race]
+                    elif demon1.ind == self.elementals[2]:
                             direction = aeros[demon2Race]
-                        case 'Aquans':
+                    elif demon1.ind == self.elementals[1]:
                             direction = aquans[demon2Race]
-                        case 'Flaemis':
+                    elif demon1.ind == self.elementals[0]:
                             direction = flaemis[demon2Race]
                     foundResult = False
                     searchTable = raceTable[demon2Race] #sorted list of demons of a certain race sorted by ascending level
@@ -2630,15 +2633,14 @@ class Randomizer:
                 elif demon2Race == 15:
                     #determine direction based on race of first demon ingredient
                     direction = 0
-                    match demon2.name:
-                        case 'Erthys':
-                            direction = erthys[demon1Race]
-                        case 'Aeros':
-                            direction = aeros[demon1Race]
-                        case 'Aquans':
-                            direction = aquans[demon1Race]
-                        case 'Flaemis':
-                            direction = flaemis[demon1Race]
+                    if demon1.ind == self.elementals[3]:
+                        direction = erthys[demon2Race]
+                    elif demon1.ind == self.elementals[2]:
+                            direction = aeros[demon2Race]
+                    elif demon1.ind == self.elementals[1]:
+                            direction = aquans[demon2Race]
+                    elif demon1.ind == self.elementals[0]:
+                            direction = flaemis[demon2Race]
                     foundResult = False
                     searchTable = raceTable[demon1Race]
                     if direction > 0:
@@ -2697,6 +2699,81 @@ class Randomizer:
             replaced.demon4 = fusion.demon4
             replaced.result = fusion.result
     
+    '''
+    TODO: Write this
+    '''
+    def randomizeRaces(self, comp):
+        badIDs = [71, 365, 364, 366] #Old Lilith, Tao x2, Yoko
+        relevantDemons = [demon for demon in comp if demon.ind not in badIDs and "Mitama" not in demon.name and not demon.name.startswith('NOT') ]
+
+        raceAmounts = [ 0 for _ in range(len(RACE_ARRAY)) ] #Number of demons per Race
+        raceResults = [ 0 for _ in range(len(RACE_ARRAY)) ] #How many fusion combinations result in this race
+        elementals = []
+        irrelevantRaces = [0,15,16] #Unused, Element, Mitama not relevant for Fusion Results
+
+        for demon in relevantDemons:
+            raceAmounts[demon.race.value] += 1
+        for fusion in self.fusionChartArr:
+            if not fusion.race1.value in irrelevantRaces and not fusion.race2.value in irrelevantRaces:
+                raceResults[fusion.result.value] += 2
+        baseRatios = []
+        for index in range(len(RACE_ARRAY)):
+            #Calculating ratio of number of demons to number of results for race in fusion
+            value = 0
+            if raceAmounts[index] > 0:
+                value = raceResults[index] / raceAmounts[index]
+            baseRatios.append(value)
+
+        # New Randomized Information
+        raceAssignments = [ 0 for _ in range(len(RACE_ARRAY)) ]
+        newRatios = [0 for _ in range(len(RACE_ARRAY))]
+        demonInds = []
+
+        for index in range(4):
+            #Decide Elementals
+            demon = random.choice(relevantDemons)
+            relevantDemons.remove(demon)
+            demon.race = Translated_Value(15, "Element")
+            raceAssignments[15] += 1
+            demonInds.append(demon.ind)
+            elementals.append(demon.ind)
+            comp[demon.ind] = demon #might be unneeded
+
+        raceWeights = [int(value > 0)*10000 for value in baseRatios]
+        raceWeights[15] = 0 #Elements have already been decided
+        raceIndeces = [ i for i in range(len(RACE_ARRAY)) ]
+        
+        while len(relevantDemons) > 0:
+            #Grab random race, that is valid to assign
+            raceIndex = self.weightedRando(raceIndeces, raceWeights)
+            if newRatios[raceIndex] == 0:
+                #first assigned demon of race
+                demon = random.choice(relevantDemons)
+                relevantDemons.remove(demon)
+                demon.race = Translated_Value(raceIndex, RACE_ARRAY[raceIndex])
+                raceAssignments[raceIndex] += 1
+                demonInds.append(demon.ind)
+                newRatios[raceIndex] = raceResults[raceIndex] / raceAssignments[raceIndex]
+                comp[demon.ind] = demon
+                #Set weight to number of results to make some races more common
+                raceWeights[raceIndex] = raceResults[raceIndex]
+            elif raceResults[raceIndex] / (raceAssignments[raceIndex] + 1) < 2.5:
+                #if assigning a new demon would put ratio too low set weights to 0
+                raceWeights[raceIndex] = 0
+            else:
+                demon = random.choice(relevantDemons)
+                relevantDemons.remove(demon)
+                demon.race = Translated_Value(raceIndex, RACE_ARRAY[raceIndex])
+                raceAssignments[raceIndex] += 1
+                demonInds.append(demon.ind)
+                newRatios[raceIndex] = raceResults[raceIndex] / raceAssignments[raceIndex]
+                comp[demon.ind] = demon
+
+        return elementals
+
+    def randomizeRacesFixedLevels(self, comp):
+        pass
+        
     '''
     Randomize the tone of each playable demon that does not have a tone with talk data assigned.
         Parameters:
@@ -3312,7 +3389,7 @@ class Randomizer:
     '''
     Adds additional race fusion combinations to the fusionChartArr, to allow their normal fusion.    
     '''
-    def addAdditionalFusionsToFusionChart(self):
+    def addAdditionalFusionsToFusionChart(self,config):
         def getInd(race):
             return RACE_ARRAY.index(race)
         
@@ -3329,11 +3406,40 @@ class Randomizer:
             ["Foul","Wargod","Fiend"], #Foul for stench of death and many empty fusions, Wargod for battle prowess of Fiend
             ["Haunt","Wargod","Fiend"] #Haunt for the connection to death, Wargod for battle prowess of Fiend
         ]
+        if config.randomRaces:
+            #TODO: Add reasoning
+            fusionCombo.append(["Devil","Tyrant","Primal"])
+            fusionCombo.append(["Devil","Herald","Primal"])
+            fusionCombo.append(["Drake","Dragon","Primal"])
+            fusionCombo.append(["Primal","Fiend","Devil"])
+            fusionCombo.append(["Vile","Deity","Devil"])
+            fusionCombo.append(["Vile","Herald","Devil"])
+            fusionCombo.append(["Genma","Deity","Enigma"])
+            fusionCombo.append(["Raptor","Megami","Enigma"])
+            fusionCombo.append(["Holy","Lady","Enigma"])
+            fusionCombo.append(["Kishin","Devil","Fiend"])
+            fusionCombo.append(["Foul","Fury","Fiend"])
+            fusionCombo.append(["Kishin","Foul","Fiend"])
+            fusionCombo.append(["Wargod","Tyrant","Fiend"])
+            fusionCombo.append(["Holy","Tyrant","Fiend"])
+            fusionCombo.append(["Haunt","Genma","Fiend"])
+            fusionCombo.append(["Haunt","Kishin","Fiend"])
+            fusionCombo.append(["Wilder","Avatar","Fiend"])
+            fusionCombo.append(["Devil","Wargod","Fiend"])
+            fusionCombo.append(["Genma","Foul","Fiend"])
+            fusionCombo.append(["Raptor","Kunitsu","UMA"])
+            fusionCombo.append(["Beast","Avatar","UMA"])
+            fusionCombo.append(["Vile","Snake","Qadistu"])
+            fusionCombo.append(["Jaki","Megami","Qadistu"])
+            fusionCombo.append(["Jaki","Lady","Qadistu"])
+            fusionCombo.append(["Wilder","Femme","Qadistu"])
+            fusionCombo.append(["Tyrant","Lady","Qadistu"])
+
 
         for fc in fusionCombo:
             if(fc not in self.fusionChartArr):
                 self.fusionChartArr.append(Fusion_Chart_Node(None,Translated_Value(getInd(fc[0]),fc[0]),Translated_Value(getInd(fc[1]),fc[1]),Translated_Value(getInd(fc[2]),fc[2])))
-                self.fusionChartArr.append(Fusion_Chart_Node(None,Translated_Value(getInd(fc[1]),fc[1]),Translated_Value(getInd(fc[0]),fc[0]),Translated_Value(getInd(fc[2]),fc[2])))
+                #self.fusionChartArr.append(Fusion_Chart_Node(None,Translated_Value(getInd(fc[1]),fc[1]),Translated_Value(getInd(fc[0]),fc[0]),Translated_Value(getInd(fc[2]),fc[2])))
 
     '''
     Shuffles the levels of all playable demons and does adjustments to data based on that shuffling.
@@ -3343,8 +3449,8 @@ class Randomizer:
         Returns:
             The array of playable demons with shuffled levels
     '''
-    def shuffleLevel(self, comp):
-        self.addAdditionalFusionsToFusionChart()
+    def shuffleLevel(self, comp, config):
+        
 
         #Array that defines for each index=Level how many demons can have this level
         slots = self.defineLevelSlots(comp)   
@@ -4121,11 +4227,18 @@ class Randomizer:
         if config.randomPotentials:
             self.randomizePotentials(self.compendiumArr)
 
+        self.addAdditionalFusionsToFusionChart(config)
+
+        if config.randomRaces and config.randomDemonLevels:
+            self.elementals = self.randomizeRaces(self.compendiumArr)
+        elif config.randomRaces:
+            self.elementals = self.randomizeRacesFixedLevels(self.compendiumArr)
+
         if config.randomDemonLevels:
             newComp = False
             attempts = 0
             while not newComp and attempts < 10:
-                newComp = self.shuffleLevel(self.compendiumArr)
+                newComp = self.shuffleLevel(self.compendiumArr, config)
                 if not newComp:
                     self.resetLevelToOriginal(self.compendiumArr)
                     attempts += 1
@@ -4209,6 +4322,7 @@ class Randomizer:
         talkCameraBuffer = self.updateTalkCameraBuffer(talkCameraBuffer, self.talkCameraOffsets)
         abscessBuffer = self.updateAbscessBuffer(abscessBuffer)
         miracleBuffer = self.updateMiracleBuffer(miracleBuffer)
+        
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)

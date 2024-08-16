@@ -152,6 +152,8 @@ def createGUI(configSettings):
     listDemon.insert(5, "Randomize Potentials")
     listDemon.insert(6, "Scale Potentials to Level")
     listDemon.insert(7, "Unique Skills can show up more than once")
+    listDemon.insert(8, "Randomize Races")
+    listDemon.insert(9, "Randomize Alignment(N)")
     listDemon.pack()
 
     inheritanceLabel = tk.Label(page1FrameTopLeft, text="Unique Skill Inheritance")
@@ -248,6 +250,10 @@ def createGUI(configSettings):
                 listDemon.selection_set(6)
             if configur.get('Demon', 'multipleUniques') == 'true':
                 listDemon.selection_set(7)
+            if configur.get('Demon', 'randomRaces') == 'true':
+                listDemon.selection_set(8)
+            if configur.get('Demon', 'randomAlignments') == 'true':
+                listDemon.selection_set(9)
             if configur.get('Inheritance', 'RandomInheritance') == 'true':
                 listInheritance.selection_clear(0)
                 listInheritance.selection_set(1)
@@ -371,6 +377,18 @@ def createGUI(configSettings):
         configur.set('Demon', 'multipleUniques', 'true')
     else:
         configur.set('Demon', 'multipleUniques', 'false')
+    
+    if demonFlags[8]:
+        configSettings.randomRaces = True
+        configur.set('Demon', 'randomRaces', 'true')
+    else:
+        configur.set('Demon', 'randomRaces', 'false')
+    
+    if demonFlags[9]:
+        configSettings.randomAlignment = True
+        configur.set('Demon', 'randomAlignment', 'true')
+    else:
+        configur.set('Demon', 'randomAlignment', 'false')
 
     if len(inheritanceChoice) > 0 and inheritanceChoice[0] == 1:
         configSettings.randomInheritance = True
@@ -489,7 +507,7 @@ def createGUI(configSettings):
 def createConfigFile(configur):
     configur.read('config.ini')
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
-                                 'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False}
+                                 'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False, 'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False}
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
