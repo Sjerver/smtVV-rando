@@ -3,7 +3,7 @@ from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
-from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event
+from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
 from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item
@@ -65,6 +65,7 @@ class Randomizer:
         self.devilUIArr = []
         self.talkCameraOffsets = []
         self.miracleArr = []
+        self.uniqueSymbolArr = []
 
         self.nahobino = Nahobino()
         
@@ -1216,6 +1217,40 @@ class Randomizer:
             offset = start + size * index
             miracle = Miracle(offset, data.readHalfword(offset + 0xc))
             self.miracleArr.append(miracle)
+            
+    '''
+    Fills the erray uniqueSymbolArr with information regarding unique encounters on the overworld like mitamas and punishing foes, called symbols.
+        Parameters:
+            encounters (Table): buffer containing unique symbol encounter data
+    '''
+    def fillUniqueSymbolArr(self, uniqueSymbols):
+
+        start = 0x5d
+        size = 0x18
+        #The tables standard size for symbols is 2081
+        for index in range(57):
+            offset = start + size * index
+
+            locations = {
+                'id': offset,
+                'encounterID': offset + 2,
+                'eventEncounterID': offset + 4,
+                'symbol': offset + 6
+            }
+            
+
+            uniqueSymbol = Unique_Symbol_Encounter()
+            uniqueSymbol.offsetNumber = locations
+            uniqueSymbol.ind = uniqueSymbols.readByte(locations['id'])
+            uniqueSymbol.encounterID = uniqueSymbols.readHalfword(locations['encounterID'])
+            uniqueSymbol.eventEncounterID = uniqueSymbols.readHalfword(locations['eventEncounterID'])
+            symbolInd = uniqueSymbols.readHalfword(locations['symbol'])
+            if (symbolInd < len(self.compendiumArr)):
+                translation = self.compendiumArr[symbolInd].name
+            else:
+                translation = self.bossArr[symbolInd].name
+            uniqueSymbol.symbol = Translated_Value(symbolInd, translation)
+            self.uniqueSymbolArr.append(uniqueSymbol)
 
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
@@ -4183,6 +4218,7 @@ class Randomizer:
         eventEncountPostBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_IN)
         miracleBuffer = self.readBinaryTable(paths.MIRACLE_TABLE_IN)
         eventEncountUassetBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_UASSET_IN)
+        uniqueSymbolBuffer = self.readBinaryTable(paths.UNIQUE_SYMBOL_DATA_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -4202,6 +4238,7 @@ class Randomizer:
         self.fillDevilUIArr(devilUIBuffer)
         self.fillTalkCameraArr(talkCameraBuffer)
         self.fillMiracleArr(miracleBuffer)
+        
 
         #Requires asset arr, eventEncounter and needs to be before bossArr
         self.createOverlapCopies(compendiumBuffer)
@@ -4214,6 +4251,7 @@ class Randomizer:
         self.fillShopArr(shopBuffer)
         self.fillProtofiendArr(compendiumBuffer)
         self.fillMissionArr(missionBuffer)
+        self.fillUniqueSymbolArr(uniqueSymbolBuffer)
         
         self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
 
@@ -4356,6 +4394,7 @@ class Randomizer:
         self.writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         self.writeBinaryTable(miracleBuffer.buffer, paths.MIRACLE_TABLE_OUT, paths.MIRACLE_FOLDER_OUT)
         self.writeBinaryTable(eventEncountUassetBuffer.buffer, paths.EVENT_ENCOUNT_UASSET_OUT, paths.MAP_FOLDER_OUT)
+        self.writeBinaryTable(uniqueSymbolBuffer.buffer, paths.UNIQUE_SYMBOL_DATA_OUT, paths.MAP_FOLDER_OUT)
 
         self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
 

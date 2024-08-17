@@ -57,3 +57,11 @@ class EventEncountPost:
         self.demons = []
         self.addDemons = []
         self.offsetNumber = None
+
+class Unique_Symbol_Encounter(object):
+    def __init__(self):
+        self.ind = None
+        self.offsetNumber = {}
+        self.encounterID = None
+        self.eventEncounteerID = None
+        self.symbol = None

@@ -26,3 +26,4 @@ class Settings(object):
         self.mixedRandomizeSuperbosses = False      # Randomize superbosses foes with all bosses
         self.randomInheritance = False              # Randomize to which demons unique skills belong to
         self.freeInheritance = False                # Make unique skills freely inheritable
+        self.randomRaces = False                    # Randomize normal demons' races

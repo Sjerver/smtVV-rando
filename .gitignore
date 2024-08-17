@@ -40,4 +40,5 @@ rando/Project/Content/Blueprints/Camp/Status/TalkCameraOffsetTable.uexp
 rando/Project/Content/Blueprints/Gamedata/BinTable/Map/D_BaseTable.uexp
 rando/Project/Content/Blueprints/Gamedata/BinTable/GodParameter/Table/GodParameterDataTable.uexp
 rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EventEncountData.uasset
+rando/Project/Content/Blueprints/Gamedata/BinTable/Map/UniqueSymbolData.uexp
 debug/bossSpoilerLog.txt

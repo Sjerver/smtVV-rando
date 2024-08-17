@@ -1,0 +1,12 @@
+First entry 0x5d
+Size of Entry 0x18
+57 Entries
+
+0x00 Byte ID in table
+0x02 Halfword Encounter ID from EncountData table 2
+0x04 Byte Event Encounter Table ID, if not 0 then 0x02 ID must be 0
+0x06 Halfword Symbol Demon
+0x08 Halfword Unknown
+0x0C Halfword Unknown
+0x14 Byte Unknown (0A = Mitama?)
+0x17 Byte Unknown (0 or C0)
