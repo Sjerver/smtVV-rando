@@ -252,7 +252,7 @@ def createGUI(configSettings):
                 listDemon.selection_set(7)
             if configur.get('Demon', 'randomRaces') == 'true':
                 listDemon.selection_set(8)
-            if configur.get('Demon', 'randomAlignments') == 'true':
+            if configur.get('Demon', 'randomAlignment') == 'true':
                 listDemon.selection_set(9)
             if configur.get('Inheritance', 'RandomInheritance') == 'true':
                 listInheritance.selection_clear(0)

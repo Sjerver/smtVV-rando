@@ -25,7 +25,7 @@ import copy
 import shutil
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
-DEV_CHEATS = False
+DEV_CHEATS = True
 
 class Randomizer:
     def __init__(self):
@@ -2234,6 +2234,15 @@ class Randomizer:
         offsets = naho.offsetNumbers
         buffer.writeWord(naho.startingSkill,offsets['startingSkill'])
         buffer.writeWord(naho.innate,offsets['innate'])
+        for index,level in enumerate(naho.stats):
+            buffer.writeWord(level.HP, 0x1685 + 0x1C * index + 4 * 0)
+            buffer.writeWord(level.MP, 0x1685 + 0x1C * index + 4 * 1)
+            buffer.writeWord(level.str, 0x1685 + 0x1C * index + 4 * 2)
+            buffer.writeWord(level.vit, 0x1685 + 0x1C * index + 4 * 3)
+            buffer.writeWord(level.mag, 0x1685 + 0x1C * index + 4 * 4)
+            buffer.writeWord(level.agi, 0x1685 + 0x1C * index + 4 * 5)
+            buffer.writeWord(level.luk, 0x1685 + 0x1C * index + 4 * 6)
+        
         return buffer
 
     '''
@@ -2735,7 +2744,12 @@ class Randomizer:
             replaced.result = fusion.result
     
     '''
-    TODO: Write this
+    Randomizes the races for all relevant demons in comp. Each race has at least 1 demon and makes sure all demons should still be fusable after level shuffling.
+    Before randomizing races of all demons, decides 4 demons that are assigned as an element, that will be returned at the end.
+    The distribution of races roughly follows the amount of times they appear as an result in the fusion chart.
+    Parameters:
+        comp List(Compendium_Demon): list of all compendium demons
+    Returns: the ids of the 4 new demons of the Element race
     '''
     def randomizeRaces(self, comp):
         badIDs = [71, 365, 364, 366] #Old Lilith, Tao x2, Yoko
@@ -2743,7 +2757,7 @@ class Randomizer:
 
         raceAmounts = [ 0 for _ in range(len(RACE_ARRAY)) ] #Number of demons per Race
         raceResults = [ 0 for _ in range(len(RACE_ARRAY)) ] #How many fusion combinations result in this race
-        elementals = []
+        elementals = [] 
         irrelevantRaces = [0,15,16] #Unused, Element, Mitama not relevant for Fusion Results
 
         for demon in relevantDemons:
@@ -2805,9 +2819,225 @@ class Randomizer:
                 comp[demon.ind] = demon
 
         return elementals
-
+    '''
+    Randomizes the races for all relevant demons in comp. Each race has at least 1 demon and makes sure all demons are fusable by choosing races for
+    10 base recruitable demons and then assembling the rest based on them. 
+    Before randomizing races of all demons, decides 4 demons that are assigned as an element, that will be returned at the end.
+    The distribution of races roughly follows the amount of times they appear as an result in the fusion chart.
+    Parameters:
+        comp List(Compendium_Demon): list of all compendium demons
+    Returns: the ids of the 4 new demons of the Element race
+    '''
     def randomizeRacesFixedLevels(self, comp):
-        pass
+        badIDs = [71, 365, 364, 366] #Old Lilith, Tao x2, Yoko
+
+        relevantDemons = [demon for demon in comp if demon.ind not in badIDs and "Mitama" not in demon.name and not demon.name.startswith('NOT') ]
+        specialFusions = [demon.ind for demon in comp if demon.fusability > 256] #List of demon ids that are fused as a special fusion
+
+        raceAmounts = [ 0 for _ in range(len(RACE_ARRAY)) ] #Number of demons per Race
+        raceResults = [ 0 for _ in range(len(RACE_ARRAY)) ] #How many fusion combinations result in this race
+        elementals = []
+        irrelevantRaces = [0,15,16] #Unused, Element, Mitama not relevant for Fusion Results
+
+        for demon in relevantDemons:
+            raceAmounts[demon.race.value] += 1
+        for fusion in self.fusionChartArr:
+            if not fusion.race1.value in irrelevantRaces and not fusion.race2.value in irrelevantRaces:
+                raceResults[fusion.result.value] += 2
+        baseRatios = []
+        for index in range(len(RACE_ARRAY)):
+            #Calculating ratio of number of demons to number of results for race in fusion
+            value = 0
+            if raceAmounts[index] > 0:
+                value = raceResults[index] / raceAmounts[index]
+            baseRatios.append(value)
+
+        # New Randomized Information
+        raceAssignments = [ 0 for _ in range(len(RACE_ARRAY)) ]
+        newRatios = [0 for _ in range(len(RACE_ARRAY))]
+        demonInds = []
+
+        for index in range(4):
+            level = comp[self.elementals[index]].level.value
+            demonsAtLevel = [demon for demon in relevantDemons if demon.level.value == level and demon.ind not in specialFusions]
+            #Decide Elementals
+            demon = random.choice(demonsAtLevel)
+            relevantDemons.remove(demon)
+            demon.race = Translated_Value(15, "Element")
+            raceAssignments[15] += 1
+            demonInds.append(demon.ind)
+            elementals.append(demon.ind)
+            comp[demon.ind] = demon #might be unneeded
+        
+        raceWeights = [int(value > 0)*10000 for value in baseRatios]
+        raceWeights[15] = 0 #Elements have already been decided
+        raceIndeces = [ i for i in range(len(RACE_ARRAY)) ]
+
+        #For each race build up new array with empty subarrays
+        raceLevels = [ [] for _ in range(len(RACE_ARRAY)) ]
+
+        base = [] #Will be the list of demons already assigned a race
+        fusions = [] #Will be list of all possible fusions, regardless of if they actually result in an existing demon
+
+        relevantDemons.sort(key = lambda demon: demon.level.value)
+        index = 0
+        #For the 10 lowest level demons (excluding the level 5 ones)
+        while len(base) < 10:
+            demon = relevantDemons[index]
+            #get random race based on weight
+            raceIndex = self.weightedRando(raceIndeces, raceWeights)
+            if len(base) == 0 :
+                #Remove chosen demon from future rounds
+                relevantDemons.remove(demon)
+                #set demons race to new race
+                demon.race = Translated_Value(raceIndex, RACE_ARRAY[raceIndex])
+                #increase race count by 1
+                raceAssignments[raceIndex] += 1
+                #add demon ind to list
+                demonInds.append(demon.ind)
+                #calculate new ratios
+                newRatios[raceIndex] = raceResults[raceIndex] / raceAssignments[raceIndex]
+                comp[demon.ind] = demon
+                #add demon to base
+                base.append(demon)
+                # add level to the appropriate race level list
+                raceLevels[demon.race.value].append(demon.level.value)
+            elif (demon.level.value < 5 or 5 < demon.level.value) and demon.level.value not in raceLevels[raceIndex]:
+                relevantDemons.remove(demon)
+                #set demons race to new race
+                demon.race = Translated_Value(raceIndex, RACE_ARRAY[raceIndex])
+                #increase race count by 1
+                raceAssignments[raceIndex] += 1
+                #add demon ind to list
+                demonInds.append(demon.ind)
+                #calculate new ratios
+                newRatios[raceIndex] = raceResults[raceIndex] / raceAssignments[raceIndex]
+                comp[demon.ind] = demon
+                #add fusions with demons already in base
+                for b in base:
+                    if(self.isValidFusion(demon,b)):
+                        race1 = demon.race.translation
+                        race2 = b.race.translation
+                        target = next((f for x, f in enumerate(self.fusionChartArr) if (f.race1.translation == race1 and f.race2.translation == race2) or (f.race1.translation == race2 and f.race2.translation == race1)), None).result
+                        dummy = Compendium_Demon()
+                        dummy.ind = -1
+                        dummy.name = "Fake"
+                        dummy.race = target
+                        dummy.level = Demon_Level(math.ceil((demon.level.value + b.level.value) / 2) +1, demon.level)
+                        fusions.append([demon,b,dummy])
+            
+                #add demon to base
+                base.append(demon)
+                # add level to the appropriate race level list
+                raceLevels[demon.race.value].append(demon.level.value)
+            else:
+                #skip level 5 demons due to Neko Shogun being unrecruitable 
+                index += 1
+            #Check if adding a demon would break ratios or set weight if first demon of race assigned
+            for ratioIndex, ratio in enumerate(newRatios):
+                if ratio == 0 and raceAssignments[ratioIndex] > 1:
+                    raceWeights[ratioIndex] = raceResults[ratioIndex]
+                elif raceResults[ratioIndex] / (raceAssignments[ratioIndex] + 1) < 2.5:
+                    raceWeights[ratioIndex] = 0
+        #Check if fusions of the base 10 demons can result in each other, and note the fusions as such
+        for b in base:
+            possibleFusions = [f for f in fusions if f[2].race.translation == b.race.translation and f[2].ind == -1 and f[2].level.value <= b.level.value]
+            for p in possibleFusions:
+                p[2] = b
+
+        attempts = 0
+        #until no relevant demon left or no valid race assignment can be created
+        while len(relevantDemons) > 0 and attempts < 300:
+            # grab the next lowest level demon
+            demon = relevantDemons[0]
+            #Check which races can be assigned to the demon
+            validRaces = list({fusion[2].race.value for fusion in fusions if fusion[2].ind == -1 and raceWeights[fusion[2].race.value] > 0 and fusion[2].level.value <= demon.level.value })
+            validWeights = [weight for index, weight in enumerate(raceWeights) if index in validRaces]
+            raceIndex = self.weightedRando(validRaces,validWeights) #random weighted race
+            
+            #Check if a demon of the same lavel is already assigned to race
+            if demon.level.value in raceLevels[raceIndex]:
+                attempts +=1
+                continue
+            #Check if demon is special fusion
+            if demon.ind in specialFusions:
+                raceIndex = self.weightedRando(raceIndeces, raceWeights)
+                #Remove chosen demon from future rounds
+                relevantDemons.remove(demon)
+                #set demons race to new race
+                demon.race = Translated_Value(raceIndex, RACE_ARRAY[raceIndex])
+                #increase race count by 1
+                raceAssignments[raceIndex] += 1
+                #add demon ind to list
+                demonInds.append(demon.ind)
+                #calculate new ratios
+                newRatios[raceIndex] = raceResults[raceIndex] / raceAssignments[raceIndex]
+                comp[demon.ind] = demon
+               
+                #add fusions with demons already in base
+                for b in base:
+                    if(self.isValidFusion(demon,b)):
+                        race1 = demon.race.translation
+                        race2 = b.race.translation
+                        target = next((f for x, f in enumerate(self.fusionChartArr) if (f.race1.translation == race1 and f.race2.translation == race2) or (f.race1.translation == race2 and f.race2.translation == race1)), None).result
+                        dummy = Compendium_Demon()
+                        dummy.ind = -1
+                        dummy.name = "Fake"
+                        dummy.race = target
+                        dummy.level = Demon_Level(math.ceil((demon.level.value + b.level.value) / 2) +1, demon.level)
+                        fusions.append([demon,b,dummy])
+                #add demon to base
+                base.append(demon)
+                # add level to the appropriate race level list
+                raceLevels[demon.race.value].append(demon.level.value)
+            else:
+                #For all fusions that would result in demon and currently have dummy assigned, assign demon instead
+                possibleFusions = [f for f in fusions if f[2].race.value == raceIndex and f[2].ind == -1 and f[2].level.value <= demon.level.value]
+                for p in possibleFusions:
+                    p[2] = demon
+                if(len(possibleFusions) == 0):
+                    # if no possible fusions exist, try again from start
+                    attempts += 1
+                    continue
+                #Remove chosen demon from future rounds
+                relevantDemons.remove(demon)
+                #set demons race to new race
+                demon.race = Translated_Value(raceIndex, RACE_ARRAY[raceIndex])
+                #increase race count by 1
+                raceAssignments[raceIndex] += 1
+                #add demon ind to list
+                demonInds.append(demon.ind)
+                #calculate new ratios
+                newRatios[raceIndex] = raceResults[raceIndex] / raceAssignments[raceIndex]
+                comp[demon.ind] = demon
+               
+                #add fusions with demons already in base
+                for b in base:
+                    if(self.isValidFusion(demon,b)):
+                        race1 = demon.race.translation
+                        race2 = b.race.translation
+                        target = next((f for x, f in enumerate(self.fusionChartArr) if (f.race1.translation == race1 and f.race2.translation == race2) or (f.race1.translation == race2 and f.race2.translation == race1)), None).result
+                        dummy = Compendium_Demon()
+                        dummy.ind = -1
+                        dummy.name = "Fake"
+                        dummy.race = target
+                        dummy.level = Demon_Level(math.ceil((demon.level.value + b.level.value) / 2) +1, demon.level)
+                        fusions.append([demon,b,dummy])
+                #add demon to base
+                base.append(demon)
+                # add level to the appropriate race level list
+                raceLevels[demon.race.value].append(demon.level.value)
+            #At end of while, check ratio eligibility for races and set their weights accordingly
+            for ratioIndex, ratio in enumerate(newRatios):
+                if ratio == 0 and raceAssignments[ratioIndex] > 1:
+                    raceWeights[ratioIndex] = max(1,raceResults[ratioIndex] -raceAssignments[ratioIndex])
+                elif raceResults[ratioIndex] / (raceAssignments[ratioIndex] + 1) < 2.5:
+                    raceWeights[ratioIndex] = 0
+        #do not continue if attempts elapse 300
+        if attempts >= 300:
+            print("Could not assign all races properly")
+            return False
+        return elementals      
         
     '''
     Randomize the tone of each playable demon that does not have a tone with talk data assigned.
@@ -3125,7 +3355,7 @@ class Randomizer:
                         if eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
                             self.battleEventArr[ind].encounterID = eventEncountArr[self.bossDuplicateMap[index]].ind
                         else:
-                            self.battleEventArr[ind].encounterID = 0
+                            self.battleEventArr[ind].encounterID = 255
                 elif eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
                 #reference has event but not duplicate 
                     eventInds = [jIndex for jIndex,e in enumerate(encountersWithBattleEvents) if e == eventEncountArr[self.bossDuplicateMap[index]].ind] 
@@ -4169,7 +4399,7 @@ class Randomizer:
          
     '''
     Makes the game easier for testing purposes. All enemy hp is set to 10 and Nahobino's stats are increased
-    TODO - fix Nahobino stats so they actually work
+    TODO: Nahobino Stats don't work (maybe only on fresh file?)
     '''
     def applyCheats(self):
         for demon in self.enemyArr:
@@ -4184,13 +4414,8 @@ class Randomizer:
             demon.stats.vit = 2
             demon.stats.mag = 2
             demon.stats.agi = 2
-        self.nahobino.HP = 999
-        self.nahobino.MP = 999
-        self.nahobino.str = 99
-        self.nahobino.vit = 99
-        self.nahobino.mag = 99
-        self.nahobino.agi = 99
-        self.nahobino.luk = 99
+        for index, level in enumerate(self.nahobino.stats):
+            self.nahobino.stats[index] = LevelStats(index,999,999,99,99,99,99,99)
 
     '''
         Executes the full randomization process including level randomization.
@@ -4308,9 +4533,11 @@ class Randomizer:
             newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, self.enemyArr)
             self.adjustTutorialPixie(newComp,self.eventEncountArr)
             self.assignTalkableTones(newComp)
-            self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
         else:
             newSymbolArr = self.encountSymbolArr
+        
+        if config.randomDemonLevels or config.randomRaces:
+            self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
 
         if config.randomShopEssences:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)

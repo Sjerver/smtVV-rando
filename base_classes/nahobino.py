@@ -9,11 +9,11 @@ class Nahobino:
         self.innate = None
 
 class LevelStats:
-    def __init__(self, level, HP, MP, strength, vit, mag, agi, luk):
+    def __init__(self, level, HP, MP, str, vit, mag, agi, luk):
         self.level = level
         self.HP = HP
         self.MP = MP
-        self.str = strength
+        self.str = str
         self.vit = vit
         self.mag = mag
         self.agi = agi

@@ -27,3 +27,4 @@ class Settings(object):
         self.randomInheritance = False              # Randomize to which demons unique skills belong to
         self.freeInheritance = False                # Make unique skills freely inheritable
         self.randomRaces = False                    # Randomize normal demons' races
+        self.randomAlignment = False                # Randomize the alignment of demons
