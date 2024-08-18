@@ -3424,6 +3424,8 @@ class Randomizer:
                 # only the encounter to adjust is event encounter
                 encounterToUpdate.demons = referenceEncounter.demons + [0, 0]
                 encounterToUpdate.eventEncounter.unknown23Flag = 0 #so that it does not use custom camera stuff
+                encounterToUpdate.eventEncounter.positions.demons = referenceEncounter.normalEncounter.positions.demons
+                encounterToUpdate.eventEncounter.positions.addDemons = referenceEncounter.normalEncounter.positions.addDemons
                 encounterToUpdate.eventEncounter.unknownDemon = Translated_Value(referenceEncounter.demons[0], self.enemyNames[referenceEncounter.demons[0]])
             encounterToUpdate.eventEncounter.track = encounterToUpdate.track
             encounterToUpdate.eventEncounter.demons = [Translated_Value(demon, self.enemyNames[demon]) for demon in encounterToUpdate.demons]
@@ -3431,11 +3433,16 @@ class Randomizer:
             if referenceEncounter.isEvent:
                 # only the reference encounter is event encounter
                 encounterToUpdate.demons = referenceEncounter.demons[:6]
+                encounterToUpdate.normalEncounter.positions.demons = referenceEncounter.eventEncounter.positions.demons
+                encounterToUpdate.normalEncounter.positions.addDemons = referenceEncounter.eventEncounter.positions.addDemons
             else:
                 # both encounters normal encounters
                 encounterToUpdate.demons = referenceEncounter.demons
+                encounterToUpdate.normalEncounter.positions.demons = referenceEncounter.normalEncounter.positions.demons
+                encounterToUpdate.normalEncounter.positions.addDemons = referenceEncounter.normalEncounter.positions.addDemons
             encounterToUpdate.normalEncounter.track = encounterToUpdate.track
             encounterToUpdate.normalEncounter.demons = encounterToUpdate.demons
+            
             
     '''
     Fixes certain boss flags so that they work outside of their normal location
@@ -3647,6 +3654,45 @@ class Randomizer:
             element.positions.offsetNumber = locations
         return eventEncountArr
 
+    def addPositionsToNormalEncountArr(self, data, encountArr, uassetBuffer):
+        start = 0xCE
+        size = 0x18F
+        totalSize1 = uassetBuffer.readWord(0xA9)
+        totalSize2 = uassetBuffer.readWord(0xE24)
+        #TODO: Also adjust total size in here and uasset
+        for index, element in enumerate(encountArr):
+            if index >= 3000:
+                continue
+            offset = start + size * index
+            locations = {
+                'demon1': offset,
+                'addDemon1': offset + 0xB6
+            }
+            for i in range(8):
+                element.positions.demons.append(Position(data.readFloat(locations['demon1'] + 0xE * i),data.readFloat(locations['demon1'] + 4 + 0xE * i)))
+            addDemonLength = data.readByte(offset + 0x70)
+            addDemonAmount = data.readByte(offset + 0x81)
+            addDemonLength2 = data.readByte(offset + 0x95)
+
+            while addDemonAmount < 4:
+                for i in range(12):
+                    data.buffer.insert(locations['addDemon1'],0)
+
+                addDemonAmount += 1
+                addDemonLength += 12
+                addDemonLength2 += 12
+                data.writeByte(addDemonLength,offset + 0x70)
+                data.writeByte(addDemonAmount,offset + 0x81)
+                data.writeByte(addDemonLength2,offset + 0x95)
+                totalSize1 += 12
+                totalSize2 += 12
+
+            for i in range(4):
+                element.positions.addDemons.append(Position(data.readFloat(locations['addDemon1'] + 0xC * i),data.readFloat(locations['addDemon1'] + 4 + 0xC * i)))
+            element.positions.offsetNumber = locations
+        uassetBuffer.writeWord(totalSize1,0xA9)
+        uassetBuffer.writeWord(totalSize2,0xE24)
+        return encountArr
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
     Resulting demon is the demon with an level higher than the average of the two levels.
@@ -4543,6 +4589,8 @@ class Randomizer:
         miracleBuffer = self.readBinaryTable(paths.MIRACLE_TABLE_IN)
         eventEncountUassetBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_UASSET_IN)
         uniqueSymbolBuffer = self.readBinaryTable(paths.UNIQUE_SYMBOL_DATA_IN)
+        encountPostBuffer = self.readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_IN)
+        encountPostUassetBuffer = self.readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_UASSET_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -4578,7 +4626,7 @@ class Randomizer:
         self.fillUniqueSymbolArr(uniqueSymbolBuffer)
         
         self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
-
+        self.encountArr = self.addPositionsToNormalEncountArr(encountPostBuffer, self.encountArr, encountPostUassetBuffer)
         
 
         self.removeBattleTutorials()
@@ -4691,6 +4739,7 @@ class Randomizer:
         abscessBuffer = self.updateAbscessBuffer(abscessBuffer)
         miracleBuffer = self.updateMiracleBuffer(miracleBuffer)
         uniqueSymbolBuffer = self.updateUniqueSymbolBuffer(uniqueSymbolBuffer)
+        encountPostBuffer = self.updateEventEncountPostBuffer(encountPostBuffer, self.encountArr)
         
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
@@ -4726,7 +4775,8 @@ class Randomizer:
         self.writeBinaryTable(miracleBuffer.buffer, paths.MIRACLE_TABLE_OUT, paths.MIRACLE_FOLDER_OUT)
         self.writeBinaryTable(eventEncountUassetBuffer.buffer, paths.EVENT_ENCOUNT_UASSET_OUT, paths.MAP_FOLDER_OUT)
         self.writeBinaryTable(uniqueSymbolBuffer.buffer, paths.UNIQUE_SYMBOL_DATA_OUT, paths.MAP_FOLDER_OUT)
-
+        self.writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        self.writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
 
     '''

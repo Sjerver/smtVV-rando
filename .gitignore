@@ -24,6 +24,8 @@ rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Event/BattleEventTable
 rando/Project/Content/Blueprints/Common/AssetTable/DevilAssetTable.uexp
 rando/Project/Content/Blueprints/Common/AssetTable/EncountPostTable/EventEncountPostDataTable.uexp
 rando/Project/Content/Blueprints/Common/AssetTable/EncountPostTable/EventEncountPostDataTable.uasset
+rando/Project/Content/Blueprints/Common/AssetTable/EncountPostTable/EncountPostDataTable.uexp
+rando/Project/Content/Blueprints/Common/AssetTable/EncountPostTable/EncountPostDataTable.uasset
 rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Boss/BossFlag.uexp
 rando/Project/Content/Blueprints/Gamedata/BinTable/Mission/MissionTable.uexp
 rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EventEncountData.uexp

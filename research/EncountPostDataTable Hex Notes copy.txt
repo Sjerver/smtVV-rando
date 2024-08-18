@@ -1,0 +1,16 @@
+
+Encounter ID 0:
+- Demon 1 X-Coord: 0xCE (float size 4)
+- Demon 1 Y-Coord: 0xD2
+- Demon 2 X-Coord: 0xDC (float size 4)
+	up to 8 demons
+- AddDemonLength: 0x13E
+- AddDemonAmount: 0x14F
+- AddDemonLength2?: 0x163
+- AddDemon 1: X-Coord 0x184 (Summons etc)
+- AddDemon 2: X-Coord 0x190
+	up to 4 AddDemon
+
+Encounter ID 1:
+- Demon 1 X-Coord: 0x25D
+

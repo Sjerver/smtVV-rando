@@ -15,6 +15,7 @@ class Encounter:
         self.flags = flags
         self.track = track
         self.demons = demons
+        self.positions = EventEncountPost()
         
 class Possible_Encounter:
     def __init__(self, encounterID, encounter, chance):
