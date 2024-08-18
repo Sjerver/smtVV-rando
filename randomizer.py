@@ -3603,7 +3603,10 @@ class Randomizer:
                         pair[0].conditions[i].amount = 0
                     i = 0
                     #replace conditions with new demons
+                    #TODO: Clean this up and change it so only the first demon as mission condition, that way mission should always be completable
                     for keyDemon, amounts in demonAmounts.items():
+                        if i > 0:
+                            continue
                         pair[0].conditions[i].type = 1
                         pair[0].conditions[i].ind = keyDemon
                         pair[0].conditions[i].amount = amounts
