@@ -196,7 +196,7 @@ def createGUI(configSettings):
     listBoss.insert(2, "Randomize Lucifer")
     listBoss.pack()
     
-    abscessLabel = tk.Label(page2FrameLeft, text="Abscess Bosses (N)")
+    abscessLabel = tk.Label(page2FrameLeft, text="Abscess Bosses")
     abscessLabel.pack()
 
     listAbscess = tk.Listbox(page2FrameLeft, selectmode = "single", width=50, exportselection=False, selectbackground = VENGEANCE_PURPLE)
@@ -206,7 +206,7 @@ def createGUI(configSettings):
     listAbscess.selection_set(0)
     listAbscess.pack()
     
-    punishingLabel = tk.Label(page2FrameRight, text="Punishing Foes (Overworld Bosses) (N)")
+    punishingLabel = tk.Label(page2FrameRight, text="Punishing Foes (Overworld Bosses)")
     punishingLabel.pack()
 
     listPunishing = tk.Listbox(page2FrameRight, selectmode = "single", width=50, exportselection=False, selectbackground = VENGEANCE_PURPLE)

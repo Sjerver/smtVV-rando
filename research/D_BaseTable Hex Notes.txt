@@ -4,6 +4,7 @@ first 45 size 20
 
 0 empty
 C size 2 Encounter from EncountData Table 2
+E size 1 Should be Event Encounter
 11 size 1(2?) EventEncounter
 14 Miracle
 15 Miracle

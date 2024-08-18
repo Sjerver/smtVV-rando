@@ -1,3 +1,5 @@
+from base_classes.encounters import Encounter, Event_Encounter, Mixed_Boss_Encounter
+from util import numbers
 import copy
 import random
 
@@ -75,16 +77,16 @@ BOSS_HP_MODIFIERS = {
 
 class Boss_Metadata(object):
     def __init__(self, demons):
-        self.summons = [] #List(Number)
+        self.summons = [] #List(number)
         self.totalHP = 0
         self.totalEXP = 0
         self.totalMacca = 0
         self.hpShares = {} #Holds the relative amount of the total HP each demon has 
-        self.demons = demons #List(Translated_Value)
-        if demons[0].value in BOSS_SUMMONS.keys():
-            self.summons = BOSS_SUMMONS[demons[0].value]
-        self.partnerType = demons[0].value in PARTNER_BOSSES
-        self.minionType = demons[0].value in MINION_BOSSES
+        self.demons = demons #List(number)
+        if demons[0] in BOSS_SUMMONS.keys():
+            self.summons = BOSS_SUMMONS[demons[0]]
+        self.partnerType = demons[0] in PARTNER_BOSSES
+        self.minionType = demons[0] in MINION_BOSSES
         self.countPerDemon = {} #Holds the number of times each demon appears in the encounter
         for demon in self.getAllDemonsInEncounter():
             if demon in self.countPerDemon.keys():
@@ -108,7 +110,7 @@ class Boss_Metadata(object):
             self.totalEXP += demonReferenceArr[demon].experience * count
             self.totalMacca += demonReferenceArr[demon].money * count
         if self.minionType:
-            self.totalHP = demonReferenceArr[self.demons[0].value].stats.HP * self.countPerDemon[self.demons[0].value]
+            self.totalHP = demonReferenceArr[self.demons[0]].stats.HP * self.countPerDemon[self.demons[0]]
         self.hpPercents = {}
         for demon, count in self.countPerDemon.items():
             if demon == 0:
@@ -121,8 +123,8 @@ class Boss_Metadata(object):
     def getAllDemonsInEncounter(self):
         allDemons = []
         for demon in self.demons:
-            if demon.value > 0:
-                allDemons.append(demon.value)
+            if demon > 0:
+                allDemons.append(demon)
         allDemons = allDemons + self.summons
         return allDemons
     
@@ -131,7 +133,7 @@ class Boss_Metadata(object):
     '''
     def getCountOfDemonsExcludingMinions(self):
         if self.minionType:
-            return self.countPerDemon[self.demons[0].value]
+            return self.countPerDemon[self.demons[0]]
         totalCount = 0
         for demon, count in self.countPerDemon.items():
             if demon == 0:
@@ -142,8 +144,8 @@ class Boss_Metadata(object):
 '''
 Balances the stats of boss demons, including summoned adds to their new location
     Parameters:
-        oldEncounter (List(Translated_Value)): The original demons at the check
-        newEncounter (List(Translated_Value)): The demons replacing the old encounter
+        oldEncounter (List(number)): The original demons at the check
+        newEncounter (List(number)): The demons replacing the old encounter
         demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
         bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
 '''
@@ -183,7 +185,6 @@ TODO: Account for 'revive' demons (Hayataro etc) that are effectively duplicates
 '''
 def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
     oldHPPool = calculateHPPool(oldEncounterData, newEncounterData)
-    #print(str(oldHPPool) + " HP for old encounter " + oldEncounterData.demons[0].translation + " to " + newEncounterData.demons[0].translation)
     newDemons = newEncounterData.getAllDemonsInEncounter()
     oldDemons = oldEncounterData.getAllDemonsInEncounter()
     for index, ind in enumerate(newDemons):
@@ -244,7 +245,6 @@ If the number of demons is equal between the two encounters, HP will be transfer
 '''
 def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
     oldHPPool = calculateHPPool(oldEncounterData, newEncounterData)
-    #print(str(oldHPPool) + " HP for old encounter " + oldEncounterData.demons[0].translation + " to " + newEncounterData.demons[0].translation)
     newDemons = newEncounterData.getAllDemonsInEncounter()
     oldDemons = oldEncounterData.getAllDemonsInEncounter()
     if len(newDemons) != len(oldDemons):
@@ -291,10 +291,10 @@ def calculateHPPool(oldEncounterData, newEncounterData):
         modifier = modifier + (1 - modifier) ** 2
         newDemonCount -= 1
     modifiedPool = round(pool * multiplier)
-    if oldEncounterData.demons[0].value in BOSS_HP_MODIFIERS.keys():
-        modifiedPool = round(modifiedPool * BOSS_HP_MODIFIERS[oldEncounterData.demons[0].value])
-    if newEncounterData.demons[0].value in BOSS_HP_MODIFIERS.keys():
-        modifiedPool = round(modifiedPool / BOSS_HP_MODIFIERS[newEncounterData.demons[0].value])
+    if oldEncounterData.demons[0] in BOSS_HP_MODIFIERS.keys():
+        modifiedPool = round(modifiedPool * BOSS_HP_MODIFIERS[oldEncounterData.demons[0]])
+    if newEncounterData.demons[0] in BOSS_HP_MODIFIERS.keys():
+        modifiedPool = round(modifiedPool / BOSS_HP_MODIFIERS[newEncounterData.demons[0]])
     return modifiedPool
     
 
@@ -322,18 +322,39 @@ def patchSpecialBossDemons(bossArr, configSettings):
 
 '''
 Creates the pools of boss encounters that should be randomized within themselves
+TODO: Handle duplicate Abscesses
     Parameters:
         eventEncountArr (List(Event_Encounter)): The list of event encounters containing most bosses
+        encountArr (List(Encounter)): The list of normal encounters containing bosses from Abscesses and Punishing Foes
         bossDuplicateMap (Dict(int, int)): A dict that maps duplicate encounters to their original version
         configSettings (Settings): Settings determining what types of bosses should be randomized
     Returns:
-        A List of lists containing deep copied Event Encounters to randomize
+        A List of lists containing deep copied Mixed Boss Encounters to randomize
 '''
-def createBossEncounterPools(eventEncountArr, bossDuplicateMap, configSettings):
+def createBossEncounterPools(eventEncountArr, encountArr, uniqueSymbolArr, abscessArr, bossDuplicateMap, configSettings):
     bossPools = []
     mixedPool = []
+    abscessPool = []
+    punishingPool = []
+    foundEventEncounters = []
+    for abscess in abscessArr:
+        if abscess.miracles[0] == 0:
+            continue
+        if abscess.eventEncounter > 0:
+            abscessPool.append(copy.deepcopy(eventEncountArr[abscess.eventEncounter]))
+            foundEventEncounters.append(abscess.eventEncounter)
+        elif abscess.encounter > 0:
+            abscessPool.append(copy.deepcopy(encountArr[abscess.encounter]))
+    for symbol in uniqueSymbolArr:
+        if symbol.symbol.value < numbers.NORMAL_ENEMY_COUNT:
+            continue
+        if symbol.eventEncounterID > 0:
+            punishingPool.append(copy.deepcopy(eventEncountArr[symbol.eventEncounterID]))
+            foundEventEncounters.append(symbol.eventEncounterID)
+        elif symbol.encounterID > 0:
+            punishingPool.append(copy.deepcopy(encountArr[symbol.encounterID]))
     normalPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index not in BANNED_BOSSES and index not in bossDuplicateMap.keys()
-                    and index not in LUCIFER_ENCOUNTERS and index not in SUPERBOSS_ENCOUNTERS]
+                    and index not in LUCIFER_ENCOUNTERS and index not in SUPERBOSS_ENCOUNTERS and index not in foundEventEncounters]
     if configSettings.randomizeLucifer:
         normalPool = normalPool + [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in LUCIFER_ENCOUNTERS]
     superbossPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in SUPERBOSS_ENCOUNTERS]
@@ -345,6 +366,52 @@ def createBossEncounterPools(eventEncountArr, bossDuplicateMap, configSettings):
         mixedPool = mixedPool + superbossPool
     elif configSettings.selfRandomizeSuperbosses:
         bossPools.append(superbossPool)
+    if configSettings.mixedRandomizeAbscessBosses:
+        mixedPool = mixedPool + abscessPool
+    elif configSettings.selfRandomizeAbscessBosses:
+        bossPools.append(abscessPool)   
+    if configSettings.mixedRandomizeOverworldBosses:
+        mixedPool = mixedPool + punishingPool
+    elif configSettings.selfRandomizeOverworldBosses:
+        bossPools.append(punishingPool)
     if mixedPool:
         bossPools.append(mixedPool)
-    return bossPools
+    return formatBossPools(bossPools)
+
+
+'''
+Converts the mixed normal and event encounter boss pools to a single format of Mixed_Boss_Encounter
+    Parameters:
+        bossPools (List of lists)
+    Returns:
+       The formatted List of List of Mixed_Boss_Encounter
+'''
+def formatBossPools(bossPools):
+    formattedBossPools = []
+    for pool in bossPools:
+        formattedPool = []
+        for boss in pool:
+            formattedPool.append(formatBossEncounter(boss))
+        formattedBossPools.append(formattedPool)
+    return formattedBossPools
+
+'''
+Converts an Encounter or Event_Encounter to a single Mixed_Boss_Encounter format to use while randomizing bosses
+    Paramters:
+        encounter (Encounter or Event_Encounter)
+    Returns:
+        The formatted Mixed_Boss_Encounter
+'''
+def formatBossEncounter(encounter):
+    formattedEncounter = Mixed_Boss_Encounter()
+    formattedEncounter.ind = encounter.ind
+    if isinstance(encounter, Event_Encounter):
+        formattedEncounter.demons = [demon.value for demon in encounter.demons]
+        formattedEncounter.isEvent = True
+        formattedEncounter.eventEncounter = encounter
+        formattedEncounter.track = encounter.track
+    else:
+        formattedEncounter.demons = encounter.demons
+        formattedEncounter.normalEncounter = encounter
+        formattedEncounter.track = encounter.track
+    return formattedEncounter

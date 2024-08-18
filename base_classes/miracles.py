@@ -2,6 +2,7 @@ class Abscess(object):
     def __init__(self):
         self.offsetNumber = {}
         self.encounter = None
+        self.eventEncounter = None
         self.miracles = []
         
 class Miracle(object):

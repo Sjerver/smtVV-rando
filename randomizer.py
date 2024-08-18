@@ -11,10 +11,10 @@ from base_classes.quests import Mission, Mission_Reward, Mission_Condition
 from base_classes.settings import Settings
 from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
-import util.boss_logic as bossLogic
 import util.numbers as numbers
 import util.paths as paths
 import util.translation as translation
+import boss_logic as bossLogic
 import math
 import os
 import random
@@ -25,7 +25,7 @@ import copy
 import shutil
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
-DEV_CHEATS = True
+DEV_CHEATS = False
 
 class Randomizer:
     def __init__(self):
@@ -66,6 +66,7 @@ class Randomizer:
         self.talkCameraOffsets = []
         self.miracleArr = []
         self.uniqueSymbolArr = []
+        self.updatedNormalEncounters = []
 
         self.nahobino = Nahobino()
         
@@ -815,11 +816,13 @@ class Randomizer:
             offset = start + size * index
             locations = {
                 'flags': offset,
-                'demon': offset + 4,
+                'track': offset + 1,
+                'demon': offset + 4
             }
+            track = encounters.readByte(locations['track'])
             demons = [encounters.readHalfword(offset + 4), encounters.readHalfword(offset + 6), encounters.readHalfword(offset + 8),
                       encounters.readHalfword(offset + 10), encounters.readHalfword(offset + 12), encounters.readHalfword(offset + 14)]
-            self.encountArr.append(Encounter(index, locations, encounters.readHalfword(offset), demons))
+            self.encountArr.append(Encounter(index, locations, encounters.readHalfword(offset), track, demons))
             
     '''
     Fills the nahobino object with data from the playerGrow file.
@@ -1132,12 +1135,14 @@ class Randomizer:
 
             locations =  {
                 'encounter': offset + 0xc,
+                'eventEncounter': offset + 0xe,
                 'miracles': offset + 0x14
             }
 
             abscess = Abscess()
             abscess.offsetNumber = locations
             abscess.encounter = data.readHalfword(locations['encounter'])
+            abscess.eventEncounter = data.readByte(locations['eventEncounter'])
 
             miracles = []
             for i in range(6):
@@ -2203,7 +2208,7 @@ class Randomizer:
         return buffer
     
     '''
-    Write the values in symbolArr to the respective locations in the buffer
+    Write the values in symbolArr to the respective locations in the buffer, as well as updated boss encounters
         Parameters:
             buffer (Table): Buffer of the EncountData table
             symbolArr (Array): contains data on all symbol encounters and their encounter battles
@@ -2222,6 +2227,13 @@ class Randomizer:
                 #and write the data for every demon
                 for index, demon in enumerate(enc.demons):
                     buffer.writeHalfword(demon, encOffsets['demon'] + 2 * index)
+        for bossEncounter in self.updatedNormalEncounters:
+            enc = self.encountArr[bossEncounter]
+            encOffsets = enc.offsetNumbers
+            #and write the data for every demon
+            buffer.writeByte(enc.track, encOffsets['track'])
+            for index, demon in enumerate(enc.demons):
+                buffer.writeHalfword(demon, encOffsets['demon'] + 2 * index)
         return buffer
     
     '''
@@ -2482,6 +2494,7 @@ class Randomizer:
     def updateAbscessBuffer(self, buffer):
         for abscess in self.abscessArr:
             buffer.writeHalfword(abscess.encounter, abscess.offsetNumber['encounter'])
+            buffer.writeByte(abscess.eventEncounter, abscess.offsetNumber['eventEncounter'])
             for i in range(6):
                 buffer.writeByte(abscess.miracles[i], abscess.offsetNumber['miracles'] + i)
         return buffer
@@ -2495,6 +2508,16 @@ class Randomizer:
         for miracle in self.miracleArr:
             if miracle.offsetNumber > 0: #Ignore Dummy miracle
                 buffer.writeHalfword(miracle.cost, miracle.offsetNumber + 0xc)
+        return buffer
+    
+    '''
+    Writes updated punishing foe symbols from the unique symbol array to their respective locations in the table buffer
+        Parameters:
+            buffer (Table): buffer
+    '''
+    def updateUniqueSymbolBuffer(self, buffer):
+        for uniqueSymbol in self.uniqueSymbolArr:
+            buffer.writeHalfword(uniqueSymbol.symbol.value, uniqueSymbol.offsetNumber['symbol'])
         return buffer
 
     '''
@@ -3313,14 +3336,12 @@ class Randomizer:
             
     '''
     Randomizes main story and sidequest bosses in eventEncountArr. The array is filtered to exclude problematic and duplicate encounters before shuffling
-    TODO: Exclude superbosses and group duplicate fights together
-        Parameters:
-            eventEncountArr(Array(Event_Encounter)): The list of boss encounters to randomize
+    TODO: Fix encounters with events when they replace a boss that uses a normal encounter
     '''
-    def randomizeBosses(self, eventEncountArr):
+    def randomizeBosses(self):
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
         
-        encounterPools = bossLogic.createBossEncounterPools(eventEncountArr, self.bossDuplicateMap, self.configSettings)
+        encounterPools = bossLogic.createBossEncounterPools(self.eventEncountArr, self.encountArr, self.uniqueSymbolArr, self.abscessArr, self.bossDuplicateMap, self.configSettings)
         if not encounterPools:
             return
         with open(paths.BOSS_SPOILER, 'w') as spoilerLog: #Create spoiler log
@@ -3329,55 +3350,80 @@ class Randomizer:
                 shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
                 shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
                 for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
-                    spoilerLog.write(str(encounter.ind) + " " + encounter.demons[0].translation + " replaced by " + str(shuffledEncounters[index].ind) + " " + shuffledEncounters[index].demons[0].translation + "\n")
+                    spoilerLog.write(str(encounter.ind) + " " + self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind)
       
                     self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
-                    eventEncountArr[encounter.originalIndex] = encounter
+                    if encounter.isEvent:
+                        self.eventEncountArr[encounter.ind] = encounter.eventEncounter
+                    else:
+                        self.encountArr[encounter.ind] = encounter.normalEncounter
+                        self.updatedNormalEncounters.append(encounter.ind)
 
-                    if shuffledEncounters[index].ind in encountersWithBattleEvents:
-                        #if new encounter needs event
-                        eventInds = [jIndex for jIndex, e in enumerate(encountersWithBattleEvents) if e == shuffledEncounters[index].ind]
-                        for ind in eventInds:
-                            self.battleEventArr[ind].encounterID = encounter.ind
+                    if shuffledEncounters[index].ind in encountersWithBattleEvents and shuffledEncounters[index].isEvent:
+                        if encounter.isEvent:
+                            #if new encounter needs event
+                            eventInds = [jIndex for jIndex, e in enumerate(encountersWithBattleEvents) if e == shuffledEncounters[index].ind]
+                            for ind in eventInds:
+                                self.battleEventArr[ind].encounterID = encounter.ind
+                        else:
+                            print("WARNING: Encounter with event randomized into the normal encounter array. Bad things will happen")
 
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
-        for index, encounter in enumerate(eventEncountArr): #Set duplicate encounters to use the same demons as their new counterparts
+        for index, encounter in enumerate(self.eventEncountArr): #Set duplicate encounters to use the same demons as their new counterparts
             if index in self.bossDuplicateMap.keys():
-                self.updateShuffledEncounterInformation(encounter, eventEncountArr[self.bossDuplicateMap[index]])
+                self.updateShuffledEncounterInformation(bossLogic.formatBossEncounter(encounter), 
+                                                        bossLogic.formatBossEncounter(self.eventEncountArr[self.bossDuplicateMap[index]]))
 
                 # If duplicate has event
                 if encounter.ind in encountersWithBattleEvents:
                     eventInds = [jIndex for jIndex,e in enumerate(encountersWithBattleEvents) if e == encounter.ind] 
                     for ind in eventInds:
                         # check if reference still has a event 
-                        if eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
-                            self.battleEventArr[ind].encounterID = eventEncountArr[self.bossDuplicateMap[index]].ind
+                        if self.eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
+                            self.battleEventArr[ind].encounterID = self.eventEncountArr[self.bossDuplicateMap[index]].ind
                         else:
                             self.battleEventArr[ind].encounterID = 255
-                elif eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
+                elif self.eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
                 #reference has event but not duplicate 
-                    eventInds = [jIndex for jIndex,e in enumerate(encountersWithBattleEvents) if e == eventEncountArr[self.bossDuplicateMap[index]].ind] 
+                    eventInds = [jIndex for jIndex,e in enumerate(encountersWithBattleEvents) if e == self.eventEncountArr[self.bossDuplicateMap[index]].ind] 
                     for ind in eventInds:
                         self.battleEventArr.append(Battle_Event(encounter.ind,(len(self.battleEventArr)) * 0x50 + 0x45))
                         self.battleEventArr[-1].referenceID = ind
 
     '''
-    Replaces demons and important flags in an encounter with its randomized replacement
+    Replaces demons and important flags in an encounter with its randomized replacement.
+    If converting between normal and event encounter format, the number of demons is different - 6 for normal, 8 for event
+    TODO - Track music for both normal and event encounters
         Parameters:
-            encounterToUpdate(Event_Encounter): The encounter to adjust
-            referenceEncounter(Event_Encoutner): The encounter to pull data from
+            encounterToUpdate(Mixed_Boss_Encounter): The encounter to adjust
+            referenceEncounter(Mixed_Boss_Encounter): The encounter to pull data from
     '''
     def updateShuffledEncounterInformation(self, encounterToUpdate, referenceEncounter):
-        encounterToUpdate.demons = referenceEncounter.demons
-        encounterToUpdate.unknownDemon = referenceEncounter.unknownDemon
-        encounterToUpdate.unknown23Flag = referenceEncounter.unknown23Flag
-        encounterToUpdate.levelpath = referenceEncounter.levelpath
-        encounterToUpdate.positions.demons = referenceEncounter.positions.demons
-        encounterToUpdate.positions.addDemons = referenceEncounter.positions.addDemons
         if not self.configSettings.checkBasedMusic and not self.configSettings.randomMusic:
-            encounterToUpdate.track = referenceEncounter.track
+                    encounterToUpdate.track = referenceEncounter.track
+        if encounterToUpdate.isEvent:
+            if referenceEncounter.isEvent:
+                encounterToUpdate.demons = referenceEncounter.demons
+                encounterToUpdate.eventEncounter.unknownDemon = referenceEncounter.eventEncounter.unknownDemon
+                encounterToUpdate.eventEncounter.unknown23Flag = referenceEncounter.eventEncounter.unknown23Flag
+                encounterToUpdate.eventEncounter.levelpath = referenceEncounter.eventEncounter.levelpath
+                encounterToUpdate.eventEncounter.positions.demons = referenceEncounter.eventEncounter.positions.demons
+                encounterToUpdate.eventEncounter.positions.addDemons = referenceEncounter.eventEncounter.positions.addDemons
+                if not self.configSettings.checkBasedMusic and not self.configSettings.randomMusic:
+                    encounterToUpdate.eventEncounter.track = referenceEncounter.eventEncounter.track
+            else:
+                encounterToUpdate.demons = referenceEncounter.demons + [0, 0]
+            encounterToUpdate.eventEncounter.track = encounterToUpdate.track
+            encounterToUpdate.eventEncounter.demons = [Translated_Value(demon, self.enemyNames[demon]) for demon in encounterToUpdate.demons]
+        else:
+            if referenceEncounter.isEvent:
+                encounterToUpdate.demons = referenceEncounter.demons[:6]
+            else:
+                encounterToUpdate.demons = referenceEncounter.demons
+            encounterToUpdate.normalEncounter.track = encounterToUpdate.track
+            encounterToUpdate.normalEncounter.demons = encounterToUpdate.demons
             
     '''
     Fixes certain boss flags so that they work outside of their normal location
@@ -3392,6 +3438,7 @@ class Randomizer:
             
     '''
     Randomizes Boss music for all encounters in eventEncountArr, excluding regular battle theme and 'no bgm change' tracks
+    TODO: Include Abscess and rest of punishing foe battles
     '''
     def randomizeEventEncounterTracks(self):
         trackList = set()
@@ -3403,6 +3450,18 @@ class Randomizer:
         for encounter in self.eventEncountArr:
             if encounter.track not in [0, 255]:
                 encounter.track = random.choice(trackList)
+             
+    '''
+    Replaces the overworld models of punishing foes with their randomized counterparts
+    '''
+    def updateUniqueSymbolDemons(self):
+        for symbolEncounter in self.uniqueSymbolArr:
+            if symbolEncounter.symbol.value >= numbers.NORMAL_ENEMY_COUNT:
+                if symbolEncounter.eventEncounterID > 0:
+                    symbolEncounter.symbol = self.eventEncountArr[symbolEncounter.eventEncounterID].demons[0]
+                else:
+                    demon = self.encountArr[symbolEncounter.encounterID].demons[0]
+                    symbolEncounter.symbol = Translated_Value(demon, self.enemyNames[demon])
 
 
     '''
@@ -4542,10 +4601,11 @@ class Randomizer:
         if config.randomShopEssences:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)
            
-        self.randomizeBosses(self.eventEncountArr)
+        self.randomizeBosses()
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
             bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings)
+        self.updateUniqueSymbolDemons()
         
         self.adjustEventEncountMissionConditions(self.eventEncountArr, self.staticEventEncountArr)
 
@@ -4587,6 +4647,7 @@ class Randomizer:
         talkCameraBuffer = self.updateTalkCameraBuffer(talkCameraBuffer, self.talkCameraOffsets)
         abscessBuffer = self.updateAbscessBuffer(abscessBuffer)
         miracleBuffer = self.updateMiracleBuffer(miracleBuffer)
+        uniqueSymbolBuffer = self.updateUniqueSymbolBuffer(uniqueSymbolBuffer)
         
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)

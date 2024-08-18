@@ -8,11 +8,12 @@ class Encounter_Symbol:
         
 
 class Encounter:
-    def __init__(self, ind, offsetNumbers, flags, demons):
+    def __init__(self, ind, offsetNumbers, flags, track, demons):
         self.ind = ind
         self.updated = False
         self.offsetNumbers = offsetNumbers
         self.flags = flags
+        self.track = track
         self.demons = demons
         
 class Possible_Encounter:
@@ -63,5 +64,14 @@ class Unique_Symbol_Encounter(object):
         self.ind = None
         self.offsetNumber = {}
         self.encounterID = None
-        self.eventEncounteerID = None
+        self.eventEncounterID = None
         self.symbol = None
+        
+class Mixed_Boss_Encounter(object):
+    def __init__(self):
+        self.ind = None
+        self.isEvent = False
+        self.normalEncounter = None
+        self.eventEncounter = None
+        self.demons = None
+        self.track = None
