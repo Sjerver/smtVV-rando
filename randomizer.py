@@ -3087,8 +3087,12 @@ class Randomizer:
             The array of basic enemies based on the data of playable demons
     '''
     def adjustBasicEnemyArr(self, enemies, comp):
+        badIDs = [71, 365, 364, 366] #Old Lilith, Tao x2, Yoko
         foes = []
         for index, enemy in enumerate(enemies):
+            if 'Mitama' in enemy.name or index in badIDs:
+                foes.append(enemy)
+                continue
             playableEqu = comp[index]
             #Copy level from player version
             newLevel = playableEqu.level.value
