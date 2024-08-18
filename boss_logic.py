@@ -38,7 +38,9 @@ PARTNER_BOSSES = [433, #Eligor(Andras)
     442, 443, 444, 445, 446, 447, 448, 449, #All enemies during the school dungeon
     463, 471, 481, 485, 554, 561, 567,  #Arioch(Decarabias), Melchizedeks, Zeus(Odin), Dominion(Power), Naamah(GL), Yuzuru(Hayataro), Yakumo(Nuwa)
     577, 579, 602, 752, 772, #Fallen Abdiel(Dazai), Isis(Lamias), Makamis(Feng Huangs), Nozuchi(Kodamas), Kudlak(Black Oozes) 
-    779, 814, 822, 829, 836, 866, 868] #Norn(Dis), Camael(Powers), Okuninushi(Kunitsu), Asura(Mithras), Gabriel(Uriel/Raphael), Leannan(Ippon), Apsaras(Agathions)
+    779, 814, 822, 829, 836, 866, 868, #Norn(Dis), Camael(Powers), Okuninushi(Kunitsu), Asura(Mithras), Gabriel(Uriel/Raphael), Leannan(Ippon), Apsaras(Agathions)
+    605, 608, 612, 614, 618, 627, 621, 623, 721, 724, 726, 730 #Abscess bosses
+]
 
 #Boss IDs (first in the encounter) with a single strong enemy and multiple weaker enemies
 MINION_BOSSES = [452, 473, 519, 520, 525, #Lahmu(Tentacles), Alilat(Flauros/Ose), Khonsu Ra(Anubis/Thoth), Nuwa Nahobino(Thunder Bits), Abdiel Nahobino(Depraved arm/wing),
@@ -129,6 +131,16 @@ class Boss_Metadata(object):
         return allDemons
     
     '''
+    Returns a List of demon IDs that are present in the encounter in order whether at the start or through a summon
+    '''
+    def getAllUniqueDemonsInEncounter(self):
+        uniqueDemons = []
+        for demon in self.getAllDemonsInEncounter():
+            if demon not in uniqueDemons:
+                uniqueDemons.append(demon)
+        return uniqueDemons
+    
+    '''
     Returns the total number of notable demons in the encounter for the purpose of calculating a HP bonus/penalty  
     '''
     def getCountOfDemonsExcludingMinions(self):
@@ -161,7 +173,7 @@ def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr,
     #Double HP if Snake Nuwa is Replacement
     if newEncounterID == 35:
         oldEncounterData.totalHP = oldEncounterData.totalHP * 2
-
+    
     if oldEncounterData.minionType and newEncounterData.minionType:
         balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
     elif oldEncounterData.partnerType and newEncounterData.partnerType:
@@ -185,8 +197,8 @@ TODO: Account for 'revive' demons (Hayataro etc) that are effectively duplicates
 '''
 def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
     oldHPPool = calculateHPPool(oldEncounterData, newEncounterData)
-    newDemons = newEncounterData.getAllDemonsInEncounter()
-    oldDemons = oldEncounterData.getAllDemonsInEncounter()
+    newDemons = newEncounterData.getAllUniqueDemonsInEncounter()
+    oldDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
     for index, ind in enumerate(newDemons):
         replacementDemon = bossArr[ind]
         referenceDemon = demonReferenceArr[oldDemons[0]]
@@ -214,8 +226,8 @@ Minion HP and stats will be taken from random old minions
             bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
 '''
 def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
-    newDemons = newEncounterData.getAllDemonsInEncounter()
-    oldDemons = oldEncounterData.getAllDemonsInEncounter()
+    newDemons = newEncounterData.getAllUniqueDemonsInEncounter()
+    oldDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
     shuffledMinions = [0] + sorted(oldDemons[1:], key=lambda x: random.random())
     while len(shuffledMinions) < len(newDemons):
         shuffledMinions = shuffledMinions + sorted(oldDemons[1:], key=lambda x: random.random())
@@ -245,8 +257,8 @@ If the number of demons is equal between the two encounters, HP will be transfer
 '''
 def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
     oldHPPool = calculateHPPool(oldEncounterData, newEncounterData)
-    newDemons = newEncounterData.getAllDemonsInEncounter()
-    oldDemons = oldEncounterData.getAllDemonsInEncounter()
+    newDemons = newEncounterData.getAllUniqueDemonsInEncounter()
+    oldDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
     if len(newDemons) != len(oldDemons):
         oldHPPool = oldHPPool // len(newDemons)
     shuffledOldDemons = sorted(oldDemons[1:], key=lambda x: random.random())

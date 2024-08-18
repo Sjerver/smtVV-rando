@@ -3358,8 +3358,10 @@ class Randomizer:
                 for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
                     spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
+                    
                     bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind)
-      
+                    #print("Old hp " + str(self.staticBossArr[encounter.demons[0]].stats.HP) + " of " + self.enemyNames[encounter.demons[0]] + " now is "  +
+                          #self.enemyNames[shuffledEncounters[index].demons[0]] + " with " + str(self.bossArr[shuffledEncounters[index].demons[0]].stats.HP) + " HP")
                     self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
                     if encounter.isEvent:
                         self.eventEncountArr[encounter.ind] = encounter.eventEncounter
@@ -3457,7 +3459,7 @@ class Randomizer:
             
     '''
     Randomizes Boss music for all encounters in eventEncountArr, excluding regular battle theme and 'no bgm change' tracks
-    TODO: Include Abscess and rest of punishing foe battles
+    Also includes entries in the normal encounter array used by abscesses and punishing foes
     '''
     def randomizeEventEncounterTracks(self):
         trackList = set()
@@ -3467,6 +3469,10 @@ class Randomizer:
         trackList = list(trackList)
         #print(trackList)
         for encounter in self.eventEncountArr:
+            if encounter.track not in [0, 255]:
+                encounter.track = random.choice(trackList)
+        for encounterID in self.updatedNormalEncounters:
+            encounter = self.encountArr[encounterID]
             if encounter.track not in [0, 255]:
                 encounter.track = random.choice(trackList)
              
