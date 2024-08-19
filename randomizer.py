@@ -3470,6 +3470,22 @@ class Randomizer:
             if flag == 0:
                 nuwaFlags.flags[i] = 0x18
                 break
+
+    '''
+    Increases the guest Yuzuru's stats for the Glasya-Labolas fight to avoid softlocking before unlocking fusion
+        Parameters:
+            buffer (Table): Compendium buffer that we will directly write to because we don't hold data past the normal compendium count
+    '''
+    def patchYuzuruGLStats(self, buffer):
+        offset = 0x69 + 0x1d0 * numbers.FIRST_GUEST_YUZURU_ID
+        buffer.writeWord(999, offset + 0x1c)
+        buffer.writeWord(999,offset + 0x1c + 4 * 1)
+        buffer.writeWord(99,offset + 0x1c + 4 * 4)
+        buffer.writeWord(99,offset + 0x1c + 4 * 5)
+        buffer.writeWord(99,offset + 0x1c + 4 * 6)
+        buffer.writeWord(99,offset + 0x1c + 4 * 7)
+        buffer.writeWord(99,offset + 0x1c + 4 * 8)
+        buffer.writeWord(99, offset)
             
     '''
     Randomizes Boss music for all encounters in eventEncountArr, excluding regular battle theme and 'no bgm change' tracks
@@ -4732,6 +4748,7 @@ class Randomizer:
             self.randomizeMiracleCosts()
             
         self.patchTutorialDaemon()
+        self.patchYuzuruGLStats(compendiumBuffer)
             
         if DEV_CHEATS:
             self.applyCheats()

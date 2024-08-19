@@ -50,13 +50,14 @@ MINION_BOSSES = [452, 473, 519, 520, 525, #Lahmu(Tentacles), Alilat(Flauros/Ose)
 
 #For bosses that can die and be resummoned (Hayataro etc), there's a second copy of the demon that needs to match stats with the original
 REVIVED_DEMON_DUPLICATE_MAP = {
-    562: 563, #Hayataro
-    570: 571, #Agrat
-    572: 573, #Eisheth
-    574: 575, #Naamah
-    762: 763, #Agrat's Shadow
-    764: 765, #Eisheth's Shadow
-    766: 767  #Naamah's Shadow
+    528: [530, 540], #Tsukuyomi
+    562: [563], #Hayataro
+    570: [571], #Agrat
+    572: [573], #Eisheth
+    574: [575], #Naamah
+    762: [763], #Agrat's Shadow
+    764: [765], #Eisheth's Shadow
+    766: [767]  #Naamah's Shadow
 }
 
 #Phase 1, 2, and 3 of Lucifer need to have their HP and stats synced (Phase 3 has triple the HP of the others)
@@ -325,10 +326,11 @@ True Lucifer's phase 2 and phase 3 versions need to be synced as well, and their
         configSettings (Settings): Settings determining what types of bosses were randomized
 '''
 def patchSpecialBossDemons(bossArr, configSettings):
-    for base, duplicate in REVIVED_DEMON_DUPLICATE_MAP.items():
+    for base, duplicates in REVIVED_DEMON_DUPLICATE_MAP.items():
         referenceDemon = bossArr[base]
-        demonToPatch = bossArr[duplicate]
-        demonToPatch.stats = copy.deepcopy(referenceDemon.stats)
+        for duplicate in duplicates:
+            demonToPatch = bossArr[duplicate]
+            demonToPatch.stats = copy.deepcopy(referenceDemon.stats)
     if configSettings.randomizeLucifer:
         luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
         luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
