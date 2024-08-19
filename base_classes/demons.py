@@ -16,6 +16,8 @@ class Compendium_Demon:
         self.innate = None
         self.skills = []
         self.learnedSkills = []
+        self.alignment = None
+        self.tendency = None
     
 class Enemy_Demon:
     def __init__(self):

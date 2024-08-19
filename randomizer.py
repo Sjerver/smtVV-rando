@@ -188,6 +188,7 @@ class Randomizer:
             offset = startValue + demonOffset * index
             locations = {
                 'race': offset - raceOffset,
+                'alignment': offset - raceOffset + 7,
                 'nameID': offset - 0x10,
                 'level': offset,
                 'HP': offset + 0x1C,
@@ -223,6 +224,8 @@ class Randomizer:
                 demon.name = self.compendiumNames[demon.nameID]
             demon.offsetNumbers = locations
             demon.race = Translated_Value(NKMBaseTable.readByte(locations['race']), RACE_ARRAY[NKMBaseTable.readByte(locations['race'])])
+            demon.alignment = NKMBaseTable.readByte(locations['alignment'] +1)
+            demon.tendency = NKMBaseTable.readByte(locations['alignment'])
             demon.level = Demon_Level(NKMBaseTable.readWord(locations['level']), NKMBaseTable.readWord(locations['level']))
             demon.registerable = NKMBaseTable.readWord(locations['HP'] - 4)
             demon.fusability = NKMBaseTable.readHalfword(locations['fusability'])
@@ -2110,6 +2113,8 @@ class Randomizer:
             #Write various attributes of the demon to the buffer
             buffer.writeWord(demon.level.value, demon.offsetNumbers['level'])
             buffer.writeByte(demon.race.value, demon.offsetNumbers['race'])
+            buffer.writeByte(demon.tendency, demon.offsetNumbers['alignment'])
+            buffer.writeByte(demon.alignment, demon.offsetNumbers['alignment'] + 1)
             buffer.writeWord(demon.innate.value, demon.offsetNumbers['innate'])
             buffer.writeHalfword(demon.fusability, demon.offsetNumbers['fusability'])
             buffer.writeByte(demon.unlockFlags[0], demon.offsetNumbers['unlockFlags'])
@@ -3655,6 +3660,13 @@ class Randomizer:
                 hBIndex = fourHolyBeastEncounters.index(encounter.ind)
                 fourHolyBeastMission.conditions[hBIndex].ind = shuffledEncounters[index].demons[0].value
 
+    def randomizeDemonAlignment(self, comp):
+        tendencies = [1,2,3]
+        alignments = [1,4,5]
+        for demon in comp:
+            demon.tendency = random.choice(tendencies)
+            demon.alignment = random.choice(alignments)
+
     '''
     Adjust the clear conditions of all missions who usually require a punishing foe to be defeated to instead require the shuffled results demon.
     For encounters with more than one demon only the first demon in the list is set as a clear condition.
@@ -4769,7 +4781,10 @@ class Randomizer:
             self.randomizeMiracleRewards()
         elif config.randomMiracleCosts: #If randomizing unlocks handle costs there as it is slightly more complicated
             self.randomizeMiracleCosts()
-            
+
+        if config.randomAlignment:
+            self.randomizeDemonAlignment(self.compendiumArr)
+
         self.patchTutorialDaemon()
         self.patchYuzuruGLStats(compendiumBuffer)
             

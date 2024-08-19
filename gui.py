@@ -153,7 +153,7 @@ def createGUI(configSettings):
     listDemon.insert(6, "Scale Potentials to Level")
     listDemon.insert(7, "Unique Skills can show up more than once")
     listDemon.insert(8, "Randomize Races")
-    listDemon.insert(9, "Randomize Alignment(N)")
+    listDemon.insert(9, "Randomize Alignment")
     listDemon.pack()
 
     inheritanceLabel = tk.Label(page1FrameTopLeft, text="Unique Skill Inheritance")
