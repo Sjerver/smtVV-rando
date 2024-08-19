@@ -76,6 +76,8 @@ class Randomizer:
 
         self.elementals = [155,156,157,158]
         
+        self.dummyEventIndex = 0
+        
         
     '''
     Reads a file containing game data into a Table with a bytearray
@@ -2513,12 +2515,14 @@ class Randomizer:
         return buffer
     
     '''
-    Writes updated punishing foe symbols from the unique symbol array to their respective locations in the table buffer
+    Writes updated punishing foe symbols and encounters from the unique symbol array to their respective locations in the table buffer
         Parameters:
             buffer (Table): buffer
     '''
     def updateUniqueSymbolBuffer(self, buffer):
         for uniqueSymbol in self.uniqueSymbolArr:
+            buffer.writeHalfword(uniqueSymbol.encounterID, uniqueSymbol.offsetNumber['encounterID'])
+            buffer.writeHalfword(uniqueSymbol.eventEncounterID, uniqueSymbol.offsetNumber['eventEncounterID'])
             buffer.writeHalfword(uniqueSymbol.symbol.value, uniqueSymbol.offsetNumber['symbol'])
         return buffer
 
@@ -3342,7 +3346,6 @@ class Randomizer:
             
     '''
     Randomizes main story and sidequest bosses in eventEncountArr. The array is filtered to exclude problematic and duplicate encounters before shuffling
-    TODO: Fix encounters with events when they replace a boss that uses a normal encounter
     '''
     def randomizeBosses(self):
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
@@ -3352,7 +3355,6 @@ class Randomizer:
             return
         with open(paths.BOSS_SPOILER, 'w') as spoilerLog: #Create spoiler log
             for filteredEncounters in encounterPools:
-                #filteredEncounters = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index not in numbers.BANNED_BOSSES and index not in self.bossDuplicateMap.keys()]
                 shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
                 shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
                 for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
@@ -3361,7 +3363,7 @@ class Randomizer:
                     
                     bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind)
                     #print("Old hp " + str(self.staticBossArr[encounter.demons[0]].stats.HP) + " of " + self.enemyNames[encounter.demons[0]] + " now is "  +
-                          #self.enemyNames[shuffledEncounters[index].demons[0]] + " with " + str(self.bossArr[shuffledEncounters[index].demons[0]].stats.HP) + " HP")
+                    #      self.enemyNames[shuffledEncounters[index].demons[0]] + " with " + str(self.bossArr[shuffledEncounters[index].demons[0]].stats.HP) + " HP")
                     self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
                     if encounter.isEvent:
                         self.eventEncountArr[encounter.ind] = encounter.eventEncounter
@@ -3376,7 +3378,10 @@ class Randomizer:
                             for ind in eventInds:
                                 self.battleEventArr[ind].encounterID = encounter.ind
                         else:
-                            print("WARNING: Encounter with event randomized into the normal encounter array. Bad things will happen")
+                            #set event to an unused encounter
+                            eventInds = [jIndex for jIndex, e in enumerate(encountersWithBattleEvents) if e == shuffledEncounters[index].ind]
+                            for ind in eventInds:
+                                self.battleEventArr[ind].encounterID = bossLogic.DUMMY_EVENT_ENCOUNTERS[-1]
 
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
         for index, encounter in enumerate(self.eventEncountArr): #Set duplicate encounters to use the same demons as their new counterparts
@@ -3403,7 +3408,6 @@ class Randomizer:
     '''
     Replaces demons and important flags in an encounter with its randomized replacement.
     If converting between normal and event encounter format, the number of demons is different - 6 for normal, 8 for event
-    TODO - Track music for both normal and event encounters
         Parameters:
             encounterToUpdate(Mixed_Boss_Encounter): The encounter to adjust
             referenceEncounter(Mixed_Boss_Encounter): The encounter to pull data from
@@ -3433,17 +3437,27 @@ class Randomizer:
             encounterToUpdate.eventEncounter.demons = [Translated_Value(demon, self.enemyNames[demon]) for demon in encounterToUpdate.demons]
         else:
             if referenceEncounter.isEvent:
-                # only the reference encounter is event encounter
-                encounterToUpdate.demons = referenceEncounter.demons[:6]
-                encounterToUpdate.normalEncounter.positions.demons = referenceEncounter.eventEncounter.positions.demons
-                encounterToUpdate.normalEncounter.positions.addDemons = referenceEncounter.eventEncounter.positions.addDemons
+                if referenceEncounter.ind in bossLogic.EVENT_ONLY_BOSSES: #Reference boss must remain an event encounter, so use a DUMMY event encounter
+                    bossLogic.assignDummyEventEncounter(encounterToUpdate, referenceEncounter, self.dummyEventIndex, self.eventEncountArr, self.abscessArr, self.uniqueSymbolArr)
+                    self.dummyEventIndex = self.dummyEventIndex + 1
+                    encounterToUpdate.eventEncounter.unknownDemon = referenceEncounter.eventEncounter.unknownDemon
+                    encounterToUpdate.eventEncounter.unknown23Flag = referenceEncounter.eventEncounter.unknown23Flag
+                    encounterToUpdate.eventEncounter.levelpath = referenceEncounter.eventEncounter.levelpath
+                    encounterToUpdate.eventEncounter.positions.demons = referenceEncounter.eventEncounter.positions.demons
+                    encounterToUpdate.eventEncounter.positions.addDemons = referenceEncounter.eventEncounter.positions.addDemons
+                else:
+                    # only the reference encounter is event encounter
+                    encounterToUpdate.demons = referenceEncounter.demons[:6]
+                    encounterToUpdate.normalEncounter.positions.demons = referenceEncounter.eventEncounter.positions.demons
+                    encounterToUpdate.normalEncounter.positions.addDemons = referenceEncounter.eventEncounter.positions.addDemons
             else:
                 # both encounters normal encounters
                 encounterToUpdate.demons = referenceEncounter.demons
                 encounterToUpdate.normalEncounter.positions.demons = referenceEncounter.normalEncounter.positions.demons
                 encounterToUpdate.normalEncounter.positions.addDemons = referenceEncounter.normalEncounter.positions.addDemons
-            encounterToUpdate.normalEncounter.track = encounterToUpdate.track
-            encounterToUpdate.normalEncounter.demons = encounterToUpdate.demons
+            if not encounterToUpdate.isEvent: #Need this check in case we switched to event encounter midway
+                encounterToUpdate.normalEncounter.track = encounterToUpdate.track
+                encounterToUpdate.normalEncounter.demons = encounterToUpdate.demons
             
             
     '''

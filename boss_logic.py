@@ -63,7 +63,7 @@ REVIVED_DEMON_DUPLICATE_MAP = {
 LUCIFER_PHASES = [529, 534, 535]
 
 #HP Penalty for single target bosses/bonus for multi-target bosses to account for AOE skills
-GROUP_HP_MODIFIER = 0.8
+GROUP_HP_MODIFIER = 0.85
 
 #Event Encounter IDs that contain Lucifer (normal and true version), excluding VR battle duplicates
 LUCIFER_ENCOUNTERS = [6, 12]
@@ -75,6 +75,12 @@ BOSS_HP_MODIFIERS = {
     435: 0.5, #Snake Nuwa's replacement should have half HP
     529: 3 #True Lucifer's replacement will have triple HP (not completely accurate but fine for now)
 }
+
+#Event Encounter IDs that break when moving to a normal array because of too many demons (Lahmu) or event flags
+EVENT_ONLY_BOSSES = [6, 39, 69, 138]
+
+#Event Encounter IDs that have DUMMY fights and can be replaced with probelematic demons like True Lucifer
+DUMMY_EVENT_ENCOUNTERS = [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 89, 141]
 
 
 class Boss_Metadata(object):
@@ -299,7 +305,7 @@ def calculateHPPool(oldEncounterData, newEncounterData):
         modifier = modifier + (1 - modifier) ** 2
         oldDemonCount -= 1
     while newDemonCount > oldDemonCount: #More demons in the new encounter, apply a HP bonus
-        multiplier = multiplier / modifier
+        multiplier = multiplier * 1 + (1 - modifier) * 3 / 4
         modifier = modifier + (1 - modifier) ** 2
         newDemonCount -= 1
     modifiedPool = round(pool * multiplier)
@@ -427,3 +433,38 @@ def formatBossEncounter(encounter):
         formattedEncounter.normalEncounter = encounter
         formattedEncounter.track = encounter.track
     return formattedEncounter
+
+'''
+Fills a DUMMY event encounter with demons that would otherwise go into a normal encounter but require an event or 8 demon slots.
+The corresponding abscess or unique symbol is updated to use the new event encounter id instead of their original normal encounter id
+    Parameters:
+        encounterToUpdate (Mixed_Boss_Encounter): The normal encounter to convert to an event encounter
+        newEncounter (Mixed_Boss_Encounter): The event encounter containing problematic demons
+        dummyIndex (Number): The index of the dummy event encounters to use - different from the actual index in the eventEncountArr
+        eventEncountArr (List(Event_Encounter))
+        abscessArr (List(Abscess))
+        uniqueSymbolArr (List(Unique_Symbol_Encounter))
+'''
+def assignDummyEventEncounter(encounterToUpdate, newEncounter, dummyIndex, eventEncountArr, abscessArr, uniqueSymbolArr):
+    normalEncounterIndex = encounterToUpdate.ind
+    newEventIndex = DUMMY_EVENT_ENCOUNTERS[dummyIndex]
+    newEventEncounter = eventEncountArr[newEventIndex]
+    newEventEncounter.demons = newEncounter.eventEncounter.demons
+    newEventEncounter.track = newEncounter.track
+    encounterToUpdate.isEvent = True
+    encounterToUpdate.demons = newEncounter.demons
+    encounterToUpdate.track = newEventEncounter.track
+    encounterToUpdate.eventEncounter = newEventEncounter
+    encounterToUpdate.normalEncounter = None
+    encounterToUpdate.ind = newEventIndex
+    
+    for abscess in abscessArr:
+        if abscess.encounter == normalEncounterIndex:
+            abscess.encounter = 0
+            abscess.eventEncounter = newEventIndex
+            
+    for symbol in uniqueSymbolArr:
+        if symbol.encounterID == normalEncounterIndex:
+            symbol.encounterID = 0
+            symbol.eventEncounterID = newEventIndex
+            
