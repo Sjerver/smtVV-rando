@@ -11,6 +11,7 @@ from base_classes.quests import Mission, Mission_Reward, Mission_Condition
 from base_classes.settings import Settings
 from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
+import base_classes.script_join as scriptJoin
 import util.numbers as numbers
 import util.paths as paths
 import util.translation as translation
@@ -4784,6 +4785,9 @@ class Randomizer:
 
         if config.randomAlignment:
             self.randomizeDemonAlignment(self.compendiumArr)
+
+        if config.ensureDemonJoinLevel:
+            scriptJoin.randomizeDemonJoins(self.compendiumArr)
 
         self.patchTutorialDaemon()
         self.patchYuzuruGLStats(compendiumBuffer)

@@ -28,3 +28,4 @@ class Settings(object):
         self.freeInheritance = False                # Make unique skills freely inheritable
         self.randomRaces = False                    # Randomize normal demons' races
         self.randomAlignment = False                # Randomize the alignment of demons
+        self.ensureDemonJoinLevel = False           # Ensures the demons that join after quests have the same level as the original demon from that quest

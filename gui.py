@@ -31,9 +31,9 @@ def createGUI(configSettings):
     page1FrameTop = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
     page1FrameTop.grid(row=0, column=0, columnspan = 1, sticky = tk.W+tk.E)
     page1FrameTop.pack_propagate(False)
-    page1FrameTopLeft = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
-    page1FrameTopLeft.grid(row=0, column=1, columnspan = 1, sticky = tk.W+tk.E)
-    page1FrameTopLeft.pack_propagate(False)
+    page1FrameTopRight = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
+    page1FrameTopRight.grid(row=0, column=1, columnspan = 1, sticky = tk.W+tk.E)
+    page1FrameTopRight.pack_propagate(False)
     page1FrameLeft = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
     page1FrameLeft.grid(row=1, column=0)
     page1FrameLeft.pack_propagate(False)
@@ -141,7 +141,7 @@ def createGUI(configSettings):
     seedEntry.pack()
 
     demonLabel = tk.Label(page1FrameTop, text="Demon Randomizer")
-    demonLabel.pack()
+    demonLabel.grid(row=0, column=0, sticky='nsew', columnspan= 2, padx = [10,0])
 
     listDemon = tk.Listbox(page1FrameTop, selectmode = "multiple", width=75, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listDemon.insert(0, "Randomize Levels")
@@ -154,12 +154,20 @@ def createGUI(configSettings):
     listDemon.insert(7, "Unique Skills can show up more than once")
     listDemon.insert(8, "Randomize Races")
     listDemon.insert(9, "Randomize Alignment")
-    listDemon.pack()
+    listDemon.insert(10, "Same Level for Quest Join Demons")
 
-    inheritanceLabel = tk.Label(page1FrameTopLeft, text="Unique Skill Inheritance")
+    demonScrollbar = tk.Scrollbar(page1FrameTop, orient='vertical')
+    demonScrollbar.config(command=listDemon.yview)
+    listDemon.config(yscrollcommand=demonScrollbar.set)
+    listDemon.grid(row=1, column=0, sticky="nsew", padx = [10,0])
+    demonScrollbar.grid(row=1, column=1, sticky="ns")
+    page1FrameTop.grid_rowconfigure(0, weight=1)
+    page1FrameTop.grid_columnconfigure(0, weight=1)
+
+    inheritanceLabel = tk.Label(page1FrameTopRight, text="Unique Skill Inheritance")
     inheritanceLabel.pack()
 
-    listInheritance = tk.Listbox(page1FrameTopLeft,selectmode= "single",exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listInheritance = tk.Listbox(page1FrameTopRight,selectmode= "single",exportselection=False, selectbackground = NAHOBINO_BLUE)
     listInheritance.insert(0, "Vanilla")
     listInheritance.insert(1, "Random")
     listInheritance.insert(2, "Free")
@@ -254,6 +262,8 @@ def createGUI(configSettings):
                 listDemon.selection_set(8)
             if configur.get('Demon', 'randomAlignment') == 'true':
                 listDemon.selection_set(9)
+            if configur.get('Demon', 'ensureDemonJoinLevel') == 'true':
+                listDemon.selection_set(10)
             if configur.get('Inheritance', 'RandomInheritance') == 'true':
                 listInheritance.selection_clear(0)
                 listInheritance.selection_set(1)
@@ -389,6 +399,12 @@ def createGUI(configSettings):
         configur.set('Demon', 'randomAlignment', 'true')
     else:
         configur.set('Demon', 'randomAlignment', 'false')
+    
+    if demonFlags[10]:
+        configSettings.ensureDemonJoinLevel = True
+        configur.set('Demon', 'ensureDemonJoinLevel', 'true')
+    else:
+        configur.set('Demon', 'ensureDemonJoinLevel', 'false')
 
     if len(inheritanceChoice) > 0 and inheritanceChoice[0] == 1:
         configSettings.randomInheritance = True
@@ -507,7 +523,7 @@ def createGUI(configSettings):
 def createConfigFile(configur):
     configur.read('config.ini')
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
-                                 'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False}
+                                 'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False, 'ensureDemonJoinLevel':False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False, 'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False}
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
