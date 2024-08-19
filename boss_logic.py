@@ -22,6 +22,7 @@ BOSS_SUMMONS = {
     529: [531, 532, 533], #Lucifer True Ending - Brimstone Star, Cocytus Star, Morning Star
     537: [538, 539], #Lucifer Normal Endings - Brimstone Star, Cocytus Star
     839: [846, 847, 848, 849], #Huang Long - Qing Long, Zhuque, Baihu, Xuanwu
+    828: [850, 851, 852, 853], #Arahabaki - Sui-Ki, Kin-Ki, Fuu-Ki, Ongyo-Ki
     760: [761, 762, 764, 766], #Samael - Lilith's Shadow, Agrat's Shadow, Eisheth's Shadow, Naamah's Shadow
     569: [570, 572, 574], #Lilith - Agrat, Eisheth, Naamah
     473: [474, 475], #Alilat - Flauros, Ose
