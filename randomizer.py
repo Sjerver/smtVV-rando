@@ -3521,9 +3521,9 @@ class Randomizer:
 
     '''
     Shuffles the miracle rewards from abscesses, including endgame miracles
-    TODO: Guarantee certain miracles appear before a certain point in the game
-    TODO: Handle duplicate miracles
-    TODO: Mess with starting miracles
+    : Guarantee certain miracles appear before a certain point in the game
+    : Handle duplicate miracles
+    : Mess with starting miracles
     '''
     def randomizeMiracleRewards(self):
         miracleList = []
@@ -3600,7 +3600,11 @@ class Randomizer:
             
 
     '''
-    #TODO: Write this
+    Adjust the clear conditions of all missions who usually require a event encounter to be defeated to instead require the shuffled results demon.
+    For encounters with more than one demon only the first demon in the list is set as a clear condition.
+    Parameters:
+        shuffledEncounters (List(Event_Encounter)): list of new encounters to replace the original conditions
+        originalEncounters (List(Event_Encounter)): list of original encounters to find missions belonging to them
     '''
     def adjustEventEncountMissionConditions(self, shuffledEncounters, originalEncounters):
         #Exceptions for A Gold Dragons Arrival
@@ -3651,6 +3655,13 @@ class Randomizer:
                 hBIndex = fourHolyBeastEncounters.index(encounter.ind)
                 fourHolyBeastMission.conditions[hBIndex].ind = shuffledEncounters[index].demons[0].value
 
+    '''
+    Adjust the clear conditions of all missions who usually require a punishing foe to be defeated to instead require the shuffled results demon.
+    For encounters with more than one demon only the first demon in the list is set as a clear condition.
+    Parameters:
+        uniqueSymbolArr (List(Unique_Symbol_Encounter)): list of new encounters to replace the original conditions
+        staticArr (List(Unique_Symbol_Encounter)): list of original encounters to find missions belonging to them
+    '''
     def adjustNonEventPunishinFoeMissionConditions(self, uniqueSymbolArr, staticArr):
         #Exceptions for A Gold Dragons Arrival
         fourHolyBeastDemons = [854,855,856,857] #Qing Long, Zhuque, Baihu, Xuan Wu
@@ -3674,7 +3685,11 @@ class Randomizer:
                 hBIndex = fourHolyBeastDemons.index(staticArr[index].symbol.value)
                 fourHolyBeastMission.conditions[hBIndex].ind = symbol.symbol.value
     '''
-    #TODO: Write this
+    Adds the data containing the positions of demon slots in event encounters to the respective Event_Encounter.
+    Parameters:
+        data (Table): binary table containing the positions of demon slots in event encounters.
+        eventEncountArr (List(Event_Encounter)): list of event encounters to add positions to
+    Returns: the list of event encounters with positions
     '''
     def addPositionsToEventEncountArr(self, data, eventEncountArr):
         start = 0xCE
@@ -3693,12 +3708,20 @@ class Randomizer:
             element.positions.offsetNumber = locations
         return eventEncountArr
 
+    '''
+    Adds the data containing the positions of demon slots in normal encounters to the respective Event_Encounter.
+    Also adjusts the size so that every encounter can have the same amount of additional demons.
+    Parameters:
+        data (Table): binary table containing the positions of demon slots in normal encounters.
+        encountArr (List(Event_Encounter)): list of normal encounters to add positions to
+        uassetBuffer (Table): binary table of the uasset needed to adjust the total size of file
+    Returns: the list of encounters with positions
+    '''
     def addPositionsToNormalEncountArr(self, data, encountArr, uassetBuffer):
         start = 0xCE
         size = 0x18F
         totalSize1 = uassetBuffer.readWord(0xA9)
         totalSize2 = uassetBuffer.readWord(0xE24)
-        #TODO: Also adjust total size in here and uasset
         for index, element in enumerate(encountArr):
             if index >= 3000:
                 continue
