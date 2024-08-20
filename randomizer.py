@@ -2363,7 +2363,7 @@ class Randomizer:
     
     def updateEventEncountPostBuffer(self,buffer,evEncount):
         for ind, enc in enumerate(evEncount):
-            if(ind < 252):
+            if ind < 3000: #length of EncountPostBuffer is 3000
                 for index, pos in enumerate(enc.positions.demons):
                     buffer.writeFloat(pos.x, enc.positions.offsetNumber['demon1'] + 0xE * index)
                     buffer.writeFloat(pos.y, enc.positions.offsetNumber['demon1'] + 4 + 0xE * index)
