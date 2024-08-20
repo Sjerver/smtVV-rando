@@ -3370,7 +3370,7 @@ class Randomizer:
                 replacement.drops.item3.translation = item.name
 
         replacedList = [r[1] for r in replacements]
-        nonEncounter = [f for f in foes if f.ind not in replacedList]
+        nonEncounter = [f for f in foes if f.ind not in replacedList and 'Mitama' not in f.name]
         # Delete item drops for demon who cannot be encountered on overworld
         for n in nonEncounter:
             #print(n.name)
