@@ -6,17 +6,29 @@ import util.paths as paths
 EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event'
 SCRIPT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script' 
 SUBMISSION_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission' 
-M061_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061'  
+M061_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061'
+M062_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062'   
 
 #Key: EventScriptName, Value: List(Numbers) byte offsets where demon join is decided/checked
 SCRIPT_JOIN_BYTES = {
-    'MM_M061_EM1630': [149119,211659], # The Water Nymph / Leanan Sidhe
-    'MM_M061_EM1640': [165053,204312], # The Spirit of Love / Apsaras
+    'MM_M061_EM1630': [149119,211659], # The Water Nymph 
+    'MM_M061_EM1640': [165053,204312], # The Spirit of Love 
+    'MM_M062_EM1660': [172224], # Holding The Line
+    'MM_M062_EM1650': [191531], #Those Seeking Sanctuary
 }
 # Is this important???
 SCRIPT_JOINS = {
-    'MM_M061_EM1630': 305, # The Water Nymph / Leanan Sidhe
-    'MM_M061_EM1640': 43, # The Spirit of Love / Apsaras
+    'MM_M061_EM1630': 305, # Leanan Sidhe
+    'MM_M061_EM1640': 43, # Apsaras
+    'MM_M062_EM1660': 257, # Principality
+    'MM_M062_EM1650': 67, # Lilim
+}
+
+SCRIPT_FOLDERS = {
+    'MM_M061_EM1630': M061_FOLDER, # The Water Nymph 
+    'MM_M061_EM1640': M061_FOLDER, # The Spirit of Love
+    'MM_M062_EM1660': M062_FOLDER, # Holding The Line
+    'MM_M062_EM1650': M062_FOLDER, #Those Seeking Sanctuary
 }
 
 def randomizeDemonJoins(comp):
@@ -24,6 +36,7 @@ def randomizeDemonJoins(comp):
     writeFolder(SCRIPT_FOLDER)
     writeFolder(SUBMISSION_FOLDER)
     writeFolder(M061_FOLDER)
+    writeFolder(M062_FOLDER)
     for script, offsets in SCRIPT_JOIN_BYTES.items():
         referenceDemon = comp[SCRIPT_JOINS[script]]
         sameLevel = [demon for demon in comp if demon.level.value == referenceDemon.level.original]
@@ -33,10 +46,10 @@ def randomizeDemonJoins(comp):
 
         scriptData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
 
-        scriptData.writeHalfword(newDemon.ind, offsets[0])
-        scriptData.writeHalfword(newDemon.ind, offsets[1])
+        for offset in offsets:
+            scriptData.writeHalfword(newDemon.ind,offset)
 
-        writeBinaryTable(scriptData.buffer, M061_FOLDER + '/' + script + '.uexp', M061_FOLDER)
+        writeBinaryTable(scriptData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
 
 
 
