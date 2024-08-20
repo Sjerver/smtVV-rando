@@ -22,3 +22,12 @@ class Reward_Item:
     def __init__(self):
         self.item = None
         self.amount = None
+        
+class Item_Chest:
+    def __init__(self):
+        self.map = None
+        self.offsetNumber = {}
+        self.chestID = None
+        self.item = None
+        self.amount = None
+        self.macca = None

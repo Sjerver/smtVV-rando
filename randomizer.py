@@ -1,3 +1,4 @@
+from fnmatch import translate
 from multiprocessing import Value
 from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate
@@ -6,7 +7,7 @@ from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Nod
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
-from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item
+from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item, Item_Chest
 from base_classes.quests import Mission, Mission_Reward, Mission_Condition
 from base_classes.settings import Settings
 from base_classes.miracles import Abscess, Miracle
@@ -69,6 +70,7 @@ class Randomizer:
         self.uniqueSymbolArr = []
         self.staticUniqueSymbolArr = []
         self.updatedNormalEncounters = []
+        self.chestArr = []
 
         self.nahobino = Nahobino()
         
@@ -1264,6 +1266,38 @@ class Randomizer:
             uniqueSymbol.symbol = Translated_Value(symbolInd, translation)
             self.uniqueSymbolArr.append(uniqueSymbol)
             self.staticUniqueSymbolArr.append(copy.deepcopy(uniqueSymbol))
+
+    '''
+    Fills the erray chestArr with chest reward data including items, essences, and macca.
+        Parameters:
+            encounters (Table): buffer containing chest data
+    '''
+    def fillChestArr(self, chests):
+
+        start = 0x45
+        size = 0x1c
+        #The tables standard size for symbols is 2081
+        for index in range(801):
+            offset = start + size * index
+
+            locations = {
+                'map': offset,
+                'chestID': offset + 2,
+                'item': offset + 0x10,
+                'amount': offset + 0x12,
+                'macca': offset + 0x14
+            }
+            
+
+            chest = Item_Chest()
+            chest.offsetNumber = locations
+            chest.map = chests.readHalfword(locations['map'])
+            chest.chestID = chests.readHalfword(locations['chestID'])
+            itemID = chests.readHalfword(locations['item'])
+            chest.item = Translated_Value(itemID, self.itemNames[itemID])
+            chest.amount = chests.readByte(locations['amount'])
+            chest.macca = chests.readWord(locations['macca'])
+            self.chestArr.append(chest)
 
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
@@ -2531,6 +2565,18 @@ class Randomizer:
             buffer.writeHalfword(uniqueSymbol.eventEncounterID, uniqueSymbol.offsetNumber['eventEncounterID'])
             buffer.writeHalfword(uniqueSymbol.symbol.value, uniqueSymbol.offsetNumber['symbol'])
         return buffer
+    
+    '''
+    Writes updated chest rewards from the chest array to their respective locations in the table buffer
+        Parameters:
+            buffer (Table): buffer
+    '''
+    def updateChestBuffer(self, buffer):
+        for chest in self.chestArr:
+            buffer.writeHalfword(chest.item.value, chest.offsetNumber['item'])
+            buffer.writeByte(chest.amount, chest.offsetNumber['amount'])
+            buffer.writeWord(chest.macca, chest.offsetNumber['macca'])
+        return buffer
 
     '''
     Check if a certain race of demons contains two demons of the same level
@@ -3768,6 +3814,48 @@ class Randomizer:
         uassetBuffer.writeWord(totalSize1,0xA9)
         uassetBuffer.writeWord(totalSize2,0xE24)
         return encountArr
+
+    '''
+    Randomizes chest rewards including items, essences, and macca
+    TODO: Add option to scale rewards based on map
+    '''
+    def randomizeChests(self):
+        validItems = []
+        validEssences = []
+        for chest in self.chestArr: #Any normal chest item can be used
+            if 'Essence' in chest.item.translation:
+                if chest.item.value not in validEssences:
+                    validEssences.append(chest.item.value)
+            else:
+                if chest.item.value > 0 and chest.item.value not in validItems:
+                    validItems.append(chest.item.value)
+        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami essences
+            if 'Essence' in itemName and 'Aogami' not in itemName and itemID not in validEssences:
+                validEssences.append(itemID)
+                
+        for chest in self.chestArr:
+            if chest.item.value == 0 and chest.macca == 0: #Skip unused chests
+                continue
+            if random.random() < numbers.CHEST_MACCA_ODDS: #Chest will contain macca
+                macca = random.randint(numbers.CHEST_MACCA_MIN // 100, numbers.CHEST_MACCA_MAX // 100) * 100 #Completely random macca amount in increments of 100
+                chest.item = Translated_Value(0, self.itemNames[0])
+                chest.amount = 0
+                chest.macca = macca
+            else: #Chest will contain an item or essence
+                if random.random() < numbers.CHEST_ESSENCE_ODDS:
+                    itemID = random.choice(validEssences)
+                    amount = 1
+                    validEssences.remove(itemID) #Limit 1 chest per essence for diversity
+                else:
+                    itemID = random.choice(validItems)
+                    amount = random.choices(list(numbers.CHEST_QUANTITY_WEIGHTS.keys()), list(numbers.CHEST_QUANTITY_WEIGHTS.values()))[0]
+                item = Translated_Value(itemID, self.itemNames[itemID])
+                if item.value in numbers.ITEM_QUANTITY_LIMITS.keys():
+                    amount = min(amount, numbers.ITEM_QUANTITY_LIMITS[item.value])
+                chest.item = item
+                chest.amount = amount
+                chest.macca = 0
+
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
     Resulting demon is the demon with an level higher than the average of the two levels.
@@ -4666,6 +4754,7 @@ class Randomizer:
         uniqueSymbolBuffer = self.readBinaryTable(paths.UNIQUE_SYMBOL_DATA_IN)
         encountPostBuffer = self.readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_IN)
         encountPostUassetBuffer = self.readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_UASSET_IN)
+        chestBuffer = self.readBinaryTable(paths.CHEST_TABLE_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -4699,6 +4788,7 @@ class Randomizer:
         self.fillProtofiendArr(compendiumBuffer)
         self.fillMissionArr(missionBuffer)
         self.fillUniqueSymbolArr(uniqueSymbolBuffer)
+        self.fillChestArr(chestBuffer)
         
         self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
         self.encountArr = self.addPositionsToNormalEncountArr(encountPostBuffer, self.encountArr, encountPostUassetBuffer)
@@ -4788,6 +4878,9 @@ class Randomizer:
 
         if config.ensureDemonJoinLevel:
             scriptJoin.randomizeDemonJoins(self.compendiumArr)
+            
+        if config.randomChests:
+            self.randomizeChests()
 
         self.patchTutorialDaemon()
         self.patchYuzuruGLStats(compendiumBuffer)
@@ -4822,7 +4915,8 @@ class Randomizer:
         miracleBuffer = self.updateMiracleBuffer(miracleBuffer)
         uniqueSymbolBuffer = self.updateUniqueSymbolBuffer(uniqueSymbolBuffer)
         encountPostBuffer = self.updateEventEncountPostBuffer(encountPostBuffer, self.encountArr)
-        
+        chestBuffer = self.updateChestBuffer(chestBuffer)        
+
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
@@ -4859,6 +4953,7 @@ class Randomizer:
         self.writeBinaryTable(uniqueSymbolBuffer.buffer, paths.UNIQUE_SYMBOL_DATA_OUT, paths.MAP_FOLDER_OUT)
         self.writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         self.writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        self.writeBinaryTable(chestBuffer.buffer, paths.CHEST_TABLE_OUT, paths.MAP_FOLDER_OUT)
         self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
 
     '''

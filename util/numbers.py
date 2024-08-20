@@ -56,6 +56,35 @@ TUTORIAL_DAEMON_ID = 430
 
 FIRST_GUEST_YUZURU_ID = 1150
 
+CHEST_MACCA_MIN = 500
+CHEST_MACCA_MAX = 60000
+#Chance of a chest containing macca instead of an item/essence
+CHEST_MACCA_ODDS = 0.035
+
+#Chance of a chest containing an essence instead of an item
+CHEST_ESSENCE_ODDS = 0.42
+
+#Items that have a bag limit of less than 5, excluding essences
+ITEM_QUANTITY_LIMITS = {
+    60: 1, #Whittled Goat
+    62: 3, #Dampeners
+    63: 3,
+    64: 3,
+    65: 3,
+    66: 3,
+    67: 3,
+    68: 3,
+}
+
+#Odds of a chest containing 1-5 items excluding essences which are always 1
+CHEST_QUANTITY_WEIGHTS = {
+    1: 134,
+    2: 78,
+    3: 42,
+    4: 8,
+    5: 4
+}
+
 def getMaccaValues ():
     return [0,10,13,15,16,17,18,20,21,23,24,26,28,29,31,33,34,36,38,40,41,44,46,49,51,55,58,61,65,68,71,74,78,82,87,90,94,98,103,107,111,116,121,126,131,137,142,147,153,159,164,170,177,184,190,198,204,212,218,225,233,241,249,257,264,273,281,290,298,307,315,356,374,415,456,542,629,758,887,1016,1145,1274,1403,1532,1661,1790,1919,2048,2177,2306,2435,2564,2693,2822,2951,3080,3209,3338,3467,3596]
 
