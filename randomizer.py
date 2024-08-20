@@ -3774,6 +3774,7 @@ class Randomizer:
         data (Table): binary table containing the positions of demon slots in normal encounters.
         encountArr (List(Event_Encounter)): list of normal encounters to add positions to
         uassetBuffer (Table): binary table of the uasset needed to adjust the total size of file
+    #TODO: Pretty sure the way I extend the file is wrong so it either won't work correctly or at all
     Returns: the list of encounters with positions
     '''
     def addPositionsToNormalEncountArr(self, data, encountArr, uassetBuffer):
@@ -4947,14 +4948,14 @@ class Randomizer:
         self.writeBinaryTable(devilUIBuffer.buffer, paths.DEVIL_UI_OUT, paths.UI_GRAPHCIS_FOLDER_OUT)
         self.writeBinaryTable(talkCameraBuffer.buffer,paths.TALK_CAMERA_OFFSETS_OUT,paths.CAMP_STATUS_FOLDER_OUT)
         self.writeBinaryTable(abscessBuffer.buffer, paths.ABSCESS_TABLE_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        #self.writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         self.writeBinaryTable(miracleBuffer.buffer, paths.MIRACLE_TABLE_OUT, paths.MIRACLE_FOLDER_OUT)
-        self.writeBinaryTable(eventEncountUassetBuffer.buffer, paths.EVENT_ENCOUNT_UASSET_OUT, paths.MAP_FOLDER_OUT)
+        #self.writeBinaryTable(eventEncountUassetBuffer.buffer, paths.EVENT_ENCOUNT_UASSET_OUT, paths.MAP_FOLDER_OUT)
         self.writeBinaryTable(uniqueSymbolBuffer.buffer, paths.UNIQUE_SYMBOL_DATA_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        self.writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        #self.writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        #self.writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         self.writeBinaryTable(chestBuffer.buffer, paths.CHEST_TABLE_OUT, paths.MAP_FOLDER_OUT)
-        self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        #self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
 
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.
