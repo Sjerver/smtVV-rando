@@ -2236,8 +2236,14 @@ class Randomizer:
 
             #write item drops
             buffer.writeWord(foe.drops.item1.value, offsets['item'])
+            buffer.writeWord(foe.drops.item1.chance, offsets['item'] + 4)
+            buffer.writeWord(foe.drops.item1.quest, offsets['item'] + 8)
             buffer.writeWord(foe.drops.item2.value, offsets['item'] +12)
+            buffer.writeWord(foe.drops.item2.chance, offsets['item'] + 16)
+            buffer.writeWord(foe.drops.item2.quest, offsets['item'] + 20)
             buffer.writeWord(foe.drops.item3.value, offsets['item'] +24)
+            buffer.writeWord(foe.drops.item3.chance, offsets['item'] + 28)
+            buffer.writeWord(foe.drops.item3.quest, offsets['item'] + 32)
 
             buffer.writeWord(foe.potential.physical,offsets['potential'] + 4 * 0)
             buffer.writeWord(foe.potential.fire,offsets['potential'] + 4 * 1)
