@@ -3737,13 +3737,16 @@ class Randomizer:
         for mission in self.missionArr:
                 if any(mission.ind != 48 and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
                     symbolMissions.append([mission,mission.conditions[0].ind])
+        #for mission in symbolMissions:
+            #print(mission[0].reward.ind)
         for index, symbol in enumerate(uniqueSymbolArr):
             if staticArr[index].eventEncounterID > 0 or symbol.symbol.value == staticArr[index].symbol.value:
                 #skip to next symbol if original was eventEncounter or unchanged
                 continue
             #go through all mission that require boss to be killed
             for pair in symbolMissions:
-                if symbol.symbol.value == pair[1]:
+                if staticArr[index].symbol.value == pair[1]:
+                    #print(symbol.symbol.translation + " replaced " + staticArr[index].symbol.translation)
                     pair[0].conditions[0].type = 1
                     pair[0].conditions[0].ind = symbol.symbol.value
                     pair[0].conditions[0].amount = 1
