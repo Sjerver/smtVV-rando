@@ -339,6 +339,10 @@ def patchSpecialBossDemons(bossArr, configSettings):
         luciferPhase2.stats = copy.deepcopy(luciferPhase1.stats) #Lucifer has some stat variance between phases but eh
         luciferPhase3.stats = copy.deepcopy(luciferPhase1.stats)
         luciferPhase3.stats.HP = luciferPhase2.stats.HP * 3
+        luciferPhase3.experience = luciferPhase1.experience
+        luciferPhase3.money = luciferPhase1.money
+        luciferPhase1.experience = 0
+        luciferPhase1.money = 0
     
 
 '''

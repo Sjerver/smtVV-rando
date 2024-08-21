@@ -2221,6 +2221,7 @@ class Randomizer:
             buffer.writeWord(foe.stats.mag,offsets['HP'] + 4 * 4)
             buffer.writeWord(foe.stats.agi,offsets['HP'] + 4 * 5)
             buffer.writeWord(foe.stats.luk,offsets['HP'] + 4 * 6)
+            buffer.writeWord(foe.analyze, offsets['HP'] + 28)
 
             buffer.writeWord(foe.level, offsets['level'])
             buffer.writeByte(foe.pressTurns, offsets['pressTurns'])
@@ -3823,19 +3824,14 @@ class Randomizer:
     def randomizeChests(self):
         validItems = []
         validEssences = []
-        for chest in self.chestArr: #Any normal chest item can be used
-            if 'Essence' in chest.item.translation:
-                if chest.item.value not in validEssences:
-                    validEssences.append(chest.item.value)
-            else:
-                if chest.item.value > 0 and chest.item.value not in validItems:
-                    validItems.append(chest.item.value)
-        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami essences
-            if 'Essence' in itemName and 'Aogami' not in itemName and itemID not in validEssences:
+        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami essences and demi-fiend essence
+            if 'Essence' in itemName and 'Aogami' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
                 validEssences.append(itemID)
+            elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                validItems.append(itemID)
                 
         for chest in self.chestArr:
-            if chest.item.value == 0 and chest.macca == 0: #Skip unused chests
+            if (chest.item.value == 0 and chest.macca == 0) or chest.item.value >= numbers.KEY_ITEM_CUTOFF: #Skip unused chests and key item 'chests'
                 continue
             if random.random() < numbers.CHEST_MACCA_ODDS: #Chest will contain macca
                 macca = random.randint(numbers.CHEST_MACCA_MIN // 100, numbers.CHEST_MACCA_MAX // 100) * 100 #Completely random macca amount in increments of 100
