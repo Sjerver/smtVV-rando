@@ -2840,8 +2840,8 @@ class Randomizer:
     Returns: the ids of the 4 new demons of the Element race
     '''
     def randomizeRaces(self, comp):
-        badIDs = [71, 365, 364, 366] #Old Lilith, Tao x2, Yoko
-        relevantDemons = [demon for demon in comp if demon.ind not in badIDs and "Mitama" not in demon.name and not demon.name.startswith('NOT') ]
+        
+        relevantDemons = [demon for demon in comp if demon.ind not in numbers.BAD_IDS and "Mitama" not in demon.name and not demon.name.startswith('NOT') ]
 
         raceAmounts = [ 0 for _ in range(len(RACE_ARRAY)) ] #Number of demons per Race
         raceResults = [ 0 for _ in range(len(RACE_ARRAY)) ] #How many fusion combinations result in this race
@@ -2917,9 +2917,8 @@ class Randomizer:
     Returns: the ids of the 4 new demons of the Element race
     '''
     def randomizeRacesFixedLevels(self, comp):
-        badIDs = [71, 365, 364, 366] #Old Lilith, Tao x2, Yoko
 
-        relevantDemons = [demon for demon in comp if demon.ind not in badIDs and "Mitama" not in demon.name and not demon.name.startswith('NOT') ]
+        relevantDemons = [demon for demon in comp if demon.ind not in numbers.BAD_IDS and "Mitama" not in demon.name and not demon.name.startswith('NOT') ]
         specialFusions = [demon.ind for demon in comp if demon.fusability > 256] #List of demon ids that are fused as a special fusion
 
         raceAmounts = [ 0 for _ in range(len(RACE_ARRAY)) ] #Number of demons per Race
@@ -3152,10 +3151,9 @@ class Randomizer:
             The array of basic enemies based on the data of playable demons
     '''
     def adjustBasicEnemyArr(self, enemies, comp):
-        badIDs = [71, 365, 364, 366] #Old Lilith, Tao x2, Yoko
         foes = []
         for index, enemy in enumerate(enemies):
-            if 'Mitama' in enemy.name or index in badIDs:
+            if 'Mitama' in enemy.name or index in numbers.BAD_IDS:
                 foes.append(enemy)
                 continue
             playableEqu = comp[index]
@@ -3237,8 +3235,8 @@ class Randomizer:
 
         #will be in form [OG ID, NEW ID]
         replacements = []
-        #Excluding unused, Old Lilith (id=71), Tao , Yoko, Mitama
-        foes = list(filter(lambda e: e.ind != 71 and 'Mitama' not in e.name and not e.name.startswith('NOT USED') and e.ind != 364 and e.ind != 365 and e.ind != 366, enemyArr))
+        #Excluding unused, Old Lilith , Tao , Yoko, Mitama
+        foes = list(filter(lambda e: e.ind not in numbers.BAD_IDS and 'Mitama' not in e.name and not e.name.startswith('NOT USED'), enemyArr))
         '''
         Returns the array of all enemies at the specified level
             Parameters:
@@ -3264,7 +3262,7 @@ class Randomizer:
         newSymbolArr = []
         for encount in symbolArr:
             #dont change symbol if unused, mitama, Old Lilith, Tao, Yoko or not an basic enemy
-            if encount.symbol.ind == 71 or encount.symbol.ind == 365 or encount.symbol.ind == 364 or encount.symbol.ind == 366 or encount.symbol.ind == 0 or encount.symbol.ind > numbers.NORMAL_ENEMY_COUNT or "Mitama" in encount.symbol.translation or encount.symbol.translation.startswith("NOT USED"):
+            if encount.symbol.ind in numbers.BAD_IDS  or encount.symbol.ind == 0 or encount.symbol.ind > numbers.NORMAL_ENEMY_COUNT or "Mitama" in encount.symbol.translation or encount.symbol.translation.startswith("NOT USED"):
                 newSymbolArr.append(encount)
                 continue
             replaceEnc = encount
@@ -3918,9 +3916,8 @@ class Randomizer:
     '''
     def defineLevelSlots(self, comp):
         slots = [0] * 100 
-        badIDs = [71, 365, 364, 366]
         for demon in comp:
-            if not demon.name.startswith('NOT') and demon.ind not in badIDs and 'Mitama' not in demon.name:
+            if not demon.name.startswith('NOT') and demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name:
                 slots[demon.level.value] = slots[demon.level.value] + 1
         return slots
     
@@ -3949,8 +3946,7 @@ class Randomizer:
             domp (Array(Compendium_Demon)) array of demons with new and old levels
     '''
     def adjustShopEssences(self, shop, essences, comp):
-        badIDs = [71, 365, 364, 366]
-        validDemons = list(filter(lambda demon: not demon.name.startswith('NOT') and demon.ind not in badIDs and 'Mitama' not in demon.name, comp))
+        validDemons = list(filter(lambda demon: not demon.name.startswith('NOT') and demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name, comp))
         newDemonEssences = []
         for entry in shop:
             if "Essence" in entry.item.translation and not "Aogami" in entry.item.translation and not "Tsukuyomi" in entry.item.translation:
@@ -4049,14 +4045,11 @@ class Randomizer:
                     min = lv
             return min
 
-        #ids that should not be included in shuffling levels: Old Lilith, Yoko, Tao
-        badIDs = [71, 365, 364, 366]
-
         #For each race build up new array with empty subarrays
         raceLevels = [ [] for _ in range(len(RACE_ARRAY)) ]
 
         #Valid demons are all demons whose level can be unconditionally randomized
-        validDemons = list(filter(lambda demon:  demon.race.translation != 'Element' and not demon.name.startswith('NOT') and demon.ind not in badIDs and 'Mitama' not in demon.name, comp))
+        validDemons = list(filter(lambda demon:  demon.race.translation != 'Element' and not demon.name.startswith('NOT') and demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name, comp))
         #elements contain all 4 demons of the element race
         elements = list(filter(lambda d: d.race.translation == 'Element', comp))
         #Contains all demons who can only be fused after their fusion is unlocked via flag 
@@ -4368,7 +4361,7 @@ class Randomizer:
     '''
     def adjustFusionFlagsToLevel(self,comp):
         flagPairs = []
-        filtered = list(filter(lambda e: e.ind != 71 and 'Mitama' not in e.name and not e.name.startswith('NOT USED') and e.ind != 364 and e.ind != 365 and e.ind != 366, comp))
+        filtered = list(filter(lambda e: e.ind not in numbers.BAD_IDS and 'Mitama' not in e.name and not e.name.startswith('NOT USED'), comp))
         
         for demon in filtered:
             if demon.unlockFlags[0] > 1:

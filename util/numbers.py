@@ -16,6 +16,8 @@ DUMMY_DEMONS= [487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 
 
 NORMAL_ENEMY_COUNT = 395
 
+BAD_IDS = [71, 365, 364, 366] #Old Lilith, Tao x2, Yoko
+
 TOTAL_DEMON_COUNT = 1201
 
 #Obtained by creating a linear trend function for the potential of compendium demons
