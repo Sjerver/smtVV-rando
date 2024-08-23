@@ -6,12 +6,15 @@ import util.numbers as numbers
 
 EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event'
 SCRIPT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script' 
-SUBMISSION_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission' 
+SUBMISSION_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission'
+MAINMISSION_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission' 
 M061_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061'
 M062_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062'
 M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M060'  
 M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M063'  
 M064_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M064'
+MAIN_M016_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M016' 
+M016_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M016' 
 
 #Key: EventScriptName, Value: List(Numbers) byte offsets where demon join is decided/checked
 SCRIPT_JOIN_BYTES = {
@@ -27,6 +30,12 @@ SCRIPT_JOIN_BYTES = {
     'MM_M064_EM2320': [436569], # Liberate the Golden Stool
     'MM_M064_EM2270': [211353,313712], # The Vampire in Black
     'MM_M064_EM2280': [252862,364581], # The Hunter in White
+    'MM_M060_EM1420': [160666,167055], # Fionn's Resolve
+    'MM_M060_EM1602': [11705,12494], # The Destined Leader (Amanazako Could't Join Initially)
+    'MM_M060_EM1601': [187619,185111], # The Destined Leader 
+    'MM_M016_E0885': [16109,14268], #Hayataro CoC Chaos
+    'MM_M016_E0885_Direct': [27950,28905], #Hayataro CoC Chaos
+    'MM_M016_EM1450': [157807,156283], # A Plot Revealed
 }
 
 SCRIPT_JOINS = {
@@ -42,6 +51,12 @@ SCRIPT_JOINS = {
     'MM_M064_EM2320': 386, # Onyankopon
     'MM_M064_EM2270': 40, # Kresnik
     'MM_M064_EM2280': 346, # Kudlak
+    'MM_M060_EM1420': 35, # Fionn
+    'MM_M060_EM1602': 38, # Amanozako (Amanazako Could't Join Initially)
+    'MM_M060_EM1601': 38, # Amanozako
+    'MM_M016_E0885': 152, #Hayataro CoC Chaos 
+    'MM_M016_E0885_Direct': 152, #Hayataro CoC Chaos 
+    'MM_M016_EM1450': 19, # Demeter
 }
 
 SCRIPT_FOLDERS = {
@@ -57,22 +72,43 @@ SCRIPT_FOLDERS = {
     'MM_M064_EM2320': M064_FOLDER, # Liberate the Golden Stool
     'MM_M064_EM2270': M064_FOLDER, # The Vampire in Black
     'MM_M064_EM2280': M064_FOLDER, # The Hunter in White
+    'MM_M060_EM1420': M060_FOLDER, # Fionn's Resolve
+    'MM_M060_EM1602': M060_FOLDER, # The Destined Leader (Amanazako Could't Join Initially)
+    'MM_M060_EM1601': M060_FOLDER, # The Destined Leader
+    'MM_M016_E0885': MAIN_M016_FOLDER, #Hayataro CoC Chaos
+    'MM_M016_E0885_Direct': MAIN_M016_FOLDER, #Hayataro CoC Chaos
+    'MM_M016_EM1450': M016_FOLDER, # A Plot Revealed
 }
 
 def randomizeDemonJoins(comp):
     writeFolder(EVENT_FOLDER)
     writeFolder(SCRIPT_FOLDER)
     writeFolder(SUBMISSION_FOLDER)
+    writeFolder(MAINMISSION_FOLDER)
     writeFolder(M061_FOLDER)
     writeFolder(M062_FOLDER)
+    amanozako = None
+    hayataro = None
+
     for script, offsets in SCRIPT_JOIN_BYTES.items():
         referenceDemon = comp[SCRIPT_JOINS[script]]
         sameLevel = [demon for demon in comp if demon.level.value == referenceDemon.level.original]
         if len(sameLevel) <1:
              sameLevel = [d for d in comp if "Mitama" not in d.name and not d.name.startswith('NOT') and not d.ind in numbers.BAD_IDS]
         newDemon = random.choice(sameLevel)
+        if script == 'MM_M060_EM1601':
+            newDemon = amanozako
+        elif script == 'MM_M060_EM1602':
+            amanozako = newDemon
+        elif script == 'MM_M016_E0885':
+            hayataro = newDemon
+        elif script == 'MM_M016_E0885_Direct':
+            newDemon = hayataro
 
-        scriptData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
+        if 'EM' in script:
+            scriptData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
+        else:
+            scriptData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
 
         for offset in offsets:
             scriptData.writeHalfword(newDemon.ind,offset)
