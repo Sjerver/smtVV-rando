@@ -96,6 +96,12 @@ KEY_ITEM_CUTOFF = 611
 #Item indices that correspond to reusable items like the return pillar or gleam grenade
 BANNED_ITEMS = [70, 73, 74, 75, 76, 77, 78, 79, 80, 81]
 
+#Event encounter ID of chimera who needs to drop the horn of plenty
+CHIMERA_ENCOUNTER_ID = 92
+
+#Demon ID of chimera who drops the horn of plenty
+CHIMERA_DEMON_ID = 812
+
 def getMaccaValues ():
     return [0,10,13,15,16,17,18,20,21,23,24,26,28,29,31,33,34,36,38,40,41,44,46,49,51,55,58,61,65,68,71,74,78,82,87,90,94,98,103,107,111,116,121,126,131,137,142,147,153,159,164,170,177,184,190,198,204,212,218,225,233,241,249,257,264,273,281,290,298,307,315,356,374,415,456,542,629,758,887,1016,1145,1274,1403,1532,1661,1790,1919,2048,2177,2306,2435,2564,2693,2822,2951,3080,3209,3338,3467,3596]
 

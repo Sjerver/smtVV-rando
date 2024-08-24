@@ -4604,6 +4604,20 @@ class Randomizer:
     def patchTutorialDaemon(self):
         daemon = self.bossArr[numbers.TUTORIAL_DAEMON_ID]
         daemon.stats.HP = 27 #Should die to 3 basic attacks always
+        
+    '''
+    Switches the item drops of chimera with the demon that replaces it to ensure the horn of plenty is dropped for Demeter's quest
+    '''
+    def patchHornOfPlenty(self):
+        chimera = self.bossArr[numbers.CHIMERA_DEMON_ID]
+        chimeraReplacementEncounter = self.eventEncountArr[numbers.CHIMERA_ENCOUNTER_ID]
+        chimeraReplacementDemon = self.bossArr[chimeraReplacementEncounter.demons[0].value]
+        if chimeraReplacementDemon != chimera:
+            tempDrops = chimera.drops
+            chimera.drops = Item_Drops(chimeraReplacementDemon.drops.item1,chimeraReplacementDemon.drops.item2,chimeraReplacementDemon.drops.item3)
+            chimeraReplacementDemon.drops = Item_Drops(tempDrops.item1, tempDrops.item2, tempDrops.item3)
+            
+        
 
     '''
     Creates a copy of the new entry with the binary offset data of the old entry.
@@ -4883,6 +4897,7 @@ class Randomizer:
 
         self.patchTutorialDaemon()
         self.patchYuzuruGLStats(compendiumBuffer)
+        self.patchHornOfPlenty()
             
         if DEV_CHEATS:
             self.applyCheats()

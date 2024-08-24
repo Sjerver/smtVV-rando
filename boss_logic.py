@@ -175,11 +175,11 @@ def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr,
     oldEncounterData.calculateTotals(demonReferenceArr)
     newEncounterData.calculateTotals(demonReferenceArr)
 
-    #Halve HP of Snake Nuwa Check
-    if oldEncounterID == 35:
+    #Halve HP of Snake Nuwa and Tehom Check
+    if oldEncounterID in [35, 163]:
         oldEncounterData.totalHP = oldEncounterData.totalHP // 2
-    #Double HP if Snake Nuwa is Replacement
-    if newEncounterID == 35:
+    #Double HP if Snake Nuwa or Tehom is Replacement
+    if newEncounterID in [35, 163]:
         oldEncounterData.totalHP = oldEncounterData.totalHP * 2
     
     if oldEncounterData.minionType and newEncounterData.minionType:
