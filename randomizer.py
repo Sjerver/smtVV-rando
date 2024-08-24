@@ -1,5 +1,6 @@
 from fnmatch import translate
 from multiprocessing import Value
+from multiprocessing.reduction import duplicate
 from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
@@ -3585,15 +3586,22 @@ class Randomizer:
     def randomizeMiracleRewards(self):
         miracleList = []
         rewardCounts = []
+        duplicateAbscesses = {}
+        abscessMiracleList = []
         vanillaAbscessArr = copy.deepcopy(self.abscessArr)
-        for abscess in self.abscessArr: #First gather all the miracles in a list and the number of miracles each abscess gives
+        for ind, abscess in enumerate(self.abscessArr): #First gather all the miracles in a list and the number of miracles each abscess gives
+            if abscess.miracles in abscessMiracleList:
+                rewardCounts.append(0) #Ignore second copy of area 3 abscess miracles
+                duplicateAbscesses[abscessMiracleList.index(abscess.miracles)] = ind
+                abscessMiracleList.append(abscess.miracles)
+                continue
             rewardCount = 0
             for miracle in abscess.miracles:
                 if miracle > 0:
                     rewardCount += 1
                     miracleList.append(miracle)
             rewardCounts.append(rewardCount)
-        
+            abscessMiracleList.append(abscess.miracles)
         shuffledMiracles = sorted(miracleList, key=lambda x: random.random())
         #print(shuffledMiracles)
         for dependentMiracles in numbers.MIRACLE_DEPENDENCIES: #For progressive miracles put them in order
@@ -3625,6 +3633,10 @@ class Randomizer:
             rewardCounts[abscessIndex] = rewardCounts[abscessIndex] - 1
             self.abscessArr[abscessIndex].miracles[miracleIndex] = miracle
             miracleIndex += 1
+            
+        #Sync miracles between area 3 abscesses
+        for originalAbscess, duplicateAbscess in duplicateAbscesses.items():
+            self.abscessArr[duplicateAbscess].miracles = self.abscessArr[originalAbscess].miracles
             
         if self.configSettings.randomMiracleCosts:
             self.randomizeMiracleCosts(originalAbscessArr=vanillaAbscessArr)
