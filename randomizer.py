@@ -4629,6 +4629,14 @@ class Randomizer:
             chimera.drops = Item_Drops(chimeraReplacementDemon.drops.item1,chimeraReplacementDemon.drops.item2,chimeraReplacementDemon.drops.item3)
             chimeraReplacementDemon.drops = Item_Drops(tempDrops.item1, tempDrops.item2, tempDrops.item3)
             
+    '''
+    Caps the HP of bosses that can infinitely diarahan (Onyakopon, Maria) to 20,000
+    '''
+    def capDiarahanDemonHP(self):
+        diarahanDemons = [842, 770]
+        for demonID in diarahanDemons:
+            demon = self.bossArr[demonID]
+            demon.stats.HP = min(demon.stats.HP, 20000)
         
 
     '''
@@ -4910,6 +4918,7 @@ class Randomizer:
         self.patchTutorialDaemon()
         self.patchYuzuruGLStats(compendiumBuffer)
         self.patchHornOfPlenty()
+        self.capDiarahanDemonHP()
             
         if DEV_CHEATS:
             self.applyCheats()
