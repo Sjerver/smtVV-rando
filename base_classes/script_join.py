@@ -14,7 +14,10 @@ M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M060'
 M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M063'  
 M064_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M064'
 MAIN_M016_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M016' 
-M016_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M016' 
+M016_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M016'
+M035_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M035' 
+M036_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M036'
+M030_FOLDER =  'rando/Project/Content/Blueprints/Event/Script/SubMission/M030'
 
 #Key: EventScriptName, Value: List(Numbers) byte offsets where demon join is decided/checked
 SCRIPT_JOIN_BYTES = {
@@ -36,6 +39,13 @@ SCRIPT_JOIN_BYTES = {
     'MM_M016_E0885': [16109,14268], #Hayataro CoC Chaos
     'MM_M016_E0885_Direct': [27950,28905], #Hayataro CoC Chaos
     'MM_M016_EM1450': [157807,156283], # A Plot Revealed
+    'MM_M035_EM1480': [97929,95107], # The Seraph's Return
+    'MM_M036_EM1490': [96783,99605], # The Red Dragon's Invitation
+    'MM_M061_EM1781': [93897,96293], # Rage of a Queen
+    'MM_M061_EM2613_HitAction': [161413,117165], # Holy Will and Profane Dissent
+    'MM_M030_EM1769': [602929], # Bethel Researcher giving DLC Demons
+    'MM_M061_EM1791': [195223,196076], # A Goddess in Training
+    'MM_M061_EM2601': [212904], # Sakura Cinders of the East
 }
 
 SCRIPT_JOINS = {
@@ -57,6 +67,13 @@ SCRIPT_JOINS = {
     'MM_M016_E0885': 152, #Hayataro CoC Chaos 
     'MM_M016_E0885_Direct': 152, #Hayataro CoC Chaos 
     'MM_M016_EM1450': 19, # Demeter
+    'MM_M035_EM1480': 242, # Michael
+    'MM_M036_EM1490': 83, # Belial
+    'MM_M061_EM1781': 295, # Cleopatra
+    'MM_M061_EM2613_HitAction': 4, # Dagda
+    'MM_M030_EM1769': 78, # Mephisto (Can only join this way)
+    'MM_M061_EM1791': 31, # Artemis
+    'MM_M061_EM2601': 32, # Konohana Sakuya
 }
 
 SCRIPT_FOLDERS = {
@@ -78,7 +95,15 @@ SCRIPT_FOLDERS = {
     'MM_M016_E0885': MAIN_M016_FOLDER, #Hayataro CoC Chaos
     'MM_M016_E0885_Direct': MAIN_M016_FOLDER, #Hayataro CoC Chaos
     'MM_M016_EM1450': M016_FOLDER, # A Plot Revealed
+    'MM_M035_EM1480': M035_FOLDER, # The Seraph's Return
+    'MM_M036_EM1490': M036_FOLDER, # The Red Dragon's Invitation
+    'MM_M061_EM1781': M030_FOLDER, # Rage of a Queen
+    'MM_M030_EM1769': M030_FOLDER, # Bethel Researcher giving DLC Demons 
+    'MM_M061_EM1791': M030_FOLDER, # A Goddess in Training
+    'MM_M061_EM2613_HitAction': M030_FOLDER, # Holy Will and Profane Dissent
+    'MM_M061_EM2601': M061_FOLDER, # Sakura Cinders of the East
 }
+
 
 def randomizeDemonJoins(comp):
     writeFolder(EVENT_FOLDER)
@@ -89,12 +114,16 @@ def randomizeDemonJoins(comp):
     writeFolder(M062_FOLDER)
     amanozako = None
     hayataro = None
+    cleopatra = None
+    dagda = None
+
 
     for script, offsets in SCRIPT_JOIN_BYTES.items():
         referenceDemon = comp[SCRIPT_JOINS[script]]
-        sameLevel = [demon for demon in comp if demon.level.value == referenceDemon.level.original]
+        filteredComp = [d for d in comp if "Mitama" not in d.name and not d.name.startswith('NOT') and not d.ind in numbers.BAD_IDS]
+        sameLevel = [demon for demon in filteredComp if demon.level.value == referenceDemon.level.original]
         if len(sameLevel) <1:
-             sameLevel = [d for d in comp if "Mitama" not in d.name and not d.name.startswith('NOT') and not d.ind in numbers.BAD_IDS]
+             sameLevel = filteredComp
         newDemon = random.choice(sameLevel)
         if script == 'MM_M060_EM1601':
             newDemon = amanozako
@@ -104,7 +133,10 @@ def randomizeDemonJoins(comp):
             hayataro = newDemon
         elif script == 'MM_M016_E0885_Direct':
             newDemon = hayataro
-
+        elif script == 'MM_M061_EM1781':
+            cleopatra = newDemon
+        elif script == 'MM_M061_EM2613_HitAction':
+            dagda = newDemon
         if 'EM' in script:
             scriptData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
         else:
@@ -112,6 +144,11 @@ def randomizeDemonJoins(comp):
 
         for offset in offsets:
             scriptData.writeHalfword(newDemon.ind,offset)
+        #Exception for Dagda/Cleo not being recruited during their Quest
+        if script == 'MM_M030_EM1769':
+            scriptData.writeHalfword(dagda.ind,602953)
+            scriptData.writeHalfword(cleopatra.ind,602941)
+
 
         writeBinaryTable(scriptData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
 
