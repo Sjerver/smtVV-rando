@@ -2381,8 +2381,8 @@ class Randomizer:
         for ind, enc in enumerate(evEncount):
             if ind < 3000: #length of EncountPostBuffer is 3000
                 for index, pos in enumerate(enc.positions.demons):
-                    buffer.writeFloat(pos.x, enc.positions.offsetNumber['demon1'] + 0xE * index)
-                    buffer.writeFloat(pos.y, enc.positions.offsetNumber['demon1'] + 4 + 0xE * index)
+                    buffer.writeFloat(pos.x, enc.positions.offsetNumber['demon1'] + 0xC * index)
+                    buffer.writeFloat(pos.y, enc.positions.offsetNumber['demon1'] + 4 + 0xC * index)
                 for index, pos in enumerate(enc.positions.addDemons):
                     buffer.writeFloat(pos.x, enc.positions.offsetNumber['addDemon1'] + 0xC * index)
                     buffer.writeFloat(pos.y, enc.positions.offsetNumber['addDemon1'] + 4 + 0xC * index)
@@ -3792,7 +3792,7 @@ class Randomizer:
                 'addDemon1': offset + 0xB6
             }
             for i in range(8):
-                element.positions.demons.append(Position(data.readFloat(locations['demon1'] + 0xE * i),data.readFloat(locations['demon1'] + 4 + 0xE * i)))
+                element.positions.demons.append(Position(data.readFloat(locations['demon1'] + 0xC * i),data.readFloat(locations['demon1'] + 4 + 0xC * i)))
             for i in range(4):
                 element.positions.addDemons.append(Position(data.readFloat(locations['addDemon1'] + 0xC * i),data.readFloat(locations['addDemon1'] + 4 + 0xC * i)))
             element.positions.offsetNumber = locations
@@ -3822,7 +3822,7 @@ class Randomizer:
                 'addDemon1': offset + 0xB6
             }
             for i in range(8):
-                element.positions.demons.append(Position(data.readFloat(locations['demon1'] + 0xE * i),data.readFloat(locations['demon1'] + 4 + 0xE * i)))
+                element.positions.demons.append(Position(data.readFloat(locations['demon1'] + 0xC * i),data.readFloat(locations['demon1'] + 4 + 0xC * i)))
             addDemonLength = data.readByte(offset + 0x70)
             addDemonAmount = data.readByte(offset + 0x81)
             addDemonLength2 = data.readByte(offset + 0x95)
@@ -5001,14 +5001,14 @@ class Randomizer:
         self.writeBinaryTable(devilUIBuffer.buffer, paths.DEVIL_UI_OUT, paths.UI_GRAPHCIS_FOLDER_OUT)
         self.writeBinaryTable(talkCameraBuffer.buffer,paths.TALK_CAMERA_OFFSETS_OUT,paths.CAMP_STATUS_FOLDER_OUT)
         self.writeBinaryTable(abscessBuffer.buffer, paths.ABSCESS_TABLE_OUT, paths.MAP_FOLDER_OUT)
-        #self.writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        self.writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         self.writeBinaryTable(miracleBuffer.buffer, paths.MIRACLE_TABLE_OUT, paths.MIRACLE_FOLDER_OUT)
         #self.writeBinaryTable(eventEncountUassetBuffer.buffer, paths.EVENT_ENCOUNT_UASSET_OUT, paths.MAP_FOLDER_OUT)
         self.writeBinaryTable(uniqueSymbolBuffer.buffer, paths.UNIQUE_SYMBOL_DATA_OUT, paths.MAP_FOLDER_OUT)
-        #self.writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        #self.writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        self.writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        self.writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         self.writeBinaryTable(chestBuffer.buffer, paths.CHEST_TABLE_OUT, paths.MAP_FOLDER_OUT)
-        #self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
 
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.
