@@ -10,7 +10,7 @@ DUPLICATE_SOURCES = {442 : [61 ,65], #School Aitvaras
                      448 : [65, 66], #School Shiki-Ouji 
                      484 : [232, 233, 234, 235, 236, 237, 248], #Area 3 Powers
                      756 : [158, 159, 160], #Mad Gasser Quest Zhens
-                     870 : [108] #Seth appears as a punishing foe and an event encounter
+                     #870 : [108] #Seth appears as a punishing foe and an event encounter
 }
 #Selection of dummy demons to be overwritten with overlapping demons
 DUMMY_DEMONS= [487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511]
@@ -102,6 +102,11 @@ CHIMERA_ENCOUNTER_ID = 92
 
 #Demon ID of chimera who drops the horn of plenty
 CHIMERA_DEMON_ID = 812
+
+#Demon ID of Seth who has an event encounter and normal unique symbol encounter
+SETH_DEMON_ID = 870
+#Event Encounter ID of Seth
+SETH_EVENT_ENCOUNTER_ID = 108
 
 def getMaccaValues ():
     return [0,10,13,15,16,17,18,20,21,23,24,26,28,29,31,33,34,36,38,40,41,44,46,49,51,55,58,61,65,68,71,74,78,82,87,90,94,98,103,107,111,116,121,126,131,137,142,147,153,159,164,170,177,184,190,198,204,212,218,225,233,241,249,257,264,273,281,290,298,307,315,356,374,415,456,542,629,758,887,1016,1145,1274,1403,1532,1661,1790,1919,2048,2177,2306,2435,2564,2693,2822,2951,3080,3209,3338,3467,3596]

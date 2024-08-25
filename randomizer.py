@@ -1257,13 +1257,21 @@ class Randomizer:
             uniqueSymbol = Unique_Symbol_Encounter()
             uniqueSymbol.offsetNumber = locations
             uniqueSymbol.ind = uniqueSymbols.readByte(locations['id'])
+
             uniqueSymbol.encounterID = uniqueSymbols.readHalfword(locations['encounterID'])
             uniqueSymbol.eventEncounterID = uniqueSymbols.readHalfword(locations['eventEncounterID'])
+            
             symbolInd = uniqueSymbols.readHalfword(locations['symbol'])
             if (symbolInd < len(self.compendiumArr)):
                 translation = self.compendiumArr[symbolInd].name
             else:
                 translation = self.bossArr[symbolInd].name
+            
+            #Turn Seth into Event Encounter to prevent duplicate Seth
+            if symbolInd == numbers.SETH_DEMON_ID:
+                uniqueSymbol.encounterID = 0
+                uniqueSymbol.eventEncounterID = numbers.SETH_EVENT_ENCOUNTER_ID
+
             uniqueSymbol.symbol = Translated_Value(symbolInd, translation)
             self.uniqueSymbolArr.append(uniqueSymbol)
             self.staticUniqueSymbolArr.append(copy.deepcopy(uniqueSymbol))
@@ -3718,8 +3726,8 @@ class Randomizer:
                         if i > 0:
                             continue
                         pair[0].conditions[i].type = 1
-                        if self.enemyNames[keyDemon] == 'Seth':
-                            print(str(keyDemon) + " " + self.enemyNames[keyDemon] + " replaces " + self.enemyNames[pair[1]])
+                        #if self.enemyNames[keyDemon] == 'Seth':
+                            #print(str(keyDemon) + " " + self.enemyNames[keyDemon] + " replaces " + self.enemyNames[pair[1]])
                         pair[0].conditions[i].ind = keyDemon
                         pair[0].conditions[i].amount = amounts
                         i = i + 1
@@ -4897,7 +4905,7 @@ class Randomizer:
         if config.randomShopEssences:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)
            
-        self.patchSethCamera()
+        #self.patchSethCamera()
         self.randomizeBosses()
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
