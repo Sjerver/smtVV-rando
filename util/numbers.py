@@ -2,7 +2,7 @@ PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,110,1111,1112,111
 
 #Demons that overlap in Event Encounters and in which ones they do
 DUPLICATE_SOURCES = {442 : [61 ,65], #School Aitvaras
-                     443 : [56, 58, 60], #School Andras
+                     443 : [56, 58, 59, 60], #School Andras
                      444 : [56, 57, 59, 60, 63], #School Rakshasa 
                      445 : [57, 58, 61, 64, 129], #School Incubus + Extra One(?)
                      446 : [62, 63], #School Oni 
@@ -10,9 +10,10 @@ DUPLICATE_SOURCES = {442 : [61 ,65], #School Aitvaras
                      448 : [65, 66], #School Shiki-Ouji 
                      484 : [232, 233, 234, 235, 236, 237, 248], #Area 3 Powers
                      756 : [158, 159, 160], #Mad Gasser Quest Zhens
+                     870 : [108] #Seth appears as a punishing foe and an event encounter
 }
 #Selection of dummy demons to be overwritten with overlapping demons
-DUMMY_DEMONS= [487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510]
+DUMMY_DEMONS= [487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511]
 
 NORMAL_ENEMY_COUNT = 395
 

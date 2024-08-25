@@ -3479,6 +3479,7 @@ class Randomizer:
                 encounterToUpdate.demons = referenceEncounter.demons
                 encounterToUpdate.eventEncounter.unknownDemon = referenceEncounter.eventEncounter.unknownDemon
                 encounterToUpdate.eventEncounter.unknown23Flag = referenceEncounter.eventEncounter.unknown23Flag
+                #print(str(encounterToUpdate.demons[0]) + " " + self.enemyNames[encounterToUpdate.demons[0]] + " uses flag " + str(encounterToUpdate.eventEncounter.unknown23Flag))
                 encounterToUpdate.eventEncounter.levelpath = referenceEncounter.eventEncounter.levelpath
                 encounterToUpdate.eventEncounter.positions.demons = referenceEncounter.eventEncounter.positions.demons
                 encounterToUpdate.eventEncounter.positions.addDemons = referenceEncounter.eventEncounter.positions.addDemons
@@ -3717,6 +3718,8 @@ class Randomizer:
                         if i > 0:
                             continue
                         pair[0].conditions[i].type = 1
+                        if self.enemyNames[keyDemon] == 'Seth':
+                            print(str(keyDemon) + " " + self.enemyNames[keyDemon] + " replaces " + self.enemyNames[pair[1]])
                         pair[0].conditions[i].ind = keyDemon
                         pair[0].conditions[i].amount = amounts
                         i = i + 1
@@ -4637,6 +4640,13 @@ class Randomizer:
         for demonID in diarahanDemons:
             demon = self.bossArr[demonID]
             demon.stats.HP = min(demon.stats.HP, 20000)
+
+    '''
+    Fixes the camera of event encounter Seth, who now uses a dummy demon ID due to being a duplicate with punishing foe Seth
+    '''
+    def patchSethCamera(self):
+        sethEventEncounter = self.eventEncountArr[108]
+        sethEventEncounter.unknown23Flag = 0
         
 
     '''
@@ -4691,7 +4701,7 @@ class Randomizer:
             #for every encounter the source demon appears in...
 
                 #grab a new id to replace
-                if index == len(targetIDs) -1:
+                if index == len(targetIDs) -1 and len(targetIDs) > 1: #Seth is a special case with only one event encounter
                     continue
                 newID = dummies[0]
 
@@ -4887,6 +4897,7 @@ class Randomizer:
         if config.randomShopEssences:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)
            
+        self.patchSethCamera()
         self.randomizeBosses()
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
