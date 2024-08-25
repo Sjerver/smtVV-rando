@@ -3723,18 +3723,13 @@ class Randomizer:
                         pair[0].conditions[i].type = 0
                         pair[0].conditions[i].ind = 0
                         pair[0].conditions[i].amount = 0
-                    i = 0
-                    #replace conditions with new demons
-                    #TODO: Clean this up and change it so only the first demon as mission condition, that way mission should always be completable
-                    for keyDemon, amounts in demonAmounts.items():
-                        if i > 0:
-                            continue
-                        pair[0].conditions[i].type = 1
-                        #if self.enemyNames[keyDemon] == 'Seth':
-                            #print(str(keyDemon) + " " + self.enemyNames[keyDemon] + " replaces " + self.enemyNames[pair[1]])
-                        pair[0].conditions[i].ind = keyDemon
-                        pair[0].conditions[i].amount = amounts
-                        i = i + 1
+                    #replace conditions with first new demon
+                    keyDemon = list(demonAmounts.keys())[0]
+                    amounts = demonAmounts[keyDemon]
+                    pair[0].conditions[i].type = 1
+                    pair[0].conditions[i].ind = keyDemon
+                    pair[0].conditions[i].amount = amounts
+
             if encounter.ind in fourHolyBeastEncounters:
                 hBIndex = fourHolyBeastEncounters.index(encounter.ind)
                 fourHolyBeastMission.conditions[hBIndex].ind = shuffledEncounters[index].demons[0].value
@@ -4643,6 +4638,30 @@ class Randomizer:
             tempDrops = chimera.drops
             chimera.drops = Item_Drops(chimeraReplacementDemon.drops.item1,chimeraReplacementDemon.drops.item2,chimeraReplacementDemon.drops.item3)
             chimeraReplacementDemon.drops = Item_Drops(tempDrops.item1, tempDrops.item2, tempDrops.item3)
+    
+    '''
+    Switches the item drops of giri with the demon that replaces it to ensure that giris head is dropped for Kelpie's quest
+    '''
+    def patchGirisHead(self):
+        giri = self.bossArr[numbers.GIRI_DEMON_ID]
+        giriReplacementEncounter = self.eventEncountArr[numbers.GIRI_ENCOUNTER_ID]
+        giriReplacementDemon = self.bossArr[giriReplacementEncounter.demons[0].value]
+        if giriReplacementDemon != giri:
+            tempDrops = giri.drops
+            giri.drops = Item_Drops(giriReplacementDemon.drops.item1,giriReplacementDemon.drops.item2,giriReplacementDemon.drops.item3)
+            giriReplacementDemon.drops = Item_Drops(tempDrops.item1, tempDrops.item2, tempDrops.item3)
+
+    '''
+    Switches the item drops of horus with the demon that replaces it to ensure that horus' head is dropped for Isis's quest
+    '''
+    def patchHorusHead(self):
+        horus = self.bossArr[numbers.HORUS_DEMON_ID]
+        horusReplacementEncounter = self.encountArr[numbers.HORUS_ENCOUNTER_ID]
+        horusReplacementDemon = self.bossArr[horusReplacementEncounter.demons[0]]
+        if horusReplacementDemon != horus:
+            tempDrops = horus.drops
+            horus.drops = Item_Drops(horusReplacementDemon.drops.item1,horusReplacementDemon.drops.item2,horusReplacementDemon.drops.item3)
+            horusReplacementDemon.drops = Item_Drops(tempDrops.item1, tempDrops.item2, tempDrops.item3)
             
     '''
     Caps the HP of bosses that can infinitely diarahan (Onyakopon, Maria) to 20,000
@@ -4960,6 +4979,8 @@ class Randomizer:
         self.patchTutorialDaemon()
         self.patchYuzuruGLStats(compendiumBuffer)
         self.patchHornOfPlenty()
+        self.patchGirisHead()
+        self.patchHorusHead()
         self.capDiarahanDemonHP()
 
         mapSymbolParamBuffer = self.scaleLargeSymbolDemonsDown(mapSymbolParamBuffer)

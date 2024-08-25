@@ -99,9 +99,16 @@ BANNED_ITEMS = [70, 73, 74, 75, 76, 77, 78, 79, 80, 81]
 
 #Event encounter ID of chimera who needs to drop the horn of plenty
 CHIMERA_ENCOUNTER_ID = 92
-
 #Demon ID of chimera who drops the horn of plenty
 CHIMERA_DEMON_ID = 812
+#Event encounter ID of giri who needs to drop his head
+GIRI_ENCOUNTER_ID = 93
+#Demon ID of giri who drops his head
+GIRI_DEMON_ID = 827
+#Encounter ID of horus who needs to drop his head
+HORUS_ENCOUNTER_ID = 1923
+#Demon ID of horus who drops his head
+HORUS_DEMON_ID = 864
 
 #Demon ID of Seth who has an event encounter and normal unique symbol encounter
 SETH_DEMON_ID = 870
