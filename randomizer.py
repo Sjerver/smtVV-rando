@@ -3353,6 +3353,10 @@ class Randomizer:
         self.adjustBasicEnemyStats(replacements, enemyArr)
         self.adjustBasicEnemyDrops(replacements, enemyArr)
         self.missionArr = self.adjustMissionsRequiringNormalDemons(replacements,enemyArr, self.missionArr)
+
+        with open(paths.ENCOUNTERS_DEBUG, 'w') as spoilerLog: #Create spoiler log
+            for pair in replacements:
+                spoilerLog.write(self.enemyNames[pair[0]] + " replaced by " + self.enemyNames[pair[1]] + "\n")
         return newSymbolArr
     
     '''
@@ -4655,7 +4659,25 @@ class Randomizer:
     def patchSethCamera(self):
         sethEventEncounter = self.eventEncountArr[108]
         sethEventEncounter.unknown23Flag = 0
-        
+    
+    '''
+    Changes the scaling of normal demon symbols with overly large scaling factors to the normal 1.2 factor.
+    Parameters:
+        buffer (Table): contains the bytearray of the MapSymbolParamTable
+    Returns the changed buffer
+    '''
+    def scaleLargeSymbolDemonsDown(self, buffer):
+        last = 0
+        startingBytes = bytearray(bytes.fromhex('17000000000000003100000000000000'))
+        while buffer.buffer.find(startingBytes,last) != -1:
+            offset = buffer.buffer.find(startingBytes,last) +25
+            last = buffer.buffer.find(startingBytes,last) +100
+
+            demonID = buffer.readWord(offset)
+            if demonID in numbers.LARGE_SYMBOL_DEMONS:
+                buffer.writeFloat(1.2,offset + 116)
+        return buffer
+
 
     '''
     Creates a copy of the new entry with the binary offset data of the old entry.
@@ -4806,6 +4828,7 @@ class Randomizer:
         encountPostBuffer = self.readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_IN)
         encountPostUassetBuffer = self.readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_UASSET_IN)
         chestBuffer = self.readBinaryTable(paths.CHEST_TABLE_IN)
+        mapSymbolParamBuffer = self.readBinaryTable(paths.MAP_SYMBOL_PARAM_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -4938,6 +4961,8 @@ class Randomizer:
         self.patchYuzuruGLStats(compendiumBuffer)
         self.patchHornOfPlenty()
         self.capDiarahanDemonHP()
+
+        mapSymbolParamBuffer = self.scaleLargeSymbolDemonsDown(mapSymbolParamBuffer)
             
         if DEV_CHEATS:
             self.applyCheats()
@@ -4983,6 +5008,10 @@ class Randomizer:
         self.writeFolder(paths.CAMP_FOLDER_OUT)
         self.writeFolder(paths.MIRACLE_TOP_FOLDER_OUT)
         self.writeFolder(paths.COMMON_TOP_FOLDER_OUT)
+        self.writeFolder(paths.BLUEPRINTS_MAP_FOLDER_OUT)
+        self.writeFolder(paths.MAP_ENCOUNT_FOLDER_OUT)
+        self.writeFolder(paths.ENCOUNT_MOVER_FOLDER_OUT)
+        self.writeFolder(paths.MOVER_PARAMTABLE_FOLDER_OUT)
 
         self.writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
         self.writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
@@ -5008,6 +5037,8 @@ class Randomizer:
         self.writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         self.writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         self.writeBinaryTable(chestBuffer.buffer, paths.CHEST_TABLE_OUT, paths.MAP_FOLDER_OUT)
+        self.writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
+        
         self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
 
     '''

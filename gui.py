@@ -188,9 +188,9 @@ def createGUI(configSettings):
     itemLabel.pack()
 
     listItem = tk.Listbox(page1FrameRight, selectmode = "multiple", width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
-    listItem.insert(0, "Randomize Shop Items")
+    listItem.insert(0, "Randomize Shop Items (N)")
     listItem.insert(1, "Randomize Shop Essences")
-    listItem.insert(2, "Randomize Enemy Drops")
+    listItem.insert(2, "Randomize Enemy Drops (N)")
     listItem.insert(3, "Randomize Miracle Unlocks")
     listItem.insert(4, "Randomize Miracle Prices")
     listItem.insert(5, "Randomize Chests")
