@@ -54,6 +54,7 @@ class Randomizer:
         self.eventEncountArr = []
         self.staticEventEncountArr = []
         self.bossArr = []
+        self.playerBossArr = []
         self.enemyNames = []
         self.staticBossArr = []
         self.bossFlagArr = []
@@ -667,7 +668,119 @@ class Randomizer:
             demon.potential.recover = enemyData.readWord(locations['potential'] + 4 * 10)
             demon.potential.support = enemyData.readWord(locations['potential'] + 4 * 9)
             self.enemyArr.append(demon)
-            
+
+    def fillPlayerBossArr(self, NKMBaseTable):
+
+        startValue = 0x69
+        raceOffset = 0x0C
+        demonOffset = 0x1D0
+
+        for index in range(numbers.NORMAL_ENEMY_COUNT): #Dummy data for playable demons to match id's better
+            self.playerBossArr.append(Compendium_Demon())
+
+        #For all demons in the compendium...
+        for index in range(numbers.NORMAL_ENEMY_COUNT, 1200):
+            #First define all relevant offsets
+            offset = startValue + demonOffset * index
+            locations = {
+                'race': offset - raceOffset,
+                'alignment': offset - raceOffset + 7,
+                'nameID': offset - 0x10,
+                'level': offset,
+                'HP': offset + 0x1C,
+                'firstSkill': offset + 0x70,
+                'firstLearnedLevel': offset + 0xA0,
+                'fusability': offset + 0x56,
+                'unlockFlags': offset + 0x60,
+                'tone': offset + 0x58,
+                'innate': offset + 0x100,
+                'potential': offset + 0X174
+            }
+            #Then read the list of initial skills learned
+            listOfSkills = []
+            for i in range(8):
+                skillID = NKMBaseTable.readWord(locations['firstSkill'] + 4 * i)
+                if skillID != 0:
+                    listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))
+            #Read the list of learnable skills 
+            listOfLearnedSkills = []
+            for i in range(8):
+                #print(locations['firstLearnedLevel'])
+                skillID = NKMBaseTable.readWord(locations['firstLearnedLevel'] + 8 * i + 4)
+                if skillID != 0:
+                    listOfLearnedSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames),
+                                                                level=NKMBaseTable.readWord(locations['firstLearnedLevel'] + 8 * i)))
+            demon = Compendium_Demon()
+            demon.ind = index
+            demon.nameID = NKMBaseTable.readWord(locations['nameID'])
+            if demon.nameID == 58 and index != 58:
+                # Placeholder Jack Frosts
+                demon.name = "NOT USED"
+            else:
+                demon.name = self.enemyNames[demon.nameID]
+            demon.offsetNumbers = locations
+            demon.race = Translated_Value(NKMBaseTable.readByte(locations['race']), RACE_ARRAY[NKMBaseTable.readByte(locations['race'])])
+            demon.alignment = NKMBaseTable.readByte(locations['alignment'] +1)
+            demon.tendency = NKMBaseTable.readByte(locations['alignment'])
+            demon.level = Demon_Level(NKMBaseTable.readWord(locations['level']), NKMBaseTable.readWord(locations['level']))
+            demon.registerable = NKMBaseTable.readWord(locations['HP'] - 4)
+            demon.fusability = NKMBaseTable.readHalfword(locations['fusability'])
+            demon.unlockFlags = [NKMBaseTable.readByte(locations['unlockFlags']), NKMBaseTable.readByte(locations['unlockFlags'] + 1)]
+            demon.tone = Translated_Value(NKMBaseTable.readByte(locations['tone']), '', secondary=NKMBaseTable.readByte(locations['tone'] + 1))
+            demon.resist.physical = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4)))
+            demon.resist.fire = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 2),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 2)))
+            demon.resist.ice = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 3),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 3)))
+            demon.resist.electric = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 4),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 4)))
+            demon.resist.force = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 5),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 5)))
+            demon.resist.light = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 6),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 6)))
+            demon.resist.dark = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 7),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 7)))
+            demon.resist.almighty = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 8),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 8)))
+            demon.resist.poison = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 9),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 9)))
+            demon.resist.confusion = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 11),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 11)))
+            demon.resist.charm = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 12),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 12)))
+            demon.resist.sleep = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 13),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 13)))
+            demon.resist.seal = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 14),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 14)))
+            demon.resist.mirage = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 21),
+                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 21)))
+            demon.potential.physical = NKMBaseTable.readWord(locations['potential'])
+            demon.potential.fire = NKMBaseTable.readWord(locations['potential'] + 4 * 1)
+            demon.potential.ice = NKMBaseTable.readWord(locations['potential'] + 4 * 2)
+            demon.potential.elec = NKMBaseTable.readWord(locations['potential'] + 4 * 3)
+            demon.potential.force = NKMBaseTable.readWord(locations['potential'] + 4 * 4)
+            demon.potential.light = NKMBaseTable.readWord(locations['potential'] + 4 * 5)
+            demon.potential.dark = NKMBaseTable.readWord(locations['potential'] + 4 * 6)
+            demon.potential.almighty = NKMBaseTable.readWord(locations['potential'] + 4 * 7)
+            demon.potential.ailment = NKMBaseTable.readWord(locations['potential'] + 4 * 8)
+            demon.potential.recover = NKMBaseTable.readWord(locations['potential'] + 4 * 10)
+            demon.potential.support = NKMBaseTable.readWord(locations['potential'] + 4 * 9)
+            demonHP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 0), NKMBaseTable.readWord(locations['HP'] + 4 * 2), NKMBaseTable.readWord(locations['HP'] + 4 * 0))
+            demonMP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 1), NKMBaseTable.readWord(locations['HP'] + 4 * 3),  NKMBaseTable.readWord(locations['HP'] + 4 * 1))
+            demonStr = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 4), NKMBaseTable.readWord(locations['HP'] + 4 * 9),  NKMBaseTable.readWord(locations['HP'] + 4 * 4))
+            demonVit = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 5), NKMBaseTable.readWord(locations['HP'] + 4 * 10),  NKMBaseTable.readWord(locations['HP'] + 4 * 5))
+            demonMag = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 6), NKMBaseTable.readWord(locations['HP'] + 4 * 11),  NKMBaseTable.readWord(locations['HP'] + 4 * 6))
+            demonAgi = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 7), NKMBaseTable.readWord(locations['HP'] + 4 * 12),  NKMBaseTable.readWord(locations['HP'] + 4 * 7))
+            demonLuk = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 8), NKMBaseTable.readWord(locations['HP'] + 4 * 13),  NKMBaseTable.readWord(locations['HP'] + 4 * 8))
+            demon.stats = Stats(demonHP, demonMP, demonStr, demonVit, demonMag, demonAgi, demonLuk)
+            demon.innate = Translated_Value(NKMBaseTable.readWord(locations['innate']),
+                                            translation.translateSkillID(NKMBaseTable.readWord(locations['innate']), self.skillNames))
+            demon.skills = listOfSkills
+            demon.learnedSkills = listOfLearnedSkills
+            #Add read demon data to compendium
+            self.playerBossArr.append(demon)
+
     '''
     Fills the Array bossArr with data for all special enemy demons.
         Parameters:
@@ -4701,6 +4814,12 @@ class Randomizer:
                 buffer.writeFloat(1.2,offset + 116)
         return buffer
 
+    def nullBossTones(self):
+        for index,demon in enumerate(self.playerBossArr):
+            if index < numbers.NORMAL_ENEMY_COUNT:
+                continue
+            if demon.tone.value < 100 and demon.tone.value != 32: #so that Guest Tone is not changed
+                demon.tone.value = 0
 
     '''
     Creates a copy of the new entry with the binary offset data of the old entry.
@@ -4871,6 +4990,7 @@ class Randomizer:
         self.fillDevilUIArr(devilUIBuffer)
         self.fillTalkCameraArr(talkCameraBuffer)
         self.fillMiracleArr(miracleBuffer)
+        self.fillPlayerBossArr(compendiumBuffer)
         
 
         #Requires asset arr, eventEncounter and needs to be before bossArr
@@ -4986,6 +5106,7 @@ class Randomizer:
         self.patchGirisHead()
         self.patchHorusHead()
         self.capDiarahanDemonHP()
+        self.nullBossTones()
 
         mapSymbolParamBuffer = self.scaleLargeSymbolDemonsDown(mapSymbolParamBuffer)
             
@@ -4999,6 +5120,7 @@ class Randomizer:
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, newComp)
+        compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, self.playerBossArr[numbers.NORMAL_ENEMY_COUNT:])
         skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr)
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
         normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
