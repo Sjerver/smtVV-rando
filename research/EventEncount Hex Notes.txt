@@ -10,6 +10,7 @@ Entry start first: 45, second: A5 size:0x60
 2E size1-2? Battle Theme
 30 size1? always 2??
 38 size2 Some kind of demon id no idea what the effect is though
+3A size1 Set for Lilith, Yuzuru, Satan (ends the battle early if they are defeated when value is 1)
 48 size2 1st demon in battle
 4A size2 2nd demon in battle
 4E size2 3rd demon in battle

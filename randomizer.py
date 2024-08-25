@@ -943,6 +943,7 @@ class Randomizer:
             encounter.battlefield = data.readByte(offset + 0x24)
             encounter.track = data.readHalfword(offset + 0x2E)
             encounter.unknownDemon = Translated_Value(data.readHalfword(offset + 0x38),self.enemyNames[data.readHalfword(offset + 0x38)])
+            encounter.endEarlyFlag = data.readByte(offset + 0x3A)
             demons = []
             for number in range(8):
                 demons.append(Translated_Value(data.readHalfword(offset + 0x48 + 2 * number),self.enemyNames[data.readHalfword(offset + 0x48 + 2 * number)]))
@@ -2366,6 +2367,7 @@ class Randomizer:
             buffer.writeHalfword(enc.track, enc.offsets['track'])
             buffer.write32chars(enc.levelpath, enc.offsets['levelpath'])
             buffer.writeHalfword(enc.unknownDemon.value, enc.offsets['unknownDemon'])
+            buffer.writeByte(enc.endEarlyFlag,enc.offsets['levelpath'] + 0x3A)
             for index, demon in enumerate(enc.demons):
                 buffer.writeHalfword(demon.value , enc.offsets['demons'] + 2 * index)
         
@@ -3495,6 +3497,7 @@ class Randomizer:
                 encounterToUpdate.eventEncounter.levelpath = referenceEncounter.eventEncounter.levelpath
                 encounterToUpdate.eventEncounter.positions.demons = referenceEncounter.eventEncounter.positions.demons
                 encounterToUpdate.eventEncounter.positions.addDemons = referenceEncounter.eventEncounter.positions.addDemons
+                encounterToUpdate.eventEncounter.endEarlyFlag = referenceEncounter.eventEncounter.endEarlyFlag
                 if not self.configSettings.checkBasedMusic and not self.configSettings.randomMusic:
                     encounterToUpdate.eventEncounter.track = referenceEncounter.eventEncounter.track
             else:
@@ -3504,6 +3507,7 @@ class Randomizer:
                 encounterToUpdate.eventEncounter.positions.demons = referenceEncounter.normalEncounter.positions.demons
                 encounterToUpdate.eventEncounter.positions.addDemons = referenceEncounter.normalEncounter.positions.addDemons
                 encounterToUpdate.eventEncounter.unknownDemon = Translated_Value(referenceEncounter.demons[0], self.enemyNames[referenceEncounter.demons[0]])
+                encounterToUpdate.eventEncounter.endEarlyFlag = 0
             encounterToUpdate.eventEncounter.track = encounterToUpdate.track
             encounterToUpdate.eventEncounter.demons = [Translated_Value(demon, self.enemyNames[demon]) for demon in encounterToUpdate.demons]
         else:
@@ -3516,6 +3520,7 @@ class Randomizer:
                     encounterToUpdate.eventEncounter.levelpath = referenceEncounter.eventEncounter.levelpath
                     encounterToUpdate.eventEncounter.positions.demons = referenceEncounter.eventEncounter.positions.demons
                     encounterToUpdate.eventEncounter.positions.addDemons = referenceEncounter.eventEncounter.positions.addDemons
+                    encounterToUpdate.eventEncounter.endEarlyFlag = referenceEncounter.eventEncounter.endEarlyFlag
                 else:
                     # only the reference encounter is event encounter
                     encounterToUpdate.demons = referenceEncounter.demons[:6]
@@ -4664,11 +4669,10 @@ class Randomizer:
             horusReplacementDemon.drops = Item_Drops(tempDrops.item1, tempDrops.item2, tempDrops.item3)
             
     '''
-    Caps the HP of bosses that can infinitely diarahan (Onyakopon, Maria) to 20,000
+    Caps the HP of bosses that can infinitely diarahan to 20,000
     '''
     def capDiarahanDemonHP(self):
-        diarahanDemons = [842, 770]
-        for demonID in diarahanDemons:
+        for demonID in numbers.DIARAHAN_BOSSES:
             demon = self.bossArr[demonID]
             demon.stats.HP = min(demon.stats.HP, 20000)
 

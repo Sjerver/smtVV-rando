@@ -34,6 +34,7 @@ class Event_Encounter:
         self.unknown23Flag = None
         self.originalIndex = None
         self.positions = EventEncountPost()
+        self.endEarlyFlag = None
         
     '''
     Tests if two encounters share identical demons, usually due to VR battles
