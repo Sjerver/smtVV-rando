@@ -163,11 +163,21 @@ class Randomizer:
             os.mkdir(folderPath)
         with open(filePath, 'wb') as file:
             file.write(result)
-
+    '''
+    Creates the folder at the given path if it does not exist.
+        Parameters:
+            folderPath (string): The path of the folder
+    '''
     def writeFolder(self, folderPath):
         if not os.path.exists(folderPath):
             os.mkdir(folderPath)
-
+    '''
+    Copies a specified file to another location.
+        Parameters:
+            toCopy (string): The path for the file to copy
+            pasteTo (string): The path to write the file at
+            folderPath (string): The path the folder where the file is, used to check if the folder exists
+    '''
     def copyFile(self, toCopy, pasteTo, folderPath):
         if not os.path.exists(folderPath):
             os.mkdir(folderPath)
@@ -669,6 +679,12 @@ class Randomizer:
             demon.potential.support = enemyData.readWord(locations['potential'] + 4 * 9)
             self.enemyArr.append(demon)
 
+    '''
+    Fills the array playerBossArr with data extracted from the Buffer NKMBaseTable.
+    The end array contains data on the playable data of all demons who are normally enemy only.
+        Parameters:
+            NKMBaseTable (Table): the buffer to get the demon data from
+    '''
     def fillPlayerBossArr(self, NKMBaseTable):
 
         startValue = 0x69
@@ -3851,7 +3867,11 @@ class Randomizer:
             if encounter.ind in fourHolyBeastEncounters:
                 hBIndex = fourHolyBeastEncounters.index(encounter.ind)
                 fourHolyBeastMission.conditions[hBIndex].ind = shuffledEncounters[index].demons[0].value
-
+    '''
+    Randomizes the tendencies (Light, Neutral, Dark) and alignment (Law, Neutral, Chaos) of playable demons.
+        Parameters:
+            comp (List(Compendium_Demon)): list of playable demons
+    '''
     def randomizeDemonAlignment(self, comp):
         tendencies = [1,2,3]
         alignments = [1,4,5]
@@ -3922,7 +3942,6 @@ class Randomizer:
         data (Table): binary table containing the positions of demon slots in normal encounters.
         encountArr (List(Event_Encounter)): list of normal encounters to add positions to
         uassetBuffer (Table): binary table of the uasset needed to adjust the total size of file
-    #TODO: Pretty sure the way I extend the file is wrong so it either won't work correctly or at all
     Returns: the list of encounters with positions
     '''
     def addPositionsToNormalEncountArr(self, data, encountArr, uassetBuffer):
@@ -3931,7 +3950,7 @@ class Randomizer:
         totalSize1 = uassetBuffer.readWord(0xA9)
         totalSize2 = uassetBuffer.readWord(0xE24)
         for index, element in enumerate(encountArr):
-            if index >= 3000:
+            if index >= 3000: #there is one less entry than there are normal encounters
                 continue
             offset = start + size * index
             locations = {
@@ -3943,7 +3962,7 @@ class Randomizer:
             addDemonLength = data.readByte(offset + 0x70)
             addDemonAmount = data.readByte(offset + 0x81)
             addDemonLength2 = data.readByte(offset + 0x95)
-
+            #make sure each encounter can have up to 4 additional demon positions
             while addDemonAmount < 4:
                 for i in range(12):
                     data.buffer.insert(locations['addDemon1'],0)
