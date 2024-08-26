@@ -4141,32 +4141,32 @@ class Randomizer:
         ]
         if config.randomRaces:
             #TODO: Add reasoning
-            fusionCombo.append(["Devil","Tyrant","Primal"])
-            fusionCombo.append(["Devil","Herald","Primal"])
-            fusionCombo.append(["Drake","Dragon","Primal"])
-            fusionCombo.append(["Primal","Fiend","Devil"])
-            fusionCombo.append(["Vile","Deity","Devil"])
-            fusionCombo.append(["Vile","Herald","Devil"])
-            fusionCombo.append(["Genma","Deity","Enigma"])
-            fusionCombo.append(["Raptor","Megami","Enigma"])
-            fusionCombo.append(["Holy","Lady","Enigma"])
-            fusionCombo.append(["Kishin","Devil","Fiend"])
-            fusionCombo.append(["Foul","Fury","Fiend"])
-            fusionCombo.append(["Kishin","Foul","Fiend"])
-            fusionCombo.append(["Wargod","Tyrant","Fiend"])
-            fusionCombo.append(["Holy","Tyrant","Fiend"])
-            fusionCombo.append(["Haunt","Genma","Fiend"])
-            fusionCombo.append(["Haunt","Kishin","Fiend"])
-            fusionCombo.append(["Wilder","Avatar","Fiend"])
-            fusionCombo.append(["Devil","Wargod","Fiend"])
-            fusionCombo.append(["Genma","Foul","Fiend"])
-            fusionCombo.append(["Raptor","Kunitsu","UMA"])
-            fusionCombo.append(["Beast","Avatar","UMA"])
-            fusionCombo.append(["Vile","Snake","Qadistu"])
-            fusionCombo.append(["Jaki","Megami","Qadistu"])
-            fusionCombo.append(["Jaki","Lady","Qadistu"])
-            fusionCombo.append(["Wilder","Femme","Qadistu"])
-            fusionCombo.append(["Tyrant","Lady","Qadistu"])
+            fusionCombo.append(["Devil","Tyrant","Primal"]) #Lucifer + race with most results
+            fusionCombo.append(["Devil","Herald","Primal"]) #Lucifer + Mastema in special fusion recipe
+            fusionCombo.append(["Drake","Dragon","Primal"]) #Drake Samael + polar opposite Dragon
+            fusionCombo.append(["Primal","Fiend","Devil"]) #I wanted a fiend into devil recipe
+            fusionCombo.append(["Vile","Deity","Devil"]) #Vile (Tyrant), Deity (Herald)
+            fusionCombo.append(["Vile","Herald","Devil"]) #Vile (Tyrant)
+            fusionCombo.append(["Genma","Deity","Enigma"]) #Genma from Anansi + deity to lead onyankopon
+            fusionCombo.append(["Raptor","Megami","Enigma"]) #Raptor had open fusions
+            fusionCombo.append(["Holy","Lady","Enigma"]) #holy for onyankopon, lady for the other two enigma
+            fusionCombo.append(["Kishin","Devil","Fiend"]) #Fiends as servants of devil
+            fusionCombo.append(["Foul","Fury","Fiend"]) #Fury to symbolize the strength of Fiend + stench of death
+            fusionCombo.append(["Kishin","Foul","Fiend"]) #Fiends as servants and stench of death
+            fusionCombo.append(["Wargod","Tyrant","Fiend"]) #Wargod for battle prowess and Tyrant for status
+            fusionCombo.append(["Holy","Tyrant","Fiend"]) #Open fusions
+            fusionCombo.append(["Haunt","Genma","Fiend"]) #Dead demigods or something
+            fusionCombo.append(["Haunt","Kishin","Fiend"]) #Fiends as servants and connection to death
+            fusionCombo.append(["Wilder","Avatar","Fiend"]) #Wilder had open fusions
+            fusionCombo.append(["Devil","Wargod","Fiend"]) #Wargod for battle prowess and relationship with devil Lucifer
+            fusionCombo.append(["Genma","Foul","Fiend"]) #Dead demigods or something
+            fusionCombo.append(["Raptor","Kunitsu","UMA"]) #Raptor had open fusions
+            fusionCombo.append(["Beast","Avatar","UMA"]) #Two beast likes
+            fusionCombo.append(["Vile","Snake","Qadistu"]) #Vile from Samael, snake from lilith
+            fusionCombo.append(["Jaki","Megami","Qadistu"]) #Jaki had open fusions
+            fusionCombo.append(["Jaki","Lady","Qadistu"]) #Jaki had open fusions
+            fusionCombo.append(["Wilder","Femme","Qadistu"]) #only availabe femme fusion
+            fusionCombo.append(["Tyrant","Lady","Qadistu"]) #Tyrant (Vile)
 
 
         for fc in fusionCombo:
