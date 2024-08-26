@@ -1615,14 +1615,14 @@ class Randomizer:
 
             totalSkills = []
 
-            #BANDAID TO PREVENT IMPOSSIBLE SKILL ASSIGNMENT DUE TO POTENTIAL RANDO
-            viableSkills = 0
-            for skill in weightedSkills.values:
-                if skill > 0:
-                    viableSkills += 1
-            if viableSkills < 5:
-                for skill in weightedSkills.values:
-                    skill += 1
+            #Makes sure at least 8 skills are available to be given to demon
+            validSkills = 0
+            for weight in weightedSkills.weights:
+                if weight > 0:
+                    validSkills += 1
+            if validSkills < 8: #Tao/Yoko need at least 8 skills in pool, most other at least 7
+                for weight in weightedSkills.weights:
+                    weight += 1
 
             #If there are skills to be learned
             if len(weightedSkills.values) > 0:
