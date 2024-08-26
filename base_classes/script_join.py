@@ -48,6 +48,7 @@ SCRIPT_JOIN_BYTES = {
     'MM_M061_EM2601': [212904], # Sakura Cinders of the East
 }
 
+#List of which demon join is in which script
 SCRIPT_JOINS = {
     'MM_M061_EM1630': 305, # Leanan Sidhe
     'MM_M061_EM1640': 43, # Apsaras
@@ -76,6 +77,7 @@ SCRIPT_JOINS = {
     'MM_M061_EM2601': 32, # Konohana Sakuya
 }
 
+#List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
     'MM_M061_EM1630': M061_FOLDER, # The Water Nymph 
     'MM_M061_EM1640': M061_FOLDER, # The Spirit of Love
@@ -104,7 +106,11 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM2601': M061_FOLDER, # Sakura Cinders of the East
 }
 
-
+'''
+Randomizes free demon joins based on the original joins level by adjusting the values in the corresponding event scripts.
+Parameters:
+    comp List(Compendium_Demon): list of all playable demons
+'''
 def randomizeDemonJoins(comp):
     writeFolder(EVENT_FOLDER)
     writeFolder(SCRIPT_FOLDER)
@@ -112,19 +118,23 @@ def randomizeDemonJoins(comp):
     writeFolder(MAINMISSION_FOLDER)
     writeFolder(M061_FOLDER)
     writeFolder(M062_FOLDER)
+    #These demons appear in multiple scripts and should be the same in both
     amanozako = None
     hayataro = None
     cleopatra = None
     dagda = None
 
-
+    #for every script and its offsets to write to
     for script, offsets in SCRIPT_JOIN_BYTES.items():
         referenceDemon = comp[SCRIPT_JOINS[script]]
         filteredComp = [d for d in comp if "Mitama" not in d.name and not d.name.startswith('NOT') and not d.ind in numbers.BAD_IDS]
         sameLevel = [demon for demon in filteredComp if demon.level.value == referenceDemon.level.original]
         if len(sameLevel) <1:
-             sameLevel = filteredComp
+            #if no demon of same level exists, use all valid demons
+            sameLevel = filteredComp
         newDemon = random.choice(sameLevel)
+
+        #Save demon if it is needed in another script or use the saved demon
         if script == 'MM_M060_EM1601':
             newDemon = amanozako
         elif script == 'MM_M060_EM1602':
@@ -137,6 +147,7 @@ def randomizeDemonJoins(comp):
             cleopatra = newDemon
         elif script == 'MM_M061_EM2613_HitAction':
             dagda = newDemon
+        #Write to folder depending on sub or main mission
         if 'EM' in script:
             scriptData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
         else:
@@ -144,7 +155,7 @@ def randomizeDemonJoins(comp):
 
         for offset in offsets:
             scriptData.writeHalfword(newDemon.ind,offset)
-        #Exception for Dagda/Cleo not being recruited during their Quest
+        #Exception for Dagda/Cleo not being recruited during their Quest but at the researcher instead
         if script == 'MM_M030_EM1769':
             scriptData.writeHalfword(dagda.ind,602953)
             scriptData.writeHalfword(cleopatra.ind,602941)
@@ -152,7 +163,9 @@ def randomizeDemonJoins(comp):
 
         writeBinaryTable(scriptData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
 
-
+'''
+TODO: Function that (over)writes the output files in case demon joins are not randomized.
+'''
 
 '''
 Reads a file containing game data into a Table with a bytearray
