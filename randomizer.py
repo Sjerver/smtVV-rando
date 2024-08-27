@@ -1045,6 +1045,20 @@ class Randomizer:
 
             self.shopArr.append(entry)
     
+    def fillMimanRewardArr(self, shopData):
+        start = 0x7A5
+        size = 72
+
+        for index in range(40):
+            offset = start + size * index
+            entry = Miman_Reward()
+            entry.offset = offset
+            entry.miman = shopData.readWord(offset)
+            for i in range(16):
+                item = Reward_Item(Translated_Value(shopData.readHalfword(offset + 8 + 4*i),translation.translateItem(shopData.readHalfword(offset + 8 + 4*i),self.itemNames)),shopData.readHalfword(10+4*i))
+                entry.items.append(item)
+            self.mimanRewardsArr.append(entry)
+    
     '''
     Fills the array eventEncountArr with data on all event (boss) encounters.
         Parameters:
@@ -5108,7 +5122,8 @@ class Randomizer:
         self.fillDevilUIArr(devilUIBuffer)
         self.fillTalkCameraArr(talkCameraBuffer)
         self.fillMiracleArr(miracleBuffer)
-        self.fillPlayerBossArr(compendiumBuffer)
+        
+        
         
 
         #Requires asset arr, eventEncounter and needs to be before bossArr
@@ -5116,6 +5131,7 @@ class Randomizer:
         compendiumBuffer = self.writeOverlapCopiesToBuffer(self.overlapCopies, compendiumBuffer)
 
         self.fillBossArr(compendiumBuffer)
+        self.fillPlayerBossArr(compendiumBuffer)
         self.fillBossFlagArr(bossFlagBuffer)
         self.fillNahobino(playGrowBuffer)
         self.fillEssenceArr(itemBuffer)
@@ -5124,6 +5140,7 @@ class Randomizer:
         self.fillMissionArr(missionBuffer)
         self.fillUniqueSymbolArr(uniqueSymbolBuffer)
         self.fillChestArr(chestBuffer)
+        self.fillMimanRewardArr(shopBuffer)
         
         self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
         self.encountArr = self.addPositionsToNormalEncountArr(encountPostBuffer, self.encountArr, encountPostUassetBuffer)

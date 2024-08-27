@@ -19,9 +19,9 @@ class Miman_Reward:
         self.offset = None
 
 class Reward_Item:
-    def __init__(self):
-        self.item = None
-        self.amount = None
+    def __init__(self, item, amount):
+        self.item = item
+        self.amount = amount
         
 class Item_Chest:
     def __init__(self):
