@@ -110,6 +110,11 @@ HORUS_ENCOUNTER_ID = 1923
 #Demon ID of horus who drops his head
 HORUS_DEMON_ID = 864
 
+#Boss demon ids who have quest related drops
+QUEST_DROPS_BOSSES = [812, 827, 864, 808]#Chimera, Girimekhala, Horus, Thunderbird
+#Encounter Ids of bosses who have quest related drops
+QUEST_DROPS_BOSS_ENCOUNTERS = [92, 93, 1923, 91]#Chimera, Girimekhala, Horus, Thunderbird
+
 #Demon ID of Seth who has an event encounter and normal unique symbol encounter
 SETH_DEMON_ID = 870
 #Event Encounter ID of Seth

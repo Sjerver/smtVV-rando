@@ -4797,7 +4797,72 @@ class Randomizer:
     def patchTutorialDaemon(self):
         daemon = self.bossArr[numbers.TUTORIAL_DAEMON_ID]
         daemon.stats.HP = 27 #Should die to 3 basic attacks always
+    
+    '''
+    TODO: Comment, also there is most likely a much simpler solution that I am simply not seeing right now
+    '''
+    def patchQuestBossDrops(self):
+        replacementDemons = []
+        replacementEncounters = []
+        replacementDemonIDs = []
+        #Gather replacements
+        for index, demonID in enumerate(numbers.QUEST_DROPS_BOSSES):
+            if numbers.QUEST_DROPS_BOSS_ENCOUNTERS[index] < 253:
+                replacementEncounter = self.eventEncountArr[numbers.QUEST_DROPS_BOSS_ENCOUNTERS[index]]
+                replacementDemon = self.bossArr[replacementEncounter.demons[0].value]
+            else:
+                replacementEncounter = self.encountArr[numbers.QUEST_DROPS_BOSS_ENCOUNTERS[index]]
+                replacementDemon = self.bossArr[replacementEncounter.demons[0]]
+            replacementDemons.append(replacementDemon)
+            replacementDemonIDs.append(replacementDemon.ind)
+            replacementEncounters.append(replacementEncounter)
+        #Set drops for replacements
+        for index, demonID in enumerate(numbers.QUEST_DROPS_BOSSES):
+            staticBoss = self.staticBossArr[demonID]
+            replacementDemons[index].drops = Item_Drops(staticBoss.drops.item1,staticBoss.drops.item2,staticBoss.drops.item3)
+        questBossIDs = copy.deepcopy(numbers.QUEST_DROPS_BOSSES)
+        #First set drops for quest bosses which aren't replaced by a quest boss or show up as replacement
+        toRemove = []
+        for index, demonID in enumerate(questBossIDs):
+            if demonID not in replacementDemonIDs and replacementDemonIDs[index] not in questBossIDs:
+                staticBoss = self.staticBossArr[replacementDemonIDs[index]]
+                self.bossArr[demonID].drops = Item_Drops(staticBoss.drops.item1,staticBoss.drops.item2,staticBoss.drops.item3)
+                toRemove.append(index)
+        toRemove.sort(reverse=True)
+        questBossEncounters = copy.deepcopy(numbers.QUEST_DROPS_BOSS_ENCOUNTERS)
+        #Remove unproblematic pairings
+        for index in toRemove:
+            questBossIDs.pop(index)
+            replacementDemons.pop(index)
+            replacementDemonIDs.pop(index)
+            replacementEncounters.pop(index)
+            questBossEncounters.pop(index)
         
+        questBossEncounters = copy.deepcopy(numbers.QUEST_DROPS_BOSS_ENCOUNTERS)
+        #Remove bosses that appear in both
+        questBossSet = set(questBossIDs)
+        replacementSet = set(replacementDemonIDs)
+        doubleOccurenceSet = questBossSet & replacementSet
+        
+        doubleOccurences = list(doubleOccurenceSet)
+        for occ in doubleOccurences:
+            index = questBossIDs.index(occ)
+            questBossEncounters.pop(index)
+            index = replacementDemonIDs.index(occ)
+            replacementDemons.pop(index)
+            replacementEncounters.pop(index)
+        
+        questBossIDs = list(questBossSet - doubleOccurenceSet)
+        replacementDemonIDs = list(replacementSet - doubleOccurenceSet)
+        for index, demonID in enumerate(questBossIDs):
+            staticBoss = self.staticBossArr[replacementDemonIDs[index]]
+            self.bossArr[demonID].drops = Item_Drops(staticBoss.drops.item1,staticBoss.drops.item2,staticBoss.drops.item3)
+
+
+
+        
+
+
     '''
     Switches the item drops of chimera with the demon that replaces it to ensure the horn of plenty is dropped for Demeter's quest
     '''
@@ -5158,9 +5223,10 @@ class Randomizer:
 
         self.patchTutorialDaemon()
         self.patchYuzuruGLStats(compendiumBuffer)
-        self.patchHornOfPlenty()
-        self.patchGirisHead()
-        self.patchHorusHead()
+        #self.patchHornOfPlenty()
+        #self.patchGirisHead()
+        #self.patchHorusHead()
+        self.patchQuestBossDrops()
         self.capDiarahanDemonHP()
         self.nullBossTones()
 
