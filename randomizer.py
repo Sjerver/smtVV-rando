@@ -4020,6 +4020,36 @@ class Randomizer:
                 chest.macca = 0
 
     '''
+    #TODO: SCALING
+    '''
+    def randomizeShopItems(self, scaling):
+        dampeners = [63,64,65,66,67,68] #Elemental Dampeners stay the same
+        itemsInShop = [] + dampeners
+        validItems = []
+
+        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami essences and demi-fiend essence
+            if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                validItems.append(itemID)
+
+        for entry in self.shopArr:
+            if entry.item.value in dampeners or "Essence" in entry.item.translation:
+                #skip essences and dampeners or item already in shop
+                continue
+            itemID = random.choice(validItems)
+            if itemID in itemsInShop:
+                validItems.remove(itemID)
+                continue
+            item = Translated_Value(itemID, self.itemNames[itemID])
+            entry.item = item
+            itemsInShop.append(itemID)
+            validItems.remove(itemID)
+            
+            
+    
+    def randomizeMimanRewards():
+        pass
+
+    '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
     Resulting demon is the demon with an level higher than the average of the two levels.
         Parameters:
@@ -4104,18 +4134,22 @@ class Randomizer:
             essences (Array(Essence)) essence array containing price and demon information
             domp (Array(Compendium_Demon)) array of demons with new and old levels
     '''
-    def adjustShopEssences(self, shop, essences, comp):
+    def adjustShopEssences(self, shop, essences, comp, scaling):
         validDemons = list(filter(lambda demon: not demon.name.startswith('NOT') and demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name, comp))
         newDemonEssences = []
         for entry in shop:
             if "Essence" in entry.item.translation and not "Aogami" in entry.item.translation and not "Tsukuyomi" in entry.item.translation:
                 ogEssence = next(e for e in essences if e.ind == entry.item.value)
-                level = comp[ogEssence.demon.value].level.original
-                possibilities = [d for d in validDemons if d.level.value == level and d.ind not in newDemonEssences]
+                if scaling:
+                    level = comp[ogEssence.demon.value].level.original
+                    possibilities = [d for d in validDemons if d.level.value == level and d.ind not in newDemonEssences]
+                else:
+                    possibilities = [d for d in validDemons if d.ind not in newDemonEssences]
                 demon = random.choice(possibilities)
                 newDemonEssences.append(demon.ind)
                 essence = next(e for e in essences if demon.ind == e.demon.value)
-                essence.price = ogEssence.price
+                if scaling:
+                    essence.price = ogEssence.price
                 entry.item = Translated_Value(essence.ind, essence.name)
                 
 
@@ -5088,7 +5122,7 @@ class Randomizer:
             self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
 
         if config.randomShopEssences:
-            self.adjustShopEssences(self.shopArr, self.essenceArr, newComp)
+            self.adjustShopEssences(self.shopArr, self.essenceArr, newComp, self.configSettings.scaleItemsToArea)
            
         #self.patchSethCamera()
         self.randomizeBosses()
@@ -5118,6 +5152,9 @@ class Randomizer:
             
         if config.randomChests:
             self.randomizeChests()
+        
+        if self.configSettings.randomShopItems:
+            self.randomizeShopItems(self.configSettings.scaleItemsToArea)
 
         self.patchTutorialDaemon()
         self.patchYuzuruGLStats(compendiumBuffer)
