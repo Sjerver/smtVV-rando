@@ -160,7 +160,7 @@ class Randomizer:
     '''
     def writeBinaryTable(self, result, filePath, folderPath):
         if not os.path.exists(folderPath):
-            os.mkdir(folderPath)
+            os.makedirs(folderPath)
         with open(filePath, 'wb') as file:
             file.write(result)
     '''
@@ -170,7 +170,7 @@ class Randomizer:
     '''
     def writeFolder(self, folderPath):
         if not os.path.exists(folderPath):
-            os.mkdir(folderPath)
+            os.makedirs(folderPath)
     '''
     Copies a specified file to another location.
         Parameters:

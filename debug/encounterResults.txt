@@ -1,253 +1,253 @@
-Zeus replaced by Yurlungur
-Odin replaced by Amon
-Mitra replaced by Kumbhanda
-Atavaka replaced by Incubus
-Horus replaced by Belial
-Thoth replaced by Loup-garou
-Demeter replaced by Garuda
-Anahita replaced by Uriel
-Lakshmi replaced by Siegfried
-Norn replaced by Archangel
-Idun replaced by Amanozako
-Sarasvati replaced by Amabie
-Ishtar replaced by Oberon
-Scathach replaced by Decarabia
-Parvati replaced by Abdiel
-Ame-no-Uzume replaced by Thunderbird
-Fortuna replaced by Okuninushi
-Hanuman replaced by Onmoraki
-Fionn mac Cumhaill replaced by Huang Long
-Cu Chulainn replaced by Leanan Sidhe
-Kurama Tengu replaced by Mermaid
-Koppa Tengu replaced by Cerberus
-Apsaras replaced by Karasu Tengu
-Agathion replaced by Ishtar
-Mandrake replaced by Oyamatsumi
-Titania replaced by Jikokuten
-Oberon replaced by Samael
-Silky replaced by Thoth
-Setanta replaced by Baal
-Kelpie replaced by Shiki-Ouji
-High Pixie replaced by Cybele
-Jack-o'-Lantern replaced by Abdiel
-Jack Frost replaced by Angel
-Pixie replaced by Turbo Granny
-Queen Medb replaced by Fuu-Ki
-Succubus replaced by Shiva
-Kaiwan replaced by Pixie
-Lilim replaced by Obariyon
-Incubus replaced by Black Ooze
-Mokoi replaced by Mothman
-Sandman replaced by Lahmu
-Nuwa replaced by Zhuque
-Amon replaced by Orobas
-Mara replaced by Mara
-Mephisto replaced by Gurulu
-Chi You replaced by Valkyrie
-Surt replaced by Kaya-no-Hime
-Beelzebub replaced by Naamah
-Arioch replaced by Moloch
-Belial replaced by Feng Huang
-Abaddon replaced by Shiisaa
-Moloch replaced by Efreet
-Belphegor replaced by Anzu
-King Frost replaced by Daemon
-Mithras replaced by Yakshini
-Loki replaced by Mandrake
-Huang Long replaced by Hell Biker
-Quetzalcoatl replaced by Aitvaras
-Qing Long replaced by Vishnu
-Xuanwu replaced by Nyami Nyami
-Ananta replaced by Khonsu Ra
-Yamata-no-Orochi replaced by Gabriel
-Naga Raja replaced by Take-Minakata
-Yurlungur replaced by Mithras
-Naga replaced by Beelzebub
-Vasuki replaced by High Pixie
-Seth replaced by Throne
-Basilisk replaced by Vritra
-Aitvaras replaced by Zhen
-Hydra replaced by Mokoi
-Barong replaced by Barong
-Anubis replaced by Flauros
-Makami replaced by Anahita
-Baihu replaced by Bugs
-Chimera replaced by Makami
-Cironnup replaced by Hanuman
-Shiisaa replaced by Inanna
-Cerberus replaced by Michael
-Orthrus replaced by Maria
-Loup-garou replaced by Seth
-Nekomata replaced by Atropos
-Inugami replaced by Cait Sith
-Orobas replaced by Khonsu
-Bugs replaced by Kudlak
-Nue replaced by Azumi
-Bicorn replaced by Dominion
-Mothman replaced by Ananta
-Hayataro replaced by Konohana Sakuya
-Flaemis replaced by Kodama
-Aquans replaced by Sandman
-Aeros replaced by Nuwa
-Erthys replaced by Scathach
-Black Ooze replaced by Nuwa
-Legion replaced by Camael
-Slime replaced by Zouchouten
-Shiva replaced by Erthys
-Mot replaced by Glasya-Labolas
-Zaou-Gongen replaced by Xiezhai
-Asura replaced by Titania
-Chernobog replaced by Atavaka
-Dionysus replaced by Thor
-Danu replaced by Quetzalcoatl
-Inanna replaced by Rakshasa
-Kali replaced by Fortuna
-Cybele replaced by Hariti
-Skadi replaced by Succubus
-Isis replaced by Trumpeter
-Kikuri-Hime replaced by Forneus
-Hariti replaced by Zhu Tun She
-Thor replaced by Melchizedek
-Futsunushi replaced by Sandalphon
-Attis replaced by Jack Frost
-Bishamonten replaced by Bicorn
-Jikokuten replaced by Kikuri-Hime
-Koumokuten replaced by Mishaguji
-Zouchouten replaced by Andras
-Arahabaki replaced by Alilat
-Oyamatsumi replaced by Ose
-Kushinada-Hime replaced by Hua Po
-Sukuna-Hikona replaced by Dagda
-Okuninushi replaced by Turdak
-Take-Minakata replaced by Hayataro
-Ganesha replaced by Jack-o'-Lantern
-Siegfried replaced by Baihu
-Valkyrie replaced by Horus
-Yoshitsune replaced by Silky
-Neko Shogun replaced by Cleopatra
-Mada replaced by Abaddon
-Girimekhala replaced by Nezha Taizi
-Pazuzu replaced by Hare of Inaba
-Mishaguji replaced by Yamata-no-Orochi
-Baphomet replaced by Basilisk
-Abdiel replaced by Baphomet
-Metatron replaced by Senri
-Michael replaced by Kin-Ki
-Gabriel replaced by Queen Medb
-Sraosha replaced by Muu Shuwuu
-Raphael replaced by Oni
-Sandalphon replaced by Flaemis
-Uriel replaced by Gremlin
-Camael replaced by Belphegor
-Melchizedek replaced by Eligor
-Throne replaced by Berith
-Dominion replaced by Norn
-Power replaced by Agrat
-Principality replaced by Ame-no-Uzume
-Archangel replaced by Sudama
-Angel replaced by Dakini
-Adramelech replaced by Bishamonten
-Flauros replaced by Adramelech
-Nebiros replaced by Odin
-Berith replaced by Vouivre
-Ose replaced by Loa
-Eligor replaced by Pale Rider
-Forneus replaced by Koumokuten
-Andras replaced by Poltergeist
-Decarabia replaced by Principality
-Garuda replaced by Masakado
-Zhuque replaced by Ippon-Datara
-Yatagarasu replaced by Setanta
-Jatayu replaced by Peallaidh
-Feng Huang replaced by Nahobeeho
-Anzu replaced by Tzitzimitl
-Zhen replaced by Kali
-Muu Shuwuu replaced by Dionysus
-Onmoraki replaced by Parvati
-Cleopatra replaced by Jatayu
-Rangda replaced by Vasuki
-Dakini replaced by Lilith
-Atropos replaced by Clotho
-Yakshini replaced by Orthrus
-Lachesis replaced by Black Rider
-Clotho replaced by Idun
-Manananggal replaced by Manananggal
-Lamia replaced by Dís
-Mermaid replaced by Mot
-Leanan Sidhe replaced by Cherub
-Ongyo-Ki replaced by Mad Gasser
-Shiki-Ouji replaced by Surt
-Sui-Ki replaced by Hydra
-Fuu-Ki replaced by Aeros
-Kin-Ki replaced by Mada
-Azumi replaced by Lakshmi
-Ippon-Datara replaced by Gogmagog
-Daemon replaced by Yatagarasu
-Oni replaced by Loki
-Hecatoncheires replaced by Armaiti
-Loa replaced by Yoshitsune
-Rakshasa replaced by King Frost
-Turdak replaced by Girimekhala
-Kaya-no-Hime replaced by White Rider
-Tsuchigumo replaced by Kinmamon
-Narcissus replaced by Futsunushi
-Hua Po replaced by Arioch
-Koropokkur replaced by Asura
-Sudama replaced by Fenrir
-Kodama replaced by Satan
-Pisaca replaced by Fionn mac Cumhaill
-Kumbhanda replaced by Ganesha
-Poltergeist replaced by Hecatoncheires
-Obariyon replaced by Pisaca
-Preta replaced by Anubis
-Trumpeter replaced by Eisheth
-Mother Harlot replaced by Power
-Black Rider replaced by Pazuzu
-Red Rider replaced by Lachesis
-White Rider replaced by Macabre
-Alice replaced by Lamia
-Hell Biker replaced by Nebiros
-Daisoujou replaced by Naga
-Pale Rider replaced by Attis
-Matador replaced by Chernobog
-Black Frost replaced by Kurama Tengu
-Baal replaced by Kelpie
-Cait Sith replaced by Ongyo-Ki
-Fafnir replaced by Narcissus
-Thunderbird replaced by Sraosha
-Alilat replaced by Apsaras
-Macabre replaced by Fafnir
-Maria replaced by Zaou-Gongen
-Vishnu replaced by Sui-Ki
-Gogmagog replaced by Nekomata
-Unicorn replaced by Lucifer
-Dormarth replaced by Chimera
-Fenrir replaced by Slime
-Peallaidh replaced by Skadi
-Mad Gasser replaced by Inugami
-Tzitzimitl replaced by Raphael
-Halphas replaced by Artemis
+Zeus replaced by Melchizedek
+Odin replaced by Kaiwan
+Mitra replaced by Eisheth
+Atavaka replaced by Shiki-Ouji
+Horus replaced by Konohana Sakuya
+Thoth replaced by Maria
+Demeter replaced by Chi You
+Anahita replaced by Lahmu
+Lakshmi replaced by Saturnus
+Norn replaced by Vouivre
+Idun replaced by Aitvaras
+Sarasvati replaced by Kushinada-Hime
+Ishtar replaced by Sraosha
+Scathach replaced by Principality
+Parvati replaced by Cerberus
+Ame-no-Uzume replaced by Belial
+Fortuna replaced by Nebiros
+Hanuman replaced by Vasuki
+Fionn mac Cumhaill replaced by Senri
+Cu Chulainn replaced by Incubus
+Kurama Tengu replaced by Macabre
+Koppa Tengu replaced by Futsunushi
+Apsaras replaced by Idun
+Agathion replaced by Nuwa
+Mandrake replaced by Aquans
+Titania replaced by Samael
+Oberon replaced by Dormarth
+Silky replaced by Mephisto
+Setanta replaced by Zaou-Gongen
+Kelpie replaced by Sukuna-Hikona
+High Pixie replaced by Anzu
+Jack-o'-Lantern replaced by Chimera
+Jack Frost replaced by Jack Frost
+Pixie replaced by Unicorn
+Queen Medb replaced by Artemis
+Succubus replaced by Lilim
+Kaiwan replaced by Armaiti
+Lilim replaced by Satan
+Incubus replaced by Naga Raja
+Mokoi replaced by Raphael
+Sandman replaced by Gogmagog
+Nuwa replaced by Bugs
+Amon replaced by Efreet
+Mara replaced by Naamah
+Mephisto replaced by Baphomet
+Chi You replaced by Agrat
+Surt replaced by Ippon-Datara
+Beelzebub replaced by Peallaidh
+Arioch replaced by Ganesha
+Belial replaced by Poltergeist
+Abaddon replaced by Odin
+Moloch replaced by Dagda
+Belphegor replaced by Zouchouten
+King Frost replaced by Power
+Mithras replaced by Feng Huang
+Loki replaced by Slime
+Huang Long replaced by Pale Rider
+Quetzalcoatl replaced by Hell Biker
+Qing Long replaced by Asura
+Xuanwu replaced by Kaya-no-Hime
+Ananta replaced by Halphas
+Yamata-no-Orochi replaced by Onmoraki
+Naga Raja replaced by Vishnu
+Yurlungur replaced by Andras
+Naga replaced by Xiezhai
+Vasuki replaced by Orthrus
+Seth replaced by Apsaras
+Basilisk replaced by Clotho
+Aitvaras replaced by Abdiel
+Hydra replaced by Berith
+Barong replaced by Qing Long
+Anubis replaced by Mad Gasser
+Makami replaced by Erthys
+Baihu replaced by Flaemis
+Chimera replaced by Zeus
+Cironnup replaced by Sandalphon
+Shiisaa replaced by Queen Medb
+Cerberus replaced by Setanta
+Orthrus replaced by Yoshitsune
+Loup-garou replaced by Pisaca
+Nekomata replaced by Oberon
+Inugami replaced by Pixie
+Orobas replaced by Eligor
+Bugs replaced by Sudama
+Nue replaced by Inanna
+Bicorn replaced by Archangel
+Mothman replaced by Amabie
+Hayataro replaced by Thoth
+Flaemis replaced by Hydra
+Aquans replaced by Narcissus
+Aeros replaced by Isis
+Erthys replaced by Skadi
+Black Ooze replaced by Agathion
+Legion replaced by Loa
+Slime replaced by Garuda
+Shiva replaced by Leanan Sidhe
+Mot replaced by Surt
+Zaou-Gongen replaced by Demeter
+Asura replaced by Kin-Ki
+Chernobog replaced by Throne
+Dionysus replaced by Mandrake
+Danu replaced by Shiva
+Inanna replaced by Koropokkur
+Kali replaced by Karasu Tengu
+Cybele replaced by Lilith
+Skadi replaced by Baihu
+Isis replaced by Basilisk
+Kikuri-Hime replaced by Lachesis
+Hariti replaced by Mokoi
+Thor replaced by Kelpie
+Futsunushi replaced by Nezha Taizi
+Attis replaced by Amon
+Bishamonten replaced by Nuwa
+Jikokuten replaced by Barong
+Koumokuten replaced by Angel
+Zouchouten replaced by Nozuchi
+Arahabaki replaced by Loki
+Oyamatsumi replaced by Ananta
+Kushinada-Hime replaced by Fafnir
+Sukuna-Hikona replaced by Arioch
+Okuninushi replaced by Legion
+Take-Minakata replaced by Fenrir
+Ganesha replaced by Flauros
+Siegfried replaced by Matador
+Valkyrie replaced by Cleopatra
+Yoshitsune replaced by Siegfried
+Neko Shogun replaced by Bishamonten
+Mada replaced by Attis
+Girimekhala replaced by Scathach
+Pazuzu replaced by Succubus
+Mishaguji replaced by Dionysus
+Baphomet replaced by Hayataro
+Abdiel replaced by Abaddon
+Metatron replaced by Zhu Tun She
+Michael replaced by Mitra
+Gabriel replaced by Black Ooze
+Sraosha replaced by Ishtar
+Raphael replaced by Ongyo-Ki
+Sandalphon replaced by Chernobog
+Uriel replaced by Muu Shuwuu
+Camael replaced by Anansi
+Melchizedek replaced by Kurama Tengu
+Throne replaced by Alice
+Dominion replaced by Alilat
+Power replaced by High Pixie
+Principality replaced by Baal
+Archangel replaced by Orobas
+Angel replaced by Decarabia
+Adramelech replaced by Anahita
+Flauros replaced by Tzitzimitl
+Nebiros replaced by Rangda
+Berith replaced by Hariti
+Ose replaced by Turbo Granny
+Eligor replaced by Kodama
+Forneus replaced by Dakini
+Andras replaced by Seth
+Decarabia replaced by Dominion
+Garuda replaced by Preta
+Zhuque replaced by Bicorn
+Yatagarasu replaced by Thor
+Jatayu replaced by Jikokuten
+Feng Huang replaced by Sui-Ki
+Anzu replaced by Mara
+Zhen replaced by Sandman
+Muu Shuwuu replaced by Huang Long
+Onmoraki replaced by Gurulu
+Cleopatra replaced by Kinmamon
+Rangda replaced by Naga
+Dakini replaced by Abdiel
+Atropos replaced by Nyami Nyami
+Yakshini replaced by Kikuri-Hime
+Lachesis replaced by Amanozako
+Clotho replaced by Lucifer
+Manananggal replaced by Take-Minakata
+Lamia replaced by Gremlin
+Mermaid replaced by Daisoujou
+Leanan Sidhe replaced by Daemon
+Ongyo-Ki replaced by Nekomata
+Shiki-Ouji replaced by Horus
+Sui-Ki replaced by Valkyrie
+Fuu-Ki replaced by Kresnik
+Kin-Ki replaced by Yatagarasu
+Azumi replaced by Camael
+Ippon-Datara replaced by Cybele
+Daemon replaced by Masakado
+Oni replaced by Mastema
+Hecatoncheires replaced by Silky
+Loa replaced by Vritra
+Rakshasa replaced by Manananggal
+Turdak replaced by Khonsu Ra
+Kaya-no-Hime replaced by Atavaka
+Tsuchigumo replaced by Hua Po
+Narcissus replaced by Jack-o'-Lantern
+Hua Po replaced by Moloch
+Koropokkur replaced by Arahabaki
+Sudama replaced by Cherub
+Kodama replaced by Oyamatsumi
+Pisaca replaced by White Rider
+Kumbhanda replaced by Aeros
+Poltergeist replaced by Yurlungur
+Obariyon replaced by Anubis
+Preta replaced by Mada
+Trumpeter replaced by Azumi
+Mother Harlot replaced by Danu
+Black Rider replaced by Atropos
+Red Rider replaced by Metatron
+White Rider replaced by Pazuzu
+Alice replaced by Okuninushi
+Hell Biker replaced by Makami
+Daisoujou replaced by Fortuna
+Pale Rider replaced by Azazel
+Matador replaced by Mermaid
+Black Frost replaced by Yamata-no-Orochi
+Baal replaced by Gabriel
+Cait Sith replaced by Hanuman
+Fafnir replaced by Black Frost
+Thunderbird replaced by Parvati
+Alilat replaced by Nue
+Macabre replaced by Kumbhanda
+Maria replaced by Yakshini
+Vishnu replaced by Titania
+Gogmagog replaced by Cu Chulainn
+Unicorn replaced by Koppa Tengu
+Dormarth replaced by Kudlak
+Fenrir replaced by Xuanwu
+Peallaidh replaced by Adramelech
+Mad Gasser replaced by King Frost
+Tzitzimitl replaced by Neko Shogun
+Halphas replaced by Lamia
 Gremlin replaced by Red Rider
-Kudlak replaced by Onyankopon
-Dís replaced by Halphas
-Efreet replaced by Mephisto
-Nozuchi replaced by Kaiwan
-Vouivre replaced by Nue
-Zhu Tun She replaced by Cu Chulainn
-Senri replaced by Alice
-Cherub replaced by Metatron
-Gurulu replaced by Mastema
-Karasu Tengu replaced by Mother Harlot
-Lucifer replaced by Danu
-Khonsu Ra replaced by Anansi
-Konohana Sakuya replaced by Neko Shogun
-Samael replaced by Legion
-Turbo Granny replaced by Black Frost
-Nuwa replaced by Arahabaki
-Masakado replaced by Koppa Tengu
-Onyankopon replaced by Chi You
-Amabie replaced by Qing Long
-Lilith replaced by Sukuna-Hikona
-Agrat replaced by Lilim
-Naamah replaced by Kushinada-Hime
-Eisheth replaced by Naga Raja
+Kudlak replaced by Tsuchigumo
+Dís replaced by Ose
+Efreet replaced by Girimekhala
+Nozuchi replaced by Zhen
+Vouivre replaced by Beelzebub
+Zhu Tun She replaced by Forneus
+Senri replaced by Ame-no-Uzume
+Cherub replaced by Cironnup
+Gurulu replaced by Obariyon
+Karasu Tengu replaced by Turdak
+Lucifer replaced by Norn
+Khonsu Ra replaced by Uriel
+Konohana Sakuya replaced by Fuu-Ki
+Samael replaced by Mothman
+Turbo Granny replaced by Oni
+Nuwa replaced by Michael
+Masakado replaced by Thunderbird
+Onyankopon replaced by Koumokuten
+Amabie replaced by Quetzalcoatl
+Lilith replaced by Khonsu
+Agrat replaced by Fionn mac Cumhaill
+Naamah replaced by Black Rider
+Eisheth replaced by Loup-garou
