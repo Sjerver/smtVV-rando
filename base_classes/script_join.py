@@ -111,7 +111,7 @@ Randomizes free demon joins based on the original joins level by adjusting the v
 Parameters:
     comp List(Compendium_Demon): list of all playable demons
 '''
-def randomizeDemonJoins(comp):
+def randomizeDemonJoins(comp, randomDemons):
     writeFolder(EVENT_FOLDER)
     writeFolder(SCRIPT_FOLDER)
     writeFolder(SUBMISSION_FOLDER)
@@ -126,40 +126,43 @@ def randomizeDemonJoins(comp):
 
     #for every script and its offsets to write to
     for script, offsets in SCRIPT_JOIN_BYTES.items():
-        referenceDemon = comp[SCRIPT_JOINS[script]]
-        filteredComp = [d for d in comp if "Mitama" not in d.name and not d.name.startswith('NOT') and not d.ind in numbers.BAD_IDS]
-        sameLevel = [demon for demon in filteredComp if demon.level.value == referenceDemon.level.original]
-        if len(sameLevel) <1:
-            #if no demon of same level exists, use all valid demons
-            sameLevel = filteredComp
-        newDemon = random.choice(sameLevel)
-
-        #Save demon if it is needed in another script or use the saved demon
-        if script == 'MM_M060_EM1601':
-            newDemon = amanozako
-        elif script == 'MM_M060_EM1602':
-            amanozako = newDemon
-        elif script == 'MM_M016_E0885':
-            hayataro = newDemon
-        elif script == 'MM_M016_E0885_Direct':
-            newDemon = hayataro
-        elif script == 'MM_M061_EM1781':
-            cleopatra = newDemon
-        elif script == 'MM_M061_EM2613_HitAction':
-            dagda = newDemon
-        #Write to folder depending on sub or main mission
+        #Read folder depending on sub or main mission
         if 'EM' in script:
             scriptData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
         else:
             scriptData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
+        
+        if randomDemons:
 
-        for offset in offsets:
-            scriptData.writeHalfword(newDemon.ind,offset)
-        #Exception for Dagda/Cleo not being recruited during their Quest but at the researcher instead
-        if script == 'MM_M030_EM1769':
-            scriptData.writeHalfword(dagda.ind,602953)
-            scriptData.writeHalfword(cleopatra.ind,602941)
+            referenceDemon = comp[SCRIPT_JOINS[script]]
+            filteredComp = [d for d in comp if "Mitama" not in d.name and not d.name.startswith('NOT') and not d.ind in numbers.BAD_IDS]
+            sameLevel = [demon for demon in filteredComp if demon.level.value == referenceDemon.level.original]
+            if len(sameLevel) <1:
+                #if no demon of same level exists, use all valid demons
+                sameLevel = filteredComp
+            newDemon = random.choice(sameLevel)
 
+            #Save demon if it is needed in another script or use the saved demon
+            if script == 'MM_M060_EM1601':
+                newDemon = amanozako
+            elif script == 'MM_M060_EM1602':
+                amanozako = newDemon
+            elif script == 'MM_M016_E0885':
+                hayataro = newDemon
+            elif script == 'MM_M016_E0885_Direct':
+                newDemon = hayataro
+            elif script == 'MM_M061_EM1781':
+                cleopatra = newDemon
+            elif script == 'MM_M061_EM2613_HitAction':
+                dagda = newDemon
+
+            for offset in offsets:
+                scriptData.writeHalfword(newDemon.ind,offset)
+        
+            #Exception for Dagda/Cleo not being recruited during their Quest but at the researcher instead
+            if script == 'MM_M030_EM1769':
+                scriptData.writeHalfword(dagda.ind,602953)
+                scriptData.writeHalfword(cleopatra.ind,602941)
 
         writeBinaryTable(scriptData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
 

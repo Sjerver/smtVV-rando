@@ -1059,7 +1059,7 @@ class Randomizer:
             entry.offset = offset
             entry.miman = shopData.readWord(offset)
             for i in range(16):
-                item = Reward_Item(Translated_Value(shopData.readHalfword(offset + 8 + 4*i),translation.translateItem(shopData.readHalfword(offset + 8 + 4*i),self.itemNames)),shopData.readHalfword(10+4*i))
+                item = Reward_Item(shopData.readHalfword(offset + 8 + 4*i),shopData.readHalfword(offset + 10+4*i))
                 entry.items.append(item)
             self.mimanRewardsArr.append(entry)
     
@@ -1700,14 +1700,11 @@ class Randomizer:
             comp (Array(Compendium_Demon)) array of all demons
     '''
     def assignRandomInnates(self, comp):
-        # These are normally enemy only and won't work on player side
-        # Bit Conversion, Cleansing Jolt, Fire Star, Ice Star, Elemental Star, God's Aid, Ironclad Defense, King's Ascendancy, Mitama Soul, Musmahhuu, Synergistic Replication, Unwavering Faith, World Ingurgitation, Star Fragment
-        badInnates = [697,698, 561, 562, 563, 695, 576, 660, 700, 706, 642, 696, 707, 699]
         
         # These don't work besides on their original demons
         # Moirae Cutter, Moirae Spinner, Moirae Measurer
         limited = [573, 574, 575]
-        possibleInnates = [s for s in self.innateSkillArr if s.ind not in badInnates and "NOT USED" not in s.name]
+        possibleInnates = [s for s in self.innateSkillArr if s.ind not in numbers.BAD_INNATES and "NOT USED" not in s.name]
     
         demons = [d for d in comp if "Mitama" not in d.name]
 
@@ -1731,14 +1728,8 @@ class Randomizer:
             naho (Nahobino)
     '''
     def assignRandomInnateToNahobino(self, naho):
-         # These are normally enemy only and won't work on player side
-        # Bit Conversion, Cleansing Jolt, Fire Star, Ice Star, Elemental Star, God's Aid, Ironclad Defense, King's Ascendancy, Mitama Soul, Musmahhuu, Synergistic Replication, Unwavering Faith, World Ingurgitation, Star Fragment
-        badInnates = [697,698, 561, 562, 563, 695, 576, 660, 700, 706, 642, 696, 707, 699]
 
-        # Skills that won't work on the nahobino: Moirae Cutter, Moirae Spinner, Moirae Measurer, Figment of Darkness, Pine Tree's Rebirth, Heart of Devotion, Wanton Rebel, Power Menace,
-        # Myopic Pressure, Demonic Mediation, Allure, Mother of Ploys, Monstrous Offering, Skyward Withdrawal, Four Horsemen, Curious Dance, Runes of Wisdom, Eye of Ra, Brewing Storm,
-        # Eye of Horus, Planck of Norn, Rallying Aid, Fairy King's Melody, Trumpets of Judgment, Heavenly Reversal
-        badInnates = badInnates + [573, 574, 575, 629, 637, 628, 549, 550, 551, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 542, 543, 544, 545, 546, 547, 548]
+        badInnates = numbers.BAD_INNATES + numbers.BAD_INNATES_NAHO
 
         possibleInnates = [s for s in self.innateSkillArr if s.ind not in badInnates and "NOT USED" not in s.name]
 
@@ -2483,10 +2474,15 @@ class Randomizer:
             buffer (Table)
             entries (Array) 
     '''
-    def updateShopBuffer(self, buffer, entries):
+    def updateShopBuffer(self, buffer, entries, mimans):
         for entry in entries:
             buffer.writeHalfword(entry.item.value, entry.offset)
             buffer.writeDblword(entry.unlock.value, entry.offset + 4)
+        for reward in mimans:
+            buffer.writeWord(reward.miman,reward.offset)
+            for index, item in enumerate(reward.items):
+                buffer.writeHalfword(item.item, reward.offset + 8 + 4*index)
+                buffer.writeHalfword(item.amount, reward.offset + 10 + 4*index)
         return buffer
 
     '''
@@ -4057,24 +4053,63 @@ class Randomizer:
         for itemID, itemName in enumerate(self.itemNames): 
             if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                 validItems.append(itemID)
+    	
+        #remove dampeners from valid item list
+        for item in itemsInShop:
+            validItems.remove(item)
 
         for entry in self.shopArr:
             if entry.item.value in dampeners or "Essence" in entry.item.translation:
                 #skip essences and dampeners or item already in shop
                 continue
             itemID = random.choice(validItems)
-            if itemID in itemsInShop:
-                validItems.remove(itemID)
-                continue
             item = Translated_Value(itemID, self.itemNames[itemID])
             entry.item = item
             itemsInShop.append(itemID)
             validItems.remove(itemID)
             
             
-    
-    def randomizeMimanRewards():
-        pass
+    '''
+    Randomizes the rewards for collecting Miman. Talismans are shuffled, and all else is replaced with a random number and amount of items.
+        Parameters:
+            scaling (Boolean): Whether the items are scaled per area
+    #TODO: Scaling
+    '''
+    def randomizeMimanRewards(self, scaling):
+        validItems = []
+        validEssences = []
+        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami essences and demi-fiend essence
+            if 'Essence' in itemName and 'Aogami' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+                validEssences.append(itemID)
+            elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                validItems.append(itemID)
+        #Shuffle rewards to shuffle key item slots
+        shuffledRewards = sorted(copy.deepcopy(self.mimanRewardsArr), key=lambda x: random.random())
+        #
+        for index,reward in enumerate(shuffledRewards):
+            items = []
+            if reward.items[0].item >= numbers.KEY_ITEM_CUTOFF: #key items (talismans)
+                items.append(reward.items[0])
+            elif random.random() < numbers.MIMAN_ESSENCE_ODDS:
+                itemID = random.choice(validEssences)
+                validEssences.remove(itemID) #Limit 1 chest per essence for diversity
+                items.append(Reward_Item(itemID,1))
+            else:
+                #decide how many items
+                itemNumber = random.choices(list(numbers.MIMAN_ITEM_NUMBER_WEIGHTS.keys()),list(numbers.MIMAN_ITEM_NUMBER_WEIGHTS.values()))[0]
+                itemAmount = random.choices(list(numbers.MIMAN_ITEM_AMOUNT_WEIGHTS.keys()),list(numbers.MIMAN_ITEM_AMOUNT_WEIGHTS.values()))[0]
+                for _ in range(itemNumber):
+                    #decide amount per item
+                    itemID = random.choice(validItems)
+                    items.append(Reward_Item(itemID,itemAmount))
+            while len(items) < 16: #fill rest with empty rewards
+                items.append(Reward_Item(0,0))
+            reward.items = items
+            reward.miman = 5 * (index+1)
+            reward.offset = self.mimanRewardsArr[index].offset
+        shuffledRewards.sort(key=lambda x: x.miman)
+        return shuffledRewards
+
 
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
@@ -5245,14 +5280,16 @@ class Randomizer:
         if config.randomAlignment:
             self.randomizeDemonAlignment(self.compendiumArr)
 
-        if config.ensureDemonJoinLevel:
-            scriptJoin.randomizeDemonJoins(self.compendiumArr)
+        scriptJoin.randomizeDemonJoins(self.compendiumArr,config.ensureDemonJoinLevel)
             
         if config.randomChests:
             self.randomizeChests()
         
         if self.configSettings.randomShopItems:
             self.randomizeShopItems(self.configSettings.scaleItemsToArea)
+        
+        if(self.configSettings.randomizeMimanRewards):
+            self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea)
 
         self.patchTutorialDaemon()
         self.patchYuzuruGLStats(compendiumBuffer)
@@ -5282,7 +5319,7 @@ class Randomizer:
         encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
         playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
         itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
-        shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr)
+        shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr, self.mimanRewardsArr)
         eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr, eventEncountUassetBuffer)
         eventEncountPostBuffer = self.updateEventEncountPostBuffer(eventEncountPostBuffer, self.eventEncountArr)
         bossFlagBuffer = self.updateBossFlagBuffer(bossFlagBuffer)
@@ -5297,6 +5334,7 @@ class Randomizer:
         uniqueSymbolBuffer = self.updateUniqueSymbolBuffer(uniqueSymbolBuffer)
         encountPostBuffer = self.updateEventEncountPostBuffer(encountPostBuffer, self.encountArr)
         chestBuffer = self.updateChestBuffer(chestBuffer)        
+
 
         #self.printOutEncounters(newSymbolArr)
         #self.printOutFusions(self.normalFusionArr)

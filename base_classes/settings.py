@@ -30,4 +30,5 @@ class Settings(object):
         self.randomRaces = False                    # Randomize normal demons' races
         self.randomAlignment = False                # Randomize the alignment of demons
         self.ensureDemonJoinLevel = False           # Ensures the demons that join after quests have the same level as the original demon from that quest
-        self.scaleItemsToArea = False                # Scales items (drops/rewards/shops) to be similiar to original progression wise
+        self.scaleItemsToArea = False               # Scales items (drops/rewards/shops) to be similiar to original progression wise
+        self.randomizeMimanRewards = False          # Randomizes the rewards for gathering Miman
