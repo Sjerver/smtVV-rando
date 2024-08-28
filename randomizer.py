@@ -1030,7 +1030,7 @@ class Randomizer:
     '''
     Fills the array shopArr with data on all buyable items.
         Parameters:
-            items (Buffer) the buffer containing all shop data
+            shopData (Buffer) the buffer containing all shop data
     '''
     def fillShopArr(self, shopData):
         start = 0x55
@@ -1044,7 +1044,11 @@ class Randomizer:
             entry.unlock = Translated_Value(shopData.readDblword(offset +4), translation.translateFlag(shopData.readDblword(offset+4)))
 
             self.shopArr.append(entry)
-    
+    '''
+    Fills the array mimanRewardsArr with data on all buyable items.
+        Parameters:
+            shopData (Buffer) the buffer containing all shop data
+    '''
     def fillMimanRewardArr(self, shopData):
         start = 0x7A5
         size = 72
@@ -2521,7 +2525,13 @@ class Randomizer:
             
             
         return buffer
-    
+        
+    '''
+    Writes the position values from an event encouter or encounter array to their respective locations in the table buffer.
+        Parameters:        
+            buffer (Table): binary table
+            evEncount (Array): list of encounters
+    '''
     def updateEventEncountPostBuffer(self,buffer,evEncount):
         for ind, enc in enumerate(evEncount):
             if ind < 3000: #length of EncountPostBuffer is 3000
@@ -4034,6 +4044,9 @@ class Randomizer:
                 chest.macca = 0
 
     '''
+    Randomizes all non essence non dampener items in Gustave's Shop.
+        Parameters:
+            scaling (Boolean): whether the item should be scaled to the area where they unlock
     #TODO: SCALING
     '''
     def randomizeShopItems(self, scaling):
@@ -4041,7 +4054,7 @@ class Randomizer:
         itemsInShop = [] + dampeners
         validItems = []
 
-        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami essences and demi-fiend essence
+        for itemID, itemName in enumerate(self.itemNames): 
             if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                 validItems.append(itemID)
 
@@ -4188,7 +4201,6 @@ class Randomizer:
             ["Haunt","Wargod","Fiend"] #Haunt for the connection to death, Wargod for battle prowess of Fiend
         ]
         if config.randomRaces:
-            #TODO: Add reasoning
             fusionCombo.append(["Devil","Tyrant","Primal"]) #Lucifer + race with most results
             fusionCombo.append(["Devil","Herald","Primal"]) #Lucifer + Mastema in special fusion recipe
             fusionCombo.append(["Drake","Dragon","Primal"]) #Drake Samael + polar opposite Dragon
@@ -4813,12 +4825,14 @@ class Randomizer:
         daemon.stats.HP = 27 #Should die to 3 basic attacks always
     
     '''
-    TODO: Comment, also there is most likely a much simpler solution that I am simply not seeing right now
+    Sets the drops of bosses which are quest relevant to their replacements and in cases where a quest drop boss replaces a quest drop boss makes sure that the drops of all bosses are not lost in conversion.
+    TODO: There is most likely a much simpler solution that I am simply not seeing right now
     '''
     def patchQuestBossDrops(self):
         replacementDemons = []
         replacementEncounters = []
         replacementDemonIDs = []
+        
         #Gather replacements
         for index, demonID in enumerate(numbers.QUEST_DROPS_BOSSES):
             if numbers.QUEST_DROPS_BOSS_ENCOUNTERS[index] < 253:
@@ -4830,11 +4844,14 @@ class Randomizer:
             replacementDemons.append(replacementDemon)
             replacementDemonIDs.append(replacementDemon.ind)
             replacementEncounters.append(replacementEncounter)
+            
         #Set drops for replacements
         for index, demonID in enumerate(numbers.QUEST_DROPS_BOSSES):
             staticBoss = self.staticBossArr[demonID]
             replacementDemons[index].drops = Item_Drops(staticBoss.drops.item1,staticBoss.drops.item2,staticBoss.drops.item3)
+            
         questBossIDs = copy.deepcopy(numbers.QUEST_DROPS_BOSSES)
+        
         #First set drops for quest bosses which aren't replaced by a quest boss or show up as replacement
         toRemove = []
         for index, demonID in enumerate(questBossIDs):
@@ -4843,6 +4860,7 @@ class Randomizer:
                 self.bossArr[demonID].drops = Item_Drops(staticBoss.drops.item1,staticBoss.drops.item2,staticBoss.drops.item3)
                 toRemove.append(index)
         toRemove.sort(reverse=True)
+        
         questBossEncounters = copy.deepcopy(numbers.QUEST_DROPS_BOSS_ENCOUNTERS)
         #Remove unproblematic pairings
         for index in toRemove:
@@ -4857,7 +4875,6 @@ class Randomizer:
         questBossSet = set(questBossIDs)
         replacementSet = set(replacementDemonIDs)
         doubleOccurenceSet = questBossSet & replacementSet
-        
         doubleOccurences = list(doubleOccurenceSet)
         for occ in doubleOccurences:
             index = questBossIDs.index(occ)
@@ -4865,17 +4882,13 @@ class Randomizer:
             index = replacementDemonIDs.index(occ)
             replacementDemons.pop(index)
             replacementEncounters.pop(index)
-        
+
+        #Set drops of remaining replacements to remaining original quest drops
         questBossIDs = list(questBossSet - doubleOccurenceSet)
         replacementDemonIDs = list(replacementSet - doubleOccurenceSet)
         for index, demonID in enumerate(questBossIDs):
             staticBoss = self.staticBossArr[replacementDemonIDs[index]]
             self.bossArr[demonID].drops = Item_Drops(staticBoss.drops.item1,staticBoss.drops.item2,staticBoss.drops.item3)
-
-
-
-        
-
 
     '''
     Switches the item drops of chimera with the demon that replaces it to ensure the horn of plenty is dropped for Demeter's quest
@@ -4946,6 +4959,9 @@ class Randomizer:
                 buffer.writeFloat(1.2,offset + 116)
         return buffer
 
+    '''
+    Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
+    '''
     def nullBossTones(self):
         for index,demon in enumerate(self.playerBossArr):
             if index < numbers.NORMAL_ENEMY_COUNT:
