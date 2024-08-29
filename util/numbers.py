@@ -67,7 +67,7 @@ CHEST_MACCA_ODDS = 0.035
 #Chance of a chest containing an essence instead of an item
 CHEST_ESSENCE_ODDS = 0.42
 
-#Items that have a bag limit of less than 5, excluding essences
+#Items that have a bag limit of less than 10, excluding essences
 ITEM_QUANTITY_LIMITS = {
     60: 1, #Whittled Goat
     62: 3, #Dampeners
@@ -77,6 +77,9 @@ ITEM_QUANTITY_LIMITS = {
     66: 3,
     67: 3,
     68: 3,
+    5: 5, #Bead Chain
+    6: 5, #Soma
+    59: 5, #Gold Card
 }
 
 #Odds of a chest containing 1-5 items excluding essences which are always 1
@@ -117,6 +120,48 @@ MIMAN_ITEM_AMOUNT_WEIGHTS = {
     6: 3,
     8: 1
 }
+
+MISSION_MACCA_ODDS= 0.1717
+MISSION_ESSENCE_ODDS= 0.09090
+MISSION_MACCA_MAX= 150000
+MISSION_MACCA_MIN= 4000
+
+MISSION_QUANTITY_WEIGHTS = {
+    1:52,
+    2:15,
+    3:12,
+    4:5,
+    5:4,
+    10:1,
+    7:1,
+    6:2
+}
+
+#Missions with duplicate missions that should have the same rewards
+MISSION_DUPLICATES = {
+  12: [106], #A Golden Opportunity
+  73: [147], #A Power Beyond Control
+  34: [148], #An Unusual Forecast
+  139: [180], #Liberate the Golden Stool
+  59: [145], #Lighting the Way
+  138: [179], #Reclaim the Golden Stool
+  84: [144], #Return of the True Demon
+  32: [141], #Roar of Hatred
+  62: [146], #Stones of Malice
+  31: [142], #Angel of Destruction
+  29: [140], #The Horn of Plenty
+  51: [222], #The Red Dragon's Invitation
+  50: [221], #The Seraph's Return
+  41: [143], #The Winged Sun
+  95: [116], #To the Empyrean
+  52: [53,54] #The Compassionate Queen, The Noble Queen, The Wrathful Queen (Same reward but not true duplicate)
+}
+
+#Reward cannot be randomized, due Quest Progression Issues or too strong reward(True Demon) or mission is unused
+BANNED_MISSIONS = [84,144,35, 1,2,3,60,89,90,154] #True Demon x2, Ancient Guardian, and Unused Missions
+
+#Repeatable Missions that always have the same reward and therefore cant have unique reward
+REPEAT_MISSIONS = [66,59,145,62,146,65,64,67,58]# Incentive for Incense, Lighting the Way x2, Stones Of Malice x2,Princess in a Pickle, Sleeping Sands, Need for Nectar, Iced Out 
 
 #Event encounter ID of chimera who needs to drop the horn of plenty
 CHIMERA_ENCOUNTER_ID = 92

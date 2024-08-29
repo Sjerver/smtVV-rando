@@ -4104,7 +4104,10 @@ class Randomizer:
                 for _ in range(itemNumber):
                     #decide amount per item
                     itemID = random.choice(validItems)
-                    items.append(Reward_Item(itemID,itemAmount))
+                    if itemID in numbers.ITEM_QUANTITY_LIMITS.keys():
+                        items.append(Reward_Item(itemID,amount = min(itemAmount, numbers.ITEM_QUANTITY_LIMITS[itemID])))
+                    else:
+                       items.append(Reward_Item(itemID,itemAmount)) 
             while len(items) < 16: #fill rest with empty rewards
                 items.append(Reward_Item(0,0))
             reward.items = items
@@ -4113,7 +4116,59 @@ class Randomizer:
         shuffledRewards.sort(key=lambda x: x.miman)
         return shuffledRewards
 
+    '''
+    TODO: Comment
+    TODO: Scaling
+    TODO: Bonus Rewards in Scripts?
+    '''
+    def randomizeMissionRewards(self, scaling):
+        validItems = []
+        validEssences = []
+        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami essences and demi-fiend essence
+            if 'Essence' in itemName and 'Aogami' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+                validEssences.append(itemID)
+            elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                validItems.append(itemID)
 
+        rewardingMissions = []
+        uniqueRewards = []
+        for mission in self.missionArr:
+            if (mission.macca > 0 or mission.reward.ind > 0) and not any(mission.ind in duplicates for duplicates in numbers.MISSION_DUPLICATES.values()) and mission.ind not in numbers.BANNED_MISSIONS:
+                rewardingMissions.append(mission)
+                if mission.reward.ind > numbers.KEY_ITEM_CUTOFF or mission.reward.ind in numbers.BANNED_ITEMS:
+                    uniqueRewards.append(copy.deepcopy(mission.reward))
+        validUniqueMissions = list(filter(lambda mission: mission.ind not in numbers.REPEAT_MISSIONS,rewardingMissions))
+        uniqueRewardMissions = random.sample(validUniqueMissions, len(uniqueRewards))
+        for index, mission in enumerate(uniqueRewardMissions):
+            rewardingMissions.remove(mission)
+            mission.macca = 0
+            mission.reward = uniqueRewards[index]
+        for mission in rewardingMissions:
+            if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.MISSION_DUPLICATES:
+                macca = random.randint(numbers.MISSION_MACCA_MIN // 100, numbers.MISSION_MACCA_MAX // 100) *100#Completely random macca amount in increments of 100
+                mission.reward.ind = 0
+                mission.reward.amount = 0
+                mission.macca = macca
+            elif random.random() < numbers.MISSION_ESSENCE_ODDS:
+                itemID = random.choice(validEssences)
+                amount = 1
+                validEssences.remove(itemID) #Limit 1 chest per essence for diversity
+                mission.reward.ind = itemID
+                mission.reward.amount = amount
+                mission.macca =0
+            else:
+                itemID = random.choice(validItems)
+                amount = random.choices(list(numbers.MISSION_QUANTITY_WEIGHTS.keys()), list(numbers.MISSION_QUANTITY_WEIGHTS.values()))[0]
+                if itemID in numbers.ITEM_QUANTITY_LIMITS.keys():
+                    amount = min(amount, numbers.ITEM_QUANTITY_LIMITS[itemID])
+                mission.reward.ind = itemID
+                mission.reward.amount = amount
+                mission.macca = 0
+        for missionID, duplicateIDs in numbers.MISSION_DUPLICATES.items():
+            for duplicateID in duplicateIDs:
+                self.missionArr[duplicateID].reward.ind = self.missionArr[missionID].reward.ind
+                self.missionArr[duplicateID].reward.amount = self.missionArr[missionID].reward.amount
+                self.missionArr[duplicateID].macca = self.missionArr[missionID].macca
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
     Resulting demon is the demon with an level higher than the average of the two levels.
@@ -5293,6 +5348,9 @@ class Randomizer:
         
         if(self.configSettings.randomizeMimanRewards):
             self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea)
+
+        if self.configSettings.randomizeMissionRewards:
+            self.randomizeMissionRewards(self.configSettings.scaleItemsToArea)
 
         self.patchTutorialDaemon()
         self.patchYuzuruGLStats(compendiumBuffer)
