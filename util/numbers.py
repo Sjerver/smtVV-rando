@@ -156,6 +156,9 @@ BAD_INNATES_NAHO = [573, 574, 575, 629, 637, 628, 549, 550, 551, 533, 534, 535, 
 # Myopic Pressure, Demonic Mediation, Allure, Mother of Ploys, Monstrous Offering, Skyward Withdrawal, Four Horsemen, Curious Dance, Runes of Wisdom, Eye of Ra, Brewing Storm,
 # Eye of Horus, Planck of Norn, Rallying Aid, Fairy King's Melody, Trumpets of Judgment, Heavenly Reversal
 
+#Fionn, Idun, and Yoshitsune need to have their vanilla tones for quests to work. Moirae Sisters give a quest too but are regular encounters so their tones are unchanged
+DEMON_HAUNT_QUESTGIVER_IDS = [23, 35, 224]
+
 def getMaccaValues ():
     return [0,10,13,15,16,17,18,20,21,23,24,26,28,29,31,33,34,36,38,40,41,44,46,49,51,55,58,61,65,68,71,74,78,82,87,90,94,98,103,107,111,116,121,126,131,137,142,147,153,159,164,170,177,184,190,198,204,212,218,225,233,241,249,257,264,273,281,290,298,307,315,356,374,415,456,542,629,758,887,1016,1145,1274,1403,1532,1661,1790,1919,2048,2177,2306,2435,2564,2693,2822,2951,3080,3209,3338,3467,3596]
 

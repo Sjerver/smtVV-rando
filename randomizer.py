@@ -3295,7 +3295,10 @@ class Randomizer:
         workingTones = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19]
         for demon in comp:
             if demon.tone.value not in workingTones:
-                demon.tone.value = random.choice(workingTones)
+                if demon.ind in numbers.DEMON_HAUNT_QUESTGIVER_IDS:
+                    demon.tone.value = 1 #Force a tone that functions in demon haunts, currently I only know tone 15 (Loup Garou) is broken
+                else:
+                    demon.tone.value = random.choice(workingTones)
             if demon.tone.secondary not in workingTones and demon.tone.secondary != 0:
                 demon.tone.secondary = random.choice(workingTones)
 
