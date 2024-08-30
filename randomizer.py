@@ -4013,8 +4013,8 @@ class Randomizer:
     def randomizeChests(self):
         validItems = []
         validEssences = []
-        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami essences and demi-fiend essence
-            if 'Essence' in itemName and 'Aogami' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
                 validEssences.append(itemID)
             elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                 validItems.append(itemID)
@@ -4081,8 +4081,8 @@ class Randomizer:
     def randomizeMimanRewards(self, scaling):
         validItems = []
         validEssences = []
-        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami essences and demi-fiend essence
-            if 'Essence' in itemName and 'Aogami' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
                 validEssences.append(itemID)
             elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                 validItems.append(itemID)
@@ -4117,15 +4117,15 @@ class Randomizer:
         return shuffledRewards
 
     '''
-    TODO: Comment
+    Randomizes the rewards of all missions that usually have rewards. Reusable consumable items and key items are classified as unique rewards, and are shuffled around, while all other rewards are completely random.
     TODO: Scaling
     TODO: Bonus Rewards in Scripts?
     '''
     def randomizeMissionRewards(self, scaling):
         validItems = []
         validEssences = []
-        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami essences and demi-fiend essence
-            if 'Essence' in itemName and 'Aogami' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
                 validEssences.append(itemID)
             elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                 validItems.append(itemID)
@@ -4134,37 +4134,38 @@ class Randomizer:
         uniqueRewards = []
         for mission in self.missionArr:
             if (mission.macca > 0 or mission.reward.ind > 0) and not any(mission.ind in duplicates for duplicates in numbers.MISSION_DUPLICATES.values()) and mission.ind not in numbers.BANNED_MISSIONS:
-                rewardingMissions.append(mission)
+                rewardingMissions.append(mission) #find missions with rewards that are not banned or a duplicate
                 if mission.reward.ind > numbers.KEY_ITEM_CUTOFF or mission.reward.ind in numbers.BANNED_ITEMS:
-                    uniqueRewards.append(copy.deepcopy(mission.reward))
-        validUniqueMissions = list(filter(lambda mission: mission.ind not in numbers.REPEAT_MISSIONS,rewardingMissions))
-        uniqueRewardMissions = random.sample(validUniqueMissions, len(uniqueRewards))
+                    uniqueRewards.append(copy.deepcopy(mission.reward)) #add key items or reusable consumables to unique rewards
+        validUniqueMissions = list(filter(lambda mission: mission.ind not in numbers.REPEAT_MISSIONS,rewardingMissions)) #repeat missions shouldn't not reward unique rewards
+        uniqueRewardMissions = random.sample(validUniqueMissions, len(uniqueRewards)) #randomly select missions to reward unique rewards
         for index, mission in enumerate(uniqueRewardMissions):
+            #remove mission from general mission pool and set unique reward
             rewardingMissions.remove(mission)
             mission.macca = 0
             mission.reward = uniqueRewards[index]
         for mission in rewardingMissions:
-            if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.MISSION_DUPLICATES:
+            if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.REPEAT_MISSIONS: #repeat missions should not have macca
                 macca = random.randint(numbers.MISSION_MACCA_MIN // 100, numbers.MISSION_MACCA_MAX // 100) *100#Completely random macca amount in increments of 100
                 mission.reward.ind = 0
                 mission.reward.amount = 0
                 mission.macca = macca
-            elif random.random() < numbers.MISSION_ESSENCE_ODDS:
+            elif random.random() < numbers.MISSION_ESSENCE_ODDS: 
                 itemID = random.choice(validEssences)
                 amount = 1
                 validEssences.remove(itemID) #Limit 1 chest per essence for diversity
                 mission.reward.ind = itemID
                 mission.reward.amount = amount
                 mission.macca =0
-            else:
+            else: #no essence and no macca means consumable item
                 itemID = random.choice(validItems)
                 amount = random.choices(list(numbers.MISSION_QUANTITY_WEIGHTS.keys()), list(numbers.MISSION_QUANTITY_WEIGHTS.values()))[0]
-                if itemID in numbers.ITEM_QUANTITY_LIMITS.keys():
+                if itemID in numbers.ITEM_QUANTITY_LIMITS.keys(): #apply inventory limit to item amount
                     amount = min(amount, numbers.ITEM_QUANTITY_LIMITS[itemID])
                 mission.reward.ind = itemID
                 mission.reward.amount = amount
                 mission.macca = 0
-        for missionID, duplicateIDs in numbers.MISSION_DUPLICATES.items():
+        for missionID, duplicateIDs in numbers.MISSION_DUPLICATES.items(): #set rewards of duplicates to be the same as the one they duplicate
             for duplicateID in duplicateIDs:
                 self.missionArr[duplicateID].reward.ind = self.missionArr[missionID].reward.ind
                 self.missionArr[duplicateID].reward.amount = self.missionArr[missionID].reward.amount
@@ -4249,10 +4250,12 @@ class Randomizer:
 
     '''
     Adjusts the essence in the shop to demons of the same level as the original.
+    #TODO: Implement non scaling version
         Parameters:
             shop (Array(Shop_Entry)) shop entry array
             essences (Array(Essence)) essence array containing price and demon information
-            domp (Array(Compendium_Demon)) array of demons with new and old levels
+            comp (Array(Compendium_Demon)) array of demons with new and old levels
+            scaling (Boolean): whether the essences scale to the level of the original shop essences
     '''
     def adjustShopEssences(self, shop, essences, comp, scaling):
         validDemons = list(filter(lambda demon: not demon.name.startswith('NOT') and demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name, comp))
