@@ -121,11 +121,14 @@ MIMAN_ITEM_AMOUNT_WEIGHTS = {
     8: 1
 }
 
+#Chance a mission rewards macca
 MISSION_MACCA_ODDS= 0.1717
+#Chance a mission rewards an essence instead of an consumable item
 MISSION_ESSENCE_ODDS= 0.09090
 MISSION_MACCA_MAX= 150000
 MISSION_MACCA_MIN= 4000
 
+#The possible amounts for consumable rewards and their weights
 MISSION_QUANTITY_WEIGHTS = {
     1:52,
     2:15,
@@ -157,10 +160,10 @@ MISSION_DUPLICATES = {
   52: [53,54] #The Compassionate Queen, The Noble Queen, The Wrathful Queen (Same reward but not true duplicate)
 }
 
-#Reward cannot be randomized, due Quest Progression Issues or too strong reward(True Demon) or mission is unused
+#Reward cannot be randomized, due to Quest Progression Issues or too strong reward(True Demon) or mission is unused
 BANNED_MISSIONS = [84,144,35, 1,2,3,60,89,90,154] #True Demon x2, Ancient Guardian, and Unused Missions
 
-#Repeatable Missions that always have the same reward and therefore cant have unique reward
+#Repeatable Missions that always have the same reward and therefore should not have unique reward or macca
 REPEAT_MISSIONS = [66,59,145,62,146,65,64,67,58]# Incentive for Incense, Lighting the Way x2, Stones Of Malice x2,Princess in a Pickle, Sleeping Sands, Need for Nectar, Iced Out 
 
 #Event encounter ID of chimera who needs to drop the horn of plenty
