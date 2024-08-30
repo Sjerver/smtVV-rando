@@ -46,6 +46,7 @@ SCRIPT_JOIN_BYTES = {
     'MM_M030_EM1769': [602929], # Bethel Researcher giving DLC Demons
     'MM_M061_EM1791': [195223,196076], # A Goddess in Training
     'MM_M061_EM2601': [212904], # Sakura Cinders of the East
+    'MM_M063_EM2170': [326663], # Guardian of Tokyo
 }
 
 #List of which demon join is in which script
@@ -75,6 +76,7 @@ SCRIPT_JOINS = {
     'MM_M030_EM1769': 78, # Mephisto (Can only join this way)
     'MM_M061_EM1791': 31, # Artemis
     'MM_M061_EM2601': 32, # Konohana Sakuya
+    'MM_M063_EM2170': 227 # Masakado
 }
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
@@ -104,6 +106,7 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM1791': M030_FOLDER, # A Goddess in Training
     'MM_M061_EM2613_HitAction': M030_FOLDER, # Holy Will and Profane Dissent
     'MM_M061_EM2601': M061_FOLDER, # Sakura Cinders of the East
+    'MM_M063_EM2170': M063_FOLDER # Guardian of Tokyo
 }
 
 '''
