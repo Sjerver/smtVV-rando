@@ -4170,6 +4170,69 @@ class Randomizer:
                 self.missionArr[duplicateID].reward.ind = self.missionArr[missionID].reward.ind
                 self.missionArr[duplicateID].reward.amount = self.missionArr[missionID].reward.amount
                 self.missionArr[duplicateID].macca = self.missionArr[missionID].macca
+    
+    def randomizeDemonStats(self):
+        for demon in self.compendiumArr:
+            if 'Mitama' in demon.name:
+                continue
+            nahoLevel = self.nahobino.stats[demon.level.value]
+            avgMin = 0.96 #Girimekhalas Stat Mod Average
+            avgMax = 1.35 #Pixies Stat Mod Average
+
+            
+            def averageCalc():
+                sum = 0
+                for n in randomNumbers: sum += n
+                return sum/len(randomNumbers)
+            
+            hpList = [650,1200]
+            mpList = [666,1400]
+            otherList = [500,2000]
+            ranges = [hpList,mpList, otherList, copy.deepcopy(otherList),copy.deepcopy(otherList),copy.deepcopy(otherList),copy.deepcopy(otherList)]
+            ogRanges = copy.deepcopy(ranges)
+            
+            randomNumbers = [
+                random.randrange(ranges[0][0],ranges[0][1]) / 1000, #HP 
+                random.randrange(ranges[1][0],ranges[1][1]) / 1000, #MP
+                random.randrange(ranges[2][0],ranges[2][1]) / 1000, #Str
+                random.randrange(ranges[3][0],ranges[3][1]) / 1000, #Vit
+                random.randrange(ranges[4][0],ranges[4][1]) / 1000, #Mag
+                random.randrange(ranges[5][0],ranges[5][1]) / 1000, #Agi
+                random.randrange(ranges[6][0],ranges[6][1]) / 1000 #Luk
+            ]
+            average = averageCalc()
+            index = random.randrange(0,6)
+            while not (avgMax >= average and avgMin <= average):
+                if average > avgMax:
+                    ranges[index][1] = min(math.floor(randomNumbers[index] * 1000 -10),ogRanges[index][1])
+                else:
+                    ranges[index][0] = max(math.ceil(randomNumbers[index] * 1000 +10),ogRanges[index][0])
+                randomNumbers[index] = random.randrange(ranges[index][0],ranges[index][1]) / 1000
+                average = averageCalc()
+                if index < 6:
+                    index += 1
+                else:
+                    index = 0
+
+
+            #Decide random stat modifiers between 0.5 and 2 
+            modifiers = Stats(
+                randomNumbers[0],
+                randomNumbers[1],
+                randomNumbers[2],
+                randomNumbers[3],
+                randomNumbers[4],
+                randomNumbers[5],
+                randomNumbers[6]
+            )
+            #Apply these multipliers to the nahobinos stats at new level to gain new level
+            demon.stats.HP.og = math.floor(nahoLevel.HP * modifiers.HP)
+            demon.stats.MP.og = math.floor(nahoLevel.MP * modifiers.MP)
+            demon.stats.str.og = math.floor(nahoLevel.str * modifiers.str)
+            demon.stats.vit.og = math.floor(nahoLevel.vit * modifiers.vit)
+            demon.stats.mag.og = math.floor(nahoLevel.mag * modifiers.mag)
+            demon.stats.agi.og = math.floor(nahoLevel.agi * modifiers.agi)
+            demon.stats.luk.og = math.floor(nahoLevel.luk * modifiers.luk) 
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
     Resulting demon is the demon with an level higher than the average of the two levels.
@@ -5265,6 +5328,9 @@ class Randomizer:
        
         if config.randomPotentials:
             self.randomizePotentials(self.compendiumArr)
+        
+        if self.configSettings.randomDemonStats:
+            self.randomizeDemonStats()
 
         self.addAdditionalFusionsToFusionChart(config)
 
