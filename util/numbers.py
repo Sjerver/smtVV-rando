@@ -215,9 +215,9 @@ DEMON_MP_MOD_RANGE = [666,1400]
 DEMON_STAT_MOD_RANGE = [500,2000]
 
 CONSUMABLE_PROGRESSION = {
-  0: [1,2,4,7,23,24,25,26,27,28,59,61,62,63,64,65,66,67,68,72,82,83,109,111,113,91,92,93,94,95,96,97], 
-    #Universal: Life Stone, Chakra Drop, Bead, Revival Bead, Elemental Gems, Gold Card, Smoke Ball, Dampeners, Attract Pipe, Gospel, Grimoire, Small Glory Crystals, Simple Demon Box, New Testament Tablet, Incenses,
-  1: [3,5,6,8,37,38,39,40,41,42,43,44,45,46,47,50,51,52,53,98,99,100,101,102,103,104,105,106,107,108], #After Minato: Chakra Pot, Bead Chain, Soma, Balm of Life, Status Gems, 
+  0: [1,2,4,7,59,61,63,64,65,66,67,68,72,82,83,109,111,113,91,92,93,94,95,96,97], 
+    #Universal: Life Stone, Chakra Drop, Bead, Revival Bead, Gold Card, Smoke Ball, Dampeners, Attract Pipe, Gospel, Grimoire, Small Glory Crystals, Simple Demon Box, New Testament Tablet, Incenses,
+  1: [3,5,6,8,23,24,25,26,27,28,37,38,39,40,41,42,43,44,45,46,47,50,51,52,53,98,99,100,101,102,103,104,105,106,107,108], #After Minato: Chakra Pot, Bead Chain, Soma, Balm of Life, Elemental Gems, Status Gems, 
     #Support Gems, Drain Gems, Purge/Dispel Charms, Attack Mirror, Magic Mirror, Sutras
   2: [15,16,17,18,19,20,21,22,55], #Pre Taito: Life Stone Chain, Soma Drop, Elemental Shards
   3: [60,62], #From Area 3 Dungeons onward: Whittled Goat, Phys Dampener
@@ -258,15 +258,29 @@ REWARD_AREA_MISSIONS = {
   38: [212,114,174],
   60: [33,35,36,37,38,39,40,42,43,44,45,46,49,63,64,65,66,67,74,79,80,82,87,94,165,172,181,183,185,193,196,198,205,209,211,41],
   61: [6,7,8,9,13,56,57,58,61,68,69,70,71,86,150,151,166,167,170,201],
-  62: [12,92,14,15,16,17,18,19,20,21,75,76,83,91,152,155,156,157,160,161,612,189,191,192,197],
+  62: [12,92,14,15,16,17,18,19,20,21,75,76,83,91,152,155,156,157,160,161,162,189,191,192,197],
   63: [73,34,139,59,22,24,25,26,27,28,138,30,48,32,72,62,77,78,93,31,159,164,186,187,204,206,208,29],
   64: [108,109,111,112,113,153,169,171,173,175,176,177,178,184,194,200,202,203,210],
   107: [84]
 }
 
+MISSION_REWARD_AREA_MACCA_RANGES = {
+    16: [120000, 180000],# 30k around The Compassionate Queen and duplicates
+    35: [25000, 85000], #Same as Taito
+    36: [22000, 25000], #Defeat the Demon King's Armies ,Chase Through Shakan
+    38: [22000, 25000], #Sa,e as above
+    60: [25000, 85000],#Escort the Prime Minister ,To The Empyrean
+    61: [2000, 7500], #Half of Shinagawa
+    62: [4000, 15000], #Jojozi Temple, Eliminate Lahmu
+    63: [6000, 22000], #Investigate Anomalies in Tokyo, Defeat the Demon King's Armies
+    64: [6000, 22000], #Same as Chiyoda
+    107: [666666] #Return of True Demon
+}
+
+DROP1_LIFESTONE_ODDS = 0.97
 
 #The area each basic enemy is balanced around
-ENCOUNTER_MISSION_LEVELS = [61,61,61,61,61,61,61,61,61,61,61,61,61,61,61,61,61,61, #Minato 0 + 1-17
+ENCOUNTER_LEVEL_AREAS = [61,61,61,61,61,61,61,61,61,61,61,61,61,61,61,61,61,61, #Minato 0 + 1-17
                             62,62,62,62,62,62,62,62,62,62,62,62,62,62,62,62,62,62,62,62, #Shinagawa 18 -37
                             63,63,63,63,63,63,63,63,63,63,63, #Chiyoda/Shinjuku #38 - 48
                             36,36,36,36, #Demon Kings Castle/Shakan 49 -52

@@ -4173,11 +4173,27 @@ class Randomizer:
     def randomizeMissionRewards(self, scaling):
         validItems = []
         validEssences = []
-        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
-                validEssences.append(itemID)
-            elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                validItems.append(itemID)
+        
+        if scaling:
+            validItems = {}
+            validEssences = {}
+            for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
+                validItems[key] = value
+            missionRewardAreas = {}
+            for key, value in numbers.REWARD_AREA_MISSIONS.items():
+                for id in value:
+                    missionRewardAreas[id] = key
+                validEssences[key] = []
+                currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[key][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[key][1]]
+                for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                    if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences[key] and itemName in currentDemonNames:
+                        validEssences[key].append(itemID)
+        else:
+            for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+                    validEssences.append(itemID)
+                elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                    validItems.append(itemID)
 
         rewardingMissions = []
         uniqueRewards = []
@@ -4194,20 +4210,34 @@ class Randomizer:
             mission.macca = 0
             mission.reward = uniqueRewards[index]
         for mission in rewardingMissions:
+            if scaling:
+                rewardArea = missionRewardAreas[mission.ind]
             if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.REPEAT_MISSIONS: #repeat missions should not have macca
-                macca = random.randint(numbers.MISSION_MACCA_MIN // 100, numbers.MISSION_MACCA_MAX // 100) *100#Completely random macca amount in increments of 100
+                if scaling:
+                    macca = random.randint(numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][0] // 100, numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][1] // 100) *100
+                else:
+                    macca = random.randint(numbers.MISSION_MACCA_MIN // 100, numbers.MISSION_MACCA_MAX // 100) *100#Completely random macca amount in increments of 100
                 mission.reward.ind = 0
                 mission.reward.amount = 0
                 mission.macca = macca
-            elif random.random() < numbers.MISSION_ESSENCE_ODDS: 
-                itemID = random.choice(validEssences)
+            elif random.random() < numbers.MISSION_ESSENCE_ODDS:
+                if scaling:
+                    itemID = random.choice(validEssences[rewardArea])
+                    for value in validEssences.values():
+                        if itemID in value:
+                            value.remove(itemID)
+                else:  
+                    itemID = random.choice(validEssences)
+                    validEssences.remove(itemID) #Limit 1 chest per essence for diversity
                 amount = 1
-                validEssences.remove(itemID) #Limit 1 chest per essence for diversity
                 mission.reward.ind = itemID
                 mission.reward.amount = amount
                 mission.macca =0
             else: #no essence and no macca means consumable item
-                itemID = random.choice(validItems)
+                if scaling:
+                    itemID = random.choice(validItems[rewardArea])
+                else:
+                    itemID = random.choice(validItems)
                 amount = random.choices(list(numbers.MISSION_QUANTITY_WEIGHTS.keys()), list(numbers.MISSION_QUANTITY_WEIGHTS.values()))[0]
                 if itemID in numbers.ITEM_QUANTITY_LIMITS.keys(): #apply inventory limit to item amount
                     amount = min(amount, numbers.ITEM_QUANTITY_LIMITS[itemID])
@@ -4228,25 +4258,45 @@ class Randomizer:
     '''
     def randomizeBasicEnemyDrops(self, scaling):
         validItems = []
-        for itemID, itemName in enumerate(self.itemNames): 
-            if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                validItems.append(itemID)
+        if scaling:
+            validItems = {}
+            for key, values in numbers.CONSUMABLE_MAP_SCALING.items():
+                validItems[key] = values
+        else:
+            for itemID, itemName in enumerate(self.itemNames): 
+                if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                    validItems.append(itemID)
 
         #Gather all non mitama basic enemies with drops
         dropEnemies = list(filter(lambda e: 'Mitama' not in e.name and e.drops.item1.value > 0, self.enemyArr))
 
         for enemy in dropEnemies:
             drop = enemy.drops
-            #Edit all drops that are not key items or essences
-            if drop.item1.value < numbers.CONSUMABLE_ITEM_COUNT:
-                drop.item1.value = random.choice(validItems)
-                drop.item1.chance = random.randrange(3,12)
-            if drop.item2.value < numbers.CONSUMABLE_ITEM_COUNT:
-                drop.item2.value = random.choice(validItems)
-                drop.item2.chance = random.randrange(3,12)
-            if drop.item3.value < numbers.CONSUMABLE_ITEM_COUNT:
-                drop.item3.value = random.choice(validItems)
-                drop.item3.chance = random.randrange(3,12) 
+            if scaling:
+                rewardArea = numbers.ENCOUNTER_LEVEL_AREAS[enemy.level]
+                if drop.item1.value < numbers.CONSUMABLE_ITEM_COUNT:
+                    if random.random() < numbers.DROP1_LIFESTONE_ODDS:
+                        drop.item1.value = 1
+                    else:
+                        drop.item1.value = random.choice(validItems[rewardArea])
+                    drop.item1.chance = random.randrange(3,12)
+                if drop.item2.value < numbers.CONSUMABLE_ITEM_COUNT:
+                    drop.item1.value = random.choice(validItems[rewardArea])
+                    drop.item2.chance = random.randrange(3,12)
+                if drop.item3.value < numbers.CONSUMABLE_ITEM_COUNT:
+                    drop.item1.value = random.choice(validItems[rewardArea])
+                    drop.item3.chance = random.randrange(3,12)
+            else:
+                #Edit all drops that are not key items or essences
+                if drop.item1.value < numbers.CONSUMABLE_ITEM_COUNT:
+                    drop.item1.value = random.choice(validItems)
+                    drop.item1.chance = random.randrange(3,12)
+                if drop.item2.value < numbers.CONSUMABLE_ITEM_COUNT:
+                    drop.item2.value = random.choice(validItems)
+                    drop.item2.chance = random.randrange(3,12)
+                if drop.item3.value < numbers.CONSUMABLE_ITEM_COUNT:
+                    drop.item3.value = random.choice(validItems)
+                    drop.item3.chance = random.randrange(3,12) 
 
     '''
     Randomizes the stats of normal demons.
