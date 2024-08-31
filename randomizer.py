@@ -4046,56 +4046,102 @@ class Randomizer:
     Randomizes all non essence non dampener items in Gustave's Shop.
         Parameters:
             scaling (Boolean): whether the item should be scaled to the area where they unlock
-    #TODO: SCALING
+    #TODO: SCALING comments
     '''
     def randomizeShopItems(self, scaling):
         dampeners = [63,64,65,66,67,68] #Elemental Dampeners stay the same
         itemsInShop = [] + dampeners
         validItems = []
 
-        for itemID, itemName in enumerate(self.itemNames): 
-            if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                validItems.append(itemID)
+        if scaling:
+            slotRewardAreas = numbers.getShopUnlockAreas()
+            validItems = {}
+            for key in numbers.AREA_SHOP_UNLOCKS:
+                validItems[key] = copy.deepcopy(numbers.CONSUMABLE_MAP_SCALING[key])
+        else:
+            for itemID, itemName in enumerate(self.itemNames): 
+                if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                    validItems.append(itemID)
     	
         #remove dampeners from valid item list
-        for item in itemsInShop:
-            validItems.remove(item)
+        if scaling:
+            for key in validItems.keys():
+                for item in itemsInShop:
+                    if item in validItems[key]:
+                        validItems[key].remove(item)
+        else:
+            for item in itemsInShop:
+                validItems.remove(item)
 
-        for entry in self.shopArr:
+        for index, entry in enumerate(self.shopArr):
             if entry.item.value in dampeners or "Essence" in entry.item.translation:
                 #skip essences and dampeners or item already in shop
                 continue
-            itemID = random.choice(validItems)
+            if scaling:
+                itemID = random.choice(validItems[slotRewardAreas[index]])
+            else:
+                itemID = random.choice(validItems)
             item = Translated_Value(itemID, self.itemNames[itemID])
             entry.item = item
             itemsInShop.append(itemID)
-            validItems.remove(itemID)
+            if scaling:
+                for key in validItems.keys():
+                    if itemID in validItems[key]:
+                        validItems[key].remove(itemID)
+            else:
+                validItems.remove(itemID)
             
             
     '''
     Randomizes the rewards for collecting Miman. Talismans are shuffled, and all else is replaced with a random number and amount of items.
         Parameters:
             scaling (Boolean): Whether the items are scaled per area
-    #TODO: Scaling
+    #TODO: Scaling comments
     '''
     def randomizeMimanRewards(self, scaling):
         validItems = []
         validEssences = []
-        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
-                validEssences.append(itemID)
-            elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                validItems.append(itemID)
+
+        if scaling: #scaling items per area
+            validItems = {}
+            validEssences = {}
+            #copy valid items list
+            validItems[60] = copy.deepcopy(numbers.CONSUMABLE_MAP_SCALING[60])
+            validItems[61] = copy.deepcopy(numbers.CONSUMABLE_MAP_SCALING[61])
+            validItems[62] = copy.deepcopy(numbers.CONSUMABLE_MAP_SCALING[62])
+            validItems[63] = copy.deepcopy(numbers.CONSUMABLE_MAP_SCALING[63])
+
+            for area in [60,61,62,63]: #for each of the 4 main areas, assemble essence list based on pre defined levels
+                validEssences[area] = []
+                currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]]
+                for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                    if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences[area] and itemName in currentDemonNames:
+                        validEssences[area].append(itemID)
+        else:#no scaling items per area
+            for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+                    validEssences.append(itemID)
+                elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                    validItems.append(itemID)
         #Shuffle rewards to shuffle key item slots
         shuffledRewards = sorted(copy.deepcopy(self.mimanRewardsArr), key=lambda x: random.random())
         #
         for index,reward in enumerate(shuffledRewards):
+            if scaling:
+                areaChoices = [61,62,63,60]
+                rewardArea = areaChoices[index // 10]
             items = []
             if reward.items[0].item >= numbers.KEY_ITEM_CUTOFF: #key items (talismans)
                 items.append(reward.items[0])
             elif random.random() < numbers.MIMAN_ESSENCE_ODDS:
-                itemID = random.choice(validEssences)
-                validEssences.remove(itemID) #Limit 1 chest per essence for diversity
+                if scaling:
+                    itemID = random.choice(validEssences[rewardArea])
+                    for key in validEssences.keys():
+                        if itemID in validEssences[key]:
+                            validEssences[key].remove(itemID)
+                else:
+                    itemID = random.choice(validEssences)
+                    validEssences.remove(itemID) #Limit 1 chest per essence for diversity
                 items.append(Reward_Item(itemID,1))
             else:
                 #decide how many items
@@ -4103,7 +4149,10 @@ class Randomizer:
                 itemAmount = random.choices(list(numbers.MIMAN_ITEM_AMOUNT_WEIGHTS.keys()),list(numbers.MIMAN_ITEM_AMOUNT_WEIGHTS.values()))[0]
                 for _ in range(itemNumber):
                     #decide amount per item
-                    itemID = random.choice(validItems)
+                    if scaling:
+                        itemID = random.choice(validItems[rewardArea])
+                    else:
+                        itemID = random.choice(validItems)
                     if itemID in numbers.ITEM_QUANTITY_LIMITS.keys():
                         items.append(Reward_Item(itemID,amount = min(itemAmount, numbers.ITEM_QUANTITY_LIMITS[itemID])))
                     else:
@@ -4235,10 +4284,10 @@ class Randomizer:
                 #until average is in defined range
                 if average > avgMax:
                     #reduce maximum modififer for stat
-                    ranges[index][1] = min(math.floor(randomNumbers[index] * 1000 -10),ogRanges[index][1])
+                    ranges[index][1] = max(min(math.floor(randomNumbers[index] * 1000 -10),ogRanges[index][1]),ogRanges[index][0] +1)
                 else:
                     #increase minimum modifier for stat
-                    ranges[index][0] = max(math.ceil(randomNumbers[index] * 1000 +10),ogRanges[index][0])
+                    ranges[index][0] = min(max(math.ceil(randomNumbers[index] * 1000 +10),ogRanges[index][0]),ogRanges[index][1] -1)
                 randomNumbers[index] = random.randrange(ranges[index][0],ranges[index][1]) / 1000
                 average = averageCalc()
                 if index < 6:
