@@ -18,6 +18,7 @@ M016_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M016'
 M035_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M035' 
 M036_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M036'
 M030_FOLDER =  'rando/Project/Content/Blueprints/Event/Script/SubMission/M030'
+SHOP_EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/ShopEvent'
 
 #Key: EventScriptName, Value: List(Numbers) byte offsets where demon join is decided/checked
 SCRIPT_JOIN_BYTES = {
@@ -109,10 +110,12 @@ SCRIPT_FOLDERS = {
     'MM_M063_EM2170': M063_FOLDER # Guardian of Tokyo
 }
 
+
 '''
 Randomizes free demon joins based on the original joins level by adjusting the values in the corresponding event scripts.
 Parameters:
     comp List(Compendium_Demon): list of all playable demons
+    randomDemons (Boolean): whether to randomize the demon joins or set them to vanilla
 '''
 def randomizeDemonJoins(comp, randomDemons):
     writeFolder(EVENT_FOLDER)
@@ -169,9 +172,31 @@ def randomizeDemonJoins(comp, randomDemons):
 
         writeBinaryTable(scriptData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
 
-'''
-TODO: Function that (over)writes the output files in case demon joins are not randomized.
-'''
+
+def adjustFirstMimanEventReward(config, compendium, itemNames):
+    scriptData = readBinaryTable('base/Scripts/ShopEvent/BP_ShopEvent.uexp')
+    byteList = [14113, 26035, 11754, 14361,14407, 21063,21109]
+
+    essenceID = 496 #Onmorakis Essence
+    onmorakiLevel = 4
+    if config.randomizeMimanRewards and not config.scaleItemsToArea:
+        validEssences = []
+        for itemID, itemName in enumerate(itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName:
+                validEssences.append(itemID)
+        essenceID = random.choice(validEssences)
+    elif (config.randomDemonLevels or config.randomizeMimanRewards) and config.scaleItemsToArea:
+        essenceNames = [demon.name + "'s Essence" for demon in compendium if demon not in numbers.BAD_IDS and 'Mitama' not in demon.name and demon.level.value == onmorakiLevel]
+        validEssences = []
+        for itemID, itemName in enumerate(itemNames): 
+            if itemName in essenceNames:
+                validEssences.append(itemID)
+        essenceID = random.choice(validEssences)
+
+    for byte in byteList:
+        scriptData.writeHalfword(essenceID, byte)
+    
+    writeBinaryTable(scriptData.buffer, SHOP_EVENT_FOLDER + '/BP_ShopEvent.uexp', SHOP_EVENT_FOLDER)
 
 '''
 Reads a file containing game data into a Table with a bytearray

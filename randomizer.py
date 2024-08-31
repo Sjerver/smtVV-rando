@@ -13,7 +13,7 @@ from base_classes.quests import Mission, Mission_Reward, Mission_Condition
 from base_classes.settings import Settings
 from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
-import base_classes.script_join as scriptJoin
+import base_classes.script_logic as scriptLogic
 import util.numbers as numbers
 import util.paths as paths
 import util.translation as translation
@@ -4045,11 +4045,18 @@ class Randomizer:
                 chest.macca = macca
             else: #Chest will contain an item or essence
                 if random.random() < numbers.CHEST_ESSENCE_ODDS:
-                    if scaling: #Scaling chooses essence dependent on map
+                    if scaling and len(validEssences[chest.map]) > 1 : #Scaling chooses essence dependent on map
                         itemID = random.choice(validEssences[chest.map])
                         if itemID in validEssences[chest.map]:
                             #remove essence as valid choice for this map (not other maps to make sure Chiyoda/Shinjuku have enough Essences available)
                             validEssences[chest.map].remove(itemID)
+                    elif scaling: #if no essence are available
+                        emergencyEssences = []
+                        currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[chest.map][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[chest.map][1]]
+                        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in emergencyEssences[chest.map] and itemName in currentDemonNames:
+                                emergencyEssences[chest.map].append(itemID)
+                        itemID = random.choice(emergencyEssences[chest.map])
                     else:  
                         itemID = random.choice(validEssences)
                         validEssences.remove(itemID) #Limit 1 chest per essence for diversity
@@ -5559,7 +5566,7 @@ class Randomizer:
         if config.randomAlignment:
             self.randomizeDemonAlignment(self.compendiumArr)
 
-        scriptJoin.randomizeDemonJoins(self.compendiumArr,config.ensureDemonJoinLevel)
+        scriptLogic.randomizeDemonJoins(self.compendiumArr,config.ensureDemonJoinLevel)
             
         if config.randomChests:
             self.randomizeChests(self.configSettings.scaleItemsToArea)
@@ -5569,6 +5576,8 @@ class Randomizer:
         
         if(self.configSettings.randomizeMimanRewards):
             self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea)
+        
+        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames)   
 
         if self.configSettings.randomizeMissionRewards:
             self.randomizeMissionRewards(self.configSettings.scaleItemsToArea)
