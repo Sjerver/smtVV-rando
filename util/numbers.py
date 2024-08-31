@@ -214,6 +214,7 @@ DEMON_MP_MOD_RANGE = [666,1400]
 #Range for the modifiers of demons stats in comparison to nahobino at the same level. Multiplied by 1000
 DEMON_STAT_MOD_RANGE = [500,2000]
 
+#Predefines progression points from which items can show up
 CONSUMABLE_PROGRESSION = {
   0: [1,2,4,7,59,61,63,64,65,66,67,68,72,82,83,109,111,113,91,92,93,94,95,96,97], 
     #Universal: Life Stone, Chakra Drop, Bead, Revival Bead, Gold Card, Smoke Ball, Dampeners, Attract Pipe, Gospel, Grimoire, Small Glory Crystals, Simple Demon Box, New Testament Tablet, Incenses,
@@ -224,6 +225,7 @@ CONSUMABLE_PROGRESSION = {
   4: [10,112,84,85,86,87,88,89,90,110,14], #Post Shinagawa: Amrita Shower, Lavish Demon Box, Stat Balms, Large Glory Crystal, Muscle Drink,
 }
 
+#Defines which items should be available in each area based on progression points
 CONSUMABLE_MAP_SCALING = {
   60: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] + CONSUMABLE_PROGRESSION[3] + CONSUMABLE_PROGRESSION[4] + [13], #Taito: Ambrosia,
   61: CONSUMABLE_PROGRESSION[0] +CONSUMABLE_PROGRESSION[2] + [9,11], #Minato: Amrita Soda, Medicine, 
@@ -237,7 +239,8 @@ CONSUMABLE_MAP_SCALING = {
   107: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] +CONSUMABLE_PROGRESSION[4]+ CONSUMABLE_PROGRESSION[3] +[], #Demi-Fiend Area: same as Empyrean
 }
 
-# [Min,Max] based on base game (Excluding Outliers: Alice in Taito and Odaiba Essences in Minato)
+# Describes what level essences rewards can be in areas
+# [Min,Max] level based on base game (Excluding Outliers: Alice in Taito and Odaiba Essences in Minato)
 ESSENCE_MAP_SCALING = {
   60: [52,71], #Taito
   61: [1,24], #Minato
@@ -251,6 +254,7 @@ ESSENCE_MAP_SCALING = {
   107: [86,95], #Demi-Fiend Area: same as Empyrean
 }
 
+#Defines the missions that are scaled on the area
 REWARD_AREA_MISSIONS = {
   16: [47,52,53,54,55,188,190,51,50],
   35: [81,95],
@@ -264,6 +268,7 @@ REWARD_AREA_MISSIONS = {
   107: [84]
 }
 
+#Defines the amount of macca missions can reward in an area
 MISSION_REWARD_AREA_MACCA_RANGES = {
     16: [120000, 180000],# 30k around The Compassionate Queen and duplicates
     35: [25000, 85000], #Same as Taito
@@ -277,6 +282,7 @@ MISSION_REWARD_AREA_MACCA_RANGES = {
     107: [666666,666666] #Return of True Demon
 }
 
+#Defines the amount of macca chest can contain in an area
 CHEST_AREA_MACCA_RANGES = {
     16: [50000, 60000], #same as taito
     35: [50000, 60000], #same as taito
@@ -291,6 +297,7 @@ CHEST_AREA_MACCA_RANGES = {
 
 }
 
+#Odds that the first drop of an enemy is a lifestone
 DROP1_LIFESTONE_ODDS = 0.97
 
 #The area each basic enemy is balanced around
@@ -301,6 +308,7 @@ ENCOUNTER_LEVEL_AREAS = [61,61,61,61,61,61,61,61,61,61,61,61,61,61,61,61,61,61, 
                             60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60, #Taito 53 - 71
                             35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35] # Temple of Eternity 72 - 99
 
+#Defines which shop slots unlock in which area
 AREA_SHOP_UNLOCKS= {
     61: [0,2,5,12,13,14,15,16,17,20,21,22,23,24,25,26],
     62: [1,28],
@@ -310,6 +318,9 @@ AREA_SHOP_UNLOCKS= {
     16: [30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51], #Also includes godborn unlocks
 }
 
+'''
+Returns dictionary lining out to which reward are each shop slot belongs
+'''
 def getShopUnlockAreas():
     shopUnlockArea = {}
     for key in AREA_SHOP_UNLOCKS.keys():

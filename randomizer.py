@@ -4007,18 +4007,20 @@ class Randomizer:
         return encountArr
 
     '''
-    Randomizes chest rewards including items, essences, and macca
-    TODO: Add option to scale rewards based on map
+    Randomizes chest rewards including items, essences, and macca.
+        Parameters:
+            scaling (Boolean): Whether the rewards scale to the map the chest is in.
     '''
     def randomizeChests(self, scaling):
         validItems = []
         validEssences = []
-        if scaling:
+        if scaling: #Valid Rewards are dependent on map
             validItems = {}
             validEssences = {}
-            for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
-                validItems[key] = value
+            for key, value in numbers.CONSUMABLE_MAP_SCALING.items(): #Go through maps and valid items per map
+                validItems[key] = value #Copy valid items per map 
                 validEssences[key] = []
+                #Gather all essences of dmeons in the level range for the map
                 currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[key][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[key][1]]
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
                     if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences[key] and itemName in currentDemonNames:
@@ -4034,7 +4036,7 @@ class Randomizer:
             if (chest.item.value == 0 and chest.macca == 0) or chest.item.value >= numbers.KEY_ITEM_CUTOFF: #Skip unused chests and key item 'chests'
                 continue
             if random.random() < numbers.CHEST_MACCA_ODDS: #Chest will contain macca
-                if scaling:
+                if scaling: #Scaling makes macca range dependent on map
                     macca = random.randint(numbers.CHEST_AREA_MACCA_RANGES[chest.map][0] // 100, numbers.CHEST_AREA_MACCA_RANGES[chest.map][1] // 100) * 100 
                 else:
                     macca = random.randint(numbers.CHEST_MACCA_MIN // 100, numbers.CHEST_MACCA_MAX // 100) * 100 #Completely random macca amount in increments of 100
@@ -4043,17 +4045,17 @@ class Randomizer:
                 chest.macca = macca
             else: #Chest will contain an item or essence
                 if random.random() < numbers.CHEST_ESSENCE_ODDS:
-                    if scaling:
+                    if scaling: #Scaling chooses essence dependent on map
                         itemID = random.choice(validEssences[chest.map])
                         if itemID in validEssences[chest.map]:
+                            #remove essence as valid choice for this map (not other maps to make sure Chiyoda/Shinjuku have enough Essences available)
                             validEssences[chest.map].remove(itemID)
                     else:  
                         itemID = random.choice(validEssences)
                         validEssences.remove(itemID) #Limit 1 chest per essence for diversity
-                    amount = 1
-                    
+                    amount = 1            
                 else:
-                    if scaling:
+                    if scaling:#Scaling makes item dependent on map
                         itemID = random.choice(validItems[chest.map])
                     else:
                         itemID = random.choice(validItems)
@@ -4069,17 +4071,16 @@ class Randomizer:
     Randomizes all non essence non dampener items in Gustave's Shop.
         Parameters:
             scaling (Boolean): whether the item should be scaled to the area where they unlock
-    #TODO: SCALING comments
     '''
     def randomizeShopItems(self, scaling):
         dampeners = [63,64,65,66,67,68] #Elemental Dampeners stay the same
         itemsInShop = [] + dampeners
         validItems = []
 
-        if scaling:
-            slotRewardAreas = numbers.getShopUnlockAreas()
+        if scaling: #Scale Rewards per map
+            slotRewardAreas = numbers.getShopUnlockAreas() #To know which map the shop slot should scale with
             validItems = {}
-            for key in numbers.AREA_SHOP_UNLOCKS:
+            for key in numbers.AREA_SHOP_UNLOCKS: #Copy item list of map, because we need to remove items already in shop
                 validItems[key] = copy.deepcopy(numbers.CONSUMABLE_MAP_SCALING[key])
         else:
             for itemID, itemName in enumerate(self.itemNames): 
@@ -4087,8 +4088,8 @@ class Randomizer:
                     validItems.append(itemID)
     	
         #remove dampeners from valid item list
-        if scaling:
-            for key in validItems.keys():
+        if scaling: #Remove dampeners from all lists of valid items per area
+            for key in validItems.keys(): 
                 for item in itemsInShop:
                     if item in validItems[key]:
                         validItems[key].remove(item)
@@ -4107,7 +4108,7 @@ class Randomizer:
             item = Translated_Value(itemID, self.itemNames[itemID])
             entry.item = item
             itemsInShop.append(itemID)
-            if scaling:
+            if scaling: #remove item from all map lists
                 for key in validItems.keys():
                     if itemID in validItems[key]:
                         validItems[key].remove(itemID)
@@ -4119,7 +4120,6 @@ class Randomizer:
     Randomizes the rewards for collecting Miman. Talismans are shuffled, and all else is replaced with a random number and amount of items.
         Parameters:
             scaling (Boolean): Whether the items are scaled per area
-    #TODO: Scaling comments
     '''
     def randomizeMimanRewards(self, scaling):
         validItems = []
@@ -4151,16 +4151,16 @@ class Randomizer:
         #
         for index,reward in enumerate(shuffledRewards):
             if scaling:
-                areaChoices = [61,62,63,60]
-                rewardArea = areaChoices[index // 10]
+                areaChoices = [61,62,63,60] #Minato, Shinagawa, Chiyoda(same rewards list as Shinjuku), Taito
+                rewardArea = areaChoices[index // 10] #10 miman rewards per area
             items = []
             if reward.items[0].item >= numbers.KEY_ITEM_CUTOFF: #key items (talismans)
                 items.append(reward.items[0])
             elif random.random() < numbers.MIMAN_ESSENCE_ODDS:
-                if scaling:
+                if scaling: 
                     itemID = random.choice(validEssences[rewardArea])
                     for key in validEssences.keys():
-                        if itemID in validEssences[key]:
+                        if itemID in validEssences[key]: #Remove essence from all applicable pools
                             validEssences[key].remove(itemID)
                 else:
                     itemID = random.choice(validEssences)
@@ -4172,7 +4172,7 @@ class Randomizer:
                 itemAmount = random.choices(list(numbers.MIMAN_ITEM_AMOUNT_WEIGHTS.keys()),list(numbers.MIMAN_ITEM_AMOUNT_WEIGHTS.values()))[0]
                 for _ in range(itemNumber):
                     #decide amount per item
-                    if scaling:
+                    if scaling: #scaling depends on area item list
                         itemID = random.choice(validItems[rewardArea])
                     else:
                         itemID = random.choice(validItems)
@@ -4190,28 +4190,28 @@ class Randomizer:
 
     '''
     Randomizes the rewards of all missions that usually have rewards. Reusable consumable items and key items are classified as unique rewards, and are shuffled around, while all other rewards are completely random.
-    TODO: Scaling
     TODO: Bonus Rewards in Scripts?
     '''
     def randomizeMissionRewards(self, scaling):
         validItems = []
         validEssences = []
         
-        if scaling:
+        if scaling: #Rewards scale with map
             validItems = {}
             validEssences = {}
             for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
-                validItems[key] = value
-            missionRewardAreas = {}
+                validItems[key] = value #Item list is defined per area
+            missionRewardAreas = {} #Dictionary to know which area should be used to scale the a missions reward
             for key, value in numbers.REWARD_AREA_MISSIONS.items():
                 for id in value:
-                    missionRewardAreas[id] = key
+                    missionRewardAreas[id] = key #Turn this into MissionID -> MapID, for easier use
                 validEssences[key] = []
+                #Grab all essences in the predefined level range for the area
                 currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[key][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[key][1]]
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
                     if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences[key] and itemName in currentDemonNames:
                         validEssences[key].append(itemID)
-        else:
+        else: #Rewards do not scale with map
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
                 if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
                     validEssences.append(itemID)
@@ -4233,10 +4233,10 @@ class Randomizer:
             mission.macca = 0
             mission.reward = uniqueRewards[index]
         for mission in rewardingMissions:
-            if scaling:
+            if scaling: #Set area if reward should scale
                 rewardArea = missionRewardAreas[mission.ind]
             if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.REPEAT_MISSIONS: #repeat missions should not have macca
-                if scaling:
+                if scaling: #Scaled macca ranges depend on area
                     macca = random.randint(numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][0] // 100, numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][1] // 100) *100
                 else:
                     macca = random.randint(numbers.MISSION_MACCA_MIN // 100, numbers.MISSION_MACCA_MAX // 100) *100#Completely random macca amount in increments of 100
@@ -4244,10 +4244,10 @@ class Randomizer:
                 mission.reward.amount = 0
                 mission.macca = macca
             elif random.random() < numbers.MISSION_ESSENCE_ODDS:
-                if scaling:
+                if scaling: #scaled essences depend on area
                     itemID = random.choice(validEssences[rewardArea])
                     for value in validEssences.values():
-                        if itemID in value:
+                        if itemID in value: #remove essence from all applicable areas
                             value.remove(itemID)
                 else:  
                     itemID = random.choice(validEssences)
@@ -4257,7 +4257,7 @@ class Randomizer:
                 mission.reward.amount = amount
                 mission.macca =0
             else: #no essence and no macca means consumable item
-                if scaling:
+                if scaling: #scaled items depend on area
                     itemID = random.choice(validItems[rewardArea])
                 else:
                     itemID = random.choice(validItems)
@@ -4277,15 +4277,14 @@ class Randomizer:
     Randomizes the drops of basic enemies, excluding key items and essences.
         Parameters:
             scaling (Boolean): whether the items are scaled to the level of the encounter
-    #TODO: Scaling
     '''
     def randomizeBasicEnemyDrops(self, scaling):
         validItems = []
-        if scaling:
+        if scaling: #Rewards should scale on area
             validItems = {}
             for key, values in numbers.CONSUMABLE_MAP_SCALING.items():
                 validItems[key] = values
-        else:
+        else: #Rewards are truly random
             for itemID, itemName in enumerate(self.itemNames): 
                 if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
@@ -4293,12 +4292,12 @@ class Randomizer:
         #Gather all non mitama basic enemies with drops
         dropEnemies = list(filter(lambda e: 'Mitama' not in e.name and e.drops.item1.value > 0, self.enemyArr))
 
-        for enemy in dropEnemies:
+        for enemy in dropEnemies: #For all enemies
             drop = enemy.drops
-            if scaling:
-                rewardArea = numbers.ENCOUNTER_LEVEL_AREAS[enemy.level]
-                if drop.item1.value < numbers.CONSUMABLE_ITEM_COUNT:
-                    if random.random() < numbers.DROP1_LIFESTONE_ODDS:
+            if scaling: #Drops should scale based on area
+                rewardArea = numbers.ENCOUNTER_LEVEL_AREAS[enemy.level] #Area to scale rewards with
+                if drop.item1.value < numbers.CONSUMABLE_ITEM_COUNT: 
+                    if random.random() < numbers.DROP1_LIFESTONE_ODDS: #First Drop has a chance to be forced life stone as per original game
                         drop.item1.value = 1
                     else:
                         drop.item1.value = random.choice(validItems[rewardArea])
@@ -4309,7 +4308,7 @@ class Randomizer:
                 if drop.item3.value < numbers.CONSUMABLE_ITEM_COUNT:
                     drop.item1.value = random.choice(validItems[rewardArea])
                     drop.item3.chance = random.randrange(3,12)
-            else:
+            else: #non scaling random drops
                 #Edit all drops that are not key items or essences
                 if drop.item1.value < numbers.CONSUMABLE_ITEM_COUNT:
                     drop.item1.value = random.choice(validItems)
@@ -4467,7 +4466,6 @@ class Randomizer:
 
     '''
     Adjusts the essence in the shop to demons of the same level as the original.
-    #TODO: Implement non scaling version
         Parameters:
             shop (Array(Shop_Entry)) shop entry array
             essences (Array(Essence)) essence array containing price and demon information
