@@ -4171,26 +4171,55 @@ class Randomizer:
                 self.missionArr[duplicateID].reward.amount = self.missionArr[missionID].reward.amount
                 self.missionArr[duplicateID].macca = self.missionArr[missionID].macca
     
+    '''
+    Randomizes the drops of basic enemies, excluding key items and essences.
+        Parameters:
+            scaling (Boolean): whether the items are scaled to the level of the encounter
+    #TODO: Scaling
+    '''
+    def randomizeBasicEnemyDrops(self, scaling):
+        validItems = []
+        for itemID, itemName in enumerate(self.itemNames): 
+            if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                validItems.append(itemID)
+
+        #Gather all non mitama basic enemies with drops
+        dropEnemies = list(filter(lambda e: 'Mitama' not in e.name and e.drops.item1.value > 0, self.enemyArr))
+
+        for enemy in dropEnemies:
+            drop = enemy.drops
+            #Edit all drops that are not key items or essences
+            if drop.item1.value < numbers.CONSUMABLE_ITEM_COUNT:
+                drop.item1.value = random.choice(validItems)
+                drop.item1.chance = random.randrange(3,12)
+            if drop.item2.value < numbers.CONSUMABLE_ITEM_COUNT:
+                drop.item2.value = random.choice(validItems)
+                drop.item2.chance = random.randrange(3,12)
+            if drop.item3.value < numbers.CONSUMABLE_ITEM_COUNT:
+                drop.item3.value = random.choice(validItems)
+                drop.item3.chance = random.randrange(3,12) 
+
+    '''
+    Randomizes the stats of normal demons.
+    '''
     def randomizeDemonStats(self):
         for demon in self.compendiumArr:
             if 'Mitama' in demon.name:
+                #do not randomize mitama stats
                 continue
             nahoLevel = self.nahobino.stats[demon.level.value]
-            avgMin = 0.96 #Girimekhalas Stat Mod Average
-            avgMax = 1.35 #Pixies Stat Mod Average
-
+            avgMin = 0.96 #Girimekhalas Stat Mod Average, lowest of normal demons
+            avgMax = 1.35 #Pixies Stat Mod Average, highest of normal demons
             
             def averageCalc():
                 sum = 0
                 for n in randomNumbers: sum += n
                 return sum/len(randomNumbers)
             
-            hpList = [650,1200]
-            mpList = [666,1400]
-            otherList = [500,2000]
-            ranges = [hpList,mpList, otherList, copy.deepcopy(otherList),copy.deepcopy(otherList),copy.deepcopy(otherList),copy.deepcopy(otherList)]
-            ogRanges = copy.deepcopy(ranges)
+            ogRanges = [numbers.DEMON_HP_MOD_RANGE,numbers.DEMON_MP_MOD_RANGE, numbers.DEMON_STAT_MOD_RANGE, copy.deepcopy(numbers.DEMON_STAT_MOD_RANGE),copy.deepcopy(numbers.DEMON_STAT_MOD_RANGE),copy.deepcopy(numbers.DEMON_STAT_MOD_RANGE),copy.deepcopy(numbers.DEMON_STAT_MOD_RANGE)]
+            ranges = copy.deepcopy(ogRanges)
             
+            #initialize random numbers
             randomNumbers = [
                 random.randrange(ranges[0][0],ranges[0][1]) / 1000, #HP 
                 random.randrange(ranges[1][0],ranges[1][1]) / 1000, #MP
@@ -4201,11 +4230,14 @@ class Randomizer:
                 random.randrange(ranges[6][0],ranges[6][1]) / 1000 #Luk
             ]
             average = averageCalc()
-            index = random.randrange(0,6)
+            index = random.randrange(0,6) #initialize random index to start stat ajustment with a random stat
             while not (avgMax >= average and avgMin <= average):
+                #until average is in defined range
                 if average > avgMax:
+                    #reduce maximum modififer for stat
                     ranges[index][1] = min(math.floor(randomNumbers[index] * 1000 -10),ogRanges[index][1])
                 else:
+                    #increase minimum modifier for stat
                     ranges[index][0] = max(math.ceil(randomNumbers[index] * 1000 +10),ogRanges[index][0])
                 randomNumbers[index] = random.randrange(ranges[index][0],ranges[index][1]) / 1000
                 average = averageCalc()
@@ -5420,6 +5452,10 @@ class Randomizer:
 
         if self.configSettings.randomizeMissionRewards:
             self.randomizeMissionRewards(self.configSettings.scaleItemsToArea)
+        
+        if self.configSettings.randomEnemyDrops:
+            self.randomizeBasicEnemyDrops(self.configSettings.scaleItemsToArea)
+            #TODO: Boss Drops
 
         self.patchTutorialDaemon()
         self.patchYuzuruGLStats(compendiumBuffer)
