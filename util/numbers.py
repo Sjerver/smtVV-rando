@@ -268,13 +268,27 @@ MISSION_REWARD_AREA_MACCA_RANGES = {
     16: [120000, 180000],# 30k around The Compassionate Queen and duplicates
     35: [25000, 85000], #Same as Taito
     36: [22000, 25000], #Defeat the Demon King's Armies ,Chase Through Shakan
-    38: [22000, 25000], #Sa,e as above
+    38: [22000, 25000], #Same as above
     60: [25000, 85000],#Escort the Prime Minister ,To The Empyrean
     61: [2000, 7500], #Half of Shinagawa
     62: [4000, 15000], #Jojozi Temple, Eliminate Lahmu
     63: [6000, 22000], #Investigate Anomalies in Tokyo, Defeat the Demon King's Armies
     64: [6000, 22000], #Same as Chiyoda
-    107: [666666] #Return of True Demon
+    107: [666666,666666] #Return of True Demon
+}
+
+CHEST_AREA_MACCA_RANGES = {
+    16: [50000, 60000], #same as taito
+    35: [50000, 60000], #same as taito
+    36: [20000, 40000],
+    38: [30000, 40000],
+    60: [50000, 60000],
+    61: [500, 2000],
+    62: [5000, 10000], 
+    63: [6000, 22000], 
+    64: [10000, 20000], 
+    107: [50000, 60000] #same as taito
+
 }
 
 DROP1_LIFESTONE_ODDS = 0.97

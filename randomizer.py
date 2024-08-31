@@ -4010,30 +4010,53 @@ class Randomizer:
     Randomizes chest rewards including items, essences, and macca
     TODO: Add option to scale rewards based on map
     '''
-    def randomizeChests(self):
+    def randomizeChests(self, scaling):
         validItems = []
         validEssences = []
-        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
-                validEssences.append(itemID)
-            elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                validItems.append(itemID)
+        if scaling:
+            validItems = {}
+            validEssences = {}
+            for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
+                validItems[key] = value
+                validEssences[key] = []
+                currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[key][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[key][1]]
+                for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                    if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences[key] and itemName in currentDemonNames:
+                        validEssences[key].append(itemID)
+        else:
+            for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+                    validEssences.append(itemID)
+                elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                    validItems.append(itemID)
                 
         for chest in self.chestArr:
             if (chest.item.value == 0 and chest.macca == 0) or chest.item.value >= numbers.KEY_ITEM_CUTOFF: #Skip unused chests and key item 'chests'
                 continue
             if random.random() < numbers.CHEST_MACCA_ODDS: #Chest will contain macca
-                macca = random.randint(numbers.CHEST_MACCA_MIN // 100, numbers.CHEST_MACCA_MAX // 100) * 100 #Completely random macca amount in increments of 100
+                if scaling:
+                    macca = random.randint(numbers.CHEST_AREA_MACCA_RANGES[chest.map][0] // 100, numbers.CHEST_AREA_MACCA_RANGES[chest.map][1] // 100) * 100 
+                else:
+                    macca = random.randint(numbers.CHEST_MACCA_MIN // 100, numbers.CHEST_MACCA_MAX // 100) * 100 #Completely random macca amount in increments of 100
                 chest.item = Translated_Value(0, self.itemNames[0])
                 chest.amount = 0
                 chest.macca = macca
             else: #Chest will contain an item or essence
                 if random.random() < numbers.CHEST_ESSENCE_ODDS:
-                    itemID = random.choice(validEssences)
+                    if scaling:
+                        itemID = random.choice(validEssences[chest.map])
+                        if itemID in validEssences[chest.map]:
+                            validEssences[chest.map].remove(itemID)
+                    else:  
+                        itemID = random.choice(validEssences)
+                        validEssences.remove(itemID) #Limit 1 chest per essence for diversity
                     amount = 1
-                    validEssences.remove(itemID) #Limit 1 chest per essence for diversity
+                    
                 else:
-                    itemID = random.choice(validItems)
+                    if scaling:
+                        itemID = random.choice(validItems[chest.map])
+                    else:
+                        itemID = random.choice(validItems)
                     amount = random.choices(list(numbers.CHEST_QUANTITY_WEIGHTS.keys()), list(numbers.CHEST_QUANTITY_WEIGHTS.values()))[0]
                 item = Translated_Value(itemID, self.itemNames[itemID])
                 if item.value in numbers.ITEM_QUANTITY_LIMITS.keys():
@@ -5541,7 +5564,7 @@ class Randomizer:
         scriptJoin.randomizeDemonJoins(self.compendiumArr,config.ensureDemonJoinLevel)
             
         if config.randomChests:
-            self.randomizeChests()
+            self.randomizeChests(self.configSettings.scaleItemsToArea)
         
         if self.configSettings.randomShopItems:
             self.randomizeShopItems(self.configSettings.scaleItemsToArea)
