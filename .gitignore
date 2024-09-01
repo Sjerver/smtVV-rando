@@ -3,11 +3,9 @@
 # misc
 ~mods.lnk
 .txt
-*.bat
 .pak
 .exe
 filelist.txt
-UnrealPak.exe
 config.ini
 *.pyc
 /.vscode
