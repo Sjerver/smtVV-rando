@@ -3772,8 +3772,17 @@ class Randomizer:
                     miracleList.append(miracle)
             rewardCounts.append(rewardCount)
             abscessMiracleList.append(abscess.miracles)
+        for miracle in numbers.STARTING_MIRACLES:
+            miracleList.append(miracle)
+        newStartingMiracles = []
+        for miracle in numbers.REQUIRED_EARLY_MIRACLES: #For now, force 'important' miracles to be in the starting list
+            if len(newStartingMiracles) >= len(numbers.STARTING_MIRACLES):
+                print("Warning: More early miracles defined than can be starting miracles")
+                break
+            newStartingMiracles.append(miracle)
+            miracleList.remove(miracle)
         shuffledMiracles = sorted(miracleList, key=lambda x: random.random())
-        #print(shuffledMiracles)
+        
         for dependentMiracles in numbers.MIRACLE_DEPENDENCIES: #For progressive miracles put them in order
             indices = []
             unused = []
@@ -3791,7 +3800,8 @@ class Randomizer:
             indices.sort()
             for smallIndex, largeIndex in enumerate(indices):
                 shuffledMiracles[largeIndex] = dependentMiracles[smallIndex]
-        #print(shuffledMiracles)
+        while len(newStartingMiracles) < len(numbers.STARTING_MIRACLES): #Create the starting miracle list after sorting dependant miracles
+            newStartingMiracles.append(shuffledMiracles.pop(0))
 
         #Add a deepcopy if we add a dedicated miracle class
         abscessIndex = 0
@@ -3803,20 +3813,21 @@ class Randomizer:
             rewardCounts[abscessIndex] = rewardCounts[abscessIndex] - 1
             self.abscessArr[abscessIndex].miracles[miracleIndex] = miracle
             miracleIndex += 1
+        print(rewardCounts)
             
         #Sync miracles between area 3 abscesses
         for originalAbscess, duplicateAbscess in duplicateAbscesses.items():
             self.abscessArr[duplicateAbscess].miracles = self.abscessArr[originalAbscess].miracles
             
         if self.configSettings.randomMiracleCosts:
-            self.randomizeMiracleCosts(originalAbscessArr=vanillaAbscessArr)
+            self.randomizeMiracleCosts(originalAbscessArr=vanillaAbscessArr, startingMiracles=newStartingMiracles)
             
     '''
     Randomizes the cost of miracles constrained by the highest miracle cost seen by this point in the game
         Parameters:
             originalAbscessArr (List(Abscess)): The list of abscesses containing miracle rewards in vanilla in the event that miracle rewards were randomized
     '''
-    def randomizeMiracleCosts(self, originalAbscessArr = None):
+    def randomizeMiracleCosts(self, originalAbscessArr = None, startingMiracles = numbers.STARTING_MIRACLES):
         if not originalAbscessArr:
             originalAbscessArr = self.abscessArr
             
@@ -3824,7 +3835,7 @@ class Randomizer:
         minimumCost = 5 // 5 #Miracle costs are in increments of 5 so we'll work in the base unit and multiply back up at the end
         maximumCost = 35 // 5
         
-        for startingMiracleIndex in numbers.STARTING_MIRACLES: #Update starting miracle costs
+        for startingMiracleIndex in startingMiracles: #Update starting miracle costs
             self.miracleArr[startingMiracleIndex].cost = random.randint(minimumCost, maximumCost) * 5
             
         for abscessIndex, originalAbscess in enumerate(originalAbscessArr):

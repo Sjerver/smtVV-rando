@@ -55,6 +55,9 @@ MIRACLE_DEPENDENCIES = [
 #IDs of miracles obtained when you first unlock the cathedral of shadows
 STARTING_MIRACLES = [13, 27, 49, 75, 80, 85, 90]
 
+#IDs of miracles that should be given to the player early (just Divine amalgamation for now, could consider 32 art of essences 1)
+REQUIRED_EARLY_MIRACLES = [117]
+
 TUTORIAL_DAEMON_ID = 430
 
 FIRST_GUEST_YUZURU_ID = 1150
