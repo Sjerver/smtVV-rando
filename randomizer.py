@@ -5407,6 +5407,17 @@ class Randomizer:
             self.nahobino.stats[index] = LevelStats(index,999,999,99,99,99,99,99)
 
     '''
+        Compresses the output files using Unreal Pak into rando.pak
+        TODO: Determine if this works for non-windows systems
+    '''
+    def applyUnrealPak(self):
+        try:
+            os.chdir(paths.UNREAL_PAK_FOLDER)
+            os.system(paths.UNREAL_PAK_FILE_NAME + ' ' + paths.OUTPUT_FOLDER_RELATIVE_TO_UNREAL_PAK)
+        except:
+            print('Automatic Unreal Pak not supported for this system, please manually apply Unreal Pak to "rando" folder')
+
+    '''
         Executes the full randomization process including level randomization.
         Parameters:
             config (Settings) 
@@ -5675,6 +5686,8 @@ class Randomizer:
         self.writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
         
         self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        
+        self.applyUnrealPak()
 
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.
