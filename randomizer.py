@@ -3813,7 +3813,7 @@ class Randomizer:
             rewardCounts[abscessIndex] = rewardCounts[abscessIndex] - 1
             self.abscessArr[abscessIndex].miracles[miracleIndex] = miracle
             miracleIndex += 1
-        print(rewardCounts)
+        #print(rewardCounts)
             
         #Sync miracles between area 3 abscesses
         for originalAbscess, duplicateAbscess in duplicateAbscesses.items():
@@ -5609,7 +5609,7 @@ class Randomizer:
             #TODO: Boss Drops
 
         self.patchTutorialDaemon()
-        self.patchYuzuruGLStats(compendiumBuffer)
+        
         #self.patchHornOfPlenty()
         #self.patchGirisHead()
         #self.patchHorusHead()
@@ -5630,6 +5630,7 @@ class Randomizer:
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, newComp)
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, self.playerBossArr[numbers.NORMAL_ENEMY_COUNT:])
+        self.patchYuzuruGLStats(compendiumBuffer)
         skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr)
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
         normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
