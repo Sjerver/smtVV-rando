@@ -70,6 +70,16 @@ CHEST_MACCA_ODDS = 0.035
 #Chance of a chest containing an essence instead of an item
 CHEST_ESSENCE_ODDS = 0.42
 
+#Chance that a boss demon will drop their essence
+BOSS_ESSENCE_ODDS = 0.30
+
+#Odds that a boss will drop 1, 2, or 3 items
+BOSS_DROP_QUANTITY_WEIGHTS = {
+    1: 133,
+    2: 54,
+    3: 12
+}
+
 #Items that have a bag limit of less than 10, excluding essences
 ITEM_QUANTITY_LIMITS = {
     60: 1, #Whittled Goat

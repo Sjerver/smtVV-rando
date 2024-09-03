@@ -360,6 +360,7 @@ TODO: Handle duplicate Abscesses
         encountArr (List(Encounter)): The list of normal encounters containing bosses from Abscesses and Punishing Foes
         bossDuplicateMap (Dict(int, int)): A dict that maps duplicate encounters to their original version
         configSettings (Settings): Settings determining what types of bosses should be randomized
+        validBossDemons (Set): Set of boss demon IDs that will be used for things like item drop randomization
     Returns:
         A List of lists containing deep copied Mixed Boss Encounters to randomize
 '''

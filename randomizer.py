@@ -1,6 +1,3 @@
-from fnmatch import translate
-from multiprocessing import Value
-from multiprocessing.reduction import duplicate
 from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
@@ -76,6 +73,8 @@ class Randomizer:
         self.chestArr = []
         self.mapSymbolArr = []
         self.bossSymbolReplacementMap = {}
+        self.validBossDemons = set()
+        self.essenceBannedBosses = set()
 
         self.nahobino = Nahobino()
         
@@ -4370,6 +4369,123 @@ class Randomizer:
                 if drop.item3.value < numbers.CONSUMABLE_ITEM_COUNT:
                     drop.item3.value = random.choice(validItems)
                     drop.item3.chance = random.randrange(3,12) 
+                    
+    '''
+    Randomizes the drops of bosses, excluding key items.
+        Parameters:
+            scaling (Boolean): whether the items are scaled to the level of the encounter
+    '''
+    def randomizeBossDrops(self, scaling):
+        validItems = []
+        if scaling: #Rewards should scale on area
+            validItems = {}
+            for key, values in numbers.CONSUMABLE_MAP_SCALING.items():
+                validItems[key] = values
+        else: #Rewards are truly random
+            for itemID, itemName in enumerate(self.itemNames): 
+                if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                    validItems.append(itemID)
+
+        for demonID in self.validBossDemons: #For all bosses
+            enemy = self.bossArr[demonID]
+            drop = enemy.drops
+            if drop.item1.value >= numbers.KEY_ITEM_CUTOFF or drop.item2.value >= numbers.KEY_ITEM_CUTOFF or drop.item3.value >= numbers.KEY_ITEM_CUTOFF:
+                continue #Don't mess with key items
+            if drop.item1.chance <= 0 and drop.item2.chance <= 0 and drop.item3.chance <= 0:
+                continue #Bosses that drop nothing will continue to drop nothing (mostly minions and summons)
+            if scaling: #Drops should scale based on area
+                rewardArea = numbers.ENCOUNTER_LEVEL_AREAS[enemy.level] #Area to scale rewards with
+                numDrops = random.choices(list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.keys()), list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.values()))[0]
+                if demonID not in self.essenceBannedBosses and random.random() < numbers.BOSS_ESSENCE_ODDS: #Boss will drop its own essence
+                    try:
+                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation)
+                        drop.item1 = Item_Drop(essence.ind, essence.name, 100, 0)
+                    except StopIteration:
+                        item = random.choice(validItems[rewardArea])
+                        drop.item1 = Item_Drop(item, self.itemNames[item], 100, 0)
+                else:
+                    item = random.choice(validItems[rewardArea])
+                    drop.item1 = Item_Drop(item, self.itemNames[item], 100, 0)
+                if numDrops > 1:
+                    item = random.choice(validItems[rewardArea])
+                    drop.item2 = Item_Drop(item, self.itemNames[item], 100, 0)
+                else:
+                    drop.item2 = Item_Drop(0, self.itemNames[0], 0, 0)
+                if numDrops > 2:
+                    item = random.choice(validItems[rewardArea])
+                    drop.item3 = Item_Drop(item, self.itemNames[item], 100, 0)
+                else:
+                    drop.item3 = Item_Drop(0, self.itemNames[0], 0, 0)
+            else: #non scaling random drops
+                numDrops = random.choices(list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.keys()), list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.values()))[0]
+                if demonID not in self.essenceBannedBosses and random.random() < numbers.BOSS_ESSENCE_ODDS: #Boss will drop its own essence
+                    try:
+                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation)
+                        drop.item1 = Item_Drop(essence.ind, essence.name, 100, 0)
+                    except StopIteration:
+                        item = random.choice(validItems)
+                        drop.item1 = Item_Drop(item, self.itemNames[item], 100, 0)
+                else:
+                    item = random.choice(validItems)
+                    drop.item1 = Item_Drop(item, self.itemNames[item], 100, 0)
+                if numDrops > 1:
+                    item = random.choice(validItems)
+                    drop.item2 = Item_Drop(item, self.itemNames[item], 100, 0)
+                else:
+                    drop.item2 = Item_Drop(0, self.itemNames[0], 0, 0)
+                if numDrops > 2:
+                    item = random.choice(validItems)
+                    drop.item3 = Item_Drop(item, self.itemNames[item], 100, 0)
+                else:
+                    drop.item3 = Item_Drop(0, self.itemNames[0], 0, 0)
+                    
+    '''
+        Fills the set validBossDemons with all the demon IDs of bosses that are included in the randomizer
+        Adds demons from event encounters, summons, abscesses, and punishing foes
+    '''
+    def findValidBossDemons(self):
+        #print("event")
+        for eventEncount in self.eventEncountArr: #Event encounters
+            if eventEncount.ind in bossLogic.BANNED_BOSSES or eventEncount.ind in self.bossDuplicateMap.keys():
+                continue
+            for demon in eventEncount.demons:
+                self.addValidBossDemon(demon.value)
+        #print('summon')
+        for summonList in bossLogic.BOSS_SUMMONS.values(): #Boss summons
+            for demon in summonList:
+                self.addValidBossDemon(demon)
+        #print('revival')
+        for revivalList in bossLogic.REVIVED_DEMON_DUPLICATE_MAP.values(): #Boss summons that are 'revival duplicates'
+            for demon in revivalList:
+                self.addValidBossDemon(demon)
+        #print('abscess')
+        for abscess in self.abscessArr: #Abscesses
+            if abscess.miracles[0] == 0 or abscess.encounter <= 0:
+                continue
+            abscessEncounter = self.encountArr[abscess.encounter]
+            for demon in abscessEncounter.demons:
+                self.addValidBossDemon(demon)
+        #print('overworld')
+        for symbol in self.uniqueSymbolArr: #Punishing foes
+            if symbol.symbol.value < numbers.NORMAL_ENEMY_COUNT or symbol.encounterID <= 0:
+                continue
+            overworldEncounter = self.encountArr[symbol.encounterID]
+            for demon in overworldEncounter.demons:
+                self.addValidBossDemon(demon)
+                
+    '''
+        Adds a demon to the validBossDemon set. If the set already contains the demon, add it to the essence banned list
+        as you cannot get multiple essences at once.
+            Parameters:
+                demonID (number)
+    '''
+    def addValidBossDemon(self, demonID):
+        if demonID <= 0:
+            return
+        if demonID in self.validBossDemons:
+            self.essenceBannedBosses.add(demonID)
+        else:
+            self.validBossDemons.add(demonID)
 
     '''
     Randomizes the stats of normal demons.
@@ -5426,6 +5542,8 @@ class Randomizer:
 
                 dummies.pop(0)
                 self.enemyNames[newID] = self.enemyNames[source]
+                self.validBossDemons.add(newID) #Add new duplicate demons to the list of boss demons
+                self.essenceBannedBosses.add(newID) #These are all duplicates of another boss demon so they shouldn't drop their essence
 
     def addEventEncounter(self):
         newEvEnc = copy.deepcopy(self.eventEncountArr[0])
@@ -5555,7 +5673,7 @@ class Randomizer:
         self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
         self.encountArr = self.addPositionsToNormalEncountArr(encountPostBuffer, self.encountArr, encountPostUassetBuffer)
         
-
+        self.findValidBossDemons()
         self.removeBattleTutorials()
 
         skillLevels = self.generateSkillLevelList()
@@ -5658,16 +5776,16 @@ class Randomizer:
         if self.configSettings.randomizeMissionRewards:
             self.randomizeMissionRewards(self.configSettings.scaleItemsToArea)
         
+        self.patchQuestBossDrops()
         if self.configSettings.randomEnemyDrops:
             self.randomizeBasicEnemyDrops(self.configSettings.scaleItemsToArea)
-            #TODO: Boss Drops
+            self.randomizeBossDrops(self.configSettings.scaleItemsToArea)
 
         self.patchTutorialDaemon()
         
         #self.patchHornOfPlenty()
         #self.patchGirisHead()
         #self.patchHorusHead()
-        self.patchQuestBossDrops()
         self.capDiarahanDemonHP()
         self.nullBossTones()
 
