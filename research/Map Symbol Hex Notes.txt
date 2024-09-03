@@ -1,0 +1,4 @@
+Start of each entry is 0x17000000000000003100000000000000
+Demon ID is 25 bytes later, call this 0x00
+0x1d is float movement speed
+0x74 is float scale factor

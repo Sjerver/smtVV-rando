@@ -13,6 +13,7 @@ from base_classes.quests import Mission, Mission_Reward, Mission_Condition
 from base_classes.settings import Settings
 from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
+from base_classes.map_demons import Map_Demon
 import base_classes.script_logic as scriptLogic
 import util.numbers as numbers
 import util.paths as paths
@@ -73,6 +74,8 @@ class Randomizer:
         self.staticUniqueSymbolArr = []
         self.updatedNormalEncounters = []
         self.chestArr = []
+        self.mapSymbolArr = []
+        self.bossSymbolReplacementMap = {}
 
         self.nahobino = Nahobino()
         
@@ -1335,6 +1338,34 @@ class Randomizer:
             entry.offsetNumber = locations
 
             self.devilUIArr.append(entry)
+
+    '''
+    Fills the array mapSymbolArr with data on field demons including their speed and size
+        Parameters:
+            data (Buffer) the buffer containing all map demon data
+    '''
+    def fillMapSymbolArr(self, data):
+
+        startingBytes = bytearray(bytes.fromhex('17000000000000003100000000000000'))
+        last = 0
+        while data.buffer.find(startingBytes,last) != -1:
+            offset = data.buffer.find(startingBytes,last) +25
+            last = data.buffer.find(startingBytes,last) +100
+            locations = {
+                'demonID': offset,
+                'walkSpeed': offset + 0x1d,
+                'scaleFactor': offset + 0x74
+            }
+            demonID = data.readWord(offset)
+            walkSpeed = data.readFloat(locations['walkSpeed'])
+            scaleFactor = data.readFloat(locations['scaleFactor'])
+            
+            mapDemon = Map_Demon()
+            mapDemon.offsetNumbers = locations
+            mapDemon.demonID = demonID
+            mapDemon.walkSpeed = walkSpeed
+            mapDemon.scaleFactor = scaleFactor
+            self.mapSymbolArr.append(mapDemon)
             
     '''
     Fills the array talkCameraOffsets with data regarding camera in the status menu in battle for all demons
@@ -3741,9 +3772,11 @@ class Randomizer:
         for symbolEncounter in self.uniqueSymbolArr:
             if symbolEncounter.symbol.value >= numbers.NORMAL_ENEMY_COUNT:
                 if symbolEncounter.eventEncounterID > 0:
+                    self.bossSymbolReplacementMap[symbolEncounter.symbol.value] = self.eventEncountArr[symbolEncounter.eventEncounterID].demons[0].value
                     symbolEncounter.symbol = self.eventEncountArr[symbolEncounter.eventEncounterID].demons[0]
                 else:
                     demon = self.encountArr[symbolEncounter.encounterID].demons[0]
+                    self.bossSymbolReplacementMap[symbolEncounter.symbol.value] = demon
                     symbolEncounter.symbol = Translated_Value(demon, self.enemyNames[demon])
 
 
@@ -5287,6 +5320,26 @@ class Randomizer:
             if demonID in numbers.LARGE_SYMBOL_DEMONS:
                 buffer.writeFloat(1.2,offset + 116)
         return buffer
+    
+    '''
+    Speeds up demons on the overworld that replace punishing foe birds with large movement cycles
+    Parameters:
+        buffer (Table): contains the bytearray of the MapSymbolParamTable
+    Returns the changed buffer
+    '''
+    def adjustPunishingFoeSpeeds(self, buffer):
+        
+        for birdID, walkSpeed in numbers.PUNISHING_FOE_BIRD_SPEEDS.items():
+            replacementID = self.bossSymbolReplacementMap[birdID]
+            try:
+                replacementSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == replacementID)
+                buffer.writeFloat(walkSpeed,replacementSymbol.offsetNumbers['walkSpeed'])
+                    
+            except StopIteration:
+                birdSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == birdID)
+                buffer.writeWord(replacementID, birdSymbol.offsetNumbers['demonID'])
+
+        return buffer
 
     '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
@@ -5497,6 +5550,7 @@ class Randomizer:
         self.fillUniqueSymbolArr(uniqueSymbolBuffer)
         self.fillChestArr(chestBuffer)
         self.fillMimanRewardArr(shopBuffer)
+        self.fillMapSymbolArr(mapSymbolParamBuffer)
         
         self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
         self.encountArr = self.addPositionsToNormalEncountArr(encountPostBuffer, self.encountArr, encountPostUassetBuffer)
@@ -5618,6 +5672,7 @@ class Randomizer:
         self.nullBossTones()
 
         mapSymbolParamBuffer = self.scaleLargeSymbolDemonsDown(mapSymbolParamBuffer)
+        self.adjustPunishingFoeSpeeds(mapSymbolParamBuffer)
             
         if DEV_CHEATS:
             self.applyCheats()

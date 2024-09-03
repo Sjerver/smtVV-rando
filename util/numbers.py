@@ -193,6 +193,13 @@ SETH_DEMON_ID = 870
 SETH_EVENT_ENCOUNTER_ID = 108
 #List of demons with overly large symbol scaling (>2)
 LARGE_SYMBOL_DEMONS = [77,80,94,127,212,283] #Mara, Surt, Huang Long, Chimera, Oyamatsumi, Thunderbird
+#Map of punishing foe ID - walkspeed for birds that have large flight cycles
+PUNISHING_FOE_BIRD_SPEEDS = {802: 1400, #Jatayu
+                             808: 1200, #Thunderbird
+                             864: 1500, #Horus
+                             865: 800,  #Garuda
+                             870: 3000, #Seth
+                             891: 1400} #Gurulu
 
 #List of bosses able to fully heal themselves with diarahan infinitely
 DIARAHAN_BOSSES = [842, 770, 617] #Onyankopon, Maria, Yurlungur
