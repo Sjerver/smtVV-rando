@@ -1600,10 +1600,11 @@ class Randomizer:
             comp (Array): The array of demons
             levelList (Array(Skill_Level)): The list of levels and their learnable skills
             settings (Settings): settings set in gui
+            mask (Array(number)): An optional list of demon IDs to filter comp by, only randomizing skills of those demons
         Returns:
             The edited compendium
     '''
-    def assignRandomSkills(self, comp, levelList, settings):
+    def assignRandomSkills(self, comp, levelList, settings, mask=None):
         #If the skills aren't supposed to be scaled based on level, assemble list where each valid skill appears exactly once
         if not settings.scaledSkills:
             levelAggregrate = []
@@ -1617,10 +1618,12 @@ class Randomizer:
             allSkills = []
             for ind in uniqueSkills:
                     allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
-
+        
 
         #For every demon...
         for demon in comp:
+            if mask and demon.ind not in mask:
+                continue
             possibleSkills = []
             if settings.scaledSkills:
                 #get all skills that can be learned at the demons level
@@ -1728,17 +1731,23 @@ class Randomizer:
     Randomly assigns innate skills to all compendium demons. 
         Parameters:
             comp (Array(Compendium_Demon)) array of all demons
+            mask (List(Number)) Optional list of demon IDs to filter comp by, only randomizing innates of those demons
     '''
-    def assignRandomInnates(self, comp):
+    def assignRandomInnates(self, comp, mask=None):
         
         # These don't work besides on their original demons
         # Moirae Cutter, Moirae Spinner, Moirae Measurer
         limited = [573, 574, 575]
         possibleInnates = [s for s in self.innateSkillArr if s.ind not in numbers.BAD_INNATES and "NOT USED" not in s.name]
-    
-        demons = [d for d in comp if "Mitama" not in d.name]
+        
+        try:
+            demons = [d for d in comp if "Mitama" not in d.name]
+        except TypeError:
+            demons = comp
 
         for demon in demons:
+            if mask and demon.ind not in mask:
+                continue
             validSkill = False
             attempt = 0
             while not validSkill and attempt < 20:
@@ -1927,8 +1936,6 @@ class Randomizer:
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
                     totalSkills.append(skillAddition)
                     protofiend.skills[index] = skillAddition
-
-    
     
     '''
     Check to see if adding the skill with index skillIndex to the demons skill list would leave him with at least one active starting skill.
@@ -2197,10 +2204,13 @@ class Randomizer:
     These percentage weights are then used to assign potentials by first calculating the absolute potential sum via function that describes the trend of vanilla potentials.
         Parameters:
             comp (List(Compendium_Demon)): list of demons
+            mask (List(Number)): Optional list of demon IDs to filter comp by, only randomizing potentials of those demons
     '''
-    def randomizePotentials(self, comp):
+    def randomizePotentials(self, comp, mask=None):
 
         for demon in comp:
+            if mask and demon.ind not in mask:
+                continue
             percentages = []
             for i in range(random.randint(3,9)):
                 percentages.append(random.randint(0,50))
@@ -4489,9 +4499,14 @@ class Randomizer:
 
     '''
     Randomizes the stats of normal demons.
+        Parameters:
+            comp (List(Compendium_Demon)): Optional list of demons to randomize
+            mask (List(Number)): Optional list of demon IDs to filter comp by, only randomizing stats of those demons
     '''
-    def randomizeDemonStats(self):
-        for demon in self.compendiumArr:
+    def randomizeDemonStats(self, comp, mask=None):
+        for demon in comp:
+            if mask and demon.ind not in mask:
+                continue
             if 'Mitama' in demon.name:
                 #do not randomize mitama stats
                 continue
@@ -5681,9 +5696,11 @@ class Randomizer:
        
         if config.randomPotentials:
             self.randomizePotentials(self.compendiumArr)
+            self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS)
         
         if self.configSettings.randomDemonStats:
-            self.randomizeDemonStats()
+            self.randomizeDemonStats(self.compendiumArr)
+            self.randomizeDemonStats(self.playerBossArr, mask=numbers.GUEST_IDS)
 
         self.addAdditionalFusionsToFusionChart(config)
 
@@ -5716,11 +5733,13 @@ class Randomizer:
             self.assignRandomStartingSkill(self.nahobino, levelSkillList, config)
             self.assignRandomSkillsToProtofiend(self.protofiendArr, levelSkillList, config)
             newComp = self.assignRandomSkills(newComp,levelSkillList, config)
+            self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
             
             
 
         if config.randomInnates:
             self.assignRandomInnates(newComp)
+            self.assignRandomInnates(self.playerBossArr, mask=numbers.GUEST_IDS)
             self.assignRandomInnateToNahobino(self.nahobino)
 
         self.enemyArr = self.adjustBasicEnemyArr(self.enemyArr, newComp)

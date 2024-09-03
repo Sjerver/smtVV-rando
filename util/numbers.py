@@ -338,6 +338,9 @@ AREA_SHOP_UNLOCKS= {
     16: [30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51], #Also includes godborn unlocks
 }
 
+#IDs of guest party members like Yoko
+GUEST_IDS = [1150, 1151, 1152, 1153, 1154, 1157, 1158, 1159, 1161, 1162]
+
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''
