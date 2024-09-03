@@ -4107,9 +4107,9 @@ class Randomizer:
                         emergencyEssences = []
                         currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[chest.map][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[chest.map][1]]
                         for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in emergencyEssences[chest.map] and itemName in currentDemonNames:
-                                emergencyEssences[chest.map].append(itemID)
-                        itemID = random.choice(emergencyEssences[chest.map])
+                            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in emergencyEssences and itemName in currentDemonNames:
+                                emergencyEssences.append(itemID)
+                        itemID = random.choice(emergencyEssences)
                     else:  
                         itemID = random.choice(validEssences)
                         validEssences.remove(itemID) #Limit 1 chest per essence for diversity
@@ -4502,8 +4502,10 @@ class Randomizer:
         Parameters:
             comp (List(Compendium_Demon)): Optional list of demons to randomize
             mask (List(Number)): Optional list of demon IDs to filter comp by, only randomizing stats of those demons
+            foes (List(Enemy_Demon)): Optional list of enemy version of demons to also adjusts stats for
+    TODO: Modify Stat Growths as well
     '''
-    def randomizeDemonStats(self, comp, mask=None):
+    def randomizeDemonStats(self, comp, mask=None, foes=None):
         for demon in comp:
             if mask and demon.ind not in mask:
                 continue
@@ -4549,25 +4551,38 @@ class Randomizer:
                 else:
                     index = 0
 
-
-            #Decide random stat modifiers between 0.5 and 2 
-            modifiers = Stats(
-                randomNumbers[0],
-                randomNumbers[1],
-                randomNumbers[2],
-                randomNumbers[3],
-                randomNumbers[4],
-                randomNumbers[5],
-                randomNumbers[6]
-            )
+            foe=None
+            enemyModifiers = None
+            if foes and any(demon.ind == foe.ind and 'NOT USED' not in foe.name for foe in foes):
+                foe = next(foe for foe in foes if demon.ind == foe.ind)
+                #Get basic enemy multipliers to preserve original enemy to player stat ratios 
+                enemyModifiers = Stats(
+                    foe.stats.HP / demon.stats.HP.og,
+                    foe.stats.MP / demon.stats.MP.og,
+                    foe.stats.str / demon.stats.str.og,
+                    foe.stats.vit / demon.stats.vit.og,
+                    foe.stats.mag / demon.stats.mag.og,
+                    foe.stats.agi / demon.stats.agi.og,
+                    foe.stats.luk / demon.stats.luk.og
+                )
             #Apply these multipliers to the nahobinos stats at new level to gain new level
-            demon.stats.HP.og = math.floor(nahoLevel.HP * modifiers.HP)
-            demon.stats.MP.og = math.floor(nahoLevel.MP * modifiers.MP)
-            demon.stats.str.og = math.floor(nahoLevel.str * modifiers.str)
-            demon.stats.vit.og = math.floor(nahoLevel.vit * modifiers.vit)
-            demon.stats.mag.og = math.floor(nahoLevel.mag * modifiers.mag)
-            demon.stats.agi.og = math.floor(nahoLevel.agi * modifiers.agi)
-            demon.stats.luk.og = math.floor(nahoLevel.luk * modifiers.luk) 
+            demon.stats.HP.og = math.floor(nahoLevel.HP * randomNumbers[0])
+            demon.stats.MP.og = math.floor(nahoLevel.MP * randomNumbers[1])
+            demon.stats.str.og = math.floor(nahoLevel.str * randomNumbers[2])
+            demon.stats.vit.og = math.floor(nahoLevel.vit * randomNumbers[3])
+            demon.stats.mag.og = math.floor(nahoLevel.mag * randomNumbers[4])
+            demon.stats.agi.og = math.floor(nahoLevel.agi * randomNumbers[5])
+            demon.stats.luk.og = math.floor(nahoLevel.luk * randomNumbers[6])
+            
+            #adjust enemy stats to match new stats with correct ratio if necessary
+            if foe and enemyModifiers:
+                foe.stats.HP = math.floor(demon.stats.HP.og * enemyModifiers.HP)
+                foe.stats.MP = math.floor(demon.stats.MP.og * enemyModifiers.MP)
+                foe.stats.str = math.floor(demon.stats.str.og * enemyModifiers.str)
+                foe.stats.vit = math.floor(demon.stats.vit.og * enemyModifiers.vit)
+                foe.stats.mag = math.floor(demon.stats.mag.og * enemyModifiers.mag)
+                foe.stats.agi = math.floor(demon.stats.agi.og * enemyModifiers.agi)
+                foe.stats.luk = math.floor(demon.stats.luk.og * enemyModifiers.luk)
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
     Resulting demon is the demon with an level higher than the average of the two levels.
@@ -5699,7 +5714,7 @@ class Randomizer:
             self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS)
         
         if self.configSettings.randomDemonStats:
-            self.randomizeDemonStats(self.compendiumArr)
+            self.randomizeDemonStats(self.compendiumArr, foes=self.enemyArr)
             self.randomizeDemonStats(self.playerBossArr, mask=numbers.GUEST_IDS)
 
         self.addAdditionalFusionsToFusionChart(config)
