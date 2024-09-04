@@ -18,8 +18,11 @@ def createGUI(configSettings):
     page2Frame = tk.Frame(window, width=1000, height=500, background="#cccccc")
     page2Frame.grid(row=1, column=0)
     page2Frame.pack_propagate(False)
-    pages = [page1Frame, page2Frame]
-    buttonControlsFrame = tk.Frame(window, width=350, height=30)
+    page3Frame = tk.Frame(window, width=1000, height=500, background="#cccccc")
+    page3Frame.grid(row=1, column=0)
+    page3Frame.pack_propagate(False)
+    pages = [page1Frame, page2Frame, page3Frame]
+    buttonControlsFrame = tk.Frame(window, width=400, height=30)
     buttonControlsFrame.grid(row=2, column=0)
     buttonControlsFrame.pack_propagate(False)
     persistentFrameLeft = tk.Frame(persistentFrame, width=500, height=170)
@@ -46,6 +49,9 @@ def createGUI(configSettings):
     page2FrameRight = tk.Frame(page2Frame, width=500, height=500, background="#cccccc")
     page2FrameRight.grid(row=0, column=1)
     page2FrameRight.pack_propagate(False)
+    page3FrameTop = tk.Frame(page3Frame, width=1000, height=500, background="#cccccc")
+    page3FrameTop.grid(row=0, column=0, columnspan = 1, sticky = tk.W+tk.E)
+    page3FrameTop.pack_propagate(False)
         
     def randomizeClick():
         window.quit()
@@ -118,7 +124,18 @@ def createGUI(configSettings):
         command=lambda pageIndex=0: switchPage(pageIndex),
     )
     page1Button.pack(side=tk.LEFT)
-        
+    
+    page3Button = tk.Button( #Button to go to page 2
+        buttonControlsFrame,
+        text="Page 3",
+        width=10,
+        height=3,
+        bg=NAHOBINO_BLUE,
+        fg="black",
+        command=lambda pageIndex=2: switchPage(pageIndex),
+    )
+    page3Button.pack(side=tk.RIGHT)
+    
     page2Button = tk.Button( #Button to go to page 2
         buttonControlsFrame,
         text="Page 2",
@@ -130,7 +147,7 @@ def createGUI(configSettings):
     )
     page2Button.pack(side=tk.RIGHT)
         
-    pageButtons = [page1Button, page2Button]
+    pageButtons = [page1Button, page2Button, page3Button]
        
     currentPage = tk.IntVar(window, 0)
 
@@ -238,6 +255,17 @@ def createGUI(configSettings):
     listSuperboss.insert(2, "Randomize superbosses with all bosses")
     listSuperboss.selection_set(0)
     listSuperboss.pack()
+    
+    patchesLabel = tk.Label(page3FrameTop, text="Patches")
+    patchesLabel.pack()
+    
+    uniqueSkillAnimationsNote = tk.Label(page3FrameTop, text="If the wrong demon uses a unique skill, the game will hang until the skip animations button is pressed.\n"
+                                         + "The 'Fix unique skill animations' patch replaces unique skill anims with normal skill anims to get around this.")
+    uniqueSkillAnimationsNote.pack()
+
+    listPatches = tk.Listbox(page3FrameTop, selectmode = "multiple", width=50, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listPatches.insert(0, "Fix unique skill animations")
+    listPatches.pack()
         
     page1Frame.tkraise()
 
@@ -325,6 +353,8 @@ def createGUI(configSettings):
             if configur.get('Boss', 'SuperbossesMixed') == 'true':
                 listSuperboss.selection_clear(0)
                 listSuperboss.selection_set(2)
+            if configur.get('Patches', 'FixUniqueSkillAnimations') == 'true':
+                listPatches.selection_set(0)
         except (NoOptionError, NoSectionError):
             createConfigFile(configur)
     else:
@@ -349,6 +379,9 @@ def createGUI(configSettings):
         abscessChoice = listAbscess.curselection()
         punishingChoice = listPunishing.curselection()
         superbossChoice = listSuperboss.curselection()
+        patchFlags = [False for i in range(listPatches.size())]
+        for i in listPatches.curselection():
+            patchFlags[i] = True
         
         window.destroy()
     except tk.TclError:
@@ -558,6 +591,12 @@ def createGUI(configSettings):
         configur.set('Boss', 'SuperbossesMixed', 'true')
     else:
         configur.set('Boss', 'SuperbossesMixed', 'false')
+        
+    if patchFlags[0]:
+        configSettings.fixUniqueSkillAnimations = True
+        configur.set('Patches', 'FixUniqueSkillAnimations', 'true')
+    else:
+        configur.set('Patches', 'FixUniqueSkillAnimations', 'false')
 
     with open('config.ini', 'w') as configfile:
         configur.write(configfile)
@@ -576,4 +615,5 @@ def createConfigFile(configur):
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
     configur['Boss'] = {'NormalBossesSelf': False, 'NormalBossesMixed': False, 'RandomizeLucifer': False, 'AbscessBossesSelf': False, 'AbscessBossesMixed': False,
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False}
+    configur['Patches'] = {'FixUniqueSkillAnimations': False}
    

@@ -27,6 +27,7 @@ class Active_Skill:
         self.magatsuhi = Magatsuhi_Flags()
         self.modifiers = Skill_Modifiers()
         self.conditions = None
+        self.animation = None
     
 class Passive_Skill:
     def __init__(self):

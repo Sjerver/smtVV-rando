@@ -1,3 +1,4 @@
+from tkinter import ACTIVE
 from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
@@ -417,7 +418,8 @@ class Randomizer:
                     'hpDrain': offset + 109,
                     'magatsuhiFlag': offset + 115,
                     'modifier1': offset + 136,
-                    'condition1': offset + 140
+                    'condition1': offset + 140,
+                    'animation': offset - 0x20
                 }
                 toPush = Active_Skill()
                 toPush.ind = skillID
@@ -508,6 +510,7 @@ class Randomizer:
                 condition2.effect = skillData.readHalfword(locations['condition1'] + 11)
                 condition2.amount = skillData.readHalfword(locations['condition1'] + 13)
                 toPush.conditions = Skill_Conditions(condition1, condition2)
+                toPush.animation = skillData.read32chars(locations['animation'])
                 self.skillArr.append(toPush)
                 
     '''
@@ -2694,6 +2697,7 @@ class Randomizer:
                 # skip filler entry
                 continue
             buffer.writeWord(skill.owner.ind, skill.offsetNumber['owner'])
+            buffer.write32chars(skill.animation, skill.offsetNumber['animation'])
 
 
         for skill in passiveSkills:
@@ -5498,6 +5502,25 @@ class Randomizer:
                 demon.tone.value = 0
 
     '''
+        Removes unique skill animations so they no longer cause the game to hang until pressing the skip animation button
+    '''
+    def removeUniqueSkillAnimations(self):
+        skillMap = pd.read_csv(paths.SKILL_ANIMATION_MAP)
+        for index, row in skillMap.iterrows():
+            uniqueSkillID = row['Unique Skill ID']
+            normalSkillID = row['Normal Skill ID']
+            uniqueSkillName = row['Unique Skill']
+            normalSkillName = row['Normal Skill']
+            uniqueSkill = self.obtainSkillFromID(uniqueSkillID)
+            normalSkill = self.obtainSkillFromID(normalSkillID)
+            #print("Changing " + uniqueSkill.name + " to " + normalSkill.name)
+            if self.skillNames[uniqueSkillID] != uniqueSkillName:
+                print("Warning: skill ") + uniqueSkillName + " does not match " + self.skillNames[uniqueSkillID] + " at index " + str(index)
+            if self.skillNames[normalSkillID] != normalSkillName:
+                print("Warning: skill ") + normalSkillName + " does not match " + self.skillNames[normalSkillID] + " at index " + str(index)
+            uniqueSkill.animation = normalSkill.animation
+
+    '''
     Creates a copy of the new entry with the binary offset data of the old entry.
         Parameters:
             newEntry (Asset_Entry): the new asset entry data to copy
@@ -5705,6 +5728,9 @@ class Randomizer:
         
         self.findValidBossDemons()
         self.removeBattleTutorials()
+        
+        if config.fixUniqueSkillAnimations:
+            self.removeUniqueSkillAnimations()
 
         skillLevels = self.generateSkillLevelList()
         levelSkillList = self.generateLevelSkillList(skillLevels)

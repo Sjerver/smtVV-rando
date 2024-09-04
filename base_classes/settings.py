@@ -33,4 +33,5 @@ class Settings(object):
         self.scaleItemsToArea = False               # Scales items (drops/rewards/shops) to be similiar to original progression wise
         self.randomizeMimanRewards = False          # Randomizes the rewards for gathering Miman
         self.randomizeMissionRewards = False        # Randomizes the rewards of mission
-        self.randomDemonStats = False            # Randomizes the stat modifiers for playable demons
+        self.randomDemonStats = False               # Randomizes the stat modifiers for playable demons
+        self.fixUniqueSkillAnimations = False       # Replaces unique skill animations with those of normal skills to avoid the game hanging
