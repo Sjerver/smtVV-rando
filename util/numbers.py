@@ -170,8 +170,28 @@ MISSION_DUPLICATES = {
   50: [221], #The Seraph's Return
   41: [143], #The Winged Sun
   95: [116], #To the Empyrean
-  52: [53,54] #The Compassionate Queen, The Noble Queen, The Wrathful Queen (Same reward but not true duplicate)
+  52: [53,54], #The Compassionate Queen, The Noble Queen, The Wrathful Queen (Same reward but not true duplicate)
+  28: [173], #Clash with the Kunitsukami, Special Training: Kunitsukami (Both normally give Kunitsu Talisman)
 }
+
+#List of exclusive key item rewards from both canons
+CREATION_EXCLUSIVE_KEY_REWARDS = [72] #The Falcon's Head
+VENGEANCE_EXCLUSIVE_KEY_REWARDS =[] #Currently not any
+
+#Exclusive mission from both canons to give potential exclusive rewards to (excluding missions whose rewards are not randomized or are not allowed to receive key item rewards)
+CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
+        #He of a Hundred Hands, Hellfire Highway, Search for Oyamatsumi, Glitter in Ginza, Netherworld Relay Racing, Will of the Samurai, Trial of the Seven Stars, Defeat the Demon Kings Armies
+VENGEANCE_EXLUSIVE_MISSIONS = [] #TODO: Fill out (at least when there is a vengeance unique key reward)
+
+#Mutually exclusive missions that should never reward a key item
+MUTUALLY_EXCLUSIVE_MISSIONS = [
+    176,175,#Vampire in Black/Hunter in White
+    70,71, #The Water Nymph/Spirit of Love
+    79,80, #Raid on Tokyo/In Defense of Tokyo
+    77,78, #Black Frost Strikes Back/Sobering Standoff
+    138,139, #Reclaim/Liberate the Golden Stool (Have duplicates but not needed here)
+    75,76, #Those Seeking Sanctuary, Holding the Line
+]
 
 #Reward cannot be randomized, due to Quest Progression Issues or too strong reward(True Demon) or mission is unused
 BANNED_MISSIONS = [84,144,35, 1,2,3,60,89,90,154] #True Demon x2, Ancient Guardian, and Unused Missions

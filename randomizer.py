@@ -4284,12 +4284,33 @@ class Randomizer:
 
         rewardingMissions = []
         uniqueRewards = []
+        creationRewards = []
+        vengeanceRewards = []
         for mission in self.missionArr:
             if (mission.macca > 0 or mission.reward.ind > 0) and not any(mission.ind in duplicates for duplicates in numbers.MISSION_DUPLICATES.values()) and mission.ind not in numbers.BANNED_MISSIONS:
                 rewardingMissions.append(mission) #find missions with rewards that are not banned or a duplicate
                 if mission.reward.ind > numbers.KEY_ITEM_CUTOFF or mission.reward.ind in numbers.BANNED_ITEMS:
-                    uniqueRewards.append(copy.deepcopy(mission.reward)) #add key items or reusable consumables to unique rewards
-        validUniqueMissions = list(filter(lambda mission: mission.ind not in numbers.REPEAT_MISSIONS,rewardingMissions)) #repeat missions shouldn't not reward unique rewards
+                    if mission.ind not in numbers.CREATION_EXCLUSIVE_KEY_REWARDS and mission.ind not in numbers.VENGEANCE_EXCLUSIVE_KEY_REWARDS:
+                        uniqueRewards.append(copy.deepcopy(mission.reward)) #add key items or reusable consumables to unique rewards
+                    elif mission.ind in numbers.CREATION_EXCLUSIVE_KEY_REWARDS:
+                        creationRewards.append(copy.deepcopy(mission.reward))
+                    else:
+                        vengeanceRewards.append(copy.deepcopy(mission.reward))
+        
+        validCreationMissions = list(filter(lambda mission: mission.ind in numbers.CREATION_EXLUSIVE_MISSIONS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind not in numbers.MUTUALLY_EXCLUSIVE_MISSIONS ,rewardingMissions))
+        creationRewardMissions = random.sample(validCreationMissions, len(creationRewards))
+        for index, mission in enumerate(creationRewardMissions):
+            rewardingMissions.remove(mission)
+            mission.macca = 0
+            mission.reward = creationRewards[index]
+        validVengeanceMissions = list(filter(lambda mission: mission.ind in numbers.VENGEANCE_EXLUSIVE_MISSIONS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind not in numbers.MUTUALLY_EXCLUSIVE_MISSIONS ,rewardingMissions))
+        vengeanceRewardMissions = random.sample(validVengeanceMissions, len(vengeanceRewards))
+        for index, mission in enumerate(vengeanceRewardMissions):
+            rewardingMissions.remove(mission)
+            mission.macca = 0
+            mission.reward = vengeanceRewards[index]
+
+        validUniqueMissions = list(filter(lambda mission: mission.ind not in numbers.REPEAT_MISSIONS and mission.ind not in numbers.MUTUALLY_EXCLUSIVE_MISSIONS,rewardingMissions)) #repeat missions shouldn't not reward unique rewards
         uniqueRewardMissions = random.sample(validUniqueMissions, len(uniqueRewards)) #randomly select missions to reward unique rewards
         for index, mission in enumerate(uniqueRewardMissions):
             #remove mission from general mission pool and set unique reward
