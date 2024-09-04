@@ -49,7 +49,7 @@
 47,Preach,275,Tentarafoo,90,
 48,Golden Apple,276,Elec Block,366,
 49,Matriarch's Love,277,Dekunda,137,"This skill appears twice, for Danu boss and Danu ally"
-50,Red Capote,278,Sukukaja,122,"This skill appears twice, for Matador boss and Matador ally"
+50,Red Capote,278,Red Capote,278,"This skill appears twice, for Matador boss and Matador ally. Animation works with everyone"
 51,Matriarch's Love,279,Dekunda,137,"This skill appears twice, for Danu boss and Danu ally"
 52,Humble Blessing,280,Media,354,
 53,Eleusinian Harvest,281,Force Block,367,
@@ -63,7 +63,7 @@
 61,Sakanagi,292,Berserker God,158,
 62,Divine Arrowfall,293,Madness Needle,210,
 63,Murakumo,294,Brave Blade,164,
-64,Red Capote,295,Sukukaja,122,"This skill appears twice, for Matador boss and Matador ally"
+64,Red Capote,295,Red Capote,295,"This skill appears twice, for Matador boss and Matador ally. Animation works with everyone"
 65,Meditation,296,Energy Drain,81,
 66,Hell Burner,297,Heat Wave,161,Same animation
 67,Aramasa,298,Myriad Slashes,185,
@@ -79,7 +79,7 @@
 77,Stagnant Air,308,Fogna,96,
 78,Miracle Water,310,Mediarama,101,
 79,Revival Chant,311,Samarecarm,116,Make sure this works Larpas
-80,Dreadful Gleam,312,Thunder Reign,43,"2nd version of this skill is a 'do nothing' version, don't include"
+80,Dreadful Gleam,312,Dreadful Gleam,312,"2nd version of this skill is a 'do nothing' version, don't include. Animation works with everyone"
 81,Harvest Dance,314,Dia,97,
 82,Toxic Breath,315,Toxic Cloud,86,
 83,Purgatorium,320,Maragibarion,12,
@@ -88,19 +88,19 @@
 86,Light of Order,326,Light Block,368,
 87,Primordial Chaos,327,Megidolaon,75,
 88,Astral Saintstrike,328,Needle Spray,209,
-89,Inferno of God,329,Maragibarion,12,
-90,Hailstorm of God,330,Mabufubarion,27,
-91,Lightning of God,331,Maziobarion,42,
-92,Tornado of God,332,Mazanbarion,57,
-93,Cold Dark Matter,333,Rakukaja,124,
-94,Hot Dark Matter,334,Tarukaja,118,
+89,Inferno of God,329,Inferno of God,329,Animation works with everyone
+90,Hailstorm of God,330,Hailstorm of God,330,Animation works with everyone
+91,Lightning of God,331,Lightning of God,331,Animation works with everyone
+92,Tornado of God,332,Tornado of God,332,Animation works with everyone
+93,Cold Dark Matter,333,Cold Dark Matter,333,Animation works with everyone
+94,Hot Dark Matter,334,Hot Dark Matter,334,Animation works with everyone
 95,Freikugel,335,Freikugel EX,78,Lucifer's version
-96,Gaea Rage,336,Twilight Wave,109,
-97,Magma Axis,337,Ragnarok,13,
-98,Javelin Rain,338,Titanomachia,168,
-99,Xeros Beat,339,Yabusame Shot,211,
-100,Deadly Fury,340,Akashic Arts,160,
-101,Wild Dance,341,Tentarafoo,90,
+96,Gaea Rage,336,Twilight Wave,109,Lucifer's version
+97,Magma Axis,337,Magma Axis,337,Animation works with everyone
+98,Javelin Rain,338,Javelin Rain,338,Animation works with everyone
+99,Xeros Beat,339,Xeros Beat,339,Animation works with everyone
+100,Deadly Fury,340,Deadly Fury,340,Animation works with everyone
+101,Wild Dance,341,Wild Dance,341,Animation works with everyone
 102,Contempt of God,342,Impaler's Glory,138,
 103,Holy Crucifixion,343,Rakunda,134,
 104,Falling Star,347,Trisagion,8,
@@ -111,22 +111,22 @@
 109,Rising Storm Dragon,361,Maziodyne,41,There's 5 of these for some reason
 110,Rising Storm Dragon,362,Maziodyne,41,There's 5 of these for some reason
 111,Freikugel,370,Freikugel EX,78,Demi Fiend's version
-112,Gaea Rage,371,Twilight Wave,109,
-113,Javelin Rain,372,Titanomachia,168,
-114,Deadly Fury,373,Akashic Arts,160,
+112,Gaea Rage,371,Twilight Wave,109,Demi Fiend Boss version
+113,Javelin Rain,372,Javelin Rain,372,Animation works for everyone
+114,Deadly Fury,373,Deadly Fury,373,Animation works for everyone
 115,Chaotic Will,374,Slumber Vortex,82,
 116,Madness Glint,378,Tentarafoo,90,Same animation
 117,Panta Spane,379,Megaton Press,214,Same animation
 118,Violent Rage,388,Megaton Press,214,Same animation
 119,Pandemonic Crush,389,Rampage,216,Same animation
 120,Evil Gleam,390,Sexy Dance,92,
-121,Sonic Boom,392,Mazan,54,
-122,Gaea Rage,394,Twilight Wave,109,Guest Demi Fiend I think
+121,Sonic Boom,392,Sonic Boom,392,Animation works for everyone
+122,Gaea Rage,394,Twilight Wave,109,Nahobino version
 123,Chaotic Will,395,Slumber Vortex,82,
-124,Javelin Rain,397,Titanomachia,168,
-125,Deadly Fury,398,Akashic Arts,160,
+124,Javelin Rain,397,Javelin Rain,397,Animation works for everyone
+125,Deadly Fury,398,Deadly Fury,398,Animation works for everyone
 126,Great Lament,399,Toxic Sting,208,
-127,Gaea Rage,830,Twilight Wave,109,Why are there 4 of these?
+127,Gaea Rage,830,Twilight Wave,109,Guest Demi Fiend version
 128,Glacial Dragon Spiral,831,Ice Dracostrike,179,
 129,Mirage Assailment,832,Killing Wind,53,
 130,Entangling Tendrils,833,Makajamaon,94,
@@ -135,7 +135,7 @@
 133,Maiden's Morsel,839,Soul Drain,87,
 134,Gae Bolg,841,Wind Dracostrike,181,
 135,Hell Gaze,844,Mudoon,62,
-136,Freikugel,848,Freikugel,77,I don't know whose this one is
+136,Freikugel,848,Freikugel,77,Masakado's boss version I believe
 137,Recalcitrant Execution,849,Twilight Wave,109,
 138,Dance of Mara,851,Sexy Dance,92,Share an animation
 139,Deicidal Poison,853,Toxic Spray,250,
@@ -165,7 +165,7 @@
 163,Heavenly Ikuyumi,923,Berserker God,158,
 164,Moonlight Frost,924,Mabufudyne,26,Player version
 165,Lunar Hurricane,925,Purple Smoke,176,
-166,Luminescent Mirage,926,Taunt,248,
+166,Luminescent Mirage,926,Luminescent Mirage,926,Animation works for everyone?
 167,Lunation Flux,927,Bowl of Hygieia,149,
 168,Megido Ark,930,Catastrophe,192,
 169,Adversary,893,Counter,190,
