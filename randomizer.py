@@ -3978,10 +3978,12 @@ class Randomizer:
         #Exceptions for A Gold Dragons Arrival
         fourHolyBeastDemons = [854,855,856,857] #Qing Long, Zhuque, Baihu, Xuan Wu
         fourHolyBeastMission = self.missionArr[48]
+        artemisQuestQuetz = 933
+        artemisQuest = self.missionArr[83]
         #get all missions that require a boss to be killed
         symbolMissions = []
         for mission in self.missionArr:
-                if any(mission.ind != 48 and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
+                if any(mission.ind not in [48, 83] and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
                     symbolMissions.append([mission,mission.conditions[0].ind])
         #for mission in symbolMissions:
             #print(mission[0].reward.ind)
@@ -3996,6 +3998,8 @@ class Randomizer:
                     pair[0].conditions[0].type = 1
                     pair[0].conditions[0].ind = symbol.symbol.value
                     pair[0].conditions[0].amount = 1
+            if staticArr[index].symbol.value == artemisQuestQuetz: #Artemis quest has Quetz as the second mission condition, not the first
+                artemisQuest.conditions[1].ind = symbol.symbol.value
             if staticArr[index].symbol.value in fourHolyBeastDemons:
                 hBIndex = fourHolyBeastDemons.index(staticArr[index].symbol.value)
                 fourHolyBeastMission.conditions[hBIndex].ind = symbol.symbol.value
