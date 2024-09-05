@@ -212,7 +212,7 @@ def createGUI(configSettings):
     listItem.insert(3, "Randomize Miracle Unlocks")
     listItem.insert(4, "Randomize Miracle Prices")
     listItem.insert(5, "Randomize Chests")
-    listItem.insert(6, "Scale Items To Area (P)")
+    listItem.insert(6, "Scale Items To Area")
     listItem.insert(7, "Randomize Miman Rewards ")
     listItem.insert(8, "Randomize Mission Rewards ")
     listItem.pack()

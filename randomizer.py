@@ -6055,7 +6055,7 @@ if __name__ == '__main__':
        
     except RuntimeError:
         print('GUI closed - randomization was canceled')
-    print('Randomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
+    print('\nRandomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
     print('bossSpoilerLog, encounterResults and fusionResults can be found in the debug folder')
     print('Lastly, it is recommended that you do not play the randomizer on hard mode Larpas')
     input('Press [Enter] to exit')

@@ -167,8 +167,8 @@ def randomizeDemonJoins(comp, randomDemons):
         
             #Exception for Dagda/Cleo not being recruited during their Quest but at the researcher instead
             if script == 'MM_M030_EM1769':
-                scriptData.writeHalfword(dagda.ind,602953)
-                scriptData.writeHalfword(cleopatra.ind,602941)
+                scriptData.writeHalfword(dagda.ind,619565)
+                scriptData.writeHalfword(cleopatra.ind,619553)
 
         writeBinaryTable(scriptData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
 
