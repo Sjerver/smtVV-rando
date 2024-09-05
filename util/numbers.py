@@ -361,6 +361,9 @@ AREA_SHOP_UNLOCKS= {
 #IDs of guest party members like Yoko
 GUEST_IDS = [1150, 1151, 1152, 1153, 1154, 1157, 1158, 1159, 1161, 1162]
 
+#IDs of guest party members excluding Yuzuru and Dazai who have glitchy animations for physical skills
+GUEST_IDS_WORKING_ANIMS_ONLY = [1152, 1154, 1157, 1158, 1159, 1161]
+
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''
