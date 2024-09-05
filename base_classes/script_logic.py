@@ -26,7 +26,7 @@ SCRIPT_JOIN_BYTES = {
     'MM_M061_EM1640': [165053,204312], # The Spirit of Love 
     'MM_M062_EM1660': [172224], # Holding The Line
     'MM_M062_EM1650': [191531], # Those Seeking Sanctuary
-    'MM_M060_EM1690': [177279], # Raid on Tokyo
+    'MM_M060_EM1690': [177252], # Raid on Tokyo, Files are same but I got 177252 instead for the Adrammelech location
     'MM_M060_EM1700': [172675], # In Defense of Tokyo
     'MM_M063_EM1670': [165799], # Black Frost Strikes Back
     'MM_M063_EM1680': [165807], # A Sobering Standoff
@@ -34,18 +34,18 @@ SCRIPT_JOIN_BYTES = {
     'MM_M064_EM2320': [436569], # Liberate the Golden Stool
     'MM_M064_EM2270': [211353,313712], # The Vampire in Black
     'MM_M064_EM2280': [252862,364581], # The Hunter in White
-    'MM_M060_EM1420': [160666,167055], # Fionn's Resolve
-    'MM_M060_EM1602': [11705,12494], # The Destined Leader (Amanazako Could't Join Initially)
-    'MM_M060_EM1601': [187619,185111], # The Destined Leader 
-    'MM_M016_E0885': [16109,14268], #Hayataro CoC Chaos
-    'MM_M016_E0885_Direct': [27950,28905], #Hayataro CoC Chaos
-    'MM_M016_EM1450': [157807,156283], # A Plot Revealed
-    'MM_M035_EM1480': [97929,95107], # The Seraph's Return
-    'MM_M036_EM1490': [96783,99605], # The Red Dragon's Invitation
-    'MM_M061_EM1781': [93897,96293], # Rage of a Queen
+    'MM_M060_EM1420': [166254,171324], # Fionn's Resolve
+    'MM_M060_EM1602': [18867,19704], # The Destined Leader (Amanazako Could't Join Initially), not 100% sure on v1.02 locations
+    'MM_M060_EM1601': [192337,188908], # The Destined Leader 
+    'MM_M016_E0885': [24849,27932], #Hayataro CoC Chaos
+    'MM_M016_E0885_Direct': [34729,35684], #Hayataro CoC Chaos
+    'MM_M016_EM1450': [160681,156336], # A Plot Revealed
+    'MM_M035_EM1480': [103495,100673], # The Seraph's Return
+    'MM_M036_EM1490': [104705,107527], # The Red Dragon's Invitation
+    'MM_M061_EM1781': [102474,108977], # Rage of a Queen
     'MM_M061_EM2613_HitAction': [161413,117165], # Holy Will and Profane Dissent
-    'MM_M030_EM1769': [602929], # Bethel Researcher giving DLC Demons
-    'MM_M061_EM1791': [195223,196076], # A Goddess in Training
+    'MM_M030_EM1769': [619541], # Bethel Researcher giving DLC Demons
+    'MM_M061_EM1791': [137156,138009], # A Goddess in Training
     'MM_M061_EM2601': [212904], # Sakura Cinders of the East
     'MM_M063_EM2170': [326663], # Guardian of Tokyo
 }
