@@ -4028,7 +4028,7 @@ class Randomizer:
         start = 0xCE
         size = 0x18F
         totalSize1 = uassetBuffer.readWord(0xA9)
-        totalSize2 = uassetBuffer.readWord(0xE24)
+        totalSize2 = uassetBuffer.readWord(len(uassetBuffer.buffer) - 0x60)
         for index, element in enumerate(encountArr):
             if index >= 3000: #there is one less entry than there are normal encounters
                 continue
@@ -4060,7 +4060,7 @@ class Randomizer:
                 element.positions.addDemons.append(Position(data.readFloat(locations['addDemon1'] + 0xC * i),data.readFloat(locations['addDemon1'] + 4 + 0xC * i)))
             element.positions.offsetNumber = locations
         uassetBuffer.writeWord(totalSize1,0xA9)
-        uassetBuffer.writeWord(totalSize2,0xE24)
+        uassetBuffer.writeWord(totalSize2,len(uassetBuffer.buffer) - 0x60)
         return encountArr
 
     '''
@@ -5704,6 +5704,7 @@ class Randomizer:
         encountPostUassetBuffer = self.readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_UASSET_IN)
         chestBuffer = self.readBinaryTable(paths.CHEST_TABLE_IN)
         mapSymbolParamBuffer = self.readBinaryTable(paths.MAP_SYMBOL_PARAM_IN)
+        eventEncountPostUassetBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -5744,7 +5745,8 @@ class Randomizer:
         self.fillMimanRewardArr(shopBuffer)
         self.fillMapSymbolArr(mapSymbolParamBuffer)
         
-        self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
+        #self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
+        self.eventEncountArr = self.addPositionsToNormalEncountArr(eventEncountPostBuffer, self.eventEncountArr, eventEncountPostUassetBuffer)
         self.encountArr = self.addPositionsToNormalEncountArr(encountPostBuffer, self.encountArr, encountPostUassetBuffer)
         
         self.findValidBossDemons()
@@ -5950,8 +5952,8 @@ class Randomizer:
         self.writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         self.writeBinaryTable(chestBuffer.buffer, paths.CHEST_TABLE_OUT, paths.MAP_FOLDER_OUT)
         self.writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
-        
-        self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        self.writeBinaryTable(eventEncountPostUassetBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        #self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         
         self.applyUnrealPak()
 
