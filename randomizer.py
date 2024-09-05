@@ -4528,7 +4528,6 @@ class Randomizer:
             comp (List(Compendium_Demon)): Optional list of demons to randomize
             mask (List(Number)): Optional list of demon IDs to filter comp by, only randomizing stats of those demons
             foes (List(Enemy_Demon)): Optional list of enemy version of demons to also adjusts stats for
-    TODO: Modify Stat Growths as well
     '''
     def randomizeDemonStats(self, comp, mask=None, foes=None):
         for demon in comp:
@@ -4608,6 +4607,41 @@ class Randomizer:
                 foe.stats.mag = math.floor(demon.stats.mag.og * enemyModifiers.mag)
                 foe.stats.agi = math.floor(demon.stats.agi.og * enemyModifiers.agi)
                 foe.stats.luk = math.floor(demon.stats.luk.og * enemyModifiers.luk)
+
+            growthRanges = [#min,max based on base demon data
+                [17,28],#HP 
+                [13,27],#MP
+                [3,33],#Str
+                [11,33],#Vit
+                [10,38],#Mag
+                [10,36],#Agi
+                [12,29]#Luk
+            ]
+
+            sumRange = [138,148]#growth total sums obtained from vanilla data
+
+            randomGrowths = []
+            for index in range(7):
+                if randomNumbers[index] > 1: #If modifier is higher than base nahobinos, growth is in upper range
+                    rGrowth = random.randrange(math.floor((growthRanges[index][0] + growthRanges[index][1]) / 2),growthRanges[index][1])
+                else: #otherwise growth is in lower range
+                    rGrowth = random.randrange(growthRanges[index][0],math.floor((growthRanges[index][0] + growthRanges[index][1]) / 2))
+                randomGrowths.append(rGrowth)
+
+            sumGrowths = sum(randomGrowths)
+            index = random.randrange(0,6)#initialize random index to start stat ajustment with a random stat
+            while not (sumRange[0] <= sumGrowths and sumRange[1] >= sumGrowths):
+                if sumGrowths > sumRange[1] and randomGrowths[index] > growthRanges[index][0]:
+                    #reduce growth to reach desired total
+                    randomGrowths[index] -= 1
+                elif sumGrowths < sumRange[0] and randomGrowths[index] < growthRanges[index][1]:
+                    #increase growth to reach desired total
+                    randomGrowths[index] += 1
+                sumGrowths = sum(randomGrowths)
+                if index < 6:
+                    index += 1
+                else:
+                    index = 0
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
     Resulting demon is the demon with an level higher than the average of the two levels.
