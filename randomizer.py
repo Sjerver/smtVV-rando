@@ -2329,6 +2329,14 @@ class Randomizer:
             buffer.writeWord(demon.stats.mag.start,demon.offsetNumbers['HP'] + 4 * 6)
             buffer.writeWord(demon.stats.agi.start,demon.offsetNumbers['HP'] + 4 * 7)
             buffer.writeWord(demon.stats.luk.start,demon.offsetNumbers['HP'] + 4 * 8)
+            #Write stat growths of the demon to the buffer
+            buffer.writeWord(demon.stats.HP.growth,demon.offsetNumbers['HP'] + 4 * 2)
+            buffer.writeWord(demon.stats.MP.growth,demon.offsetNumbers['HP'] + 4 * 3)
+            buffer.writeWord(demon.stats.str.growth,demon.offsetNumbers['HP'] + 4 * 9)
+            buffer.writeWord(demon.stats.vit.growth,demon.offsetNumbers['HP'] + 4 * 10)
+            buffer.writeWord(demon.stats.mag.growth,demon.offsetNumbers['HP'] + 4 * 11)
+            buffer.writeWord(demon.stats.agi.growth,demon.offsetNumbers['HP'] + 4 * 12)
+            buffer.writeWord(demon.stats.luk.growth,demon.offsetNumbers['HP'] + 4 * 13)
             #Write the id of the demons skills to the buffer
             for index, skill in enumerate(demon.skills):
                 buffer.writeWord(skill.ind, demon.offsetNumbers['firstSkill'] + 4 * index)
@@ -4611,7 +4619,7 @@ class Randomizer:
             growthRanges = [#min,max based on base demon data
                 [17,28],#HP 
                 [13,27],#MP
-                [3,33],#Str
+                [3,33],#Str 
                 [11,33],#Vit
                 [10,38],#Mag
                 [10,36],#Agi
@@ -4642,6 +4650,15 @@ class Randomizer:
                     index += 1
                 else:
                     index = 0
+
+            demon.stats.HP.growth = randomGrowths[0]
+            demon.stats.MP.growth = randomGrowths[1]
+            demon.stats.str.growth = randomGrowths[2]
+            demon.stats.vit.growth = randomGrowths[3]
+            demon.stats.mag.growth = randomGrowths[4]
+            demon.stats.agi.growth = randomGrowths[5]
+            demon.stats.luk.growth = randomGrowths[6]
+
     '''
     Based on the level of two demons and an array of demons of a race sorted by level ascending, determine which demon results in the normal fusion.
     Resulting demon is the demon with an level higher than the average of the two levels.
