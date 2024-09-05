@@ -12,19 +12,28 @@ You can choose a mix of any or all of these randomizations in the settings
 Demon/Encounter randomization:
 - Encounters get replaced with a demon at the same level as the original encounter
 - For all playable demons and normal map encounters: Level (including EXP and Money adjustment), Press Turns (10%, doubled if normally two turns)
-- All compendium demons and basic enemies get random skills that would be appropriate for their level
-  Appropriateness for their level is based on the skill distribution of the main game, including Nahobino only and some Enemy only Skills.
-  Skills are also weighted by how often they appear in the main game, the corresponding potential for the skill from the demon, and whether the demon has more strength or magic.
+- Starting and learnable skills for demons can be randomized
+- Skill distribution can be tied to their level and is based on the skill distribution of the main game, including Nahobino only and some Enemy only Skills.
+  Skills are also weighted by how often they appear in the main game, and whether the demon has more strength or magic.
   Additonally some skills like Charge, Concentrate or Pleromas are only assigned to a demon if the demon would get use out of them or based on their potential it reasonable to assume that the demon could make good use of them.
+- Skills can be distributed based on the demon's skill potentials
 - Innate skills are randomized and guaranteed to avoid innates that have no effect
 - You can randomize potentials and scale them based on the demon's level
 - Races and alignments can be randomized
 - Normal bosses, superbosses, abscesses, and punishing foes can be randomized within their own categories or mixed together
 - Special fusions are randomized and will require demons of a lower level than the result
+- Demons obtained from quests can be their randomized replacements at the same level as the original demon
+- Stats of demons can be randomized
+
+Unique Skill Inheritance:
+- Vanilla: Unique skills can only show up on the skill's original owner
+- Random: Unique skills get randomly assigned to a new owner, and therefore cannot be inherited to their original owner
+- Free: Unique skills can be freely inherited and learned by any demon
 
 Item/Miracle randomization:
 - Shop Items are randomized, but dampeners are guaranteed to show up immediately
 - Chest Items, enemy/boss drops, quest rewards, and miman rewards can be randomized
+- Key Items required for quest progression will always be in obtainable in the same way
 - The randomizer will try to provide one of each essence before giving any duplicates
 - Miracle unlocks and glory costs can be randomized
 - Progressive miracles like art of essences will be given to abscesses in order
@@ -35,8 +44,8 @@ Basic gameplay changes:
 - Normally two demons which result in a special fusion do not result in a normal fusion. For the sake of simplicity they now are fusable normally.
   (Example: Barong and Rangda can not be fused normally because they are the requirement for special fusion Shiva. The randomizer adds a normal fusion of Barong + Rangda = Chimera according to normal fusion chart rules.)
 - For some unique skills the animations might not play properly but the game should continue if the animation is skipped
-- Demons obtained from quests will be their randomized replacements at the same level as the original demon
 - In the vengeance route, Yuzuru will be level 99 for the Glasya-Labolas check to avoid getting hard-walled
+- In order to allow for more flexible assignment of random races and level, additional fusion combinations for previously unfusable races have been added to the fusion chart.
 
 These things are planned for future updates:
 - Randomizing Magatsuhi
