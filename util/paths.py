@@ -86,7 +86,7 @@ MOVER_PARAMTABLE_FOLDER_OUT = 'rando/Project/Content/Blueprints/Map/Encount/Move
 
 ENCOUNTERS_DEBUG = 'debug/encounterResults.txt'
 FUSION_DEBUG = 'debug/fusionResults.txt'
-BOSSES_DEBUG = 'debug/bossEncounters.csv'
+BOSSES_DEBUG = 'research/bossEncounters.csv'
 BOSS_SPOILER = 'debug/bossSpoilerLog.txt'
 UNREAL_PAK_FILE_NAME = 'UnrealPak-With-Compression.bat'
 UNREAL_PAK_FOLDER = './base'

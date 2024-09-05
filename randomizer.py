@@ -5667,11 +5667,12 @@ class Randomizer:
         TODO: Determine if this works for non-windows systems
     '''
     def applyUnrealPak(self):
+        print("Applying Unreal Pak...")
         try:
             os.chdir(paths.UNREAL_PAK_FOLDER)
             os.system(paths.UNREAL_PAK_FILE_NAME + ' ' + paths.OUTPUT_FOLDER_RELATIVE_TO_UNREAL_PAK)
         except:
-            print('Automatic Unreal Pak not supported for this system, please manually apply Unreal Pak to "rando" folder')
+            print('Automatic Unreal Pak not supported for this system, please manually apply Unreal Pak to "rando" folder to generate rando.pak')
 
     '''
         Executes the full randomization process including level randomization.
@@ -5758,7 +5759,10 @@ class Randomizer:
        
         if config.randomPotentials:
             self.randomizePotentials(self.compendiumArr)
-            self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS)
+            if config.fixUniqueSkillAnimations:
+                self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
+            else:
+                self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS)
         
         if self.configSettings.randomDemonStats:
             self.randomizeDemonStats(self.compendiumArr, foes=self.enemyArr)
@@ -5795,7 +5799,10 @@ class Randomizer:
             self.assignRandomStartingSkill(self.nahobino, levelSkillList, config)
             self.assignRandomSkillsToProtofiend(self.protofiendArr, levelSkillList, config)
             newComp = self.assignRandomSkills(newComp,levelSkillList, config)
-            self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
+            if config.fixUniqueSkillAnimations:
+                self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
+            else:
+                self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
             
             
 
@@ -5998,13 +6005,18 @@ class Randomizer:
                     
 if __name__ == '__main__':
     rando = Randomizer()
-    print('Warning: Level randomization is currently not fully implemented')
+    print('Warning: This is an early build of the randomizer and some things may not work as intended. Performance will be somewhat worse than vanilla SMTVV')
     try:
         rando.configSettings, rando.textSeed = gui.createGUI(rando.configSettings)
         rando.createSeed()
         
         rando.fullRando(rando.configSettings)
+        if not rando.configSettings.fixUniqueSkillAnimations:
+            print('"Fix unique skill animations" patch not applied. If the game appears to hang during a battle animation, press the skip animations button')
        
     except RuntimeError:
         print('GUI closed - randomization was canceled')
+    print('Randomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
+    print('bossSpoilerLog and encounterResults can be found in the debug folder')
+    print('Lastly, it is recommended that you do not play the randomizer on hard mode Larpas')
     input('Press [Enter] to exit')
