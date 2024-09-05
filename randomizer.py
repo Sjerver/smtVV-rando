@@ -3940,9 +3940,9 @@ class Randomizer:
                     #replace conditions with first new demon
                     keyDemon = list(demonAmounts.keys())[0]
                     amounts = demonAmounts[keyDemon]
-                    pair[0].conditions[i].type = 1
-                    pair[0].conditions[i].ind = keyDemon
-                    pair[0].conditions[i].amount = amounts
+                    pair[0].conditions[0].type = 1
+                    pair[0].conditions[0].ind = keyDemon
+                    pair[0].conditions[0].amount = amounts
 
             if encounter.ind in fourHolyBeastEncounters:
                 hBIndex = fourHolyBeastEncounters.index(encounter.ind)

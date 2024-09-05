@@ -56,7 +56,7 @@ SCRIPT_JOINS = {
     'MM_M061_EM1640': 43, # Apsaras
     'MM_M062_EM1660': 257, # Principality
     'MM_M062_EM1650': 67, # Lilim
-    'MM_M060_EM1690': 256, # Adramelech
+    'MM_M060_EM1690': 265, # Adramelech
     'MM_M060_EM1700': 201, # Futsunushi
     'MM_M063_EM1670': 72, # Black Frost
     'MM_M063_EM1680': 183, # Dionysus
