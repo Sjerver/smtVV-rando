@@ -5714,6 +5714,9 @@ class Randomizer:
             config (Settings) 
     '''
     def fullRando(self, config):
+
+        self.writeFolder(paths.DEBUG_FOLDER)
+
         compendiumBuffer = self.readBinaryTable(paths.NKM_BASE_TABLE_IN)
         skillBuffer = self.readBinaryTable(paths.SKILL_DATA_IN)
         normalFusionBuffer = self.readBinaryTable(paths.UNITE_COMBINE_TABLE_IN)

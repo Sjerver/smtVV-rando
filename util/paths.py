@@ -84,6 +84,7 @@ MAP_ENCOUNT_FOLDER_OUT = 'rando/Project/Content/Blueprints/Map/Encount'
 ENCOUNT_MOVER_FOLDER_OUT = 'rando/Project/Content/Blueprints/Map/Encount/Mover'
 MOVER_PARAMTABLE_FOLDER_OUT = 'rando/Project/Content/Blueprints/Map/Encount/Mover/ParamTable'
 
+DEBUG_FOLDER = 'debug'
 ENCOUNTERS_DEBUG = 'debug/encounterResults.txt'
 FUSION_DEBUG = 'debug/fusionResults.txt'
 BOSSES_DEBUG = 'research/bossEncounters.csv'
