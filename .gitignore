@@ -12,6 +12,7 @@ config.ini
 randomizer.spec
 build/
 dist/
+Engine/
 
 # local env files
 .env.local
