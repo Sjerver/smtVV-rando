@@ -1,4 +1,3 @@
-from tkinter import ACTIVE
 from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
@@ -5924,7 +5923,8 @@ class Randomizer:
         if self.configSettings.randomizeMissionRewards:
             self.randomizeMissionRewards(self.configSettings.scaleItemsToArea)
         
-        self.patchQuestBossDrops()
+        if self.configSettings.selfRandomizeNormalBosses or self.configSettings.mixedRandomizeNormalBosses or self.configSettings.selfRandomizeOverworldBosses or self.configSettings.mixedRandomizeOverworldBosses:
+            self.patchQuestBossDrops()
         if self.configSettings.randomEnemyDrops:
             self.randomizeBasicEnemyDrops(self.configSettings.scaleItemsToArea)
             self.randomizeBossDrops(self.configSettings.scaleItemsToArea)

@@ -9,6 +9,9 @@ filelist.txt
 config.ini
 *.pyc
 /.vscode
+randomizer.spec
+build/
+dist/
 
 # local env files
 .env.local
