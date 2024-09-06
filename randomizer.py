@@ -103,7 +103,7 @@ class Randomizer:
             The buffer containing CharacterNames
     '''
     def readDemonNames(self):
-        with open(paths.CHARACTER_NAME_IN, 'r', encoding="utf-8") as file:
+        with open(paths.CHARACTER_NAME_IN, 'r') as file:
             fileContents = file.read()   
             tempArray = fileContents.split("MessageLabel=")
             tempArray.pop(0)
@@ -3559,7 +3559,7 @@ class Randomizer:
         self.adjustBasicEnemyDrops(replacements, enemyArr)
         self.missionArr = self.adjustMissionsRequiringNormalDemons(replacements,enemyArr, self.missionArr)
 
-        with open(paths.ENCOUNTERS_DEBUG, 'w') as spoilerLog: #Create spoiler log
+        with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
             for pair in replacements:
                 spoilerLog.write(self.enemyNames[pair[0]] + " replaced by " + self.enemyNames[pair[1]] + "\n")
         return newSymbolArr
@@ -3628,7 +3628,7 @@ class Randomizer:
         encounterPools = bossLogic.createBossEncounterPools(self.eventEncountArr, self.encountArr, self.uniqueSymbolArr, self.abscessArr, self.bossDuplicateMap, self.configSettings)
         if not encounterPools:
             return
-        with open(paths.BOSS_SPOILER, 'w') as spoilerLog: #Create spoiler log
+        with open(paths.BOSS_SPOILER, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
             for filteredEncounters in encounterPools:
                 shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
                 shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
@@ -5439,6 +5439,10 @@ class Randomizer:
             
         questBossIDs = copy.deepcopy(numbers.QUEST_DROPS_BOSSES)
         
+        if questBossIDs == replacementDemonIDs:
+            #Everyone is the same
+            return
+
         #First set drops for quest bosses which aren't replaced by a quest boss or show up as replacement
         toRemove = []
         for index, demonID in enumerate(questBossIDs):
@@ -6041,7 +6045,7 @@ class Randomizer:
                         for demon in ec.encounter.demons:
                             finalString = finalString + demon + ' '
                         finalString = finalString + '\n'
-        with open(paths.ENCOUNTERS_DEBUG, 'w') as file:
+        with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as file:
             file.write(finalString)
             
     def findEncounterBattle(self, id2, symbolEncs):
@@ -6060,7 +6064,7 @@ class Randomizer:
         finalString = ""
         for fusion in fusions:
             finalString = finalString + fusion.firstDemon.translation + " + " + fusion.secondDemon.translation + " = " + fusion.result.translation + '\n'
-        with open(paths.FUSION_DEBUG, 'w') as file:
+        with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
             file.write(finalString)
                     
 if __name__ == '__main__':
