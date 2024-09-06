@@ -65,3 +65,5 @@ If on windows, the randomizer will automatically create rando.pak so you can ski
 Then open the directory of the game via Steam and navigate to SMT5V/Project/Content/Paks.
 Here create a folder named "~mods" and put the .pak file in it.
 The mod should now work when loading the game.
+
+If you have any questions or technical difficulties, join the SMT Randomizer discord: https://discord.gg/d25ZAha
