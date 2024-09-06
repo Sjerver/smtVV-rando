@@ -51,4 +51,5 @@ rando/Project/Content/Blueprints/Map/Encount/Mover/ParamTable/MapSymbolParamTabl
 debug/bossSpoilerLog.txt
 debug/encounterResults.txt
 debug/fusionResults.txt
+debug/currentSeed.txt
 rando.pak

@@ -5698,6 +5698,8 @@ class Randomizer:
          if self.textSeed == "":
              self.textSeed = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
              print('Your generated seed is: {}\n'.format(self.textSeed))
+             with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
+                file.write(self.textSeed)
          random.seed(self.textSeed)
          
     '''
