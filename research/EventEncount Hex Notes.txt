@@ -1,0 +1,21 @@
+Entry start first: 45, second: A5 size:0x60
+
+0 size0x20 Either starts with 30 or String for .umap file in folder level; decides how camera works
+20 size1 ID in table
+21 size1 ID of next battle (used in Virtual Trainer, works outside of it aswell)
+23 size1 3 if LevelString, 0 otherwise
+24 size1? seems to refer to the battlefield (e.g. all battles in empyrean have 02, result in black void otherwise)
+2A size1? some kind of flag	(always set??)
+2B size1? another flag		(nuwa has this)
+2E size1-2? Battle Theme
+30 size1? always 2??
+38 size2 Some kind of demon id no idea what the effect is though
+3A size1 Set for Lilith, Yuzuru, Satan (ends the battle early if they are defeated when value is 1)
+48 size2 1st demon in battle
+4A size2 2nd demon in battle
+4E size2 3rd demon in battle
+51 size2 4th demon in battle
+53 size2 5th demon in battle
+55 size2 6th demon in battle
+
+5C size1? ???

@@ -1,0 +1,21 @@
+Abscess Data
+
+first 45 size 20
+
+0 empty
+C size 2 Encounter from EncountData Table 2
+E size 1 Should be Event Encounter
+14 Miracle
+15 Miracle
+16 Miracle
+17 Miracle 
+18 Miracle
+19 Miracle
+
+
+
+Last 3 Entries grant:
+- Inheritance Violation
+- Rank Violation
+- Moral Transcendence
+

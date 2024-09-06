@@ -1,0 +1,7 @@
+Start of each entry is 0x17000000000000003100000000000000
+Demon ID is 25 bytes later, call this 0x00
+0x1d is float movement speed
+0x74 is float scale factor
+
+Could probably replace demons that no longer spawn on the overworld with their replacements
+to have less demons using the default slow speed

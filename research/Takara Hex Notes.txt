@@ -1,0 +1,18 @@
+start 0x45
+size of entry 0x1c
+801 entries
+
+0 size2 map (3D for minato, 3E for shinagawa, 10 for empyrean, 3C Shinjuku, 3F Chiyoda)
+2 size2? chest ID 
+0x10 size2 item id 0000 might be macca
+0x12 size1 amount
+0x14 macca
+
+216 / 510 chests have essences (42%)
+18 / 510 chests have macca (3.5%)
+Quantity is 1-5. All essences need to have qty 1. Same with whittled goat. Dampeners are max 3
+Qty 1: 134
+Qty 2: 78
+Qty 3: 42
+Qty 4: 8
+Qty 5: 4

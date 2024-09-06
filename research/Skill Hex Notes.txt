@@ -17,6 +17,7 @@ Skill Offset 0xc4
 NOT IN YET 0x92 Element2
 NOT IN YET 0x93 Element3
 NOT IN YET 0x94 Element4
+0x9D Unique To
 0xA1 SkillIcon
 
 0xA2 PotentialType

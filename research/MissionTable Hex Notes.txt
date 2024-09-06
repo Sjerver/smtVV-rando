@@ -1,0 +1,19 @@
+Every Entry for one quest?
+
+Entry start: 0x45
+Entry size: 372
+
+Mission 15: Lilim that wants 10 Mothmen as example
+Start: 0x1611 (Quest ID)
+0x1616: ??
+0x1617: ??
+0x1619: ID -> 0x6301 -> 355 -> Lilim's Essence
+0x161B: Amount -> 01
+
+0x1629: Macca Amount Rewarded
+
+Conditions Max 4
+0x1631: 01 <- Type (01 Demon, 02 Item, 03 Flag/Location??, 04(Save the Students, 05 Demon in Stock)) 
+0x1635: ID -> 0x97 -> 147 -> Mothman ID
+0x1639: Amount -> 0A -> 10 
+

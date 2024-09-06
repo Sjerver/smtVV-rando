@@ -1,0 +1,12 @@
+
+
+Essences:
+Size: 0x18
+
+1st Khonsu:
+ID 0x6E55 5bytes 
+Demon 0x6E59 4bytes
+Price 0x6E65 4bytes
+
+2nd Zeus:
+Demon 0x6E71

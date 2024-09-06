@@ -1,0 +1,37 @@
+class Settings(object):
+    def __init__(self):
+        self.randomDemonLevels = False              # Randomize demon levels (enables encounter randomizer)
+        self.randomSkills = False                   # Randomize demon starting and learned skills
+        self.scaledSkills = False                   # Ensure demons have appropriately strong skills for their level
+        self.randomInnates = False                  # Randomize demon innate skills
+        self.potentialWeightedSkills = False        # Weight demon skills based on their skill potentials and stats
+        self.randomPotentials = False               # Randomize demon skill potentials
+        self.scaledPotentials = False               # Scale demon potentials based on level
+        self.multipleUniques = False                # Allows unique skills to be assigned to more than one demon
+        self.randomMusic = False                    # Boss music is randomized
+        self.checkBasedMusic = False                # Boss music is based on check rather than boss demon
+        self.randomShopItems = False                # Randomizes what items are sold in the shop
+        self.randomShopEssences = False             # Randomizes what essences are sold in the shop
+        self.randomEnemyDrops = False               # Randomizes items that enemies drop
+        self.randomMiracleUnlocks = False           # Shuffles what miracles are unlocked at each abscess
+        self.randomMiracleCosts = False             # Randomizes the glory cost of miracles
+        self.randomChests = False                   # Randomizes the items/macca/essences gained from overworld chests
+        self.selfRandomizeNormalBosses = False      # Randomize story and sidequest bosses only with each other
+        self.mixedRandomizeNormalBosses = False     # Randomize story and sidequest bosses with all bosses
+        self.randomizeLucifer = False               # Include the final boss in randomization (goes into the normal boss pool)
+        self.selfRandomizeAbscessBosses = False     # Randomize abscess bosses only with each other
+        self.mixedRandomizeAbscessBosses = False    # Randomize abscess bosses with all bosses
+        self.selfRandomizeOverworldBosses = False   # Randomize punishing foes only with each other
+        self.mixedRandomizeOverworldBosses = False  # Randomize punishing foes with all bosses
+        self.selfRandomizeSuperbosses = False       # Randomize superbosses only with each other
+        self.mixedRandomizeSuperbosses = False      # Randomize superbosses foes with all bosses
+        self.randomInheritance = False              # Randomize to which demons unique skills belong to
+        self.freeInheritance = False                # Make unique skills freely inheritable
+        self.randomRaces = False                    # Randomize normal demons' races
+        self.randomAlignment = False                # Randomize the alignment of demons
+        self.ensureDemonJoinLevel = False           # Ensures the demons that join after quests have the same level as the original demon from that quest
+        self.scaleItemsToArea = False               # Scales items (drops/rewards/shops) to be similiar to original progression wise
+        self.randomizeMimanRewards = False          # Randomizes the rewards for gathering Miman
+        self.randomizeMissionRewards = False        # Randomizes the rewards of mission
+        self.randomDemonStats = False               # Randomizes the stat modifiers for playable demons
+        self.fixUniqueSkillAnimations = False       # Replaces unique skill animations with those of normal skills to avoid the game hanging

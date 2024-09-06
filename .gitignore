@@ -1,37 +1,54 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
 # misc
-.DS_Store
 ~mods.lnk
 .txt
-*.bat
 .pak
 .exe
 filelist.txt
-UnrealPak.exe
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+config.ini
+*.pyc
+/.vscode
+randomizer.spec
+build/
+dist/
+Engine/
 
 # local env files
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# output files
+rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Event/BattleEventTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Event/BattleEventTable.uasset
+rando/Project/Content/Blueprints/Common/AssetTable/DevilAssetTable.uexp
+rando/Project/Content/Blueprints/Common/AssetTable/EncountPostTable/EventEncountPostDataTable.uexp
+rando/Project/Content/Blueprints/Common/AssetTable/EncountPostTable/EventEncountPostDataTable.uasset
+rando/Project/Content/Blueprints/Common/AssetTable/EncountPostTable/EncountPostDataTable.uexp
+rando/Project/Content/Blueprints/Common/AssetTable/EncountPostTable/EncountPostDataTable.uasset
+rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Boss/BossFlag.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Mission/MissionTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EventEncountData.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Facility/Table/ShopTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Item/ItemTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Common/PlayerGrow.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EncountData.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Unite/UniteTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Unite/UniteCombineTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Skill/SkillData.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/UIGraphcis/DevilUIGraphicsTable.uexp
+rando/Project/Content/Blueprints/Camp/Status/TalkCameraOffsetTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Map/D_BaseTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/GodParameter/Table/GodParameterDataTable.uexp
+rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EventEncountData.uasset
+rando/Project/Content/Blueprints/Gamedata/BinTable/Map/UniqueSymbolData.uexp
+rando/Project/Content/Blueprints/Event/
+rando/Project/Content/Blueprints/Gamedata/BinTable/Map/TakaraData.uexp
+rando/Project/Content/Blueprints/Map/Encount/Mover/ParamTable/MapSymbolParamTable.uexp
+debug/bossSpoilerLog.txt
+debug/encounterResults.txt
+debug/fusionResults.txt
+rando.pak
