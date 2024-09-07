@@ -3668,12 +3668,8 @@ class Randomizer:
                 if encounter.ind in encountersWithBattleEvents:
                     eventInds = [jIndex for jIndex,e in enumerate(encountersWithBattleEvents) if e == encounter.ind] 
                     for ind in eventInds:
-                        # check if reference still has a event 
-                        if self.eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
-                            self.battleEventArr[ind].encounterID = self.eventEncountArr[self.bossDuplicateMap[index]].ind
-                        else:
-                            self.battleEventArr[ind].encounterID = 255
-                elif self.eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
+                        self.battleEventArr[ind].encounterID = 255
+                if self.eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
                 #reference has event but not duplicate 
                     eventInds = [jIndex for jIndex,e in enumerate(encountersWithBattleEvents) if e == self.eventEncountArr[self.bossDuplicateMap[index]].ind] 
                     for ind in eventInds:
@@ -5402,7 +5398,7 @@ class Randomizer:
         #Magatsuhi Tutorial Pretas
         self.battleEventArr[12].encounterID = 255
         #Guest Tutorial Glasya-Labolas
-        self.battleEventArr[35].enounterID = 255
+        self.battleEventArr[35].encounterID = 255
 
     '''
     Patches tutorial Daemon's HP to be beatable without Zio
