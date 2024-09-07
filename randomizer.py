@@ -6119,10 +6119,14 @@ if __name__ == '__main__':
         rando.fullRando(rando.configSettings)
         if not rando.configSettings.fixUniqueSkillAnimations:
             print('"Fix unique skill animations" patch not applied. If the game appears to hang during a battle animation, press the skip animations button')
+        print('\nRandomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
+        print('bossSpoilerLog, encounterResults and fusionResults can be found in the debug folder')
+        print('Lastly, it is recommended that you do not play the randomizer on hard mode Larpas')
        
     except RuntimeError:
         print('GUI closed - randomization was canceled')
-    print('\nRandomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
-    print('bossSpoilerLog, encounterResults and fusionResults can be found in the debug folder')
-    print('Lastly, it is recommended that you do not play the randomizer on hard mode Larpas')
+    except Exception as e:
+        print(e)
+        print('Unexpected error occured, randomization failed.\nPlease retry with different settings or send a screenshot of this error to the SMT Rando Discord\n https://discord.gg/d25ZAha')
+    
     input('Press [Enter] to exit')
