@@ -1,5 +1,5 @@
 from util.binary_table import Table
-from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate
+from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate, Encounter_Spawn
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter
@@ -215,7 +215,8 @@ class Randomizer:
                 'unlockFlags': offset + 0x60,
                 'tone': offset + 0x58,
                 'innate': offset + 0x100,
-                'potential': offset + 0X174
+                'potential': offset + 0X174,
+                'encounterSpawn': offset + 0x1AC
             }
             #Then read the list of initial skills learned
             listOfSkills = []
@@ -299,6 +300,10 @@ class Randomizer:
                                             translation.translateSkillID(NKMBaseTable.readWord(locations['innate']), self.skillNames))
             demon.skills = listOfSkills
             demon.learnedSkills = listOfLearnedSkills
+            demon.creationSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'])
+            demon.creationSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 4)
+            demon.vengeanceSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 8)
+            demon.vengeanceSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 12)
             #Add read demon data to compendium
             self.compendiumArr.append(demon)
         self.defineLevelForUnlockFlags(self.compendiumArr)
@@ -714,7 +719,8 @@ class Randomizer:
                 'unlockFlags': offset + 0x60,
                 'tone': offset + 0x58,
                 'innate': offset + 0x100,
-                'potential': offset + 0X174
+                'potential': offset + 0X174,
+                'encounterSpawn': offset + 0x1CA
             }
             #Then read the list of initial skills learned
             listOfSkills = []
@@ -798,6 +804,10 @@ class Randomizer:
                                             translation.translateSkillID(NKMBaseTable.readWord(locations['innate']), self.skillNames))
             demon.skills = listOfSkills
             demon.learnedSkills = listOfLearnedSkills
+            demon.creationSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'])
+            demon.creationSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 4)
+            demon.vengeanceSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 8)
+            demon.vengeanceSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 12)
             #Add read demon data to compendium
             self.playerBossArr.append(demon)
 
@@ -2356,6 +2366,10 @@ class Randomizer:
             buffer.writeByte(demon.unlockFlags[1], demon.offsetNumbers['unlockFlags'] +1)
             buffer.writeByte(demon.tone.value, demon.offsetNumbers['tone'])
             buffer.writeByte(demon.tone.secondary, demon.offsetNumbers['tone'] + 1)
+            buffer.writeWord(demon.creationSpawn.mapNameID,demon.offsetNumbers['encounterSpawn'] )
+            buffer.writeWord(demon.creationSpawn.zoneNameID,demon.offsetNumbers['encounterSpawn'] +4)
+            buffer.writeWord(demon.vengeanceSpawn.mapNameID,demon.offsetNumbers['encounterSpawn'] +8)
+            buffer.writeWord(demon.vengeanceSpawn.zoneNameID,demon.offsetNumbers['encounterSpawn'] +12)
             #write potentials
             buffer.writeWord(demon.potential.physical, demon.offsetNumbers['potential'] + 4 * 0)
             buffer.writeWord(demon.potential.fire, demon.offsetNumbers['potential'] + 4 * 1)
@@ -3560,6 +3574,7 @@ class Randomizer:
 
         self.adjustBasicEnemyStats(replacements, enemyArr)
         self.adjustBasicEnemyDrops(replacements, enemyArr)
+        self.adjustListedLocations(replacements, comp)
         self.missionArr = self.adjustMissionsRequiringNormalDemons(replacements,enemyArr, self.missionArr)
 
         with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
@@ -3605,7 +3620,7 @@ class Randomizer:
     
 
     '''
-    Adjust the stats of the enemies based on which enemy they replace as a symbol encounter
+    Adjust the stats and listed locations of the enemies based on which enemy they replace as a symbol encounter
         Parameters:
             replacements (Array): Contains pairs of replacements [OGID, NEWID]
             foes (Array): List of basic enemies
@@ -3621,6 +3636,32 @@ class Randomizer:
                 math.floor(replacement.stats.agi * statMods.agi), math.floor(replacement.stats.luk * statMods.luk))
             
             replacement.stats = newStats
+    '''
+    Switches the location listed in the menu of the new encounter demons to that of their replacements.
+        Parameters:
+        replacements(List): Contains pairs of replacements [OGID, NEWID]
+        comp List(Compendium_Demon): list of all compendium demons
+    '''
+    def adjustListedLocations(self, replacements, comp):
+        ogSpawns = []
+        for pair in replacements:
+            replaced = comp[pair[0]]
+            ogSpawns.append([copy.deepcopy(replaced.creationSpawn),copy.deepcopy(replaced.vengeanceSpawn)])
+
+        for index, pair in enumerate(replacements):
+            replacement = comp[pair[1]]
+            
+            replacement.creationSpawn = ogSpawns[index][0]
+            replacement.vengeanceSpawn = ogSpawns[index][1]
+        
+        replacedList = [r[1] for r in replacements]
+        nonEncounter = [f for f in comp if f.ind not in replacedList and 'Mitama' not in f.name]
+        # Delete location data for demon who cannot be encountered on overworld
+        for demon in nonEncounter:
+            demon.creationSpawn.mapNameID = 120 #values for non encounterable demons
+            demon.creationSpawn.zoneNameID = 0
+            demon.vengeanceSpawn.mapNameID = 120
+            demon.vengeanceSpawn.zoneNameID = 0
             
     '''
     Randomizes main story and sidequest bosses in eventEncountArr. The array is filtered to exclude problematic and duplicate encounters before shuffling
@@ -4216,7 +4257,7 @@ class Randomizer:
                         validEssences[area].append(itemID)
         else:#no scaling items per area
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES not in itemName and itemID not in validEssences:
+                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
                     validEssences.append(itemID)
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
@@ -4283,11 +4324,11 @@ class Randomizer:
                 #Grab all essences in the predefined level range for the area
                 currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[key][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[key][1]]
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES not in itemName and itemID not in validEssences[key] and itemName in currentDemonNames:
+                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[key] and itemName in currentDemonNames:
                         validEssences[key].append(itemID)
         else: #Rewards do not scale with map
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES not in itemName and itemID not in validEssences:
+                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
                     validEssences.append(itemID)
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
