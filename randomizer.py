@@ -1088,7 +1088,8 @@ class Randomizer:
                 'levelpath': offset,
                 'unknownDemon': offset + 0x38,
                 '23Flag': offset + 0x23,
-                'battlefield': offset + 0x24
+                'battlefield': offset + 0x24,
+                'startingPhase': offset + 0x30,
             }
             encounter.unknown23Flag = data.readByte(offset + 0x23)
             encounter.battlefield = data.readByte(offset + 0x24)
@@ -1100,6 +1101,7 @@ class Randomizer:
                 demons.append(Translated_Value(data.readHalfword(offset + 0x48 + 2 * number),self.enemyNames[data.readHalfword(offset + 0x48 + 2 * number)]))
 
             encounter.demons = demons
+            encounter.startingPhase = data.readByte(offset + 0x30)
             encounter.originalIndex = index
             #Check if encounter is a duplicate and store that information in bossDuplicateMap if so
             originalIndex = next((x for x, val in enumerate(self.eventEncountArr) if val.compareDemons(encounter)), -1)
@@ -2561,6 +2563,7 @@ class Randomizer:
             buffer.write32chars(enc.levelpath, enc.offsets['levelpath'])
             buffer.writeHalfword(enc.unknownDemon.value, enc.offsets['unknownDemon'])
             buffer.writeByte(enc.endEarlyFlag,enc.offsets['levelpath'] + 0x3A)
+            buffer.writeByte(enc.startingPhase,enc.offsets['startingPhase'])
             for index, demon in enumerate(enc.demons):
                 buffer.writeHalfword(demon.value , enc.offsets['demons'] + 2 * index)
         
