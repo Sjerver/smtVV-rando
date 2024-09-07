@@ -4087,11 +4087,11 @@ class Randomizer:
                 #Gather all essences of dmeons in the level range for the map
                 currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[key][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[key][1]]
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences[key] and itemName in currentDemonNames:
+                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[key] and itemName in currentDemonNames:
                         validEssences[key].append(itemID)
         else:
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
                     validEssences.append(itemID)
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
@@ -4118,7 +4118,7 @@ class Randomizer:
                         emergencyEssences = []
                         currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[chest.map][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[chest.map][1]]
                         for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in emergencyEssences and itemName in currentDemonNames:
+                            if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in emergencyEssences and itemName in currentDemonNames:
                                 emergencyEssences.append(itemID)
                         itemID = random.choice(emergencyEssences)
                     else:  
@@ -4209,11 +4209,11 @@ class Randomizer:
                 validEssences[area] = []
                 currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]]
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences[area] and itemName in currentDemonNames:
+                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[area] and itemName in currentDemonNames:
                         validEssences[area].append(itemID)
         else:#no scaling items per area
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES not in itemName and itemID not in validEssences:
                     validEssences.append(itemID)
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
@@ -4280,11 +4280,11 @@ class Randomizer:
                 #Grab all essences in the predefined level range for the area
                 currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[key][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[key][1]]
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences[key] and itemName in currentDemonNames:
+                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES not in itemName and itemID not in validEssences[key] and itemName in currentDemonNames:
                         validEssences[key].append(itemID)
         else: #Rewards do not scale with map
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES not in itemName and itemID not in validEssences:
                     validEssences.append(itemID)
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
