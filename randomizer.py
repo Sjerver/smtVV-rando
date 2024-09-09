@@ -24,6 +24,7 @@ import string
 import pandas as pd
 import copy
 import shutil
+import traceback
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 DEV_CHEATS = False
@@ -5452,6 +5453,10 @@ class Randomizer:
     def patchTutorialDaemon(self):
         daemon = self.bossArr[numbers.TUTORIAL_DAEMON_ID]
         daemon.stats.HP = 27 #Should die to 3 basic attacks always
+        daemon.money = 5000 #Add starting funds for qol
+        spyscopeDrop = Item_Drop(79, 'Spyscope', 100, 0) #Drop spyscope and chakra drop x2
+        chakraDrop = Item_Drop(2, 'Chakra Drop', 100, 0)
+        daemon.drops = Item_Drops(spyscopeDrop, chakraDrop, chakraDrop)
     
     '''
     Sets the drops of bosses which are quest relevant to their replacements and in cases where a quest drop boss replaces a quest drop boss makes sure that the drops of all bosses are not lost in conversion.
@@ -6128,6 +6133,7 @@ if __name__ == '__main__':
     except RuntimeError:
         print('GUI closed - randomization was canceled')
     except Exception as e:
+        traceback.print_exc()
         print(e)
         print('Unexpected error occured, randomization failed.\nPlease retry with different settings or send a screenshot of this error to the SMT Rando Discord\n https://discord.gg/d25ZAha')
     
