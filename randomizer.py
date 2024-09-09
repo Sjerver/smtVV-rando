@@ -1,5 +1,5 @@
 from util.binary_table import Table
-from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate
+from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate, Encounter_Spawn
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter
@@ -24,6 +24,7 @@ import string
 import pandas as pd
 import copy
 import shutil
+import traceback
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 DEV_CHEATS = False
@@ -75,6 +76,7 @@ class Randomizer:
         self.bossSymbolReplacementMap = {}
         self.validBossDemons = set()
         self.essenceBannedBosses = set()
+        self.updatedMissionConditionIDs = []
 
         self.nahobino = Nahobino()
         
@@ -103,7 +105,7 @@ class Randomizer:
             The buffer containing CharacterNames
     '''
     def readDemonNames(self):
-        with open(paths.CHARACTER_NAME_IN, 'r', encoding="utf-8") as file:
+        with open(paths.CHARACTER_NAME_IN, 'r') as file:
             fileContents = file.read()   
             tempArray = fileContents.split("MessageLabel=")
             tempArray.pop(0)
@@ -215,7 +217,8 @@ class Randomizer:
                 'unlockFlags': offset + 0x60,
                 'tone': offset + 0x58,
                 'innate': offset + 0x100,
-                'potential': offset + 0X174
+                'potential': offset + 0X174,
+                'encounterSpawn': offset + 0x1AC
             }
             #Then read the list of initial skills learned
             listOfSkills = []
@@ -299,6 +302,10 @@ class Randomizer:
                                             translation.translateSkillID(NKMBaseTable.readWord(locations['innate']), self.skillNames))
             demon.skills = listOfSkills
             demon.learnedSkills = listOfLearnedSkills
+            demon.creationSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'])
+            demon.creationSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 4)
+            demon.vengeanceSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 8)
+            demon.vengeanceSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 12)
             #Add read demon data to compendium
             self.compendiumArr.append(demon)
         self.defineLevelForUnlockFlags(self.compendiumArr)
@@ -714,7 +721,8 @@ class Randomizer:
                 'unlockFlags': offset + 0x60,
                 'tone': offset + 0x58,
                 'innate': offset + 0x100,
-                'potential': offset + 0X174
+                'potential': offset + 0X174,
+                'encounterSpawn': offset + 0x1CA
             }
             #Then read the list of initial skills learned
             listOfSkills = []
@@ -798,6 +806,10 @@ class Randomizer:
                                             translation.translateSkillID(NKMBaseTable.readWord(locations['innate']), self.skillNames))
             demon.skills = listOfSkills
             demon.learnedSkills = listOfLearnedSkills
+            demon.creationSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'])
+            demon.creationSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 4)
+            demon.vengeanceSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 8)
+            demon.vengeanceSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 12)
             #Add read demon data to compendium
             self.playerBossArr.append(demon)
 
@@ -1088,7 +1100,8 @@ class Randomizer:
                 'levelpath': offset,
                 'unknownDemon': offset + 0x38,
                 '23Flag': offset + 0x23,
-                'battlefield': offset + 0x24
+                'battlefield': offset + 0x24,
+                'startingPhase': offset + 0x30,
             }
             encounter.unknown23Flag = data.readByte(offset + 0x23)
             encounter.battlefield = data.readByte(offset + 0x24)
@@ -1100,6 +1113,7 @@ class Randomizer:
                 demons.append(Translated_Value(data.readHalfword(offset + 0x48 + 2 * number),self.enemyNames[data.readHalfword(offset + 0x48 + 2 * number)]))
 
             encounter.demons = demons
+            encounter.startingPhase = data.readByte(offset + 0x30)
             encounter.originalIndex = index
             #Check if encounter is a duplicate and store that information in bossDuplicateMap if so
             originalIndex = next((x for x, val in enumerate(self.eventEncountArr) if val.compareDemons(encounter)), -1)
@@ -2354,6 +2368,10 @@ class Randomizer:
             buffer.writeByte(demon.unlockFlags[1], demon.offsetNumbers['unlockFlags'] +1)
             buffer.writeByte(demon.tone.value, demon.offsetNumbers['tone'])
             buffer.writeByte(demon.tone.secondary, demon.offsetNumbers['tone'] + 1)
+            buffer.writeWord(demon.creationSpawn.mapNameID,demon.offsetNumbers['encounterSpawn'] )
+            buffer.writeWord(demon.creationSpawn.zoneNameID,demon.offsetNumbers['encounterSpawn'] +4)
+            buffer.writeWord(demon.vengeanceSpawn.mapNameID,demon.offsetNumbers['encounterSpawn'] +8)
+            buffer.writeWord(demon.vengeanceSpawn.zoneNameID,demon.offsetNumbers['encounterSpawn'] +12)
             #write potentials
             buffer.writeWord(demon.potential.physical, demon.offsetNumbers['potential'] + 4 * 0)
             buffer.writeWord(demon.potential.fire, demon.offsetNumbers['potential'] + 4 * 1)
@@ -2561,6 +2579,7 @@ class Randomizer:
             buffer.write32chars(enc.levelpath, enc.offsets['levelpath'])
             buffer.writeHalfword(enc.unknownDemon.value, enc.offsets['unknownDemon'])
             buffer.writeByte(enc.endEarlyFlag,enc.offsets['levelpath'] + 0x3A)
+            buffer.writeByte(enc.startingPhase,enc.offsets['startingPhase'])
             for index, demon in enumerate(enc.demons):
                 buffer.writeHalfword(demon.value , enc.offsets['demons'] + 2 * index)
         
@@ -3557,9 +3576,10 @@ class Randomizer:
 
         self.adjustBasicEnemyStats(replacements, enemyArr)
         self.adjustBasicEnemyDrops(replacements, enemyArr)
+        self.adjustListedLocations(replacements, comp)
         self.missionArr = self.adjustMissionsRequiringNormalDemons(replacements,enemyArr, self.missionArr)
 
-        with open(paths.ENCOUNTERS_DEBUG, 'w') as spoilerLog: #Create spoiler log
+        with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
             for pair in replacements:
                 spoilerLog.write(self.enemyNames[pair[0]] + " replaced by " + self.enemyNames[pair[1]] + "\n")
         return newSymbolArr
@@ -3602,7 +3622,7 @@ class Randomizer:
     
 
     '''
-    Adjust the stats of the enemies based on which enemy they replace as a symbol encounter
+    Adjust the stats and listed locations of the enemies based on which enemy they replace as a symbol encounter
         Parameters:
             replacements (Array): Contains pairs of replacements [OGID, NEWID]
             foes (Array): List of basic enemies
@@ -3618,6 +3638,32 @@ class Randomizer:
                 math.floor(replacement.stats.agi * statMods.agi), math.floor(replacement.stats.luk * statMods.luk))
             
             replacement.stats = newStats
+    '''
+    Switches the location listed in the menu of the new encounter demons to that of their replacements.
+        Parameters:
+        replacements(List): Contains pairs of replacements [OGID, NEWID]
+        comp List(Compendium_Demon): list of all compendium demons
+    '''
+    def adjustListedLocations(self, replacements, comp):
+        ogSpawns = []
+        for pair in replacements:
+            replaced = comp[pair[0]]
+            ogSpawns.append([copy.deepcopy(replaced.creationSpawn),copy.deepcopy(replaced.vengeanceSpawn)])
+
+        for index, pair in enumerate(replacements):
+            replacement = comp[pair[1]]
+            
+            replacement.creationSpawn = ogSpawns[index][0]
+            replacement.vengeanceSpawn = ogSpawns[index][1]
+        
+        replacedList = [r[1] for r in replacements]
+        nonEncounter = [f for f in comp if f.ind not in replacedList and 'Mitama' not in f.name]
+        # Delete location data for demon who cannot be encountered on overworld
+        for demon in nonEncounter:
+            demon.creationSpawn.mapNameID = 120 #values for non encounterable demons
+            demon.creationSpawn.zoneNameID = 0
+            demon.vengeanceSpawn.mapNameID = 120
+            demon.vengeanceSpawn.zoneNameID = 0
             
     '''
     Randomizes main story and sidequest bosses in eventEncountArr. The array is filtered to exclude problematic and duplicate encounters before shuffling
@@ -3628,7 +3674,7 @@ class Randomizer:
         encounterPools = bossLogic.createBossEncounterPools(self.eventEncountArr, self.encountArr, self.uniqueSymbolArr, self.abscessArr, self.bossDuplicateMap, self.configSettings)
         if not encounterPools:
             return
-        with open(paths.BOSS_SPOILER, 'w') as spoilerLog: #Create spoiler log
+        with open(paths.BOSS_SPOILER, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
             for filteredEncounters in encounterPools:
                 shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
                 shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
@@ -3668,12 +3714,8 @@ class Randomizer:
                 if encounter.ind in encountersWithBattleEvents:
                     eventInds = [jIndex for jIndex,e in enumerate(encountersWithBattleEvents) if e == encounter.ind] 
                     for ind in eventInds:
-                        # check if reference still has a event 
-                        if self.eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
-                            self.battleEventArr[ind].encounterID = self.eventEncountArr[self.bossDuplicateMap[index]].ind
-                        else:
-                            self.battleEventArr[ind].encounterID = 255
-                elif self.eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
+                        self.battleEventArr[ind].encounterID = 255
+                if self.eventEncountArr[self.bossDuplicateMap[index]].ind in encountersWithBattleEvents:
                 #reference has event but not duplicate 
                     eventInds = [jIndex for jIndex,e in enumerate(encountersWithBattleEvents) if e == self.eventEncountArr[self.bossDuplicateMap[index]].ind] 
                     for ind in eventInds:
@@ -3916,7 +3958,7 @@ class Randomizer:
         #get all missions that require a boss to be killed
         eventEncountMissions = []
         for mission in self.missionArr:
-                if any(mission.ind != 48 and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
+                if any(mission.ind != 48 and mission.ind not in self.updatedMissionConditionIDs and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
                     eventEncountMissions.append([mission,mission.conditions[0].ind])
         for index, encounter in enumerate(originalEncounters):
             if encounter.demons[0] == shuffledEncounters[index].demons[0]:
@@ -3950,6 +3992,7 @@ class Randomizer:
                     pair[0].conditions[0].type = 1
                     pair[0].conditions[0].ind = keyDemon
                     pair[0].conditions[0].amount = amounts
+                    self.updatedMissionConditionIDs.append(pair[0].ind)
 
             if encounter.ind in fourHolyBeastEncounters:
                 hBIndex = fourHolyBeastEncounters.index(encounter.ind)
@@ -3982,7 +4025,7 @@ class Randomizer:
         #get all missions that require a boss to be killed
         symbolMissions = []
         for mission in self.missionArr:
-                if any(mission.ind not in [48, 83] and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
+                if any(mission.ind not in [48, 83] and mission.ind not in self.updatedMissionConditionIDs and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
                     symbolMissions.append([mission,mission.conditions[0].ind])
         #for mission in symbolMissions:
             #print(mission[0].reward.ind)
@@ -4091,11 +4134,11 @@ class Randomizer:
                 #Gather all essences of dmeons in the level range for the map
                 currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[key][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[key][1]]
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences[key] and itemName in currentDemonNames:
+                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[key] and itemName in currentDemonNames:
                         validEssences[key].append(itemID)
         else:
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
                     validEssences.append(itemID)
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
@@ -4122,7 +4165,7 @@ class Randomizer:
                         emergencyEssences = []
                         currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[chest.map][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[chest.map][1]]
                         for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in emergencyEssences and itemName in currentDemonNames:
+                            if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in emergencyEssences and itemName in currentDemonNames:
                                 emergencyEssences.append(itemID)
                         itemID = random.choice(emergencyEssences)
                     else:  
@@ -4213,11 +4256,11 @@ class Randomizer:
                 validEssences[area] = []
                 currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]]
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences[area] and itemName in currentDemonNames:
+                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[area] and itemName in currentDemonNames:
                         validEssences[area].append(itemID)
         else:#no scaling items per area
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
                     validEssences.append(itemID)
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
@@ -4284,11 +4327,11 @@ class Randomizer:
                 #Grab all essences in the predefined level range for the area
                 currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[key][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[key][1]]
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences[key] and itemName in currentDemonNames:
+                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[key] and itemName in currentDemonNames:
                         validEssences[key].append(itemID)
         else: #Rewards do not scale with map
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName and itemID not in validEssences:
+                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
                     validEssences.append(itemID)
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
@@ -5402,7 +5445,7 @@ class Randomizer:
         #Magatsuhi Tutorial Pretas
         self.battleEventArr[12].encounterID = 255
         #Guest Tutorial Glasya-Labolas
-        self.battleEventArr[35].enounterID = 255
+        self.battleEventArr[35].encounterID = 255
 
     '''
     Patches tutorial Daemon's HP to be beatable without Zio
@@ -5410,6 +5453,10 @@ class Randomizer:
     def patchTutorialDaemon(self):
         daemon = self.bossArr[numbers.TUTORIAL_DAEMON_ID]
         daemon.stats.HP = 27 #Should die to 3 basic attacks always
+        daemon.money = 5000 #Add starting funds for qol
+        spyscopeDrop = Item_Drop(79, 'Spyscope', 100, 0) #Drop spyscope and chakra drop x2
+        chakraDrop = Item_Drop(2, 'Chakra Drop', 100, 0)
+        daemon.drops = Item_Drops(spyscopeDrop, chakraDrop, chakraDrop)
     
     '''
     Sets the drops of bosses which are quest relevant to their replacements and in cases where a quest drop boss replaces a quest drop boss makes sure that the drops of all bosses are not lost in conversion.
@@ -5439,6 +5486,10 @@ class Randomizer:
             
         questBossIDs = copy.deepcopy(numbers.QUEST_DROPS_BOSSES)
         
+        if questBossIDs == replacementDemonIDs:
+            #Everyone is the same
+            return
+
         #First set drops for quest bosses which aren't replaced by a quest boss or show up as replacement
         toRemove = []
         for index, demonID in enumerate(questBossIDs):
@@ -5694,6 +5745,8 @@ class Randomizer:
          if self.textSeed == "":
              self.textSeed = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
              print('Your generated seed is: {}\n'.format(self.textSeed))
+             with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
+                file.write(self.textSeed)
          random.seed(self.textSeed)
          
     '''
@@ -6041,7 +6094,7 @@ class Randomizer:
                         for demon in ec.encounter.demons:
                             finalString = finalString + demon + ' '
                         finalString = finalString + '\n'
-        with open(paths.ENCOUNTERS_DEBUG, 'w') as file:
+        with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as file:
             file.write(finalString)
             
     def findEncounterBattle(self, id2, symbolEncs):
@@ -6060,7 +6113,7 @@ class Randomizer:
         finalString = ""
         for fusion in fusions:
             finalString = finalString + fusion.firstDemon.translation + " + " + fusion.secondDemon.translation + " = " + fusion.result.translation + '\n'
-        with open(paths.FUSION_DEBUG, 'w') as file:
+        with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
             file.write(finalString)
                     
 if __name__ == '__main__':
@@ -6073,10 +6126,15 @@ if __name__ == '__main__':
         rando.fullRando(rando.configSettings)
         if not rando.configSettings.fixUniqueSkillAnimations:
             print('"Fix unique skill animations" patch not applied. If the game appears to hang during a battle animation, press the skip animations button')
+        print('\nRandomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
+        print('bossSpoilerLog, encounterResults and fusionResults can be found in the debug folder')
+        print('Lastly, it is recommended that you do not play the randomizer on hard mode Larpas')
        
     except RuntimeError:
         print('GUI closed - randomization was canceled')
-    print('\nRandomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
-    print('bossSpoilerLog, encounterResults and fusionResults can be found in the debug folder')
-    print('Lastly, it is recommended that you do not play the randomizer on hard mode Larpas')
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        print('Unexpected error occured, randomization failed.\nPlease retry with different settings or send a screenshot of this error to the SMT Rando Discord\n https://discord.gg/d25ZAha')
+    
     input('Press [Enter] to exit')

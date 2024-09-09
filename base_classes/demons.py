@@ -18,6 +18,8 @@ class Compendium_Demon:
         self.learnedSkills = []
         self.alignment = None
         self.tendency = None
+        self.creationSpawn = Encounter_Spawn()
+        self.vengeanceSpawn = Encounter_Spawn()
     
 class Enemy_Demon:
     def __init__(self):
@@ -118,4 +120,8 @@ class Duplicate:
         self.enemyData = None
         self.sourceInd = None
         self.ind = None
-        
+
+class Encounter_Spawn:
+    def __init__(self):
+        self.mapNameID = None
+        self.zoneNameID = None

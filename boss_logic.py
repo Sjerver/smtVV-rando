@@ -32,6 +32,7 @@ BOSS_SUMMONS = {
     925: [936], #Red Rider - Power
     926: [937], #Black Rider - Legion
     927: [938], #Pale Rider - Loa
+    843: [885], #Danu - Mandrake
 }
 
 #Boss IDs (first in the encounter) with multiple enemies of equal strength

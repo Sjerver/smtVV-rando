@@ -1,0 +1,15 @@
+Version 1.01
+Bugfixes:
+* Fixed quests being unable to complete if certain punishing foes are at their check
+* Fixed potential freeze at the Hydra check
+* Fixed level of Danu summons
+* Randomizer will no longer crash if one of normal bosses and punishing foes are randomized but not the other
+* Randomizer will no longer crash on computers with non-English settings
+* Old Lilith's Essence will no longer appear
+
+Balance:
+* Tutorial daemon now drops 5000 Macca, 2 Chakra Drops, and the Spyscope
+
+Misc:
+* Added more clarity if the randomizer crashes during generation
+* The randomizer now generates a file showing the seed

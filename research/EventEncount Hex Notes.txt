@@ -8,7 +8,7 @@ Entry start first: 45, second: A5 size:0x60
 2A size1? some kind of flag	(always set??)
 2B size1? another flag		(nuwa has this)
 2E size1-2? Battle Theme
-30 size1? always 2??
+30 size1? 0 for idk(duplicate yakumo and zhens), 1 for ambush, 2 for player start, 3 for field advantage
 38 size2 Some kind of demon id no idea what the effect is though
 3A size1 Set for Lilith, Yuzuru, Satan (ends the battle early if they are defeated when value is 1)
 48 size2 1st demon in battle

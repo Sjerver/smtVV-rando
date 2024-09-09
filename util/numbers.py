@@ -113,6 +113,8 @@ KEY_ITEM_CUTOFF = 611
 #Item indices that correspond to reusable items like the return pillar or gleam grenade
 BANNED_ITEMS = [70, 73, 74, 75, 76, 77, 78, 79, 80, 81]
 
+BANNED_ESSENCES = [359,555,545,546,547,548,549,550,551,552,553,554,556,557,558,559,606,607,608] #Old Lilith's Essence, Demi-fiends Essence, Aogami & Tsukuyomi Essences
+
 #Chance that a miman reward is an essence
 MIMAN_ESSENCE_ODDS = 0.27272727
 #Odds of how many different items a miman reward has
@@ -181,7 +183,9 @@ VENGEANCE_EXCLUSIVE_KEY_REWARDS =[] #Currently not any
 #Exclusive mission from both canons to give potential exclusive rewards to (excluding missions whose rewards are not randomized or are not allowed to receive key item rewards)
 CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
         #He of a Hundred Hands, Hellfire Highway, Search for Oyamatsumi, Glitter in Ginza, Netherworld Relay Racing, Will of the Samurai, Trial of the Seven Stars, Defeat the Demon Kings Armies
-VENGEANCE_EXLUSIVE_MISSIONS = [] #TODO: Fill out (at least when there is a vengeance unique key reward)
+VENGEANCE_EXLUSIVE_MISSIONS = [157,152,159,177,171,194,203,178,202,184,200,210,172,211,193,174,188,190,108,109,110,111,112,113] #Supply Run, Guide to the Lost, Heart of Garnet, As God Wills, A Self of my Own, Devotion To Order, Part-time Gasser, A Star is Born
+        #Disgraced Bird God, Alice's Wonderland, Shinjuku Jewel Hunt, Heroes of Heaven and Earth, Rite of Resurrection, 'God of Old, Devourer of Kin', The Heartbroken, Special Training: Army of Chaos
+        #The Serpent King, The Great Adversary, Investigate the Anomalies in Tokyo, Investigate the Salt Incidents, Rescue Miyazu Atsuta, Investigate Jozoji Temple, Qadištu Showdown
 
 #Mutually exclusive missions that should never reward a key item
 MUTUALLY_EXCLUSIVE_MISSIONS = [
