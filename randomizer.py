@@ -75,6 +75,7 @@ class Randomizer:
         self.bossSymbolReplacementMap = {}
         self.validBossDemons = set()
         self.essenceBannedBosses = set()
+        self.updatedMissionConditionIDs = []
 
         self.nahobino = Nahobino()
         
@@ -3956,7 +3957,7 @@ class Randomizer:
         #get all missions that require a boss to be killed
         eventEncountMissions = []
         for mission in self.missionArr:
-                if any(mission.ind != 48 and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
+                if any(mission.ind != 48 and mission.ind not in self.updatedMissionConditionIDs and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
                     eventEncountMissions.append([mission,mission.conditions[0].ind])
         for index, encounter in enumerate(originalEncounters):
             if encounter.demons[0] == shuffledEncounters[index].demons[0]:
@@ -3990,6 +3991,7 @@ class Randomizer:
                     pair[0].conditions[0].type = 1
                     pair[0].conditions[0].ind = keyDemon
                     pair[0].conditions[0].amount = amounts
+                    self.updatedMissionConditionIDs.append(pair[0].ind)
 
             if encounter.ind in fourHolyBeastEncounters:
                 hBIndex = fourHolyBeastEncounters.index(encounter.ind)
@@ -4022,7 +4024,7 @@ class Randomizer:
         #get all missions that require a boss to be killed
         symbolMissions = []
         for mission in self.missionArr:
-                if any(mission.ind not in [48, 83] and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
+                if any(mission.ind not in [48, 83] and mission.ind not in self.updatedMissionConditionIDs and (condition.type == 1 and condition.ind >= numbers.NORMAL_ENEMY_COUNT) for condition in mission.conditions):
                     symbolMissions.append([mission,mission.conditions[0].ind])
         #for mission in symbolMissions:
             #print(mission[0].reward.ind)
