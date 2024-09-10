@@ -32,6 +32,7 @@ class Enemy_Demon:
         self.statMods = None
         self.analyze = None
         self.levelDMGCorrection = None
+        self.damageMultiplier = None
         self.AI = None
         self.recruitable = None
         self.pressTurns = None

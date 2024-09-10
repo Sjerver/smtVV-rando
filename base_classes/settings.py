@@ -35,3 +35,4 @@ class Settings(object):
         self.randomizeMissionRewards = False        # Randomizes the rewards of mission
         self.randomDemonStats = False               # Randomizes the stat modifiers for playable demons
         self.fixUniqueSkillAnimations = False       # Replaces unique skill animations with those of normal skills to avoid the game hanging
+        self.scaleBossDamage = True                 # Bosses' damage dealt multiplier will be based on the level difference of the check they replace

@@ -638,6 +638,7 @@ class Randomizer:
             demon.AI = enemyData.readWord(locations['experience'] + 12) #55 for normal encounters
             demon.recruitable = enemyData.readByte(locations['HP'] + 33)
             demon.pressTurns = enemyData.readByte(locations['pressTurns'])
+            demon.damageMultiplier = enemyData.readWord(locations['pressTurns'] + 9)
             demon.experience = enemyData.readWord(locations['experience'])
             demon.money = enemyData.readWord(locations['experience'] + 4)
             demon.skills = listOfSkills
@@ -867,6 +868,7 @@ class Randomizer:
             demon.AI = enemyData.readWord(locations['experience'] + 12) #55 for normal encounters
             demon.recruitable = enemyData.readByte(locations['HP'] + 33)
             demon.pressTurns = enemyData.readByte(locations['pressTurns'])
+            demon.damageMultiplier = enemyData.readWord(locations['pressTurns'] + 9)
             demon.experience = enemyData.readWord(locations['experience'])
             demon.money = enemyData.readWord(locations['experience'] + 4)
             demon.skills = listOfSkills
@@ -2441,6 +2443,7 @@ class Randomizer:
 
             buffer.writeWord(foe.level, offsets['level'])
             buffer.writeByte(foe.pressTurns, offsets['pressTurns'])
+            buffer.writeWord(foe.damageMultiplier, offsets['pressTurns'] + 9)
             for index, skill in enumerate(foe.skills):
                 buffer.writeWord(skill.ind, offsets['firstSkill'] + 4 * index)
             buffer.writeWord(foe.experience, offsets['experience'])
@@ -3444,6 +3447,7 @@ class Randomizer:
             newFoe.AI = 55                       #AI for random encounters
             newFoe.recruitable = 1               #Also required to be able to recruit the demon
             newFoe.pressTurns = newPressTurns
+            newFoe.damageMultiplier = 100
             newFoe.experience = newExperience
             newFoe.money = newMacca
             newFoe.skills = newSkills
@@ -4575,6 +4579,24 @@ class Randomizer:
             self.essenceBannedBosses.add(demonID)
         else:
             self.validBossDemons.add(demonID)
+            
+
+    '''
+    Adjusts the damage dealt multiplier of bosses based on the level difference between their original level and their new level
+    Strong bosses fought earlier will do less damage while weak bosses fought later will deal more.
+    '''
+    def scaleBossDamage(self):
+        for index, updatedBoss in enumerate(self.bossArr):
+            if index < numbers.NORMAL_ENEMY_COUNT:
+                continue
+            oldLevel = self.staticBossArr[index].level
+            newLevel = updatedBoss.level
+            if newLevel > oldLevel:
+                updatedBoss.damageMultiplier += (newLevel - oldLevel) * 2
+                #print(self.enemyNames[index] + ": " + str(updatedBoss.damageMultiplier))
+            elif newLevel < oldLevel:
+                updatedBoss.damageMultiplier = max(10, updatedBoss.damageMultiplier + newLevel - oldLevel)
+                #print(self.enemyNames[index] + ": " + str(updatedBoss.damageMultiplier))
 
     '''
     Randomizes the stats of normal demons.
@@ -5943,6 +5965,8 @@ class Randomizer:
             self.patchBossFlags()
             bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings)
         self.updateUniqueSymbolDemons()
+        if config.scaleBossDamage:
+            self.scaleBossDamage()
         
         self.adjustEventEncountMissionConditions(self.eventEncountArr, self.staticEventEncountArr)
         

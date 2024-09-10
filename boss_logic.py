@@ -229,6 +229,7 @@ def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonRefe
             replacementDemon.experience = 0
             replacementDemon.money = 0
         replacementDemon.level = referenceDemon.level
+        replacementDemon.damageMultiplier = referenceDemon.damageMultiplier
         
 
 '''
@@ -259,6 +260,7 @@ def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr,
             replacementDemon.money = 0
         replacementDemon.stats = copy.deepcopy(referenceDemon.stats)
         replacementDemon.level = referenceDemon.level
+        replacementDemon.damageMultiplier = referenceDemon.damageMultiplier
         
 
 '''
@@ -295,6 +297,7 @@ def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceAr
         else:
             replacementDemon.stats.HP = round(oldHPPool * newEncounterData.hpPercents[ind] / newEncounterData.countPerDemon[ind])
         replacementDemon.level = referenceDemon.level
+        replacementDemon.damageMultiplier = referenceDemon.damageMultiplier
         
 '''
 Calculates a modified HP Pool for a replacement boss encounter to use based on the total HP of the old encounter's demons and the number of demons in each encounter
