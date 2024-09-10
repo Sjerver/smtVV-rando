@@ -306,6 +306,7 @@ class Randomizer:
             demon.creationSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 4)
             demon.vengeanceSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 8)
             demon.vengeanceSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 12)
+            demon.compCostModifier = NKMBaseTable.readWord(locations['firstSkill'] -12)
             #Add read demon data to compendium
             self.compendiumArr.append(demon)
         self.defineLevelForUnlockFlags(self.compendiumArr)
@@ -811,6 +812,7 @@ class Randomizer:
             demon.creationSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 4)
             demon.vengeanceSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 8)
             demon.vengeanceSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 12)
+            demon.compCostModifier = NKMBaseTable.readWord(locations['firstSkill'] -12)
             #Add read demon data to compendium
             self.playerBossArr.append(demon)
 
@@ -2374,6 +2376,7 @@ class Randomizer:
             buffer.writeWord(demon.creationSpawn.zoneNameID,demon.offsetNumbers['encounterSpawn'] +4)
             buffer.writeWord(demon.vengeanceSpawn.mapNameID,demon.offsetNumbers['encounterSpawn'] +8)
             buffer.writeWord(demon.vengeanceSpawn.zoneNameID,demon.offsetNumbers['encounterSpawn'] +12)
+            buffer.writeWord(demon.compCostModifier,demon.offsetNumbers['firstSkill'] -12)
             #write potentials
             buffer.writeWord(demon.potential.physical, demon.offsetNumbers['potential'] + 4 * 0)
             buffer.writeWord(demon.potential.fire, demon.offsetNumbers['potential'] + 4 * 1)
@@ -2998,14 +3001,14 @@ class Randomizer:
                 elif demon2Race == 15:
                     #determine direction based on race of first demon ingredient
                     direction = 0
-                    if demon1.ind == self.elementals[3]:
-                        direction = erthys[demon2Race]
-                    elif demon1.ind == self.elementals[2]:
-                            direction = aeros[demon2Race]
-                    elif demon1.ind == self.elementals[1]:
-                            direction = aquans[demon2Race]
-                    elif demon1.ind == self.elementals[0]:
-                            direction = flaemis[demon2Race]
+                    if demon2.ind == self.elementals[3]:
+                        direction = erthys[demon1Race]
+                    elif demon2.ind == self.elementals[2]:
+                            direction = aeros[demon1Race]
+                    elif demon2.ind == self.elementals[1]:
+                            direction = aquans[demon1Race]
+                    elif demon2.ind == self.elementals[0]:
+                            direction = flaemis[demon1Race]
                     foundResult = False
                     searchTable = raceTable[demon1Race]
                     if direction > 0:
@@ -3073,6 +3076,10 @@ class Randomizer:
     Returns: the ids of the 4 new demons of the Element race
     '''
     def randomizeRaces(self, comp):
+
+        for demonInd in self.elementals:
+            #Reset compendium costs for original elements
+            comp[demonInd].compCostModifier = 100
         
         relevantDemons = [demon for demon in comp if demon.ind not in numbers.BAD_IDS and "Mitama" not in demon.name and not demon.name.startswith('NOT') ]
 
@@ -3104,6 +3111,7 @@ class Randomizer:
             demon = random.choice(relevantDemons)
             relevantDemons.remove(demon)
             demon.race = Translated_Value(15, "Element")
+            demon.compCostModifier = 1000
             raceAssignments[15] += 1
             demonInds.append(demon.ind)
             elementals.append(demon.ind)
@@ -3151,6 +3159,10 @@ class Randomizer:
     '''
     def randomizeRacesFixedLevels(self, comp):
 
+        for demonInd in self.elementals:
+            #Reset compendium costs for original elements
+            comp[demonInd].compCostModifier = 100
+
         relevantDemons = [demon for demon in comp if demon.ind not in numbers.BAD_IDS and "Mitama" not in demon.name and not demon.name.startswith('NOT') ]
         specialFusions = [demon.ind for demon in comp if demon.fusability > 256] #List of demon ids that are fused as a special fusion
 
@@ -3184,6 +3196,7 @@ class Randomizer:
             demon = random.choice(demonsAtLevel)
             relevantDemons.remove(demon)
             demon.race = Translated_Value(15, "Element")
+            demon.compCostModifier = 1000
             raceAssignments[15] += 1
             demonInds.append(demon.ind)
             elementals.append(demon.ind)
@@ -5767,8 +5780,6 @@ class Randomizer:
          if self.textSeed == "":
              self.textSeed = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
              print('Your generated seed is: {}\n'.format(self.textSeed))
-             with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
-                file.write(self.textSeed)
          random.seed(self.textSeed)
          
     '''
@@ -5811,6 +5822,8 @@ class Randomizer:
     def fullRando(self, config):
 
         self.writeFolder(paths.DEBUG_FOLDER)
+        with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
+                file.write(self.textSeed)
 
         compendiumBuffer = self.readBinaryTable(paths.NKM_BASE_TABLE_IN)
         skillBuffer = self.readBinaryTable(paths.SKILL_DATA_IN)
@@ -6136,6 +6149,7 @@ class Randomizer:
     def printOutFusions(self, fusions):
         finalString = ""
         for fusion in fusions:
+            #finalString = finalString + self.compendiumArr[fusion.firstDemon.ind].race.translation + " " + fusion.firstDemon.translation + " + " + self.compendiumArr[fusion.secondDemon.ind].race.translation + " " + fusion.secondDemon.translation + " = " + self.compendiumArr[fusion.result.ind].race.translation + " " + fusion.result.translation + '\n'
             finalString = finalString + fusion.firstDemon.translation + " + " + fusion.secondDemon.translation + " = " + fusion.result.translation + '\n'
         with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
             file.write(finalString)

@@ -20,7 +20,8 @@ class Compendium_Demon:
         self.tendency = None
         self.creationSpawn = Encounter_Spawn()
         self.vengeanceSpawn = Encounter_Spawn()
-    
+        self.compCostModifier = None
+
 class Enemy_Demon:
     def __init__(self):
         self.ind = None
