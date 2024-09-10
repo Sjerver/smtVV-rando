@@ -3380,6 +3380,8 @@ class Randomizer:
     def assignTalkableTones(self, comp):
         workingTones = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19]
         for demon in comp:
+            if 'Mitama' in demon.name or demon.ind in numbers.BAD_IDS:
+                continue
             if demon.tone.value not in workingTones:
                 if demon.ind in numbers.DEMON_HAUNT_QUESTGIVER_IDS:
                     demon.tone.value = 1 #Force a tone that functions in demon haunts, currently I only know tone 15 (Loup Garou) is broken
