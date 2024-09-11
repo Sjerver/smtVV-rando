@@ -25,6 +25,8 @@ class Settings(object):
         self.mixedRandomizeOverworldBosses = False  # Randomize punishing foes with all bosses
         self.selfRandomizeSuperbosses = False       # Randomize superbosses only with each other
         self.mixedRandomizeSuperbosses = False      # Randomize superbosses foes with all bosses
+        self.selfRandomizeMinibosses = False        # Randomize minibosses and weaker quest bosses only with each other
+        self.mixedRandomizeMinibosses = False       # Randomize minibosses and weaker quest bosses with all bosses
         self.randomInheritance = False              # Randomize to which demons unique skills belong to
         self.freeInheritance = False                # Make unique skills freely inheritable
         self.randomRaces = False                    # Randomize normal demons' races
@@ -35,6 +37,6 @@ class Settings(object):
         self.randomizeMissionRewards = False        # Randomizes the rewards of mission
         self.randomDemonStats = False               # Randomizes the stat modifiers for playable demons
         self.fixUniqueSkillAnimations = False       # Replaces unique skill animations with those of normal skills to avoid the game hanging
-        self.scaleBossDamage = True                 # Bosses' damage dealt multiplier will be based on the level difference of the check they replace
-        self.scaleBossPressTurnsToCheck = True      # Boss press turns will match the check instead of the boss
+        self.scaleBossDamage = False                # Bosses' damage dealt multiplier will be based on the level difference of the check they replace
+        self.scaleBossPressTurnsToCheck = False     # Boss press turns will match the check instead of the boss
         self.ishtarPressTurns = 3                   # The number of press turns Ishtar/The Ishtar check should use

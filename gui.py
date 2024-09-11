@@ -4,6 +4,8 @@ import os
 
 NAHOBINO_BLUE = "#5b87d5"
 VENGEANCE_PURPLE = "#a698dd"
+PRESS_TURN_RED = "#831530"
+PRESS_TURN_BRIGHT_RED = "#ab1d33"
 
 #Creates page system with important information like randomize button always visible
 def createGUI(configSettings):
@@ -220,41 +222,68 @@ def createGUI(configSettings):
     bossLabel = tk.Label(page2FrameLeft, text="Boss Randomizer")
     bossLabel.pack()
 
-    listBoss = tk.Listbox(page2FrameLeft, selectmode = "multiple", width=50, exportselection=False, selectbackground = VENGEANCE_PURPLE)
-    listBoss.insert(0, "Randomize normal bosses with each other only")
-    listBoss.insert(1, "Randomize normal bosses with all bosses")
-    listBoss.insert(2, "Randomize Lucifer")
+    listBoss = tk.Listbox(page2FrameLeft, selectmode = "single", width=50, height=3, exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listBoss.insert(0, "Vanilla normal bosses")
+    listBoss.insert(1, "Randomize normal bosses with each other")
+    listBoss.insert(2, "Randomize normal bosses with all bosses")
+    listBoss.selection_set(0)
     listBoss.pack()
     
     abscessLabel = tk.Label(page2FrameLeft, text="Abscess Bosses")
     abscessLabel.pack()
 
-    listAbscess = tk.Listbox(page2FrameLeft, selectmode = "single", width=50, exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listAbscess = tk.Listbox(page2FrameLeft, selectmode = "single", width=50, height=3, exportselection=False, selectbackground = VENGEANCE_PURPLE)
     listAbscess.insert(0, "Vanilla abscess bosses")
     listAbscess.insert(1, "Randomize abscess bosses with each other")
     listAbscess.insert(2, "Randomize abscess bosses with all bosses")
     listAbscess.selection_set(0)
     listAbscess.pack()
     
-    punishingLabel = tk.Label(page2FrameRight, text="Punishing Foes (Overworld Bosses)")
+    punishingLabel = tk.Label(page2FrameLeft, text="Punishing Foes (Overworld Bosses)")
     punishingLabel.pack()
 
-    listPunishing = tk.Listbox(page2FrameRight, selectmode = "single", width=50, exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listPunishing = tk.Listbox(page2FrameLeft, selectmode = "single", width=50, height=3, exportselection=False, selectbackground = VENGEANCE_PURPLE)
     listPunishing.insert(0, "Vanilla punishing foes")
     listPunishing.insert(1, "Randomize punishing foes with each other")
     listPunishing.insert(2, "Randomize punishing foes with all bosses")
     listPunishing.selection_set(0)
     listPunishing.pack()
     
-    superbossLabel = tk.Label(page2FrameRight, text="Superbosses")
+    superbossLabel = tk.Label(page2FrameLeft, text="Superbosses")
     superbossLabel.pack()
 
-    listSuperboss = tk.Listbox(page2FrameRight, selectmode = "single", width=50, exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listSuperboss = tk.Listbox(page2FrameLeft, selectmode = "single", width=50, height=3, exportselection=False, selectbackground = VENGEANCE_PURPLE)
     listSuperboss.insert(0, "Vanilla superbosses")
     listSuperboss.insert(1, "Randomize superbosses with each other")
     listSuperboss.insert(2, "Randomize superbosses with all bosses")
     listSuperboss.selection_set(0)
     listSuperboss.pack()
+    
+    minibossLabel = tk.Label(page2FrameLeft, text="Minibosses")
+    minibossLabel.pack()
+
+    listMiniboss = tk.Listbox(page2FrameLeft, selectmode = "single", width=50, height=3, exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listMiniboss.insert(0, "Vanilla minibosses")
+    listMiniboss.insert(1, "Randomize minibosses with each other")
+    listMiniboss.insert(2, "Randomize minibosses with all bosses")
+    listMiniboss.selection_set(0)
+    listMiniboss.pack()
+    
+    bossSettingsLabel = tk.Label(page2FrameRight, text="Boss Settings")
+    bossSettingsLabel.pack()
+
+    listBossSettings = tk.Listbox(page2FrameRight, selectmode = "multiple", width=50, exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listBossSettings.insert(0, "Scale boss damage to check (Recommended)")
+    listBossSettings.insert(1, "Boss press turns match check")
+    listBossSettings.insert(2, "Randomize Lucifer")
+    listBossSettings.pack()
+
+    ishtarLabel = tk.Label(page2FrameRight, text="Ishtar's press turns")
+    ishtarLabel.pack()
+    
+    ishtarScale = tk.Scale(page2FrameRight, from_=1, to=8, orient=tk.HORIZONTAL, bg=PRESS_TURN_RED, troughcolor="Black", activebackground=PRESS_TURN_BRIGHT_RED)
+    ishtarScale.set(3)
+    ishtarScale.pack()
     
     patchesLabel = tk.Label(page3FrameTop, text="Patches")
     patchesLabel.pack()
@@ -330,10 +359,10 @@ def createGUI(configSettings):
             if configur.get('Item', 'RandomizeMissionRewards') == 'true':
                 listItem.selection_set(8)
             if configur.get('Boss', 'NormalBossesSelf') == 'true':
-                listBoss.selection_set(0)
-            if configur.get('Boss', 'NormalBossesMixed') == 'true':
+                listBoss.selection_clear(0)
                 listBoss.selection_set(1)
-            if configur.get('Boss', 'RandomizeLucifer') == 'true':
+            if configur.get('Boss', 'NormalBossesMixed') == 'true':
+                listBoss.selection_clear(0)
                 listBoss.selection_set(2)
             if configur.get('Boss', 'AbscessBossesSelf') == 'true':
                 listAbscess.selection_clear(0)
@@ -353,6 +382,19 @@ def createGUI(configSettings):
             if configur.get('Boss', 'SuperbossesMixed') == 'true':
                 listSuperboss.selection_clear(0)
                 listSuperboss.selection_set(2)
+            if configur.get('Boss', 'MinibossesSelf') == 'true':
+                listMiniboss.selection_clear(0)
+                listMiniboss.selection_set(1)
+            if configur.get('Boss', 'MinibossesMixed') == 'true':
+                listMiniboss.selection_clear(0)
+                listMiniboss.selection_set(2)
+            if configur.get('Boss', 'ScaleBossDamage') == 'true':
+                listBossSettings.selection_set(0)
+            if configur.get('Boss', 'ScalePressTurns') == 'true':
+                listBossSettings.selection_set(1)
+            if configur.get('Boss', 'RandomizeLucifer') == 'true':
+                listBossSettings.selection_set(2)
+            ishtarScale.set(configur.get('Boss', 'IshtarPressTurns'))
             if configur.get('Patches', 'FixUniqueSkillAnimations') == 'true':
                 listPatches.selection_set(0)
         except (NoOptionError, NoSectionError):
@@ -373,12 +415,15 @@ def createGUI(configSettings):
         itemFlags = [False for i in range(listItem.size())]
         for i in listItem.curselection():
             itemFlags[i] = True
-        bossFlags = [False for i in range(listBoss.size())]
-        for i in listBoss.curselection():
+        bossFlags = [False for i in range(listBossSettings.size())]
+        for i in listBossSettings.curselection():
             bossFlags[i] = True
+        normalBossChoice = listBoss.curselection()
         abscessChoice = listAbscess.curselection()
         punishingChoice = listPunishing.curselection()
         superbossChoice = listSuperboss.curselection()
+        minibossChoice = listMiniboss.curselection()
+        ishtarChoice = ishtarScale.get()
         patchFlags = [False for i in range(listPatches.size())]
         for i in listPatches.curselection():
             patchFlags[i] = True
@@ -539,22 +584,34 @@ def createGUI(configSettings):
         configur.set('Item', 'RandomizeMissionRewards', ' false')
             
     if bossFlags[0]:
-        configSettings.selfRandomizeNormalBosses = True
-        configur.set('Boss', 'NormalBossesSelf', 'true')
+        configSettings.scaleBossDamage = True
+        configur.set('Boss', 'ScaleBossDamage', 'true')
     else:
-        configur.set('Boss', 'NormalBossesSelf', 'false')
+        configur.set('Boss', 'ScaleBossDamage', 'false')
 
     if bossFlags[1]:
-        configSettings.mixedRandomizeNormalBosses = True
-        configur.set('Boss', 'NormalBossesMixed', 'true')
+        configSettings.scaleBossPressTurnsToCheck = True
+        configur.set('Boss', 'ScalePressTurns', 'true')
     else:
-        configur.set('Boss', 'NormalBossesMixed', 'false')
+        configur.set('Boss', 'ScalePressTurns', 'false')
         
     if bossFlags[2]:
         configSettings.randomizeLucifer = True
         configur.set('Boss', 'RandomizeLucifer', 'true')
     else:
         configur.set('Boss', 'RandomizeLucifer', 'false')
+        
+    if len(normalBossChoice) > 0 and normalBossChoice[0] == 1:
+        configSettings.selfRandomizeNormalBosses = True
+        configur.set('Boss', 'NormalBossesSelf', 'true')
+    else:
+        configur.set('Boss', 'NormalBossesSelf', 'false')
+        
+    if len(normalBossChoice) > 0 and normalBossChoice[0] == 2:
+        configSettings.mixedRandomizeNormalBosses = True
+        configur.set('Boss', 'NormalBossesMixed', 'true')
+    else:
+        configur.set('Boss', 'NormalBossesMixed', 'false')
             
     if len(abscessChoice) > 0 and abscessChoice[0] == 1:
         configSettings.selfRandomizeAbscessBosses = True
@@ -592,6 +649,21 @@ def createGUI(configSettings):
     else:
         configur.set('Boss', 'SuperbossesMixed', 'false')
         
+    if len(minibossChoice) > 0 and minibossChoice[0] == 1:
+        configSettings.selfRandomizeMinibosses = True
+        configur.set('Boss', 'MinibossesSelf', 'true')
+    else:
+        configur.set('Boss', 'MinibossesSelf', 'false')
+
+    if len(minibossChoice) > 0 and minibossChoice[0] == 2:
+        configSettings.mixedRandomizeMinibosses = True
+        configur.set('Boss', 'MinibossesMixed', 'true')
+    else:
+        configur.set('Boss', 'MinibossesMixed', 'false')
+        
+    configSettings.ishtarPressTurns = ishtarChoice
+    configur.set('Boss', 'IshtarPressTurns', str(ishtarChoice))
+        
     if patchFlags[0]:
         configSettings.fixUniqueSkillAnimations = True
         configur.set('Patches', 'FixUniqueSkillAnimations', 'true')
@@ -614,6 +686,7 @@ def createConfigFile(configur):
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
     configur['Boss'] = {'NormalBossesSelf': False, 'NormalBossesMixed': False, 'RandomizeLucifer': False, 'AbscessBossesSelf': False, 'AbscessBossesMixed': False,
-                                 'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False}
+                                 'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False,
+                                 'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3}
     configur['Patches'] = {'FixUniqueSkillAnimations': False}
    

@@ -74,6 +74,15 @@ LUCIFER_ENCOUNTERS = [6, 12]
 #Event Encounter IDs that contain superbosses (Shiva, Demi-Fiend, Satan, Masakado x2)
 SUPERBOSS_ENCOUNTERS = [88, 121, 157, 168, 169]
 
+#Event Encounter IDs that contain minibosses, including some weaker quest bosses
+MINIBOSS_ENCOUNTERS = [13, 14, 15, #Empyrean angels
+                       29, 30, 36, 54, 55,    #Belial, Michael, Pazuzu, Initial Lahmu and demons before him
+                       56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, #School fights
+                       84, 97, 98, 102, 103, 104, 105, #Shiki-Ouji, Leanan, Apsaras, Principality, Lilim, Dionysus, BFrost
+                       106, 107, 132, 133, 134, 144, 145, #Futsunushi, Adramelech, 6 Pretas, Oni, 3 Pretas, Dormarth, Nozuchi
+                       147, 158, 159, 160, 170, 172, 173, 174, 175, #Pisaca, Zhen*3, Yakshini, Onyakopon, Anansi, Kudlak, Kresnik
+                       232, 233, 234, 235, 242, 248] #Power*4, Isis, Dominion
+
 BOSS_HP_MODIFIERS = {
     435: 0.5, #Snake Nuwa's replacement should have half HP
     529: 3 #True Lucifer's replacement will have triple HP (not completely accurate but fine for now)
@@ -398,6 +407,7 @@ def createBossEncounterPools(eventEncountArr, encountArr, uniqueSymbolArr, absce
     mixedPool = []
     abscessPool = []
     punishingPool = []
+    minibossPool = []
     foundEventEncounters = []
     for abscess in abscessArr:
         if abscess.miracles[0] == 0:
@@ -416,10 +426,11 @@ def createBossEncounterPools(eventEncountArr, encountArr, uniqueSymbolArr, absce
         elif symbol.encounterID > 0:
             punishingPool.append(copy.deepcopy(encountArr[symbol.encounterID]))
     normalPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index not in BANNED_BOSSES and index not in bossDuplicateMap.keys()
-                    and index not in LUCIFER_ENCOUNTERS and index not in SUPERBOSS_ENCOUNTERS and index not in foundEventEncounters]
+                    and index not in LUCIFER_ENCOUNTERS and index not in SUPERBOSS_ENCOUNTERS and index not in MINIBOSS_ENCOUNTERS and index not in foundEventEncounters]
     if configSettings.randomizeLucifer:
         normalPool = normalPool + [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in LUCIFER_ENCOUNTERS]
     superbossPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in SUPERBOSS_ENCOUNTERS]
+    minibossPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in MINIBOSS_ENCOUNTERS]
     if configSettings.mixedRandomizeNormalBosses:
         mixedPool = mixedPool + normalPool
     elif configSettings.selfRandomizeNormalBosses:
@@ -436,6 +447,10 @@ def createBossEncounterPools(eventEncountArr, encountArr, uniqueSymbolArr, absce
         mixedPool = mixedPool + punishingPool
     elif configSettings.selfRandomizeOverworldBosses:
         bossPools.append(punishingPool)
+    if configSettings.mixedRandomizeMinibosses:
+        mixedPool = mixedPool + minibossPool
+    elif configSettings.selfRandomizeMinibosses:
+        bossPools.append(minibossPool)
     if mixedPool:
         bossPools.append(mixedPool)
     return formatBossPools(bossPools)
