@@ -37,3 +37,4 @@ class Settings(object):
         self.fixUniqueSkillAnimations = False       # Replaces unique skill animations with those of normal skills to avoid the game hanging
         self.scaleBossDamage = True                 # Bosses' damage dealt multiplier will be based on the level difference of the check they replace
         self.scaleBossPressTurnsToCheck = True      # Boss press turns will match the check instead of the boss
+        self.ishtarPressTurns = 3                   # The number of press turns Ishtar/The Ishtar check should use

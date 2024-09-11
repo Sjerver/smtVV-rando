@@ -368,6 +368,14 @@ GUEST_IDS = [1150, 1151, 1152, 1153, 1154, 1157, 1158, 1159, 1161, 1162]
 #IDs of guest party members excluding Yuzuru and Dazai who have glitchy animations for physical skills
 GUEST_IDS_WORKING_ANIMS_ONLY = [1152, 1154, 1157, 1158, 1159, 1161]
 
+#Event encounter IDs of Ishtar except one
+EXTRA_ISHTAR_ENCOUNTERS = [76, 77, 78, 79, 80, 81, 82]
+#Event encounter ID of Ishtar that is kept in the pool
+TRUE_ISHTAR_ENCOUNTER = 75
+#Demon ID of the Ishtar that is kept in the pool
+TRUE_ISHTAR_DEMON = 455
+
+
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''

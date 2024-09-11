@@ -5615,6 +5615,16 @@ class Randomizer:
     def patchSethCamera(self):
         sethEventEncounter = self.eventEncountArr[108]
         sethEventEncounter.unknown23Flag = 0
+       
+    '''
+    Forces all versions of Ishtar to use the same boss, condensing the pool from 8 Ishtars to one
+    Additionally sets the press turns for the Ishtar kept in the pool
+    '''
+    def removeIshtarCopies(self):
+        for eventEncountID in numbers.EXTRA_ISHTAR_ENCOUNTERS:
+            self.bossDuplicateMap[eventEncountID] = numbers.TRUE_ISHTAR_ENCOUNTER
+        self.bossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = self.configSettings.ishtarPressTurns
+        self.staticBossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = self.configSettings.ishtarPressTurns
     
     '''
     Changes the scaling of normal demon symbols with overly large scaling factors to the normal 1.2 factor.
@@ -5786,7 +5796,6 @@ class Randomizer:
          
     '''
     Makes the game easier for testing purposes. All enemy hp is set to 10 and Nahobino's stats are increased
-    TODO: Nahobino Stats don't work (maybe only on fresh file?)
     '''
     def applyCheats(self):
         for demon in self.enemyArr:
@@ -5975,6 +5984,7 @@ class Randomizer:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp, self.configSettings.scaleItemsToArea)
            
         #self.patchSethCamera()
+        self.removeIshtarCopies()
         self.randomizeBosses()
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
