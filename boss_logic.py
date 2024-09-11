@@ -47,7 +47,7 @@ PARTNER_BOSSES = [433, #Eligor(Andras)
 #Boss IDs (first in the encounter) with a single strong enemy and multiple weaker enemies
 MINION_BOSSES = [452, 473, 519, 520, 525, #Lahmu(Tentacles), Alilat(Flauros/Ose), Khonsu Ra(Anubis/Thoth), Nuwa Nahobino(Thunder Bits), Abdiel Nahobino(Depraved arm/wing),
                  529, 537, 556, 565, 569, 681, #True Lucifer(Stars), Lucifer(Stars), Lahmu again(Tentacles), Tiamat(Heads), Lilith(Qadistu), Satan(Arahabaki/Friends),
-                 760, 776, 816, 839, 845, #Samael(Shadows), Atavaka(Rakshasa), Moloch(Orobos/Flauros), Huang Long(Holy Beasts), Shiva(Ananta/Friends),
+                 760, 776, 816, 839, 843, 845, #Samael(Shadows), Atavaka(Rakshasa), Moloch(Orobos/Flauros), Huang Long(Holy Beasts), Danu(Mandrake), Shiva(Ananta/Friends),
                  877, 924, 925, 926, 927, 934] #Zaou-Gongen(Kurama), All Four Riders(Call X), Demi-Fiend(Pixie/Friends)
 
 #For bosses that can die and be resummoned (Hayataro etc), there's a second copy of the demon that needs to match stats with the original
@@ -85,6 +85,26 @@ EVENT_ONLY_BOSSES = [6, 39, 69, 138]
 #Event Encounter IDs that have DUMMY fights and can be replaced with probelematic demons like True Lucifer
 DUMMY_EVENT_ENCOUNTERS = [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 89, 141]
 
+# Map of bosses who summon a set number of minions at a time, used to calculate total press turns
+PRESS_TURN_MAX_SUMMONS = {
+    934: 3, # Demi-Fiend
+    681: 2, # Satan
+    760: 2, # Samael
+    845: 3, # Shiva
+    828: 1, # Arahabaki
+    839: 2, # Huang Long
+}
+
+# Map of boss summons that are summoned in groups of more than one, like Arioch's 2 decarabias
+SUMMONED_DEMON_COUNTS = {
+    464: 2, # Decarabia
+    935: 2, # Rider summons
+    936: 2,
+    937: 2,
+    938: 2,
+    885: 2, # Mandrake
+}
+
 
 class Boss_Metadata(object):
     def __init__(self, demons):
@@ -102,6 +122,8 @@ class Boss_Metadata(object):
         for demon in self.getAllDemonsInEncounter():
             if demon in self.countPerDemon.keys():
                 self.countPerDemon[demon] = self.countPerDemon[demon] + 1
+            elif demon in SUMMONED_DEMON_COUNTS.keys():
+                self.countPerDemon[demon] = SUMMONED_DEMON_COUNTS[demon]
             else:
                 self.countPerDemon[demon] = 1
                 
@@ -169,8 +191,9 @@ Balances the stats of boss demons, including summoned adds to their new location
         newEncounter (List(number)): The demons replacing the old encounter
         demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
         bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
+        balancePressTurns (Bool): Whether the press turns of the new encounter should match the old encounter's press turns
 '''
-def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr, oldEncounterID, newEncounterID):
+def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr, oldEncounterID, newEncounterID, balancePressTurns):
     oldEncounterData = Boss_Metadata(oldEncounter)
     newEncounterData = Boss_Metadata(newEncounter)
     oldEncounterData.calculateTotals(demonReferenceArr)
@@ -189,6 +212,9 @@ def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr,
     #If Tentacle Lahmu is replacement, only give him a fifth of the normal HP due to tentacle jank
     if newEncounterID in [69, 138]:
         oldEncounterData.totalHP = oldEncounterData.totalHP // 5
+        
+    if balancePressTurns:
+        adjustBossPressTurns(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
     
     if oldEncounterData.minionType and newEncounterData.minionType:
         balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
@@ -203,8 +229,6 @@ The first demon will give the entirity of the old encounter's exp and macca
 If the new encounter is a strong demon with minions, the main demon will get the full HP tool while minions retain their original HP ratio.
 Otherwise the HP pool will be split with demons that appear multiple times in the new encounter receiving a smaller share.
 If the old encounter has multiple 'strong' demons, stats for new demons will be taken from a random demon, otherwise they will be taken from the main demon in the old encounter
-TODO: Calculate proper HP ratios for the new encounter and split the HP pool that way, add a hp bonus for multi-demon encounters to account for AOE skills
-TODO: Account for 'revive' demons (Hayataro etc) that are effectively duplicates that currently bloat the hp pool
     Parameters:
             oldEncounter (List(Boss_Metadata)): The original demons at the check
             newEncounter (List(Boss_Metadata)): The demons replacing the old encounter
@@ -343,6 +367,7 @@ def patchSpecialBossDemons(bossArr, configSettings):
         for duplicate in duplicates:
             demonToPatch = bossArr[duplicate]
             demonToPatch.stats = copy.deepcopy(referenceDemon.stats)
+            demonToPatch.pressTurns = referenceDemon.pressTurns
     if configSettings.randomizeLucifer:
         luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
         luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
@@ -487,3 +512,91 @@ def assignDummyEventEncounter(encounterToUpdate, newEncounter, dummyIndex, event
             symbol.encounterID = 0
             symbol.eventEncounterID = newEventIndex
             
+
+'''
+    Returns the amount of press turns a boss encounter with no demons dead will have
+        Parameters:
+            encounter (Boss_Metadata): The encounter data containing the number and ids of demons
+            staticBossArr (List(Enemy_Demon)): The list containing press turn data for all demons
+'''
+def calculateEncounterPressTurns(encounter, staticBossArr):
+    totalPressTurns = 0
+    maxSummons = 999
+    numSummons = -1
+    if encounter.demons[0] in PRESS_TURN_MAX_SUMMONS.keys():
+        maxSummons = PRESS_TURN_MAX_SUMMONS[encounter.demons[0]]
+    for demonID, count in encounter.countPerDemon.items():
+        demonPressTurns = staticBossArr[demonID].pressTurns
+        totalPressTurns += demonPressTurns * count
+        numSummons += 1
+        if numSummons >= maxSummons:
+            break
+    return totalPressTurns
+
+'''
+Balances the press turns of a boss encounter to match the check it replaces
+All demons will receive at least one press turn
+If it's impossible to exactly match the check's press turns, the new encounter will get the closest amount of turns that's lower than the old check's turns
+    Parameters:
+            oldEncounter (List(Boss_Metadata)): The original demons at the check
+            newEncounter (List(Boss_Metadata)): The demons replacing the old encounter
+            demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
+            bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
+'''
+def adjustBossPressTurns(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
+    targetTurns = calculateEncounterPressTurns(oldEncounterData, demonReferenceArr)
+    currentPressTurns = calculateEncounterPressTurns(newEncounterData, demonReferenceArr)
+    #print("Boss " + bossArr[newEncounterData.demons[0]].name + " with " + str(currentPressTurns) + " should have " + str(targetTurns) + " to match " + bossArr[oldEncounterData.demons[0]].name)
+    demonsWithPressTurns = [] # Some 'demons' like Lahmu's tentacles have 0 press turns and should stay that way
+    demonsWithMultipleTurns = []
+    demonsWithLowestTurns = []
+    for demonID in newEncounterData.getAllUniqueDemonsInEncounter():
+        if bossArr[demonID].pressTurns > 0:
+            demonsWithPressTurns.append(demonID)
+        if bossArr[demonID].pressTurns > 1:
+            demonsWithMultipleTurns.append(demonID)
+        if bossArr[demonID].pressTurns == 1:
+            demonsWithLowestTurns.append(demonID)
+    if currentPressTurns > targetTurns: # Remove press turns to match the check
+        while demonsWithMultipleTurns and currentPressTurns > targetTurns:
+            random.shuffle(demonsWithMultipleTurns)
+            targetReduction = currentPressTurns - targetTurns
+            chosenDemon = demonsWithMultipleTurns[0]
+            reduction = newEncounterData.countPerDemon[chosenDemon]
+            for demonID in demonsWithMultipleTurns: # Search for a demon that will reduce the number of press turns to the target if it loses a single press turn
+                if newEncounterData.countPerDemon[demonID] == targetReduction:
+                    chosenDemon = demonID
+                    reduction = targetReduction
+                    break
+            currentPressTurns -= reduction
+            bossArr[chosenDemon].pressTurns -= 1
+            if bossArr[chosenDemon].pressTurns <= 1:
+                demonsWithMultipleTurns.remove(chosenDemon)
+    elif currentPressTurns < targetTurns: # Add press turns to match the check
+        if newEncounterData.minionType: # For minion bosses give all bonus turns to the main demon
+            mainDemon = bossArr[newEncounterData.demons[0]]
+            mainDemon.pressTurns += (targetTurns - currentPressTurns)
+        else:
+            lowestTurns = 1
+            while currentPressTurns < targetTurns:
+                while not demonsWithLowestTurns:
+                    lowestTurns += 1
+                    for demonID in demonsWithPressTurns:
+                        if bossArr[demonID].pressTurns == lowestTurns:
+                            demonsWithLowestTurns.append(demonID)
+                random.shuffle(demonsWithLowestTurns)
+                targetIncrease = targetTurns - currentPressTurns
+                chosenDemon = demonsWithLowestTurns[0]
+                increase = newEncounterData.countPerDemon[chosenDemon]
+                for demonID in demonsWithLowestTurns: # Search for a demon that will not go over the target if its press turns are increased by one
+                    if newEncounterData.countPerDemon[demonID] <= targetIncrease:
+                        chosenDemon = demonID
+                        increase = newEncounterData.countPerDemon[demonID]
+                        break
+                if increase <= targetIncrease:
+                    currentPressTurns += increase
+                    bossArr[chosenDemon].pressTurns += 1
+                    demonsWithLowestTurns.remove(chosenDemon)
+                else:
+                    break
+    #print("The boss now has " + str(calculateEncounterPressTurns(newEncounterData, bossArr)))
