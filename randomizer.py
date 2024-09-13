@@ -5,7 +5,7 @@ from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Nod
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter, Ambush_Type
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
-from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item, Item_Chest
+from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item, Item_Chest, Consumable_Item
 from base_classes.quests import Mission, Mission_Reward, Mission_Condition
 from base_classes.settings import Settings
 from base_classes.miracles import Abscess, Miracle
@@ -48,6 +48,7 @@ class Randomizer:
         self.enemyArr = []
         self.encountSymbolArr = []
         self.encountArr = []
+        self.consumableArr = []
         self.essenceArr = []
         self.shopArr = []
         self.eventEncountArr = []
@@ -1507,6 +1508,24 @@ class Randomizer:
             self.chestArr.append(chest)
 
     '''
+    Fills the list consumableArr with data about consumable items.
+        Parameters:
+            items (Table): buffer containing item data
+    '''
+    def fillConsumableArr(self, items):
+        start = 0x55
+        size = 100
+
+        self.consumableArr.append(Consumable_Item())#Dummy Item
+
+        for index in range(numbers.CONSUMABLE_ITEM_COUNT):
+            item = Consumable_Item()
+            item.ind = index +1
+            item.offset = start + size * index
+            item.name = self.itemNames[index +1]
+            item.buyPrice = items.readWord(item.offset + 0x5C)
+            self.consumableArr.append(item)
+    '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
         Parameters:
             ind (Number): the id of the skill to return
@@ -2540,6 +2559,19 @@ class Randomizer:
         for e in essence:
             offset = e.offset
             buffer.writeWord(e.price, offset +12)
+        return buffer
+
+    '''
+    Writes the values from the consumable items to their respective locations in the table buffer
+        Parameters:        
+            buffer (Table)
+            consumables (Array) 
+    '''
+    def updateConsumableData(self, buffer, consumables):
+        for index, item in enumerate(consumables):
+            if index == 0:
+                continue #skip dummy item
+            buffer.writeWord(item.buyPrice, item.offset + 0x5C)
         return buffer
 
     '''
@@ -4308,8 +4340,9 @@ class Randomizer:
     Adjusts prices of items to be more reasonable.
     '''
     def adjustItemPrices(self):
-        #TODO: Implement
-        pass
+        self.consumableArr[82].buyPrice = 80000 #Set shop price for gospel to same as grimoire
+        self.consumableArr[98].buyPrice = 500000 #Set battle sutra price to slightly higher than others instead of max
+        self.consumableArr[105].buyPrice = 500000 #Set destruction sutra price to slightly higher than others instead of max
 
             
     '''
@@ -5985,6 +6018,7 @@ class Randomizer:
         self.fillChestArr(chestBuffer)
         self.fillMimanRewardArr(shopBuffer)
         self.fillMapSymbolArr(mapSymbolParamBuffer)
+        self.fillConsumableArr(itemBuffer)
         
         #self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
         self.eventEncountArr = self.addPositionsToNormalEncountArr(eventEncountPostBuffer, self.eventEncountArr, eventEncountPostUassetBuffer)
@@ -6169,7 +6203,8 @@ class Randomizer:
         miracleBuffer = self.updateMiracleBuffer(miracleBuffer)
         uniqueSymbolBuffer = self.updateUniqueSymbolBuffer(uniqueSymbolBuffer)
         encountPostBuffer = self.updateEventEncountPostBuffer(encountPostBuffer, self.encountArr)
-        chestBuffer = self.updateChestBuffer(chestBuffer)        
+        chestBuffer = self.updateChestBuffer(chestBuffer)
+        itemBuffer = self.updateConsumableData(itemBuffer, self.consumableArr)        
 
 
         #self.printOutEncounters(newSymbolArr)
@@ -6272,7 +6307,7 @@ if __name__ == '__main__':
         if not rando.configSettings.fixUniqueSkillAnimations:
             print('"Fix unique skill animations" patch not applied. If the game appears to hang during a battle animation, press the skip animations button')
         print('\nRandomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
-        print('bossSpoilerLog, encounterResults and fusionResults can be found in the debug folder')
+        print('CurrentSeed, bossSpoilerLog, encounterResults and fusionResults can be found in the debug folder')
         print('Lastly, it is recommended that you do not play the randomizer on hard mode Larpas')
        
     except RuntimeError:

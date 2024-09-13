@@ -32,7 +32,9 @@ class Item_Chest:
         self.amount = None
         self.macca = None
 
-class Item_Table_Entry:
+class Consumable_Item:
     def __init__(self):
         self.ind = None
         self.buyPrice = None
+        self.offset = None
+        self.name = None

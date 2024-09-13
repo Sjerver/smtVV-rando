@@ -13,6 +13,8 @@ Balance:
 * Divine garrison miracles will cost less on average
 * Since Spyscope is dropped by Tutorial Daemon, Spyglass is removed from random item pool
 * Spyglass in the Shop is always replaced with New Testament Tablet
+* Gospels now cost the same as Grimoire in Shop
+* Battle Sutra and Destruction Sutra cost lowered from maximum to slightly above other Sutras
 
 Misc:
 * Removed extra Ishtars from the pool so there is only one left
