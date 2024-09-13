@@ -1,10 +1,15 @@
 Version 1.02
 Features:
 * New boss randomizer settings - Scale boss damage, scale boss press turns to check, and set Ishtar's press turns
+* New setting to reverse the divine garrison miracles so that you learn the +3 stock ones first
 
 Bugfixes:
 * Fixed crash when running the randomizer with a random seed
 * Mitamas will no longer talk
+
+Balance:
+* Miracle costs will be in order for progressive miracles like fire mastery
+* Divine garrison miracles will cost less on average
 
 Misc:
 * Removed extra Ishtars from the pool so there is only one left

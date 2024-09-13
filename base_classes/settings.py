@@ -15,6 +15,7 @@ class Settings(object):
         self.randomEnemyDrops = False               # Randomizes items that enemies drop
         self.randomMiracleUnlocks = False           # Shuffles what miracles are unlocked at each abscess
         self.randomMiracleCosts = False             # Randomizes the glory cost of miracles
+        self.reverseDivineGarrisons = False         # Reverses the order in which you learn divine garrison miracles so you get +3 stock upgrades early
         self.randomChests = False                   # Randomizes the items/macca/essences gained from overworld chests
         self.selfRandomizeNormalBosses = False      # Randomize story and sidequest bosses only with each other
         self.mixedRandomizeNormalBosses = False     # Randomize story and sidequest bosses with all bosses

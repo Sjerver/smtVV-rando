@@ -1,4 +1,3 @@
-from re import S
 from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate, Encounter_Spawn
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
@@ -28,7 +27,7 @@ import shutil
 import traceback
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
-DEV_CHEATS = False
+DEV_CHEATS = True
 
 class Randomizer:
     def __init__(self):
@@ -1425,11 +1424,11 @@ class Randomizer:
         start = 0x59
         size = 0x14
         
-        self.miracleArr.append(Miracle(0, 0)) #Dummy miracle to better align with abscess indexing
+        self.miracleArr.append(Miracle(0, 0, 0)) #Dummy miracle to better align with abscess indexing
 
         for index in range(144):
             offset = start + size * index
-            miracle = Miracle(offset, data.readHalfword(offset + 0xc))
+            miracle = Miracle(offset, data.readHalfword(offset + 0xc), data.readByte(offset + 0x4))
             self.miracleArr.append(miracle)
             
     '''
@@ -2794,7 +2793,8 @@ class Randomizer:
     '''
     def updateMiracleBuffer(self, buffer):
         for miracle in self.miracleArr:
-            if miracle.offsetNumber > 0: #Ignore Dummy miracle
+            if miracle.offsetNumber > 0: #Ignore Dummy miracle\
+                buffer.writeByte(miracle.prerequisite, miracle.offsetNumber + 0x4)
                 buffer.writeHalfword(miracle.cost, miracle.offsetNumber + 0xc)
         return buffer
     
@@ -3961,7 +3961,43 @@ class Randomizer:
             updatedAbscess = self.abscessArr[abscessIndex]
             for miracleIndex in updatedAbscess.miracles:
                 if miracleIndex > 0:
-                    self.miracleArr[miracleIndex].cost = random.randint(minimumCost, maximumCost) * 5 #Update abscess reward miracle costs
+                    if miracleIndex in numbers.DIVINE_GARRISON_IDS:
+                        self.miracleArr[miracleIndex].cost = random.randint(minimumCost, maximumCost // 2) * 5 #Make divine garrisons cheaper
+                    else:
+                        self.miracleArr[miracleIndex].cost = random.randint(minimumCost, maximumCost) * 5 #Update abscess reward miracle costs
+                        
+        for dependentMiracles in numbers.MIRACLE_DEPENDENCIES: #For progressive miracles put their costs in order
+            costs = []
+            for miracle in dependentMiracles:
+               costs.append(self.miracleArr[miracle].cost)
+            costs.sort()
+            for index, miracle in enumerate(dependentMiracles):
+               self.miracleArr[miracle].cost = costs[index]
+       
+    '''
+    Reverses the order of divine garrison miracles so you get the +3 stock ones first
+    '''
+    def reverseDivineGarrisons(self):
+        costs = []
+        abscessIndices = []
+        for miracle in numbers.DIVINE_GARRISON_IDS:
+            currIndices = []
+            costs.append(self.miracleArr[miracle].cost)
+            for outerIndex, abscess in enumerate(self.abscessArr):
+                for innerIndex, abscessMiracle in enumerate(abscess.miracles):
+                    if miracle == abscessMiracle:
+                        currIndices.append((outerIndex, innerIndex))
+            abscessIndices.append(currIndices)
+        costs.reverse()
+        abscessIndices.reverse()
+        for index, miracle in enumerate(numbers.DIVINE_GARRISON_IDS):
+            self.miracleArr[miracle].cost = costs[index]
+            if index == len(numbers.DIVINE_GARRISON_IDS) - 1:
+                self.miracleArr[miracle].prerequisite = 0
+            else:
+                self.miracleArr[miracle].prerequisite = numbers.DIVINE_GARRISON_IDS[index + 1]
+            for abscessIndex in abscessIndices[index]:
+                self.abscessArr[abscessIndex[0]].miracles[abscessIndex[1]] = miracle
             
 
     '''
@@ -6011,6 +6047,8 @@ class Randomizer:
             self.randomizeMiracleRewards()
         elif config.randomMiracleCosts: #If randomizing unlocks handle costs there as it is slightly more complicated
             self.randomizeMiracleCosts()
+        if config.reverseDivineGarrisons:
+            self.reverseDivineGarrisons()
 
         if config.randomAlignment:
             self.randomizeDemonAlignment(self.compendiumArr)

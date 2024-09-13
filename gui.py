@@ -306,6 +306,7 @@ def createGUI(configSettings):
 
     listPatches = tk.Listbox(page3FrameTop, selectmode = "multiple", width=50, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listPatches.insert(0, "Fix unique skill animations")
+    listPatches.insert(1, "Learn +3 stock Divine Garrisons first")
     listPatches.pack()
         
     page1Frame.tkraise()
@@ -412,6 +413,8 @@ def createGUI(configSettings):
             toggleIshtarCheckbox()
             if configur.get('Patches', 'FixUniqueSkillAnimations') == 'true':
                 listPatches.selection_set(0)
+            if configur.get('Patches', 'ReverseDivineGarrisons') == 'true':
+                listPatches.selection_set(1)
         except (NoOptionError, NoSectionError):
             createConfigFile(configur)
     else:
@@ -690,6 +693,12 @@ def createGUI(configSettings):
         configur.set('Patches', 'FixUniqueSkillAnimations', 'true')
     else:
         configur.set('Patches', 'FixUniqueSkillAnimations', 'false')
+        
+    if patchFlags[1]:
+        configSettings.reverseDivineGarrisons = True
+        configur.set('Patches', 'ReverseDivineGarrisons', 'true')
+    else:
+        configur.set('Patches', 'ReverseDivineGarrisons', 'false')
 
     with open('config.ini', 'w') as configfile:
         configur.write(configfile)
@@ -710,5 +719,5 @@ def createConfigFile(configur):
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False,
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
                                  'RandomizeIshtarPressTurns': False}
-    configur['Patches'] = {'FixUniqueSkillAnimations': False}
+    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'ReverseDivineGarrisons': False}
    
