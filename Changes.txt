@@ -1,3 +1,15 @@
+Version 1.02
+Features:
+* New boss randomizer settings - Scale boss damage, scale boss press turns to check, and set Ishtar's press turns
+
+Bugfixes:
+* Fixed crash when running the randomizer with a random seed
+* Mitamas will no longer talk
+
+Misc:
+* Removed extra Ishtars from the pool so there is only one left
+
+
 Version 1.01
 Bugfixes:
 * Fixed quests being unable to complete if certain punishing foes are at their check

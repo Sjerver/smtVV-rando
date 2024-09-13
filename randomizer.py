@@ -1,3 +1,4 @@
+from re import S
 from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate, Encounter_Spawn
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
@@ -5623,8 +5624,13 @@ class Randomizer:
     def removeIshtarCopies(self):
         for eventEncountID in numbers.EXTRA_ISHTAR_ENCOUNTERS:
             self.bossDuplicateMap[eventEncountID] = numbers.TRUE_ISHTAR_ENCOUNTER
-        self.bossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = self.configSettings.ishtarPressTurns
-        self.staticBossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = self.configSettings.ishtarPressTurns
+        if self.configSettings.randomizeIshtarPressTurns:
+            pressTurns = random.randint(1, 8)
+            self.bossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = pressTurns
+            self.staticBossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = pressTurns
+        else:
+            self.bossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = self.configSettings.ishtarPressTurns
+            self.staticBossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = self.configSettings.ishtarPressTurns
     
     '''
     Changes the scaling of normal demon symbols with overly large scaling factors to the normal 1.2 factor.

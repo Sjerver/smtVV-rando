@@ -40,3 +40,4 @@ class Settings(object):
         self.scaleBossDamage = False                # Bosses' damage dealt multiplier will be based on the level difference of the check they replace
         self.scaleBossPressTurnsToCheck = False     # Boss press turns will match the check instead of the boss
         self.ishtarPressTurns = 3                   # The number of press turns Ishtar/The Ishtar check should use
+        self.randomizeIshtarPressTurns = False      # If true, overrides the ishtarPressTurns value and randomly assigns 1-8 press turns for Ishtar

@@ -6,6 +6,7 @@ NAHOBINO_BLUE = "#5b87d5"
 VENGEANCE_PURPLE = "#a698dd"
 PRESS_TURN_RED = "#831530"
 PRESS_TURN_BRIGHT_RED = "#ab1d33"
+DISABLED_GRAY = "#333333"
 
 #Creates page system with important information like randomize button always visible
 def createGUI(configSettings):
@@ -283,6 +284,17 @@ def createGUI(configSettings):
     
     ishtarScale = tk.Scale(page2FrameRight, from_=1, to=8, orient=tk.HORIZONTAL, bg=PRESS_TURN_RED, troughcolor="Black", activebackground=PRESS_TURN_BRIGHT_RED)
     ishtarScale.set(3)
+    
+    randomIshtarPressTurnsVar = tk.IntVar()
+    
+    def toggleIshtarCheckbox():
+        if randomIshtarPressTurnsVar.get() == 0:
+            ishtarScale.config(state=tk.NORMAL, bg=PRESS_TURN_RED)
+        else:
+            ishtarScale.config(state=tk.DISABLED, bg=DISABLED_GRAY)
+    
+    ishtarRandomizeCheckbox = tk.Checkbutton(page2FrameRight, text="Random", variable=randomIshtarPressTurnsVar, onvalue=1, offvalue=0, command=toggleIshtarCheckbox)
+    ishtarRandomizeCheckbox.pack()
     ishtarScale.pack()
     
     patchesLabel = tk.Label(page3FrameTop, text="Patches")
@@ -395,6 +407,9 @@ def createGUI(configSettings):
             if configur.get('Boss', 'RandomizeLucifer') == 'true':
                 listBossSettings.selection_set(2)
             ishtarScale.set(configur.get('Boss', 'IshtarPressTurns'))
+            if configur.get('Boss', 'RandomizeIshtarPressTurns') == 'true':
+                ishtarRandomizeCheckbox.select()
+            toggleIshtarCheckbox()
             if configur.get('Patches', 'FixUniqueSkillAnimations') == 'true':
                 listPatches.selection_set(0)
         except (NoOptionError, NoSectionError):
@@ -424,6 +439,7 @@ def createGUI(configSettings):
         superbossChoice = listSuperboss.curselection()
         minibossChoice = listMiniboss.curselection()
         ishtarChoice = ishtarScale.get()
+        ishtarRandomizeChoice = randomIshtarPressTurnsVar.get()
         patchFlags = [False for i in range(listPatches.size())]
         for i in listPatches.curselection():
             patchFlags[i] = True
@@ -663,6 +679,11 @@ def createGUI(configSettings):
         
     configSettings.ishtarPressTurns = ishtarChoice
     configur.set('Boss', 'IshtarPressTurns', str(ishtarChoice))
+    configSettings.randomizeIshtarPressTurns = ishtarRandomizeChoice
+    if ishtarRandomizeChoice:
+        configur.set('Boss', 'RandomizeIshtarPressTurns', 'true')
+    else:
+        configur.set('Boss', 'RandomizeIshtarPressTurns', 'false')
         
     if patchFlags[0]:
         configSettings.fixUniqueSkillAnimations = True
@@ -687,6 +708,7 @@ def createConfigFile(configur):
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
     configur['Boss'] = {'NormalBossesSelf': False, 'NormalBossesMixed': False, 'RandomizeLucifer': False, 'AbscessBossesSelf': False, 'AbscessBossesMixed': False,
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False,
-                                 'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3}
+                                 'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
+                                 'RandomizeIshtarPressTurns': False}
     configur['Patches'] = {'FixUniqueSkillAnimations': False}
    
