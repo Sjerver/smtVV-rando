@@ -2,6 +2,7 @@ Version 1.02
 Features:
 * New boss randomizer settings - Scale boss damage, scale boss press turns to check, and set Ishtar's press turns
 * New setting to reverse the divine garrison miracles so that you learn the +3 stock ones first
+* New setting to reduce the cost of demons in the compendium
 
 Bugfixes:
 * Fixed crash when running the randomizer with a random seed
@@ -10,6 +11,8 @@ Bugfixes:
 Balance:
 * Miracle costs will be in order for progressive miracles like fire mastery
 * Divine garrison miracles will cost less on average
+* Since Spyscope is dropped by Tutorial Daemon, Spyglass is removed from random item pool
+* Spyglass in the Shop is always replaced with New Testament Tablet
 
 Misc:
 * Removed extra Ishtars from the pool so there is only one left

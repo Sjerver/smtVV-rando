@@ -42,3 +42,4 @@ class Settings(object):
         self.scaleBossPressTurnsToCheck = False     # Boss press turns will match the check instead of the boss
         self.ishtarPressTurns = 3                   # The number of press turns Ishtar/The Ishtar check should use
         self.randomizeIshtarPressTurns = False      # If true, overrides the ishtarPressTurns value and randomly assigns 1-8 press turns for Ishtar
+        self.reduceCompendiumCosts = False          # Reduces the cost of active skills in the compendium

@@ -113,8 +113,8 @@ CONSUMABLE_ITEM_COUNT = 114
 #Any chest with an item index 611 or higher contains a key item and should not be randomized
 KEY_ITEM_CUTOFF = 611
 
-#Item indices that correspond to reusable items like the return pillar or gleam grenade
-BANNED_ITEMS = [70, 73, 74, 75, 76, 77, 78, 79, 80, 81]
+#Item indices that correspond to reusable items like the return pillar or gleam grenade and spyglass(spyscope is given by tutorial daemon)
+BANNED_ITEMS = [70, 73, 74, 75, 76, 77, 78, 79, 80, 81, 55]
 
 BANNED_ESSENCES = [359,555,545,546,547,548,549,550,551,552,553,554,556,557,558,559,606,607,608] #Old Lilith's Essence, Demi-fiends Essence, Aogami & Tsukuyomi Essences
 
@@ -182,6 +182,9 @@ MISSION_DUPLICATES = {
 #List of exclusive key item rewards from both canons
 CREATION_EXCLUSIVE_KEY_REWARDS = [72] #The Falcon's Head
 VENGEANCE_EXCLUSIVE_KEY_REWARDS =[] #Currently not any
+
+#List of banned key rewards
+BANNED_KEY_REWARDS = [79] #Spyscope (dropped by tutorial daemon)
 
 #Exclusive mission from both canons to give potential exclusive rewards to (excluding missions whose rewards are not randomized or are not allowed to receive key item rewards)
 CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
@@ -267,7 +270,7 @@ CONSUMABLE_PROGRESSION = {
     #Universal: Life Stone, Chakra Drop, Bead, Revival Bead, Gold Card, Smoke Ball, Dampeners, Attract Pipe, Gospel, Grimoire, Small Glory Crystals, Simple Demon Box, New Testament Tablet, Incenses,
   1: [3,5,6,8,23,24,25,26,27,28,37,38,39,40,41,42,43,44,45,46,47,50,51,52,53,98,99,100,101,102,103,104,105,106,107,108], #After Minato: Chakra Pot, Bead Chain, Soma, Balm of Life, Elemental Gems, Status Gems, 
     #Support Gems, Drain Gems, Purge/Dispel Charms, Attack Mirror, Magic Mirror, Sutras
-  2: [15,16,17,18,19,20,21,22,55], #Pre Taito: Life Stone Chain, Soma Drop, Elemental Shards
+  2: [15,16,17,18,19,20,21,22], #Pre Taito: Life Stone Chain, Soma Drop, Elemental Shards
   3: [60,62], #From Area 3 Dungeons onward: Whittled Goat, Phys Dampener
   4: [10,112,84,85,86,87,88,89,90,110,14], #Post Shinagawa: Amrita Shower, Lavish Demon Box, Stat Balms, Large Glory Crystal, Muscle Drink,
 }

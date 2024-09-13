@@ -176,6 +176,7 @@ def createGUI(configSettings):
     listDemon.insert(9, "Randomize Alignment")
     listDemon.insert(10, "Same Level for Quest Join Demons")
     listDemon.insert(11, "Randomize Stat Modifiers")
+    listDemon.insert(12, "Reduce Compendium Cost Drastically")
 
     demonScrollbar = tk.Scrollbar(page1FrameTop, orient='vertical')
     demonScrollbar.config(command=listDemon.yview)
@@ -341,6 +342,8 @@ def createGUI(configSettings):
                 listDemon.selection_set(10)
             if configur.get('Demon', 'RandomDemonStats') == 'true':
                 listDemon.selection_set(11)
+            if configur.get('Demon', 'ReduceCompendiumCost') == 'true':
+                listDemon.selection_set(12)
             if configur.get('Inheritance', 'RandomInheritance') == 'true':
                 listInheritance.selection_clear(0)
                 listInheritance.selection_set(1)
@@ -523,6 +526,12 @@ def createGUI(configSettings):
         configur.set('Demon', 'RandomDemonStats', 'true')
     else:
         configur.set('Demon', 'RandomDemonStats', 'false')
+    
+    if demonFlags[11]:
+        configSettings.reduceCompendiumCosts = True
+        configur.set('Demon', 'ReduceCompendiumCost', 'true')
+    else:
+        configur.set('Demon', 'ReduceCompendiumCost', 'false')
 
     if len(inheritanceChoice) > 0 and inheritanceChoice[0] == 1:
         configSettings.randomInheritance = True
@@ -710,7 +719,7 @@ def createConfigFile(configur):
     configur.read('config.ini')
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
-                                'ensureDemonJoinLevel':False, 'RandomDemonStats': False}
+                                'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False, 'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False,
                         'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False}
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}

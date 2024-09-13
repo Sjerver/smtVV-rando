@@ -27,7 +27,7 @@ import shutil
 import traceback
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
-DEV_CHEATS = True
+DEV_CHEATS = False
 
 class Randomizer:
     def __init__(self):
@@ -4247,8 +4247,8 @@ class Randomizer:
             scaling (Boolean): whether the item should be scaled to the area where they unlock
     '''
     def randomizeShopItems(self, scaling):
-        dampeners = [63,64,65,66,67,68] #Elemental Dampeners stay the same
-        itemsInShop = [] + dampeners
+        dampeners = [55, 63,64,65,66,67,68] #Spyglass(gets replaced seperately) + Elemental Dampeners stay the same
+        itemsInShop = [113] + dampeners #New Testatement Tablet(gets added speerately)
         validItems = []
 
         if scaling: #Scale Rewards per map
@@ -4288,7 +4288,22 @@ class Randomizer:
                         validItems[key].remove(itemID)
             else:
                 validItems.remove(itemID)
-            
+    
+    '''
+    Replaces Spyglass with New Testament Tablet in Shop.
+    '''
+    def replaceSpyglassInShop(self):
+        for entry in self.shopArr:
+            if entry.item.value == 55: #Spyglass
+                entry.item = Translated_Value(113, self.itemNames[113]) #New Testament Tablet
+        
+    '''
+    Adjusts prices of items to be more reasonable.
+    '''
+    def adjustItemPrices(self):
+        #TODO: Implement
+        pass
+
             
     '''
     Randomizes the rewards for collecting Miman. Talismans are shuffled, and all else is replaced with a random number and amount of items.
@@ -4406,6 +4421,11 @@ class Randomizer:
                         creationRewards.append(copy.deepcopy(mission.reward))
                     else:
                         vengeanceRewards.append(copy.deepcopy(mission.reward))
+
+        #Remove unwanted rewards
+        for reward in uniqueRewards:
+            if reward.ind in numbers.BANNED_KEY_REWARDS:
+                uniqueRewards.remove(reward)
         
         validCreationMissions = list(filter(lambda mission: mission.ind in numbers.CREATION_EXLUSIVE_MISSIONS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind not in numbers.MUTUALLY_EXCLUSIVE_MISSIONS ,rewardingMissions))
         creationRewardMissions = random.sample(validCreationMissions, len(creationRewards))
@@ -5522,6 +5542,14 @@ class Randomizer:
         self.battleEventArr[35].encounterID = 255
 
     '''
+    Reduces the compendium cost modifier of demons.
+    #TODO: I didn't have any luck reducing the costs of skills directly, so this is here instead
+    '''
+    def reduceCompendiumCosts(self):
+        for demon in self.compendiumArr:
+            demon.compCostModifier = demon.compCostModifier // 10
+
+    '''
     Patches tutorial Daemon's HP to be beatable without Zio
     '''
     def patchTutorialDaemon(self):
@@ -6060,6 +6088,8 @@ class Randomizer:
         
         if self.configSettings.randomShopItems:
             self.randomizeShopItems(self.configSettings.scaleItemsToArea)
+        self.replaceSpyglassInShop()
+        self.adjustItemPrices()
         
         if(self.configSettings.randomizeMimanRewards):
             self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea)
@@ -6075,6 +6105,9 @@ class Randomizer:
             self.randomizeBasicEnemyDrops(self.configSettings.scaleItemsToArea)
             self.randomizeBossDrops(self.configSettings.scaleItemsToArea)
 
+        if self.configSettings.reduceCompendiumCosts:
+            self.reduceCompendiumCosts()
+
         self.patchTutorialDaemon()
         
         #self.patchHornOfPlenty()
@@ -6082,6 +6115,7 @@ class Randomizer:
         #self.patchHorusHead()
         self.capDiarahanDemonHP()
         self.nullBossTones()
+        
 
         mapSymbolParamBuffer = self.scaleLargeSymbolDemonsDown(mapSymbolParamBuffer)
         self.adjustPunishingFoeSpeeds(mapSymbolParamBuffer)
