@@ -278,6 +278,8 @@ def createGUI(configSettings):
     listBossSettings.insert(0, "Scale boss damage to check (Recommended)")
     listBossSettings.insert(1, "Boss press turns match check")
     listBossSettings.insert(2, "Randomize Lucifer")
+    listBossSettings.insert(3, "No story boss ambush until after Hydra check")
+    listBossSettings.insert(4, "Ambushes are dependent on boss where possible")
     listBossSettings.pack()
 
     ishtarLabel = tk.Label(page2FrameRight, text="Ishtar's press turns")
@@ -410,6 +412,10 @@ def createGUI(configSettings):
                 listBossSettings.selection_set(1)
             if configur.get('Boss', 'RandomizeLucifer') == 'true':
                 listBossSettings.selection_set(2)
+            if configur.get('Boss', 'PreventEarlyAmbush') == 'true':
+                listBossSettings.selection_set(3)
+            if configur.get('Boss', 'BossDependentAmbush') == 'true':
+                listBossSettings.selection_set(4)
             ishtarScale.set(configur.get('Boss', 'IshtarPressTurns'))
             if configur.get('Boss', 'RandomizeIshtarPressTurns') == 'true':
                 ishtarRandomizeCheckbox.select()
@@ -527,7 +533,7 @@ def createGUI(configSettings):
     else:
         configur.set('Demon', 'RandomDemonStats', 'false')
     
-    if demonFlags[11]:
+    if demonFlags[12]:
         configSettings.reduceCompendiumCosts = True
         configur.set('Demon', 'ReduceCompendiumCost', 'true')
     else:
@@ -628,6 +634,18 @@ def createGUI(configSettings):
         configur.set('Boss', 'RandomizeLucifer', 'true')
     else:
         configur.set('Boss', 'RandomizeLucifer', 'false')
+    
+    if bossFlags[3]:
+        configSettings.preventEarlyAmbush = True
+        configur.set('Boss', 'PreventEarlyAmbush', 'true')
+    else:
+        configur.set('Boss', 'PreventEarlyAmbush', 'false')
+    
+    if bossFlags[4]:
+        configSettings.bossDependentAmbush = True
+        configur.set('Boss', 'BossDependentAmbush', 'true')
+    else:
+        configur.set('Boss', 'BossDependentAmbush', 'false')
         
     if len(normalBossChoice) > 0 and normalBossChoice[0] == 1:
         configSettings.selfRandomizeNormalBosses = True
@@ -727,6 +745,6 @@ def createConfigFile(configur):
     configur['Boss'] = {'NormalBossesSelf': False, 'NormalBossesMixed': False, 'RandomizeLucifer': False, 'AbscessBossesSelf': False, 'AbscessBossesMixed': False,
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False,
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
-                                 'RandomizeIshtarPressTurns': False}
+                                 'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False}
     configur['Patches'] = {'FixUniqueSkillAnimations': False, 'ReverseDivineGarrisons': False}
    

@@ -2,7 +2,7 @@ from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate, Encounter_Spawn
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
-from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter
+from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter, Ambush_Type
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
 from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item, Item_Chest
@@ -3765,6 +3765,9 @@ class Randomizer:
                 encounterToUpdate.eventEncounter.endEarlyFlag = referenceEncounter.eventEncounter.endEarlyFlag
                 if not self.configSettings.checkBasedMusic and not self.configSettings.randomMusic:
                     encounterToUpdate.eventEncounter.track = referenceEncounter.eventEncounter.track
+                if self.configSettings.bossDependentAmbush:
+                    if encounterToUpdate.eventEncounter.startingPhase != Ambush_Type.FIELD and referenceEncounter.eventEncounter.startingPhase != Ambush_Type.FIELD and encounterToUpdate.eventEncounter.startingPhase != Ambush_Type.UNKNOWN and referenceEncounter.eventEncounter.startingPhase != Ambush_Type.UNKNOWN:
+                        encounterToUpdate.eventEncounter.startingPhase = referenceEncounter.eventEncounter.startingPhase
             else:
                 # only the encounter to adjust is event encounter
                 encounterToUpdate.demons = referenceEncounter.demons + [0, 0]
@@ -3773,6 +3776,8 @@ class Randomizer:
                 encounterToUpdate.eventEncounter.positions.addDemons = referenceEncounter.normalEncounter.positions.addDemons
                 encounterToUpdate.eventEncounter.unknownDemon = Translated_Value(referenceEncounter.demons[0], self.enemyNames[referenceEncounter.demons[0]])
                 encounterToUpdate.eventEncounter.endEarlyFlag = 0
+                if self.configSettings.bossDependentAmbush and encounterToUpdate.eventEncounter.startingPhase != Ambush_Type.FIELD and encounterToUpdate.eventEncounter.startingPhase != Ambush_Type.UNKNOWN:
+                    encounterToUpdate.eventEncounter.startingPhase = Ambush_Type.PLAYER
             encounterToUpdate.eventEncounter.track = encounterToUpdate.track
             encounterToUpdate.eventEncounter.demons = [Translated_Value(demon, self.enemyNames[demon]) for demon in encounterToUpdate.demons]
         else:
@@ -3786,6 +3791,8 @@ class Randomizer:
                     encounterToUpdate.eventEncounter.positions.demons = referenceEncounter.eventEncounter.positions.demons
                     encounterToUpdate.eventEncounter.positions.addDemons = referenceEncounter.eventEncounter.positions.addDemons
                     encounterToUpdate.eventEncounter.endEarlyFlag = referenceEncounter.eventEncounter.endEarlyFlag
+                    if self.configSettings.bossDependentAmbush and encounterToUpdate.eventEncounter.startingPhase != Ambush_Type.FIELD and referenceEncounter.eventEncounter.startingPhase != Ambush_Type.FIELD and encounterToUpdate.eventEncounter.startingPhase != Ambush_Type.UNKNOWN and referenceEncounter.eventEncounter.startingPhase != Ambush_Type.UNKNOWN:
+                        encounterToUpdate.eventEncounter.startingPhase = Ambush_Type.PLAYER
                 else:
                     # only the reference encounter is event encounter
                     encounterToUpdate.demons = referenceEncounter.demons[:6]
@@ -5550,6 +5557,13 @@ class Randomizer:
             demon.compCostModifier = demon.compCostModifier // 10
 
     '''
+    Sets early story fights to not be ambushes.
+    '''
+    def preventEarlyAmbush(self):
+        for id in numbers.EARLY_STORY_EVENT_ENCOUNTERS:
+            self.eventEncountArr[id].startingPhase = Ambush_Type.PLAYER
+
+    '''
     Patches tutorial Daemon's HP to be beatable without Zio
     '''
     def patchTutorialDaemon(self):
@@ -6107,6 +6121,9 @@ class Randomizer:
 
         if self.configSettings.reduceCompendiumCosts:
             self.reduceCompendiumCosts()
+
+        if self.configSettings.preventEarlyAmbush:
+            self.preventEarlyAmbush()
 
         self.patchTutorialDaemon()
         

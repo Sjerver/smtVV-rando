@@ -1,3 +1,5 @@
+from enum import IntEnum
+
 class Encounter_Symbol:
     def __init__(self, ind, symbol, offsetNumbers, flags, encounters):
         self.ind = ind
@@ -36,6 +38,7 @@ class Event_Encounter:
         self.positions = EventEncountPost()
         self.endEarlyFlag = None
         self.startingPhase = None
+        self.ambushType = None
         
     '''
     Tests if two encounters share identical demons, usually due to VR battles
@@ -78,3 +81,9 @@ class Mixed_Boss_Encounter(object):
         self.eventEncounter = None
         self.demons = None
         self.track = None
+
+class Ambush_Type(IntEnum):
+    UNKNOWN = 0
+    AMBUSH = 1
+    PLAYER = 2
+    FIELD = 3

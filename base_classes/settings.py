@@ -43,3 +43,5 @@ class Settings(object):
         self.ishtarPressTurns = 3                   # The number of press turns Ishtar/The Ishtar check should use
         self.randomizeIshtarPressTurns = False      # If true, overrides the ishtarPressTurns value and randomly assigns 1-8 press turns for Ishtar
         self.reduceCompendiumCosts = False          # Reduces the cost of active skills in the compendium
+        self.preventEarlyAmbush = False             # Prevents story event encounters to be ambushes before Hydras check
+        self.bossDependentAmbush = False            # Ambushes are boss dependent and moved with bosses if possible

@@ -381,6 +381,8 @@ TRUE_ISHTAR_ENCOUNTER = 75
 #Demon ID of the Ishtar that is kept in the pool
 TRUE_ISHTAR_DEMON = 455
 
+#Event Encounter Ids of bosses that appear up until and including Hydra
+EARLY_STORY_EVENT_ENCOUNTERS = [87, 134, 33] #Glasya-Labolas, 3 Pretas, Hydra
 
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
