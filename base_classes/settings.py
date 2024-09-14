@@ -16,6 +16,8 @@ class Settings(object):
         self.randomMiracleUnlocks = False           # Shuffles what miracles are unlocked at each abscess
         self.randomMiracleCosts = False             # Randomizes the glory cost of miracles
         self.reverseDivineGarrisons = False         # Reverses the order in which you learn divine garrison miracles so you get +3 stock upgrades early
+        self.forcedEarlyMiracles = []               # The list of miracles that are forced to be available in the first abscess or at the start
+        self.vanillaRankViolation = False           # Forces rank violation to be vanilla to avoid breaking the game too easily
         self.randomChests = False                   # Randomizes the items/macca/essences gained from overworld chests
         self.selfRandomizeNormalBosses = False      # Randomize story and sidequest bosses only with each other
         self.mixedRandomizeNormalBosses = False     # Randomize story and sidequest bosses with all bosses

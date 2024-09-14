@@ -55,11 +55,11 @@ MIRACLE_DEPENDENCIES = [
 #IDs of miracles obtained when you first unlock the cathedral of shadows
 STARTING_MIRACLES = [13, 27, 49, 75, 80, 85, 90]
 
-#IDs of miracles that should be given to the player early (just forestall, empowering cheer, and divine amalgamation for now, could consider 32 art of essences 1)
-REQUIRED_EARLY_MIRACLES = [13, 49, 117, 55, 56]
-
 #IDs of divine garrison miracles in order
 DIVINE_GARRISON_IDS = [55, 56, 57, 58, 59, 60, 118, 119, 120]
+
+#ID of miracle rank violation
+RANK_VIOLATION_ID = 31
 
 TUTORIAL_DAEMON_ID = 430
 

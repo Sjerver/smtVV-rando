@@ -3912,6 +3912,9 @@ class Randomizer:
         rewardCounts = []
         duplicateAbscesses = {}
         abscessMiracleList = []
+        bannedMiracles = [0]
+        if self.configSettings.vanillaRankViolation:
+            bannedMiracles.append(numbers.RANK_VIOLATION_ID)
         vanillaAbscessArr = copy.deepcopy(self.abscessArr)
         for ind, abscess in enumerate(self.abscessArr): #First gather all the miracles in a list and the number of miracles each abscess gives
             if abscess.miracles in abscessMiracleList:
@@ -3921,7 +3924,7 @@ class Randomizer:
                 continue
             rewardCount = 0
             for miracle in abscess.miracles:
-                if miracle > 0:
+                if miracle > 0 and miracle not in bannedMiracles:
                     rewardCount += 1
                     miracleList.append(miracle)
             rewardCounts.append(rewardCount)
@@ -3929,10 +3932,7 @@ class Randomizer:
         for miracle in numbers.STARTING_MIRACLES:
             miracleList.append(miracle)
         newStartingMiracles = []
-        for miracle in numbers.REQUIRED_EARLY_MIRACLES: #For now, force 'important' miracles to be in the starting list
-            if len(newStartingMiracles) >= len(numbers.STARTING_MIRACLES):
-                print("Warning: More early miracles defined than can be starting miracles")
-                break
+        for miracle in self.configSettings.forcedEarlyMiracles: #For now, force 'important' miracles to be in the starting list
             newStartingMiracles.append(miracle)
             miracleList.remove(miracle)
         shuffledMiracles = sorted(miracleList, key=lambda x: random.random())
@@ -3956,6 +3956,9 @@ class Randomizer:
                 shuffledMiracles[largeIndex] = dependentMiracles[smallIndex]
         while len(newStartingMiracles) < len(numbers.STARTING_MIRACLES): #Create the starting miracle list after sorting dependant miracles
             newStartingMiracles.append(shuffledMiracles.pop(0))
+        while len(newStartingMiracles) > len(numbers.STARTING_MIRACLES): #If too many forced early miracles than can be starting, add to the first abscess
+            random.shuffle(newStartingMiracles)
+            shuffledMiracles.insert(0, newStartingMiracles.pop(0))
 
         #Add a deepcopy if we add a dedicated miracle class
         abscessIndex = 0
@@ -3964,6 +3967,8 @@ class Randomizer:
             while rewardCounts[abscessIndex] == 0:
                 abscessIndex += 1
                 miracleIndex = 0
+            while self.abscessArr[abscessIndex].miracles[miracleIndex] in bannedMiracles: #Future proofing if we ban miracles other than rank violation
+                miracleIndex += 1
             rewardCounts[abscessIndex] = rewardCounts[abscessIndex] - 1
             self.abscessArr[abscessIndex].miracles[miracleIndex] = miracle
             miracleIndex += 1
@@ -3975,6 +3980,9 @@ class Randomizer:
             
         if self.configSettings.randomMiracleCosts:
             self.randomizeMiracleCosts(originalAbscessArr=vanillaAbscessArr, startingMiracles=newStartingMiracles)
+
+        #for abscess in self.abscessArr:
+        #    print(abscess.miracles)
             
     '''
     Randomizes the cost of miracles constrained by the highest miracle cost seen by this point in the game
@@ -4308,7 +4316,8 @@ class Randomizer:
                         validItems[key].remove(item)
         else:
             for item in itemsInShop:
-                validItems.remove(item)
+                if item in validItems:
+                    validItems.remove(item)
 
         for index, entry in enumerate(self.shopArr):
             if entry.item.value in dampeners or "Essence" in entry.item.translation:

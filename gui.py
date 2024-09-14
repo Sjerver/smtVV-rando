@@ -52,9 +52,15 @@ def createGUI(configSettings):
     page2FrameRight = tk.Frame(page2Frame, width=500, height=500, background="#cccccc")
     page2FrameRight.grid(row=0, column=1)
     page2FrameRight.pack_propagate(False)
-    page3FrameTop = tk.Frame(page3Frame, width=1000, height=500, background="#cccccc")
-    page3FrameTop.grid(row=0, column=0, columnspan = 1, sticky = tk.W+tk.E)
-    page3FrameTop.pack_propagate(False)
+    page3FrameTopLeft = tk.Frame(page3Frame, width=500, height=250, background="#cccccc")
+    page3FrameTopLeft.grid(row=0, column=0)
+    page3FrameTopLeft.pack_propagate(False)
+    page3FrameTopRight = tk.Frame(page3Frame, width=500, height=250, background="#cccccc")
+    page3FrameTopRight.grid(row=0, column=1)
+    page3FrameTopRight.pack_propagate(False)
+    page3FrameBottom = tk.Frame(page3Frame, width=1000, height=250, background="#cccccc")
+    page3FrameBottom.grid(row=1, column=0, columnspan = 2, sticky = tk.W+tk.E)
+    page3FrameBottom.pack_propagate(False)
         
     def randomizeClick():
         window.quit()
@@ -213,12 +219,10 @@ def createGUI(configSettings):
     listItem.insert(0, "Randomize Shop Items")
     listItem.insert(1, "Randomize Shop Essences")
     listItem.insert(2, "Randomize Enemy Drops")
-    listItem.insert(3, "Randomize Miracle Unlocks")
-    listItem.insert(4, "Randomize Miracle Prices")
-    listItem.insert(5, "Randomize Chests")
-    listItem.insert(6, "Scale Items To Area")
-    listItem.insert(7, "Randomize Miman Rewards ")
-    listItem.insert(8, "Randomize Mission Rewards ")
+    listItem.insert(3, "Randomize Chests")
+    listItem.insert(4, "Scale Items To Area")
+    listItem.insert(5, "Randomize Miman Rewards ")
+    listItem.insert(6, "Randomize Mission Rewards ")
     listItem.pack()
         
     bossLabel = tk.Label(page2FrameLeft, text="Boss Randomizer")
@@ -300,16 +304,57 @@ def createGUI(configSettings):
     ishtarRandomizeCheckbox.pack()
     ishtarScale.pack()
     
-    patchesLabel = tk.Label(page3FrameTop, text="Patches")
-    patchesLabel.pack()
+    miracleLabel = tk.Label(page3FrameTopLeft, text="Miracle Randomizer")
+    miracleLabel.pack()
+
+    listMiracle = tk.Listbox(page3FrameTopLeft, selectmode = "multiple", width = 75, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listMiracle.insert(0, "Randomize Miracle unlocks")
+    listMiracle.insert(1, "Randomize Miracle prices")
+    listMiracle.insert(2, "Learn +3 stock Divine Garrisons first")            
+    listMiracle.pack()
     
-    uniqueSkillAnimationsNote = tk.Label(page3FrameTop, text="If the wrong demon uses a unique skill, the game will hang until the skip animations button is pressed.\n"
+    rankViolationLabel = tk.Label(page3FrameTopLeft, text="Rank Violation")
+    rankViolationLabel.pack()
+
+    listRankViolation = tk.Listbox(page3FrameTopLeft, selectmode = "single", width = 50, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listRankViolation.insert(0, "Randomize Rank Violation")
+    listRankViolation.insert(1, "Vanilla Rank Violation")
+    listRankViolation.insert(2, "Guarantee Rank Violation early")
+    listRankViolation.selection_set(0)
+    listRankViolation.pack()
+    
+    earlyMiracleLabel = tk.Label(page3FrameTopRight, text="Miracles to guarantee early")
+    earlyMiracleLabel.pack()
+
+    listEarlyMiracle = tk.Listbox(page3FrameTopRight, selectmode = "multiple", width = 50, height=7, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listEarlyMiracle.insert(0, "First Divine Garrison")
+    listEarlyMiracle.insert(1, "Forestall")
+    listEarlyMiracle.insert(2, "Empowering Cheer 1")
+    listEarlyMiracle.insert(3, "Art of Essences 1")
+    listEarlyMiracle.insert(4, "Demon Proficiency 1")
+    listEarlyMiracle.insert(5, "Divine Proficiency 1")
+    listEarlyMiracle.insert(6, "Divine Amalgamation")                   
+    listEarlyMiracle.pack()
+    
+    def toggleMiracleListboxes(event):
+        if 0 in listMiracle.curselection():
+            listRankViolation.config(state=tk.NORMAL, bg="White")
+            listEarlyMiracle.config(state=tk.NORMAL, bg="White")
+        else:
+            listRankViolation.config(state=tk.DISABLED, bg=DISABLED_GRAY)
+            listEarlyMiracle.config(state=tk.DISABLED, bg=DISABLED_GRAY)
+            
+    listMiracle.bind("<<ListboxSelect>>", toggleMiracleListboxes)
+    
+    uniqueSkillAnimationsNote = tk.Label(page3FrameBottom, text="If the wrong demon uses a unique skill, the game will hang until the skip animations button is pressed.\n"
                                          + "The 'Fix unique skill animations' patch replaces unique skill anims with normal skill anims to get around this.")
     uniqueSkillAnimationsNote.pack()
 
-    listPatches = tk.Listbox(page3FrameTop, selectmode = "multiple", width=50, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    patchesLabel = tk.Label(page3FrameBottom, text="Patches")
+    patchesLabel.pack()
+
+    listPatches = tk.Listbox(page3FrameBottom, selectmode = "multiple", width=50, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listPatches.insert(0, "Fix unique skill animations")
-    listPatches.insert(1, "Learn +3 stock Divine Garrisons first")
     listPatches.pack()
         
     page1Frame.tkraise()
@@ -364,18 +409,14 @@ def createGUI(configSettings):
                 listItem.selection_set(1)
             if configur.get('Item', 'RandomEnemyDrops') == 'true':
                 listItem.selection_set(2)
-            if configur.get('Item', 'RandomMiracleUnlocks') == 'true':
-                listItem.selection_set(3)
-            if configur.get('Item', 'RandomMiracleCosts') == 'true':
-                listItem.selection_set(4)
             if configur.get('Item', 'RandomChests') == 'true':
-                listItem.selection_set(5)
+                listItem.selection_set(3)
             if configur.get('Item', 'ScaleItemsToArea') == 'true':
-                listItem.selection_set(6)
+                listItem.selection_set(4)
             if configur.get('Item', 'RandomizeMimanRewards') == 'true':
-                listItem.selection_set(7)
+                listItem.selection_set(5)
             if configur.get('Item', 'RandomizeMissionRewards') == 'true':
-                listItem.selection_set(8)
+                listItem.selection_set(6)
             if configur.get('Boss', 'NormalBossesSelf') == 'true':
                 listBoss.selection_clear(0)
                 listBoss.selection_set(1)
@@ -420,10 +461,35 @@ def createGUI(configSettings):
             if configur.get('Boss', 'RandomizeIshtarPressTurns') == 'true':
                 ishtarRandomizeCheckbox.select()
             toggleIshtarCheckbox()
+            if configur.get('Miracle', 'RandomMiracleUnlocks') == 'true':
+                listMiracle.selection_set(0)
+            if configur.get('Miracle', 'RandomMiracleCosts') == 'true':
+                listMiracle.selection_set(1)
+            if configur.get('Miracle', 'ReverseDivineGarrisons') == 'true':
+                listMiracle.selection_set(2)
+            if configur.get('Miracle', 'VanillaRankViolation') == 'true':
+                listRankViolation.selection_clear(0)
+                listRankViolation.selection_set(1)
+            if configur.get('Miracle', 'EarlyRankViolation') == 'true':
+                listRankViolation.selection_clear(0)
+                listRankViolation.selection_set(2)
+            if configur.get('Miracle', 'EarlyDivineGarrison') == 'true':
+                listEarlyMiracle.selection_set(0)
+            if configur.get('Miracle', 'EarlyForestall') == 'true':
+                listEarlyMiracle.selection_set(1)
+            if configur.get('Miracle', 'EarlyEmpoweringCheer') == 'true':
+                listEarlyMiracle.selection_set(2)
+            if configur.get('Miracle', 'EarlyArtOfEssences') == 'true':
+                listEarlyMiracle.selection_set(3)
+            if configur.get('Miracle', 'EarlyDemonProficiency') == 'true':
+                listEarlyMiracle.selection_set(4)
+            if configur.get('Miracle', 'EarlyDivineProficiency') == 'true':
+                listEarlyMiracle.selection_set(5)
+            if configur.get('Miracle', 'EarlyDivineAmalgamation') == 'true':
+                listEarlyMiracle.selection_set(6)
+            toggleMiracleListboxes(None)
             if configur.get('Patches', 'FixUniqueSkillAnimations') == 'true':
                 listPatches.selection_set(0)
-            if configur.get('Patches', 'ReverseDivineGarrisons') == 'true':
-                listPatches.selection_set(1)
         except (NoOptionError, NoSectionError):
             createConfigFile(configur)
     else:
@@ -452,6 +518,13 @@ def createGUI(configSettings):
         minibossChoice = listMiniboss.curselection()
         ishtarChoice = ishtarScale.get()
         ishtarRandomizeChoice = randomIshtarPressTurnsVar.get()
+        miracleFlags = [False for i in range(listMiracle.size())]
+        for i in listMiracle.curselection():
+            miracleFlags[i] = True
+        earlyMiracleFlags = [False for i in range(listEarlyMiracle.size())]
+        for i in listEarlyMiracle.curselection():
+            earlyMiracleFlags[i] = True
+        rankViolationChoice = listRankViolation.curselection()
         patchFlags = [False for i in range(listPatches.size())]
         for i in listPatches.curselection():
             patchFlags[i] = True
@@ -582,36 +655,24 @@ def createGUI(configSettings):
         configur.set('Item', 'RandomEnemyDrops', 'false')
         
     if itemFlags[3]:
-        configSettings.randomMiracleUnlocks = True
-        configur.set('Item', 'RandomMiracleUnlocks', 'true')
-    else:
-        configur.set('Item', 'RandomMiracleUnlocks', 'false')
-        
-    if itemFlags[4]:
-        configSettings.randomMiracleCosts = True
-        configur.set('Item', 'RandomMiracleCosts', 'true')
-    else:
-        configur.set('Item', 'RandomMiracleCosts', 'false')
-        
-    if itemFlags[5]:
         configSettings.randomChests = True
         configur.set('Item', 'RandomChests', 'true')
     else:
         configur.set('Item', 'RandomChests', 'false')
     
-    if itemFlags[6]:
+    if itemFlags[4]:
         configSettings.scaleItemsToArea = True
         configur.set('Item', 'ScaleItemsToArea', ' true')
     else:
         configur.set('Item', 'ScaleItemsToArea', ' false')
 
-    if itemFlags[7]:
+    if itemFlags[5]:
         configSettings.randomizeMimanRewards = True
         configur.set('Item', 'RandomizeMimanRewards', ' true')
     else:
         configur.set('Item', 'RandomizeMimanRewards', ' false')
     
-    if itemFlags[8]:
+    if itemFlags[6]:
         configSettings.randomizeMissionRewards = True
         configur.set('Item', 'RandomizeMissionRewards', ' true')
     else:
@@ -715,17 +776,83 @@ def createGUI(configSettings):
     else:
         configur.set('Boss', 'RandomizeIshtarPressTurns', 'false')
         
+    if miracleFlags[0]:
+        configSettings.randomMiracleUnlocks = True
+        configur.set('Miracle', 'RandomMiracleUnlocks', 'true')
+    else:
+        configur.set('Miracle', 'RandomMiracleUnlocks', 'false')
+        
+    if miracleFlags[1]:
+        configSettings.randomMiracleCosts = True
+        configur.set('Miracle', 'RandomMiracleCosts', 'true')
+    else:
+        configur.set('Miracle', 'RandomMiracleCosts', 'false')
+        
+    if miracleFlags[2]:
+        configSettings.reverseDivineGarrisons = True
+        configur.set('Miracle', 'ReverseDivineGarrisons', 'true')
+    else:
+        configur.set('Miracle', 'ReverseDivineGarrisons', 'false')
+        
+    if len(rankViolationChoice) > 0 and rankViolationChoice[0] == 1:
+        configSettings.vanillaRankViolation = True
+        configur.set('Miracle', 'VanillaRankViolation', 'true')
+    else:
+        configur.set('Miracle', 'VanillaRankViolation', 'false')
+        
+    if len(rankViolationChoice) > 0 and rankViolationChoice[0] == 2:
+        configSettings.forcedEarlyMiracles.append(31)
+        configur.set('Miracle', 'EarlyRankViolation', 'true')
+    else:
+        configur.set('Miracle', 'EarlyRankViolation', 'false')
+        
+    if earlyMiracleFlags[0]:
+        configSettings.forcedEarlyMiracles.append(55)
+        configur.set('Miracle', 'EarlyDivineGarrison', 'true')
+    else:
+        configur.set('Miracle', 'EarlyDivineGarrison', 'false')
+        
+    if earlyMiracleFlags[1]:
+        configSettings.forcedEarlyMiracles.append(13)
+        configur.set('Miracle', 'EarlyForestall', 'true')
+    else:
+        configur.set('Miracle', 'EarlyForestall', 'false')
+        
+    if earlyMiracleFlags[2]:
+        configSettings.forcedEarlyMiracles.append(49)
+        configur.set('Miracle', 'EarlyEmpoweringCheer', 'true')
+    else:
+        configur.set('Miracle', 'EarlyEmpoweringCheer', 'false')
+        
+    if earlyMiracleFlags[3]:
+        configSettings.forcedEarlyMiracles.append(32)
+        configur.set('Miracle', 'EarlyArtOfEssences', 'true')
+    else:
+        configur.set('Miracle', 'EarlyArtOfEssences', 'false')
+        
+    if earlyMiracleFlags[4]:
+        configSettings.forcedEarlyMiracles.append(51)
+        configur.set('Miracle', 'EarlyDemonProficiency', 'true')
+    else:
+        configur.set('Miracle', 'EarlyDemonProficiency', 'false')
+        
+    if earlyMiracleFlags[5]:
+        configSettings.forcedEarlyMiracles.append(61)
+        configur.set('Miracle', 'EarlyDivineProficiency', 'true')
+    else:
+        configur.set('Miracle', 'EarlyDivineProficiency', 'false')
+        
+    if earlyMiracleFlags[6]:
+        configSettings.forcedEarlyMiracles.append(117)
+        configur.set('Miracle', 'EarlyDivineAmalgamation', 'true')
+    else:
+        configur.set('Miracle', 'EarlyDivineAmalgamation', 'false')
+        
     if patchFlags[0]:
         configSettings.fixUniqueSkillAnimations = True
         configur.set('Patches', 'FixUniqueSkillAnimations', 'true')
     else:
         configur.set('Patches', 'FixUniqueSkillAnimations', 'false')
-        
-    if patchFlags[1]:
-        configSettings.reverseDivineGarrisons = True
-        configur.set('Patches', 'ReverseDivineGarrisons', 'true')
-    else:
-        configur.set('Patches', 'ReverseDivineGarrisons', 'false')
 
     with open('config.ini', 'w') as configfile:
         configur.write(configfile)
@@ -738,7 +865,7 @@ def createConfigFile(configur):
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
                                 'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False}
-    configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False, 'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False,
+    configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
                         'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False}
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
@@ -746,5 +873,8 @@ def createConfigFile(configur):
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False,
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False}
-    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'ReverseDivineGarrisons': False}
+    configur['Patches'] = {'FixUniqueSkillAnimations': False}
+    configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
+                        'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
+                        'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False}
    
