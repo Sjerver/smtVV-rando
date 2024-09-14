@@ -9,6 +9,7 @@ Features:
 Bugfixes:
 * Fixed crash when running the randomizer with a random seed
 * Mitamas will no longer talk
+* Lilith, Tehom, and Mastema are no longer missing boss music
 
 Balance:
 * Miracle costs will be in order for progressive miracles like fire mastery

@@ -5820,6 +5820,14 @@ class Randomizer:
             uniqueSkill.animation = normalSkill.animation
 
     '''
+        Adds missing boss music back to Lilith, Tehom, and Mastema
+        TODO: Add music to the school fights, maybe
+    '''
+    def patchMissingBossMusic(self):
+        for eventEncountID, track in numbers.BOSS_TRACK_FIX_MAP.items():
+            self.eventEncountArr[eventEncountID].track = track
+
+    '''
     Creates a copy of the new entry with the binary offset data of the old entry.
         Parameters:
             newEntry (Asset_Entry): the new asset entry data to copy
@@ -6109,8 +6117,9 @@ class Randomizer:
 
         if config.randomShopEssences:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp, self.configSettings.scaleItemsToArea)
-           
-        #self.patchSethCamera()
+        
+        if (config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses) and not (config.randomMusic or config.checkBasedMusic):
+            self.patchMissingBossMusic()
         self.removeIshtarCopies()
         self.randomizeBosses()
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
