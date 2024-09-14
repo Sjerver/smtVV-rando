@@ -3,6 +3,96 @@ import os
 from util.binary_table import Table
 import util.paths as paths
 import util.numbers as numbers
+from enum import IntEnum
+
+class Import_Entry:
+    def __init__(self):
+        self.classPackageIndex = None
+        self.classNameIndex = None
+        self.classPackage = None
+        self.className = None
+        self.outerIndex = None
+        self.objectNameIndex = None
+        self.objectName = None
+
+class Script_Function_Type(IntEnum):
+    IMPORT = 0
+    NAME = 1
+
+class Script_Uasset:
+    def __init__(self, binaryTable: Table):
+        self.nameCount = binaryTable.readWord(0x29)
+        self.nameOffset = binaryTable.readWord(0x2D)
+        
+        self.importCount = binaryTable.readWord(0x41)
+        self.importOffset = binaryTable.readWord(0x45)
+
+        self.nameList = []#Index -> Name
+        self.nameMap = {}#Name -> Index
+        currentOffset = self.nameOffset
+        for index in range(self.nameCount): # get all names
+            stringSize = binaryTable.readWord(currentOffset)
+            if stringSize < 0: #indicates whether chars are two or one byte
+                #TODO: This will not read correctly won't it, since these are 2 byte characters in this case
+                name = binaryTable.readXChars(stringSize * -1,currentOffset + 4)
+            else:
+                name = binaryTable.readXChars(stringSize,currentOffset + 4)
+            name = str(name)[2:-5]
+            self.nameList.append(name) #Index -> Name
+            self.nameMap[name] = index #Name -> Index
+
+            currentOffset = currentOffset + stringSize + 8
+
+        self.importMap = {} #Index -> Import
+        self.reverseImportMap = {} #Import ObjectName -> Index
+        currentOffset = self.importOffset
+
+        for index in range(self.importCount): #get all imports
+            newImport = Import_Entry()
+            newImport.classPackageIndex = binaryTable.readWord(currentOffset)
+            newImport.classNameIndex = binaryTable.readWord(currentOffset + 8)
+            newImport.outerIndex = binaryTable.readWord(currentOffset + 16)
+            newImport.objectNameIndex = binaryTable.readWord(currentOffset + 20)
+
+            newImport.classPackage = self.nameList[newImport.classPackageIndex]
+            newImport.className = self.nameList[newImport.classNameIndex]
+            newImport.objectName = self.nameList[newImport.objectNameIndex]
+
+            self.importMap[-1 * index -1] = newImport #Index -> Import
+            self.reverseImportMap[newImport.objectName] = -1* index -1 #Import ObjectName -> Index
+
+            currentOffset = currentOffset + 28
+
+    '''
+    Returns a list of offsets for all function calls in uexp of the given function where the specified parameter is passed.
+        Parameter:
+            uexp (Table): the uexp binary data where the function calls are searched in
+            functionName (String): the name of the function to search for
+            type (Script_Function_Type): in which mapping the functions id is located in
+            paramNumber (Integer): which parameter of the function call to return the offset off
+        Returns a list of offsets where the specified parameter is in a call of the function
+    '''    
+    def getOffsetsForParamXFromFunctionCalls(self, uexp: Table, functionName, type, paramNumber):
+        additionalBytes = paramNumber * 5
+        
+        result = []
+
+        #TODO: Decide if it's fine like this or remove type and just check import first and then names
+        if type == Script_Function_Type.NAME and functionName in self.nameMap.keys():
+            additionalBytes = additionalBytes + 4
+            functionIndex = self.nameMap[functionName]
+        elif type == Script_Function_Type.IMPORT and functionName in self.reverseImportMap.keys():
+            functionIndex = self.reverseImportMap[functionName]
+        else:
+            return result
+        
+        result = uexp.findWordOffsets(functionIndex)
+
+        for index, value in enumerate(result):
+            result[index] = result[index] + additionalBytes
+        return result
+
+
 
 EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event'
 SCRIPT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script' 
@@ -111,11 +201,13 @@ SCRIPT_FOLDERS = {
 }
 
 
+
 '''
 Randomizes free demon joins based on the original joins level by adjusting the values in the corresponding event scripts.
 Parameters:
     comp List(Compendium_Demon): list of all playable demons
     randomDemons (Boolean): whether to randomize the demon joins or set them to vanilla
+    #TODO: Consider rewrite via uasset method (that way scripts should keep working even if future update changes them and we don't need to adjust the bytes manually)
 '''
 def randomizeDemonJoins(comp, randomDemons):
     writeFolder(EVENT_FOLDER)
@@ -172,11 +264,16 @@ def randomizeDemonJoins(comp, randomDemons):
 
         writeBinaryTable(scriptData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
 
-
+'''
+#TODO: Adjust for rewrite and comment
+'''
 def adjustFirstMimanEventReward(config, compendium, itemNames):
     scriptData = readBinaryTable('base/Scripts/ShopEvent/BP_ShopEvent.uexp')
-    byteList = [14113, 26035, 11754, 14361,14407, 21063,21109]
+    #byteList = [14113, 26035, 11754, 14361,14407, 21063,21109] #Old list for 1.0.2
+    
+    uassetData = Script_Uasset(readBinaryTable('base/Scripts/ShopEvent/BP_ShopEvent.uasset'))
 
+    ogEssenceID = 496
     essenceID = 496 #Onmorakis Essence
     onmorakiLevel = 4
     if config.randomizeMimanRewards and not config.scaleItemsToArea:
@@ -193,8 +290,10 @@ def adjustFirstMimanEventReward(config, compendium, itemNames):
                 validEssences.append(itemID)
         essenceID = random.choice(validEssences)
 
-    for byte in byteList:
-        scriptData.writeHalfword(essenceID, byte)
+    # for byte in byteList:
+    #     scriptData.writeHalfword(essenceID, byte)
+
+    updateItemRewardInScript(uassetData, scriptData, ogEssenceID, essenceID)
     
     writeBinaryTable(scriptData.buffer, SHOP_EVENT_FOLDER + '/BP_ShopEvent.uexp', SHOP_EVENT_FOLDER)
 
@@ -224,4 +323,63 @@ def writeBinaryTable(result, filePath, folderPath):
 
 def writeFolder(folderPath):
         if not os.path.exists(folderPath):
-            os.makedirs(folderPath)       
+            os.makedirs(folderPath)      
+
+'''
+Finds the byte offsets relating to the rewarding of items in the script.
+    Parameters:
+        uassetData (Script_Uasset): the uasset data of the script
+        uexpData (Table): the binary data of the uexp of the script
+    Returns a list of offsets where item ids need to be changed so the items given through the script change
+#TODO: Find out if this works like this for other scripts than the first miman reward
+'''
+def getItemRewardByteLocation(uassetData: Script_Uasset, uexpData: Table):
+    byteList = []
+    importedFunctions = {
+        'ItemGet': 1,
+        'ItemGetNum': 1,
+        }
+
+    namedFunctions = {
+        'IItemWindowSetParameter': 1,
+        'IMsgSetRichTextValueParam': 2 #Second parameter is itemID
+    }
+
+    for name, number in importedFunctions.items():
+        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number)
+    for name, number in namedFunctions.items():
+        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number)
+
+    
+    return byteList
+
+'''
+Updates the old item given through the script to the new item.
+    Parameters:
+        uassetData (Script_Uasset): the uasset data of the script
+        uexpData (Table): the binary data of the uexp of the script
+        oldItemID (Integer): the id of the old item to overwrite
+        newItemID (Integer): the id of the new item that overwrites the old one
+'''
+def updateItemRewardInScript(uassetData, uexpData, oldItemID, newItemID):
+    byteList = getItemRewardByteLocation(uassetData, uexpData)
+
+    for offset in byteList:
+        if uexpData.readHalfword(offset) != oldItemID:
+            byteList.remove(offset)
+    
+    for byte in byteList:
+        uexpData.writeHalfword(newItemID, byte)
+
+'''
+Updates the old item given through the script at the given paths to the new item.
+    Parameters:
+        uassetPath (String): the path to the uasset of the script
+        uexpPath (String): the path to the b the uexp of the script
+        oldItemID (Integer): the id of the old item to overwrite
+        newItemID (Integer): the id of the new item that overwrites the old one
+'''
+def updateItemRewardInScriptPaths(uassetPath, uexpPath, oldItemID, newItemID):
+    uexpData = readBinaryTable(uexpPath)
+    uassetData = Script_Uasset(readBinaryTable(uassetPath))
+    return updateItemRewardInScript(uassetData, uexpData, oldItemID, newItemID)

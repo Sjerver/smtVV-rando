@@ -48,6 +48,8 @@ class Table(object):
         return struct.unpack('32s', self.read(32, offset))[0]
     def readFloat(self, offset = -1):
         return struct.unpack('<f', self.read(4, offset))[0]
+    def readXChars(self, x, offset = -1):
+        return struct.unpack(str(x) + 's', self.read(x, offset))[0]
 
     def write(self, data, offset = -1):
         if offset == -1:
@@ -74,3 +76,20 @@ class Table(object):
     
     def loadFile(self, file_path):
         return open(file_path, 'rb')
+    
+    '''
+    Finds all occurences of the given word (4 bytes) in the tables buffer.
+        Parameter:
+            word (Integer): 4 byte word as integer form
+        Returns the offsets where the word is in found in the table buffer
+    '''
+    def findWordOffsets(self, word):
+        result = []
+        searchBytes = struct.pack('<i', word)
+        currentOffset = 0
+        while self.buffer.find(searchBytes, currentOffset) != -1:
+            offset = self.buffer.find(searchBytes, currentOffset)
+            currentOffset = offset +1
+
+            result.append(offset)
+        return result
