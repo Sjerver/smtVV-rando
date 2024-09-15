@@ -17,6 +17,7 @@ Balance:
 * Spyglass in the Shop is always replaced with New Testament Tablet
 * Gospels now cost the same as Grimoire in Shop
 * Battle Sutra and Destruction Sutra cost lowered from maximum to slightly above other Sutras
+* Nerfed Tentacle Lahmu's HP
 
 Misc:
 * Removed extra Ishtars from the pool so there is only one left

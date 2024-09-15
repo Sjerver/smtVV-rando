@@ -215,12 +215,12 @@ def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr,
     if newEncounterID in [35, 163]:
         oldEncounterData.totalHP = oldEncounterData.totalHP * 2
         
-    #Times 5 HP of Tentacle Lahmu checks due to tentacles being the majority of his health
+    #Times 7 HP of Tentacle Lahmu checks due to tentacles being the majority of his health
     if oldEncounterID in [69, 138]:
-        oldEncounterData.totalHP = oldEncounterData.totalHP * 5
-    #If Tentacle Lahmu is replacement, only give him a fifth of the normal HP due to tentacle jank
+        oldEncounterData.totalHP = oldEncounterData.totalHP * 7
+    #If Tentacle Lahmu is replacement, only give him a seventh of the normal HP due to tentacle jank
     if newEncounterID in [69, 138]:
-        oldEncounterData.totalHP = oldEncounterData.totalHP // 5
+        oldEncounterData.totalHP = oldEncounterData.totalHP // 7
         
     if balancePressTurns:
         adjustBossPressTurns(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
