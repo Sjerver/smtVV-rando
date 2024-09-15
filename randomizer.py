@@ -2762,6 +2762,8 @@ class Randomizer:
                 continue
             buffer.writeWord(skill.owner.ind, skill.offsetNumber['owner'])
             buffer.write32chars(skill.animation, skill.offsetNumber['animation'])
+            buffer.writeWord(skill.healing.flag, skill.offsetNumber['resistEnable'] + 8)
+            buffer.writeByte(skill.healing.percent, skill.offsetNumber['resistEnable'] + 12)
 
 
         for skill in passiveSkills:
@@ -5818,6 +5820,15 @@ class Randomizer:
             if self.skillNames[normalSkillID] != normalSkillName:
                 print("Warning: skill ") + normalSkillName + " does not match " + self.skillNames[normalSkillID] + " at index " + str(index)
             uniqueSkill.animation = normalSkill.animation
+    
+    '''
+    Halves the heal power of all enemy-only healing skills
+    '''
+    def nerfBossHealing(self):
+        for skillID in numbers.ENEMY_HEALING_SKILL_IDS:
+            skill = self.obtainSkillFromID(skillID)
+            skill.healing.flag = skill.healing.flag // 2
+            skill.healing.percent = skill.healing.percent // 2
 
     '''
         Adds missing boss music back to Lilith, Tehom, and Mastema
@@ -6176,6 +6187,8 @@ class Randomizer:
 
         if self.configSettings.preventEarlyAmbush:
             self.preventEarlyAmbush()
+        if self.configSettings.nerfBossHealing:
+            self.nerfBossHealing()
 
         self.patchTutorialDaemon()
         

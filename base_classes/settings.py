@@ -47,3 +47,4 @@ class Settings(object):
         self.reduceCompendiumCosts = False          # Reduces the cost of active skills in the compendium
         self.preventEarlyAmbush = False             # Prevents story event encounters to be ambushes before Hydras check
         self.bossDependentAmbush = False            # Ambushes are boss dependent and moved with bosses if possible
+        self.nerfBossHealing = False                # Reduces the power of enemy-only healing skills (except diarahan/mediarahan)

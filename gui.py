@@ -284,6 +284,7 @@ def createGUI(configSettings):
     listBossSettings.insert(2, "Randomize Lucifer")
     listBossSettings.insert(3, "No story boss ambush until after Hydra check")
     listBossSettings.insert(4, "Ambushes are dependent on boss where possible")
+    listBossSettings.insert(5, "Nerf bosses' healing skills")
     listBossSettings.pack()
 
     ishtarLabel = tk.Label(page2FrameRight, text="Ishtar's press turns")
@@ -457,6 +458,8 @@ def createGUI(configSettings):
                 listBossSettings.selection_set(3)
             if configur.get('Boss', 'BossDependentAmbush') == 'true':
                 listBossSettings.selection_set(4)
+            if configur.get('Boss', 'NerfBossHealing') == 'true':
+                listBossSettings.selection_set(5)
             ishtarScale.set(configur.get('Boss', 'IshtarPressTurns'))
             if configur.get('Boss', 'RandomizeIshtarPressTurns') == 'true':
                 ishtarRandomizeCheckbox.select()
@@ -708,6 +711,12 @@ def createGUI(configSettings):
     else:
         configur.set('Boss', 'BossDependentAmbush', 'false')
         
+    if bossFlags[5]:
+        configSettings.nerfBossHealing = True
+        configur.set('Boss', 'NerfBossHealing', 'true')
+    else:
+        configur.set('Boss', 'NerfBossHealing', 'false')
+        
     if len(normalBossChoice) > 0 and normalBossChoice[0] == 1:
         configSettings.selfRandomizeNormalBosses = True
         configur.set('Boss', 'NormalBossesSelf', 'true')
@@ -872,7 +881,7 @@ def createConfigFile(configur):
     configur['Boss'] = {'NormalBossesSelf': False, 'NormalBossesMixed': False, 'RandomizeLucifer': False, 'AbscessBossesSelf': False, 'AbscessBossesMixed': False,
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False,
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
-                                 'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False}
+                                 'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False}
     configur['Patches'] = {'FixUniqueSkillAnimations': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,

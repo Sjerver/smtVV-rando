@@ -391,6 +391,9 @@ BOSS_TRACK_FIX_MAP = {
     164: 68
 }
 
+#IDs of enemy only healing skills that heal more than the player versions
+ENEMY_HEALING_SKILL_IDS = [103, 104, 105, 106, 352, 353, 354, 355, 381, 382, 383, 384, 385, 386, 850, 852, 856, 887, 888]
+
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''
