@@ -4,6 +4,8 @@ from util.binary_table import Table
 import util.paths as paths
 import util.numbers as numbers
 from enum import IntEnum
+from base_classes.quests import Mission_Reward, Fake_Mission
+import copy
 
 class Import_Entry:
     def __init__(self):
@@ -33,11 +35,14 @@ class Script_Uasset:
         for index in range(self.nameCount): # get all names
             stringSize = binaryTable.readWord(currentOffset)
             if stringSize < 0: #indicates whether chars are two or one byte
-                #TODO: This will not read correctly won't it, since these are 2 byte characters in this case
-                name = binaryTable.readXChars(stringSize * -1,currentOffset + 4)
+                #Includes japanese characters, and is therfore originally negative and needs to be doubled since they are 2 bytes each
+                stringSize = stringSize * -2
+                name = binaryTable.readXChars(stringSize,currentOffset + 4)
+                name = name.decode("utf-16")
             else:
                 name = binaryTable.readXChars(stringSize,currentOffset + 4)
-            name = str(name)[2:-5]
+                name = str(name)[2:-5]
+            
             self.nameList.append(name) #Index -> Name
             self.nameMap[name] = index #Name -> Index
 
@@ -108,7 +113,10 @@ M016_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M016'
 M035_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M035' 
 M036_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M036'
 M030_FOLDER =  'rando/Project/Content/Blueprints/Event/Script/SubMission/M030'
+M050_FOLDER =  'rando/Project/Content/Blueprints/Event/Script/SubMission/M050'
 SHOP_EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/ShopEvent'
+M061_EM1710_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM1710'
+GARDEN_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/Garden'
 
 #Key: EventScriptName, Value: List(Numbers) byte offsets where demon join is decided/checked
 SCRIPT_JOIN_BYTES = {
@@ -197,7 +205,73 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM1791': M030_FOLDER, # A Goddess in Training
     'MM_M061_EM2613_HitAction': M030_FOLDER, # Holy Will and Profane Dissent
     'MM_M061_EM2601': M061_FOLDER, # Sakura Cinders of the East
-    'MM_M063_EM2170': M063_FOLDER # Guardian of Tokyo
+    'MM_M063_EM2170': M063_FOLDER, # Guardian of Tokyo
+    'MM_M061_EM1030': M061_FOLDER, # Cursed Mermaids
+    'MM_M050_EM2050': M050_FOLDER, # Picture-Perfect Debut
+    'MM_M060_EM1310': M060_FOLDER, # Downtown Rock 'n Roll
+    'MM_M060_EM1370': M060_FOLDER, # Keeper of the North
+    'MM_M061_EM1360': M061_FOLDER, # Keeper of the West
+    'MM_M062_EM1340': M062_FOLDER, # Keeper of the South
+    'MM_M063_EM1350': M063_FOLDER, # Keeper of the East
+    'MM_M061_EM1715': M061_EM1710_FOLDER, # Movin' on Up
+    'MM_M060_EM1460': M060_FOLDER, # Gold Dragon's Arrival
+    'MM_M063_EM1592': M063_FOLDER, # A Power Beyond Control 
+    'MM_M030_EM2600': M030_FOLDER, # Sakura Cinders of the East (Periapt Event)
+    'MM_M030_EM2610': M030_FOLDER, # Holy Will and Profane Dissent (Periapt Event
+    'MM_M060_EM2351': GARDEN_FOLDER, # Rascal of the Norse
+}
+
+EXTRA_MISSION_REWARDS = {
+    'MM_M060_EM1601': Mission_Reward(826, 1), #Fury Talisman
+    'MM_M035_EM1480': Mission_Reward(711, 1), #Exalted Seraphim Periapt
+    'MM_M036_EM1490': Mission_Reward(712, 1), #Macabre Family Periapt
+    'MM_M061_EM1030': Mission_Reward(506, 1), #Mermaid Essence
+    'MM_M050_EM2050': Mission_Reward(600, 1), #Amabie's Essence
+    'MM_M060_EM1310': Mission_Reward(390, 1), #Fafnir's Essence
+    'MM_M060_EM1370': Mission_Reward(440, 1), # Bishamonten's Essence
+    'MM_M061_EM1360': Mission_Reward(442, 1), # Koumokuten's Essence
+    'MM_M062_EM1340': Mission_Reward(443, 1), # Zouchouten's Essence
+    'MM_M063_EM1350': Mission_Reward(441, 1), # Jikokuten's Essence
+    'MM_M016_EM1450': Mission_Reward(713, 1), # Siblings of Olympus Periapt
+    'MM_M061_EM1715': Mission_Reward(807, 1), #Raptor Talisman
+    'MM_M060_EM1460': Mission_Reward(714, 1), # Cardinal Deity Periapt
+    'MM_M063_EM1592': Mission_Reward(338, 1), # Amanozako's Essence
+    'MM_M030_EM2610': Mission_Reward(721, 1), # Seeds of Dana Periapt
+    'MM_M030_EM2600': Mission_Reward(732, 1), # Mountain Gods Periapt
+    'MM_M060_EM2351': Mission_Reward(709, 1), # Asgardian Kin Periapt
+}
+
+EXTRA_MISSION_IDS = {
+    'MM_M060_EM1601': -1, # The Destined Leader
+    'MM_M035_EM1480': -2, # The Seraph's Return
+    'MM_M036_EM1490': -3, # The Red Dragon's Invitation
+    'MM_M061_EM1030': -4, # Cursed Mermaids
+    'MM_M050_EM2050': -5, # Picture-Perfect Debut
+    'MM_M060_EM1310': -6, # Downtown Rock 'n Roll
+    'MM_M060_EM1370': -7, # Keeper of the North
+    'MM_M061_EM1360': -8, # Keeper of the West
+    'MM_M062_EM1340': -9, # Keeper of the South
+    'MM_M063_EM1350': -10, # Keeper of the East
+    'MM_M016_EM1450': -11, # A Plot Revealed
+    'MM_M061_EM1715': -12, # Movin' on Up
+    'MM_M060_EM1460': -13, # Gold Dragon's Arrival
+    'MM_M063_EM1592': -14, # A Power Beyond Control
+    'MM_M030_EM2610': -15, # Holy Will and Profane Dissent
+    'MM_M030_EM2600': -16, # Sakura Cinders of the East (Periapt Event)
+    'MM_M060_EM2351': -17, # Rascal of the Norse
+}
+
+EXTRA_MISSION_REWARD_AREAS = {
+  16: [-2, -3, -11], #Empyrean
+  35: [], #Temple of Eternity
+  36: [], #Demon Kings Castle / Shakan
+  38: [], #Demon Kings Castle / Shakan
+  60: [-1,-6,-7,-8,-9,-10,-13, -15, -17], #Taito
+  61: [-4,-12], #Minato
+  62: [-5], #Shinagawa
+  63: [-14, -16], #Chiyoda
+  64: [], #Shinjuku
+  107: [] #Demi-Fiend Area: same as Empyrean
 }
 
 
@@ -331,7 +405,6 @@ Finds the byte offsets relating to the rewarding of items in the script.
         uassetData (Script_Uasset): the uasset data of the script
         uexpData (Table): the binary data of the uexp of the script
     Returns a list of offsets where item ids need to be changed so the items given through the script change
-#TODO: Find out if this works like this for other scripts than the first miman reward
 '''
 def getItemRewardByteLocation(uassetData: Script_Uasset, uexpData: Table):
     byteList = []
@@ -360,14 +433,22 @@ Updates the old item given through the script to the new item.
         uexpData (Table): the binary data of the uexp of the script
         oldItemID (Integer): the id of the old item to overwrite
         newItemID (Integer): the id of the new item that overwrites the old one
+        #TODO: Include amount??
 '''
 def updateItemRewardInScript(uassetData, uexpData, oldItemID, newItemID):
     byteList = getItemRewardByteLocation(uassetData, uexpData)
 
+    toRemove = []
     for offset in byteList:
         if uexpData.readHalfword(offset) != oldItemID:
-            byteList.remove(offset)
+            toRemove.append(offset)
     
+    for offset in toRemove:
+        byteList.remove(offset)
+    
+    #if len(byteList) > 0:
+    #    print(str(oldItemID) + " -> " + str(newItemID))
+
     for byte in byteList:
         uexpData.writeHalfword(newItemID, byte)
 
@@ -383,3 +464,58 @@ def updateItemRewardInScriptPaths(uassetPath, uexpPath, oldItemID, newItemID):
     uexpData = readBinaryTable(uexpPath)
     uassetData = Script_Uasset(readBinaryTable(uassetPath))
     return updateItemRewardInScript(uassetData, uexpData, oldItemID, newItemID)
+
+'''
+Creates fake missions from certain event scripts involving quests.
+    Returns a list of fake missions
+'''
+def createFakeMissionsForEventRewards():
+    fakeMissions = []
+
+    for script, index in EXTRA_MISSION_IDS.items():
+        fakeMission = Fake_Mission()
+        fakeMission.ind = index
+        fakeMission.reward = EXTRA_MISSION_REWARDS[script]
+        fakeMission.originalReward = copy.deepcopy(fakeMission.reward)
+        
+        if 'EM' in script: #is mission from a main story or not
+            uexpData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
+            uassetData = Script_Uasset(readBinaryTable('base/Scripts/SubMission/' + script + '.uasset'))
+        else:
+            uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
+            uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
+
+        fakeMission.uexp = uexpData
+        fakeMission.uasset = uassetData
+        fakeMission.script = script
+        
+        fakeMissions.append(fakeMission)
+
+    return fakeMissions
+
+'''
+Writes the updated reward data to the event scripts and removes the fake missions from the mission array.
+    Parameters:
+        missionArr (List(Mission)): a list of all missions and fake missions
+    Returns list with all fake missions removed
+'''
+def updateAndRemoveFakeMissions(missionArr):
+    writeFolder(EVENT_FOLDER)
+    writeFolder(SCRIPT_FOLDER)
+    writeFolder(SUBMISSION_FOLDER)
+    writeFolder(MAINMISSION_FOLDER)
+    toRemove = []
+    for index, mission in enumerate(missionArr):
+        if mission.ind < 0:
+            
+            updateItemRewardInScript(mission.uasset, mission.uexp, mission.originalReward.ind, mission.reward.ind)
+
+            writeFolder(SCRIPT_FOLDERS[mission.script])
+            writeBinaryTable(mission.uexp.buffer, SCRIPT_FOLDERS[mission.script] + '/' + mission.script + '.uexp', SCRIPT_FOLDERS[mission.script])
+
+            toRemove.append(mission)
+    for mission in toRemove:
+        missionArr.remove(mission)
+    return missionArr
+
+

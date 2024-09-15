@@ -4441,8 +4441,14 @@ class Randomizer:
             validEssences = {}
             for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
                 validItems[key] = value #Item list is defined per area
+
+            rewardAreaMissions = copy.deepcopy(numbers.REWARD_AREA_MISSIONS)
+            for key, value in scriptLogic.EXTRA_MISSION_REWARD_AREAS.items():
+                #Add items from script rewards to dictionary
+                rewardAreaMissions[key] = rewardAreaMissions[key] + value
+            
             missionRewardAreas = {} #Dictionary to know which area should be used to scale the a missions reward
-            for key, value in numbers.REWARD_AREA_MISSIONS.items():
+            for key, value in rewardAreaMissions.items():
                 for id in value:
                     missionRewardAreas[id] = key #Turn this into MissionID -> MapID, for easier use
                 validEssences[key] = []
@@ -4451,6 +4457,8 @@ class Randomizer:
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
                     if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[key] and itemName in currentDemonNames:
                         validEssences[key].append(itemID)
+
+
         else: #Rewards do not scale with map
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
                 if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
@@ -4478,6 +4486,8 @@ class Randomizer:
             if reward.ind in numbers.BANNED_KEY_REWARDS:
                 uniqueRewards.remove(reward)
         
+
+        
         validCreationMissions = list(filter(lambda mission: mission.ind in numbers.CREATION_EXLUSIVE_MISSIONS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind not in numbers.MUTUALLY_EXCLUSIVE_MISSIONS ,rewardingMissions))
         creationRewardMissions = random.sample(validCreationMissions, len(creationRewards))
         for index, mission in enumerate(creationRewardMissions):
@@ -4501,7 +4511,7 @@ class Randomizer:
         for mission in rewardingMissions:
             if scaling: #Set area if reward should scale
                 rewardArea = missionRewardAreas[mission.ind]
-            if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.REPEAT_MISSIONS: #repeat missions should not have macca
+            if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind >= 0: #repeat missions should not have macca
                 if scaling: #Scaled macca ranges depend on area
                     macca = random.randint(numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][0] // 100, numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][1] // 100) *100
                 else:
@@ -6174,7 +6184,9 @@ class Randomizer:
         scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames)   
 
         if self.configSettings.randomizeMissionRewards:
+            self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards()
             self.randomizeMissionRewards(self.configSettings.scaleItemsToArea)
+            self.missionArr = scriptLogic.updateAndRemoveFakeMissions(self.missionArr)
         
         if self.configSettings.selfRandomizeNormalBosses or self.configSettings.mixedRandomizeNormalBosses or self.configSettings.selfRandomizeOverworldBosses or self.configSettings.mixedRandomizeOverworldBosses:
             self.patchQuestBossDrops()
