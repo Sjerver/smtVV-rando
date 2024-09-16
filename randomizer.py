@@ -646,6 +646,7 @@ class Randomizer:
             demon.experience = enemyData.readWord(locations['experience'])
             demon.money = enemyData.readWord(locations['experience'] + 4)
             demon.skills = listOfSkills
+            demon.instakillRate = enemyData.readByte(locations['item'] - 1)
             itemDrop1 = Item_Drop(enemyData.readWord(locations['item']), translation.translateItem(enemyData.readWord(locations['item']),self.itemNames),
                                                       enemyData.readWord(locations['item'] + 4), enemyData.readWord(locations['item'] + 8))
             itemDrop3 = Item_Drop(enemyData.readWord(locations['item'] + 12), translation.translateItem(enemyData.readWord(locations['item'] + 12),self.itemNames),
@@ -877,6 +878,7 @@ class Randomizer:
             demon.experience = enemyData.readWord(locations['experience'])
             demon.money = enemyData.readWord(locations['experience'] + 4)
             demon.skills = listOfSkills
+            demon.instakillRate = enemyData.readByte(locations['item'] - 1)
             itemDrop1 = Item_Drop(enemyData.readWord(locations['item']), translation.translateItem(enemyData.readWord(locations['item']),self.itemNames),
                                                       enemyData.readWord(locations['item'] + 4), enemyData.readWord(locations['item'] + 8))
             itemDrop3 = Item_Drop(enemyData.readWord(locations['item'] + 12), translation.translateItem(enemyData.readWord(locations['item'] + 12),self.itemNames),
@@ -2477,6 +2479,7 @@ class Randomizer:
             buffer.writeByte(foe.recruitable, offsets['HP'] + 33)
             buffer.writeByte(foe.levelDMGCorrection, offsets['HP'] + 30)
             buffer.writeWord(foe.innate.value, offsets['innate'])
+            buffer.writeByte(foe.instakillRate, offsets['item'] - 1)
 
             #write item drops
             buffer.writeWord(foe.drops.item1.value, offsets['item'])
@@ -3504,6 +3507,7 @@ class Randomizer:
             newFoe.experience = newExperience
             newFoe.money = newMacca
             newFoe.skills = newSkills
+            newFoe.instakillRate = enemy.instakillRate
             newFoe.drops = newDrops
             newFoe.oldDrops = enemy.drops
             newFoe.innate = playableEqu.innate   #copy innate from player version
@@ -3739,7 +3743,7 @@ class Randomizer:
                     spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     
-                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings.scaleBossPressTurnsToCheck)
+                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings.scaleBossPressTurnsToCheck, self.configSettings.scaleBossInstakillRates)
                     #print("Old hp " + str(self.staticBossArr[encounter.demons[0]].stats.HP) + " of " + self.enemyNames[encounter.demons[0]] + " now is "  +
                     #      self.enemyNames[shuffledEncounters[index].demons[0]] + " with " + str(self.bossArr[shuffledEncounters[index].demons[0]].stats.HP) + " HP")
                     self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])

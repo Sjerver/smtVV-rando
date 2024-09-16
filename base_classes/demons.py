@@ -40,6 +40,7 @@ class Enemy_Demon:
         self.experience = None
         self.money = None
         self.skills = []
+        self.instakillRate = None
         self.drops = None
         self.innate = None
         self.resist = Affinities()

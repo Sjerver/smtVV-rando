@@ -202,7 +202,7 @@ Balances the stats of boss demons, including summoned adds to their new location
         bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
         balancePressTurns (Bool): Whether the press turns of the new encounter should match the old encounter's press turns
 '''
-def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr, oldEncounterID, newEncounterID, balancePressTurns):
+def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr, oldEncounterID, newEncounterID, balancePressTurns, balanceInstakillRates):
     oldEncounterData = Boss_Metadata(oldEncounter)
     newEncounterData = Boss_Metadata(newEncounter)
     oldEncounterData.calculateTotals(demonReferenceArr)
@@ -224,6 +224,9 @@ def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr,
         
     if balancePressTurns:
         adjustBossPressTurns(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
+        
+    if balanceInstakillRates:
+        adjustInstakillRatesToCheck(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
     
     if oldEncounterData.minionType and newEncounterData.minionType:
         balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
@@ -377,12 +380,17 @@ def patchSpecialBossDemons(bossArr, configSettings):
             demonToPatch = bossArr[duplicate]
             demonToPatch.stats = copy.deepcopy(referenceDemon.stats)
             demonToPatch.pressTurns = referenceDemon.pressTurns
+            demonToPatch.instakillRate = referenceDemon.instakillRate
     if configSettings.randomizeLucifer:
         luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
         luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
         luciferPhase3 = bossArr[LUCIFER_PHASES[2]]
         luciferPhase2.stats = copy.deepcopy(luciferPhase1.stats) #Lucifer has some stat variance between phases but eh
         luciferPhase3.stats = copy.deepcopy(luciferPhase1.stats)
+        luciferPhase2.pressTurns = luciferPhase1.pressTurns
+        luciferPhase3.pressTurns = luciferPhase1.pressTurns
+        luciferPhase2.instakillRate = luciferPhase1.instakillRate
+        luciferPhase3.instakillRate = luciferPhase1.instakillRate
         luciferPhase3.stats.HP = luciferPhase2.stats.HP * 3
         luciferPhase3.experience = luciferPhase1.experience
         luciferPhase3.money = luciferPhase1.money
@@ -615,3 +623,22 @@ def adjustBossPressTurns(oldEncounterData, newEncounterData, demonReferenceArr, 
                 else:
                     break
     #print("The boss now has " + str(calculateEncounterPressTurns(newEncounterData, bossArr)))
+
+'''
+Balances the instakill rates of a boss encounter to match the check it replaces
+    Parameters:
+            oldEncounter (List(Boss_Metadata)): The original demons at the check
+            newEncounter (List(Boss_Metadata)): The demons replacing the old encounter
+            demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
+            bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
+'''
+def adjustInstakillRatesToCheck(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
+    oldEncounterDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
+    for index, demonID in enumerate(newEncounterData.getAllUniqueDemonsInEncounter()):
+        if index < len(oldEncounterDemons):
+            bossArr[demonID].instakillRate = demonReferenceArr[oldEncounterDemons[index]].instakillRate
+        else:
+            diff = demonReferenceArr[demonID].instakillRate - demonReferenceArr[newEncounterData.demons[0]].instakillRate
+            newRate = max(min(bossArr[newEncounterData.demons[0]].instakillRate + diff, 100), 0)
+            bossArr[demonID].instakillRate = newRate
+        #print("Instakill rate went from " + str(demonReferenceArr[demonID].instakillRate) + " to " + str(bossArr[demonID].instakillRate))

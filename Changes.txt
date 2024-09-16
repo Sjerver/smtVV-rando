@@ -1,6 +1,6 @@
 Version 1.02
 Features:
-* New boss randomizer settings - Scale boss damage, scale boss press turns to check, prevent ambush bosses until after Hydra, boss dependent ambushes, nerf boss healing and set Ishtar's press turns
+* New boss randomizer settings - Scale boss damage, scale boss press turns to check, scale boss instakill susceptibility to check, prevent ambush bosses until after Hydra, boss dependent ambushes, nerf boss healing and set Ishtar's press turns
 * New setting to reverse the divine garrison miracles so that you learn the +3 stock ones first
 * New setting to reduce the cost of demons in the compendium
 * New settings that force certain miracles to appear early or keep rank violation in its vanilla location
