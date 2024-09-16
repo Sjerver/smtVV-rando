@@ -393,15 +393,17 @@ class Randomizer:
             else:
                 #console.log(index)
                 offset = startValue + skillOffset * index
-                #While the skillTable starts with id 1, I do not read the ID from the data (which I really should)
-                skillID = index + 1
-                skillName = translation.translateSkillID(index + 1, self.skillNames)
+                #Skill ID is now read from the data
+                #skillID = index + 1
+                if (index < 800):
+                    skillID = skillData.readDblword(offset)
 
-                #if skill is in the second batch of active skills, we calculate the offset a different way and index = id is working
+                #if skill is in the second batch of active skills, we calculate the offset directly
                 if (index >= 800):
                     skillName = translation.translateSkillID(index , self.skillNames)
-                    skillID = index 
                     offset = secondBatchStart + skillOffset * (index  - 800)
+                    skillID = skillData.readDblword(offset)
+                skillName = translation.translateSkillID(skillID, self.skillNames)
                 locations = {
                     'cost': offset + 8,
                     'skillType': offset + 10,
@@ -2004,7 +2006,8 @@ class Randomizer:
             if assigning the skill to the demon follows the set unique skill inheritance rules
     '''
     def checkUniqueSkillConditions(self, skill, demon, comp, settings):
-        if settings.multipleUniques:
+        lunationCondition = (skill.ind == numbers.LUNATION_FLUX_ID) and settings.restrictLunationFlux
+        if settings.multipleUniques and not lunationCondition:
         # Unique skill can appear twice
             # check if skill is unique skill
             if skill.owner.ind == 0:
@@ -2030,11 +2033,11 @@ class Randomizer:
             if skill.owner.ind == 0:
                 # Skill is not unique
                 return True
-            if settings.freeInheritance:
+            if settings.freeInheritance and not lunationCondition:
                 # if unique skills should be freely inheritable
                 skill.owner.ind = 0
                 skill.owner.name = comp[0].name
-            elif settings.randomInheritance:
+            elif settings.randomInheritance or (settings.freeInheritance and lunationCondition):
                 # if unique skills should be randomly reassigned
                 if demon.ind in numbers.PROTOFIEND_IDS:
                     skill.owner.ind = -1

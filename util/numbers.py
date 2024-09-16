@@ -397,6 +397,9 @@ BOSS_TRACK_FIX_MAP = {
 #IDs of enemy only healing skills that heal more than the player versions
 ENEMY_HEALING_SKILL_IDS = [103, 104, 105, 106, 352, 353, 354, 355, 381, 382, 383, 384, 385, 386, 850, 852, 856, 887, 888]
 
+#Skill ID of Lunation Flux which should be restricted more than other unique skills
+LUNATION_FLUX_ID = 927
+
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''

@@ -183,6 +183,7 @@ def createGUI(configSettings):
     listDemon.insert(10, "Same Level for Quest Join Demons")
     listDemon.insert(11, "Randomize Stat Modifiers")
     listDemon.insert(12, "Reduce Compendium Cost Drastically")
+    listDemon.insert(13, "Restrict Lunation Flux to one demon")
 
     demonScrollbar = tk.Scrollbar(page1FrameTop, orient='vertical')
     demonScrollbar.config(command=listDemon.yview)
@@ -392,6 +393,8 @@ def createGUI(configSettings):
                 listDemon.selection_set(11)
             if configur.get('Demon', 'ReduceCompendiumCost') == 'true':
                 listDemon.selection_set(12)
+            if configur.get('Demon', 'RestrictLunationFlux') == 'true':
+                listDemon.selection_set(13)
             if configur.get('Inheritance', 'RandomInheritance') == 'true':
                 listInheritance.selection_clear(0)
                 listInheritance.selection_set(1)
@@ -463,7 +466,6 @@ def createGUI(configSettings):
             ishtarScale.set(configur.get('Boss', 'IshtarPressTurns'))
             if configur.get('Boss', 'RandomizeIshtarPressTurns') == 'true':
                 ishtarRandomizeCheckbox.select()
-            toggleIshtarCheckbox()
             if configur.get('Miracle', 'RandomMiracleUnlocks') == 'true':
                 listMiracle.selection_set(0)
             if configur.get('Miracle', 'RandomMiracleCosts') == 'true':
@@ -490,14 +492,14 @@ def createGUI(configSettings):
                 listEarlyMiracle.selection_set(5)
             if configur.get('Miracle', 'EarlyDivineAmalgamation') == 'true':
                 listEarlyMiracle.selection_set(6)
-            toggleMiracleListboxes(None)
             if configur.get('Patches', 'FixUniqueSkillAnimations') == 'true':
                 listPatches.selection_set(0)
         except (NoOptionError, NoSectionError):
             createConfigFile(configur)
     else:
         createConfigFile(configur)
-        
+    toggleIshtarCheckbox()
+    toggleMiracleListboxes(None)
     window.mainloop()
     
     try:
@@ -614,6 +616,12 @@ def createGUI(configSettings):
         configur.set('Demon', 'ReduceCompendiumCost', 'true')
     else:
         configur.set('Demon', 'ReduceCompendiumCost', 'false')
+        
+    if demonFlags[13]:
+        configSettings.restrictLunationFlux = True
+        configur.set('Demon', 'RestrictLunationFlux', 'true')
+    else:
+        configur.set('Demon', 'RestrictLunationFlux', 'false')
 
     if len(inheritanceChoice) > 0 and inheritanceChoice[0] == 1:
         configSettings.randomInheritance = True
@@ -873,7 +881,7 @@ def createConfigFile(configur):
     configur.read('config.ini')
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
-                                'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False}
+                                'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
                         'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False}
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}

@@ -32,6 +32,7 @@ class Settings(object):
         self.mixedRandomizeMinibosses = False       # Randomize minibosses and weaker quest bosses with all bosses
         self.randomInheritance = False              # Randomize to which demons unique skills belong to
         self.freeInheritance = False                # Make unique skills freely inheritable
+        self.restrictLunationFlux = False           # Prevent lunation flux from occuring on multiple demons or being inherited
         self.randomRaces = False                    # Randomize normal demons' races
         self.randomAlignment = False                # Randomize the alignment of demons
         self.ensureDemonJoinLevel = False           # Ensures the demons that join after quests have the same level as the original demon from that quest
