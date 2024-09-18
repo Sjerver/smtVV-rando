@@ -67,12 +67,16 @@ class Table(object):
         return self.write(struct.pack('<h', x), offset)
     def writeWord(self, x, offset = -1):
         return self.write(struct.pack('<i', x), offset)
+    def writeUnsignedWord(self, x, offset = -1):
+        return self.write(struct.pack('<I', x), offset)
     def writeDblword(self, x, offset = -1):
         return self.write(struct.pack('<q', x), offset)
     def write32chars(self, x, offset = -1):
         return self.write(struct.pack('32s', x), offset)
     def writeFloat(self, x, offset = -1):
         return self.write(struct.pack('<f', x), offset)
+    def writeXChars(self, toWrite, x, offset = -1):
+        return self.write(struct.pack(str(x) + 's', toWrite), offset)
     
     def loadFile(self, file_path):
         return open(file_path, 'rb')

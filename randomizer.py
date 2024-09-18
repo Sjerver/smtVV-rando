@@ -3635,14 +3635,21 @@ class Randomizer:
 
             newSymbolArr.append(replaceEnc)
 
+        replacementDict = {}
+        with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
+            for pair in replacements:
+                spoilerLog.write(self.enemyNames[pair[0]] + " replaced by " + self.enemyNames[pair[1]] + "\n")
+                replacementDict[pair[0]] = pair[1]
+
         self.adjustBasicEnemyStats(replacements, enemyArr)
         self.adjustBasicEnemyDrops(replacements, enemyArr)
         self.adjustListedLocations(replacements, comp)
         self.missionArr = self.adjustMissionsRequiringNormalDemons(replacements,enemyArr, self.missionArr)
 
-        with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
-            for pair in replacements:
-                spoilerLog.write(self.enemyNames[pair[0]] + " replaced by " + self.enemyNames[pair[1]] + "\n")
+        #Currently does not work yet
+        #scriptLogic.replaceTutorialPixieModel(replacementDict[59])
+        #scriptLogic.replaceTutorialPixieModel(82)
+        
         return newSymbolArr
     
     '''
