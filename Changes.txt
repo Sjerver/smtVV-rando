@@ -5,12 +5,14 @@ Features:
 * New setting to reduce the cost of demons in the compendium
 * New settings that force certain miracles to appear early or keep rank violation in its vanilla location
 * New setting to restrict Lunation Flux to a single demon, ignoring other unique skill settings
+* New settings to randomize items given by NPCs or Story Events and combining the pools for unique items
 
 Bugfixes:
 * Fixed crash when running the randomizer with a random seed
 * Mitamas will no longer talk
 * Lilith, Tehom, and Mastema are no longer missing boss music
 * Falling Star is no longer included in the remove unique skill anims patch as it is bugged when Lucifer uses it otherwise
+* Fixed rare issues of seeds not working due issues with some essences as the first miman reward
 
 Balance:
 * Miracle costs will be in order for progressive miracles like fire mastery

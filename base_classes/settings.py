@@ -50,3 +50,5 @@ class Settings(object):
         self.bossDependentAmbush = False            # Ambushes are boss dependent and moved with bosses if possible
         self.nerfBossHealing = False                # Reduces the power of enemy-only healing skills (except diarahan/mediarahan)
         self.scaleBossInstakillRates = False        # Boss instakill susceptibility will be based on check instead of the boss itself
+        self.randomizeGiftItems = False             # Randomizes a plethora of items given through events (mostly talismans and periapts through NPCs or story)
+        self.combineKeyItemPools = False            # Combines the key item pools of Miman, Mission, and Gifts

@@ -224,6 +224,8 @@ def createGUI(configSettings):
     listItem.insert(4, "Scale Items To Area")
     listItem.insert(5, "Randomize Miman Rewards ")
     listItem.insert(6, "Randomize Mission Rewards ")
+    listItem.insert(7, "Randomize NPC/Story Item Gifts (N)")
+    listItem.insert(8, "Combine Unique Item Pools")
     listItem.pack()
         
     bossLabel = tk.Label(page2FrameLeft, text="Boss Randomizer")
@@ -422,6 +424,10 @@ def createGUI(configSettings):
                 listItem.selection_set(5)
             if configur.get('Item', 'RandomizeMissionRewards') == 'true':
                 listItem.selection_set(6)
+            if configur.get('Item', 'RandomizeGiftItems') == 'true':
+                listItem.selection_set(7)
+            if configur.get('Item', 'CombineKeyItemPools') == 'true':
+                listItem.selection_set(8)
             if configur.get('Boss', 'NormalBossesSelf') == 'true':
                 listBoss.selection_clear(0)
                 listBoss.selection_set(1)
@@ -691,6 +697,18 @@ def createGUI(configSettings):
         configur.set('Item', 'RandomizeMissionRewards', ' true')
     else:
         configur.set('Item', 'RandomizeMissionRewards', ' false')
+    
+    if itemFlags[7]:
+        configSettings.randomizeGiftItems = True
+        configur.set('Item', 'RandomizeGiftItems', ' true')
+    else:
+        configur.set('Item', 'RandomizeGiftItems', ' false')
+    
+    if itemFlags[8]:
+        configSettings.combineKeyItemPools = True
+        configur.set('Item', 'CombineKeyItemPools', ' true')
+    else:
+        configur.set('Item', 'CombineKeyItemPools', ' false')
             
     if bossFlags[0]:
         configSettings.scaleBossDamage = True
@@ -892,7 +910,9 @@ def createConfigFile(configur):
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
                                 'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
-                        'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False}
+                        'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False,
+                        'RandomizeGiftItems': False, 'CombineKeyItemPools': False,
+                        }
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
     configur['Boss'] = {'NormalBossesSelf': False, 'NormalBossesMixed': False, 'RandomizeLucifer': False, 'AbscessBossesSelf': False, 'AbscessBossesMixed': False,

@@ -139,6 +139,12 @@ MIMAN_ITEM_AMOUNT_WEIGHTS = {
     8: 1
 }
 
+#Item IDs of Key items in Miman Rewards in the normal game
+MIMAN_BASE_KEY_ITEMS = [819,816,810,829,818,823,817]#Talismans: Element, Avatar, Avian, Kishin, Genma, Fiend, Holy
+
+#List of key item ids obtained via events
+GIFT_BASE_KEY_ITEMS = []
+
 #Chance a mission rewards macca
 MISSION_MACCA_ODDS= 0.1717
 #Chance a mission rewards an essence instead of an consumable item
@@ -181,7 +187,7 @@ MISSION_DUPLICATES = {
 
 #List of exclusive key item rewards from both canons
 CREATION_EXCLUSIVE_KEY_REWARDS = [72] #The Falcon's Head
-VENGEANCE_EXCLUSIVE_KEY_REWARDS =[] #Currently not any
+VENGEANCE_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 
 #List of banned key rewards
 BANNED_KEY_REWARDS = [79] #Spyscope (dropped by tutorial daemon)

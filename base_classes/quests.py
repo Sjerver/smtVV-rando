@@ -21,3 +21,10 @@ class Fake_Mission(Mission):
         self.uasset = None
         self.originalReward = None
         self.script = None
+
+class Mission_Container:
+    def __init__(self):
+        self.rewardingMissions = []
+        self.uniqueRewards = []
+        self.creationRewards = []
+        self.vengeanceRewards = []

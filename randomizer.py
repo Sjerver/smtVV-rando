@@ -6,7 +6,7 @@ from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encoun
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
 from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item, Item_Chest, Consumable_Item
-from base_classes.quests import Mission, Mission_Reward, Mission_Condition
+from base_classes.quests import Mission, Mission_Reward, Mission_Condition, Mission_Container
 from base_classes.settings import Settings
 from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
@@ -4375,7 +4375,7 @@ class Randomizer:
         Parameters:
             scaling (Boolean): Whether the items are scaled per area
     '''
-    def randomizeMimanRewards(self, scaling):
+    def randomizeMimanRewards(self, scaling, keyItems):
         validItems = []
         validEssences = []
 
@@ -4408,8 +4408,11 @@ class Randomizer:
                 areaChoices = [61,62,63,60] #Minato, Shinagawa, Chiyoda(same rewards list as Shinjuku), Taito
                 rewardArea = areaChoices[index // 10] #10 miman rewards per area
             items = []
-            if reward.items[0].item >= numbers.KEY_ITEM_CUTOFF: #key items (talismans)
-                items.append(reward.items[0])
+            if reward.items[0].item >= numbers.KEY_ITEM_CUTOFF and len(keyItems) > 0: #originally key items (talismans)
+                itemID = random.choice(keyItems)
+                items.append(Reward_Item(itemID,1))
+                keyItems.remove(itemID)
+                #items.append(reward.items[0])
             elif random.random() < numbers.MIMAN_ESSENCE_ODDS:
                 if scaling: 
                     itemID = random.choice(validEssences[rewardArea])
@@ -4444,9 +4447,8 @@ class Randomizer:
 
     '''
     Randomizes the rewards of all missions that usually have rewards. Reusable consumable items and key items are classified as unique rewards, and are shuffled around, while all other rewards are completely random.
-    TODO: Bonus Rewards in Scripts?
     '''
-    def randomizeMissionRewards(self, scaling):
+    def randomizeMissionRewards(self, scaling, missionContainer):
         validItems = []
         validEssences = []
         
@@ -4480,26 +4482,11 @@ class Randomizer:
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
 
-        rewardingMissions = []
-        uniqueRewards = []
-        creationRewards = []
-        vengeanceRewards = []
-        for mission in self.missionArr:
-            if (mission.macca > 0 or mission.reward.ind > 0) and not any(mission.ind in duplicates for duplicates in numbers.MISSION_DUPLICATES.values()) and mission.ind not in numbers.BANNED_MISSIONS:
-                rewardingMissions.append(mission) #find missions with rewards that are not banned or a duplicate
-                if mission.reward.ind > numbers.KEY_ITEM_CUTOFF or mission.reward.ind in numbers.BANNED_ITEMS:
-                    if mission.ind not in numbers.CREATION_EXCLUSIVE_KEY_REWARDS and mission.ind not in numbers.VENGEANCE_EXCLUSIVE_KEY_REWARDS:
-                        uniqueRewards.append(copy.deepcopy(mission.reward)) #add key items or reusable consumables to unique rewards
-                    elif mission.ind in numbers.CREATION_EXCLUSIVE_KEY_REWARDS:
-                        creationRewards.append(copy.deepcopy(mission.reward))
-                    else:
-                        vengeanceRewards.append(copy.deepcopy(mission.reward))
-
-        #Remove unwanted rewards
-        for reward in uniqueRewards:
-            if reward.ind in numbers.BANNED_KEY_REWARDS:
-                uniqueRewards.remove(reward)
         
+        rewardingMissions = missionContainer.rewardingMissions
+        uniqueRewards = missionContainer.uniqueRewards
+        creationRewards = missionContainer.creationRewards
+        vengeanceRewards = missionContainer.vengeanceRewards
 
         
         validCreationMissions = list(filter(lambda mission: mission.ind in numbers.CREATION_EXLUSIVE_MISSIONS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind not in numbers.MUTUALLY_EXCLUSIVE_MISSIONS ,rewardingMissions))
@@ -4562,6 +4549,78 @@ class Randomizer:
                 self.missionArr[duplicateID].reward.ind = self.missionArr[missionID].reward.ind
                 self.missionArr[duplicateID].reward.amount = self.missionArr[missionID].reward.amount
                 self.missionArr[duplicateID].macca = self.missionArr[missionID].macca
+    
+    '''
+    Intializes mission pools for missions that have rewards, unique item rewards and rewards unique to a specific route.
+    '''
+    def initializeMissionPools(self):
+        
+        rewardingMissions = []
+        uniqueRewards = []
+        creationRewards = []
+        vengeanceRewards = []
+        for mission in self.missionArr:
+            if (mission.macca > 0 or mission.reward.ind > 0) and not any(mission.ind in duplicates for duplicates in numbers.MISSION_DUPLICATES.values()) and mission.ind not in numbers.BANNED_MISSIONS:
+                rewardingMissions.append(mission) #find missions with rewards that are not banned or a duplicate
+                if mission.reward.ind > numbers.KEY_ITEM_CUTOFF or mission.reward.ind in numbers.BANNED_ITEMS:
+                    if mission.ind not in numbers.CREATION_EXCLUSIVE_KEY_REWARDS and mission.ind not in numbers.VENGEANCE_EXCLUSIVE_KEY_REWARDS:
+                        uniqueRewards.append(copy.deepcopy(mission.reward)) #add key items or reusable consumables to unique rewards
+                    elif mission.ind in numbers.CREATION_EXCLUSIVE_KEY_REWARDS:
+                        creationRewards.append(copy.deepcopy(mission.reward))
+                    else:
+                        vengeanceRewards.append(copy.deepcopy(mission.reward))
+
+        #Remove unwanted rewards
+        for reward in uniqueRewards:
+            if reward.ind in numbers.BANNED_KEY_REWARDS:
+                uniqueRewards.remove(reward)
+        
+        missionContainer = Mission_Container()
+        missionContainer.rewardingMissions = rewardingMissions
+        missionContainer.uniqueRewards = uniqueRewards
+        missionContainer.creationRewards = creationRewards
+        missionContainer.vengeanceRewards = vengeanceRewards
+        
+        return missionContainer
+
+    '''
+    Randomizes the miman and mission rewards, with a combined pool depending on the settings.
+    '''
+    def randomizeItemRewards(self):
+        self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards()
+        missionPool = self.initializeMissionPools()
+        if not self.configSettings.combineKeyItemPools:
+            #Mission Pool get initialized regardless so just stays the same
+            mimanPool = copy.deepcopy(numbers.MIMAN_BASE_KEY_ITEMS) #Use base pool
+        else:
+            combinedItemPool = []
+            if self.configSettings.randomizeMissionRewards: #Add mission key item rewards to the combined pool
+                missionKeyItemIDs = []
+                for reward in missionPool.uniqueRewards:
+                    missionKeyItemIDs.append(reward.ind)
+                combinedItemPool = combinedItemPool + missionKeyItemIDs
+            if self.configSettings.randomizeMimanRewards: #Add miman rewards to the combined pool
+                combinedItemPool = numbers.MIMAN_BASE_KEY_ITEMS + combinedItemPool
+
+            #Distribute combined pool, starting with sub pools of fixed or lower size
+            if self.configSettings.randomizeMimanRewards:#Miman pool has fixed size
+                mimanPool = random.sample(combinedItemPool, len(numbers.MIMAN_BASE_KEY_ITEMS))
+                for itemID in mimanPool:
+                    combinedItemPool.remove(itemID)
+            
+            if self.configSettings.randomizeMissionRewards:#Largest pool and therefore last
+                missionPool.uniqueRewards = []
+                for itemID in combinedItemPool:
+                    missionPool.uniqueRewards.append(Mission_Reward(itemID,1))
+
+        if(self.configSettings.randomizeMimanRewards):
+            self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea, mimanPool)
+        
+        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames)   
+
+        if self.configSettings.randomizeMissionRewards:
+            self.randomizeMissionRewards(self.configSettings.scaleItemsToArea, missionPool)
+        self.missionArr = scriptLogic.updateAndRemoveFakeMissions(self.missionArr)
     
     '''
     Randomizes the drops of basic enemies, excluding key items and essences.
@@ -6191,16 +6250,8 @@ class Randomizer:
             self.randomizeShopItems(self.configSettings.scaleItemsToArea)
         self.replaceSpyglassInShop()
         self.adjustItemPrices()
-        
-        if(self.configSettings.randomizeMimanRewards):
-            self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea)
-        
-        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames)   
 
-        if self.configSettings.randomizeMissionRewards:
-            self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards()
-            self.randomizeMissionRewards(self.configSettings.scaleItemsToArea)
-            self.missionArr = scriptLogic.updateAndRemoveFakeMissions(self.missionArr)
+        self.randomizeItemRewards()
         
         if self.configSettings.selfRandomizeNormalBosses or self.configSettings.mixedRandomizeNormalBosses or self.configSettings.selfRandomizeOverworldBosses or self.configSettings.mixedRandomizeOverworldBosses:
             self.patchQuestBossDrops()
