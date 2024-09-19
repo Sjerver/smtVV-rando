@@ -5,7 +5,7 @@ from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Nod
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter, Ambush_Type
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
-from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item, Item_Chest, Consumable_Item
+from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item, Item_Chest, Consumable_Item, Gift_Item, Gift_Pool
 from base_classes.quests import Mission, Mission_Reward, Mission_Condition, Mission_Container
 from base_classes.settings import Settings
 from base_classes.miracles import Abscess, Miracle
@@ -2414,7 +2414,7 @@ class Randomizer:
         for reward in mimans:
             buffer.writeWord(reward.miman,reward.offset)
             for index, item in enumerate(reward.items):
-                buffer.writeHalfword(item.item, reward.offset + 8 + 4*index)
+                buffer.writeHalfword(item.ind, reward.offset + 8 + 4*index)
                 buffer.writeHalfword(item.amount, reward.offset + 10 + 4*index)
         return buffer
 
@@ -4229,7 +4229,7 @@ class Randomizer:
                 areaChoices = [61,62,63,60] #Minato, Shinagawa, Chiyoda(same rewards list as Shinjuku), Taito
                 rewardArea = areaChoices[index // 10] #10 miman rewards per area
             items = []
-            if reward.items[0].item >= numbers.KEY_ITEM_CUTOFF and len(keyItems) > 0: #originally key items (talismans)
+            if reward.items[0].ind >= numbers.KEY_ITEM_CUTOFF and len(keyItems) > 0: #originally key items (talismans)
                 itemID = random.choice(keyItems)
                 items.append(Reward_Item(itemID,1))
                 keyItems.remove(itemID)
@@ -4367,9 +4367,25 @@ class Randomizer:
                 mission.macca = 0
         for missionID, duplicateIDs in numbers.MISSION_DUPLICATES.items(): #set rewards of duplicates to be the same as the one they duplicate
             for duplicateID in duplicateIDs:
-                self.missionArr[duplicateID].reward.ind = self.missionArr[missionID].reward.ind
-                self.missionArr[duplicateID].reward.amount = self.missionArr[missionID].reward.amount
-                self.missionArr[duplicateID].macca = self.missionArr[missionID].macca
+                if missionID < 0 or duplicateID < 0: #if mission or duplicate are fake missions
+                    missionFound = False
+                    duplicateFound = False
+                    for index, mission in enumerate(self.missionArr): #find their index in the mission array
+                        if missionFound and duplicateFound:
+                            break
+                        if mission.ind == missionID:
+                            correctMissionInd = index
+                            missionFound = True
+                        if duplicateID == mission.ind:
+                            correctDuplicateInd = index
+                            duplicateFound = True
+                    self.missionArr[correctDuplicateInd].reward.ind = self.missionArr[correctMissionInd].reward.ind
+                    self.missionArr[correctDuplicateInd].reward.amount = self.missionArr[correctMissionInd].reward.amount
+                    self.missionArr[correctDuplicateInd].macca = self.missionArr[correctMissionInd].macca
+                else:
+                    self.missionArr[duplicateID].reward.ind = self.missionArr[missionID].reward.ind
+                    self.missionArr[duplicateID].reward.amount = self.missionArr[missionID].reward.amount
+                    self.missionArr[duplicateID].macca = self.missionArr[missionID].macca
     
     '''
     Intializes mission pools for missions that have rewards, unique item rewards and rewards unique to a specific route.
@@ -4403,13 +4419,45 @@ class Randomizer:
         missionContainer.vengeanceRewards = vengeanceRewards
         
         return missionContainer
+    '''
+    Randomizes gift items using the pool to assign key items.
+        Parameters:
+            pool(Gift_Pool): Contains the pools of all gifts and the unique rewards to assign randomly
+    '''
+    def randomizeGiftItems(self, pool):
+        uniqueGifts = random.sample(pool.allGifts, len(pool.uniqueRewards))
+        for gift in uniqueGifts:
+            reward = random.choice(pool.uniqueRewards)
+            gift.item = reward
+            pool.uniqueRewards.remove(reward)
+        #TODO: Put code for non unique gifts when we have any and scaling then
 
+        scriptLogic.updateGiftScripts(pool.allGifts)
+
+    '''
+    Initializes the pools of all gifts and unique rewards from gifts.
+    '''
+    def initializeGiftPools(self):
+        giftPool = Gift_Pool()
+        for script,item in scriptLogic.BASE_GIFT_ITEMS.items():
+            gift = Gift_Item()
+            gift.script = script
+            reward = Reward_Item(item, 1)
+            gift.item = reward
+            giftPool.allGifts.append(gift)
+            if reward.ind >= numbers.KEY_ITEM_CUTOFF:
+                giftPool.uniqueRewards.append(reward)
+
+        giftPool.uniqueRewardRatio = len(giftPool.uniqueRewards) / len(giftPool.allGifts)
+        return giftPool
+            
     '''
     Randomizes the miman and mission rewards, with a combined pool depending on the settings.
     '''
     def randomizeItemRewards(self):
         self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards()
         missionPool = self.initializeMissionPools()
+        giftPool = self.initializeGiftPools()
         if not self.configSettings.combineKeyItemPools:
             #Mission Pool get initialized regardless so just stays the same
             mimanPool = copy.deepcopy(numbers.MIMAN_BASE_KEY_ITEMS) #Use base pool
@@ -4422,12 +4470,23 @@ class Randomizer:
                 combinedItemPool = combinedItemPool + missionKeyItemIDs
             if self.configSettings.randomizeMimanRewards: #Add miman rewards to the combined pool
                 combinedItemPool = numbers.MIMAN_BASE_KEY_ITEMS + combinedItemPool
+            if self.configSettings.randomizeGiftItems: #Add unique gift rewards to the combined pool
+                giftItemIDs = []
+                for reward in giftPool.uniqueRewards:
+                    giftItemIDs.append(reward.ind)
+                combinedItemPool = giftItemIDs + combinedItemPool
 
             #Distribute combined pool, starting with sub pools of fixed or lower size
             if self.configSettings.randomizeMimanRewards:#Miman pool has fixed size
                 mimanPool = random.sample(combinedItemPool, len(numbers.MIMAN_BASE_KEY_ITEMS))
                 for itemID in mimanPool:
                     combinedItemPool.remove(itemID)
+            
+            if self.configSettings.randomizeGiftItems: #Gift pool has fixed size#TODO:Vary Size?
+                itemIDs = random.sample(combinedItemPool, len(giftPool.uniqueRewards))
+                giftPool.uniqueRewards = []
+                for itemID in itemIDs:
+                    giftPool.uniqueRewards.append(Reward_Item(itemID, 1))
             
             if self.configSettings.randomizeMissionRewards:#Largest pool and therefore last
                 missionPool.uniqueRewards = []
@@ -4438,6 +4497,9 @@ class Randomizer:
             self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea, mimanPool)
         
         scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames)   
+
+        if self.configSettings.randomizeGiftItems:
+            self.randomizeGiftItems(giftPool)
 
         if self.configSettings.randomizeMissionRewards:
             self.randomizeMissionRewards(self.configSettings.scaleItemsToArea, missionPool)

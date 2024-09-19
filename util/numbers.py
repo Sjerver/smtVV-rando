@@ -183,6 +183,7 @@ MISSION_DUPLICATES = {
   95: [116], #To the Empyrean
   52: [53,54], #The Compassionate Queen, The Noble Queen, The Wrathful Queen (Same reward but not true duplicate)
   28: [173], #Clash with the Kunitsukami, Special Training: Kunitsukami (Both normally give Kunitsu Talisman)
+  -18: [-19], #Duplicates for the fake missions handling the Heavenly Kings Periapt
 }
 
 #List of exclusive key item rewards from both canons

@@ -224,7 +224,7 @@ def createGUI(configSettings):
     listItem.insert(4, "Scale Items To Area")
     listItem.insert(5, "Randomize Miman Rewards ")
     listItem.insert(6, "Randomize Mission Rewards ")
-    listItem.insert(7, "Randomize NPC/Story Item Gifts (N)")
+    listItem.insert(7, "Randomize NPC/Story Item Gifts")
     listItem.insert(8, "Combine Unique Item Pools")
     listItem.pack()
         
