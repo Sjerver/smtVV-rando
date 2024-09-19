@@ -52,3 +52,4 @@ class Settings(object):
         self.scaleBossInstakillRates = False        # Boss instakill susceptibility will be based on check instead of the boss itself
         self.randomizeGiftItems = False             # Randomizes a plethora of items given through events (mostly talismans and periapts through NPCs or story)
         self.combineKeyItemPools = False            # Combines the key item pools of Miman, Mission, and Gifts
+        self.buffGuestYuzuru = False                # Gives guest yuzuru level 99 and 99 to all stats to help with the first Labolas check

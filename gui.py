@@ -360,6 +360,7 @@ def createGUI(configSettings):
 
     listPatches = tk.Listbox(page3FrameBottom, selectmode = "multiple", width=50, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listPatches.insert(0, "Fix unique skill animations")
+    listPatches.insert(1, "Buff guest Yuzuru to make first Labolas check easier")
     listPatches.pack()
         
     page1Frame.tkraise()
@@ -503,6 +504,8 @@ def createGUI(configSettings):
                 listEarlyMiracle.selection_set(6)
             if configur.get('Patches', 'FixUniqueSkillAnimations') == 'true':
                 listPatches.selection_set(0)
+            if configur.get('Patches', 'BuffGuestYuzuru') == 'true':
+                listPatches.selection_set(1)
         except (NoOptionError, NoSectionError):
             createConfigFile(configur)
     else:
@@ -897,6 +900,12 @@ def createGUI(configSettings):
         configur.set('Patches', 'FixUniqueSkillAnimations', 'true')
     else:
         configur.set('Patches', 'FixUniqueSkillAnimations', 'false')
+        
+    if patchFlags[1]:
+        configSettings.buffGuestYuzuru = True
+        configur.set('Patches', 'BuffGuestYuzuru', 'true')
+    else:
+        configur.set('Patches', 'BuffGuestYuzuru', 'false')
 
     with open('config.ini', 'w') as configfile:
         configur.write(configfile)
@@ -920,7 +929,7 @@ def createConfigFile(configur):
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
                                  'ScaleInstakillRates': False}
-    configur['Patches'] = {'FixUniqueSkillAnimations': False}
+    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
                         'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False}

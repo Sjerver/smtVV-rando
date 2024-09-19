@@ -221,6 +221,10 @@ def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr,
     #If Tentacle Lahmu is replacement, only give him a seventh of the normal HP due to tentacle jank
     if newEncounterID in [69, 138]:
         oldEncounterData.totalHP = oldEncounterData.totalHP // 7
+
+    #Divide Maria's hp by 3 because she spams diarahan
+    if newEncounterID == 31:
+        oldEncounterData.totalHP = oldEncounterData.totalHP // 3
         
     if balancePressTurns:
         adjustBossPressTurns(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
