@@ -3,6 +3,7 @@ from configparser import ConfigParser, NoOptionError, NoSectionError
 import os
 
 NAHOBINO_BLUE = "#5b87d5"
+NAHOBINO_BRIGHT_BLUE = "#6b97f5"
 VENGEANCE_PURPLE = "#a698dd"
 PRESS_TURN_RED = "#831530"
 PRESS_TURN_BRIGHT_RED = "#ab1d33"
@@ -358,10 +359,17 @@ def createGUI(configSettings):
     patchesLabel = tk.Label(page3FrameBottom, text="Patches")
     patchesLabel.pack()
 
-    listPatches = tk.Listbox(page3FrameBottom, selectmode = "multiple", width=50, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listPatches = tk.Listbox(page3FrameBottom, selectmode = "multiple", width=50, height=2, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listPatches.insert(0, "Fix unique skill animations")
     listPatches.insert(1, "Buff guest Yuzuru to make first Labolas check easier")
     listPatches.pack()
+    
+    expLabel = tk.Label(page3FrameBottom, text="EXP Multiplier")
+    expLabel.pack()
+    
+    expScale = tk.Scale(page3FrameBottom, from_=1, to=2, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
+    expScale.set(1)
+    expScale.pack()
         
     page1Frame.tkraise()
 
@@ -506,6 +514,7 @@ def createGUI(configSettings):
                 listPatches.selection_set(0)
             if configur.get('Patches', 'BuffGuestYuzuru') == 'true':
                 listPatches.selection_set(1)
+            expScale.set(configur.get('Patches', 'EXPMultiplier'))
         except (NoOptionError, NoSectionError):
             createConfigFile(configur)
     else:
@@ -545,6 +554,7 @@ def createGUI(configSettings):
         patchFlags = [False for i in range(listPatches.size())]
         for i in listPatches.curselection():
             patchFlags[i] = True
+        expChoice = expScale.get()
         
         window.destroy()
     except tk.TclError:
@@ -906,6 +916,9 @@ def createGUI(configSettings):
         configur.set('Patches', 'BuffGuestYuzuru', 'true')
     else:
         configur.set('Patches', 'BuffGuestYuzuru', 'false')
+        
+    configSettings.expMultiplier = expChoice
+    configur.set('Patches', 'EXPMultiplier', str(expChoice))
 
     with open('config.ini', 'w') as configfile:
         configur.write(configfile)
@@ -929,7 +942,7 @@ def createConfigFile(configur):
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
                                  'ScaleInstakillRates': False}
-    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False}
+    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
                         'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False}

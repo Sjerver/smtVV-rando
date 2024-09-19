@@ -1058,6 +1058,7 @@ class Randomizer:
             mission.reward.amount = data.readHalfword(locations['rewardAmount'])
             mission.reward.ind = data.readHalfword(locations['rewardID'])
             mission.macca = data.readWord(locations['rewardMacca'])
+            mission.experience = data.readWord(locations['rewardMacca'] + 4)
             for i in range(4):
                 cType = data.readWord(locations['conditions'] + 0x10 * i)
                 cID = data.readWord(locations['conditions'] + 0x10 * i + 4)
@@ -2570,6 +2571,7 @@ class Randomizer:
             buffer.writeHalfword(mission.reward.amount, mission.offsets['rewardAmount'])
             buffer.writeHalfword(mission.reward.ind, mission.offsets['rewardID'])
             buffer.writeWord(mission.macca, mission.offsets['rewardMacca'])
+            buffer.writeWord(mission.experience, mission.offsets['rewardMacca'] + 4)
             for i in range(4):
                 buffer.writeWord(mission.conditions[i].type, mission.offsets['conditions'] + 0x10 * i)
                 buffer.writeWord(mission.conditions[i].ind, mission.offsets['conditions'] + 0x10 * i + 4)
@@ -5805,6 +5807,17 @@ class Randomizer:
             self.eventEncountArr[eventEncountID].track = track
 
     '''
+        Scales the experience gained from demons and quest rewards according to the expMultiplier setting
+    '''
+    def scaleExpGains(self):
+        for demon in self.enemyArr:
+            demon.experience = round(demon.experience * self.configSettings.expMultiplier)
+        for demon in self.bossArr[numbers.NORMAL_ENEMY_COUNT:]:
+            demon.experience = round(demon.experience * self.configSettings.expMultiplier)
+        for mission in self.missionArr:
+            mission.experience = round(mission.experience * self.configSettings.expMultiplier)
+
+    '''
     Creates a copy of the new entry with the binary offset data of the old entry.
         Parameters:
             newEntry (Asset_Entry): the new asset entry data to copy
@@ -6149,6 +6162,8 @@ class Randomizer:
             self.preventEarlyAmbush()
         if self.configSettings.nerfBossHealing:
             self.nerfBossHealing()
+        if self.configSettings.expMultiplier != 1:
+            self.scaleExpGains()
 
         self.patchTutorialDaemon()
         

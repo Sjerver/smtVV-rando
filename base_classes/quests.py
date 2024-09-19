@@ -3,6 +3,7 @@ class Mission:
         self.ind = None
         self.reward = Mission_Reward()
         self.macca = 0
+        self.experience = 0
         self.conditions = []
 class Mission_Reward:
     def __init__(self, ind=None, amount=None):

@@ -11,6 +11,7 @@ Start: 0x1611 (Quest ID)
 0x161B: Amount -> 01
 
 0x1629: Macca Amount Rewarded
+0x162D: EXP Amount Rewarded
 
 Conditions Max 4
 0x1631: 01 <- Type (01 Demon, 02 Item, 03 Flag/Location??, 04(Save the Students, 05 Demon in Stock)) 
