@@ -12,6 +12,7 @@ from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
 from base_classes.map_demons import Map_Demon
 import base_classes.script_logic as scriptLogic
+import base_classes.message_logic as message_logic
 import util.numbers as numbers
 import util.paths as paths
 import util.translation as translation
@@ -4428,6 +4429,11 @@ class Randomizer:
     '''
     def randomizeGiftItems(self, pool):
         randomizedGifts = []
+        if not self.configSettings.combineKeyItemPools:#No combined pools means that exclusive items stay normal due to otherwise having not enough gift slots
+            unchangedGifts = list(filter(lambda gift: gift.script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS or gift.script  in scriptLogic.NEWGAMEPLUS_GIFTS, pool.allGifts))
+            for gift in unchangedGifts:
+                pool.uniqueRewards.remove(gift.reward)
+                randomizedGifts.append(gift)
         #Filter out exclusive gifts that should not contain a unique item
         possibleGifts = list(filter(lambda gift: gift.script not in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS and gift.script not in scriptLogic.NEWGAMEPLUS_GIFTS, pool.allGifts))
         uniqueGifts = random.sample(possibleGifts, len(pool.uniqueRewards))
@@ -4436,6 +4442,9 @@ class Randomizer:
             gift.item = reward
             pool.uniqueRewards.remove(reward)
             randomizedGifts.append(gift)
+        
+        
+
         
         #Assemble possible rewards
         if self.configSettings.scaleItemsToArea: #Rewards scale with map
