@@ -8,6 +8,7 @@ Features:
 * New settings to randomize items given by NPCs or Story Events and combining the pools for unique items
 * New setting to increase the amount of EXP gained from demons and quests
 * Guest Yuzuru's increased level and stats has been moved to a setting
+* You can now select from 6 preset setting loadouts if you don't want to look at each individual setting
 
 Bugfixes:
 * Fixed crash when running the randomizer with a random seed

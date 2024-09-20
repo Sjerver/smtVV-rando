@@ -6306,6 +6306,7 @@ class Randomizer:
 if __name__ == '__main__':
     rando = Randomizer()
     print('Warning: This is an early build of the randomizer and some things may not work as intended. Performance will be somewhat worse than vanilla SMTVV')
+    print('Welcome to the SMTVV Rando v1.02. This version was created with game version 1.02 and will likely not work with other versions of SMTVV')
     try:
         rando.configSettings, rando.textSeed = gui.createGUI(rando.configSettings)
         rando.createSeed()
@@ -6315,7 +6316,6 @@ if __name__ == '__main__':
             print('"Fix unique skill animations" patch not applied. If the game appears to hang during a battle animation, press the skip animations button')
         print('\nRandomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
         print('CurrentSeed, bossSpoilerLog, encounterResults and fusionResults can be found in the debug folder')
-        print('Lastly, it is recommended that you do not play the randomizer on hard mode Larpas')
        
     except RuntimeError:
         print('GUI closed - randomization was canceled')
