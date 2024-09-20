@@ -5,7 +5,7 @@ Features:
 * New setting to reduce the cost of demons in the compendium
 * New settings that force certain miracles to appear early or keep rank violation in its vanilla location
 * New setting to restrict Lunation Flux to a single demon, ignoring other unique skill settings
-* New settings to randomize items given by NPCs or Story Events and combining the pools for unique items
+* New settings to randomize items given by NPCs or Story Events, combining the pools for unique items and inclusion of the Tsukuyomi Talisman
 * New setting to increase the amount of EXP gained from demons and quests
 * Guest Yuzuru's increased level and stats has been moved to a setting
 * You can now select from 6 preset setting loadouts if you don't want to look at each individual setting

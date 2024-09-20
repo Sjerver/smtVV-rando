@@ -309,6 +309,8 @@ SHINJUKU_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m064'
 TAITO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m060'
 TOKYO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_TokyoMap'
 EMPYREAN_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m016'
+MAIN_M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M060'
+MAIN_M064_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M064'
 
 #Key: EventScriptName, Value: List(Numbers) byte offsets where demon join is decided/checked
 SCRIPT_JOIN_BYTES = {
@@ -425,8 +427,15 @@ SCRIPT_FOLDERS = {
     'esNPC_m016_01a': EMPYREAN_NPC_FOLDER, #Ongyo-Ki NPC
     'MM_M062_EM1132': M062_FOLDER, #Cait Sith in Fairy Village
     'MM_M060_EM1370_Direct': M060_FOLDER, #Fighting Bishamonten without Quest(shares reward with quest)
+    'MM_M061_E2610': MAINMISSION_M061_FOLDER, #Isis Event in CoV
+    'MM_M060_E0763': MAIN_M060_FOLDER, #Tao Talisman Event at the beginning of Taito
+    'MM_M064_E2797': MAIN_M064_FOLDER, #Qadistu Talisman/Periapt
+    'MM_M064_E2795_Direct': MAIN_M064_FOLDER, #Tsukuyomi Talisman
+    'BP_JakyoEvent': SHOP_EVENT_FOLDER, #Cathedral of Shadows Event
+    'MM_M061_EM0020': M061_FOLDER, # The Angel's Request
 }
 
+#List of additional rewards in fake missions
 EXTRA_MISSION_REWARDS = {
     -1 : Mission_Reward(826, 1), #Fury Talisman
     -2: Mission_Reward(711, 1), #Exalted Seraphim Periapt
@@ -447,8 +456,10 @@ EXTRA_MISSION_REWARDS = {
     -17: Mission_Reward(709, 1), # Asgardian Kin Periapt
     -18: Mission_Reward(716, 1), # Heavenly Kings Periapt
     -19: Mission_Reward(716, 1), # Heavenly Kings Periapt(Duplicate)
+    -20: Mission_Reward(827, 1), # Lady Talisman(Duplicate of real Mission)
+    -21: Mission_Reward(719, 1), # Servants of Heaven Periapt
 }
-
+#Dict of which scripts are handled via fake missions
 EXTRA_MISSION_IDS = {
     'MM_M060_EM1601': [-1], # The Destined Leader
     'MM_M035_EM1480': [-2], # The Seraph's Return
@@ -468,21 +479,26 @@ EXTRA_MISSION_IDS = {
     'MM_M030_EM2600': [-16], # Sakura Cinders of the East (Periapt Event)
     'MM_M060_EM2351': [-17], # Rascal of the Norse
     'MM_M060_EM1370_Direct': [-19], # Fighting Bishamonten without Quest(shares reward with quest)
+    'MM_M061_E2610' : [-20], #Isis Story Event in CoV
+    'MM_M061_EM0020': [-21], #The Angel's Request
+
 }
 
+#List of which areas rewards of fake missions are scaled after
 EXTRA_MISSION_REWARD_AREAS = {
   16: [-2, -3, -11], #Empyrean
   35: [], #Temple of Eternity
   36: [], #Demon Kings Castle / Shakan
   38: [], #Demon Kings Castle / Shakan
   60: [-1,-6,-7,-8,-9,-10,-13, -15, -17, -18,-19], #Taito
-  61: [-4,-12], #Minato
+  61: [-4,-12,-21], #Minato
   62: [-5], #Shinagawa
   63: [-14, -16], #Chiyoda
-  64: [], #Shinjuku
+  64: [-20], #Shinjuku
   107: [] #Demi-Fiend Area: same as Empyrean
 }
 
+#Items being gifted in each script
 BASE_GIFT_ITEMS = {
     'esNPC_m061_31a': 824, #Jaki Talisman
     'esNPC_m061_30a': 838, #Foul Talisman
@@ -490,27 +506,33 @@ BASE_GIFT_ITEMS = {
     'BP_esNPC_TokyoMap_15b': 708, #Mischievous Mascot Periapt
     'esNPC_m062_32a': 825, #Wilder Talisman
     'esNPC_m062_33a': 811, #Divine Talisman
-    'esNPC_m062_40a': 811, #Amorphous Periapt
+    'esNPC_m062_40a': 718, #Amorphous Periapt
     'esNPC_m063_20a': 835, #Snake Talisman
     'esNPC_m063_21a': 710, #Shadow Warrior Periapt
     'esNPC_m060_10a': 707, #Children of Echidna Periapt
     'esNPC_m016_01a': 715, #Elemental Oni Periapt
     'MM_M062_EM1132': 706, #Grimalkin Periapt
+    'MM_M060_E0763': 845, #Panagia Talisman
+    'MM_M064_E2797': 842, #Qadistu Talisman
+    'MM_M064_E2797_PERIAPT': 731, #Qadistu Periapt
+    'MM_M064_E2795_Direct': 839, #Tsukuyomi Talisman
+    'BP_JakyoEvent': 844, #Devil Talisman
+    'BP_JakyoEvent_Comp_Complete': 720, #Twinned Throne Periapt
 }
-
+# Areas the gifts are scaled after if they are not containing a key item
 GIFT_AREAS = {
-  16: ['esNPC_m016_01a'], #Empyrean
+  16: ['esNPC_m016_01a','BP_JakyoEvent','BP_JakyoEvent_Comp_Complete'], #Empyrean
   35: [], #Temple of Eternity
-  36: [], #Demon Kings Castle / Shakan
+  36: ['MM_M064_E2797','MM_M064_E2797_PERIAPT','MM_M064_E2795_Direct'], #Demon Kings Castle / Shakan
   38: [], #Demon Kings Castle / Shakan
-  60: ['esNPC_m060_10a','MM_M062_EM1132'], #Taito
+  60: ['esNPC_m060_10a','MM_M062_EM1132','MM_M060_E0763'], #Taito
   61: ['esNPC_m061_31a','esNPC_m061_30a','esNPC_m061_34a'], #Minato
   62: ['esNPC_m062_32a','esNPC_m062_33a','esNPC_m062_40a'], #Shinagawa
   63: ['BP_esNPC_TokyoMap_15b','esNPC_m063_20a','esNPC_m063_21a'], #Chiyoda
   64: [], #Shinjuku
   107: [] #Demi-Fiend Area: same as Empyrean
 } 
-
+# Scripts with the same reward
 GIFT_EQUIVALENT_SCRIPTS = {
     'esNPC_m061_31a' : ['esNPC_m061b_31a'],
     'esNPC_m061_30a' : ['esNPC_m061b_30a'],
@@ -518,7 +540,24 @@ GIFT_EQUIVALENT_SCRIPTS = {
     'esNPC_m062_33a' : ['esNPC_m062b_33a'],
     'BP_esNPC_TokyoMap_15b' : ['BP_esNPC_TokyoMap_15b2','BP_esNPC_TokyoMap_15c'],
     'esNPC_m016_01a' : ['esNPC_m016_01b'],
+    'MM_M060_E0763' : ['MM_M060_E3001_Direct'],
 }
+# Scripts that use the same script file, for different rewards
+# Extra -> Original
+GIFT_EXTRA_SCRIPTS = {
+    'MM_M064_E2797_PERIAPT' : 'MM_M064_E2797',
+    'BP_JakyoEvent_Comp_Complete': 'BP_JakyoEvent',
+}
+
+#Odds that a non key gift contains an essence
+GIFT_ESSENCE_ODDS = 0.7 #Completely made up, but essence should be more likely for now since amount is fixed currently
+
+#List of gifts only obtainable in canon of vengeance
+VENGEANCE_EXCLUSIVE_GIFTS = ['MM_M064_E2797','MM_M064_E2797_PERIAPT','MM_M064_E2795_Direct']
+#List of gifts that require a cleared game file
+NEWGAMEPLUS_GIFTS = ['BP_JakyoEvent_Comp_Complete', 'BP_JakyoEvent']
+#Script for the Tsukuyomi Talisman
+TSUKUYOMI_TALISMAN_SCRIPT = 'MM_M064_E2795_Direct'
 
 '''
 Returns the original script that is used as the base for a script with equivalent reward.
@@ -918,35 +957,52 @@ Updates all script data regarding item gifts.
     gifts(List(Gift_Item)): list of all gifts
 '''
 def updateGiftScripts(gifts):
+    uexpCorrection = {} #dict to save uexp which get modified multiple times
     for gift in gifts:
         if gift.script in GIFT_EQUIVALENT_SCRIPTS.keys(): #if script has script with same reward add copy of gift with new script to gift list
             for script in GIFT_EQUIVALENT_SCRIPTS[gift.script]:
                 vengeanceGift = copy.deepcopy(gift)
                 vengeanceGift.script = script
                 gifts.append(vengeanceGift)
-        if 'NPC' in gift.script: #NPC data tables are handled here   
-            uexpData = readBinaryTable('base/Scripts/NPC/' + gift.script + '.uexp')
-            uassetData = Script_Uasset( readBinaryTable('base/Scripts/NPC/' + gift.script + '.uasset'))
+        correctScript = gift.script
+        if gift.script in GIFT_EXTRA_SCRIPTS.keys(): #if script is handling an additional item in a script, get the original script
+            correctScript = GIFT_EXTRA_SCRIPTS[gift.script]
+        if 'NPC' in correctScript: #NPC data tables are handled here   
+            uexpData = readBinaryTable('base/Scripts/NPC/' + correctScript + '.uexp')
+            uassetData = Script_Uasset( readBinaryTable('base/Scripts/NPC/' + correctScript + '.uasset'))
+            if gift.script in GIFT_EXTRA_SCRIPTS.values(): # add uexp to dict if script has additional versions
+                uexpCorrection[gift.script] = uexpData
+            if correctScript in uexpCorrection.keys(): #get already modified uexp from correct script
+                uexpData = uexpCorrection[correctScript]
             if any(gift.script in scripts for scripts in GIFT_EQUIVALENT_SCRIPTS.values()): #if script was copied as equivalent, use original base item
                 equivalentScript = getEquivalentSource(gift.script)
                 updateNPCGiftInScript(BASE_GIFT_ITEMS[equivalentScript], gift.item.ind, uassetData, uexpData)
             else:
                 updateNPCGiftInScript(BASE_GIFT_ITEMS[gift.script], gift.item.ind, uassetData, uexpData)
         else: #else it is an event script
-            if 'EM' in gift.script:
+            if correctScript in ['BP_JakyoEvent']:
+                missionType = 'ShopEvent/'
+            elif 'EM' in correctScript:
                 missionType = 'SubMission/'
             else: 
                 missionType = 'MainMission/'
-            uexpData = readBinaryTable('base/Scripts/' + missionType + gift.script + '.uexp')
-            uassetData = Script_Uasset( readBinaryTable('base/Scripts/' + missionType + gift.script + '.uasset'))
+            uexpData = readBinaryTable('base/Scripts/' + missionType + correctScript + '.uexp')
+            uassetData = Script_Uasset( readBinaryTable('base/Scripts/' + missionType + correctScript + '.uasset'))
+            if gift.script in GIFT_EXTRA_SCRIPTS.values(): # add uexp to dict if script has additional versions
+                uexpCorrection[gift.script] = uexpData
+            if correctScript in uexpCorrection.keys(): #get already modified uexp from correct script
+                uexpData = uexpCorrection[correctScript]
             if any(gift.script in scripts for scripts in GIFT_EQUIVALENT_SCRIPTS.values()): #if script was copied as equivalent, use original base item
                 equivalentScript = getEquivalentSource(gift.script)
                 updateItemRewardInScript(uassetData,uexpData,BASE_GIFT_ITEMS[equivalentScript],gift.item.ind)
             else:
+                #print(gift.script + ": " + str(BASE_GIFT_ITEMS[gift.script]) + " -> " + str(gift.item.ind) )
                 updateItemRewardInScript(uassetData,uexpData,BASE_GIFT_ITEMS[gift.script],gift.item.ind)
-        
-        if gift.script in SCRIPT_FOLDERS.values(): #if script has folder listed use it
+
+        if gift.script in SCRIPT_FOLDERS.keys(): #if script has folder listed use it
             writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[gift.script] + '/' + gift.script + '.uexp', SCRIPT_FOLDERS[gift.script])
+        elif correctScript in SCRIPT_FOLDERS.keys():
+            writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[correctScript] + '/' + correctScript + '.uexp', SCRIPT_FOLDERS[correctScript])
         else: #use folder of equivalent otherwise
             equivalentScript = getEquivalentSource(gift.script)
             writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[equivalentScript] + '/' + gift.script + '.uexp', SCRIPT_FOLDERS[equivalentScript])    

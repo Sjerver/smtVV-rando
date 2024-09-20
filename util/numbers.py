@@ -184,10 +184,11 @@ MISSION_DUPLICATES = {
   52: [53,54], #The Compassionate Queen, The Noble Queen, The Wrathful Queen (Same reward but not true duplicate)
   28: [173], #Clash with the Kunitsukami, Special Training: Kunitsukami (Both normally give Kunitsu Talisman)
   -18: [-19], #Duplicates for the fake missions handling the Heavenly Kings Periapt
+  72: [-20], #Falcon's Head and Isis Story Even in CoV both reward Lady Talisman
 }
 
 #List of exclusive key item rewards from both canons
-CREATION_EXCLUSIVE_KEY_REWARDS = [72] #The Falcon's Head
+CREATION_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 VENGEANCE_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 
 #List of banned key rewards

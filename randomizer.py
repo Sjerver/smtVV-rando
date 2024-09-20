@@ -4427,13 +4427,61 @@ class Randomizer:
             pool(Gift_Pool): Contains the pools of all gifts and the unique rewards to assign randomly
     '''
     def randomizeGiftItems(self, pool):
-        uniqueGifts = random.sample(pool.allGifts, len(pool.uniqueRewards))
+        randomizedGifts = []
+        #Filter out exclusive gifts that should not contain a unique item
+        possibleGifts = list(filter(lambda gift: gift.script not in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS and gift.script not in scriptLogic.NEWGAMEPLUS_GIFTS, pool.allGifts))
+        uniqueGifts = random.sample(possibleGifts, len(pool.uniqueRewards))
         for gift in uniqueGifts:
             reward = random.choice(pool.uniqueRewards)
             gift.item = reward
             pool.uniqueRewards.remove(reward)
-        #TODO: Put code for non unique gifts when we have any and scaling then
-
+            randomizedGifts.append(gift)
+        
+        #Assemble possible rewards
+        if self.configSettings.scaleItemsToArea: #Rewards scale with map
+            validItems = {}
+            validEssences = {}
+            for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
+                validItems[key] = value #Item list is defined per area
+            
+            scriptToArea = scriptLogic.getGiftRewardAreas()
+            for area in scriptLogic.GIFT_AREAS.keys():
+                validEssences[area] = []
+                #Grab all essences in the predefined level range for the area
+                currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]]
+                for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[area] and itemName in currentDemonNames:
+                        validEssences[area].append(itemID)
+        else: #Rewards do not scale with map
+            validItems = []
+            validEssences = []
+            for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
+                    validEssences.append(itemID)
+                elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                    validItems.append(itemID)
+        
+        #get Gifts that did not receive a unique item
+        nonUniqueGifts = list(filter(lambda gift: gift not in randomizedGifts, pool.allGifts))
+        for gift in nonUniqueGifts:
+            if self.configSettings.scaleItemsToArea:#Set area to scale items after when necessary
+                rewardArea = scriptToArea[gift.script]
+            if random.random() < scriptLogic.GIFT_ESSENCE_ODDS:
+                if self.configSettings.scaleItemsToArea: #scaled essences depend on area
+                    itemID = random.choice(validEssences[rewardArea])
+                    for value in validEssences.values():
+                        if itemID in value: #remove essence from all applicable areas
+                            value.remove(itemID)
+                else:  
+                    itemID = random.choice(validEssences)
+                    validEssences.remove(itemID) #Limit 1 gift per essence for diversity
+                gift.item.ind = itemID
+            else:
+                if self.configSettings.scaleItemsToArea: #scaled items depend on area
+                    itemID = random.choice(validItems[rewardArea])
+                else:
+                    itemID = random.choice(validItems)
+                gift.item.ind = itemID
         scriptLogic.updateGiftScripts(pool.allGifts)
 
     '''
@@ -4442,6 +4490,9 @@ class Randomizer:
     def initializeGiftPools(self):
         giftPool = Gift_Pool()
         for script,item in scriptLogic.BASE_GIFT_ITEMS.items():
+            if not self.configSettings.includeTsukuyomiTalisman and script == scriptLogic.TSUKUYOMI_TALISMAN_SCRIPT:
+                #Do not include Tsukuyomi Talisman or it's check in pool if setting isn't set
+                break
             gift = Gift_Item()
             gift.script = script
             reward = Reward_Item(item, 1)
@@ -4485,10 +4536,12 @@ class Randomizer:
                     combinedItemPool.remove(itemID)
             
             if self.configSettings.randomizeGiftItems: #Gift pool has fixed size#TODO:Vary Size?
-                itemIDs = random.sample(combinedItemPool, len(giftPool.uniqueRewards))
+                #Assign 
+                itemIDs = random.sample(combinedItemPool, len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS))
                 giftPool.uniqueRewards = []
                 for itemID in itemIDs:
                     giftPool.uniqueRewards.append(Reward_Item(itemID, 1))
+                    combinedItemPool.remove(itemID)
             
             if self.configSettings.randomizeMissionRewards:#Largest pool and therefore last
                 missionPool.uniqueRewards = []

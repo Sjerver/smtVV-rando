@@ -258,6 +258,7 @@ def createGUI(configSettings):
     listItem.insert(6, "Randomize Mission Rewards ")
     listItem.insert(7, "Randomize NPC/Story Item Gifts")
     listItem.insert(8, "Combine Unique Item Pools")
+    listItem.insert(9, "Include Tsukuyomi Talisman as Item Gift")
     listItem.pack()
         
     bossLabel = tk.Label(page2FrameLeft, text="Boss Randomizer")
@@ -511,14 +512,22 @@ def createGUI(configSettings):
             listItem.selection_set(6)
         else:
             listItem.selection_clear(6)
+
         if configur.get('Item', 'RandomizeGiftItems') == 'true':
             listItem.selection_set(7)
         else:
             listItem.selection_clear(7)
+
         if configur.get('Item', 'CombineKeyItemPools') == 'true':
             listItem.selection_set(8)
         else:
             listItem.selection_clear(8)
+        
+        if configur.get('Item', 'IncludeTsukuyomiTalisman') == 'true':
+            listItem.selection_set(9)
+        else:
+            listItem.selection_clear(9)
+
         listBoss.selection_set(0)
         if configur.get('Boss', 'NormalBossesSelf') == 'true':
             listBoss.selection_clear(0)
@@ -884,6 +893,12 @@ def createGUI(configSettings):
         configur.set('Item', 'CombineKeyItemPools', ' true')
     else:
         configur.set('Item', 'CombineKeyItemPools', ' false')
+    
+    if itemFlags[9]:
+        configSettings.includeTsukuyomiTalisman = True
+        configur.set('Item', 'IncludeTsukuyomiTalisman', ' true')
+    else:
+        configur.set('Item', 'IncludeTsukuyomiTalisman', ' false')
             
     if bossFlags[0]:
         configSettings.scaleBossDamage = True
@@ -1095,7 +1110,7 @@ def createConfigFile(configur):
                                 'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
                         'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False,
-                        'RandomizeGiftItems': False, 'CombineKeyItemPools': False,
+                        'RandomizeGiftItems': False, 'CombineKeyItemPools': False, 'IncludeTsukuyomiTalisman': False
                         }
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
