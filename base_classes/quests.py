@@ -3,9 +3,10 @@ class Mission:
         self.ind = None
         self.reward = Mission_Reward()
         self.macca = 0
+        self.experience = 0
         self.conditions = []
 class Mission_Reward:
-    def __init___(self, ind, amount):
+    def __init__(self, ind=None, amount=None):
         self.ind = ind
         self.amount = amount
 class Mission_Condition:
@@ -13,3 +14,18 @@ class Mission_Condition:
         self.type = type
         self.ind = id
         self.amount = amount
+
+class Fake_Mission(Mission):
+    def __init__(self):
+        Mission.__init__(self)
+        self.uexp = None
+        self.uasset = None
+        self.originalReward = None
+        self.script = None
+
+class Mission_Container:
+    def __init__(self):
+        self.rewardingMissions = []
+        self.uniqueRewards = []
+        self.creationRewards = []
+        self.vengeanceRewards = []

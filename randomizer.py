@@ -2,16 +2,17 @@ from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate, Encounter_Spawn
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
-from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter
+from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter, Ambush_Type
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
-from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item, Item_Chest
-from base_classes.quests import Mission, Mission_Reward, Mission_Condition
+from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item, Item_Chest, Consumable_Item, Gift_Item, Gift_Pool
+from base_classes.quests import Mission, Mission_Reward, Mission_Condition, Mission_Container
 from base_classes.settings import Settings
 from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
 from base_classes.map_demons import Map_Demon
 import base_classes.script_logic as scriptLogic
+import base_classes.message_logic as message_logic
 import util.numbers as numbers
 import util.paths as paths
 import util.translation as translation
@@ -48,6 +49,7 @@ class Randomizer:
         self.enemyArr = []
         self.encountSymbolArr = []
         self.encountArr = []
+        self.consumableArr = []
         self.essenceArr = []
         self.shopArr = []
         self.eventEncountArr = []
@@ -195,120 +197,135 @@ class Randomizer:
             NKMBaseTable (Table): the buffer to get the demon data from
     '''
     def fillCompendiumArr(self, NKMBaseTable):
-
-        startValue = 0x69
-        raceOffset = 0x0C
-        demonOffset = 0x1D0
-
-
         #For all demons in the compendium...
         for index in range(numbers.NORMAL_ENEMY_COUNT):
-            #First define all relevant offsets
-            offset = startValue + demonOffset * index
-            locations = {
-                'race': offset - raceOffset,
-                'alignment': offset - raceOffset + 7,
-                'nameID': offset - 0x10,
-                'level': offset,
-                'HP': offset + 0x1C,
-                'firstSkill': offset + 0x70,
-                'firstLearnedLevel': offset + 0xA0,
-                'fusability': offset + 0x56,
-                'unlockFlags': offset + 0x60,
-                'tone': offset + 0x58,
-                'innate': offset + 0x100,
-                'potential': offset + 0X174,
-                'encounterSpawn': offset + 0x1AC
-            }
-            #Then read the list of initial skills learned
-            listOfSkills = []
-            for i in range(8):
-                skillID = NKMBaseTable.readWord(locations['firstSkill'] + 4 * i)
-                if skillID != 0:
-                    listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))
-            #Read the list of learnable skills 
-            listOfLearnedSkills = []
-            for i in range(8):
-                #print(locations['firstLearnedLevel'])
-                skillID = NKMBaseTable.readWord(locations['firstLearnedLevel'] + 8 * i + 4)
-                if skillID != 0:
-                    listOfLearnedSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames),
-                                                                level=NKMBaseTable.readWord(locations['firstLearnedLevel'] + 8 * i)))
-            demon = Compendium_Demon()
-            demon.ind = index
-            demon.nameID = NKMBaseTable.readWord(locations['nameID'])
-            if demon.nameID == 58 and index != 58:
-                # Placeholder Jack Frosts
-                demon.name = "NOT USED"
-            else:
-                demon.name = self.compendiumNames[demon.nameID]
-            demon.offsetNumbers = locations
-            demon.race = Translated_Value(NKMBaseTable.readByte(locations['race']), RACE_ARRAY[NKMBaseTable.readByte(locations['race'])])
-            demon.alignment = NKMBaseTable.readByte(locations['alignment'] +1)
-            demon.tendency = NKMBaseTable.readByte(locations['alignment'])
-            demon.level = Demon_Level(NKMBaseTable.readWord(locations['level']), NKMBaseTable.readWord(locations['level']))
-            demon.registerable = NKMBaseTable.readWord(locations['HP'] - 4)
-            demon.fusability = NKMBaseTable.readHalfword(locations['fusability'])
-            demon.unlockFlags = [NKMBaseTable.readByte(locations['unlockFlags']), NKMBaseTable.readByte(locations['unlockFlags'] + 1)]
-            demon.tone = Translated_Value(NKMBaseTable.readByte(locations['tone']), '', secondary=NKMBaseTable.readByte(locations['tone'] + 1))
-            demon.resist.physical = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4)))
-            demon.resist.fire = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 2),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 2)))
-            demon.resist.ice = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 3),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 3)))
-            demon.resist.electric = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 4),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 4)))
-            demon.resist.force = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 5),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 5)))
-            demon.resist.light = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 6),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 6)))
-            demon.resist.dark = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 7),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 7)))
-            demon.resist.almighty = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 8),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 8)))
-            demon.resist.poison = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 9),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 9)))
-            demon.resist.confusion = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 11),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 11)))
-            demon.resist.charm = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 12),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 12)))
-            demon.resist.sleep = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 13),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 13)))
-            demon.resist.seal = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 14),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 14)))
-            demon.resist.mirage = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 21),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 21)))
-            demon.potential.physical = NKMBaseTable.readWord(locations['potential'])
-            demon.potential.fire = NKMBaseTable.readWord(locations['potential'] + 4 * 1)
-            demon.potential.ice = NKMBaseTable.readWord(locations['potential'] + 4 * 2)
-            demon.potential.elec = NKMBaseTable.readWord(locations['potential'] + 4 * 3)
-            demon.potential.force = NKMBaseTable.readWord(locations['potential'] + 4 * 4)
-            demon.potential.light = NKMBaseTable.readWord(locations['potential'] + 4 * 5)
-            demon.potential.dark = NKMBaseTable.readWord(locations['potential'] + 4 * 6)
-            demon.potential.almighty = NKMBaseTable.readWord(locations['potential'] + 4 * 7)
-            demon.potential.ailment = NKMBaseTable.readWord(locations['potential'] + 4 * 8)
-            demon.potential.recover = NKMBaseTable.readWord(locations['potential'] + 4 * 10)
-            demon.potential.support = NKMBaseTable.readWord(locations['potential'] + 4 * 9)
-            demonHP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 0), NKMBaseTable.readWord(locations['HP'] + 4 * 2), NKMBaseTable.readWord(locations['HP'] + 4 * 0))
-            demonMP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 1), NKMBaseTable.readWord(locations['HP'] + 4 * 3),  NKMBaseTable.readWord(locations['HP'] + 4 * 1))
-            demonStr = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 4), NKMBaseTable.readWord(locations['HP'] + 4 * 9),  NKMBaseTable.readWord(locations['HP'] + 4 * 4))
-            demonVit = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 5), NKMBaseTable.readWord(locations['HP'] + 4 * 10),  NKMBaseTable.readWord(locations['HP'] + 4 * 5))
-            demonMag = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 6), NKMBaseTable.readWord(locations['HP'] + 4 * 11),  NKMBaseTable.readWord(locations['HP'] + 4 * 6))
-            demonAgi = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 7), NKMBaseTable.readWord(locations['HP'] + 4 * 12),  NKMBaseTable.readWord(locations['HP'] + 4 * 7))
-            demonLuk = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 8), NKMBaseTable.readWord(locations['HP'] + 4 * 13),  NKMBaseTable.readWord(locations['HP'] + 4 * 8))
-            demon.stats = Stats(demonHP, demonMP, demonStr, demonVit, demonMag, demonAgi, demonLuk)
-            demon.innate = Translated_Value(NKMBaseTable.readWord(locations['innate']),
-                                            translation.translateSkillID(NKMBaseTable.readWord(locations['innate']), self.skillNames))
-            demon.skills = listOfSkills
-            demon.learnedSkills = listOfLearnedSkills
-            demon.creationSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'])
-            demon.creationSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 4)
-            demon.vengeanceSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 8)
-            demon.vengeanceSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 12)
+            demon = self.createCompendiumDemon(NKMBaseTable, index, False)
             #Add read demon data to compendium
             self.compendiumArr.append(demon)
         self.defineLevelForUnlockFlags(self.compendiumArr)
+    
+    '''
+    Creates a compendium demon object using the NKMBaseTable buffer and the given demon index
+        Parameters:
+            NKMBaseTable (Table): the buffer to get the demon data from
+            index (Number): The demon's index in the table
+            isBoss (Bool): True if the demon is being sent to the player boss array, false otherwise
+        Returns:
+            The finished Compendium_Demon object
+    '''
+    def createCompendiumDemon(self, NKMBaseTable, index, isBoss):
+        startValue = 0x69
+        raceOffset = 0x0C
+        demonOffset = 0x1D0
+        #First define all relevant offsets
+        offset = startValue + demonOffset * index
+        locations = {
+            'race': offset - raceOffset,
+            'alignment': offset - raceOffset + 7,
+            'nameID': offset - 0x10,
+            'level': offset,
+            'HP': offset + 0x1C,
+            'firstSkill': offset + 0x70,
+            'firstLearnedLevel': offset + 0xA0,
+            'fusability': offset + 0x56,
+            'unlockFlags': offset + 0x60,
+            'tone': offset + 0x58,
+            'innate': offset + 0x100,
+            'potential': offset + 0X174,
+            'encounterSpawn': offset + 0x1AC
+        }
+        if isBoss:
+            locations['encounterSpawn'] = offset + 0x1CA #I'm not sure if one was a typo but there was a difference in how the player boss arr reads this
+        #Then read the list of initial skills learned
+        listOfSkills = []
+        for i in range(8):
+            skillID = NKMBaseTable.readWord(locations['firstSkill'] + 4 * i)
+            if skillID != 0:
+                listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))
+        #Read the list of learnable skills 
+        listOfLearnedSkills = []
+        for i in range(8):
+            #print(locations['firstLearnedLevel'])
+            skillID = NKMBaseTable.readWord(locations['firstLearnedLevel'] + 8 * i + 4)
+            if skillID != 0:
+                listOfLearnedSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames),
+                                                            level=NKMBaseTable.readWord(locations['firstLearnedLevel'] + 8 * i)))
+        demon = Compendium_Demon()
+        demon.ind = index
+        demon.nameID = NKMBaseTable.readWord(locations['nameID'])
+        if demon.nameID == 58 and index != 58:
+            # Placeholder Jack Frosts
+            demon.name = "NOT USED"
+        elif isBoss:
+            demon.name = self.enemyNames[demon.nameID]
+        else:
+            demon.name = self.compendiumNames[demon.nameID]
+        demon.offsetNumbers = locations
+        demon.race = Translated_Value(NKMBaseTable.readByte(locations['race']), RACE_ARRAY[NKMBaseTable.readByte(locations['race'])])
+        demon.alignment = NKMBaseTable.readByte(locations['alignment'] +1)
+        demon.tendency = NKMBaseTable.readByte(locations['alignment'])
+        demon.level = Demon_Level(NKMBaseTable.readWord(locations['level']), NKMBaseTable.readWord(locations['level']))
+        demon.registerable = NKMBaseTable.readWord(locations['HP'] - 4)
+        demon.fusability = NKMBaseTable.readHalfword(locations['fusability'])
+        demon.unlockFlags = [NKMBaseTable.readByte(locations['unlockFlags']), NKMBaseTable.readByte(locations['unlockFlags'] + 1)]
+        demon.tone = Translated_Value(NKMBaseTable.readByte(locations['tone']), '', secondary=NKMBaseTable.readByte(locations['tone'] + 1))
+        demon.resist.physical = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4)))
+        demon.resist.fire = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 2),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 2)))
+        demon.resist.ice = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 3),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 3)))
+        demon.resist.electric = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 4),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 4)))
+        demon.resist.force = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 5),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 5)))
+        demon.resist.light = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 6),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 6)))
+        demon.resist.dark = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 7),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 7)))
+        demon.resist.almighty = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 8),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 8)))
+        demon.resist.poison = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 9),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 9)))
+        demon.resist.confusion = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 11),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 11)))
+        demon.resist.charm = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 12),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 12)))
+        demon.resist.sleep = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 13),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 13)))
+        demon.resist.seal = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 14),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 14)))
+        demon.resist.mirage = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 21),
+                                                    translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 21)))
+        demon.potential.physical = NKMBaseTable.readWord(locations['potential'])
+        demon.potential.fire = NKMBaseTable.readWord(locations['potential'] + 4 * 1)
+        demon.potential.ice = NKMBaseTable.readWord(locations['potential'] + 4 * 2)
+        demon.potential.elec = NKMBaseTable.readWord(locations['potential'] + 4 * 3)
+        demon.potential.force = NKMBaseTable.readWord(locations['potential'] + 4 * 4)
+        demon.potential.light = NKMBaseTable.readWord(locations['potential'] + 4 * 5)
+        demon.potential.dark = NKMBaseTable.readWord(locations['potential'] + 4 * 6)
+        demon.potential.almighty = NKMBaseTable.readWord(locations['potential'] + 4 * 7)
+        demon.potential.ailment = NKMBaseTable.readWord(locations['potential'] + 4 * 8)
+        demon.potential.recover = NKMBaseTable.readWord(locations['potential'] + 4 * 10)
+        demon.potential.support = NKMBaseTable.readWord(locations['potential'] + 4 * 9)
+        demonHP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 0), NKMBaseTable.readWord(locations['HP'] + 4 * 2), NKMBaseTable.readWord(locations['HP'] + 4 * 0))
+        demonMP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 1), NKMBaseTable.readWord(locations['HP'] + 4 * 3),  NKMBaseTable.readWord(locations['HP'] + 4 * 1))
+        demonStr = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 4), NKMBaseTable.readWord(locations['HP'] + 4 * 9),  NKMBaseTable.readWord(locations['HP'] + 4 * 4))
+        demonVit = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 5), NKMBaseTable.readWord(locations['HP'] + 4 * 10),  NKMBaseTable.readWord(locations['HP'] + 4 * 5))
+        demonMag = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 6), NKMBaseTable.readWord(locations['HP'] + 4 * 11),  NKMBaseTable.readWord(locations['HP'] + 4 * 6))
+        demonAgi = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 7), NKMBaseTable.readWord(locations['HP'] + 4 * 12),  NKMBaseTable.readWord(locations['HP'] + 4 * 7))
+        demonLuk = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 8), NKMBaseTable.readWord(locations['HP'] + 4 * 13),  NKMBaseTable.readWord(locations['HP'] + 4 * 8))
+        demon.stats = Stats(demonHP, demonMP, demonStr, demonVit, demonMag, demonAgi, demonLuk)
+        demon.innate = Translated_Value(NKMBaseTable.readWord(locations['innate']),
+                                        translation.translateSkillID(NKMBaseTable.readWord(locations['innate']), self.skillNames))
+        demon.skills = listOfSkills
+        demon.learnedSkills = listOfLearnedSkills
+        demon.creationSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'])
+        demon.creationSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 4)
+        demon.vengeanceSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 8)
+        demon.vengeanceSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 12)
+        demon.compCostModifier = NKMBaseTable.readWord(locations['firstSkill'] -12)
+        return demon
         
     '''
     Fills the arrays skillArr, passiveSkillArr and innateSkillArr with data extracted from the Buffer skillData.
@@ -391,15 +408,17 @@ class Randomizer:
             else:
                 #console.log(index)
                 offset = startValue + skillOffset * index
-                #While the skillTable starts with id 1, I do not read the ID from the data (which I really should)
-                skillID = index + 1
-                skillName = translation.translateSkillID(index + 1, self.skillNames)
+                #Skill ID is now read from the data
+                #skillID = index + 1
+                if (index < 800):
+                    skillID = skillData.readDblword(offset)
 
-                #if skill is in the second batch of active skills, we calculate the offset a different way and index = id is working
+                #if skill is in the second batch of active skills, we calculate the offset directly
                 if (index >= 800):
                     skillName = translation.translateSkillID(index , self.skillNames)
-                    skillID = index 
                     offset = secondBatchStart + skillOffset * (index  - 800)
+                    skillID = skillData.readDblword(offset)
+                skillName = translation.translateSkillID(skillID, self.skillNames)
                 locations = {
                     'cost': offset + 8,
                     'skillType': offset + 10,
@@ -594,102 +613,114 @@ class Randomizer:
             enemyData (Table): the buffer to get the enemy data from 
     '''
     def fillBasicEnemyArr(self, enemyData):
-
-        startValue = 0x88139
-        enemyOffset = 0x170
-
         #For all Enemy version of playable demon indeces
         for index in range(numbers.NORMAL_ENEMY_COUNT):
-            #First define all relevant offsets
-            offset = startValue + enemyOffset * index
-            locations = {
-                'level': offset,
-                'nameID': 0x69 + 0x1D0 * index - 0x10,
-                'HP': offset + 4,
-                'pressTurns': offset + 0x2B,
-                'experience': offset + 0x44,
-                'item': offset + 0x64,
-                'firstSkill': offset + 0x88,
-                'innate': offset + 0xB8,
-                'resist': offset + 0xBB,
-                'potential': offset + 0x12C
-            }
-        
-            listOfSkills = []
-            for i in range(8):
-                skillID = enemyData.readWord(locations['firstSkill'] + 4 * i)
-                if skillID != 0:
-                    listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))       
-            demon = Enemy_Demon()
-            demon.ind = index
-            demon.nameID = enemyData.readWord(locations['nameID'])
-            if demon.nameID == 58 and (index != 58 and index!= 941):
-                # Placeholder Jack Frosts
-                demon.name = "NOT USED"
-            else:
-                demon.name = self.compendiumNames[demon.nameID]
-            demon.offsetNumbers = locations
-            demon.level = enemyData.readWord(locations['level'])
-            demon.stats = Stats(enemyData.readWord(locations['HP']), enemyData.readWord(locations['HP'] + 4), enemyData.readWord(locations['HP'] + 8),
-                                    enemyData.readWord(locations['HP'] + 12), enemyData.readWord(locations['HP'] + 16),
-                                    enemyData.readWord(locations['HP'] + 20), enemyData.readWord(locations['HP'] + 24)) #HP, MP, str, vit, mag, agi, luk
-            demon.analyze = enemyData.readByte(locations['HP'] + 28)
-            demon.levelDMGCorrection = enemyData.readByte(locations['HP'] + 30)
-            demon.AI = enemyData.readWord(locations['experience'] + 12) #55 for normal encounters
-            demon.recruitable = enemyData.readByte(locations['HP'] + 33)
-            demon.pressTurns = enemyData.readByte(locations['pressTurns'])
-            demon.experience = enemyData.readWord(locations['experience'])
-            demon.money = enemyData.readWord(locations['experience'] + 4)
-            demon.skills = listOfSkills
-            itemDrop1 = Item_Drop(enemyData.readWord(locations['item']), translation.translateItem(enemyData.readWord(locations['item']),self.itemNames),
-                                                      enemyData.readWord(locations['item'] + 4), enemyData.readWord(locations['item'] + 8))
-            itemDrop3 = Item_Drop(enemyData.readWord(locations['item'] + 12), translation.translateItem(enemyData.readWord(locations['item'] + 12),self.itemNames),
-                                                      enemyData.readWord(locations['item'] + 16), enemyData.readWord(locations['item'] + 20))
-            itemDrop2 = Item_Drop(enemyData.readWord(locations['item'] + 24), translation.translateItem(enemyData.readWord(locations['item'] + 24),self.itemNames),
-                                                      enemyData.readWord(locations['item'] + 28), enemyData.readWord(locations['item'] + 32))
-            demon.drops = Item_Drops(itemDrop1, itemDrop2, itemDrop3)
-            demon.innate = Translated_Value(enemyData.readWord(locations['innate']), self.obtainSkillFromID(enemyData.readWord(locations['innate'])).name)
-            demon.resist.physical = Translated_Value(enemyData.readWord(locations['innate'] + 4),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4)))
-            demon.resist.fire = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 2),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 2)))
-            demon.resist.ice = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 3),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 3)))
-            demon.resist.electric = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 4),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 4)))
-            demon.resist.force = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 5),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 5)))
-            demon.resist.light = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 6),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 6)))
-            demon.resist.dark = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 7),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 7)))
-            demon.resist.almighty = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 8),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 8)))
-            demon.resist.poison = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 9),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 9)))
-            demon.resist.confusion = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 11),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 11)))
-            demon.resist.charm = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 12),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 12)))
-            demon.resist.sleep = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 13),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 13)))
-            demon.resist.seal = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 14),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 14)))
-            demon.resist.mirage = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 21),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 21)))
-            demon.potential.physical = enemyData.readWord(locations['potential'])
-            demon.potential.fire = enemyData.readWord(locations['potential'] + 4 * 1)
-            demon.potential.ice = enemyData.readWord(locations['potential'] + 4 * 2)
-            demon.potential.elec = enemyData.readWord(locations['potential'] + 4 * 3)
-            demon.potential.force = enemyData.readWord(locations['potential'] + 4 * 4)
-            demon.potential.light = enemyData.readWord(locations['potential'] + 4 * 5)
-            demon.potential.dark = enemyData.readWord(locations['potential'] + 4 * 6)
-            demon.potential.almighty = enemyData.readWord(locations['potential'] + 4 * 7)
-            demon.potential.ailment = enemyData.readWord(locations['potential'] + 4 * 8)
-            demon.potential.recover = enemyData.readWord(locations['potential'] + 4 * 10)
-            demon.potential.support = enemyData.readWord(locations['potential'] + 4 * 9)
+            demon = self.createEnemyDemon(enemyData, index)
             self.enemyArr.append(demon)
-
+            
+    '''
+    Creates an enemy demon object using the enemyData buffer and the given demon index
+        Parameters:
+            enemyData (Table): the buffer to get the demon data from
+            index (Number): The demon's index in the table
+        Returns:
+            The finished Enemy_Demon object
+    '''
+    def createEnemyDemon(self, enemyData, index):
+        #First define all relevant offsets
+        startValue = 0x88139
+        enemyOffset = 0x170
+        offset = startValue + enemyOffset * index
+        locations = {
+            'level': offset,
+            'nameID': 0x69 + 0x1D0 * index - 0x10,
+            'HP': offset + 4,
+            'pressTurns': offset + 0x2B,
+            'experience': offset + 0x44,
+            'item': offset + 0x64,
+            'firstSkill': offset + 0x88,
+            'innate': offset + 0xB8,
+            'resist': offset + 0xBB,
+            'potential': offset + 0x12C
+        }
+        
+        listOfSkills = []
+        for i in range(8):
+            skillID = enemyData.readWord(locations['firstSkill'] + 4 * i)
+            if skillID != 0:
+                listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))       
+        demon = Enemy_Demon()
+        demon.ind = index
+        demon.nameID = enemyData.readWord(locations['nameID'])
+        if demon.nameID == 58 and (index != 58 and index!= 941):
+            # Placeholder Jack Frosts
+            demon.name = "NOT USED"
+        else:
+            demon.name = self.compendiumNames[demon.nameID]
+        demon.offsetNumbers = locations
+        demon.level = enemyData.readWord(locations['level'])
+        demon.stats = Stats(enemyData.readWord(locations['HP']), enemyData.readWord(locations['HP'] + 4), enemyData.readWord(locations['HP'] + 8),
+                                enemyData.readWord(locations['HP'] + 12), enemyData.readWord(locations['HP'] + 16),
+                                enemyData.readWord(locations['HP'] + 20), enemyData.readWord(locations['HP'] + 24)) #HP, MP, str, vit, mag, agi, luk
+        demon.analyze = enemyData.readByte(locations['HP'] + 28)
+        demon.levelDMGCorrection = enemyData.readByte(locations['HP'] + 30)
+        demon.AI = enemyData.readWord(locations['experience'] + 12) #55 for normal encounters
+        demon.recruitable = enemyData.readByte(locations['HP'] + 33)
+        demon.pressTurns = enemyData.readByte(locations['pressTurns'])
+        demon.damageMultiplier = enemyData.readWord(locations['pressTurns'] + 9)
+        demon.experience = enemyData.readWord(locations['experience'])
+        demon.money = enemyData.readWord(locations['experience'] + 4)
+        demon.skills = listOfSkills
+        demon.instakillRate = enemyData.readByte(locations['item'] - 1)
+        itemDrop1 = Item_Drop(enemyData.readWord(locations['item']), translation.translateItem(enemyData.readWord(locations['item']),self.itemNames),
+                                                    enemyData.readWord(locations['item'] + 4), enemyData.readWord(locations['item'] + 8))
+        itemDrop3 = Item_Drop(enemyData.readWord(locations['item'] + 12), translation.translateItem(enemyData.readWord(locations['item'] + 12),self.itemNames),
+                                                    enemyData.readWord(locations['item'] + 16), enemyData.readWord(locations['item'] + 20))
+        itemDrop2 = Item_Drop(enemyData.readWord(locations['item'] + 24), translation.translateItem(enemyData.readWord(locations['item'] + 24),self.itemNames),
+                                                    enemyData.readWord(locations['item'] + 28), enemyData.readWord(locations['item'] + 32))
+        demon.drops = Item_Drops(itemDrop1, itemDrop2, itemDrop3)
+        demon.innate = Translated_Value(enemyData.readWord(locations['innate']), self.obtainSkillFromID(enemyData.readWord(locations['innate'])).name)
+        demon.resist.physical = Translated_Value(enemyData.readWord(locations['innate'] + 4),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4)))
+        demon.resist.fire = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 2),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 2)))
+        demon.resist.ice = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 3),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 3)))
+        demon.resist.electric = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 4),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 4)))
+        demon.resist.force = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 5),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 5)))
+        demon.resist.light = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 6),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 6)))
+        demon.resist.dark = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 7),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 7)))
+        demon.resist.almighty = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 8),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 8)))
+        demon.resist.poison = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 9),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 9)))
+        demon.resist.confusion = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 11),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 11)))
+        demon.resist.charm = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 12),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 12)))
+        demon.resist.sleep = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 13),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 13)))
+        demon.resist.seal = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 14),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 14)))
+        demon.resist.mirage = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 21),
+                                                    translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 21)))
+        demon.potential.physical = enemyData.readWord(locations['potential'])
+        demon.potential.fire = enemyData.readWord(locations['potential'] + 4 * 1)
+        demon.potential.ice = enemyData.readWord(locations['potential'] + 4 * 2)
+        demon.potential.elec = enemyData.readWord(locations['potential'] + 4 * 3)
+        demon.potential.force = enemyData.readWord(locations['potential'] + 4 * 4)
+        demon.potential.light = enemyData.readWord(locations['potential'] + 4 * 5)
+        demon.potential.dark = enemyData.readWord(locations['potential'] + 4 * 6)
+        demon.potential.almighty = enemyData.readWord(locations['potential'] + 4 * 7)
+        demon.potential.ailment = enemyData.readWord(locations['potential'] + 4 * 8)
+        demon.potential.recover = enemyData.readWord(locations['potential'] + 4 * 10)
+        demon.potential.support = enemyData.readWord(locations['potential'] + 4 * 9)
+        return demon
+            
     '''
     Fills the array playerBossArr with data extracted from the Buffer NKMBaseTable.
     The end array contains data on the playable data of all demons who are normally enemy only.
@@ -697,119 +728,11 @@ class Randomizer:
             NKMBaseTable (Table): the buffer to get the demon data from
     '''
     def fillPlayerBossArr(self, NKMBaseTable):
-
-        startValue = 0x69
-        raceOffset = 0x0C
-        demonOffset = 0x1D0
-
         for index in range(numbers.NORMAL_ENEMY_COUNT): #Dummy data for playable demons to match id's better
             self.playerBossArr.append(Compendium_Demon())
-
         #For all demons in the compendium...
         for index in range(numbers.NORMAL_ENEMY_COUNT, 1200):
-            #First define all relevant offsets
-            offset = startValue + demonOffset * index
-            locations = {
-                'race': offset - raceOffset,
-                'alignment': offset - raceOffset + 7,
-                'nameID': offset - 0x10,
-                'level': offset,
-                'HP': offset + 0x1C,
-                'firstSkill': offset + 0x70,
-                'firstLearnedLevel': offset + 0xA0,
-                'fusability': offset + 0x56,
-                'unlockFlags': offset + 0x60,
-                'tone': offset + 0x58,
-                'innate': offset + 0x100,
-                'potential': offset + 0X174,
-                'encounterSpawn': offset + 0x1CA
-            }
-            #Then read the list of initial skills learned
-            listOfSkills = []
-            for i in range(8):
-                skillID = NKMBaseTable.readWord(locations['firstSkill'] + 4 * i)
-                if skillID != 0:
-                    listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))
-            #Read the list of learnable skills 
-            listOfLearnedSkills = []
-            for i in range(8):
-                #print(locations['firstLearnedLevel'])
-                skillID = NKMBaseTable.readWord(locations['firstLearnedLevel'] + 8 * i + 4)
-                if skillID != 0:
-                    listOfLearnedSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames),
-                                                                level=NKMBaseTable.readWord(locations['firstLearnedLevel'] + 8 * i)))
-            demon = Compendium_Demon()
-            demon.ind = index
-            demon.nameID = NKMBaseTable.readWord(locations['nameID'])
-            if demon.nameID == 58 and index != 58:
-                # Placeholder Jack Frosts
-                demon.name = "NOT USED"
-            else:
-                demon.name = self.enemyNames[demon.nameID]
-            demon.offsetNumbers = locations
-            demon.race = Translated_Value(NKMBaseTable.readByte(locations['race']), RACE_ARRAY[NKMBaseTable.readByte(locations['race'])])
-            demon.alignment = NKMBaseTable.readByte(locations['alignment'] +1)
-            demon.tendency = NKMBaseTable.readByte(locations['alignment'])
-            demon.level = Demon_Level(NKMBaseTable.readWord(locations['level']), NKMBaseTable.readWord(locations['level']))
-            demon.registerable = NKMBaseTable.readWord(locations['HP'] - 4)
-            demon.fusability = NKMBaseTable.readHalfword(locations['fusability'])
-            demon.unlockFlags = [NKMBaseTable.readByte(locations['unlockFlags']), NKMBaseTable.readByte(locations['unlockFlags'] + 1)]
-            demon.tone = Translated_Value(NKMBaseTable.readByte(locations['tone']), '', secondary=NKMBaseTable.readByte(locations['tone'] + 1))
-            demon.resist.physical = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4)))
-            demon.resist.fire = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 2),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 2)))
-            demon.resist.ice = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 3),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 3)))
-            demon.resist.electric = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 4),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 4)))
-            demon.resist.force = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 5),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 5)))
-            demon.resist.light = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 6),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 6)))
-            demon.resist.dark = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 7),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 7)))
-            demon.resist.almighty = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 8),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 8)))
-            demon.resist.poison = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 9),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 9)))
-            demon.resist.confusion = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 11),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 11)))
-            demon.resist.charm = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 12),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 12)))
-            demon.resist.sleep = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 13),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 13)))
-            demon.resist.seal = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 14),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 14)))
-            demon.resist.mirage = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 21),
-                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 21)))
-            demon.potential.physical = NKMBaseTable.readWord(locations['potential'])
-            demon.potential.fire = NKMBaseTable.readWord(locations['potential'] + 4 * 1)
-            demon.potential.ice = NKMBaseTable.readWord(locations['potential'] + 4 * 2)
-            demon.potential.elec = NKMBaseTable.readWord(locations['potential'] + 4 * 3)
-            demon.potential.force = NKMBaseTable.readWord(locations['potential'] + 4 * 4)
-            demon.potential.light = NKMBaseTable.readWord(locations['potential'] + 4 * 5)
-            demon.potential.dark = NKMBaseTable.readWord(locations['potential'] + 4 * 6)
-            demon.potential.almighty = NKMBaseTable.readWord(locations['potential'] + 4 * 7)
-            demon.potential.ailment = NKMBaseTable.readWord(locations['potential'] + 4 * 8)
-            demon.potential.recover = NKMBaseTable.readWord(locations['potential'] + 4 * 10)
-            demon.potential.support = NKMBaseTable.readWord(locations['potential'] + 4 * 9)
-            demonHP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 0), NKMBaseTable.readWord(locations['HP'] + 4 * 2), NKMBaseTable.readWord(locations['HP'] + 4 * 0))
-            demonMP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 1), NKMBaseTable.readWord(locations['HP'] + 4 * 3),  NKMBaseTable.readWord(locations['HP'] + 4 * 1))
-            demonStr = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 4), NKMBaseTable.readWord(locations['HP'] + 4 * 9),  NKMBaseTable.readWord(locations['HP'] + 4 * 4))
-            demonVit = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 5), NKMBaseTable.readWord(locations['HP'] + 4 * 10),  NKMBaseTable.readWord(locations['HP'] + 4 * 5))
-            demonMag = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 6), NKMBaseTable.readWord(locations['HP'] + 4 * 11),  NKMBaseTable.readWord(locations['HP'] + 4 * 6))
-            demonAgi = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 7), NKMBaseTable.readWord(locations['HP'] + 4 * 12),  NKMBaseTable.readWord(locations['HP'] + 4 * 7))
-            demonLuk = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 8), NKMBaseTable.readWord(locations['HP'] + 4 * 13),  NKMBaseTable.readWord(locations['HP'] + 4 * 8))
-            demon.stats = Stats(demonHP, demonMP, demonStr, demonVit, demonMag, demonAgi, demonLuk)
-            demon.innate = Translated_Value(NKMBaseTable.readWord(locations['innate']),
-                                            translation.translateSkillID(NKMBaseTable.readWord(locations['innate']), self.skillNames))
-            demon.skills = listOfSkills
-            demon.learnedSkills = listOfLearnedSkills
-            demon.creationSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'])
-            demon.creationSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 4)
-            demon.vengeanceSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 8)
-            demon.vengeanceSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 12)
+            demon = self.createCompendiumDemon(NKMBaseTable, index, True)
             #Add read demon data to compendium
             self.playerBossArr.append(demon)
 
@@ -819,104 +742,12 @@ class Randomizer:
             enemyData (Table): the buffer to get the enemy data from 
     '''
     def fillBossArr(self, enemyData):
-
-        startValue = 0x88139
-        enemyOffset = 0x170
-        
         for index in range(numbers.NORMAL_ENEMY_COUNT): #Dummy data for playable demons to match id's better
             self.bossArr.append(Enemy_Demon())
             self.staticBossArr.append(Enemy_Demon())
-
         #For all Enemy version of playable demon indeces
         for index in range(numbers.NORMAL_ENEMY_COUNT, 1200):
-            #First define all relevant offsets
-            offset = startValue + enemyOffset * index
-            locations = {
-                'level': offset,
-                'nameID': 0x69 + 0x1D0*index - 0x10,
-                'HP': offset + 4,
-                'pressTurns': offset + 0x2B,
-                'experience': offset + 0x44,
-                'item': offset + 0x64,
-                'firstSkill': offset + 0x88,
-                'innate': offset + 0xB8,
-                'resist': offset + 0xBB,
-                'potential': offset + 0x12C
-            }
-        
-            listOfSkills = []
-            for i in range(8):
-                skillID = enemyData.readWord(locations['firstSkill'] + 4 * i)
-                if skillID != 0:
-                    listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))       
-            demon = Enemy_Demon()
-            demon.ind = index
-            demon.nameID = enemyData.readWord(locations['nameID'])
-            if demon.nameID == 58 and (index != 58 and index!= 941):
-                # Placeholder Jack Frosts
-                demon.name = "NOT USED"
-            else:
-                demon.name = self.compendiumNames[demon.nameID]
-            demon.offsetNumbers = locations
-            demon.level = enemyData.readWord(locations['level'])
-            demon.stats = Stats(enemyData.readWord(locations['HP']), enemyData.readWord(locations['HP'] + 4), enemyData.readWord(locations['HP'] + 8),
-                                    enemyData.readWord(locations['HP'] + 12), enemyData.readWord(locations['HP'] + 16),
-                                    enemyData.readWord(locations['HP'] + 20), enemyData.readWord(locations['HP'] + 24)) #HP, MP, str, vit, mag, agi, luk
-            demon.analyze = enemyData.readByte(locations['HP'] + 28)
-            demon.levelDMGCorrection = enemyData.readByte(locations['HP'] + 30)
-            demon.AI = enemyData.readWord(locations['experience'] + 12) #55 for normal encounters
-            demon.recruitable = enemyData.readByte(locations['HP'] + 33)
-            demon.pressTurns = enemyData.readByte(locations['pressTurns'])
-            demon.experience = enemyData.readWord(locations['experience'])
-            demon.money = enemyData.readWord(locations['experience'] + 4)
-            demon.skills = listOfSkills
-            itemDrop1 = Item_Drop(enemyData.readWord(locations['item']), translation.translateItem(enemyData.readWord(locations['item']),self.itemNames),
-                                                      enemyData.readWord(locations['item'] + 4), enemyData.readWord(locations['item'] + 8))
-            itemDrop3 = Item_Drop(enemyData.readWord(locations['item'] + 12), translation.translateItem(enemyData.readWord(locations['item'] + 12),self.itemNames),
-                                                      enemyData.readWord(locations['item'] + 16), enemyData.readWord(locations['item'] + 20))
-            itemDrop2 = Item_Drop(enemyData.readWord(locations['item'] + 24), translation.translateItem(enemyData.readWord(locations['item'] + 24),self.itemNames),
-                                                      enemyData.readWord(locations['item'] + 28), enemyData.readWord(locations['item'] + 32))
-            demon.drops = Item_Drops(itemDrop1, itemDrop2, itemDrop3)
-            demon.innate = Translated_Value(enemyData.readWord(locations['innate']), self.obtainSkillFromID(enemyData.readWord(locations['innate'])).name)
-            demon.resist.physical = Translated_Value(enemyData.readWord(locations['innate'] + 4),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4)))
-            demon.resist.fire = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 2),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 2)))
-            demon.resist.ice = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 3),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 3)))
-            demon.resist.electric = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 4),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 4)))
-            demon.resist.force = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 5),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 5)))
-            demon.resist.light = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 6),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 6)))
-            demon.resist.dark = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 7),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 7)))
-            demon.resist.almighty = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 8),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 8)))
-            demon.resist.poison = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 9),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 9)))
-            demon.resist.confusion = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 11),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 11)))
-            demon.resist.charm = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 12),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 12)))
-            demon.resist.sleep = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 13),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 13)))
-            demon.resist.seal = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 14),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 14)))
-            demon.resist.mirage = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 21),
-                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 21)))
-            demon.potential.physical = enemyData.readWord(locations['potential'])
-            demon.potential.fire = enemyData.readWord(locations['potential'] + 4 * 1)
-            demon.potential.ice = enemyData.readWord(locations['potential'] + 4 * 2)
-            demon.potential.elec = enemyData.readWord(locations['potential'] + 4 * 3)
-            demon.potential.force = enemyData.readWord(locations['potential'] + 4 * 4)
-            demon.potential.light = enemyData.readWord(locations['potential'] + 4 * 5)
-            demon.potential.dark = enemyData.readWord(locations['potential'] + 4 * 6)
-            demon.potential.almighty = enemyData.readWord(locations['potential'] + 4 * 7)
-            demon.potential.ailment = enemyData.readWord(locations['potential'] + 4 * 8)
-            demon.potential.recover = enemyData.readWord(locations['potential'] + 4 * 10)
-            demon.potential.support = enemyData.readWord(locations['potential'] + 4 * 9)
+            demon = self.createEnemyDemon(enemyData, index)
             self.bossArr.append(demon)
             self.staticBossArr.append(copy.deepcopy(demon))
             
@@ -1228,6 +1059,7 @@ class Randomizer:
             mission.reward.amount = data.readHalfword(locations['rewardAmount'])
             mission.reward.ind = data.readHalfword(locations['rewardID'])
             mission.macca = data.readWord(locations['rewardMacca'])
+            mission.experience = data.readWord(locations['rewardMacca'] + 4)
             for i in range(4):
                 cType = data.readWord(locations['conditions'] + 0x10 * i)
                 cID = data.readWord(locations['conditions'] + 0x10 * i + 4)
@@ -1420,11 +1252,11 @@ class Randomizer:
         start = 0x59
         size = 0x14
         
-        self.miracleArr.append(Miracle(0, 0)) #Dummy miracle to better align with abscess indexing
+        self.miracleArr.append(Miracle(0, 0, 0)) #Dummy miracle to better align with abscess indexing
 
         for index in range(144):
             offset = start + size * index
-            miracle = Miracle(offset, data.readHalfword(offset + 0xc))
+            miracle = Miracle(offset, data.readHalfword(offset + 0xc), data.readByte(offset + 0x4))
             self.miracleArr.append(miracle)
             
     '''
@@ -1502,6 +1334,24 @@ class Randomizer:
             chest.macca = chests.readWord(locations['macca'])
             self.chestArr.append(chest)
 
+    '''
+    Fills the list consumableArr with data about consumable items.
+        Parameters:
+            items (Table): buffer containing item data
+    '''
+    def fillConsumableArr(self, items):
+        start = 0x55
+        size = 100
+
+        self.consumableArr.append(Consumable_Item())#Dummy Item
+
+        for index in range(numbers.CONSUMABLE_ITEM_COUNT):
+            item = Consumable_Item()
+            item.ind = index +1
+            item.offset = start + size * index
+            item.name = self.itemNames[index +1]
+            item.buyPrice = items.readWord(item.offset + 0x5C)
+            self.consumableArr.append(item)
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
         Parameters:
@@ -1981,7 +1831,8 @@ class Randomizer:
             if assigning the skill to the demon follows the set unique skill inheritance rules
     '''
     def checkUniqueSkillConditions(self, skill, demon, comp, settings):
-        if settings.multipleUniques:
+        lunationCondition = (skill.ind == numbers.LUNATION_FLUX_ID) and settings.restrictLunationFlux
+        if settings.multipleUniques and not lunationCondition:
         # Unique skill can appear twice
             # check if skill is unique skill
             if skill.owner.ind == 0:
@@ -2007,11 +1858,11 @@ class Randomizer:
             if skill.owner.ind == 0:
                 # Skill is not unique
                 return True
-            if settings.freeInheritance:
+            if settings.freeInheritance and not lunationCondition:
                 # if unique skills should be freely inheritable
                 skill.owner.ind = 0
                 skill.owner.name = comp[0].name
-            elif settings.randomInheritance:
+            elif settings.randomInheritance or (settings.freeInheritance and lunationCondition):
                 # if unique skills should be randomly reassigned
                 if demon.ind in numbers.PROTOFIEND_IDS:
                     skill.owner.ind = -1
@@ -2372,6 +2223,7 @@ class Randomizer:
             buffer.writeWord(demon.creationSpawn.zoneNameID,demon.offsetNumbers['encounterSpawn'] +4)
             buffer.writeWord(demon.vengeanceSpawn.mapNameID,demon.offsetNumbers['encounterSpawn'] +8)
             buffer.writeWord(demon.vengeanceSpawn.zoneNameID,demon.offsetNumbers['encounterSpawn'] +12)
+            buffer.writeWord(demon.compCostModifier,demon.offsetNumbers['firstSkill'] -12)
             #write potentials
             buffer.writeWord(demon.potential.physical, demon.offsetNumbers['potential'] + 4 * 0)
             buffer.writeWord(demon.potential.fire, demon.offsetNumbers['potential'] + 4 * 1)
@@ -2441,6 +2293,7 @@ class Randomizer:
 
             buffer.writeWord(foe.level, offsets['level'])
             buffer.writeByte(foe.pressTurns, offsets['pressTurns'])
+            buffer.writeWord(foe.damageMultiplier, offsets['pressTurns'] + 9)
             for index, skill in enumerate(foe.skills):
                 buffer.writeWord(skill.ind, offsets['firstSkill'] + 4 * index)
             buffer.writeWord(foe.experience, offsets['experience'])
@@ -2449,6 +2302,7 @@ class Randomizer:
             buffer.writeByte(foe.recruitable, offsets['HP'] + 33)
             buffer.writeByte(foe.levelDMGCorrection, offsets['HP'] + 30)
             buffer.writeWord(foe.innate.value, offsets['innate'])
+            buffer.writeByte(foe.instakillRate, offsets['item'] - 1)
 
             #write item drops
             buffer.writeWord(foe.drops.item1.value, offsets['item'])
@@ -2537,6 +2391,19 @@ class Randomizer:
         return buffer
 
     '''
+    Writes the values from the consumable items to their respective locations in the table buffer
+        Parameters:        
+            buffer (Table)
+            consumables (Array) 
+    '''
+    def updateConsumableData(self, buffer, consumables):
+        for index, item in enumerate(consumables):
+            if index == 0:
+                continue #skip dummy item
+            buffer.writeWord(item.buyPrice, item.offset + 0x5C)
+        return buffer
+
+    '''
     Writes the values from the shop entries to their respective locations in the table buffer
         Parameters:        
             buffer (Table)
@@ -2549,7 +2416,7 @@ class Randomizer:
         for reward in mimans:
             buffer.writeWord(reward.miman,reward.offset)
             for index, item in enumerate(reward.items):
-                buffer.writeHalfword(item.item, reward.offset + 8 + 4*index)
+                buffer.writeHalfword(item.ind, reward.offset + 8 + 4*index)
                 buffer.writeHalfword(item.amount, reward.offset + 10 + 4*index)
         return buffer
 
@@ -2705,6 +2572,7 @@ class Randomizer:
             buffer.writeHalfword(mission.reward.amount, mission.offsets['rewardAmount'])
             buffer.writeHalfword(mission.reward.ind, mission.offsets['rewardID'])
             buffer.writeWord(mission.macca, mission.offsets['rewardMacca'])
+            buffer.writeWord(mission.experience, mission.offsets['rewardMacca'] + 4)
             for i in range(4):
                 buffer.writeWord(mission.conditions[i].type, mission.offsets['conditions'] + 0x10 * i)
                 buffer.writeWord(mission.conditions[i].ind, mission.offsets['conditions'] + 0x10 * i + 4)
@@ -2724,6 +2592,8 @@ class Randomizer:
                 continue
             buffer.writeWord(skill.owner.ind, skill.offsetNumber['owner'])
             buffer.write32chars(skill.animation, skill.offsetNumber['animation'])
+            buffer.writeWord(skill.healing.flag, skill.offsetNumber['resistEnable'] + 8)
+            buffer.writeByte(skill.healing.percent, skill.offsetNumber['resistEnable'] + 12)
 
 
         for skill in passiveSkills:
@@ -2787,7 +2657,8 @@ class Randomizer:
     '''
     def updateMiracleBuffer(self, buffer):
         for miracle in self.miracleArr:
-            if miracle.offsetNumber > 0: #Ignore Dummy miracle
+            if miracle.offsetNumber > 0: #Ignore Dummy miracle\
+                buffer.writeByte(miracle.prerequisite, miracle.offsetNumber + 0x4)
                 buffer.writeHalfword(miracle.cost, miracle.offsetNumber + 0xc)
         return buffer
     
@@ -2995,14 +2866,14 @@ class Randomizer:
                 elif demon2Race == 15:
                     #determine direction based on race of first demon ingredient
                     direction = 0
-                    if demon1.ind == self.elementals[3]:
-                        direction = erthys[demon2Race]
-                    elif demon1.ind == self.elementals[2]:
-                            direction = aeros[demon2Race]
-                    elif demon1.ind == self.elementals[1]:
-                            direction = aquans[demon2Race]
-                    elif demon1.ind == self.elementals[0]:
-                            direction = flaemis[demon2Race]
+                    if demon2.ind == self.elementals[3]:
+                        direction = erthys[demon1Race]
+                    elif demon2.ind == self.elementals[2]:
+                            direction = aeros[demon1Race]
+                    elif demon2.ind == self.elementals[1]:
+                            direction = aquans[demon1Race]
+                    elif demon2.ind == self.elementals[0]:
+                            direction = flaemis[demon1Race]
                     foundResult = False
                     searchTable = raceTable[demon1Race]
                     if direction > 0:
@@ -3070,6 +2941,10 @@ class Randomizer:
     Returns: the ids of the 4 new demons of the Element race
     '''
     def randomizeRaces(self, comp):
+
+        for demonInd in self.elementals:
+            #Reset compendium costs for original elements
+            comp[demonInd].compCostModifier = 100
         
         relevantDemons = [demon for demon in comp if demon.ind not in numbers.BAD_IDS and "Mitama" not in demon.name and not demon.name.startswith('NOT') ]
 
@@ -3101,6 +2976,7 @@ class Randomizer:
             demon = random.choice(relevantDemons)
             relevantDemons.remove(demon)
             demon.race = Translated_Value(15, "Element")
+            demon.compCostModifier = 1000
             raceAssignments[15] += 1
             demonInds.append(demon.ind)
             elementals.append(demon.ind)
@@ -3148,6 +3024,10 @@ class Randomizer:
     '''
     def randomizeRacesFixedLevels(self, comp):
 
+        for demonInd in self.elementals:
+            #Reset compendium costs for original elements
+            comp[demonInd].compCostModifier = 100
+
         relevantDemons = [demon for demon in comp if demon.ind not in numbers.BAD_IDS and "Mitama" not in demon.name and not demon.name.startswith('NOT') ]
         specialFusions = [demon.ind for demon in comp if demon.fusability > 256] #List of demon ids that are fused as a special fusion
 
@@ -3181,6 +3061,7 @@ class Randomizer:
             demon = random.choice(demonsAtLevel)
             relevantDemons.remove(demon)
             demon.race = Translated_Value(15, "Element")
+            demon.compCostModifier = 1000
             raceAssignments[15] += 1
             demonInds.append(demon.ind)
             elementals.append(demon.ind)
@@ -3364,6 +3245,8 @@ class Randomizer:
     def assignTalkableTones(self, comp):
         workingTones = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19]
         for demon in comp:
+            if 'Mitama' in demon.name or demon.ind in numbers.BAD_IDS:
+                continue
             if demon.tone.value not in workingTones:
                 if demon.ind in numbers.DEMON_HAUNT_QUESTGIVER_IDS:
                     demon.tone.value = 1 #Force a tone that functions in demon haunts, currently I only know tone 15 (Loup Garou) is broken
@@ -3444,9 +3327,11 @@ class Randomizer:
             newFoe.AI = 55                       #AI for random encounters
             newFoe.recruitable = 1               #Also required to be able to recruit the demon
             newFoe.pressTurns = newPressTurns
+            newFoe.damageMultiplier = 100
             newFoe.experience = newExperience
             newFoe.money = newMacca
             newFoe.skills = newSkills
+            newFoe.instakillRate = enemy.instakillRate
             newFoe.drops = newDrops
             newFoe.oldDrops = enemy.drops
             newFoe.innate = playableEqu.innate   #copy innate from player version
@@ -3574,14 +3459,21 @@ class Randomizer:
 
             newSymbolArr.append(replaceEnc)
 
+        replacementDict = {}
+        with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
+            for pair in replacements:
+                spoilerLog.write(self.enemyNames[pair[0]] + " replaced by " + self.enemyNames[pair[1]] + "\n")
+                replacementDict[pair[0]] = pair[1]
+
         self.adjustBasicEnemyStats(replacements, enemyArr)
         self.adjustBasicEnemyDrops(replacements, enemyArr)
         self.adjustListedLocations(replacements, comp)
         self.missionArr = self.adjustMissionsRequiringNormalDemons(replacements,enemyArr, self.missionArr)
 
-        with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
-            for pair in replacements:
-                spoilerLog.write(self.enemyNames[pair[0]] + " replaced by " + self.enemyNames[pair[1]] + "\n")
+        #Currently does not work yet
+        #scriptLogic.replaceTutorialPixieModel(replacementDict[59])
+        #scriptLogic.replaceTutorialPixieModel(82)
+        
         return newSymbolArr
     
     '''
@@ -3682,7 +3574,7 @@ class Randomizer:
                     spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     
-                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind)
+                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings.scaleBossPressTurnsToCheck, self.configSettings.scaleBossInstakillRates)
                     #print("Old hp " + str(self.staticBossArr[encounter.demons[0]].stats.HP) + " of " + self.enemyNames[encounter.demons[0]] + " now is "  +
                     #      self.enemyNames[shuffledEncounters[index].demons[0]] + " with " + str(self.bossArr[shuffledEncounters[index].demons[0]].stats.HP) + " HP")
                     self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
@@ -3745,6 +3637,9 @@ class Randomizer:
                 encounterToUpdate.eventEncounter.endEarlyFlag = referenceEncounter.eventEncounter.endEarlyFlag
                 if not self.configSettings.checkBasedMusic and not self.configSettings.randomMusic:
                     encounterToUpdate.eventEncounter.track = referenceEncounter.eventEncounter.track
+                if self.configSettings.bossDependentAmbush:
+                    if encounterToUpdate.eventEncounter.startingPhase != Ambush_Type.FIELD and referenceEncounter.eventEncounter.startingPhase != Ambush_Type.FIELD and encounterToUpdate.eventEncounter.startingPhase != Ambush_Type.UNKNOWN and referenceEncounter.eventEncounter.startingPhase != Ambush_Type.UNKNOWN:
+                        encounterToUpdate.eventEncounter.startingPhase = referenceEncounter.eventEncounter.startingPhase
             else:
                 # only the encounter to adjust is event encounter
                 encounterToUpdate.demons = referenceEncounter.demons + [0, 0]
@@ -3753,6 +3648,8 @@ class Randomizer:
                 encounterToUpdate.eventEncounter.positions.addDemons = referenceEncounter.normalEncounter.positions.addDemons
                 encounterToUpdate.eventEncounter.unknownDemon = Translated_Value(referenceEncounter.demons[0], self.enemyNames[referenceEncounter.demons[0]])
                 encounterToUpdate.eventEncounter.endEarlyFlag = 0
+                if self.configSettings.bossDependentAmbush and encounterToUpdate.eventEncounter.startingPhase != Ambush_Type.FIELD and encounterToUpdate.eventEncounter.startingPhase != Ambush_Type.UNKNOWN:
+                    encounterToUpdate.eventEncounter.startingPhase = Ambush_Type.PLAYER
             encounterToUpdate.eventEncounter.track = encounterToUpdate.track
             encounterToUpdate.eventEncounter.demons = [Translated_Value(demon, self.enemyNames[demon]) for demon in encounterToUpdate.demons]
         else:
@@ -3766,6 +3663,8 @@ class Randomizer:
                     encounterToUpdate.eventEncounter.positions.demons = referenceEncounter.eventEncounter.positions.demons
                     encounterToUpdate.eventEncounter.positions.addDemons = referenceEncounter.eventEncounter.positions.addDemons
                     encounterToUpdate.eventEncounter.endEarlyFlag = referenceEncounter.eventEncounter.endEarlyFlag
+                    if self.configSettings.bossDependentAmbush and encounterToUpdate.eventEncounter.startingPhase != Ambush_Type.FIELD and referenceEncounter.eventEncounter.startingPhase != Ambush_Type.FIELD and encounterToUpdate.eventEncounter.startingPhase != Ambush_Type.UNKNOWN and referenceEncounter.eventEncounter.startingPhase != Ambush_Type.UNKNOWN:
+                        encounterToUpdate.eventEncounter.startingPhase = Ambush_Type.PLAYER
                 else:
                     # only the reference encounter is event encounter
                     encounterToUpdate.demons = referenceEncounter.demons[:6]
@@ -3853,6 +3752,9 @@ class Randomizer:
         rewardCounts = []
         duplicateAbscesses = {}
         abscessMiracleList = []
+        bannedMiracles = [0]
+        if self.configSettings.vanillaRankViolation:
+            bannedMiracles.append(numbers.RANK_VIOLATION_ID)
         vanillaAbscessArr = copy.deepcopy(self.abscessArr)
         for ind, abscess in enumerate(self.abscessArr): #First gather all the miracles in a list and the number of miracles each abscess gives
             if abscess.miracles in abscessMiracleList:
@@ -3862,7 +3764,7 @@ class Randomizer:
                 continue
             rewardCount = 0
             for miracle in abscess.miracles:
-                if miracle > 0:
+                if miracle > 0 and miracle not in bannedMiracles:
                     rewardCount += 1
                     miracleList.append(miracle)
             rewardCounts.append(rewardCount)
@@ -3870,10 +3772,7 @@ class Randomizer:
         for miracle in numbers.STARTING_MIRACLES:
             miracleList.append(miracle)
         newStartingMiracles = []
-        for miracle in numbers.REQUIRED_EARLY_MIRACLES: #For now, force 'important' miracles to be in the starting list
-            if len(newStartingMiracles) >= len(numbers.STARTING_MIRACLES):
-                print("Warning: More early miracles defined than can be starting miracles")
-                break
+        for miracle in self.configSettings.forcedEarlyMiracles: #For now, force 'important' miracles to be in the starting list
             newStartingMiracles.append(miracle)
             miracleList.remove(miracle)
         shuffledMiracles = sorted(miracleList, key=lambda x: random.random())
@@ -3897,6 +3796,9 @@ class Randomizer:
                 shuffledMiracles[largeIndex] = dependentMiracles[smallIndex]
         while len(newStartingMiracles) < len(numbers.STARTING_MIRACLES): #Create the starting miracle list after sorting dependant miracles
             newStartingMiracles.append(shuffledMiracles.pop(0))
+        while len(newStartingMiracles) > len(numbers.STARTING_MIRACLES): #If too many forced early miracles than can be starting, add to the first abscess
+            random.shuffle(newStartingMiracles)
+            shuffledMiracles.insert(0, newStartingMiracles.pop(0))
 
         #Add a deepcopy if we add a dedicated miracle class
         abscessIndex = 0
@@ -3905,6 +3807,8 @@ class Randomizer:
             while rewardCounts[abscessIndex] == 0:
                 abscessIndex += 1
                 miracleIndex = 0
+            while self.abscessArr[abscessIndex].miracles[miracleIndex] in bannedMiracles: #Future proofing if we ban miracles other than rank violation
+                miracleIndex += 1
             rewardCounts[abscessIndex] = rewardCounts[abscessIndex] - 1
             self.abscessArr[abscessIndex].miracles[miracleIndex] = miracle
             miracleIndex += 1
@@ -3916,6 +3820,9 @@ class Randomizer:
             
         if self.configSettings.randomMiracleCosts:
             self.randomizeMiracleCosts(originalAbscessArr=vanillaAbscessArr, startingMiracles=newStartingMiracles)
+
+        #for abscess in self.abscessArr:
+        #    print(abscess.miracles)
             
     '''
     Randomizes the cost of miracles constrained by the highest miracle cost seen by this point in the game
@@ -3941,7 +3848,43 @@ class Randomizer:
             updatedAbscess = self.abscessArr[abscessIndex]
             for miracleIndex in updatedAbscess.miracles:
                 if miracleIndex > 0:
-                    self.miracleArr[miracleIndex].cost = random.randint(minimumCost, maximumCost) * 5 #Update abscess reward miracle costs
+                    if miracleIndex in numbers.DIVINE_GARRISON_IDS:
+                        self.miracleArr[miracleIndex].cost = random.randint(minimumCost, maximumCost // 2) * 5 #Make divine garrisons cheaper
+                    else:
+                        self.miracleArr[miracleIndex].cost = random.randint(minimumCost, maximumCost) * 5 #Update abscess reward miracle costs
+                        
+        for dependentMiracles in numbers.MIRACLE_DEPENDENCIES: #For progressive miracles put their costs in order
+            costs = []
+            for miracle in dependentMiracles:
+               costs.append(self.miracleArr[miracle].cost)
+            costs.sort()
+            for index, miracle in enumerate(dependentMiracles):
+               self.miracleArr[miracle].cost = costs[index]
+       
+    '''
+    Reverses the order of divine garrison miracles so you get the +3 stock ones first
+    '''
+    def reverseDivineGarrisons(self):
+        costs = []
+        abscessIndices = []
+        for miracle in numbers.DIVINE_GARRISON_IDS:
+            currIndices = []
+            costs.append(self.miracleArr[miracle].cost)
+            for outerIndex, abscess in enumerate(self.abscessArr):
+                for innerIndex, abscessMiracle in enumerate(abscess.miracles):
+                    if miracle == abscessMiracle:
+                        currIndices.append((outerIndex, innerIndex))
+            abscessIndices.append(currIndices)
+        costs.reverse()
+        abscessIndices.reverse()
+        for index, miracle in enumerate(numbers.DIVINE_GARRISON_IDS):
+            self.miracleArr[miracle].cost = costs[index]
+            if index == len(numbers.DIVINE_GARRISON_IDS) - 1:
+                self.miracleArr[miracle].prerequisite = 0
+            else:
+                self.miracleArr[miracle].prerequisite = numbers.DIVINE_GARRISON_IDS[index + 1]
+            for abscessIndex in abscessIndices[index]:
+                self.abscessArr[abscessIndex[0]].miracles[abscessIndex[1]] = miracle
             
 
     '''
@@ -4191,8 +4134,8 @@ class Randomizer:
             scaling (Boolean): whether the item should be scaled to the area where they unlock
     '''
     def randomizeShopItems(self, scaling):
-        dampeners = [63,64,65,66,67,68] #Elemental Dampeners stay the same
-        itemsInShop = [] + dampeners
+        dampeners = [55, 63,64,65,66,67,68] #Spyglass(gets replaced seperately) + Elemental Dampeners stay the same
+        itemsInShop = [113] + dampeners #New Testatement Tablet(gets added speerately)
         validItems = []
 
         if scaling: #Scale Rewards per map
@@ -4213,7 +4156,8 @@ class Randomizer:
                         validItems[key].remove(item)
         else:
             for item in itemsInShop:
-                validItems.remove(item)
+                if item in validItems:
+                    validItems.remove(item)
 
         for index, entry in enumerate(self.shopArr):
             if entry.item.value in dampeners or "Essence" in entry.item.translation:
@@ -4232,14 +4176,30 @@ class Randomizer:
                         validItems[key].remove(itemID)
             else:
                 validItems.remove(itemID)
-            
+    
+    '''
+    Replaces Spyglass with New Testament Tablet in Shop.
+    '''
+    def replaceSpyglassInShop(self):
+        for entry in self.shopArr:
+            if entry.item.value == 55: #Spyglass
+                entry.item = Translated_Value(113, self.itemNames[113]) #New Testament Tablet
+        
+    '''
+    Adjusts prices of items to be more reasonable.
+    '''
+    def adjustItemPrices(self):
+        self.consumableArr[82].buyPrice = 80000 #Set shop price for gospel to same as grimoire
+        self.consumableArr[98].buyPrice = 500000 #Set battle sutra price to slightly higher than others instead of max
+        self.consumableArr[105].buyPrice = 500000 #Set destruction sutra price to slightly higher than others instead of max
+
             
     '''
     Randomizes the rewards for collecting Miman. Talismans are shuffled, and all else is replaced with a random number and amount of items.
         Parameters:
             scaling (Boolean): Whether the items are scaled per area
     '''
-    def randomizeMimanRewards(self, scaling):
+    def randomizeMimanRewards(self, scaling, keyItems):
         validItems = []
         validEssences = []
 
@@ -4272,8 +4232,11 @@ class Randomizer:
                 areaChoices = [61,62,63,60] #Minato, Shinagawa, Chiyoda(same rewards list as Shinjuku), Taito
                 rewardArea = areaChoices[index // 10] #10 miman rewards per area
             items = []
-            if reward.items[0].item >= numbers.KEY_ITEM_CUTOFF: #key items (talismans)
-                items.append(reward.items[0])
+            if reward.items[0].ind >= numbers.KEY_ITEM_CUTOFF and len(keyItems) > 0: #originally key items (talismans)
+                itemID = random.choice(keyItems)
+                items.append(Reward_Item(itemID,1))
+                keyItems.remove(itemID)
+                #items.append(reward.items[0])
             elif random.random() < numbers.MIMAN_ESSENCE_ODDS:
                 if scaling: 
                     itemID = random.choice(validEssences[rewardArea])
@@ -4308,9 +4271,8 @@ class Randomizer:
 
     '''
     Randomizes the rewards of all missions that usually have rewards. Reusable consumable items and key items are classified as unique rewards, and are shuffled around, while all other rewards are completely random.
-    TODO: Bonus Rewards in Scripts?
     '''
-    def randomizeMissionRewards(self, scaling):
+    def randomizeMissionRewards(self, scaling, missionContainer):
         validItems = []
         validEssences = []
         
@@ -4319,8 +4281,14 @@ class Randomizer:
             validEssences = {}
             for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
                 validItems[key] = value #Item list is defined per area
+
+            rewardAreaMissions = copy.deepcopy(numbers.REWARD_AREA_MISSIONS)
+            for key, value in scriptLogic.EXTRA_MISSION_REWARD_AREAS.items():
+                #Add items from script rewards to dictionary
+                rewardAreaMissions[key] = rewardAreaMissions[key] + value
+            
             missionRewardAreas = {} #Dictionary to know which area should be used to scale the a missions reward
-            for key, value in numbers.REWARD_AREA_MISSIONS.items():
+            for key, value in rewardAreaMissions.items():
                 for id in value:
                     missionRewardAreas[id] = key #Turn this into MissionID -> MapID, for easier use
                 validEssences[key] = []
@@ -4329,6 +4297,8 @@ class Randomizer:
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
                     if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[key] and itemName in currentDemonNames:
                         validEssences[key].append(itemID)
+
+
         else: #Rewards do not scale with map
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
                 if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
@@ -4336,20 +4306,12 @@ class Randomizer:
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
 
-        rewardingMissions = []
-        uniqueRewards = []
-        creationRewards = []
-        vengeanceRewards = []
-        for mission in self.missionArr:
-            if (mission.macca > 0 or mission.reward.ind > 0) and not any(mission.ind in duplicates for duplicates in numbers.MISSION_DUPLICATES.values()) and mission.ind not in numbers.BANNED_MISSIONS:
-                rewardingMissions.append(mission) #find missions with rewards that are not banned or a duplicate
-                if mission.reward.ind > numbers.KEY_ITEM_CUTOFF or mission.reward.ind in numbers.BANNED_ITEMS:
-                    if mission.ind not in numbers.CREATION_EXCLUSIVE_KEY_REWARDS and mission.ind not in numbers.VENGEANCE_EXCLUSIVE_KEY_REWARDS:
-                        uniqueRewards.append(copy.deepcopy(mission.reward)) #add key items or reusable consumables to unique rewards
-                    elif mission.ind in numbers.CREATION_EXCLUSIVE_KEY_REWARDS:
-                        creationRewards.append(copy.deepcopy(mission.reward))
-                    else:
-                        vengeanceRewards.append(copy.deepcopy(mission.reward))
+        
+        rewardingMissions = missionContainer.rewardingMissions
+        uniqueRewards = missionContainer.uniqueRewards
+        creationRewards = missionContainer.creationRewards
+        vengeanceRewards = missionContainer.vengeanceRewards
+
         
         validCreationMissions = list(filter(lambda mission: mission.ind in numbers.CREATION_EXLUSIVE_MISSIONS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind not in numbers.MUTUALLY_EXCLUSIVE_MISSIONS ,rewardingMissions))
         creationRewardMissions = random.sample(validCreationMissions, len(creationRewards))
@@ -4374,7 +4336,7 @@ class Randomizer:
         for mission in rewardingMissions:
             if scaling: #Set area if reward should scale
                 rewardArea = missionRewardAreas[mission.ind]
-            if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.REPEAT_MISSIONS: #repeat missions should not have macca
+            if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind >= 0: #repeat missions should not have macca
                 if scaling: #Scaled macca ranges depend on area
                     macca = random.randint(numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][0] // 100, numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][1] // 100) *100
                 else:
@@ -4408,9 +4370,204 @@ class Randomizer:
                 mission.macca = 0
         for missionID, duplicateIDs in numbers.MISSION_DUPLICATES.items(): #set rewards of duplicates to be the same as the one they duplicate
             for duplicateID in duplicateIDs:
-                self.missionArr[duplicateID].reward.ind = self.missionArr[missionID].reward.ind
-                self.missionArr[duplicateID].reward.amount = self.missionArr[missionID].reward.amount
-                self.missionArr[duplicateID].macca = self.missionArr[missionID].macca
+                if missionID < 0 or duplicateID < 0: #if mission or duplicate are fake missions
+                    missionFound = False
+                    duplicateFound = False
+                    for index, mission in enumerate(self.missionArr): #find their index in the mission array
+                        if missionFound and duplicateFound:
+                            break
+                        if mission.ind == missionID:
+                            correctMissionInd = index
+                            missionFound = True
+                        if duplicateID == mission.ind:
+                            correctDuplicateInd = index
+                            duplicateFound = True
+                    self.missionArr[correctDuplicateInd].reward.ind = self.missionArr[correctMissionInd].reward.ind
+                    self.missionArr[correctDuplicateInd].reward.amount = self.missionArr[correctMissionInd].reward.amount
+                    self.missionArr[correctDuplicateInd].macca = self.missionArr[correctMissionInd].macca
+                else:
+                    self.missionArr[duplicateID].reward.ind = self.missionArr[missionID].reward.ind
+                    self.missionArr[duplicateID].reward.amount = self.missionArr[missionID].reward.amount
+                    self.missionArr[duplicateID].macca = self.missionArr[missionID].macca
+    
+    '''
+    Intializes mission pools for missions that have rewards, unique item rewards and rewards unique to a specific route.
+    '''
+    def initializeMissionPools(self):
+        
+        rewardingMissions = []
+        uniqueRewards = []
+        creationRewards = []
+        vengeanceRewards = []
+        for mission in self.missionArr:
+            if (mission.macca > 0 or mission.reward.ind > 0) and not any(mission.ind in duplicates for duplicates in numbers.MISSION_DUPLICATES.values()) and mission.ind not in numbers.BANNED_MISSIONS:
+                rewardingMissions.append(mission) #find missions with rewards that are not banned or a duplicate
+                if mission.reward.ind > numbers.KEY_ITEM_CUTOFF or mission.reward.ind in numbers.BANNED_ITEMS:
+                    if mission.ind not in numbers.CREATION_EXCLUSIVE_KEY_REWARDS and mission.ind not in numbers.VENGEANCE_EXCLUSIVE_KEY_REWARDS:
+                        uniqueRewards.append(copy.deepcopy(mission.reward)) #add key items or reusable consumables to unique rewards
+                    elif mission.ind in numbers.CREATION_EXCLUSIVE_KEY_REWARDS:
+                        creationRewards.append(copy.deepcopy(mission.reward))
+                    else:
+                        vengeanceRewards.append(copy.deepcopy(mission.reward))
+
+        #Remove unwanted rewards
+        for reward in uniqueRewards:
+            if reward.ind in numbers.BANNED_KEY_REWARDS:
+                uniqueRewards.remove(reward)
+        
+        missionContainer = Mission_Container()
+        missionContainer.rewardingMissions = rewardingMissions
+        missionContainer.uniqueRewards = uniqueRewards
+        missionContainer.creationRewards = creationRewards
+        missionContainer.vengeanceRewards = vengeanceRewards
+        
+        return missionContainer
+    '''
+    Randomizes gift items using the pool to assign key items.
+        Parameters:
+            pool(Gift_Pool): Contains the pools of all gifts and the unique rewards to assign randomly
+    '''
+    def randomizeGiftItems(self, pool):
+        randomizedGifts = []
+        if not self.configSettings.combineKeyItemPools:#No combined pools means that exclusive items stay normal due to otherwise having not enough gift slots
+            unchangedGifts = list(filter(lambda gift: gift.script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS or gift.script  in scriptLogic.NEWGAMEPLUS_GIFTS, pool.allGifts))
+            for gift in unchangedGifts:
+                pool.uniqueRewards.remove(gift.reward)
+                randomizedGifts.append(gift)
+        #Filter out exclusive gifts that should not contain a unique item
+        possibleGifts = list(filter(lambda gift: gift.script not in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS and gift.script not in scriptLogic.NEWGAMEPLUS_GIFTS, pool.allGifts))
+        uniqueGifts = random.sample(possibleGifts, len(pool.uniqueRewards))
+        for gift in uniqueGifts:
+            reward = random.choice(pool.uniqueRewards)
+            gift.item = reward
+            pool.uniqueRewards.remove(reward)
+            randomizedGifts.append(gift)
+        
+        
+
+        
+        #Assemble possible rewards
+        if self.configSettings.scaleItemsToArea: #Rewards scale with map
+            validItems = {}
+            validEssences = {}
+            for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
+                validItems[key] = value #Item list is defined per area
+            
+            scriptToArea = scriptLogic.getGiftRewardAreas()
+            for area in scriptLogic.GIFT_AREAS.keys():
+                validEssences[area] = []
+                #Grab all essences in the predefined level range for the area
+                currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]]
+                for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[area] and itemName in currentDemonNames:
+                        validEssences[area].append(itemID)
+        else: #Rewards do not scale with map
+            validItems = []
+            validEssences = []
+            for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
+                    validEssences.append(itemID)
+                elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                    validItems.append(itemID)
+        
+        #get Gifts that did not receive a unique item
+        nonUniqueGifts = list(filter(lambda gift: gift not in randomizedGifts, pool.allGifts))
+        for gift in nonUniqueGifts:
+            if self.configSettings.scaleItemsToArea:#Set area to scale items after when necessary
+                rewardArea = scriptToArea[gift.script]
+            if random.random() < scriptLogic.GIFT_ESSENCE_ODDS:
+                if self.configSettings.scaleItemsToArea: #scaled essences depend on area
+                    itemID = random.choice(validEssences[rewardArea])
+                    for value in validEssences.values():
+                        if itemID in value: #remove essence from all applicable areas
+                            value.remove(itemID)
+                else:  
+                    itemID = random.choice(validEssences)
+                    validEssences.remove(itemID) #Limit 1 gift per essence for diversity
+                gift.item.ind = itemID
+            else:
+                if self.configSettings.scaleItemsToArea: #scaled items depend on area
+                    itemID = random.choice(validItems[rewardArea])
+                else:
+                    itemID = random.choice(validItems)
+                gift.item.ind = itemID
+        scriptLogic.updateGiftScripts(pool.allGifts)
+
+    '''
+    Initializes the pools of all gifts and unique rewards from gifts.
+    '''
+    def initializeGiftPools(self):
+        giftPool = Gift_Pool()
+        for script,item in scriptLogic.BASE_GIFT_ITEMS.items():
+            if not self.configSettings.includeTsukuyomiTalisman and script == scriptLogic.TSUKUYOMI_TALISMAN_SCRIPT:
+                #Do not include Tsukuyomi Talisman or it's check in pool if setting isn't set
+                break
+            gift = Gift_Item()
+            gift.script = script
+            reward = Reward_Item(item, 1)
+            gift.item = reward
+            giftPool.allGifts.append(gift)
+            if reward.ind >= numbers.KEY_ITEM_CUTOFF:
+                giftPool.uniqueRewards.append(reward)
+
+        giftPool.uniqueRewardRatio = len(giftPool.uniqueRewards) / len(giftPool.allGifts)
+        return giftPool
+            
+    '''
+    Randomizes the miman and mission rewards, with a combined pool depending on the settings.
+    '''
+    def randomizeItemRewards(self):
+        self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards()
+        missionPool = self.initializeMissionPools()
+        giftPool = self.initializeGiftPools()
+        if not self.configSettings.combineKeyItemPools:
+            #Mission Pool get initialized regardless so just stays the same
+            mimanPool = copy.deepcopy(numbers.MIMAN_BASE_KEY_ITEMS) #Use base pool
+        else:
+            combinedItemPool = []
+            if self.configSettings.randomizeMissionRewards: #Add mission key item rewards to the combined pool
+                missionKeyItemIDs = []
+                for reward in missionPool.uniqueRewards:
+                    missionKeyItemIDs.append(reward.ind)
+                combinedItemPool = combinedItemPool + missionKeyItemIDs
+            if self.configSettings.randomizeMimanRewards: #Add miman rewards to the combined pool
+                combinedItemPool = numbers.MIMAN_BASE_KEY_ITEMS + combinedItemPool
+            if self.configSettings.randomizeGiftItems: #Add unique gift rewards to the combined pool
+                giftItemIDs = []
+                for reward in giftPool.uniqueRewards:
+                    giftItemIDs.append(reward.ind)
+                combinedItemPool = giftItemIDs + combinedItemPool
+
+            #Distribute combined pool, starting with sub pools of fixed or lower size
+            if self.configSettings.randomizeMimanRewards:#Miman pool has fixed size
+                mimanPool = random.sample(combinedItemPool, len(numbers.MIMAN_BASE_KEY_ITEMS))
+                for itemID in mimanPool:
+                    combinedItemPool.remove(itemID)
+            
+            if self.configSettings.randomizeGiftItems: #Gift pool has fixed size#TODO:Vary Size?
+                #Assign 
+                itemIDs = random.sample(combinedItemPool, len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS))
+                giftPool.uniqueRewards = []
+                for itemID in itemIDs:
+                    giftPool.uniqueRewards.append(Reward_Item(itemID, 1))
+                    combinedItemPool.remove(itemID)
+            
+            if self.configSettings.randomizeMissionRewards:#Largest pool and therefore last
+                missionPool.uniqueRewards = []
+                for itemID in combinedItemPool:
+                    missionPool.uniqueRewards.append(Mission_Reward(itemID,1))
+
+        if(self.configSettings.randomizeMimanRewards):
+            self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea, mimanPool)
+        
+        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames)   
+
+        if self.configSettings.randomizeGiftItems:
+            self.randomizeGiftItems(giftPool)
+
+        if self.configSettings.randomizeMissionRewards:
+            self.randomizeMissionRewards(self.configSettings.scaleItemsToArea, missionPool)
+        self.missionArr = scriptLogic.updateAndRemoveFakeMissions(self.missionArr)
     
     '''
     Randomizes the drops of basic enemies, excluding key items and essences.
@@ -4575,6 +4732,24 @@ class Randomizer:
             self.essenceBannedBosses.add(demonID)
         else:
             self.validBossDemons.add(demonID)
+            
+
+    '''
+    Adjusts the damage dealt multiplier of bosses based on the level difference between their original level and their new level
+    Strong bosses fought earlier will do less damage while weak bosses fought later will deal more.
+    '''
+    def scaleBossDamage(self):
+        for index, updatedBoss in enumerate(self.bossArr):
+            if index < numbers.NORMAL_ENEMY_COUNT:
+                continue
+            oldLevel = self.staticBossArr[index].level
+            newLevel = updatedBoss.level
+            if newLevel > oldLevel:
+                updatedBoss.damageMultiplier += (newLevel - oldLevel) * 2
+                #print(self.enemyNames[index] + ": " + str(updatedBoss.damageMultiplier))
+            elif newLevel < oldLevel:
+                updatedBoss.damageMultiplier = max(10, updatedBoss.damageMultiplier + newLevel - oldLevel)
+                #print(self.enemyNames[index] + ": " + str(updatedBoss.damageMultiplier))
 
     '''
     Randomizes the stats of normal demons.
@@ -5448,6 +5623,21 @@ class Randomizer:
         self.battleEventArr[35].encounterID = 255
 
     '''
+    Reduces the compendium cost modifier of demons.
+    #TODO: I didn't have any luck reducing the costs of skills directly, so this is here instead
+    '''
+    def reduceCompendiumCosts(self):
+        for demon in self.compendiumArr:
+            demon.compCostModifier = demon.compCostModifier // 10
+
+    '''
+    Sets early story fights to not be ambushes.
+    '''
+    def preventEarlyAmbush(self):
+        for id in numbers.EARLY_STORY_EVENT_ENCOUNTERS:
+            self.eventEncountArr[id].startingPhase = Ambush_Type.PLAYER
+
+    '''
     Patches tutorial Daemon's HP to be beatable without Zio
     '''
     def patchTutorialDaemon(self):
@@ -5578,6 +5768,21 @@ class Randomizer:
     def patchSethCamera(self):
         sethEventEncounter = self.eventEncountArr[108]
         sethEventEncounter.unknown23Flag = 0
+       
+    '''
+    Forces all versions of Ishtar to use the same boss, condensing the pool from 8 Ishtars to one
+    Additionally sets the press turns for the Ishtar kept in the pool
+    '''
+    def removeIshtarCopies(self):
+        for eventEncountID in numbers.EXTRA_ISHTAR_ENCOUNTERS:
+            self.bossDuplicateMap[eventEncountID] = numbers.TRUE_ISHTAR_ENCOUNTER
+        if self.configSettings.randomizeIshtarPressTurns:
+            pressTurns = random.randint(1, 8)
+            self.bossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = pressTurns
+            self.staticBossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = pressTurns
+        else:
+            self.bossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = self.configSettings.ishtarPressTurns
+            self.staticBossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = self.configSettings.ishtarPressTurns
     
     '''
     Changes the scaling of normal demon symbols with overly large scaling factors to the normal 1.2 factor.
@@ -5645,6 +5850,34 @@ class Randomizer:
             if self.skillNames[normalSkillID] != normalSkillName:
                 print("Warning: skill ") + normalSkillName + " does not match " + self.skillNames[normalSkillID] + " at index " + str(index)
             uniqueSkill.animation = normalSkill.animation
+    
+    '''
+    Halves the heal power of all enemy-only healing skills
+    '''
+    def nerfBossHealing(self):
+        for skillID in numbers.ENEMY_HEALING_SKILL_IDS:
+            skill = self.obtainSkillFromID(skillID)
+            skill.healing.flag = skill.healing.flag // 2
+            skill.healing.percent = skill.healing.percent // 2
+
+    '''
+        Adds missing boss music back to Lilith, Tehom, and Mastema
+        TODO: Add music to the school fights, maybe
+    '''
+    def patchMissingBossMusic(self):
+        for eventEncountID, track in numbers.BOSS_TRACK_FIX_MAP.items():
+            self.eventEncountArr[eventEncountID].track = track
+
+    '''
+        Scales the experience gained from demons and quest rewards according to the expMultiplier setting
+    '''
+    def scaleExpGains(self):
+        for demon in self.enemyArr:
+            demon.experience = round(demon.experience * self.configSettings.expMultiplier)
+        for demon in self.bossArr[numbers.NORMAL_ENEMY_COUNT:]:
+            demon.experience = round(demon.experience * self.configSettings.expMultiplier)
+        for mission in self.missionArr:
+            mission.experience = round(mission.experience * self.configSettings.expMultiplier)
 
     '''
     Creates a copy of the new entry with the binary offset data of the old entry.
@@ -5745,13 +5978,10 @@ class Randomizer:
          if self.textSeed == "":
              self.textSeed = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
              print('Your generated seed is: {}\n'.format(self.textSeed))
-             with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
-                file.write(self.textSeed)
          random.seed(self.textSeed)
          
     '''
     Makes the game easier for testing purposes. All enemy hp is set to 10 and Nahobino's stats are increased
-    TODO: Nahobino Stats don't work (maybe only on fresh file?)
     '''
     def applyCheats(self):
         for demon in self.enemyArr:
@@ -5789,6 +6019,8 @@ class Randomizer:
     def fullRando(self, config):
 
         self.writeFolder(paths.DEBUG_FOLDER)
+        with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
+                file.write(self.textSeed)
 
         compendiumBuffer = self.readBinaryTable(paths.NKM_BASE_TABLE_IN)
         skillBuffer = self.readBinaryTable(paths.SKILL_DATA_IN)
@@ -5855,6 +6087,7 @@ class Randomizer:
         self.fillChestArr(chestBuffer)
         self.fillMimanRewardArr(shopBuffer)
         self.fillMapSymbolArr(mapSymbolParamBuffer)
+        self.fillConsumableArr(itemBuffer)
         
         #self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
         self.eventEncountArr = self.addPositionsToNormalEncountArr(eventEncountPostBuffer, self.eventEncountArr, eventEncountPostUassetBuffer)
@@ -5936,13 +6169,17 @@ class Randomizer:
 
         if config.randomShopEssences:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp, self.configSettings.scaleItemsToArea)
-           
-        #self.patchSethCamera()
+        
+        if (config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses) and not (config.randomMusic or config.checkBasedMusic):
+            self.patchMissingBossMusic()
+        self.removeIshtarCopies()
         self.randomizeBosses()
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
             bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings)
         self.updateUniqueSymbolDemons()
+        if config.scaleBossDamage:
+            self.scaleBossDamage()
         
         self.adjustEventEncountMissionConditions(self.eventEncountArr, self.staticEventEncountArr)
         
@@ -5956,6 +6193,8 @@ class Randomizer:
             self.randomizeMiracleRewards()
         elif config.randomMiracleCosts: #If randomizing unlocks handle costs there as it is slightly more complicated
             self.randomizeMiracleCosts()
+        if config.reverseDivineGarrisons:
+            self.reverseDivineGarrisons()
 
         if config.randomAlignment:
             self.randomizeDemonAlignment(self.compendiumArr)
@@ -5967,20 +6206,26 @@ class Randomizer:
         
         if self.configSettings.randomShopItems:
             self.randomizeShopItems(self.configSettings.scaleItemsToArea)
-        
-        if(self.configSettings.randomizeMimanRewards):
-            self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea)
-        
-        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames)   
+        self.replaceSpyglassInShop()
+        self.adjustItemPrices()
 
-        if self.configSettings.randomizeMissionRewards:
-            self.randomizeMissionRewards(self.configSettings.scaleItemsToArea)
+        self.randomizeItemRewards()
         
         if self.configSettings.selfRandomizeNormalBosses or self.configSettings.mixedRandomizeNormalBosses or self.configSettings.selfRandomizeOverworldBosses or self.configSettings.mixedRandomizeOverworldBosses:
             self.patchQuestBossDrops()
         if self.configSettings.randomEnemyDrops:
             self.randomizeBasicEnemyDrops(self.configSettings.scaleItemsToArea)
             self.randomizeBossDrops(self.configSettings.scaleItemsToArea)
+
+        if self.configSettings.reduceCompendiumCosts:
+            self.reduceCompendiumCosts()
+
+        if self.configSettings.preventEarlyAmbush:
+            self.preventEarlyAmbush()
+        if self.configSettings.nerfBossHealing:
+            self.nerfBossHealing()
+        if self.configSettings.expMultiplier != 1:
+            self.scaleExpGains()
 
         self.patchTutorialDaemon()
         
@@ -5989,6 +6234,7 @@ class Randomizer:
         #self.patchHorusHead()
         self.capDiarahanDemonHP()
         self.nullBossTones()
+        
 
         mapSymbolParamBuffer = self.scaleLargeSymbolDemonsDown(mapSymbolParamBuffer)
         self.adjustPunishingFoeSpeeds(mapSymbolParamBuffer)
@@ -6004,7 +6250,8 @@ class Randomizer:
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, newComp)
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, self.playerBossArr[numbers.NORMAL_ENEMY_COUNT:])
-        self.patchYuzuruGLStats(compendiumBuffer)
+        if self.configSettings.buffGuestYuzuru:
+            self.patchYuzuruGLStats(compendiumBuffer)
         skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr)
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
         normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
@@ -6025,7 +6272,8 @@ class Randomizer:
         miracleBuffer = self.updateMiracleBuffer(miracleBuffer)
         uniqueSymbolBuffer = self.updateUniqueSymbolBuffer(uniqueSymbolBuffer)
         encountPostBuffer = self.updateEventEncountPostBuffer(encountPostBuffer, self.encountArr)
-        chestBuffer = self.updateChestBuffer(chestBuffer)        
+        chestBuffer = self.updateChestBuffer(chestBuffer)
+        itemBuffer = self.updateConsumableData(itemBuffer, self.consumableArr)        
 
 
         #self.printOutEncounters(newSymbolArr)
@@ -6112,6 +6360,7 @@ class Randomizer:
     def printOutFusions(self, fusions):
         finalString = ""
         for fusion in fusions:
+            #finalString = finalString + self.compendiumArr[fusion.firstDemon.ind].race.translation + " " + fusion.firstDemon.translation + " + " + self.compendiumArr[fusion.secondDemon.ind].race.translation + " " + fusion.secondDemon.translation + " = " + self.compendiumArr[fusion.result.ind].race.translation + " " + fusion.result.translation + '\n'
             finalString = finalString + fusion.firstDemon.translation + " + " + fusion.secondDemon.translation + " = " + fusion.result.translation + '\n'
         with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
             file.write(finalString)
@@ -6119,6 +6368,7 @@ class Randomizer:
 if __name__ == '__main__':
     rando = Randomizer()
     print('Warning: This is an early build of the randomizer and some things may not work as intended. Performance will be somewhat worse than vanilla SMTVV')
+    print('Welcome to the SMTVV Rando v1.02. This version was created with game version 1.02 and will likely not work with other versions of SMTVV')
     try:
         rando.configSettings, rando.textSeed = gui.createGUI(rando.configSettings)
         rando.createSeed()
@@ -6127,8 +6377,7 @@ if __name__ == '__main__':
         if not rando.configSettings.fixUniqueSkillAnimations:
             print('"Fix unique skill animations" patch not applied. If the game appears to hang during a battle animation, press the skip animations button')
         print('\nRandomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
-        print('bossSpoilerLog, encounterResults and fusionResults can be found in the debug folder')
-        print('Lastly, it is recommended that you do not play the randomizer on hard mode Larpas')
+        print('CurrentSeed, bossSpoilerLog, encounterResults and fusionResults can be found in the debug folder')
        
     except RuntimeError:
         print('GUI closed - randomization was canceled')

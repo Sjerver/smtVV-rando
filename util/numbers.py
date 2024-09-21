@@ -55,8 +55,11 @@ MIRACLE_DEPENDENCIES = [
 #IDs of miracles obtained when you first unlock the cathedral of shadows
 STARTING_MIRACLES = [13, 27, 49, 75, 80, 85, 90]
 
-#IDs of miracles that should be given to the player early (just forestall, empowering cheer, and divine amalgamation for now, could consider 32 art of essences 1)
-REQUIRED_EARLY_MIRACLES = [13, 49, 117]
+#IDs of divine garrison miracles in order
+DIVINE_GARRISON_IDS = [55, 56, 57, 58, 59, 60, 118, 119, 120]
+
+#ID of miracle rank violation
+RANK_VIOLATION_ID = 31
 
 TUTORIAL_DAEMON_ID = 430
 
@@ -110,8 +113,8 @@ CONSUMABLE_ITEM_COUNT = 114
 #Any chest with an item index 611 or higher contains a key item and should not be randomized
 KEY_ITEM_CUTOFF = 611
 
-#Item indices that correspond to reusable items like the return pillar or gleam grenade
-BANNED_ITEMS = [70, 73, 74, 75, 76, 77, 78, 79, 80, 81]
+#Item indices that correspond to reusable items like the return pillar or gleam grenade and spyglass(spyscope is given by tutorial daemon)
+BANNED_ITEMS = [70, 73, 74, 75, 76, 77, 78, 79, 80, 81, 55]
 
 BANNED_ESSENCES = [359,555,545,546,547,548,549,550,551,552,553,554,556,557,558,559,606,607,608] #Old Lilith's Essence, Demi-fiends Essence, Aogami & Tsukuyomi Essences
 
@@ -135,6 +138,12 @@ MIMAN_ITEM_AMOUNT_WEIGHTS = {
     6: 3,
     8: 1
 }
+
+#Item IDs of Key items in Miman Rewards in the normal game
+MIMAN_BASE_KEY_ITEMS = [819,816,810,829,818,823,817]#Talismans: Element, Avatar, Avian, Kishin, Genma, Fiend, Holy
+
+#List of key item ids obtained via events
+GIFT_BASE_KEY_ITEMS = []
 
 #Chance a mission rewards macca
 MISSION_MACCA_ODDS= 0.1717
@@ -174,15 +183,21 @@ MISSION_DUPLICATES = {
   95: [116], #To the Empyrean
   52: [53,54], #The Compassionate Queen, The Noble Queen, The Wrathful Queen (Same reward but not true duplicate)
   28: [173], #Clash with the Kunitsukami, Special Training: Kunitsukami (Both normally give Kunitsu Talisman)
+  -18: [-19], #Duplicates for the fake missions handling the Heavenly Kings Periapt
+  72: [-20], #Falcon's Head and Isis Story Even in CoV both reward Lady Talisman
 }
 
 #List of exclusive key item rewards from both canons
-CREATION_EXCLUSIVE_KEY_REWARDS = [72] #The Falcon's Head
-VENGEANCE_EXCLUSIVE_KEY_REWARDS =[] #Currently not any
+CREATION_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
+VENGEANCE_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
+
+#List of banned key rewards
+BANNED_KEY_REWARDS = [79] #Spyscope (dropped by tutorial daemon)
 
 #Exclusive mission from both canons to give potential exclusive rewards to (excluding missions whose rewards are not randomized or are not allowed to receive key item rewards)
-CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
+CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93,-7,-8,-9-10] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
         #He of a Hundred Hands, Hellfire Highway, Search for Oyamatsumi, Glitter in Ginza, Netherworld Relay Racing, Will of the Samurai, Trial of the Seven Stars, Defeat the Demon Kings Armies
+        #Keeper of South/North/West/East Secondary Rewards
 VENGEANCE_EXLUSIVE_MISSIONS = [157,152,159,177,171,194,203,178,202,184,200,210,172,211,193,174,188,190,108,109,110,111,112,113] #Supply Run, Guide to the Lost, Heart of Garnet, As God Wills, A Self of my Own, Devotion To Order, Part-time Gasser, A Star is Born
         #Disgraced Bird God, Alice's Wonderland, Shinjuku Jewel Hunt, Heroes of Heaven and Earth, Rite of Resurrection, 'God of Old, Devourer of Kin', The Heartbroken, Special Training: Army of Chaos
         #The Serpent King, The Great Adversary, Investigate the Anomalies in Tokyo, Investigate the Salt Incidents, Rescue Miyazu Atsuta, Investigate Jozoji Temple, Qadištu Showdown
@@ -195,6 +210,8 @@ MUTUALLY_EXCLUSIVE_MISSIONS = [
     77,78, #Black Frost Strikes Back/Sobering Standoff
     138,139, #Reclaim/Liberate the Golden Stool (Have duplicates but not needed here)
     75,76, #Those Seeking Sanctuary, Holding the Line
+    51,50 #The Red Dragon's Invitation/The Seraphs Return
+    -2, -3, #Additional Rewards from The Red Dragon's Invitation/The Seraphs Return
 ]
 
 #Reward cannot be randomized, due to Quest Progression Issues or too strong reward(True Demon) or mission is unused
@@ -264,7 +281,7 @@ CONSUMABLE_PROGRESSION = {
     #Universal: Life Stone, Chakra Drop, Bead, Revival Bead, Gold Card, Smoke Ball, Dampeners, Attract Pipe, Gospel, Grimoire, Small Glory Crystals, Simple Demon Box, New Testament Tablet, Incenses,
   1: [3,5,6,8,23,24,25,26,27,28,37,38,39,40,41,42,43,44,45,46,47,50,51,52,53,98,99,100,101,102,103,104,105,106,107,108], #After Minato: Chakra Pot, Bead Chain, Soma, Balm of Life, Elemental Gems, Status Gems, 
     #Support Gems, Drain Gems, Purge/Dispel Charms, Attack Mirror, Magic Mirror, Sutras
-  2: [15,16,17,18,19,20,21,22,55], #Pre Taito: Life Stone Chain, Soma Drop, Elemental Shards
+  2: [15,16,17,18,19,20,21,22], #Pre Taito: Life Stone Chain, Soma Drop, Elemental Shards
   3: [60,62], #From Area 3 Dungeons onward: Whittled Goat, Phys Dampener
   4: [10,112,84,85,86,87,88,89,90,110,14], #Post Shinagawa: Amrita Shower, Lavish Demon Box, Stat Balms, Large Glory Crystal, Muscle Drink,
 }
@@ -367,6 +384,29 @@ GUEST_IDS = [1150, 1151, 1152, 1153, 1154, 1157, 1158, 1159, 1161, 1162]
 
 #IDs of guest party members excluding Yuzuru and Dazai who have glitchy animations for physical skills
 GUEST_IDS_WORKING_ANIMS_ONLY = [1152, 1154, 1157, 1158, 1159, 1161]
+
+#Event encounter IDs of Ishtar except one
+EXTRA_ISHTAR_ENCOUNTERS = [76, 77, 78, 79, 80, 81, 82]
+#Event encounter ID of Ishtar that is kept in the pool
+TRUE_ISHTAR_ENCOUNTER = 75
+#Demon ID of the Ishtar that is kept in the pool
+TRUE_ISHTAR_DEMON = 455
+
+#Event Encounter Ids of bosses that appear up until and including Hydra
+EARLY_STORY_EVENT_ENCOUNTERS = [87, 134, 33] #Glasya-Labolas, 3 Pretas, Hydra
+
+#Lilith, Tehom, and Mastema's music starts playing in a cutscene, so their track is set to 255 instead of their actual music
+BOSS_TRACK_FIX_MAP = {
+    155: 57,
+    163: 66,
+    164: 68
+}
+
+#IDs of enemy only healing skills that heal more than the player versions
+ENEMY_HEALING_SKILL_IDS = [103, 104, 105, 106, 352, 353, 354, 355, 381, 382, 383, 384, 385, 386, 850, 852, 856, 887, 888]
+
+#Skill ID of Lunation Flux which should be restricted more than other unique skills
+LUNATION_FLUX_ID = 927
 
 '''
 Returns dictionary lining out to which reward are each shop slot belongs

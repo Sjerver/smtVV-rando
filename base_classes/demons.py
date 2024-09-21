@@ -20,7 +20,8 @@ class Compendium_Demon:
         self.tendency = None
         self.creationSpawn = Encounter_Spawn()
         self.vengeanceSpawn = Encounter_Spawn()
-    
+        self.compCostModifier = None
+
 class Enemy_Demon:
     def __init__(self):
         self.ind = None
@@ -32,12 +33,14 @@ class Enemy_Demon:
         self.statMods = None
         self.analyze = None
         self.levelDMGCorrection = None
+        self.damageMultiplier = None
         self.AI = None
         self.recruitable = None
         self.pressTurns = None
         self.experience = None
         self.money = None
         self.skills = []
+        self.instakillRate = None
         self.drops = None
         self.innate = None
         self.resist = Affinities()

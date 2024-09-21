@@ -19,8 +19,8 @@ class Miman_Reward:
         self.offset = None
 
 class Reward_Item:
-    def __init__(self, item, amount):
-        self.item = item
+    def __init__(self, ind, amount):
+        self.ind = ind
         self.amount = amount
         
 class Item_Chest:
@@ -31,3 +31,20 @@ class Item_Chest:
         self.item = None
         self.amount = None
         self.macca = None
+
+class Consumable_Item:
+    def __init__(self):
+        self.ind = None
+        self.buyPrice = None
+        self.offset = None
+        self.name = None
+
+class Gift_Item:
+    def __init__(self):
+        self.script = None
+        self.item = None
+
+class Gift_Pool:
+    def __init__(self):
+        self.uniqueRewards = []
+        self.allGifts = []
