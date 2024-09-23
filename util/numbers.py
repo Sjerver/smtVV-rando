@@ -408,6 +408,9 @@ ENEMY_HEALING_SKILL_IDS = [103, 104, 105, 106, 352, 353, 354, 355, 381, 382, 383
 #Skill ID of Lunation Flux which should be restricted more than other unique skills
 LUNATION_FLUX_ID = 927
 
+#Mission ID of Brawny Ambitions II for skill condition
+BRAWNY_AMBITIONS_ID = 197
+
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''

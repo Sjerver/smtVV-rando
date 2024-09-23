@@ -364,11 +364,12 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames):
         
         print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
         
-        for index, line in enumerate(missionText):
-            if originalName in line: #Name is plain text
-                missionText[index] = line.replace(originalName, replacementName)
-            if 'enemy ' + str(originalDemonID) in line: #name is talked about via ID and text is colored
-                missionText[index] = line.replace('enemy ' + str(originalDemonID), 'enemy ' + str(replacementID))
+        #TODO: Somehow recalculate the length of the actual lines in the dialogue boxes to make sure dialogue is fine with long demon names
+        for index, box in enumerate(missionText):
+            if originalName in box: #Name is plain text
+                missionText[index] = box.replace(originalName, replacementName)
+            if 'enemy ' + str(originalDemonID) in box: #name is talked about via ID and text is colored
+                missionText[index] = box.replace('enemy ' + str(originalDemonID), 'enemy ' + str(replacementID))
 
         file.setMessageStrings(missionText)
         file.writeToFiles()

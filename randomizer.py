@@ -5594,6 +5594,11 @@ class Randomizer:
                         level = next(demon.level.original for demon in self.compendiumArr if demon.ind == condition.ind)
                         sameLevel = next(demon.ind for demon in self.compendiumArr if demon.level.value == level)
                         condition.ind = sameLevel
+                if mission.ind == numbers.BRAWNY_AMBITIONS_ID and condition.type == 7 : #skill condition for Brawny Ambition II
+                    print("Mission:" + str(mission.ind) + " D: " + self.enemyNames[mission.conditions[0].ind] + " C: " + translation.translateSkillID(self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value, self.skillNames))
+                    print(str(self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value))
+                    condition.ind = self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value
+
         return missionArr
 
     '''
