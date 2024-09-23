@@ -50,6 +50,8 @@ class Table(object):
         return struct.unpack('<f', self.read(4, offset))[0]
     def readXChars(self, x, offset = -1):
         return struct.unpack(str(x) + 's', self.read(x, offset))[0]
+    def readUnsignedWord(self, offset = -1):
+        return struct.unpack('<I', self.read(4, offset))[0]
 
     def write(self, data, offset = -1):
         if offset == -1:

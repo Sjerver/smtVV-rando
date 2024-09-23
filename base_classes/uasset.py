@@ -82,7 +82,7 @@ class UAsset:
                 else:
                     name = binaryTable.readXChars(stringSize,currentOffset + 4)
                     name = str(name)[2:-5]
-                nameHash = binaryTable.readWord(currentOffset + 4 + stringSize)
+                nameHash = binaryTable.readUnsignedWord(currentOffset + 4 + stringSize)
 
                 self.nameList.append(name) #Index -> Name
                 self.nameMap[name] = index #Name -> Index
@@ -122,7 +122,9 @@ class UAsset:
                 self.exports.append(newExport)
                 currentOffset += 104
     
-    
+    '''
+    Writes the data of the uasset to the binary table.
+    '''
     def writeDataToBinaryTable(self):
         currentOffset = self.nameOffset
         for nameIndex, name in enumerate(self.nameList):
@@ -171,7 +173,9 @@ class UAsset:
             self.binaryTable.writeDblword(exportEntry.serialOffset, currentOffset +36)
             currentOffset += 104
 
-
+    '''
+    Updates the name map to use the names in the name list.
+    '''
     def updateNameMap(self):
         for key in list(self.nameMap.keys()):
             if key not in self.nameList:
@@ -189,6 +193,9 @@ class UAsset:
         hash  = 0
         return hash
 
+    '''
+    Updates the import maps to use the names in the name list.
+    '''
     def updateImportMaps(self):
         tempDict = {}
         for key,importEntry in self.importMap.items(): #update names
@@ -203,6 +210,9 @@ class UAsset:
         
         self.reverseImportMap.update(tempDict)
     
+    '''
+    Recalculates all offsets to be accurate to potential changes in file size.
+    '''
     def recalculateOffsets(self):
         self.someOffset += self.byteDifference
         self.dependsOffset += self.byteDifference

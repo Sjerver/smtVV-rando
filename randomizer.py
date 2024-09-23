@@ -79,6 +79,8 @@ class Randomizer:
         self.validBossDemons = set()
         self.essenceBannedBosses = set()
         self.updatedMissionConditionIDs = []
+        self.encounterReplacements = {}
+        self.bossReplacements = {}
 
         self.nahobino = Nahobino()
         
@@ -3464,6 +3466,7 @@ class Randomizer:
             for pair in replacements:
                 spoilerLog.write(self.enemyNames[pair[0]] + " replaced by " + self.enemyNames[pair[1]] + "\n")
                 replacementDict[pair[0]] = pair[1]
+        self.encounterReplacements = replacementDict
 
         self.adjustBasicEnemyStats(replacements, enemyArr)
         self.adjustBasicEnemyDrops(replacements, enemyArr)
@@ -3572,6 +3575,7 @@ class Randomizer:
                 shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
                 for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
                     spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
+                    self.bossReplacements[encounter.demons[0]] = shuffledEncounters[index].demons[0]
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     
                     bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings.scaleBossPressTurnsToCheck, self.configSettings.scaleBossInstakillRates)
@@ -6018,6 +6022,8 @@ class Randomizer:
     '''
     def fullRando(self, config):
 
+        
+
         self.writeFolder(paths.DEBUG_FOLDER)
         with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
                 file.write(self.textSeed)
@@ -6241,10 +6247,10 @@ class Randomizer:
             
         if DEV_CHEATS:
             self.applyCheats()
-        
 
-        #self.addEventEncounter()
-        
+
+        message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.compendiumNames, self.enemyNames)
+        message_logic.updateSkillDesriptions()
 
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
