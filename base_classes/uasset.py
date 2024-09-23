@@ -78,10 +78,10 @@ class UAsset:
                     #Includes japanese characters, and is therfore originally negative and needs to be doubled since they are 2 bytes each
                     stringSize = stringSize * -2
                     name = binaryTable.readXChars(stringSize,currentOffset + 4)
-                    name = name.decode("utf-16")
+                    name = name.decode("utf-16-le")[:-1]
                 else:
                     name = binaryTable.readXChars(stringSize,currentOffset + 4)
-                    name = str(name)[2:-5]
+                    name = name.decode('ascii')[:-1]
                 nameHash = binaryTable.readUnsignedWord(currentOffset + 4 + stringSize)
 
                 self.nameList.append(name) #Index -> Name
@@ -131,11 +131,13 @@ class UAsset:
             stringSize = self.binaryTable.readWord(currentOffset)
             if stringSize < 0: #indicates whether chars are two or one byte
                 stringSize = stringSize * -2
-                #TODO: Figure out why exactly decode and encode don't result in the same results
-                nameBytes = name.encode("utf-16")
-                #self.binaryTable.writeXChars(nameBytes, stringSize, currentOffset +4)
+                #TODO: Rewrite the code so that this is properly applied I guess??
+                nameToEncode = name + '\x00'
+                nameBytes = nameToEncode.encode("utf-16-le")
+                self.binaryTable.writeXChars(nameBytes, stringSize, currentOffset +4)
             else:
-                nameBytes = bytes(name + '\x00' ,'utf-8')
+                nameToEncode = name + '\x00'
+                nameBytes = nameToEncode.encode("ascii")
                 encodingUTF16 = len(nameBytes) > stringSize
                 if len(nameBytes) > stringSize:
                     self.binaryTable.writeWord(len(nameBytes),currentOffset)

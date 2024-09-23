@@ -54,25 +54,30 @@ class Message_Page():
     '''
     def decode(self):
         if self.encoding == 'ascii':
-            return str(self.bytes)[2:-5]
+            return self.bytes.decode('ascii')[:-1]
         else:
-            return self.bytes.decode("utf-16")
+            return self.bytes.decode("utf-16-le")[:-1]
     
     '''
     Obtain the bytes of the pages string.
     '''
     def encode(self):
         if self.encoding == 'ascii':
-            return bytes(self.string + '\x00' ,'utf-8')
+            string = self.string + '\x00'
+            return string.encode('ascii') 
         else:
-            return self.string.encode("utf-16")
+            string = self.string + '\x00'
+            return string.encode("utf-16-le")
 
 
 class Message_File:
     def __init__(self, fileName, baseFolder):
         self.messages = []
         self.fileName = fileName
-        self.randoFolder = OUTPUT_FOLDERS[fileName]
+        if 'mm_em' in fileName:
+            self.randoFolder = OUTPUT_FOLDERS['MissionFolder']
+        else:
+            self.randoFolder = OUTPUT_FOLDERS[fileName]
         self.baseFolder = baseFolder
 
         self.uexp = Message_Uexp(readBinaryTable('base/LN10/' + baseFolder + fileName + '.uexp'))
@@ -185,7 +190,7 @@ class Message_File:
                 if pageSize < 0: #2 byte chars
                     pageSize = pageSize * -2
                 originalString = uexpBinary.readXChars(pageSize, currentOffset + additionalBytes + 4* index + 4)
-                if index != 2 or page.bytes == originalString or page.encoding != 'ascii' : #Only page 2 is of relevance and only if it has changed (and we temporarily ignore changes in utf-16 strings because encoding doesn't quite work right)
+                if index != 2 or page.bytes == originalString : #Only page 2 is of relevance and only if it has changed (and we temporarily ignore changes in utf-16 strings because encoding doesn't quite work right)
                     additionalBytes = additionalBytes + pageSize
                     messageAddBytes = messageAddBytes + pageSize
                 else: # there is a need to rewrite the string in the uexp
@@ -206,7 +211,18 @@ class Message_File:
                     additionalBytes = additionalBytes + pageSize
                     messageAddBytes = messageAddBytes + pageSize
             uexpBinary.writeDblword(messageSizeDiff + message.pageDataSize, currentOffset + additionalBytes - messageAddBytes - 26)
-            currentOffset = currentOffset + 24 + 99 + 4 + 25 + 25+ 4 + 8+ 25 +4 + 8+ 102 +4
+            
+
+            #TODO: Add code for writing if these are changed later, currently only read for offset calc
+            currentOffset = currentOffset + 8 * 3 + 99#name Size
+            nameSize = uexpBinary.readWord(currentOffset + additionalBytes)
+            additionalBytes = additionalBytes + nameSize
+
+            currentOffset = currentOffset + 4 + 25#voice Size
+            voiceSize = uexpBinary.readWord(currentOffset + additionalBytes)
+            additionalBytes = additionalBytes + voiceSize
+
+            currentOffset = currentOffset + 25+ 4 + 8+ 25 +4 + 8+ 102 +4
             
         self.uexp.fileSize = self.uexp.fileSize + sizeDifference
         self.uexp.structSize = self.uexp.structSize + sizeDifference
@@ -218,6 +234,7 @@ class Message_File:
 OUTPUT_FOLDERS = {
     'ItemName' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Item/',
     'SkillHelpMess' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Battle/Skill/',
+    'MissionFolder' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission/MissionEvent/',
 }
 
 #List of folders that have to be created in the output folder in order of creation
@@ -230,6 +247,7 @@ FOLDERS_TO_CREATE = ['rando',
         'rando/Project/Content/L10N/en/Blueprints/Gamedata',
         'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable',
         'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Battle',
+        'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission',
 ]    
 
 #Dict for items with demon names in them and which demon they should be synced with
@@ -247,15 +265,22 @@ SKILL_DESC_CHANGES = {
     295 : '(Unique) Significantly raises Accuracy/Evasion of <skill_tgt> by 2 ranks for 3 turns.', #Red Capote Boss Version
 }
 
+#Message files for events and what demon(name/id) needs to be updated in them
+MISSION_EVENTS_DEMON_IDS = {
+    'mm_em2030': 117,#Brawny Ambitions (Zhu Tun She)
+    'mm_em1300': 864,#Falcon's Head (Horus Punishing Foe)
+    'mm_em1400': 864,#Isis Dialogue (Either for other quest or in Minato) (Horus Punishing Foe)
+}
+
+
 '''
 Changes the names of items with demon names in them to that of their replacement if there is any
     Parameters:
         encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
         bossReplacements(Dict): map for which boss replaces which boss
-        compNames(List(String)): list of demon names
-        bossNames(list(String)): list of boss names
+        demonNames(list(String)): list of demon names
 '''
-def updateItemTextWithDemonNames(encounterReplacements, bossReplacements, compNames, bossNames):  
+def updateItemTextWithDemonNames(encounterReplacements, bossReplacements, demonNames):  
     
     itemFile = Message_File('ItemName','')
 
@@ -264,21 +289,21 @@ def updateItemTextWithDemonNames(encounterReplacements, bossReplacements, compNa
     for itemName,originalDemonID in ITEM_NAME_SYNC_DEMON_IDS.items():
         if itemName in itemNames:
             if originalDemonID > numbers.NORMAL_ENEMY_COUNT:
-                originalName = bossNames[originalDemonID]
+                originalName = demonNames[originalDemonID]
                 try:
                     replacementID = bossReplacements[originalDemonID]
                 except KeyError:
                     continue
             else:
-                originalName = compNames[originalDemonID]
+                originalName = demonNames[originalDemonID]
                 try:
                     replacementID = encounterReplacements[originalDemonID]
                 except KeyError:
                     continue
             if replacementID > numbers.NORMAL_ENEMY_COUNT:
-                replacementName = bossNames[replacementID]
+                replacementName = demonNames[replacementID]
             else:
-                replacementName = compNames[replacementID]
+                replacementName = demonNames[replacementID]
             index = itemNames.index(itemName)
             itemNames[index] = itemNames[index].replace(originalName, replacementName)
             print(str(index) + " " + itemNames[index])
@@ -303,11 +328,54 @@ def changeSkillDescriptions(file: Message_File):
 '''
 Updates skill descriptions of skills with the same name and updates the unique signifier.
 '''
-def updateSkillDesriptions():
+def updateSkillDescriptions():
     file = Message_File('SkillHelpMess','')
     file = changeSkillDescriptions(file)
     #TODO: Add function to update (Unique) to reflect inheritance setting and demons
     file.writeToFiles()
+
+'''
+Update the mention of demon names in mission events.
+    Parameters:
+        encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
+        bossReplacements(Dict): map for which boss replaces which boss
+        demonNames(list(String)): list of demon names
+'''
+def updateMissionEvents(encounterReplacements, bossReplacements, demonNames):
+    for missionEvent,originalDemonID in MISSION_EVENTS_DEMON_IDS.items():
+        file = Message_File(missionEvent,'/MissionEvent/')
+        missionText = file.getMessageStrings()
+
+        originalName = demonNames[originalDemonID]
+        if originalDemonID > numbers.NORMAL_ENEMY_COUNT:
+            try:
+                replacementID = bossReplacements[originalDemonID]
+            except KeyError:
+                continue
+        else:
+            try:
+                replacementID = encounterReplacements[originalDemonID]
+            except KeyError:
+                continue
+        if replacementID > numbers.NORMAL_ENEMY_COUNT:
+            replacementName = demonNames[replacementID]
+        else:
+            replacementName = demonNames[replacementID]
+        
+        print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
+        
+        for index, line in enumerate(missionText):
+            if originalName in line: #Name is plain text
+                missionText[index] = line.replace(originalName, replacementName)
+            if 'enemy ' + str(originalDemonID) in line: #name is talked about via ID and text is colored
+                missionText[index] = line.replace('enemy ' + str(originalDemonID), 'enemy ' + str(replacementID))
+
+        file.setMessageStrings(missionText)
+        file.writeToFiles()
+     
+
+
+        
 
 
 

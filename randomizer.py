@@ -6249,8 +6249,9 @@ class Randomizer:
             self.applyCheats()
 
 
-        message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.compendiumNames, self.enemyNames)
-        message_logic.updateSkillDesriptions()
+        message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.enemyNames)
+        message_logic.updateSkillDescriptions()
+        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames)
 
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
