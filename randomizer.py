@@ -11,8 +11,8 @@ from base_classes.settings import Settings
 from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
 from base_classes.map_demons import Map_Demon
-import base_classes.script_logic as scriptLogic
-import base_classes.message_logic as message_logic
+import script_logic as scriptLogic
+import message_logic as message_logic
 import util.numbers as numbers
 import util.paths as paths
 import util.translation as translation
