@@ -2991,6 +2991,8 @@ class Randomizer:
         while len(relevantDemons) > 0:
             #Grab random race, that is valid to assign
             raceIndex = self.weightedRando(raceIndeces, raceWeights)
+            if raceIndex == 0:
+                continue
             if newRatios[raceIndex] == 0:
                 #first assigned demon of race
                 demon = random.choice(relevantDemons)
@@ -3013,6 +3015,7 @@ class Randomizer:
                 demonInds.append(demon.ind)
                 newRatios[raceIndex] = raceResults[raceIndex] / raceAssignments[raceIndex]
                 comp[demon.ind] = demon
+            #print(str(demon.race.value) + "/" + demon.race.translation + " " +  demon.name)
 
         return elementals
     '''
@@ -3353,7 +3356,7 @@ class Randomizer:
     '''
     def adjustEncountersToSameLevel(self, symbolArr, comp, enemyArr):
 
-        #will be in form [OG ID, NEW ID]
+        #will be in form [OG ID, NEW ID] #TODO: Rewrite this so it uses a dictionary in the first place
         replacements = []
         #Excluding unused, Old Lilith , Tao , Yoko, Mitama
         foes = list(filter(lambda e: e.ind not in numbers.BAD_IDS and 'Mitama' not in e.name and not e.name.startswith('NOT USED'), enemyArr))
@@ -3461,17 +3464,32 @@ class Randomizer:
 
             newSymbolArr.append(replaceEnc)
 
+        
         replacementDict = {}
+        for pair in replacements:
+            replacementDict[pair[0]] = pair[1]
+
+        #These need to be done before the we add the remaining demons so we know which demons cannot be encountered on the field
+        self.adjustBasicEnemyDrops(replacementDict, enemyArr)
+        self.adjustListedLocations(replacementDict, comp)
+
+        for foe in foes:
+            if foe.ind not in replacementDict.keys():#All demons that do not have a replacment yet
+                currentLV = getFoeWithID(foe.ind, foes).originalLevel
+                possibilities = [p for p in getEnemiesAtLevel(currentLV) if not p.ind not in replacementDict.values()]
+                enemy = random.choice(possibilities)
+                replacementDict.update({foe.ind: enemy.ind})
+         
         with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
-            for pair in replacements:
-                spoilerLog.write(self.enemyNames[pair[0]] + " replaced by " + self.enemyNames[pair[1]] + "\n")
-                replacementDict[pair[0]] = pair[1]
+            for replaced, replacement in replacementDict.items():
+                spoilerLog.write(self.enemyNames[replaced] + " replaced by " + self.enemyNames[replacement] + "\n")
+                  
         self.encounterReplacements = replacementDict
 
-        self.adjustBasicEnemyStats(replacements, enemyArr)
-        self.adjustBasicEnemyDrops(replacements, enemyArr)
-        self.adjustListedLocations(replacements, comp)
-        self.missionArr = self.adjustMissionsRequiringNormalDemons(replacements,enemyArr, self.missionArr)
+
+        self.adjustBasicEnemyStats(replacementDict, enemyArr)
+        
+        self.missionArr = self.adjustMissionsRequiringNormalDemons(replacementDict,enemyArr, self.missionArr)
 
         #Currently does not work yet
         #scriptLogic.replaceTutorialPixieModel(replacementDict[59])
@@ -3487,10 +3505,10 @@ class Randomizer:
             foes(Array) containing all enemies
     '''
     def adjustBasicEnemyDrops(self, replacements, foes):
-        for pair in replacements:
+        for replacedID, replacementID in replacements.items():
+            replaced = foes[replacedID]
+            replacement = foes[replacementID]
             # for every pair of replacements copy item drops from replaced to replacement
-            replaced = foes[pair[0]]
-            replacement = foes[pair[1]]
             replacement.drops = Item_Drops(replaced.oldDrops.item1,replaced.oldDrops.item2,replaced.oldDrops.item3)
             #print(pair)
             #print("Replacement: " + replacement.name + " Replaced: " + replaced.name)
@@ -3506,8 +3524,9 @@ class Randomizer:
 
                 replacement.drops.item3.value = item.ind
                 replacement.drops.item3.translation = item.name
-
-        replacedList = [r[1] for r in replacements]
+        
+        #TODO: Does this still work with Dictionary to delete overworld? Maybe rethink this in general
+        replacedList = replacements.values()
         nonEncounter = [f for f in foes if f.ind not in replacedList and 'Mitama' not in f.name]
         # Delete item drops for demon who cannot be encountered on overworld
         for n in nonEncounter:
@@ -3523,9 +3542,9 @@ class Randomizer:
             foes (Array): List of basic enemies
     '''
     def adjustBasicEnemyStats(self, replacements, foes):
-        for pair in replacements:
-            replaced = foes[pair[0]]
-            replacement = foes[pair[1]]
+        for replacedID, replacementID in replacements.items():
+            replaced = foes[replacedID]
+            replacement = foes[replacementID]
 
             statMods = replaced.statMods
             newStats = Stats(math.floor(replacement.stats.HP * statMods.HP), math.floor(replacement.stats.MP * statMods.MP), math.floor(replacement.stats.str * statMods.str),
@@ -3541,17 +3560,18 @@ class Randomizer:
     '''
     def adjustListedLocations(self, replacements, comp):
         ogSpawns = []
-        for pair in replacements:
-            replaced = comp[pair[0]]
+        for replacedID in replacements.keys():
+            replaced = comp[replacedID]
             ogSpawns.append([copy.deepcopy(replaced.creationSpawn),copy.deepcopy(replaced.vengeanceSpawn)])
 
-        for index, pair in enumerate(replacements):
-            replacement = comp[pair[1]]
+        for index, replacementID in enumerate(replacements.values()):
+            replacement = comp[replacementID]
             
             replacement.creationSpawn = ogSpawns[index][0]
             replacement.vengeanceSpawn = ogSpawns[index][1]
         
-        replacedList = [r[1] for r in replacements]
+        #TODO: Does this still work with Dictionary to delete overworld? Maybe rethink this in general
+        replacedList = replacements.values()
         nonEncounter = [f for f in comp if f.ind not in replacedList and 'Mitama' not in f.name]
         # Delete location data for demon who cannot be encountered on overworld
         for demon in nonEncounter:
@@ -5579,7 +5599,7 @@ class Randomizer:
         Returns the adjusted mission list
     '''
     def adjustMissionsRequiringNormalDemons(self, replacements, foes, missionArr):
-        replacementSources = [r[0] for r in replacements]
+        replacementSources = list(replacements.keys())
         for mission in missionArr:
         #for every mission...    
             for condition in mission.conditions:
@@ -5588,15 +5608,15 @@ class Randomizer:
                 #Condition requires demoon to kill or in party and that demon is a normal enemy
                     if condition.ind in replacementSources:
                         #use replacement if existent 
-                        condition.ind = replacements[replacementSources.index(condition.ind)][1]
+                        condition.ind = replacements[replacementSources[replacementSources.index(condition.ind)]]
                     else:
                         #else find demon of the same level as original demon
                         level = next(demon.level.original for demon in self.compendiumArr if demon.ind == condition.ind)
                         sameLevel = next(demon.ind for demon in self.compendiumArr if demon.level.value == level)
                         condition.ind = sameLevel
                 if mission.ind == numbers.BRAWNY_AMBITIONS_ID and condition.type == 7 : #skill condition for Brawny Ambition II
-                    print("Mission:" + str(mission.ind) + " D: " + self.enemyNames[mission.conditions[0].ind] + " C: " + translation.translateSkillID(self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value, self.skillNames))
-                    print(str(self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value))
+                    #print("Mission:" + str(mission.ind) + " D: " + self.enemyNames[mission.conditions[0].ind] + " C: " + translation.translateSkillID(self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value, self.skillNames))
+                    #print(str(self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value))
                     condition.ind = self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value
 
         return missionArr
@@ -6210,7 +6230,7 @@ class Randomizer:
         if config.randomAlignment:
             self.randomizeDemonAlignment(self.compendiumArr)
 
-        scriptLogic.randomizeDemonJoins(self.compendiumArr,config.ensureDemonJoinLevel)
+        scriptLogic.randomizeDemonJoins(self.encounterReplacements,config.ensureDemonJoinLevel)
             
         if config.randomChests:
             self.randomizeChests(self.configSettings.scaleItemsToArea)

@@ -312,7 +312,7 @@ Parameters:
     randomDemons (Boolean): whether to randomize the demon joins or set them to vanilla
     #TODO: Consider rewrite via uasset method (that way scripts should keep working even if future update changes them and we don't need to adjust the bytes manually)
 '''
-def randomizeDemonJoins(comp, randomDemons):
+def randomizeDemonJoins(replacements, randomDemons):
     writeFolder(EVENT_FOLDER)
     writeFolder(SCRIPT_FOLDER)
     writeFolder(SUBMISSION_FOLDER)
@@ -335,13 +335,7 @@ def randomizeDemonJoins(comp, randomDemons):
         
         if randomDemons:
 
-            referenceDemon = comp[SCRIPT_JOINS[script]]
-            filteredComp = [d for d in comp if "Mitama" not in d.name and not d.name.startswith('NOT') and not d.ind in numbers.BAD_IDS]
-            sameLevel = [demon for demon in filteredComp if demon.level.value == referenceDemon.level.original]
-            if len(sameLevel) <1:
-                #if no demon of same level exists, use all valid demons
-                sameLevel = filteredComp
-            newDemon = random.choice(sameLevel)
+            newDemon = replacements[SCRIPT_JOINS[script]]
 
             #Save demon if it is needed in another script or use the saved demon
             if script == 'MM_M060_EM1601':
@@ -358,12 +352,12 @@ def randomizeDemonJoins(comp, randomDemons):
                 dagda = newDemon
 
             for offset in offsets:
-                scriptData.writeHalfword(newDemon.ind,offset)
+                scriptData.writeHalfword(newDemon,offset)
         
             #Exception for Dagda/Cleo not being recruited during their Quest but at the researcher instead
             if script == 'MM_M030_EM1769':
-                scriptData.writeHalfword(dagda.ind,619565)
-                scriptData.writeHalfword(cleopatra.ind,619553)
+                scriptData.writeHalfword(dagda,619565)
+                scriptData.writeHalfword(cleopatra,619553)
 
         writeBinaryTable(scriptData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
 
