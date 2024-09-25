@@ -1,3 +1,9 @@
+Version 1.03
+Misc:
+* Gaea Rage from Demifiend's Guest skill list has been added to the skill pool
+* Skill descriptions of skills who have multiple versions have been updated to make it easier to identify the exact skill
+* (Quest Descriptions), Dialogue and Item Names and Descriptions have been updated to reflect the results of the randomization
+
 Version 1.02
 Features:
 * New boss randomizer settings - Scale boss damage, scale boss press turns to check, scale boss instakill susceptibility to check, prevent ambush bosses until after Hydra, boss dependent ambushes, nerf boss healing and set Ishtar's press turns

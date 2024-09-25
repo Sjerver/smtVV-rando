@@ -36,6 +36,25 @@ ITEM_NAME_SYNC_DEMON_IDS = {
 
 SKILL_DESC_CHANGES = {
     295 : '(Unique) Significantly raises Accuracy/Evasion of <skill_tgt> by 2 ranks for 3 turns.', #Red Capote Boss Version
+    255 : 'Immense <skill_elm 0> attack to <skill_tgt>. Ignores affinity resistance and Pierces through.', #Moonlight Frost Boss Version
+    335 : 'More than severe Strength-based <skill_elm 0> attack to <skill_tgt>. High chance of landing Critical hits.', #Freikugel Lucifer Ver.
+    370 : 'Severe Strength-based <skill_elm 0> attack to <skill_tgt>. Higher chance of landing Critical hits and hitting.', #Freikugel Demifiend Boss
+    830 : '(Unique) Immense <skill_elm 0> attack to <skill_tgt>. Ignores affinity resistance and Pierces through.', #Gaea Rage Demifiend Guest
+    902 : 'Summon demon for weak <skill_elm 0> attack to <skill_tgt>.', #Bufu Yuzuru
+    903 : 'Summon demon that lowers Defense of <skill_tgt> by 1 rank for 3 turns.', #Rakunda Yuzuru
+    904 : 'Summon demon for weak <skill_elm 0> attack to <skill_tgt>. High chance of landing Critical hits.', #Gram Slice Yuzuru
+    905 : 'Summon demon that greatly increases the damage of the next Strength-based attack for <skill_tgt>.', #Charge Yuzuru
+    906 : 'Summon demon for medium <skill_elm 0> attack to <skill_tgt>.', #Yuzuru Bufula
+    908 : '(Unique) Summon demon for heavy <skill_elm 0> attack to <skill_tgt>. Greater effect if Critical.', #Carnage Fang Yuzuru
+    909 : '(Unique) Summon demon for moderate HP recovery and cures ailments for <skill_tgt>.', #Sun's Radiance Yuzuru
+    910 : "(Unique) Summon demon that draws enemy hostility, but raises user's Accuracy/Evasion by 2 ranks for 3 turns.", #Witness Me Yuzuru
+    911 : 'Summon demon for weak <skill_elm 0> attack to <skill_tgt>. Chance of instakill when striking weakness.', #Hama (Apparently Yuzuru?)
+    912 : 'Summon demon for heavy <skill_elm 0> attack to <skill_tgt>. Chance of instakill when striking weakness.', #Mahamaon Dazai
+    913 : '(Unique) Summon demon for medium <skill_elm 0> attack to <skill_tgt>. Chance of inflicting <skill_bst 0>.', #Mirage Shot Dazai
+    914 : 'Summon demon for medium <skill_elm 0> attack to <skill_tgt>.', #Zanma Dazai
+    915 : 'Summon demon that guarantees escape from escapable battles.', #Trafuri Dazai
+    916 : '(Unique) Summon demon that raises Defense/Accuracy/Evasion of <skill_tgt> by 1 rank for 3 turns.', #Cautious Cheer Dazai
+    917 : 'Summon demon for chance of inflicting <skill_bst 0> to <skill_tgt>.', #Toxic Cloud Dazai
 }
 
 #Message files for events and what demon(name/id) needs to be updated in them
