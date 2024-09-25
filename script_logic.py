@@ -364,7 +364,7 @@ def randomizeDemonJoins(replacements, randomDemons):
 '''
 #TODO: Adjust for rewrite and comment
 '''
-def adjustFirstMimanEventReward(config, compendium, itemNames):
+def adjustFirstMimanEventReward(config, compendium, itemNames, replacements, essenceArr):
     scriptData = readBinaryTable('base/Scripts/ShopEvent/BP_ShopEvent.uexp')
     #byteList = [14113, 26035, 11754, 14361,14407, 21063,21109] #Old list for 1.0.2
     
@@ -380,11 +380,15 @@ def adjustFirstMimanEventReward(config, compendium, itemNames):
                 validEssences.append(itemID)
         essenceID = random.choice(validEssences)
     elif (config.randomDemonLevels or config.randomizeMimanRewards) and config.scaleItemsToArea:
-        essenceNames = [demon.name + "'s Essence" for demon in compendium if demon not in numbers.BAD_IDS and 'Mitama' not in demon.name and demon.level.value == onmorakiLevel]
+        # essenceNames = [demon.name + "'s Essence" for demon in compendium if demon not in numbers.BAD_IDS and 'Mitama' not in demon.name and demon.level.value == onmorakiLevel]
         validEssences = []
-        for itemID, itemName in enumerate(itemNames): 
-            if itemName in essenceNames:
-                validEssences.append(itemID)
+        # for itemID, itemName in enumerate(itemNames): 
+        #     if itemName in essenceNames:
+        #         validEssences.append(itemID)
+        demonID = replacements[290]
+        for essence in essenceArr:
+            if essence.demon.value == demonID:
+                validEssences.append(essence.ind)
         essenceID = random.choice(validEssences)
 
     # for byte in byteList:

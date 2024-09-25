@@ -3476,7 +3476,7 @@ class Randomizer:
         for foe in foes:
             if foe.ind not in replacementDict.keys():#All demons that do not have a replacment yet
                 currentLV = getFoeWithID(foe.ind, foes).originalLevel
-                possibilities = [p for p in getEnemiesAtLevel(currentLV) if not p.ind not in replacementDict.values()]
+                possibilities = [p for p in getEnemiesAtLevel(currentLV) if p.ind not in replacementDict.values()]
                 enemy = random.choice(possibilities)
                 replacementDict.update({foe.ind: enemy.ind})
          
@@ -4584,7 +4584,7 @@ class Randomizer:
         if(self.configSettings.randomizeMimanRewards):
             self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea, mimanPool)
         
-        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames)   
+        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames, self.encounterReplacements, self.essenceArr)   
 
         if self.configSettings.randomizeGiftItems:
             self.randomizeGiftItems(giftPool)
@@ -5617,7 +5617,10 @@ class Randomizer:
                 if mission.ind == numbers.BRAWNY_AMBITIONS_ID and condition.type == 7 : #skill condition for Brawny Ambition II
                     #print("Mission:" + str(mission.ind) + " D: " + self.enemyNames[mission.conditions[0].ind] + " C: " + translation.translateSkillID(self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value, self.skillNames))
                     #print(str(self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value))
-                    condition.ind = self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value
+                    if(len(self.compendiumArr[mission.conditions[0].ind].learnedSkills) >= 2):
+                       condition.ind = self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value
+                    else:
+                        condition.ind = self.compendiumArr[mission.conditions[0].ind].skills[1].value
 
         return missionArr
 

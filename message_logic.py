@@ -2,6 +2,8 @@
 import util.numbers as numbers
 from base_classes.message import Message_File
 
+MAX_LINE_LENGTH = 50 #Arbitray Number 
+
 OUTPUT_FOLDERS = {
     'ItemName' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Item/',
     'SkillHelpMess' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Battle/Skill/',
@@ -43,6 +45,33 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1400': 864,#Isis Dialogue (Either for other quest or in Minato) (Horus Punishing Foe)
 }
 
+#Alternative names to use for demons with names longer than 11 characters
+DEMON_NAMES_SHORT = {
+    'Fionn mac Cumhaill' : 'Fionn',
+    'Yamata-no-Orochi' : 'Orochi',
+    "Jack-o'-Lantern" : 'Jack-o',
+    'Konohana Sakuya' : 'Sakuya',
+    'Hecatoncheires' : 'Hecaton',
+    'Kushinada-Hime' : 'Kushinada',
+    'Glasya-Labolas' : 'Labolas',
+    'Yuzuru Atsuta' : 'Yuzuru',
+    'Shohei Yakumo' : 'Yakumo',
+    'Hare of Inaba' : 'Hare',
+    'Mother Harlot' : 'Harlot',
+    'Take-Minakata' : 'Minakata',
+    'Sukuna-Hikona' : 'Sukuna',
+    'Ichiro Dazai' : 'Dazai',
+    'Kaya-no-Hime' : 'Kaya',
+    'Karasu Tengu' : 'Karasu',
+    'Ippon-Datara' : 'Ippon',
+    'Leanan Sidhe' : 'Leanan',
+    'Principality' : 'Principal',
+    'Turbo Granny' : 'Granny',
+    'Kurama Tengu' : 'Kurama',
+    'Ame-no-Uzume' : 'Uzume',
+}
+
+
 
 '''
 Changes the names of items with demon names in them to that of their replacement if there is any
@@ -77,7 +106,7 @@ def updateItemTextWithDemonNames(encounterReplacements, bossReplacements, demonN
                 replacementName = demonNames[replacementID]
             index = itemNames.index(itemName)
             itemNames[index] = itemNames[index].replace(originalName, replacementName)
-            print(str(index) + " " + itemNames[index])
+            #print(str(index) + " " + itemNames[index])
     
     itemFile.setMessageStrings(itemNames)
     itemFile.writeToFiles()
@@ -90,7 +119,7 @@ def changeSkillDescriptions(file: Message_File):
     skillDescriptions = file.getMessageStrings()
 
     for skillID, newDesc in SKILL_DESC_CHANGES.items():
-        print(skillDescriptions[skillID-1])
+        #print(skillDescriptions[skillID-1])
         skillDescriptions[skillID-1] = newDesc
     
     file.setMessageStrings(skillDescriptions)
@@ -128,6 +157,7 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames):
                 replacementID = encounterReplacements[originalDemonID]
             except KeyError:
                 continue
+        #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
         if replacementID > numbers.NORMAL_ENEMY_COUNT:
             replacementName = demonNames[replacementID]
         else:
@@ -135,12 +165,20 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames):
         
         print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
         
-        #TODO: Somehow recalculate the length of the actual lines in the dialogue boxes to make sure dialogue is fine with long demon names
+        
         for index, box in enumerate(missionText):
-            if originalName in box: #Name is plain text
-                missionText[index] = box.replace(originalName, replacementName)
-            if 'enemy ' + str(originalDemonID) in box: #name is talked about via ID and text is colored
-                missionText[index] = box.replace('enemy ' + str(originalDemonID), 'enemy ' + str(replacementID))
 
+            if originalName in box: #Name is plain text
+                box = box.replace(originalName, replacementName)
+            if 'enemy ' + str(originalDemonID) in box: #name is talked about via ID and text is colored
+                box = box.replace('enemy ' + str(originalDemonID), 'enemy ' + str(replacementID))
+                #box = box.replace('<enemy ' + str(originalDemonID) + '>', replacementName)
+            
+            #TODO: Dialogue issues i was having was not due too line length, but still might be necessary once I actually find a case where it's relevant
+            # lines = box.split("\n")
+            # for line in lines:
+            #     pass
+
+            missionText[index] = box
         file.setMessageStrings(missionText)
         file.writeToFiles()

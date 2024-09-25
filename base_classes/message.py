@@ -192,13 +192,19 @@ class Message_File:
                         sizeDifference = sizeDifference + messageSizeDiff
                         for i in range(len(page.bytes) - pageSize):
                             uexpBinary.buffer.insert(currentOffset+ additionalBytes + 4*index + 4 ,0)
-                        uexpBinary.writeWord(len(page.bytes),currentOffset + additionalBytes + 4* index)
+                        if page.encoding == 'ascii':
+                            uexpBinary.writeWord(len(page.bytes),currentOffset + additionalBytes + 4* index)
+                        else:
+                            uexpBinary.writeWord(len(page.bytes) // -2,currentOffset + additionalBytes + 4* index)
                     elif pageSize > len(page.bytes): #New string is smaller than old one
                         messageSizeDiff = messageSizeDiff + (len(page.bytes) - pageSize)
                         sizeDifference = sizeDifference + messageSizeDiff
                         for i in range(pageSize - len(page.bytes)):
                             uexpBinary.buffer.pop(currentOffset + additionalBytes + 4*index + 4)
-                        uexpBinary.writeWord(len(page.bytes),currentOffset + additionalBytes + 4* index)
+                        if page.encoding == 'ascii':
+                            uexpBinary.writeWord(len(page.bytes),currentOffset + additionalBytes + 4* index)
+                        else:
+                            uexpBinary.writeWord(len(page.bytes) // -2,currentOffset + additionalBytes + 4* index)
                     pageSize = len(page.bytes)
                     uexpBinary.writeXChars(page.bytes, pageSize, currentOffset + additionalBytes + 4* index + 4)
                     additionalBytes = additionalBytes + pageSize
