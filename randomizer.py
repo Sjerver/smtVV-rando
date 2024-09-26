@@ -6277,7 +6277,7 @@ class Randomizer:
             self.applyCheats()
 
 
-        message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.enemyNames)
+        message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr)
         message_logic.updateSkillDescriptions()
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames)
 

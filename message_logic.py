@@ -8,6 +8,7 @@ OUTPUT_FOLDERS = {
     'ItemName' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Item/',
     'SkillHelpMess' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Battle/Skill/',
     'MissionFolder' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission/MissionEvent/',
+    'ItemHelpMess' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Item/',
 }
 
 #List of folders that have to be created in the output folder in order of creation
@@ -33,6 +34,27 @@ ITEM_NAME_SYNC_DEMON_IDS = {
     "Inugami's Head" : 138,#Inugami
     "Horus's Head" : 864,#Punishing Foe Horus
 }
+
+#IDs of demons that show up in Item Descriptions
+ITEM_DESC_SYNC_DEMON_IDS = {
+    755 : 4, #A magic staff carved from a sacred tree. It contains Dagda's power
+    758 : 808, #A feather from a Thunderbird. It feels like soft metal, and emits electricity.
+    761 : 809, #A large bottle that drains life from humans. Kumbhanda wants you to deliver it to Succubus.
+    764 : 826, #A godly stone that could very well be used as a divine housing shrine. The Kunitsu Oyamatsumi's power is held within.
+    773 : 807, #The head of Girimekhala. This will supposedly be made into a watering can.
+    778 : 138, #A head of the Beast Inugami. A powerful grudge restlessly stirs within.
+    779 : 146, #A horn of the Wilder Bicorn. It is supposedly used to make a form of hexing medicine.
+    781 : 78, #A contract written in an unknown script. It holds the power of the Tyrant Mephisto.
+    782 : 295, #Makeup that is applied around one's eyes. It holds the power of the Femme Cleopatra.
+}
+
+#Times where the demon's race is also mentioned in the description
+ITEM_DESC_DEMON_RACE = {
+    778 : 'Beast',
+    779 : 'Wilder',
+    781 : 'Tyrant',
+    782 : 'Femme',
+    }
 
 SKILL_DESC_CHANGES = {
     295 : '(Unique) Significantly raises Accuracy/Evasion of <skill_tgt> by 2 ranks for 3 turns.', #Red Capote Boss Version
@@ -93,14 +115,14 @@ DEMON_NAMES_SHORT = {
 
 
 '''
-Changes the names of items with demon names in them to that of their replacement if there is any
+Changes the names and descriptions of items with demon names in them to that of their replacement if there is any
     Parameters:
         encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
+        comp(List(Compendium_Demon)): list of demons
 '''
-def updateItemTextWithDemonNames(encounterReplacements, bossReplacements, demonNames):  
-    
+def updateItemTextWithDemonNames(encounterReplacements, bossReplacements, demonNames, comp):  
     itemFile = Message_File('ItemName','',OUTPUT_FOLDERS['ItemName'])
 
     itemNames = itemFile.getMessageStrings()
@@ -129,6 +151,39 @@ def updateItemTextWithDemonNames(encounterReplacements, bossReplacements, demonN
     
     itemFile.setMessageStrings(itemNames)
     itemFile.writeToFiles()
+
+    itemDescFile = Message_File('ItemHelpMess','',OUTPUT_FOLDERS['ItemHelpMess'])
+
+    itemDescs = itemDescFile.getMessageStrings()
+
+    for oldItemID, originalDemonID in ITEM_DESC_SYNC_DEMON_IDS.items():
+        if originalDemonID > numbers.NORMAL_ENEMY_COUNT:
+            originalName = demonNames[originalDemonID]
+            try:
+                replacementID = bossReplacements[originalDemonID]
+            except KeyError:
+                continue
+        else:
+            originalName = demonNames[originalDemonID]
+            try:
+                replacementID = encounterReplacements[originalDemonID]
+            except KeyError:
+                continue
+        if replacementID > numbers.NORMAL_ENEMY_COUNT:
+            replacementName = demonNames[replacementID]
+        else:
+            replacementName = demonNames[replacementID]
+        
+        if oldItemID in ITEM_DESC_DEMON_RACE.keys():#if race is also mentioned
+            oldRace = ITEM_DESC_DEMON_RACE[oldItemID]
+            newRace = comp[replacementID].race.translation
+            itemDescs[oldItemID] = itemDescs[oldItemID].replace(oldRace, newRace)
+
+        itemDescs[oldItemID] = itemDescs[oldItemID].replace(originalName, replacementName)
+        #print(itemDescs[oldItemID])
+
+    itemDescFile.setMessageStrings(itemDescs)
+    itemDescFile.writeToFiles()
 
 '''
 Changes the skill descriptions of skills with the same name to differentiate them.
