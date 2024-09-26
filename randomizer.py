@@ -1384,6 +1384,8 @@ class Randomizer:
         for i in range(len(self.skillNames)):
             skillLevels.append(Skill_Level(self.skillNames[i], i, level=[]))
         bonusSkills = numbers.getBonusSkills()
+        if self.configSettings.includeEnemyOnlySkills:
+            bonusSkills = bonusSkills + numbers.getEnemyOnlySkills()
         def findBonusSkill(ind):
             goal = []
             for skill in bonusSkills:
@@ -6197,6 +6199,9 @@ class Randomizer:
             self.assignTalkableTones(newComp)
         else:
             newSymbolArr = self.encountSymbolArr
+            for demon in self.compendiumArr:
+                if demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name and 'NOT_USED' not in demon.name:
+                    self.encounterReplacements[demon.ind] = demon.ind
         
         if config.randomDemonLevels or config.randomRaces:
             self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
@@ -6278,7 +6283,7 @@ class Randomizer:
 
 
         message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr)
-        message_logic.updateSkillDescriptions()
+        message_logic.updateSkillDescriptions(self.configSettings)
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames)
 
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)

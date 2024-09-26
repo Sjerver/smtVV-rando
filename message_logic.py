@@ -202,7 +202,7 @@ def changeSkillDescriptions(file: Message_File):
 '''
 Updates skill descriptions of skills with the same name and updates the unique signifier.
 '''
-def updateSkillDescriptions():
+def updateSkillDescriptions(config):
     file = Message_File('SkillHelpMess','', OUTPUT_FOLDERS['SkillHelpMess'])
     file = changeSkillDescriptions(file)
     #TODO: Add function to update (Unique) to reflect inheritance setting and demons

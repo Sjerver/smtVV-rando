@@ -54,4 +54,5 @@ class Settings(object):
         self.combineKeyItemPools = False            # Combines the key item pools of Miman, Mission, and Gifts
         self.buffGuestYuzuru = False                # Gives guest yuzuru level 99 and 99 to all stats to help with the first Labolas check
         self.expMultiplier = 1                      # Determines how much exp demons and quests provide
-        self.includeTsukuyomiTalisman = False        # Includes the Tsukuyomi Talisman in gift randomization
+        self.includeTsukuyomiTalisman = False       # Includes the Tsukuyomi Talisman in gift randomization
+        self.includeEnemyOnlySkills = False         # Include Enemy only skills in skill pool
