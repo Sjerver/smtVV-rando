@@ -364,14 +364,15 @@ def createGUI(configSettings):
     earlyMiracleLabel = tk.Label(page3FrameTopRight, text="Miracles to guarantee early")
     earlyMiracleLabel.pack()
 
-    listEarlyMiracle = tk.Listbox(page3FrameTopRight, selectmode = "multiple", width = 50, height=7, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listEarlyMiracle = tk.Listbox(page3FrameTopRight, selectmode = "multiple", width = 50, height=8, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listEarlyMiracle.insert(0, "First Divine Garrison")
     listEarlyMiracle.insert(1, "Forestall")
     listEarlyMiracle.insert(2, "Empowering Cheer 1")
     listEarlyMiracle.insert(3, "Art of Essences 1")
     listEarlyMiracle.insert(4, "Demon Proficiency 1")
     listEarlyMiracle.insert(5, "Divine Proficiency 1")
-    listEarlyMiracle.insert(6, "Divine Amalgamation")                   
+    listEarlyMiracle.insert(6, "Divine Amalgamation")
+    listEarlyMiracle.insert(7, "Inheritence Violation")
     listEarlyMiracle.pack()
     
     def toggleMiracleListboxes(event):
@@ -669,6 +670,10 @@ def createGUI(configSettings):
             listEarlyMiracle.selection_set(6)
         else:
             listEarlyMiracle.selection_clear(6)
+        if configur.get('Miracle', 'EarlyInheritenceViolation') == 'true':
+            listEarlyMiracle.selection_set(7)
+        else:
+            listEarlyMiracle.selection_clear(7)
         if configur.get('Patches', 'FixUniqueSkillAnimations') == 'true':
             listPatches.selection_set(0)
         else:
@@ -1082,6 +1087,12 @@ def createGUI(configSettings):
     else:
         configur.set('Miracle', 'EarlyDivineAmalgamation', 'false')
         
+    if earlyMiracleFlags[7]:
+        configSettings.forcedEarlyMiracles.append(30)
+        configur.set('Miracle', 'EarlyInheritenceViolation', 'true')
+    else:
+        configur.set('Miracle', 'EarlyInheritenceViolation', 'false')
+        
     if patchFlags[0]:
         configSettings.fixUniqueSkillAnimations = True
         configur.set('Patches', 'FixUniqueSkillAnimations', 'true')
@@ -1122,5 +1133,5 @@ def createConfigFile(configur):
     configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
-                        'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False}
+                        'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False, 'EarlyInheritenceViolation': False}
    

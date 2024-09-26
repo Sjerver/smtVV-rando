@@ -6327,6 +6327,7 @@ class Randomizer:
         self.writeFolder(paths.MAP_ENCOUNT_FOLDER_OUT)
         self.writeFolder(paths.ENCOUNT_MOVER_FOLDER_OUT)
         self.writeFolder(paths.MOVER_PARAMTABLE_FOLDER_OUT)
+        self.writeFolder(paths.TITLE_TEXTURE_FOLDER_OUT)
 
         self.writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
         self.writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
@@ -6355,6 +6356,8 @@ class Randomizer:
         self.writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
         self.writeBinaryTable(eventEncountPostUassetBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         #self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        self.copyFile(paths.TITLE_TEXTURE_IN, paths.TITLE_TEXTURE_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
+        self.copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         
         self.applyUnrealPak()
 
