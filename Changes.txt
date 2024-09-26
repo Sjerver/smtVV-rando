@@ -5,6 +5,7 @@ Features:
 Misc:
 * Gaea Rage from Demifiend's Guest skill list has been added to the skill pool
 * Skill descriptions of skills who have multiple versions have been updated to make it easier to identify the exact skill
+* Skill descriptions of unique skills are updated to reflect unique skill inheritance settings
 * (Quest Descriptions), Dialogue and Item Names and Descriptions have been updated to reflect the results of the randomization
 
 Version 1.02

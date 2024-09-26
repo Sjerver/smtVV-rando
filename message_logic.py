@@ -201,12 +201,49 @@ def changeSkillDescriptions(file: Message_File):
 
 '''
 Updates skill descriptions of skills with the same name and updates the unique signifier.
+Parameters:
+    skillData(List(List)): lists of active, passive and innate skills
 '''
-def updateSkillDescriptions(config):
+def updateSkillDescriptions(skillData):
     file = Message_File('SkillHelpMess','', OUTPUT_FOLDERS['SkillHelpMess'])
     file = changeSkillDescriptions(file)
-    #TODO: Add function to update (Unique) to reflect inheritance setting and demons
+    file = addSkillOwnershipToDesc(file, skillData)
     file.writeToFiles()
+
+'''
+Updates the (Unique) text for skills according to the owner of the skill.
+Parameters:
+    file(Message_File): the message file to edit
+    skillData(List(List)): lists of active, passive and innate skills
+'''
+def addSkillOwnershipToDesc(file: Message_File, skillData):
+    skillDescriptions = file.getMessageStrings()
+    for skillTypeList in skillData:#for active skill list, passive skill list and innate skill list
+        for skill in skillTypeList:
+            owner = skill.owner
+            if owner == None: #skip dummy skills
+                continue
+            if '(Unique)' in skillDescriptions[skill.ind -1] or '(Nahobino)' in skillDescriptions[skill.ind  -1]: #if skill is marked as unique
+                if owner.ind == 0:#skill is no longer unique
+                    skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Unique) ','')
+                    skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Nahobino) ','')
+                elif owner.ind == -1: #skill is nahobino skill
+                    skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Unique) ','(Nahobino) ')
+                elif owner.ind == -3: #skill is enemy only skill
+                    skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Unique) ','(Enemy) ')
+                    skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Nahobino) ','(Enemy) ')
+                else: #skill owner is actual demon
+                    skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Unique) ','(' + owner.name + ') ')
+                    skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Nahobino) ','(' + owner.name + ') ')
+            elif owner.ind != 0: #skill is not marked as unique/Nahobino but has an owner
+                if owner.ind == -1: #skill is nahobino skill
+                    skillDescriptions[skill.ind -1] = '(Nahobino) ' + skillDescriptions[skill.ind -1]
+                elif owner.ind == -3: #skill is enemy only skill
+                    skillDescriptions[skill.ind -1] = '(Enemy) ' + skillDescriptions[skill.ind -1]
+                else: #skill owner is actual demon
+                    skillDescriptions[skill.ind -1] = '(' + owner.name + ') ' + skillDescriptions[skill.ind -1]
+    file.setMessageStrings(skillDescriptions)
+    return file
 
 '''
 Update the mention of demon names in mission events.

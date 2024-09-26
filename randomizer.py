@@ -6283,7 +6283,8 @@ class Randomizer:
 
 
         message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr)
-        message_logic.updateSkillDescriptions(self.configSettings)
+        message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
+
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames)
 
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
