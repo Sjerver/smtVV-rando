@@ -1,7 +1,7 @@
 
 import util.numbers as numbers
 import re
-from base_classes.message import Message_File
+from base_classes.message import Message_File, Demon_Sync
 
 MAX_LINE_LENGTH = 50 #Arbitray Number 
 
@@ -81,10 +81,13 @@ SKILL_DESC_CHANGES = {
 }
 
 #Message files for events and what demon(name/id) needs to be updated in them
+#Demon_Sync(demonID mentioned in text, IF applicable id of demon to use replacement for) since boss mentions just use normal enemy ids
 MISSION_EVENTS_DEMON_IDS = {
-    'mm_em2030': 117,#Brawny Ambitions (Zhu Tun She)
-    'mm_em1300': 864,#Falcon's Head (Horus Punishing Foe)
-    'mm_em1400': 864,#Isis Dialogue (Either for other quest or in Minato) (Horus Punishing Foe)
+    'mm_em2030': [Demon_Sync(117)],#Brawny Ambitions (Zhu Tun She)
+    'mm_em1300': [Demon_Sync(864),Demon_Sync(453),Demon_Sync(463)],#Falcon's Head (Horus Punishing Foe,Shinagawa Station Lahmu II, Arioch)
+    'mm_em1400': [Demon_Sync(864)],#Isis Dialogue (Either for other quest or in Minato) (Horus Punishing Foe)
+    'mm_em1020': [Demon_Sync(115,432),Demon_Sync(281,802)], #The Ultimate Omelet (Hydra, Jatayu)
+    'mm_em1120': [Demon_Sync(147,nameVariant="Mothmen")], #Can I Keep Them? (Mothman)
 }
 
 #Alternative names to use for demons with names longer than 11 characters
@@ -267,44 +270,45 @@ Update the mention of demon names in mission events.
         demonNames(list(String)): list of demon names
 '''
 def updateMissionEvents(encounterReplacements, bossReplacements, demonNames):
-    for missionEvent,originalDemonID in MISSION_EVENTS_DEMON_IDS.items():
+    for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():     
         file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
         missionText = file.getMessageStrings()
 
-        originalName = demonNames[originalDemonID]
-        if originalDemonID > numbers.NORMAL_ENEMY_COUNT:
-            try:
-                replacementID = bossReplacements[originalDemonID]
-            except KeyError:
-                continue
-        else:
-            try:
-                replacementID = encounterReplacements[originalDemonID]
-            except KeyError:
-                continue
-        #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
-        if replacementID > numbers.NORMAL_ENEMY_COUNT:
+        for syncDemon in syncDemons:
+            originalDemonID = syncDemon.ind #id of demon mentionend in text
+            syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
+            originalName = demonNames[originalDemonID]
+            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
+                try:
+                    replacementID = bossReplacements[syncDemonID]
+                except KeyError:
+                    continue
+            else: #else it is a boss
+                try:
+                    replacementID = encounterReplacements[syncDemonID]
+                except KeyError:
+                    continue
+            #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
             replacementName = demonNames[replacementID]
-        else:
-            replacementName = demonNames[replacementID]
-        
-        print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
-        
-        
-        for index, box in enumerate(missionText):
 
-            if originalName in box: #Name is plain text
-                box = box.replace(originalName, replacementName)
-            if 'enemy ' + str(originalDemonID) in box: #name is talked about via ID and text is colored
-                box = box.replace('enemy ' + str(originalDemonID), 'enemy ' + str(replacementID))
-                #box = box.replace('<enemy ' + str(originalDemonID) + '>', replacementName)
+            print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
             
-            #TODO: Dialogue issues i was having was not due too line length, but still might be necessary once I actually find a case where it's relevant
-            # lines = box.split("\n")
-            # for line in lines:
-            #     pass
+            for index, box in enumerate(missionText): #for every dialogue box
 
-            missionText[index] = box
+                if originalName in box: #Name is plain text
+                    box = box.replace(originalName, replacementName)
+                if 'enemy ' + str(originalDemonID) in box: #name is talked about via ID
+                    box = box.replace('enemy ' + str(originalDemonID), 'enemy ' + str(replacementID))
+                    #box = box.replace('<enemy ' + str(originalDemonID) + '>', replacementName)
+                if syncDemon.nameVariant and syncDemon.nameVariant in box:#Name is a variant on normal name (Mothmen instead of Mothman)
+                    box = box.replace(syncDemon.nameVariant, replacementName)
+                
+                #TODO: Dialogue issues i was having was not due too line length, but still might be necessary once I actually find a case where it's relevant
+                # lines = box.split("\n")
+                # for line in lines:
+                #     pass
+
+                missionText[index] = box
         file.setMessageStrings(missionText)
         file.writeToFiles()
 
@@ -358,9 +362,8 @@ def createHintMessage(bossName, hintIndex):
 
 '''
 Returns a hint message using a direct string by replacing <BOSSNAME> in a placeholder hint message
-TODO: Make colored text work
 '''
 def createHintMessageWithID(bossID, hintIndex):
     message = HINT_MESSAGES[hintIndex]
-    message = message.replace(HINT_BOSS_PLACEHOLDER, '<enemy ' + str(bossID) + '>')
+    message = message.replace(HINT_BOSS_PLACEHOLDER, '<c look_begin><enemy ' + str(bossID) + '><c look_end>')
     return message

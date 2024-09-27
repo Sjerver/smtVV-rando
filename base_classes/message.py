@@ -2,6 +2,14 @@ from base_classes.uasset import UAsset
 from util.binary_table import Table
 from script_logic import readBinaryTable, writeBinaryTable, writeFolder
 
+class Demon_Sync:
+    def __init__(self,ind, sync=None, nameVariant=None):
+        self.ind = ind
+        self.sync = ind
+        if sync:
+            self.sync = sync
+        self.nameVariant = nameVariant
+
 class Message_Uasset(UAsset):
     def __init__(self, binaryTable: Table):
         UAsset.__init__(self, binaryTable)
