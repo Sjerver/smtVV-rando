@@ -4517,6 +4517,7 @@ class Randomizer:
                 else:
                     itemID = random.choice(validItems)
                 gift.item.ind = itemID
+            #print(gift.script + str(gift.item.ind))
         scriptLogic.updateGiftScripts(pool.allGifts)
 
     '''
@@ -4527,7 +4528,7 @@ class Randomizer:
         for script,item in scriptLogic.BASE_GIFT_ITEMS.items():
             if not self.configSettings.includeTsukuyomiTalisman and script == scriptLogic.TSUKUYOMI_TALISMAN_SCRIPT:
                 #Do not include Tsukuyomi Talisman or it's check in pool if setting isn't set
-                break
+                continue
             gift = Gift_Item()
             gift.script = script
             reward = Reward_Item(item, 1)
@@ -4571,8 +4572,10 @@ class Randomizer:
                     combinedItemPool.remove(itemID)
             
             if self.configSettings.randomizeGiftItems: #Gift pool has fixed size#TODO:Vary Size?
-                #Assign 
-                itemIDs = random.sample(combinedItemPool, len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS))
+                tsukuyomiCorrection = 0 
+                if not self.configSettings.includeTsukuyomiTalisman:
+                    tsukuyomiCorrection = 1 #Increase unique item count by 1 to account for tsukuyomi talisman not being in pool
+                itemIDs = random.sample(combinedItemPool, tsukuyomiCorrection + len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS))
                 giftPool.uniqueRewards = []
                 for itemID in itemIDs:
                     giftPool.uniqueRewards.append(Reward_Item(itemID, 1))
@@ -5684,7 +5687,6 @@ class Randomizer:
     
     '''
     Sets the drops of bosses which are quest relevant to their replacements and in cases where a quest drop boss replaces a quest drop boss makes sure that the drops of all bosses are not lost in conversion.
-    TODO: There is most likely a much simpler solution that I am simply not seeing right now
     '''
     def patchQuestBossDrops(self):
         replacementDemons = []
