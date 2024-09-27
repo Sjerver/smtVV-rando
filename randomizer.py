@@ -2293,7 +2293,7 @@ class Randomizer:
             buffer.writeWord(foe.stats.mag,offsets['HP'] + 4 * 4)
             buffer.writeWord(foe.stats.agi,offsets['HP'] + 4 * 5)
             buffer.writeWord(foe.stats.luk,offsets['HP'] + 4 * 6)
-            buffer.writeWord(foe.analyze, offsets['HP'] + 28)
+            buffer.writeByte(foe.analyze, offsets['HP'] + 28)
 
             buffer.writeWord(foe.level, offsets['level'])
             buffer.writeByte(foe.pressTurns, offsets['pressTurns'])

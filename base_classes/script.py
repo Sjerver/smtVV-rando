@@ -1,10 +1,20 @@
-from enum import IntEnum
+from enum import IntEnum, StrEnum
 from base_classes.uasset import UAsset
 from util.binary_table import Table
 
 class Script_Function_Type(IntEnum):
     IMPORT = 0
     NAME = 1
+
+class Script_Join_Type(StrEnum):
+    CODE = ""
+    ENTRYDEVILID = 'EntryDevilID'
+    ENTRYNKMID = 'EntryNkmID'
+    MASAKADO = 'MasakadoId'
+    NKMID = 'NkmID'
+    MEPHISTO = 'em1769_0721'
+    CLEOPATRA = 'em1769_0722'
+    DAGDA = 'em1769_0723'
 
 class Script_Uasset(UAsset):
     def __init__(self, binaryTable: Table):
@@ -25,7 +35,6 @@ class Script_Uasset(UAsset):
         
         result = []
 
-        #TODO: Decide if it's fine like this or remove type and just check import first and then names
         if type == Script_Function_Type.NAME and functionName in self.nameMap.keys():
             additionalBytes = additionalBytes + 4
             functionIndex = self.nameMap[functionName]
@@ -54,7 +63,6 @@ class Script_Uasset(UAsset):
         
         result = []
 
-        #TODO: Decide if it's fine like this or remove type and just check import first and then names
         if type == Script_Function_Type.NAME and nameEntry in self.nameMap.keys():
             functionIndex = self.nameMap[nameEntry]
         elif type == Script_Function_Type.IMPORT and nameEntry in self.reverseImportMap.keys():

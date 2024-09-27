@@ -3,7 +3,7 @@ import os
 from util.binary_table import Table
 import util.paths as paths
 import util.numbers as numbers
-from base_classes.script import Script_Function_Type, Script_Uasset
+from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join_Type
 from base_classes.quests import Mission_Reward, Fake_Mission
 from base_classes.uasset import UAsset
 import copy
@@ -68,8 +68,37 @@ SCRIPT_JOIN_BYTES = {
     'MM_M063_EM2170': [326663], # Guardian of Tokyo
 }
 
+SCRIPT_JOIN_TYPES = {
+    'MM_M061_EM1630': Script_Join_Type.CODE, # The Water Nymph 
+    'MM_M061_EM1640': Script_Join_Type.CODE, # The Spirit of Love 
+    'MM_M062_EM1660': Script_Join_Type.ENTRYDEVILID, # Holding The Line
+    'MM_M062_EM1650': Script_Join_Type.ENTRYDEVILID, # Those Seeking Sanctuary
+    'MM_M060_EM1690': Script_Join_Type.ENTRYDEVILID, # Raid on Tokyo, Files are same but I got 177252 instead for the Adrammelech location
+    'MM_M060_EM1700': Script_Join_Type.ENTRYDEVILID, # In Defense of Tokyo
+    'MM_M063_EM1670': Script_Join_Type.ENTRYDEVILID, # Black Frost Strikes Back
+    'MM_M063_EM1680': Script_Join_Type.ENTRYDEVILID, # A Sobering Standoff
+    'MM_M064_EM2310': Script_Join_Type.ENTRYNKMID, # Reclaim the Golden Stool 
+    'MM_M064_EM2320': Script_Join_Type.ENTRYNKMID, # Liberate the Golden Stool
+    'MM_M064_EM2270': Script_Join_Type.CODE, # The Vampire in Black
+    'MM_M064_EM2280': Script_Join_Type.CODE, # The Hunter in White
+    'MM_M060_EM1420': Script_Join_Type.CODE, # Fionn's Resolve
+    'MM_M060_EM1602': Script_Join_Type.CODE, # The Destined Leader (Amanazako Could't Join Initially), not 100% sure on v1.02 locations
+    'MM_M060_EM1601': Script_Join_Type.CODE, # The Destined Leader 
+    'MM_M016_E0885': Script_Join_Type.CODE, #Hayataro CoC Chaos
+    'MM_M016_E0885_Direct': Script_Join_Type.CODE, #Hayataro CoC Chaos
+    'MM_M016_EM1450': Script_Join_Type.CODE, # A Plot Revealed
+    'MM_M035_EM1480': Script_Join_Type.CODE, # The Seraph's Return
+    'MM_M036_EM1490': Script_Join_Type.CODE, # The Red Dragon's Invitation
+    'MM_M061_EM1781': Script_Join_Type.CODE, # Rage of a Queen
+    'MM_M061_EM2613_HitAction': Script_Join_Type.CODE, # Holy Will and Profane Dissent
+    'MM_M030_EM1769': Script_Join_Type.MEPHISTO, # Bethel Researcher giving DLC Demons
+    'MM_M061_EM1791': Script_Join_Type.CODE, # A Goddess in Training
+    'MM_M061_EM2601': Script_Join_Type.NKMID, # Sakura Cinders of the East
+    'MM_M063_EM2170': Script_Join_Type.MASAKADO, # Guardian of Tokyo
+}
+
 #List of which demon join is in which script
-SCRIPT_JOINS = {
+SCRIPT_JOIN_DEMONS = {
     'MM_M061_EM1630': 305, # Leanan Sidhe
     'MM_M061_EM1640': 43, # Apsaras
     'MM_M062_EM1660': 257, # Principality
@@ -326,16 +355,18 @@ def randomizeDemonJoins(replacements, randomDemons):
     dagda = None
 
     #for every script and its offsets to write to
-    for script, offsets in SCRIPT_JOIN_BYTES.items():
+    for script, type in SCRIPT_JOIN_TYPES.items():
         #Read folder depending on sub or main mission
         if 'EM' in script:
-            scriptData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
+            uexpData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
+            uassetData = Script_Uasset(readBinaryTable('base/Scripts/SubMission/' + script + '.uasset'))
         else:
-            scriptData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
+            uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
+            uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
         
         if randomDemons:
-
-            newDemon = replacements[SCRIPT_JOINS[script]]
+            oldDemon = SCRIPT_JOIN_DEMONS[script]
+            newDemon = replacements[oldDemon]
 
             #Save demon if it is needed in another script or use the saved demon
             if script == 'MM_M060_EM1601':
@@ -351,15 +382,17 @@ def randomizeDemonJoins(replacements, randomDemons):
             elif script == 'MM_M061_EM2613_HitAction':
                 dagda = newDemon
 
-            for offset in offsets:
-                scriptData.writeHalfword(newDemon,offset)
+            updateDemonJoinInScript(uassetData,uexpData,oldDemon,newDemon,type)
         
             #Exception for Dagda/Cleo not being recruited during their Quest but at the researcher instead
             if script == 'MM_M030_EM1769':
-                scriptData.writeHalfword(dagda,619565)
-                scriptData.writeHalfword(cleopatra,619553)
+                # uexpData.writeHalfword(dagda,619565)
+                # uexpData.writeHalfword(cleopatra,619553)
+                updateDemonJoinInScript(uassetData,uexpData,SCRIPT_JOIN_DEMONS['MM_M061_EM1781'],cleopatra,Script_Join_Type.CLEOPATRA)
+                updateDemonJoinInScript(uassetData,uexpData,SCRIPT_JOIN_DEMONS['MM_M061_EM2613_HitAction'],dagda,Script_Join_Type.DAGDA )
 
-        writeBinaryTable(scriptData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
+
+        writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
 
 '''
 #TODO: Adjust for rewrite and comment
@@ -449,6 +482,47 @@ def getItemRewardByteLocation(uassetData: Script_Uasset, uexpData: Table):
         byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number)
     for name, number in namedFunctions.items():
         byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number)
+
+    
+    return byteList
+
+def getDemonJoinByteLocation(uassetData: Script_Uasset, uexpData: Table, joinType):
+    byteList = []
+    if joinType == Script_Join_Type.CODE:
+        importedFunctions = {
+            'IsEntryNkm' : 1,
+            'EntryNkmBlank' : 1
+            }
+
+        namedFunctions = {
+
+        }
+        bonusBytes = {
+            
+        }
+    else:
+        entry = joinType.value
+        importedFunctions = {
+
+            }
+
+        namedFunctions = {
+            entry : 1
+
+        }
+        if joinType == Script_Join_Type.MEPHISTO or joinType == Script_Join_Type.CLEOPATRA or joinType == Script_Join_Type.DAGDA:
+            bonusBytes = {
+                entry : -1
+            }
+        else:
+            bonusBytes = {
+                entry : 16
+            }
+
+    for name, number in importedFunctions.items():
+        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number)
+    for name, number in namedFunctions.items():
+        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number, bonusBytes[name])
 
     
     return byteList
@@ -552,6 +626,19 @@ def updateItemRewardInScript(uassetData, uexpData, oldItemID, newItemID):
     for byte in byteList:
         uexpData.writeHalfword(newItemID, byte)
 
+def updateDemonJoinInScript(uassetData, uexpData, oldDemonID, newDemonID, type):
+    byteList = getDemonJoinByteLocation(uassetData, uexpData, type)
+    toRemove = []
+    for offset in byteList:
+        if uexpData.readWord(offset) != oldDemonID:
+            toRemove.append(offset)
+    
+    for offset in toRemove:
+        byteList.remove(offset)
+    
+    for byte in byteList:
+        #print(str(oldDemonID) + " " + str(byte))
+        uexpData.writeWord(newDemonID, byte)
 '''
 Updates the old item given through the script at the given paths to the new item.
     Parameters:
@@ -691,6 +778,7 @@ def updateGiftScripts(gifts):
         correctScript = gift.script
         if gift.script in GIFT_EXTRA_SCRIPTS.keys(): #if script is handling an additional item in a script, get the original script
             correctScript = GIFT_EXTRA_SCRIPTS[gift.script]
+        #print(correctScript + " " + str(gift.item.ind))
         if 'NPC' in correctScript: #NPC data tables are handled here   
             uexpData = readBinaryTable('base/Scripts/NPC/' + correctScript + '.uexp')
             uassetData = Script_Uasset( readBinaryTable('base/Scripts/NPC/' + correctScript + '.uasset'))

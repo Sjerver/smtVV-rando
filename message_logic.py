@@ -291,7 +291,7 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames):
             #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
             replacementName = demonNames[replacementID]
 
-            print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
+            #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
             
             for index, box in enumerate(missionText): #for every dialogue box
 
