@@ -6286,6 +6286,7 @@ class Randomizer:
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
 
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames)
+        message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
 
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])

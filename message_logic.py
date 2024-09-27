@@ -1,5 +1,6 @@
 
 import util.numbers as numbers
+import re
 from base_classes.message import Message_File
 
 MAX_LINE_LENGTH = 50 #Arbitray Number 
@@ -112,7 +113,20 @@ DEMON_NAMES_SHORT = {
     'Ame-no-Uzume' : 'Uzume',
 }
 
+#Message files for events containing boss checks, which message is the hint message, and what boss demon(name/id) needs to be updated in them
+#Value format: [(messageIndex, originalDemonID, hintMessageID), ...]
+MISSION_CHECKS_ORIGINAL_IDS = {
+    'mm_em0021': [(8, 433, 0)],#Eligor (and Andras)
+    'mm_em0020': [(42, 435, 0)],#Snake Nuwa
+}
 
+VOICE_REGEX = '<voice.*>\n'
+NAME_REGEX = '<chara.*>\n'
+HINT_BOSS_PLACEHOLDER = '<BOSSNAME>'
+
+#Various hint messages that include <BOSSNAME> where the replacement boss name will go
+HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should proceed with caution.", #0 - Generic Aogami Warning
+                 "<BOSSNAME> slew the angels guarding the path...\nThat's who's in the Diet Building."] #1 - No longer used but here as an example for now
 
 '''
 Changes the names and descriptions of items with demon names in them to that of their replacement if there is any
@@ -293,3 +307,60 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames):
             missionText[index] = box
         file.setMessageStrings(missionText)
         file.writeToFiles()
+
+
+'''
+Adds hint messages for various checks
+'''
+def addHintMessages(bossReplacements, demonNames):
+    for missionEvent,hints in MISSION_CHECKS_ORIGINAL_IDS.items():
+        file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
+        missionText = file.getMessageStrings()
+        for hintInfo in hints:
+            messageIndex = hintInfo[0]
+            originalDemonID = hintInfo[1]
+            hintIndex = hintInfo[2]
+            originalName = demonNames[originalDemonID]
+            try:
+                replacementID = bossReplacements[originalDemonID]
+            except KeyError:
+                pass
+            replacementName = demonNames[replacementID]
+        
+            #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
+        
+        
+            #for index, box in enumerate(missionText):
+            #    print(index)
+            #    print(box)
+            
+            hintBox = missionText[messageIndex]
+            #print(hintBox)
+            match = re.search(VOICE_REGEX, hintBox)
+            boxMetadata = ""
+            if match:
+                splitIndex = match.span()[1]
+                boxMetadata = hintBox[:splitIndex]
+                #print(boxMetadata)
+            hintMessage = boxMetadata + createHintMessageWithID(replacementID, hintIndex) #TODO - Differentiate bosses with the same name using the non-ID version of this function
+            missionText[messageIndex] = hintMessage
+            #print(hintMessage)
+        file.setMessageStrings(missionText)
+        file.writeToFiles()
+
+'''
+Returns a hint message using a direct string by replacing <BOSSNAME> in a placeholder hint message
+'''
+def createHintMessage(bossName, hintIndex):
+    message = HINT_MESSAGES[hintIndex]
+    message = message.replace(HINT_BOSS_PLACEHOLDER, bossName)
+    return message
+
+'''
+Returns a hint message using a direct string by replacing <BOSSNAME> in a placeholder hint message
+TODO: Make colored text work
+'''
+def createHintMessageWithID(bossID, hintIndex):
+    message = HINT_MESSAGES[hintIndex]
+    message = message.replace(HINT_BOSS_PLACEHOLDER, '<enemy ' + str(bossID) + '>')
+    return message
