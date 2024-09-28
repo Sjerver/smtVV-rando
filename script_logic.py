@@ -738,9 +738,9 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData, ogDem
 
     for index, name in enumerate(uassetData.nameList):
         if oldID in name:
-            uassetData.nameList[index] = name.replace(oldID,newID)
+            uassetData.nameList[index] = uassetData.nameList[index].replace(oldID,newID)
         if oldName in name:
-            uassetData.nameList[index] = name.replace(oldName,newName)
+            uassetData.nameList[index] = uassetData.nameList[index].replace(oldName,newName)
     
     uassetData.updateNameMap()
 

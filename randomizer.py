@@ -3494,7 +3494,7 @@ class Randomizer:
         self.missionArr = self.adjustMissionsRequiringNormalDemons(replacementDict,enemyArr, self.missionArr)
 
         #Currently does not work yet
-        #scriptLogic.replaceTutorialPixieModel(replacementDict[59])
+        #scriptLogic.replaceTutorialPixieModel(59)
         #scriptLogic.replaceTutorialPixieModel(82)
         
         return newSymbolArr
@@ -5862,6 +5862,7 @@ class Randomizer:
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
     '''
     def nullBossTones(self):
+        #TODO: Do not do this for punishing foes so you can they can trigger ambush flee money event
         for index,demon in enumerate(self.playerBossArr):
             if index < numbers.NORMAL_ENEMY_COUNT:
                 continue
@@ -6288,7 +6289,8 @@ class Randomizer:
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
 
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames)
-        message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
+        if len(self.bossReplacements):
+            message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
 
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
