@@ -404,6 +404,13 @@ def createGUI(configSettings):
     expScale = tk.Scale(page3FrameBottom, from_=1, to=2, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
     expScale.set(1)
     expScale.pack()
+
+    expLabel = tk.Label(page3FrameBottom, text="Chance for basic enemies to receive additional press turns")
+    expLabel.pack()
+
+    pressTurnScale = tk.Scale(page3FrameBottom, from_=0, to=1, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
+    pressTurnScale.set(0.1)
+    pressTurnScale.pack()
         
     page1Frame.tkraise()
     
@@ -688,6 +695,7 @@ def createGUI(configSettings):
         else:
             listPatches.selection_clear(1)
         expScale.set(configur.get('Patches', 'EXPMultiplier'))
+        pressTurnScale.set(configur.get('Patches','PressTurnChance'))
         
     #Set starting GUI values based on saved user settings
     configur = ConfigParser()
@@ -736,6 +744,7 @@ def createGUI(configSettings):
         for i in listPatches.curselection():
             patchFlags[i] = True
         expChoice = expScale.get()
+        pressTurnChoice = pressTurnScale.get()
         
         window.destroy()
     except tk.TclError:
@@ -1119,6 +1128,9 @@ def createGUI(configSettings):
     configSettings.expMultiplier = expChoice
     configur.set('Patches', 'EXPMultiplier', str(expChoice))
 
+    configSettings.pressTurnChance = pressTurnChoice
+    configur.set('Patches', 'PressTurnChance', str(pressTurnChoice))
+
     with open('config.ini', 'w') as configfile:
         configur.write(configfile)
 
@@ -1141,7 +1153,7 @@ def createConfigFile(configur):
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
                                  'ScaleInstakillRates': False}
-    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1}
+    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.1}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
                         'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False, 'EarlyInheritenceViolation': False}

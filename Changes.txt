@@ -1,8 +1,12 @@
 Version 1.03
 Features:
 * New setting to include enemy only skills in skill pool
+* New setting to set the chance that a basic enemy gains an additional press turn
 * You can now add inheritance violation to the early miracle list
 * Bosses now have hint messages, excluding abscesses and some minibosses
+
+Balance:
+* Press Turns of basic enemies now are based on what they replace (i.e. Tsuchigumos replacement has 2 press turns as an enemy)
 
 Misc:
 * Gaea Rage from Demifiend's Guest skill list has been added to the skill pool

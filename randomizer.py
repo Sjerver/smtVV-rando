@@ -81,6 +81,7 @@ class Randomizer:
         self.updatedMissionConditionIDs = []
         self.encounterReplacements = {}
         self.bossReplacements = {}
+        self.pressTurnChance = 0
 
         self.nahobino = Nahobino()
         
@@ -3274,6 +3275,8 @@ class Randomizer:
             The array of basic enemies based on the data of playable demons
     '''
     def adjustBasicEnemyArr(self, enemies, comp):
+        self.pressTurnChance = self.configSettings.pressTurnChance
+
         foes = []
         for index, enemy in enumerate(enemies):
             if 'Mitama' in enemy.name or index in numbers.BAD_IDS:
@@ -3310,8 +3313,10 @@ class Randomizer:
                 elif newID == 97:
                     newID = 381 #Dia
                 newSkills.append(Translated_Value(newID, translation.translateSkillID(newID, self.skillNames)))
-        
-            newPressTurns = math.ceil(random.random() + (0.10 * enemy.pressTurns))
+
+            newPressTurns = enemy.pressTurns
+            if self.pressTurnChance != 0:
+                newPressTurns = math.ceil(random.random() + (self.pressTurnChance * enemy.pressTurns))
             newExperience = self.expMod[newLevel]
             newMacca = self.maccaMod[newLevel]
             #In original data enemies with two press turns like Oni have multiplied EXP and Macca values
@@ -3334,6 +3339,7 @@ class Randomizer:
             newFoe.AI = 55                       #AI for random encounters
             newFoe.recruitable = 1               #Also required to be able to recruit the demon
             newFoe.pressTurns = newPressTurns
+            newFoe.oldPressTurns = newPressTurns
             newFoe.damageMultiplier = 100
             newFoe.experience = newExperience
             newFoe.money = newMacca
@@ -3547,6 +3553,8 @@ class Randomizer:
         for replacedID, replacementID in replacements.items():
             replaced = foes[replacedID]
             replacement = foes[replacementID]
+
+            replacement.pressTurns = replaced.oldPressTurns
 
             statMods = replaced.statMods
             newStats = Stats(math.floor(replacement.stats.HP * statMods.HP), math.floor(replacement.stats.MP * statMods.MP), math.floor(replacement.stats.str * statMods.str),

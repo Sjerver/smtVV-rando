@@ -56,3 +56,4 @@ class Settings(object):
         self.expMultiplier = 1                      # Determines how much exp demons and quests provide
         self.includeTsukuyomiTalisman = False       # Includes the Tsukuyomi Talisman in gift randomization
         self.includeEnemyOnlySkills = False         # Include Enemy only skills in skill pool
+        self.pressTurnChance = 0.1                    # Chance that normal enemies have an additional press turn
