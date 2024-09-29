@@ -66,4 +66,6 @@ Then open the directory of the game via Steam and navigate to SMT5V/Project/Cont
 Here create a folder named "~mods" and put the .pak file in it.
 The mod should now work when loading the game.
 
+Since the randomizer makes edits to a plethora of files it is incompatible with most mods. For a concrete list of files the randomizer modifies check the base folder.
+
 If you have any questions or technical difficulties, join the SMT Randomizer discord: https://discord.gg/d25ZAha
