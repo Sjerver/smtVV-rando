@@ -709,7 +709,7 @@ def updateAndRemoveFakeMissions(missionArr):
 
 
 
-def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData, ogDemonID, replacementDemonID):
+def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table, ogDemonID, replacementDemonID):
     '''
     #TODO: This does not quite work like this for multiple reasons:
         - a version of the name of the demon appears in the path of animation files
@@ -730,15 +730,15 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData, ogDem
              modelNames[row['Number']] = row['folderName']
              demonIDModelID[int(row['MainDemonID'])] = row['Number']
 
-    oldID = demonIDModelID[ogDemonID]
-    oldName = modelNames[oldID]
+    oldIDString = demonIDModelID[ogDemonID]
+    oldName = modelNames[oldIDString]
 
-    newID = demonIDModelID[replacementDemonID]
-    newName = modelNames[newID]
+    newIDString = demonIDModelID[replacementDemonID]
+    newName = modelNames[newIDString]
 
     for index, name in enumerate(uassetData.nameList):
-        if oldID in name:
-            uassetData.nameList[index] = uassetData.nameList[index].replace(oldID,newID)
+        if oldIDString in name:
+            uassetData.nameList[index] = uassetData.nameList[index].replace(oldIDString,newIDString)
         if oldName in name:
             uassetData.nameList[index] = uassetData.nameList[index].replace(oldName,newName)
     
@@ -747,8 +747,46 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData, ogDem
     demonModelIDBytes = getDemonModelIDByteLocation(uassetData, uexpData)
     demonModelAssetStringBytes = getDemonModelAssetStringByteLocation(uassetData, uexpData)
 
-    #TODO: Code that changes the values in uexp, but
+    lengthDifference = len(newName) - len(oldName)
+    if lengthDifference == 0:
+        #ONLY CHANGE MODEL IF LENGTH OF DEMON MODEL NAMES IS THE SAME
 
+        toRemove = []
+        for offset in demonModelIDBytes:
+            if uexpData.readWord(offset) != ogDemonID:
+                toRemove.append(offset)
+        
+        for offset in toRemove:
+            demonModelIDBytes.remove(offset)
+
+        for byte in demonModelIDBytes:
+            uexpData.writeWord(replacementDemonID, byte)
+        
+        toRemove = []
+        demonModelAssetStringBytes.sort(reverse=True)
+        for offset in demonModelAssetStringBytes:
+            offsetString = uexpData.readUntilEmptyByte(offset).decode('ascii')
+            '''
+            #TODO: This currently cannot work when the name of two demons in not the same length
+            because I'm not really sure how to find all the offsets I would need to change in order for it to work right
+            '''
+            if oldIDString in offsetString or oldName in offsetString:
+                
+                if lengthDifference > 0:#newName is longer
+                    for i in range(lengthDifference):
+                        uexpData.buffer.insert(offset + len(offsetString),0)
+                    uassetData.updateExportSizeAndOffsets(offset, lengthDifference)
+                elif lengthDifference < 0:
+                    for i in range(lengthDifference):
+                        uexpData.buffer.pop(offset + 1)
+                    uassetData.updateExportSizeAndOffsets(offset, lengthDifference)
+
+
+                offsetString = offsetString.replace(oldIDString,newIDString).replace(oldName,newName)
+                offsetString = offsetString.encode('ascii')
+
+
+                uexpData.writeXChars(offsetString, len(offsetString), offset)
 
     writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script])
     uassetData.writeDataToBinaryTable()

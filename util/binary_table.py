@@ -99,3 +99,10 @@ class Table(object):
 
             result.append(offset)
         return result
+    
+    def readUntilEmptyByte(self,offset):
+        searchBytes = struct.pack('c', b'\x00')
+        endOfString = self.buffer.find(searchBytes, offset)
+        length = endOfString - offset +1
+        return self.readXChars(length, offset)
+

@@ -277,4 +277,17 @@ class UAsset:
         self.preloadDependencyOffset += self.byteDifference
 
         for exportEntry in self.exports:
-            exportEntry.serialOffset += self.byteDifference 
+            exportEntry.serialOffset += self.byteDifference
+
+    def updateExportSizeAndOffsets(self, uexpOffset, byteDifference):
+        totalOffset = uexpOffset + len(self.binaryTable.buffer)
+        for index,exportEntry in enumerate(self.exports):
+            #update serial offsets
+            if exportEntry.serialOffset >= totalOffset:
+                exportEntry.serialOffset += byteDifference
+            #update serial size
+            if index +1 < len(self.exports) and exportEntry.serialOffset <= totalOffset and self.exports[index +1].serialOffset >= totalOffset:
+                exportEntry.serialSize += byteDifference
+
+
+        
