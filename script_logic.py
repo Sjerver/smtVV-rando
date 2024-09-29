@@ -531,6 +531,7 @@ def getDemonModelAssetStringByteLocation(uassetData: Script_Uasset, uexpData: Ta
     byteList = []
     importedFunctions = {
         'LoadAsset': 1,
+        'PrintString' : 1,
         }
 
     namedFunctions = {
@@ -539,6 +540,7 @@ def getDemonModelAssetStringByteLocation(uassetData: Script_Uasset, uexpData: Ta
 
     bonusBytes = {
         'LoadAsset': 2,
+        'PrintString': 1,
     }
 
     for name, number in importedFunctions.items():
@@ -712,13 +714,12 @@ def updateAndRemoveFakeMissions(missionArr):
 def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table, ogDemonID, replacementDemonID):
     '''
     #TODO: This does not quite work like this for multiple reasons:
-        - a version of the name of the demon appears in the path of animation files
-        - the id of the demon is also given as a parameter in the uexpData
         - the name of the demon also shows up in pre-defined name Strings in the uexpData
     What would therefore at least be needed to make this work?
-        - making a list of the names of models for the paths to animation files
-        - getting and replacing the functions where either the demon's id or a name String are parameters
-        - updating size related stuff (lengths and offsets) in uasset and uexp
+        - updating size related stuff (lengths and offsets) in and uexp
+    More Notes:
+    - moto did not work as pixy replacement even though both it should
+    - nuwa(joka_1st) worked at some point but does no longer (no idea why it worked in the first place)
     '''
 
     #TODO: Figure out where to better read the csv data
@@ -736,20 +737,22 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
     newIDString = demonIDModelID[replacementDemonID]
     newName = modelNames[newIDString]
 
-    for index, name in enumerate(uassetData.nameList):
-        if oldIDString in name:
-            uassetData.nameList[index] = uassetData.nameList[index].replace(oldIDString,newIDString)
-        if oldName in name:
-            uassetData.nameList[index] = uassetData.nameList[index].replace(oldName,newName)
-    
-    uassetData.updateNameMap()
-
-    demonModelIDBytes = getDemonModelIDByteLocation(uassetData, uexpData)
-    demonModelAssetStringBytes = getDemonModelAssetStringByteLocation(uassetData, uexpData)
-
     lengthDifference = len(newName) - len(oldName)
     if lengthDifference == 0:
+        print(oldName + " -> " + newName)
         #ONLY CHANGE MODEL IF LENGTH OF DEMON MODEL NAMES IS THE SAME
+        for index, name in enumerate(uassetData.nameList):
+            if oldIDString in name:
+                uassetData.nameList[index] = uassetData.nameList[index].replace(oldIDString,newIDString)
+            if oldName in name:
+                uassetData.nameList[index] = uassetData.nameList[index].replace(oldName,newName)
+        
+        uassetData.updateNameMap()
+
+        demonModelIDBytes = getDemonModelIDByteLocation(uassetData, uexpData)
+        demonModelAssetStringBytes = getDemonModelAssetStringByteLocation(uassetData, uexpData)
+
+    
 
         toRemove = []
         for offset in demonModelIDBytes:
