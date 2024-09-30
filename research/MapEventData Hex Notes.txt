@@ -1,0 +1,13 @@
+entries: 701
+start: 0x45
+size: 148
+
+0 ID 
+4 ???(Condition Flag??)
+14 Some Kind of Flag
+18 Always the same as 14
+1C Map ID
+24 UMap String
+
+
+
