@@ -99,7 +99,10 @@ class Table(object):
 
             result.append(offset)
         return result
-    
+
+    '''
+    Reads characters until an empty byte is encountered including the empty byte.
+    '''
     def readUntilEmptyByte(self,offset):
         searchBytes = struct.pack('c', b'\x00')
         endOfString = self.buffer.find(searchBytes, offset)
