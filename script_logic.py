@@ -731,6 +731,8 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
     More Notes:
     - moto did not work as pixy replacement even though I would expect it to due to both having names of length of 4
         - considering the new info below, it might have something to do with Mot's ID not causing him to Spawn or something?
+        - since gurr(Gurulu) also does not work I learned that it is because these demons do not have idleB
+        - now the question is can we just use idleA there, or can't swap there at all
     - moving the lengthDifference == 0 check to below the writing of demonModelIDBytes demon model get always swapped but animations only play for same length as ogDemonName
     '''
 
