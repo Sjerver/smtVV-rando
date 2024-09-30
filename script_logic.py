@@ -38,36 +38,7 @@ EMPYREAN_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m016'
 MAIN_M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M060'
 MAIN_M064_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M064'
 
-#Key: EventScriptName, Value: List(Numbers) byte offsets where demon join is decided/checked
-SCRIPT_JOIN_BYTES = {
-    'MM_M061_EM1630': [149119,211659], # The Water Nymph 
-    'MM_M061_EM1640': [165053,204312], # The Spirit of Love 
-    'MM_M062_EM1660': [172224], # Holding The Line
-    'MM_M062_EM1650': [191531], # Those Seeking Sanctuary
-    'MM_M060_EM1690': [177252], # Raid on Tokyo, Files are same but I got 177252 instead for the Adrammelech location
-    'MM_M060_EM1700': [172675], # In Defense of Tokyo
-    'MM_M063_EM1670': [165799], # Black Frost Strikes Back
-    'MM_M063_EM1680': [165807], # A Sobering Standoff
-    'MM_M064_EM2310': [412261], # Reclaim the Golden Stool 
-    'MM_M064_EM2320': [436569], # Liberate the Golden Stool
-    'MM_M064_EM2270': [211353,313712], # The Vampire in Black
-    'MM_M064_EM2280': [252862,364581], # The Hunter in White
-    'MM_M060_EM1420': [166254,171324], # Fionn's Resolve
-    'MM_M060_EM1602': [18867,19704], # The Destined Leader (Amanazako Could't Join Initially), not 100% sure on v1.02 locations
-    'MM_M060_EM1601': [192337,188908], # The Destined Leader 
-    'MM_M016_E0885': [24849,27932], #Hayataro CoC Chaos
-    'MM_M016_E0885_Direct': [34729,35684], #Hayataro CoC Chaos
-    'MM_M016_EM1450': [160681,156336], # A Plot Revealed
-    'MM_M035_EM1480': [103495,100673], # The Seraph's Return
-    'MM_M036_EM1490': [104705,107527], # The Red Dragon's Invitation
-    'MM_M061_EM1781': [102474,108977], # Rage of a Queen
-    'MM_M061_EM2613_HitAction': [161413,117165], # Holy Will and Profane Dissent
-    'MM_M030_EM1769': [619541], # Bethel Researcher giving DLC Demons
-    'MM_M061_EM1791': [137156,138009], # A Goddess in Training
-    'MM_M061_EM2601': [212904], # Sakura Cinders of the East
-    'MM_M063_EM2170': [326663], # Guardian of Tokyo
-}
-
+#Key: EventScriptName, Value: Type for what and where to search for values to be changed
 SCRIPT_JOIN_TYPES = {
     'MM_M061_EM1630': Script_Join_Type.CODE, # The Water Nymph 
     'MM_M061_EM1640': Script_Join_Type.CODE, # The Spirit of Love 
@@ -364,7 +335,7 @@ def randomizeDemonJoins(replacements, randomDemons):
             uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
             uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
         
-        if randomDemons:
+        if randomDemons:#randomize the join demons, otherwise values stay the same as OG and potential output files are overwritten with vanilla files
             oldDemon = SCRIPT_JOIN_DEMONS[script]
             newDemon = replacements[oldDemon]
 
@@ -468,12 +439,12 @@ Finds the byte offsets relating to the rewarding of items in the script.
 '''
 def getItemRewardByteLocation(uassetData: Script_Uasset, uexpData: Table):
     byteList = []
-    importedFunctions = {
+    importedFunctions = { #In the Import Map and therefore have a negative index
         'ItemGet': 1,
         'ItemGetNum': 1,
         }
 
-    namedFunctions = {
+    namedFunctions = { #In the Name Map and have positive index
         'IItemWindowSetParameter': 1,
         'IMsgSetRichTextValueParam': 2 #Second parameter is itemID
     }
@@ -486,9 +457,17 @@ def getItemRewardByteLocation(uassetData: Script_Uasset, uexpData: Table):
     
     return byteList
 
+'''
+Finds the byte offsets relating to demon joins in the script.
+    Parameters:
+        uassetData (Script_Uasset): the uasset data of the script
+        uexpData (Table): the binary data of the uexp of the script
+        joinType (Script_Join_Type): the type that decides which functions to search for in the uexp
+    Returns a list of offsets where item ids need to be changed so the items given through the script change
+'''
 def getDemonJoinByteLocation(uassetData: Script_Uasset, uexpData: Table, joinType):
     byteList = []
-    if joinType == Script_Join_Type.CODE:
+    if joinType == Script_Join_Type.CODE: #Functions are in the bytecode directly
         importedFunctions = {
             'IsEntryNkm' : 1,
             'EntryNkmBlank' : 1
@@ -500,7 +479,7 @@ def getDemonJoinByteLocation(uassetData: Script_Uasset, uexpData: Table, joinTyp
         bonusBytes = {
             
         }
-    else:
+    else: #Functions are not in the bytecode directly and the value of joinType is equal to the searched function in the name map
         entry = joinType.value
         importedFunctions = {
 
@@ -511,10 +490,11 @@ def getDemonJoinByteLocation(uassetData: Script_Uasset, uexpData: Table, joinTyp
 
         }
         if joinType == Script_Join_Type.MEPHISTO or joinType == Script_Join_Type.CLEOPATRA or joinType == Script_Join_Type.DAGDA:
+            #Have a different amount of bytes than all others
             bonusBytes = {
                 entry : -1
             }
-        else:
+        else: #Normal amount of bytes between name and id
             bonusBytes = {
                 entry : 16
             }
@@ -527,6 +507,13 @@ def getDemonJoinByteLocation(uassetData: Script_Uasset, uexpData: Table, joinTyp
     
     return byteList
 
+'''
+Finds the byte offsets where a string containing the demon model is in the script.
+    Parameters:
+        uassetData (Script_Uasset): the uasset data of the script
+        uexpData (Table): the binary data of the uexp of the script
+    Returns a list of offsets where item ids need to be changed so the items given through the script change
+'''
 def getDemonModelAssetStringByteLocation(uassetData: Script_Uasset, uexpData: Table):
     byteList = []
     importedFunctions = {
@@ -551,6 +538,13 @@ def getDemonModelAssetStringByteLocation(uassetData: Script_Uasset, uexpData: Ta
     
     return byteList
 
+'''
+Finds the byte offsets where the id of the demon model is in the script.
+    Parameters:
+        uassetData (Script_Uasset): the uasset data of the script
+        uexpData (Table): the binary data of the uexp of the script
+    Returns a list of offsets where item ids need to be changed so the items given through the script change
+'''
 def getDemonModelIDByteLocation(uassetData: Script_Uasset, uexpData: Table):
     byteList = []
     importedFunctions = {
@@ -615,7 +609,7 @@ def updateItemRewardInScript(uassetData, uexpData, oldItemID, newItemID):
     byteList = getItemRewardByteLocation(uassetData, uexpData)
 
     toRemove = []
-    for offset in byteList:
+    for offset in byteList: #find bytes that were found but don't correspond to the oldItemID
         if uexpData.readHalfword(offset) != oldItemID:
             toRemove.append(offset)
     
@@ -625,13 +619,22 @@ def updateItemRewardInScript(uassetData, uexpData, oldItemID, newItemID):
     # if len(byteList) > 0:
     #    print(str(oldItemID) + " -> " + str(newItemID) + " (" + str(len(byteList)))
 
-    for byte in byteList:
+    for byte in byteList: #write newItemID to the offsets
         uexpData.writeHalfword(newItemID, byte)
 
+'''
+Updates the old demon that joins in the script to the new demon.
+    Parameters:
+        uassetData (Script_Uasset): the uasset data of the script
+        uexpData (Table): the binary data of the uexp of the script
+        oldItemID (Integer): the id of the old item to overwrite
+        newItemID (Integer): the id of the new item that overwrites the old one
+        type (Script_Join_Type): the type that decides which functions to search for in the uexp
+'''
 def updateDemonJoinInScript(uassetData, uexpData, oldDemonID, newDemonID, type):
     byteList = getDemonJoinByteLocation(uassetData, uexpData, type)
     toRemove = []
-    for offset in byteList:
+    for offset in byteList: #find bytes that were found but don't correspond to the oldDemonID
         if uexpData.readWord(offset) != oldDemonID:
             toRemove.append(offset)
     
@@ -696,7 +699,7 @@ def updateAndRemoveFakeMissions(missionArr):
     writeFolder(MAINMISSION_FOLDER)
     toRemove = []
     for index, mission in enumerate(missionArr):
-        if mission.ind < 0:
+        if mission.ind < 0: #if mission is fake mission
             
             #print(str(mission.ind) + ": " + str(mission.originalReward.ind) + " -> " + str(mission.reward.ind) )
             updateItemRewardInScript(mission.uasset, mission.uexp, mission.originalReward.ind, mission.reward.ind)
@@ -710,7 +713,15 @@ def updateAndRemoveFakeMissions(missionArr):
     return missionArr
 
 
-
+'''
+Replaces the a demon model with the model of another demon in the given script.
+    Parameters:
+        script(String): the name of the script
+        uassetData (Script_Uasset): the uasset data of the script
+        uexpData (Table): the binary data of the uexp of the script
+        ogDemonID (Integer): the id of the demon that should be replaced
+        replacementDemonID (Integer): the id of the replacement demon
+'''
 def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table, ogDemonID, replacementDemonID):
     '''
     #TODO: This does not quite work like this for multiple reasons:
@@ -718,8 +729,9 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
     What would therefore at least be needed to make this work?
         - updating size related stuff (lengths and offsets) in and uexp
     More Notes:
-    - moto did not work as pixy replacement even though both it should
-    - nuwa(joka_1st) worked at some point but does no longer (no idea why it worked in the first place)
+    - moto did not work as pixy replacement even though I would expect it to due to both having names of length of 4
+        - considering the new info below, it might have something to do with Mot's ID not causing him to Spawn or something?
+    - moving the lengthDifference == 0 check to below the writing of demonModelIDBytes demon model get always swapped but animations only play for same length as ogDemonName
     '''
 
     #TODO: Figure out where to better read the csv data
@@ -731,17 +743,18 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
              modelNames[row['Number']] = row['folderName']
              demonIDModelID[int(row['MainDemonID'])] = row['Number']
 
+    #Get the String corresponding to the old demon
     oldIDString = demonIDModelID[ogDemonID]
     oldName = modelNames[oldIDString]
-
+    #Get the String corresponding to the new demon
     newIDString = demonIDModelID[replacementDemonID]
     newName = modelNames[newIDString]
 
     lengthDifference = len(newName) - len(oldName)
-    if lengthDifference == 0:
+    if lengthDifference == 0:#same length is the only one where everything works for
         print(oldName + " -> " + newName)
         #ONLY CHANGE MODEL IF LENGTH OF DEMON MODEL NAMES IS THE SAME
-        for index, name in enumerate(uassetData.nameList):
+        for index, name in enumerate(uassetData.nameList): #change occurence of old demon ID and name in all names in the uasset
             if oldIDString in name:
                 uassetData.nameList[index] = uassetData.nameList[index].replace(oldIDString,newIDString)
             if oldName in name:
@@ -755,7 +768,7 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
     
 
         toRemove = []
-        for offset in demonModelIDBytes:
+        for offset in demonModelIDBytes: #remove bytes that were mistakingly found and do not set the old demon id
             if uexpData.readWord(offset) != ogDemonID:
                 toRemove.append(offset)
         
@@ -766,20 +779,20 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
             uexpData.writeWord(replacementDemonID, byte)
         
         toRemove = []
-        demonModelAssetStringBytes.sort(reverse=True)
+        demonModelAssetStringBytes.sort(reverse=True) #sort offsets so that inserting/removing bytes does not effect offsets that come after in the list
         for offset in demonModelAssetStringBytes:
             offsetString = uexpData.readUntilEmptyByte(offset).decode('ascii')
             '''
-            #TODO: This currently cannot work when the name of two demons in not the same length
+            #TODO: This currently cannot work when the name of two demons is not the same length
             because I'm not really sure how to find all the offsets I would need to change in order for it to work right
             '''
-            if oldIDString in offsetString or oldName in offsetString:
+            if oldIDString in offsetString or oldName in offsetString: #only update stuff if need is there
                 
                 if lengthDifference > 0:#newName is longer
                     for i in range(lengthDifference):
                         uexpData.buffer.insert(offset + len(offsetString),0)
                     uassetData.updateExportSizeAndOffsets(offset, lengthDifference)
-                elif lengthDifference < 0:
+                elif lengthDifference < 0: #newName is shorter
                     for i in range(lengthDifference):
                         uexpData.buffer.pop(offset + 1)
                     uassetData.updateExportSizeAndOffsets(offset, lengthDifference)
@@ -795,7 +808,11 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
     uassetData.writeDataToBinaryTable()
     writeBinaryTable(uassetData.binaryTable.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uasset', SCRIPT_FOLDERS[script])
 
-
+'''
+Replaces the model of the talk tutorial pixie with the demon who the given ID belongs to.
+    Parameters:
+        replacementDemonID (Integer): id of the demon to replace pixie model
+'''
 def replaceTutorialPixieModel(replacementDemonID):
     script = 'EM_M061_DevilTalk'
     uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
