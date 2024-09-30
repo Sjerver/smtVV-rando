@@ -3500,7 +3500,7 @@ class Randomizer:
         self.missionArr = self.adjustMissionsRequiringNormalDemons(replacementDict,enemyArr, self.missionArr)
 
         #Currently does not work yet
-        #scriptLogic.replaceTutorialPixieModel(replacementDict[59])
+        scriptLogic.replaceTutorialPixieModel(replacementDict[59])
         #scriptLogic.replaceTutorialPixieModel(75)
         
         return newSymbolArr
@@ -3985,6 +3985,15 @@ class Randomizer:
         for demon in comp:
             demon.tendency = random.choice(tendencies)
             demon.alignment = random.choice(alignments)
+
+    '''
+    Removes all fusion unlock flags from all demons.
+    '''
+    def removeFusionFlags(self):
+        for demon in self.compendiumArr:
+            if demon.unlockFlags[0] > 0:
+                demon.unlockFlags[0] = 0
+                demon.unlockFlags[1] = 0
 
     '''
     Adjust the clear conditions of all missions who usually require a punishing foe to be defeated to instead require the shuffled results demon.
@@ -6248,6 +6257,9 @@ class Randomizer:
 
         if config.randomAlignment:
             self.randomizeDemonAlignment(self.compendiumArr)
+        
+        if config.unlockFusions:
+            self.removeFusionFlags()
 
         scriptLogic.randomizeDemonJoins(self.encounterReplacements,config.ensureDemonJoinLevel)
             

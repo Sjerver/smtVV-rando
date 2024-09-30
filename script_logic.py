@@ -127,7 +127,7 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM2601': M061_FOLDER, # Sakura Cinders of the East
     'MM_M063_EM2170': M063_FOLDER, # Guardian of Tokyo
     'MM_M061_EM1030': M061_FOLDER, # Cursed Mermaids
-    'MM_M050_EM2050': M050_FOLDER, # Picture-Perfect Debut
+    'MM_M061_EM2050': M050_FOLDER, # Picture-Perfect Debut
     'MM_M060_EM1310': M060_FOLDER, # Downtown Rock 'n Roll
     'MM_M060_EM1370': M060_FOLDER, # Keeper of the North
     'MM_M061_EM1360': M061_FOLDER, # Keeper of the West
@@ -191,7 +191,7 @@ EXTRA_MISSION_IDS = {
     'MM_M035_EM1480': [-2], # The Seraph's Return
     'MM_M036_EM1490': [-3], # The Red Dragon's Invitation
     'MM_M061_EM1030': [-4], # Cursed Mermaids
-    'MM_M050_EM2050': [-5], # Picture-Perfect Debut
+    #'MM_M061_EM2050': [-5], # Picture-Perfect Debut Neither the M061 nor the M050 version seem to edit the item correctly
     'MM_M060_EM1310': [-6], # Downtown Rock 'n Roll
     'MM_M060_EM1370': [-7,-18], # Keeper of the North
     'MM_M061_EM1360': [-8], # Keeper of the West

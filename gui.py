@@ -393,9 +393,10 @@ def createGUI(configSettings):
     patchesLabel = tk.Label(page3FrameBottom, text="Patches")
     patchesLabel.pack()
 
-    listPatches = tk.Listbox(page3FrameBottom, selectmode = "multiple", width=50, height=2, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listPatches = tk.Listbox(page3FrameBottom, selectmode = "multiple", width=50, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listPatches.insert(0, "Fix unique skill animations")
     listPatches.insert(1, "Buff guest Yuzuru to make first Labolas check easier")
+    listPatches.insert(2, "Unlock all fusions from the start")
     listPatches.pack()
     
     expLabel = tk.Label(page3FrameBottom, text="EXP Multiplier")
@@ -694,6 +695,10 @@ def createGUI(configSettings):
             listPatches.selection_set(1)
         else:
             listPatches.selection_clear(1)
+        if configur.get('Patches', 'UnlockFusions') == 'true':
+            listPatches.selection_set(2)
+        else:
+            listPatches.selection_clear(2)
         expScale.set(configur.get('Patches', 'EXPMultiplier'))
         pressTurnScale.set(configur.get('Patches','PressTurnChance'))
         
@@ -1124,6 +1129,12 @@ def createGUI(configSettings):
         configur.set('Patches', 'BuffGuestYuzuru', 'true')
     else:
         configur.set('Patches', 'BuffGuestYuzuru', 'false')
+    
+    if patchFlags[2]:
+        configSettings.unlockFusions = True
+        configur.set('Patches', 'UnlockFusions', 'true')
+    else:
+        configur.set('Patches', 'UnlockFusions', 'false')
         
     configSettings.expMultiplier = expChoice
     configur.set('Patches', 'EXPMultiplier', str(expChoice))
@@ -1153,7 +1164,7 @@ def createConfigFile(configur):
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
                                  'ScaleInstakillRates': False}
-    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.1}
+    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.1, 'UnlockFusions': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
                         'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False, 'EarlyInheritenceViolation': False}

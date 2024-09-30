@@ -1,7 +1,7 @@
 Version 1.03
 Features:
 * New setting to include enemy only skills in skill pool
-* New setting to set the chance that a basic enemy gains an additional press turn
+* New settings to unlock all fusions from the start and to set the chance that a basic enemy gains an additional press turn
 * You can now add inheritance violation to the early miracle list
 * Bosses now have hint messages, excluding abscesses and some minibosses
 
