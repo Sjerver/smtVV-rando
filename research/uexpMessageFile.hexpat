@@ -8,6 +8,9 @@ struct textValue{
         s32 valueSize;
         if (valueSize > 0) {
             char string[valueSize];
+        } else {
+            u32 reverseSize = valueSize * -1;
+            char16 string[reverseSize];
         }
 
 };
@@ -65,25 +68,25 @@ u8;u32;
 struct entryType{
     s64 name;
     s64 propertyType;
-    if (propertyType == 16) { //Array Property
+    if (propertyType == 3) { //Array Property
         s64 arraySize;
     }
     s64 variant;
     u8 dupIndex;
-    if (propertyType == 55) {//Int Property
+    if (propertyType == 7) {//Int Property
         s32 numberValue;
     }
-    else if(propertyType == 65){ //Name Property
+    else if(propertyType == 783){ //Name Property
         s64 nameValue;
     }
-    else if(propertyType == 16 && variant == 76){//Text Property
+    else if(propertyType == 3 && variant == 1598){//Text Property
         s32 pageCount;
         
         page pages[pageCount];
         
         
     }
-    else if(propertyType == 16 && variant == 75){//Strut Property
+    else if(propertyType == 3 && variant == 1597){//Strut Property
         pageDataArray;
         iconElement icons;
         

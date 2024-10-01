@@ -410,6 +410,7 @@ LUNATION_FLUX_ID = 927
 
 #Mission ID of Brawny Ambitions II for skill condition
 BRAWNY_AMBITIONS_ID = 197
+BRAWNY_AMBITIONS2_SKILL = "Puncture Punch"
 
 '''
 Returns dictionary lining out to which reward are each shop slot belongs

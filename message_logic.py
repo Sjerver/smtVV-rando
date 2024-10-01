@@ -10,6 +10,7 @@ OUTPUT_FOLDERS = {
     'SkillHelpMess' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Battle/Skill/',
     'MissionFolder' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission/MissionEvent/',
     'ItemHelpMess' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Item/',
+    'MissionInfo' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission/'
 }
 
 #List of folders that have to be created in the output folder in order of creation
@@ -199,6 +200,85 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "<pc_given>, we may be forced to\nfight <BOSSNAME>. Are you ready?", #7 - Khonsu Ra CoC Quest
                  "Can you overcome <BOSSNAME> at full\npower? What say we find out?"] #8 - Fionn 2 Dialogue
 
+MISSION_INFO_DEMON_IDS = {
+    #TODO: Figure out which ID to use for demon join and cases where demon join is also boss (Mabye handle seperately?)
+    7: [Demon_Sync(281,802)], #The Ultimate Omelet (Jatayu)
+    8: [Demon_Sync(233,801)], #The Cursed Mermaid (Pazuzu)
+    9: [Demon_Sync(20,803)], #The Demon of the Spring (Anahita)
+    12: [Demon_Sync(89,810)], #A Golden Opportunity (Loki)
+    13: [Demon_Sync(311,820)], #Talisman Hunt (Shiki-Ouji)
+    15: [Demon_Sync(147,nameVariant="Mothmen")], #Can I Keep Them? (Mothman)
+    17: [Demon_Sync(342, 809)], #Kumhanda's Bottle (Kumbhanda)
+    18: [Demon_Sync(89,810)], #A Goddess Stolen (Loki)
+    22: [Demon_Sync(80,454)], #Hellfire Highway (Surt)
+    23: [Demon_Sync(25,455)], #The Augmented Goddess (Ishtar)
+    24: [Demon_Sync(212,826)], #The Search for Oyamatsumi (Oyamatsumi)
+    28: [Demon_Sync(215,822)], #Clash with the Kunitsukami (Okuninushi)
+    30: [Demon_Sync(322,813)], #He of a Hundred Hands (Hecatoncheires)
+    31: [Demon_Sync(248,814)], #The Angel of Destruction (Camael)
+    34: [Demon_Sync(232,827)], #An Unusual Forecast (Girimekhala)
+    35: [Demon_Sync(211,828),Demon_Sync(215,822)], #The Ancient Guardian (Arahabaki,Okuninushi)
+    36: [Demon_Sync(206,860)], #Keeper of the South (Zouchouten)
+    37: [Demon_Sync(204,862)], #Keeper of the East (Jikokuten)
+    38: [Demon_Sync(205,861)], #Keeper of the West (Koumokuten)
+    39: [Demon_Sync(203,859)], #Keeper of the North (Bishamonten)
+    40: [Demon_Sync(7,516)], #The Egyptians' Fate (Khonsu)
+    41: [Demon_Sync(76,831),Demon_Sync(181,829),Demon_Sync(7,516)], #The Winged Sun (Khonsu,Amons,Asura) #TODO:Mithras 830
+    42: [Demon_Sync(7,516)], #The Succession of Ra (Khonsu)
+    43: [Demon_Sync(84,832)], #Abaddon's Assault (Abaddon)
+    46: [Demon_Sync(17,837)], #The Bull God's Lineage (Baal)
+    47: [Demon_Sync(8,838)], #A Plot Revealed (Zeus(
+    48: [Demon_Sync(94,839)], #The Golden Dragon's Arrival (Huang Long)
+    49: [Demon_Sync(94,839)], #The Benevolent One (Huang Long)
+    52: [Demon_Sync(30,842)], #The Compassionate Queen (Maria)
+    53: [Demon_Sync(188,843)], #The Noble Queen (Danu)
+    54: [Demon_Sync(189,844)], #The Wrathful Queen (Inanna)
+    55: [Demon_Sync(178,845)], #A Universe in Peril (Shiva)
+    72: [Demon_Sync(13,864)], #The Falcon's Head (Horus)
+    73: [Demon_Sync(38,876)], #A Power Beyond Control (Amanozako)
+    74: [], #The Destined Leader (Kurama) #TODO: Kurama Tengu (37,878) no direct replacement 
+    83: [Demon_Sync(95,933)], #A Goddess in Training (Quetzacotl)
+    84: [Demon_Sync(359,921),Demon_Sync(357,922),Demon_Sync(356,923),Demon_Sync(354,924),Demon_Sync(353,925),Demon_Sync(352,926),Demon_Sync(358,927),Demon_Sync(351,928),
+         Demon_Sync(350,929),Demon_Sync(934)], #Return of the True Demon (Matador, Daisoujou, Hell Biker, White Rider, Red Rider, Black Rider, Pale Rider, Mother Harlot, Trumpeter, Demi-fiend)
+    86: [Demon_Sync(318,888)], #Movin' On Up (Oni)
+    87: [Demon_Sync(345,889)], #A Preta Predicament (Preta)
+    88: [Demon_Sync(111,468),Demon_Sync(8,469),Demon_Sync(9,470)], #The Three Keys (Vasuki, Zeus, Odin)
+    91: [Demon_Sync(441)], #Defending Jozoji Temple (Lahmu)
+    92: [Demon_Sync(452)], #Eliminate Lahmu (Lahmu)
+    93: [Demon_Sync(25,455),Demon_Sync(80,454),Demon_Sync(82,463)], #Defeat the Demon King's Armies (Surt, Ishtar, Arioch)
+    94: [Demon_Sync(240,467)], #Escort the Prime Minister (Abdiel)
+    103: [Demon_Sync(236,556)], #Elimate Lahmu (Lahmu) CoV
+    106: [Demon_Sync(89,810)], #A Golden Opportunity (Loki) CoV
+    109: [Demon_Sync(7,566)], #Investigate the Salt Incidents (Khonsu)
+    111: [Demon_Sync(7,566)], #Rescue Miyazu Atsuta (Khonsu)
+    115: [Demon_Sync(8,481),Demon_Sync(81,483)], #The Three Keys (Zeus, Odin, Beelzebub) #TODO: 482 Odin isn't main demon in encounter
+    142: [Demon_Sync(248,814)], #The Angel of Destruction (Camael)
+    143: [Demon_Sync(76,831),Demon_Sync(181,829)], #The Winged Sun (Amons,Asura) CoV #TODO:Mithras 830
+    144: [Demon_Sync(359,921),Demon_Sync(357,922),Demon_Sync(356,923),Demon_Sync(354,924),Demon_Sync(353,925),Demon_Sync(352,926),Demon_Sync(358,927),Demon_Sync(351,928),
+         Demon_Sync(350,929),Demon_Sync(934)], #Return of the True Demon CoV (Matador, Daisoujou, Hell Biker, White Rider, Red Rider, Black Rider, Pale Rider, Mother Harlot, Trumpeter, Demi-fiend)
+    147: [Demon_Sync(38,876)], #A Power Beyond Control CoV (Amanozako)
+    148: [Demon_Sync(232,827)], #An Unusual Forecast CoV (Girimekhala)
+    150: [Demon_Sync(336),Demon_Sync(107,752)], #Beastly Battle of Wits (Nozuchi, Kodama(Not the ones in the boss fight)
+    151: [Demon_Sync(117)], #Brawny Ambitions (Zhu Tun She)
+    159: [Demon_Sync(108,769)], #Heart of Garnet (Vouivre)
+    161: [Demon_Sync(113)], #Tough Love (Basilisk)
+    177: [Demon_Sync(337,890)], #As God Wills (Gogmagog)
+    183: [Demon_Sync(200,778)], #Rascal of the Norse (Thor)
+    185: [Demon_Sync(278,865)], #Maker of Myth (Garuda)
+    188: [Demon_Sync(118,760)], #The Serpent King (Samael)
+    189: [Demon_Sync(175,754)], #Supersonic Racing (Turbo Granny)
+    190: [Demon_Sync(1,681)], #The Great Adversary (Satan)
+    194: [Demon_Sync(77,892)], #Devotion to Order (Mara)
+    197: [Demon_Sync(122)], #Brawny Ambitions II (Xiezhai)
+    201: [Demon_Sync(141,751)], #Knocking on Death's Door (Dormarth)
+    202: [Demon_Sync(291,891)], #The Disgraced Bird God (Gurulu)
+    205: [Demon_Sync(22,791)], #Goddesses of Fate (Norn)
+    206: [Demon_Sync(12,776)], #Will of the Samurai (Atavaka)
+    208: [Demon_Sync(212,826)], #Sakura Cinders of the East (Oyamatsumi)
+    210: [Demon_Sync(103,775)], #Heroes of Heaven and Earth (Yamata-no-Orochi)
+    211: [Demon_Sync(8,481),Demon_Sync(237,782)], #God of Old, Devourer of Kin (Zeus, Saturnus)
+}
+
 '''
 Changes the names and descriptions of items with demon names in them to that of their replacement if there is any
     Parameters:
@@ -332,7 +412,6 @@ def addSkillOwnershipToDesc(file: Message_File, skillData):
 
 '''
 Update the mention of demon names in mission events.
-TODO: Fix out of bounds related assertion error related when reading some mission files
     Parameters:
         encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
         bossReplacements(Dict): map for which boss replaces which boss
@@ -449,3 +528,46 @@ def createHintMessageWithID(bossID, hintIndex):
     message = HINT_MESSAGES[hintIndex]
     message = message.replace(HINT_BOSS_PLACEHOLDER, '<c look_begin><enemy ' + str(bossID) + '><c look_end>')
     return message
+
+def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawnyAmbition2Skill):
+    file = Message_File('MissionInfo','/',OUTPUT_FOLDERS['MissionInfo'])
+
+    missionText = file.getMessageStrings()
+    
+    commonEntries = 3 #first 3 are common for all missions
+    missionTextCount = 7 #Name,Client, Reward, Explain, Help, Report, Completed
+    
+    for missionIndex, syncDemons in MISSION_INFO_DEMON_IDS.items():
+        for syncDemon in syncDemons:
+            originalDemonID = syncDemon.ind #id of demon mentionend in text
+            syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
+            originalName = demonNames[originalDemonID]
+            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
+                try:
+                    replacementID = bossReplacements[syncDemonID]
+                except KeyError:
+                    continue
+            else: #else it is a boss
+                try:
+                    replacementID = encounterReplacements[syncDemonID]
+                except KeyError:
+                    continue
+            #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
+            replacementName = demonNames[replacementID]
+
+
+            for index in range(missionTextCount):
+                messageComponent = missionText[commonEntries + index+1 + 7 * (missionIndex)]
+                if originalName in messageComponent: #Name is plain text
+                    messageComponent = messageComponent.replace(originalName, replacementName)
+                if 'enemy ' + str(originalDemonID).zfill(3) in messageComponent: #name is talked about via ID
+                    messageComponent = messageComponent.replace('enemy ' + str(originalDemonID).zfill(3), 'enemy ' + str(replacementID).zfill(3))
+                if syncDemon.nameVariant and syncDemon.nameVariant in messageComponent:#Name is a variant on normal name (Mothmen instead of Mothman)
+                    messageComponent = messageComponent.replace(syncDemon.nameVariant, replacementName)
+                if numbers.BRAWNY_AMBITIONS2_SKILL in messageComponent:
+                    messageComponent = messageComponent.replace(numbers.BRAWNY_AMBITIONS2_SKILL, brawnyAmbition2Skill)
+                missionText[commonEntries + 1 + index + 7 * (missionIndex)] = messageComponent
+        file.setMessageStrings(missionText)
+        file.writeToFiles()
+
+

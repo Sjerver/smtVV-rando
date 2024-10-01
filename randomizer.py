@@ -82,6 +82,7 @@ class Randomizer:
         self.encounterReplacements = {}
         self.bossReplacements = {}
         self.pressTurnChance = 0
+        self.brawnyAmbitions2SkillName = "Puncture Punch"
 
         self.nahobino = Nahobino()
         
@@ -5643,6 +5644,7 @@ class Randomizer:
                        condition.ind = self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value
                     else:
                         condition.ind = self.compendiumArr[mission.conditions[0].ind].skills[1].value
+                    self.brawnyAmbitions2SkillName = self.obtainSkillFromID(condition.ind).name
 
         return missionArr
 
@@ -6307,7 +6309,7 @@ class Randomizer:
 
         message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
-
+        #message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName)
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames)
         if len(self.bossReplacements):
             message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
