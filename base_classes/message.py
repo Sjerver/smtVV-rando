@@ -22,6 +22,12 @@ class Message_Uexp():
         self.arraySize = binaryTable.readWord(0x21) # amounts to number of messages
         self.structSize = binaryTable.readWord(0x35)
 
+class Page_Data():
+    def __init__(self):
+        self.name = None
+        self.voice = None
+        self.cue = None
+        self.lipSync = None
 
 class Message():
     def __init__(self):
@@ -29,16 +35,18 @@ class Message():
         self.pages = []
         self.ind = None
         self.label = None
-        self.name = None
-        self.voice = None
-        self.cue = None
-        self.lipSync = None
-    
+        self.pageDataArray = []
+        self.pageDataCount = None
+
+class Message_Page():
+    def __init__(self):
+        self.textEntries = []
+
     '''
     Returns the actual text of the message.
     '''
     def getText(self):
-        return self.pages[2].string
+        return self.textEntries[2].string
 
     '''
     Set the text of the message and recalculate the it in bytes form.
@@ -46,11 +54,12 @@ class Message():
             text(String): the text this message should have
     '''
     def setText(self, text):
-        self.pages[2].string = text
-        self.pages[2].bytes = self.pages[2].encode()
+        # print(self.textEntries[2].encoding)
+        self.textEntries[2].string = text
+        self.textEntries[2].bytes = self.textEntries[2].encode()
 
 
-class Message_Page():
+class Message_Page_Text_Entry():
     def __init__(self, bytes, encoding):
         self.bytes = bytes
         self.encoding = encoding
@@ -79,6 +88,7 @@ class Message_Page():
 
 class Message_File:
     def __init__(self, fileName, baseFolder, outputFolder):
+        print("READ: " + fileName)
         self.messages = []
         self.fileName = fileName
         self.randoFolder = outputFolder
@@ -107,34 +117,49 @@ class Message_File:
             message.ind = uexpBinary.readWord(currentOffset + 25 + additionalBytes)
             message.label = self.uasset.nameList[uexpBinary.readWord(currentOffset + 54 + additionalBytes)]
             currentOffset = currentOffset + 104 #just before page start aka first page size
+            message.pageCount = uexpBinary.readWord(currentOffset + additionalBytes - 9)
             message.pageDataSize = uexpBinary.readDblword(currentOffset + additionalBytes - 26)
-            for i in range(3):
-                
-                pageSize = uexpBinary.readWord(currentOffset + additionalBytes + 4* i)
-                encoding = 'ascii' 
-                if pageSize < 0: #2 byte chars
-                    pageSize = pageSize * -2
-                    encoding = 'utf-8' 
-                bytes = uexpBinary.readXChars(pageSize, currentOffset + additionalBytes + 4* i + 4)
-                page = Message_Page(bytes,encoding)
+            for pageIndex in range(message.pageCount):
+                page = Message_Page()
+                for i in range(3):
+                    
+                    pageSize = uexpBinary.readWord(currentOffset + additionalBytes + 4* i + 17 * pageIndex)
+                    encoding = 'ascii' 
+                    if pageSize < 0: #2 byte chars
+                        pageSize = pageSize * -2
+                        encoding = 'utf-16-le' 
+                    bytes = uexpBinary.readXChars(pageSize, currentOffset + additionalBytes + 4* i + 4 + 17 * pageIndex)
+                    pageTextEntry = Message_Page_Text_Entry(bytes,encoding)
+                    page.textEntries.append(pageTextEntry)
+                    additionalBytes = additionalBytes + pageSize
                 message.pages.append(page)
-                additionalBytes = additionalBytes + pageSize
             
-            currentOffset = currentOffset + 8 * 3 + 99#name Size
-            nameSize = uexpBinary.readWord(currentOffset + additionalBytes)
-            message.name = uexpBinary.readXChars(nameSize,currentOffset + additionalBytes + 4)
-            additionalBytes = additionalBytes + nameSize
+           
+            currentOffset =currentOffset + 8 * 3 + 17*message.pageCount + 4
+            message.pageDataCount = uexpBinary.readWord(currentOffset+ additionalBytes)
+            
+            currentOffset = currentOffset + 78 #name Size
+            for i in range(message.pageDataCount):
+                pageData = Page_Data()
 
-            currentOffset = currentOffset + 4 + 25#voice Size
-            voiceSize = uexpBinary.readWord(currentOffset + additionalBytes)
-            message.voice = uexpBinary.readXChars(nameSize,currentOffset + additionalBytes + 4)
-            additionalBytes = additionalBytes + voiceSize
+                nameSize = uexpBinary.readWord(currentOffset + additionalBytes)
+                pageData.name = uexpBinary.readXChars(nameSize,currentOffset + additionalBytes + 4)
+                additionalBytes = additionalBytes + nameSize
 
-            currentOffset = currentOffset + 4 + 21 + 4#value 2 of cue
-            message.cue = self.uasset.nameList[uexpBinary.readWord(currentOffset + additionalBytes)]
+                currentOffset = currentOffset + 4 + 25#voice Size
+                voiceSize = uexpBinary.readWord(currentOffset + additionalBytes)
+                pageData.voice = uexpBinary.readXChars(nameSize,currentOffset + additionalBytes + 4)
+                additionalBytes = additionalBytes + voiceSize
 
-            currentOffset = currentOffset + 8 + 21 + 4 + 4#value 2 of lipsync
-            message.lipSync = self.uasset.nameList[uexpBinary.readWord(currentOffset + additionalBytes)]
+                currentOffset = currentOffset + 4 + 21 + 4#value 2 of cue
+                pageData.cue = self.uasset.nameList[uexpBinary.readWord(currentOffset + additionalBytes)]
+
+                currentOffset = currentOffset + 8 + 21 + 4 + 4#value 2 of lipsync
+                pageData.lipSync = self.uasset.nameList[uexpBinary.readWord(currentOffset + additionalBytes)]
+
+                message.pageDataArray.append(pageData)
+                if message.pageDataCount -1 > i:
+                    currentOffset = currentOffset + 45
 
             currentOffset = currentOffset + 8 + 102 +4
 
@@ -146,7 +171,8 @@ class Message_File:
     def getMessageStrings(self):
         array = []
         for message in self.messages:
-            array.append(message.getText())
+            for page in message.pages:
+                array.append(page.getText())
         return array
 
     '''
@@ -155,8 +181,11 @@ class Message_File:
             newMessages(List(String)): a list of strings that the message with the same index should be set to
     '''
     def setMessageStrings(self, newMessages):
+        currentIndex = 0
         for index, message in enumerate(self.messages):
-            message.setText(newMessages[index])
+            for page in message.pages:
+                page.setText(newMessages[currentIndex])
+                currentIndex += 1
     
     '''
     Writes the data of this message file to both the uexp and uasset, and outputs it to the appropriate rando subfolders.
@@ -176,6 +205,7 @@ class Message_File:
     Update the binary table for the uexp with the current data.
     '''
     def updateUexp(self):
+        print("WRITE: " + self.fileName)
         sizeDifference = 0 #How much the file differs from the original file
         uexpBinary = self.uexp.binaryTable
 
@@ -186,50 +216,56 @@ class Message_File:
             currentOffset = currentOffset + 104  #just before page start
             messageSizeDiff = 0 #How much this message differs in size 
             messageAddBytes = 0 #How many bytes the strings from this message add to the modular offsets
-            for index,page in enumerate(message.pages):
-                pageSize = uexpBinary.readWord(currentOffset + additionalBytes + 4* index)
-                if pageSize < 0: #2 byte chars
-                    pageSize = pageSize * -2
-                originalString = uexpBinary.readXChars(pageSize, currentOffset + additionalBytes + 4* index + 4)
-                if index != 2 or page.bytes == originalString : #Only page 2 is of relevance and only if it has changed (and we temporarily ignore changes in utf-16 strings because encoding doesn't quite work right)
-                    additionalBytes = additionalBytes + pageSize
-                    messageAddBytes = messageAddBytes + pageSize
-                else: # there is a need to rewrite the string in the uexp
-                    if pageSize < len(page.bytes): #New string is larger than old one
-                        messageSizeDiff = messageSizeDiff +  len(page.bytes) - pageSize
-                        sizeDifference = sizeDifference + messageSizeDiff
-                        for i in range(len(page.bytes) - pageSize):
-                            uexpBinary.buffer.insert(currentOffset+ additionalBytes + 4*index + 4 ,0)
-                        if page.encoding == 'ascii':
-                            uexpBinary.writeWord(len(page.bytes),currentOffset + additionalBytes + 4* index)
-                        else:
-                            uexpBinary.writeWord(len(page.bytes) // -2,currentOffset + additionalBytes + 4* index)
-                    elif pageSize > len(page.bytes): #New string is smaller than old one
-                        messageSizeDiff = messageSizeDiff + (len(page.bytes) - pageSize)
-                        sizeDifference = sizeDifference + messageSizeDiff
-                        for i in range(pageSize - len(page.bytes)):
-                            uexpBinary.buffer.pop(currentOffset + additionalBytes + 4*index + 4)
-                        if page.encoding == 'ascii':
-                            uexpBinary.writeWord(len(page.bytes),currentOffset + additionalBytes + 4* index)
-                        else:
-                            uexpBinary.writeWord(len(page.bytes) // -2,currentOffset + additionalBytes + 4* index)
-                    pageSize = len(page.bytes)
-                    uexpBinary.writeXChars(page.bytes, pageSize, currentOffset + additionalBytes + 4* index + 4)
-                    additionalBytes = additionalBytes + pageSize
-                    messageAddBytes = messageAddBytes + pageSize
+            for pageIndex, page in enumerate(message.pages):
+                for index,pageTextEntry in enumerate(page.textEntries):
+                    pageSize = uexpBinary.readWord(currentOffset + additionalBytes + 4* index + 17 * (pageIndex))
+                    if pageSize < 0: #2 byte chars
+                        pageSize = pageSize * -2
+                    originalString = uexpBinary.readXChars(pageSize, currentOffset + additionalBytes + 4* index + 4 + 17 * (pageIndex))
+                    if index != 2 or pageTextEntry.bytes == originalString : #Only page 2 is of relevance and only if it has changed (and we temporarily ignore changes in utf-16 strings because encoding doesn't quite work right)
+                        additionalBytes = additionalBytes + pageSize
+                        messageAddBytes = messageAddBytes + pageSize
+                    else: # there is a need to rewrite the string in the uexp
+                        if pageSize < len(pageTextEntry.bytes): #New string is larger than old one
+                            messageSizeDiff = messageSizeDiff +  len(pageTextEntry.bytes) - pageSize
+                            sizeDifference = sizeDifference + messageSizeDiff
+                            for i in range(len(pageTextEntry.bytes) - pageSize):
+                                uexpBinary.buffer.insert(currentOffset+ additionalBytes + 4*index + 4 ,0)
+                            if pageTextEntry.encoding == 'ascii':
+                                uexpBinary.writeWord(len(pageTextEntry.bytes),currentOffset + additionalBytes + 4* index + 17 * (pageIndex))
+                            else:
+                                uexpBinary.writeWord(len(pageTextEntry.bytes) // -2,currentOffset + additionalBytes + 4* index + 17 * (pageIndex))
+                        elif pageSize > len(pageTextEntry.bytes): #New string is smaller than old one
+                            messageSizeDiff = messageSizeDiff + (len(pageTextEntry.bytes) - pageSize)
+                            sizeDifference = sizeDifference + messageSizeDiff
+                            for i in range(pageSize - len(pageTextEntry.bytes)):
+                                uexpBinary.buffer.pop(currentOffset + additionalBytes + 4*index + 4)
+                            if pageTextEntry.encoding == 'ascii':
+                                uexpBinary.writeWord(len(pageTextEntry.bytes),currentOffset + additionalBytes + 4* index + 17 * (pageIndex))
+                            else:
+                                uexpBinary.writeWord(len(pageTextEntry.bytes) // -2,currentOffset + additionalBytes + 4* index + 17 * (pageIndex))
+                        pageSize = len(pageTextEntry.bytes)
+                        uexpBinary.writeXChars(pageTextEntry.bytes, pageSize, currentOffset + additionalBytes + 4* index + 4 + 17 * (pageIndex))
+                        additionalBytes = additionalBytes + pageSize
+                        messageAddBytes = messageAddBytes + pageSize
             uexpBinary.writeDblword(messageSizeDiff + message.pageDataSize, currentOffset + additionalBytes - messageAddBytes - 26)
             
 
             #TODO: Add code for writing if these are changed later, currently only read for offset calc
-            currentOffset = currentOffset + 8 * 3 + 99#name Size
-            nameSize = uexpBinary.readWord(currentOffset + additionalBytes)
-            additionalBytes = additionalBytes + nameSize
+            currentOffset =currentOffset + 8 * 3 + 17*message.pageCount + 4 + 78#name Size
+            for i in range(message.pageDataCount):
+                nameSize = uexpBinary.readWord(currentOffset + additionalBytes)
+                additionalBytes = additionalBytes + nameSize
 
-            currentOffset = currentOffset + 4 + 25#voice Size
-            voiceSize = uexpBinary.readWord(currentOffset + additionalBytes)
-            additionalBytes = additionalBytes + voiceSize
+                currentOffset = currentOffset + 4 + 25#voice Size
+                voiceSize = uexpBinary.readWord(currentOffset + additionalBytes)
+                additionalBytes = additionalBytes + voiceSize
 
-            currentOffset = currentOffset + 25+ 4 + 8+ 25 +4 + 8+ 102 +4
+                currentOffset = currentOffset + 4 + 21 + 4 + 8 + 21 + 4 + 4
+                if message.pageDataCount -1 > i:
+                    currentOffset = currentOffset + 45
+
+            currentOffset = currentOffset + 8+ 102 +4
             
         self.uexp.fileSize = self.uexp.fileSize + sizeDifference
         self.uexp.structSize = self.uexp.structSize + sizeDifference
