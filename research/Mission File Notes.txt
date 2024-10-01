@@ -1,2 +1,42 @@
 The Angels' Request (Eligor) - 0021
 Mostly Angels' Request Dialogue but Nuwa warning is here too - 0020 (message 0x19 is "the angels guarding the path are gone for vengeance nuwa hint)
+Loup Garou - 0043 contains the warning dialogue
+Hellfire Highway (Surt and Yakumo) - 0060, there are extra messages mentioning surt by name besides the warnings
+Ishtar - 0070, Surt's name is mentioned, as is Ishtar's multiple times.
+Zeus mentioned in 0145, Shiva/Vasuki mentioned in 0143, Odin in 0147 (Amanozako dialogue)
+A Preta Predicament - 0150 one dialogue says "us pretas", 0151 mentions apsaras multiple times, 0152 also mentions preta
+Moving on up (Oni) - 0170, 0171 mentioned, 0173 has aogami warning and other mentions
+The Ultimate Omelet (Jatayu) - 1020, mentions hydra (enemy 114)
+The Cursed Mermaids (Pazuzu) - 1031, he mentions his name with the wrong enemy tag
+Anahita quest - 1040 and 1041, mentioned with normal enemy version tag multiple times
+Talisman Hunt (Shiki Ouji) - 1050, mentioned with normal enemy version tag
+Kumbhanda quest - 1140, mentioned with normal enemy version tag multiple times
+A goddess stolen (Loki) - 1150, mentioned with normal enemy version tag multiple times and 1151 mentioned by name
+The Tyrant of Tennozu (Belphegor) - 1160/1161, warning in 1161 (also uses normal enemy version tag)
+King Frost quest - 1180
+Oyamatsumi quest - 1210 (Surt mentioned too)
+Kunitsukami fight quest - 1250 (Mentions Oyamatsumi, need hint for Okuninushi)
+Chimera quest - 1260
+Hecaton quest - 1270
+The Archangel of Destruction (Camael) - 1280
+Roar of Hatred (Moloch) - 1290 (Belphegor mentioned too)
+Horus Quest - 1300 (Arioch and Lahmu mentioned)
+Gary Quest - 1320
+Lord's Sword Quest - 1330 (Mentions Arahabaki and all 4 kings)
+Zouchouten Event Battle - 1340
+Koumokuten Event Battle - 1350
+Jikokuten Event Battle - 1360
+Bishamonten Event Battle - 1370
+Khonsu CoC Quest - 1380, mentions Arioch
+The Winged Sun Crest (Amon/Mithras/Asura) - 1390, mentions Amon, Khonsu and Arioch. Mithras and Asura are both mentioned by name
+Khonsu Ra CoC Quest - 1401, mentions Horus, Isis
+Abaddon's Assault - 1410
+Fionn 2 Quest - 1420
+3 Archangels Quest - 1430, mentions Michael
+Baal Quest - 1440, mentions Belphegor, Moloch, Beelzebub, and Lucifer
+A Plot Unveiled (Zeus 2) - 1450, include playable demeter
+The Gold Dragon's Arrival - 1460 and 1470, but 1470 only mentions him in fusion unlock message
+Siding with Michael - 1480, Mentions Arioch
+Siding with Belial - 1490, Mentions Arioch
+Maria/Danu/Innana - 1500
+A Universe in Peril (Shiva) - 1530, Mentions Vasuki

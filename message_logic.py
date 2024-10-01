@@ -88,6 +88,53 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1400': [Demon_Sync(864)],#Isis Dialogue (Either for other quest or in Minato) (Horus Punishing Foe)
     'mm_em1020': [Demon_Sync(115,432),Demon_Sync(281,802)], #The Ultimate Omelet (Hydra, Jatayu)
     'mm_em1120': [Demon_Sync(147,nameVariant="Mothmen")], #Can I Keep Them? (Mothman)
+    'mm_em0060': [Demon_Sync(80, 454)],#Hellfire Highway (Surt)
+    'mm_em0070': [Demon_Sync(80, 454), Demon_Sync(25, 455)],#Ishtar Quest (Surt and Ishtar)
+    'mm_em0143': [Demon_Sync(111, 468), Demon_Sync(178, 845)],#Taito India Amanozako dialogue (Vasuki and Shiva)
+    'mm_em0145': [Demon_Sync(8, 469)],#Taito Greek Amanozako dialogue (Zeus)
+    'mm_em0147': [Demon_Sync(9, 470)],#Taito Norse Amanozako dialogue (Odin)
+    'mm_em0151': [Demon_Sync(43)],#A Preta Predicament (Apsaras) TODO: Handle case if guest demons do not join at same level (always apsaras, etc)
+    'mm_em0152': [Demon_Sync(345, 889)],#A Preta Predicament (Preta)
+    'mm_em0170': [Demon_Sync(318, 888)],#Moving on up (Oni, 4 quest files)
+    'mm_em0171': [Demon_Sync(318, 888)],
+    'mm_em0173': [Demon_Sync(318, 888)],
+    'mm_em0174': [Demon_Sync(318, 888)],
+    'mm_em1031': [Demon_Sync(233, 801)],#The Cursed Mermaids (Pazuzu)
+    'mm_em1040': [Demon_Sync(20, 803)],#Anahita Quest (Anahita, 2 quest files)
+    'mm_em1041': [Demon_Sync(20, 803)],
+    'mm_em1050': [Demon_Sync(311, 820)],#Talisman Hunt (Shiki Ouji)
+    'mm_em1140': [Demon_Sync(342, 809)],#Kumbhanda Quest (Kumbhanda)
+    'mm_em1150': [Demon_Sync(89, 810)],#A Goddess Stolen (Loki, 2 quest files)
+    'mm_em1151': [Demon_Sync(89, 810)],
+    'mm_em1160': [Demon_Sync(86, 804)],#The Tyrant of Tennozu (Belphegor, 2 quest files)
+    'mm_em1161': [Demon_Sync(86, 804)],
+    'mm_em1180': [Demon_Sync(87, 821)],#King Frost Quest (King Frost, 2 quest files)
+    'mm_em1182': [Demon_Sync(87, 821)],
+    'mm_em1210': [Demon_Sync(212, 826), Demon_Sync(80, 454)],#Oyamatsumi Quest (Oyamatsumi and Surt)
+    'mm_em1250': [Demon_Sync(215, 822), Demon_Sync(212, 826)],#Kunitsukami Fight Quest (Okuninushi and Oyamatsumi)
+    'mm_em1260': [Demon_Sync(127, 812)], #Chimera Quest (Chimera)
+    'mm_em1270': [Demon_Sync(322, 813)], #Hecaton Quest (Hecaton)
+    'mm_em1280': [Demon_Sync(248, 814)], #The Archangel of Destruction (Camael, Abdiel is mentioned but there's not one specific boss to pull her from)
+    'mm_em1290': [Demon_Sync(85, 816), Demon_Sync(86, 804)],#Roar of Hatred (Moloch, Belphegor)
+    'mm_em1320': [Demon_Sync(232, 827)],#Girimehkala Quest (Girimehkala)
+    'mm_em1330': [Demon_Sync(211, 828), Demon_Sync(206, 860), Demon_Sync(205, 861), Demon_Sync(204, 862), Demon_Sync(203, 863)],#Lord's Sword Quest (Arahabaki, Zouchouten, Koumokuten, Jikokuten, Bishamonten)
+    'mm_em1340': [Demon_Sync(206, 860)],#Zouchouten Event Battle Dialogue
+    'mm_em1350': [Demon_Sync(205, 861)],#Koumokuten Event Battle Dialogue
+    'mm_em1360': [Demon_Sync(204, 862)],#Jikokuten Event Battle Dialogue
+    'mm_em1370': [Demon_Sync(203, 863)],#Bishamonten Event Battle Dialogue
+    'mm_em1380': [Demon_Sync(7, 516), Demon_Sync(82, 463)],#Khonsu CoC Quest (Khonsu, Arioch)
+    'mm_em1390': [Demon_Sync(181, 829), Demon_Sync(76, 831), Demon_Sync(7, 516), Demon_Sync(82, 463)],#The Winged-Sun Crest (Asura, Amon, Khonsu, Arioch) TODO: Add Mithras 830, who is named but not the first demon in a boss encounter
+    'mm_em1401': [Demon_Sync(15, 519), Demon_Sync(7, 516), Demon_Sync(13, 864)],#Khonsu Ra CoC Quest (Khonsu Ra, Khonsu, Horus)
+    'mm_em1410': [Demon_Sync(84, 832)],#Abbadon's Assault (Abaddon)
+    'mm_em1420': [Demon_Sync(35)],#Fionn 2 Quest (Fionn)
+    'mm_em1430': [Demon_Sync(243, 836), Demon_Sync(242, 841)],#3 Seraphim Quest (Gabriel, Michael): Add Uriel 834 and Raphael 835, who are named but not the first demon in a boss encounter
+    'mm_em1440': [Demon_Sync(17, 837), Demon_Sync(86, 804), Demon_Sync(85, 816), Demon_Sync(81, 483), Demon_Sync(2, 537)],#Baal Quest (Baal, Belphegor, Moloch, Beelzebub, Lucifer)
+    'mm_em1450': [Demon_Sync(8, 838), Demon_Sync(19)],#A Plot Unveiled (Zeus, Demeter)
+    'mm_em1460': [Demon_Sync(94, 839)],#The Gold Dragon's Arrival (Huang Long)
+    'mm_em1480': [Demon_Sync(83, 840), Demon_Sync(242), Demon_Sync(82, 463)],#Side with Michael (Belial, Michael, Arioch)
+    'mm_em1490': [Demon_Sync(242, 841), Demon_Sync(83), Demon_Sync(82, 463)],#Side with Belial (Michael, Belial, Arioch)
+    'mm_em1500': [Demon_Sync(30, 842), Demon_Sync(188, 843), Demon_Sync(189, 844)],#Seed of Life Quest (Maria, Danu, Innana)
+    'mm_em1530': [Demon_Sync(178, 845), Demon_Sync(111, 468)],#A Universe in Peril (Shiva, Vasuki)
 }
 
 #Alternative names to use for demons with names longer than 11 characters
@@ -121,6 +168,20 @@ DEMON_NAMES_SHORT = {
 MISSION_CHECKS_ORIGINAL_IDS = {
     'mm_em0021': [(8, 433, 0)],#Eligor (and Andras)
     'mm_em0020': [(42, 435, 0)],#Snake Nuwa
+    'mm_em0043': [(2, 450, 0)],#Loup Garou
+    'mm_em0060': [(62, 454, 0), (66, 465, 0)],#Surt, Yakumo (Surt is mentioned by name in 2 other messages)
+    'mm_em0070': [(49, 455, 0)],#Ishtar (Surt and Ishtar's name are mentioned lots elsewhere)
+    'mm_em0150': [(8, 889, 1)],#A Preta Predicament (just one instance currently)
+    'mm_em0173': [(16, 888, 0)],#Moving On Up (Oni)
+    'mm_em1031': [(10, 801, 0)],#The cursed mermaids (Pazuzu), he says his name elsewhere but with his normal enemy version id
+    'mm_em1151': [(35, 810, 0)],#A Goddess Stolen (Loki)
+    'mm_em1160': [(8, 804, 2)],#The Tyrant of Tennozu (Belphegor), he says his name with normal enemy version id in 1161
+    'mm_em1180': [(6, 821, 3)],#King Frost Quest
+    'mm_em1250': [(4, 822, 4)],#Kunitsukami Fight Quest
+    'mm_em1260': [(8, 812, 5)],#Chimera Quest
+    'mm_em1290': [(8, 816, 6)],#Roar of Hatred
+    'mm_em1401': [(1, 519, 7)],#Khonsu Ra CoC
+    'mm_em1420': [(17, 833, 8)],#Fionn 2 Quest
 }
 
 VOICE_REGEX = '<voice.*>\n'
@@ -129,7 +190,14 @@ HINT_BOSS_PLACEHOLDER = '<BOSSNAME>'
 
 #Various hint messages that include <BOSSNAME> where the replacement boss name will go
 HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should proceed with caution.", #0 - Generic Aogami Warning
-                 "<BOSSNAME> slew the angels guarding the path...\nThat's who's in the Diet Building."] #1 - No longer used but here as an example for now
+                 "Us <BOSSNAME>s are always hungry,\nno matter how much we put away.", #1 - A Preta Predicament
+                 "<BOSSNAME> has appeared there,\ndwelling at <c look_begin>the peak of a mountain<c look_end>.", #2 - The Tyrant of Tennozu
+                 "I have a hunch there might be\n<BOSSNAME> in there.", #3 - Nekomata dialogue for king frost quest
+                 "Prove your ability by defeating us. If you can do\nthat, then I, <BOSSNAME>, shall add my power to you.", #4 - Okuninushi dialogue before Kunitsu fight
+                 "That reminds me, a fellow demon told me there is a<c look_begin><BOSSNAME><c look_end> somewhere in this area...", #5 - Chimera Quest (Demeter Dialogue)
+                 "How about it? Will you slay <BOSSNAME> for me?", #6 - Roar of Hatred
+                 "<pc_given>, we may be forced to\nfight <BOSSNAME>. Are you ready?", #7 - Khonsu Ra CoC Quest
+                 "Can you overcome <BOSSNAME> at full\npower? What say we find out?"] #8 - Fionn 2 Dialogue
 
 '''
 Changes the names and descriptions of items with demon names in them to that of their replacement if there is any
@@ -264,93 +332,107 @@ def addSkillOwnershipToDesc(file: Message_File, skillData):
 
 '''
 Update the mention of demon names in mission events.
+TODO: Fix out of bounds related assertion error related when reading some mission files
     Parameters:
         encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
 '''
 def updateMissionEvents(encounterReplacements, bossReplacements, demonNames):
-    for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():     
-        file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
-        missionText = file.getMessageStrings()
+    for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():
+        try:
+            file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
+            missionText = file.getMessageStrings()
 
-        for syncDemon in syncDemons:
-            originalDemonID = syncDemon.ind #id of demon mentionend in text
-            syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
-            originalName = demonNames[originalDemonID]
-            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
-                try:
-                    replacementID = bossReplacements[syncDemonID]
-                except KeyError:
-                    continue
-            else: #else it is a boss
-                try:
-                    replacementID = encounterReplacements[syncDemonID]
-                except KeyError:
-                    continue
-            #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
-            replacementName = demonNames[replacementID]
+            for syncDemon in syncDemons:
+                originalDemonID = syncDemon.ind #id of demon mentionend in text
+                syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
+                originalName = demonNames[originalDemonID]
+                if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
+                    try:
+                        replacementID = bossReplacements[syncDemonID]
+                    except KeyError:
+                        continue
+                else: #else it is a boss
+                    try:
+                        replacementID = encounterReplacements[syncDemonID]
+                    except KeyError:
+                        continue
+                #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
+                replacementName = demonNames[replacementID]
 
-            #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
+                #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
             
-            for index, box in enumerate(missionText): #for every dialogue box
+                for index, box in enumerate(missionText): #for every dialogue box
+                    if originalName in box: #Name is plain text
+                        box = box.replace(originalName, replacementName)
+                    if 'enemy ' + str(originalDemonID).zfill(3) in box: #name is talked about via ID
+                        box = box.replace('enemy ' + str(originalDemonID).zfill(3), 'enemy ' + str(replacementID).zfill(3))
+                        #box = box.replace('<enemy ' + str(originalDemonID) + '>', replacementName)
+                        #print(box)
+                    if syncDemon.nameVariant and syncDemon.nameVariant in box:#Name is a variant on normal name (Mothmen instead of Mothman)
+                        box = box.replace(syncDemon.nameVariant, replacementName)
+                    #TODO: Dialogue issues i was having was not due too line length, but still might be necessary once I actually find a case where it's relevant
+                    # lines = box.split("\n")
+                    # for line in lines:
+                    #     pass
 
-                if originalName in box: #Name is plain text
-                    box = box.replace(originalName, replacementName)
-                if 'enemy ' + str(originalDemonID) in box: #name is talked about via ID
-                    box = box.replace('enemy ' + str(originalDemonID), 'enemy ' + str(replacementID))
-                    #box = box.replace('<enemy ' + str(originalDemonID) + '>', replacementName)
-                if syncDemon.nameVariant and syncDemon.nameVariant in box:#Name is a variant on normal name (Mothmen instead of Mothman)
-                    box = box.replace(syncDemon.nameVariant, replacementName)
-                
-                #TODO: Dialogue issues i was having was not due too line length, but still might be necessary once I actually find a case where it's relevant
-                # lines = box.split("\n")
-                # for line in lines:
-                #     pass
-
-                missionText[index] = box
-        file.setMessageStrings(missionText)
-        file.writeToFiles()
+                    missionText[index] = box
+            file.setMessageStrings(missionText)
+            file.writeToFiles()
+        except AssertionError:
+            print("Error during message read for mission file " + missionEvent)
 
 
 '''
 Adds hint messages for various checks
+Parameters:
+        bossReplacements(Dict): map for which boss replaces which boss
+        demonNames(list(String)): list of demon names
 '''
 def addHintMessages(bossReplacements, demonNames):
     for missionEvent,hints in MISSION_CHECKS_ORIGINAL_IDS.items():
-        file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
-        missionText = file.getMessageStrings()
-        for hintInfo in hints:
-            messageIndex = hintInfo[0]
-            originalDemonID = hintInfo[1]
-            hintIndex = hintInfo[2]
-            originalName = demonNames[originalDemonID]
-            try:
-                replacementID = bossReplacements[originalDemonID]
-            except KeyError:
-                pass
-            replacementName = demonNames[replacementID]
+        try:
+            file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
+            missionText = file.getMessageStrings()
+            for hintInfo in hints:
+                messageIndex = hintInfo[0]
+                originalDemonID = hintInfo[1]
+                hintIndex = hintInfo[2]
+                originalName = demonNames[originalDemonID]
+                try:
+                    replacementID = bossReplacements[originalDemonID]
+                except KeyError:
+                    pass
+                replacementName = demonNames[replacementID]
         
-            #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
+                #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
         
         
-            #for index, box in enumerate(missionText):
-            #    print(index)
-            #    print(box)
+                #for index, box in enumerate(missionText):
+                #    print(index)
+                #    print(box)
             
-            hintBox = missionText[messageIndex]
-            #print(hintBox)
-            match = re.search(VOICE_REGEX, hintBox)
-            boxMetadata = ""
-            if match:
-                splitIndex = match.span()[1]
-                boxMetadata = hintBox[:splitIndex]
-                #print(boxMetadata)
-            hintMessage = boxMetadata + createHintMessageWithID(replacementID, hintIndex) #TODO - Differentiate bosses with the same name using the non-ID version of this function
-            missionText[messageIndex] = hintMessage
-            #print(hintMessage)
-        file.setMessageStrings(missionText)
-        file.writeToFiles()
+                hintBox = missionText[messageIndex]
+                #print(hintBox)
+                match = re.search(VOICE_REGEX, hintBox)
+                boxMetadata = ""
+                if match:
+                    splitIndex = match.span()[1]
+                    boxMetadata = hintBox[:splitIndex]
+                    #print(boxMetadata)
+                else:
+                    match = re.search(NAME_REGEX, hintBox)
+                    if match:
+                        splitIndex = match.span()[1]
+                        boxMetadata = hintBox[:splitIndex]
+                hintMessage = boxMetadata + createHintMessageWithID(replacementID, hintIndex) #TODO - Differentiate bosses with the same name using the non-ID version of this function
+                missionText[messageIndex] = hintMessage
+                #print(hintMessage)
+            file.setMessageStrings(missionText)
+            file.writeToFiles()
+        except AssertionError:
+            print("Error during message read for mission file " + missionEvent)
 
 '''
 Returns a hint message using a direct string by replacing <BOSSNAME> in a placeholder hint message
