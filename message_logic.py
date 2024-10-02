@@ -127,7 +127,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1401': [Demon_Sync(15, 519), Demon_Sync(7, 516), Demon_Sync(13, 864)],#Khonsu Ra CoC Quest (Khonsu Ra, Khonsu, Horus)
     'mm_em1410': [Demon_Sync(84, 832)],#Abbadon's Assault (Abaddon)
     'mm_em1420': [Demon_Sync(35)],#Fionn 2 Quest (Fionn)
-    'mm_em1430': [Demon_Sync(243, 836), Demon_Sync(242, 841)],#3 Seraphim Quest (Gabriel, Michael): Add Uriel 834 and Raphael 835, who are named but not the first demon in a boss encounter
+    'mm_em1430': [Demon_Sync(243, 836), Demon_Sync(242, 841)],#3 Seraphim Quest (Gabriel, Michael): TODO: Add Uriel 834 and Raphael 835, who are named but not the first demon in a boss encounter
     'mm_em1440': [Demon_Sync(17, 837), Demon_Sync(86, 804), Demon_Sync(85, 816), Demon_Sync(81, 483), Demon_Sync(2, 537)],#Baal Quest (Baal, Belphegor, Moloch, Beelzebub, Lucifer)
     'mm_em1450': [Demon_Sync(8, 838), Demon_Sync(19)],#A Plot Unveiled (Zeus, Demeter)
     'mm_em1460': [Demon_Sync(94, 839)],#The Gold Dragon's Arrival (Huang Long)
@@ -135,6 +135,59 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1490': [Demon_Sync(242, 841), Demon_Sync(83), Demon_Sync(82, 463)],#Side with Belial (Michael, Belial, Arioch)
     'mm_em1500': [Demon_Sync(30, 842), Demon_Sync(188, 843), Demon_Sync(189, 844)],#Seed of Life Quest (Maria, Danu, Innana)
     'mm_em1530': [Demon_Sync(178, 845), Demon_Sync(111, 468)],#A Universe in Peril (Shiva, Vasuki)
+    'mm_em1570': [Demon_Sync(845)],#Sarasvati Collection Quest (Shiva)
+    'mm_em1590': [Demon_Sync(876), Demon_Sync(453)],#Berserk Amanozako Quest (Amanozako, 3 Quest Files, Final Lahmu)
+    'mm_em1591': [Demon_Sync(876)],
+    'mm_em1592': [Demon_Sync(876)],
+    'mm_em1600': [Demon_Sync(38), Demon_Sync(454)], #Final Amanozako Quest (Amanozako, 4 Quest Files, Surt)
+    'mm_em1601': [Demon_Sync(38)],
+    'mm_em1602': [Demon_Sync(38), Demon_Sync(877)], #Zaou-Gongen Mentioned here and in 1603
+    'mm_em1603': [Demon_Sync(38), Demon_Sync(877)],
+    'mm_em1630': [Demon_Sync(868), Demon_Sync(305)], #Side with Leanan (Apsaras, Leanan) TODO: Add Ippon Datara 867, who is named but not the first demon in a quest
+    'mm_em1640': [Demon_Sync(866), Demon_Sync(43)], #Side with Apsaras (Leanan, Apsaras)
+    'mm_em1641': [Demon_Sync(43), Demon_Sync(889)], #Apsaras' Followers Dialogue (Apsaras, 2 Quest Files, Preta)
+    'mm_em1642': [Demon_Sync(43)],
+    'mm_em1650': [Demon_Sync(879), Demon_Sync(67)], #Side with Lilim (Principality, Lilim)
+    'mm_em1660': [Demon_Sync(880), Demon_Sync(257)], #Side with Principality (Lilim, Principality)
+    'mm_em1670': [Demon_Sync(881), Demon_Sync(72)], #Side with Black Frost (Dionysus, Black Frost)
+    'mm_em1680': [Demon_Sync(882), Demon_Sync(183)], #Side with Dionysus (Black Frost, Dionysus)
+    'mm_em1690': [Demon_Sync(883), Demon_Sync(265)], #Side with Adramelech (Futsunushi, Adramelech)
+    'mm_em1700': [Demon_Sync(884), Demon_Sync(201)], #Side with Futsunushi (Adramelech, Futsunushi)
+    'mm_em1769': [Demon_Sync(78), Demon_Sync(295), Demon_Sync(31), Demon_Sync(4), Demon_Sync(528)], #Tokyo Diet Building Researcher (Mephisto, Cleopatra, Artemis, Dagda, Tsukuyomi) TODO: Differentiate between boss and summonable versions. Optionally add Yuzuru and Yoko/Tehom?
+    'mm_em1770': [Demon_Sync(78)], #Mephisto Quest (Mephisto)
+    'mm_em1780': [Demon_Sync(295)], #Cleopatra Quest (Cleopatra)
+    'mm_em1790': [Demon_Sync(31), Demon_Sync(933), Demon_Sync(432), Demon_Sync(838)], #Artemis Quest (Artemis, Queztalcoatl, Hydra, Zeus 2 for fun)
+    'mm_em1802': [Demon_Sync(921)], #Matador, 2 Quest Files
+    'mm_em1803': [Demon_Sync(921)],
+    'mm_em1805': [Demon_Sync(922)], #Daisoujou
+    'mm_em1807': [Demon_Sync(923)], #Hell Biker
+    'mm_em1810': [Demon_Sync(924)], #White Rider, 2 Quest Files
+    'mm_em1811': [Demon_Sync(924)],
+    'mm_em1812': [Demon_Sync(925)], #Red Rider, 2 Quest Files
+    'mm_em1813': [Demon_Sync(925)],
+    'mm_em1814': [Demon_Sync(926)], #Black Rider, 2 Quest Files
+    'mm_em1815': [Demon_Sync(926)],
+    'mm_em1817': [Demon_Sync(927)], #Pale Rider
+    'mm_em1820': [Demon_Sync(928)], #Mother Harlot
+    'mm_em1821': [Demon_Sync(929)], #Trumpeter, 2 Quest Files
+    'mm_em1822': [Demon_Sync(929), Demon_Sync(934)], #Demi-Fiend named here as well
+    'mm_em1823': [Demon_Sync(934)], #Demi-Fiend, 3 Quest Files
+    'mm_em1824': [Demon_Sync(934)],
+    'mm_em1825': [Demon_Sync(934)],
+    'mm_em2020': [Demon_Sync(752), Demon_Sync(336)], #Nozuchi Queset (Nozuchi, Normal Enemy Kodama)
+    'mm_em2040': [Demon_Sync(803)], #Pisaca Quest part 1 (Anahita)
+    'mm_em2111': [Demon_Sync(769)], #Vouivre Quest (Vouivre)
+    'mm_em2130': [Demon_Sync(113), Demon_Sync(41), Demon_Sync(386)], #Basilisk Hunt Quest (Basilisk, Anansi, Onyankopon)
+    'mm_em2170': [Demon_Sync(227)], #Masakado Quest (Masakado)
+    'mm_em2190': [Demon_Sync(552), Demon_Sync(888)], #Halphas Quest (Oni, Glasya-Labolas 1)
+    'mm_em2240': [Demon_Sync(519), Demon_Sync(566), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(864), Demon_Sync(577)], #Vengeance Khonsu-Ra Quest (Khonsu Ra, Khonsu, Yuzuru, Horus, Fallen Abdiel) TODO: Add Dazai who is the second enemy in his fight
+    'mm_em2270': [Demon_Sync(772), Demon_Sync(40)], #Side with Kresnik (Kudlak, Kresnik)
+    'mm_em2280': [Demon_Sync(774), Demon_Sync(346)], #Side with Kudlak (Kresnik, Kudlak)
+    'mm_em2290': [Demon_Sync(890)], #Gogmagog Quest (Gogmagog)
+    'mm_em2310': [Demon_Sync(770), Demon_Sync(41)], #Side with Onyankopon (Onyankopon, Anansi) - Swapped boss/recruit versions due to the way these 2 join compared to others
+    'mm_em2320': [Demon_Sync(771), Demon_Sync(386)], #Side with Anansi (Anansi, Onyankopon)
+    'mm_em2350': [Demon_Sync(778)], #Idun Haunt Quest (Thor)
+    'mm_em2370': [Demon_Sync(865)], #Siegfried Quest (Garuda)
 }
 
 #Alternative names to use for demons with names longer than 11 characters
@@ -182,6 +235,15 @@ MISSION_CHECKS_ORIGINAL_IDS = {
     'mm_em1290': [(8, 816, 6)],#Roar of Hatred
     'mm_em1401': [(1, 519, 7)],#Khonsu Ra CoC
     'mm_em1420': [(17, 833, 8)],#Fionn 2 Quest
+    'mm_em1602': [(13, 877, 0), (14, 877, 0)],#Final Amanozako Quest (Zaou-Gongen)
+    'mm_em1770': [(73, 932, 9)],#Mephisto Quest
+    'mm_em1780': [(14, 931, 9)],#Cleopatra Quest
+    'mm_em1790': [(33, 930, 10)],#Artemis Quest
+    'mm_em2040': [(26, 755, 11)],#Pisaca Quest
+    'mm_em2170': [(53, 757, 12), (76, 757, 12), (77, 758, 13)],#Masakdo Quest, make sure this works as a dialogue choice with or without Kiou sword
+    'mm_em2240': [(34, 519, 0)],#Khonsu Ra CoV
+    'mm_em2250': [(2, 822, 14)],#VR Kunitsukami Quest
+    'mm_em2380': [(121, 781, 0)],#Mo Shuvuu Quest (Andras)
 }
 
 VOICE_REGEX = '<voice.*>\n'
@@ -197,7 +259,13 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "That reminds me, a fellow demon told me there is a<c look_begin><BOSSNAME><c look_end> somewhere in this area...", #5 - Chimera Quest (Demeter Dialogue)
                  "How about it? Will you slay <BOSSNAME> for me?", #6 - Roar of Hatred
                  "<pc_given>, we may be forced to\nfight <BOSSNAME>. Are you ready?", #7 - Khonsu Ra CoC Quest
-                 "Can you overcome <BOSSNAME> at full\npower? What say we find out?"] #8 - Fionn 2 Dialogue
+                 "Can you overcome <BOSSNAME> at full\npower? What say we find out?", #8 - Fionn 2 Dialogue
+                 "I'm detecting the presence of <BOSSNAME> ahead.\nAre you ready to fight?", #9 - Aogami Warning with Confirmation
+                 "Let's find out: I ask that you face <BOSSNAME>.\nSpeak to me when you are ready.", #10 - Artemis dialogue, make sure this works properly in game
+                 "I ask that you convey my words to humanity\nand slay the demon <BOSSNAME>.", #11 - Armati dialogue in Pisaca Quest
+                 "Fight <BOSSNAME>.", #12 - Normal Masakdo TODO: Add option to generate hint message without color tags as they don't work for dialogue choices
+                 "Fight the true <BOSSNAME>.", #13 - The True Masakado
+                 "We've received permission to use the data that will allow\nus to simulate a battle against <BOSSNAME> for you."] #14 - VR Kunitsukami Quest
 
 '''
 Changes the names and descriptions of items with demon names in them to that of their replacement if there is any
