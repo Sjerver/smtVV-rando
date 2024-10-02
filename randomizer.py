@@ -4614,7 +4614,7 @@ class Randomizer:
 
         if self.configSettings.randomizeMissionRewards:
             self.randomizeMissionRewards(self.configSettings.scaleItemsToArea, missionPool)
-        self.missionArr = scriptLogic.updateAndRemoveFakeMissions(self.missionArr)
+        return scriptLogic.updateAndRemoveFakeMissions(self.missionArr)
     
     '''
     Randomizes the drops of basic enemies, excluding key items and essences.
@@ -6273,7 +6273,7 @@ class Randomizer:
         self.replaceSpyglassInShop()
         self.adjustItemPrices()
 
-        self.randomizeItemRewards()
+        fakeMissions = self.randomizeItemRewards()
         
         if self.configSettings.selfRandomizeNormalBosses or self.configSettings.mixedRandomizeNormalBosses or self.configSettings.selfRandomizeOverworldBosses or self.configSettings.mixedRandomizeOverworldBosses:
             self.patchQuestBossDrops()
@@ -6309,10 +6309,11 @@ class Randomizer:
 
         message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
-        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName)
+        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames)
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames)
         if len(self.bossReplacements):
             message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
+       
 
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])

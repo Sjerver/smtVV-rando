@@ -191,7 +191,7 @@ EXTRA_MISSION_IDS = {
     'MM_M035_EM1480': [-2], # The Seraph's Return
     'MM_M036_EM1490': [-3], # The Red Dragon's Invitation
     'MM_M061_EM1030': [-4], # Cursed Mermaids
-    #'MM_M061_EM2050': [-5], # Picture-Perfect Debut Neither the M061 nor the M050 version seem to edit the item correctly
+    #'MM_M061_EM2050': [-5], # Picture-Perfect Debut TODO:Neither the M061 nor the M050 version seem to edit the item correctly
     'MM_M060_EM1310': [-6], # Downtown Rock 'n Roll
     'MM_M060_EM1370': [-7,-18], # Keeper of the North
     'MM_M061_EM1360': [-8], # Keeper of the West
@@ -205,9 +205,31 @@ EXTRA_MISSION_IDS = {
     'MM_M030_EM2600': [-16], # Sakura Cinders of the East (Periapt Event)
     'MM_M060_EM2351': [-17], # Rascal of the Norse
     'MM_M060_EM1370_Direct': [-19], # Fighting Bishamonten without Quest(shares reward with quest)
-    'MM_M061_E2610' : [-20], #Isis Story Event in CoV
+    'MM_M061_E2610' : [-20], #Isis Story Event in CoV (Part of Quest: Rescue Miyazu Atsuta)
     'MM_M061_EM0020': [-21], #The Angel's Request
-
+}
+#Ids of missions where the reward of fake mission should be added to info screen
+EXTRA_MISSION_MISSION_INFO_IDS = {
+    -1: [74], # The Destined Leader
+    -2: [50,221], # The Seraph's Return
+    -3: [51,222], #The Red Dragon's Invitation
+    -4: [8], # Cursed Mermaids
+    -5: [153],# Picture-Perfect Debut
+    -6: [33], #Downtown Rock 'n Roll
+    -7: [39], #Keeper of the North
+    -8: [38], #Keeper of the West
+    -9: [36], #Keeper of the South
+    -10: [35], #Keeper of the East
+    -11: [47],#A Plot Revealed
+    -12: [86], #Movin' on Up
+    -13: [48], #Gold Dragon's Arrival
+    -14: [73,147], #A Power Beyond Control
+    -15: [209], #Holy Will and Profane Dissent
+    -16: [208], #Sakura Cinders of the East
+    -17: [183], #Rascal of the Norse
+    -18: [39], #Keeper of the North(Periapt)
+    -20: [111], #Rescue Miyazu Atsuta
+    -21: [5], #The Angel's Request
 }
 
 #List of which areas rewards of fake missions are scaled after
@@ -698,9 +720,15 @@ def updateAndRemoveFakeMissions(missionArr):
     writeFolder(SUBMISSION_FOLDER)
     writeFolder(MAINMISSION_FOLDER)
     toRemove = []
+    fakeMissions = []
     for index, mission in enumerate(missionArr):
         if mission.ind < 0: #if mission is fake mission
-            
+            try: #add fakemission and their info mission ids to list
+                mission.infoInds = EXTRA_MISSION_MISSION_INFO_IDS[mission.ind]
+                fakeMissions.append(mission)
+            except KeyError:
+                pass
+
             #print(str(mission.ind) + ": " + str(mission.originalReward.ind) + " -> " + str(mission.reward.ind) )
             updateItemRewardInScript(mission.uasset, mission.uexp, mission.originalReward.ind, mission.reward.ind)
 
@@ -710,7 +738,7 @@ def updateAndRemoveFakeMissions(missionArr):
             toRemove.append(mission)
     for mission in toRemove:
         missionArr.remove(mission)
-    return missionArr
+    return fakeMissions
 
 
 '''

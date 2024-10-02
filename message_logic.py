@@ -619,7 +619,17 @@ def createHintMessageWithID(bossID, hintIndex):
     message = message.replace(HINT_BOSS_PLACEHOLDER, '<c look_begin><enemy ' + str(bossID) + '><c look_end>')
     return message
 
-def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawnyAmbition2Skill):
+'''
+Updates the mission info file with randomized demon replacements and adds additional rewards to description.
+    Parameters:
+        encounterReplacements(Dict): map of normal demon ids and their replacements
+        bossReplacements(Dict): map of boss demon ids and their replacements
+        demonNames(List(String)): list of names of demons
+        brawnyAmbition2Skill(String): name of the skill required for Brawny Ambition II
+        fakeMissions(List(Fake_Mission)): list of fake missions to add rewards to description for
+        itemNames(List(String)): list of item names
+'''
+def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawnyAmbition2Skill, fakeMissions, itemNames):
     file = Message_File('MissionInfo','/',OUTPUT_FOLDERS['MissionInfo'])
 
     missionText = file.getMessageStrings()
@@ -658,7 +668,31 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
                 if numbers.BRAWNY_AMBITIONS2_SKILL in messageComponent:
                     messageComponent = messageComponent.replace(numbers.BRAWNY_AMBITIONS2_SKILL, brawnyAmbition2Skill)
                 missionText[commonEntries + index + 7 * (missionIndex)] = messageComponent
+    
+    missionText = addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames)
+
     file.setMessageStrings(missionText)
     file.writeToFiles()
+
+'''
+Adds additional rewards to the missions description.
+    Parameters:
+        fakeMissions(List(Fake_Mission)): list of fake missions to add rewards to description for
+        itemNames(List(String)): list of item names
+'''
+def addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames):
+    for mission in fakeMissions:
+        for missionID in mission.infoInds: #List of mission ids to add the reward of this fake mission to
+            explainText = missionText[3 + missionID * 7 + 3]
+            newItemName = itemNames[mission.reward.ind]
+
+            addOn = "Additional Reward: <c look_begin>" + newItemName + "<c look_end>\n　\n"
+
+            explainText = addOn + explainText
+            missionText[3 + missionID * 7 + 3] = explainText
+    return missionText
+
+            
+
 
 
