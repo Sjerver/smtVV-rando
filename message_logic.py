@@ -3,7 +3,7 @@ import util.numbers as numbers
 import re
 from base_classes.message import Message_File, Demon_Sync
 
-MAX_LINE_LENGTH = 50 #Arbitray Number 
+MAX_LINE_LENGTH = 50 #Arbitray Number ( at least correct for missionInfo Text)
 
 OUTPUT_FOLDERS = {
     'ItemName' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Item/',
@@ -269,7 +269,6 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "We've received permission to use the data that will allow\nus to simulate a battle against <BOSSNAME> for you."] #14 - VR Kunitsukami Quest
 
 MISSION_INFO_DEMON_IDS = {
-    #TODO: Figure out which ID to use for demon join and cases where demon join is also boss (Mabye handle seperately?)
     7: [Demon_Sync(281,802)], #The Ultimate Omelet (Jatayu)
     8: [Demon_Sync(233,801)], #The Cursed Mermaid (Pazuzu)
     9: [Demon_Sync(20,803)], #The Demon of the Spring (Anahita)
@@ -294,20 +293,34 @@ MISSION_INFO_DEMON_IDS = {
     41: [Demon_Sync(76,831),Demon_Sync(181,829),Demon_Sync(7,516)], #The Winged Sun (Khonsu,Amons,Asura) #TODO:Mithras 830
     42: [Demon_Sync(7,516)], #The Succession of Ra (Khonsu)
     43: [Demon_Sync(84,832)], #Abaddon's Assault (Abaddon)
+    44: [Demon_Sync(35, nameVariant = "Fionn")], #Fionn's Resolve (Fionn)
+    45: [Demon_Sync(242, 841)], #The Holy Ring (Michael)
     46: [Demon_Sync(17,837)], #The Bull God's Lineage (Baal)
-    47: [Demon_Sync(8,838)], #A Plot Revealed (Zeus(
+    47: [Demon_Sync(8,838), Demon_Sync(19)], #A Plot Revealed (Zeus, Demeter)
     48: [Demon_Sync(94,839)], #The Golden Dragon's Arrival (Huang Long)
     49: [Demon_Sync(94,839)], #The Benevolent One (Huang Long)
+    50: [Demon_Sync(242),Demon_Sync(83,840)], #The Seraph's Return (Michael, Belial Boss)
+    51: [Demon_Sync(242,841),Demon_Sync(83)], #The Red Dragon's Invitation (Michael Boss, Belial)
     52: [Demon_Sync(30,842)], #The Compassionate Queen (Maria)
     53: [Demon_Sync(188,843)], #The Noble Queen (Danu)
     54: [Demon_Sync(189,844)], #The Wrathful Queen (Inanna)
     55: [Demon_Sync(178,845)], #A Universe in Peril (Shiva)
+    70: [Demon_Sync(305),Demon_Sync(43,868)], #The Water Nymph (Leanan Sidhe, Apsaras Boss)
+    71: [Demon_Sync(305,866),Demon_Sync(43)], #The Spirit of Love (Leanan Sidhe Boss, Apsaras)
     72: [Demon_Sync(13,864)], #The Falcon's Head (Horus)
     73: [Demon_Sync(38,876)], #A Power Beyond Control (Amanozako)
-    74: [], #The Destined Leader (Kurama) #TODO: Kurama Tengu (37,878) no direct replacement 
-    83: [Demon_Sync(95,933)], #A Goddess in Training (Quetzacotl)
+    74: [Demon_Sync(38)], #The Destined Leader (Amanozako, Kurama) #TODO: Kurama Tengu (37,878) no direct replacement
+    75: [Demon_Sync(67),Demon_Sync(257,879)], #Those Seeking Sanctuary (Lilim, Principality Boss)
+    76: [Demon_Sync(67,880),Demon_Sync(257)], #Holding the Line (Lilim Boss, Principality)
+    77: [Demon_Sync(72),Demon_Sync(183,881)], #Black Frost Strikes Back (Black Frost, Dionysus Boss)
+    78: [Demon_Sync(72,882),Demon_Sync(183)], #A Sobering Standoff (Black Frost Boss, Dionysus)
+    79: [Demon_Sync(265),Demon_Sync(201,883)], #The Raid on Tokyo (Adramelech, Futsunushi Boss)
+    80: [Demon_Sync(265,884),Demon_Sync(201)], #In Defense of Tokyo (Adramelech Boss, Futsunushi)
+    81: [Demon_Sync(78)], #The Doctor's Last Wish (Mephisto)
+    82: [Demon_Sync(295)], #The Rage of a Queen (Cleopatra)
+    83: [Demon_Sync(95,933),Demon_Sync(31)], #A Goddess in Training (Quetzacotl, Artemis)
     84: [Demon_Sync(359,921),Demon_Sync(357,922),Demon_Sync(356,923),Demon_Sync(354,924),Demon_Sync(353,925),Demon_Sync(352,926),Demon_Sync(358,927),Demon_Sync(351,928),
-         Demon_Sync(350,929),Demon_Sync(934)], #Return of the True Demon (Matador, Daisoujou, Hell Biker, White Rider, Red Rider, Black Rider, Pale Rider, Mother Harlot, Trumpeter, Demi-fiend)
+            Demon_Sync(350,929),Demon_Sync(934)], #Return of the True Demon (Matador, Daisoujou, Hell Biker, White Rider, Red Rider, Black Rider, Pale Rider, Mother Harlot, Trumpeter, Demi-fiend)
     86: [Demon_Sync(318,888)], #Movin' On Up (Oni)
     87: [Demon_Sync(345,889)], #A Preta Predicament (Preta)
     88: [Demon_Sync(111,468),Demon_Sync(8,469),Demon_Sync(9,470)], #The Three Keys (Vasuki, Zeus, Odin)
@@ -320,17 +333,23 @@ MISSION_INFO_DEMON_IDS = {
     109: [Demon_Sync(7,566)], #Investigate the Salt Incidents (Khonsu)
     111: [Demon_Sync(7,566)], #Rescue Miyazu Atsuta (Khonsu)
     115: [Demon_Sync(8,481),Demon_Sync(81,483)], #The Three Keys (Zeus, Odin, Beelzebub) #TODO: 482 Odin isn't main demon in encounter
+    138: [Demon_Sync(386), Demon_Sync(41,771)], #Reclaim the Golden Stool (Onyankopon, Anansi Boss)
+    139: [Demon_Sync(386,770),Demon_Sync(41)], #Liberate the Golden Stool (Onyankopon Boss, Anansi)
     142: [Demon_Sync(248,814)], #The Angel of Destruction (Camael)
     143: [Demon_Sync(76,831),Demon_Sync(181,829)], #The Winged Sun (Amons,Asura) CoV #TODO:Mithras 830
     144: [Demon_Sync(359,921),Demon_Sync(357,922),Demon_Sync(356,923),Demon_Sync(354,924),Demon_Sync(353,925),Demon_Sync(352,926),Demon_Sync(358,927),Demon_Sync(351,928),
-         Demon_Sync(350,929),Demon_Sync(934)], #Return of the True Demon CoV (Matador, Daisoujou, Hell Biker, White Rider, Red Rider, Black Rider, Pale Rider, Mother Harlot, Trumpeter, Demi-fiend)
+            Demon_Sync(350,929),Demon_Sync(934)], #Return of the True Demon CoV (Matador, Daisoujou, Hell Biker, White Rider, Red Rider, Black Rider, Pale Rider, Mother Harlot, Trumpeter, Demi-fiend)
     147: [Demon_Sync(38,876)], #A Power Beyond Control CoV (Amanozako)
     148: [Demon_Sync(232,827)], #An Unusual Forecast CoV (Girimekhala)
     150: [Demon_Sync(336),Demon_Sync(107,752)], #Beastly Battle of Wits (Nozuchi, Kodama(Not the ones in the boss fight)
     151: [Demon_Sync(117)], #Brawny Ambitions (Zhu Tun She)
     159: [Demon_Sync(108,769)], #Heart of Garnet (Vouivre)
-    161: [Demon_Sync(113)], #Tough Love (Basilisk)
+    161: [Demon_Sync(113),Demon_Sync(41), Demon_Sync(386)], #Tough Love (Basilisk, Onyankopon, Anansi)
+    175: [Demon_Sync(40),Demon_Sync(346,772)], #The Hunter in White (Kresnik, Kudlak Boss)
+    176: [Demon_Sync(49,774),Demon_Sync(346)], #The Vampire in Black (Kresnik Boss, Kudlak)
     177: [Demon_Sync(337,890)], #As God Wills (Gogmagog)
+    179: [Demon_Sync(386), Demon_Sync(41,771)], #Reclaim the Golden Stool CoV (Onyankopon, Anansi Boss)
+    180: [Demon_Sync(386,770),Demon_Sync(41)], #Liberate the Golden Stool CoV (Onyankopon Boss, Anans
     183: [Demon_Sync(200,778)], #Rascal of the Norse (Thor)
     185: [Demon_Sync(278,865)], #Maker of Myth (Garuda)
     188: [Demon_Sync(118,760)], #The Serpent King (Samael)
@@ -340,11 +359,14 @@ MISSION_INFO_DEMON_IDS = {
     197: [Demon_Sync(122)], #Brawny Ambitions II (Xiezhai)
     201: [Demon_Sync(141,751)], #Knocking on Death's Door (Dormarth)
     202: [Demon_Sync(291,891)], #The Disgraced Bird God (Gurulu)
-    205: [Demon_Sync(22,791)], #Goddesses of Fate (Norn)
+    205: [Demon_Sync(22,779)], #Goddesses of Fate (Norn)
     206: [Demon_Sync(12,776)], #Will of the Samurai (Atavaka)
-    208: [Demon_Sync(212,826)], #Sakura Cinders of the East (Oyamatsumi)
+    208: [Demon_Sync(212,826),Demon_Sync(32)], #Sakura Cinders of the East (Oyamatsumi, Konohana Sakuya)
+    209: [Demon_Sync(4)], #Holy Will and Profane Dissent (Dagda)
     210: [Demon_Sync(103,775)], #Heroes of Heaven and Earth (Yamata-no-Orochi)
     211: [Demon_Sync(8,481),Demon_Sync(237,782)], #God of Old, Devourer of Kin (Zeus, Saturnus)
+    221: [Demon_Sync(242),Demon_Sync(83,840)], #The Seraph's Return CoV (Michael, Belial Boss)
+    222: [Demon_Sync(242,841),Demon_Sync(83)], #The Red Dragon's Invitation CoV (Michael Boss, Belial)
 }
 
 '''
@@ -625,7 +647,8 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
 
 
             for index in range(missionTextCount):
-                messageComponent = missionText[commonEntries + index+1 + 7 * (missionIndex)]
+                messageComponent = missionText[commonEntries + index + 7 * (missionIndex)]
+                #print(str(missionIndex) + "/" + str(index) + " " + messageComponent)
                 if originalName in messageComponent: #Name is plain text
                     messageComponent = messageComponent.replace(originalName, replacementName)
                 if 'enemy ' + str(originalDemonID).zfill(3) in messageComponent: #name is talked about via ID
@@ -634,8 +657,8 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
                     messageComponent = messageComponent.replace(syncDemon.nameVariant, replacementName)
                 if numbers.BRAWNY_AMBITIONS2_SKILL in messageComponent:
                     messageComponent = messageComponent.replace(numbers.BRAWNY_AMBITIONS2_SKILL, brawnyAmbition2Skill)
-                missionText[commonEntries + 1 + index + 7 * (missionIndex)] = messageComponent
-        file.setMessageStrings(missionText)
-        file.writeToFiles()
+                missionText[commonEntries + index + 7 * (missionIndex)] = messageComponent
+    file.setMessageStrings(missionText)
+    file.writeToFiles()
 
 

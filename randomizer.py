@@ -6309,7 +6309,7 @@ class Randomizer:
 
         message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
-        #message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName)
+        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName)
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames)
         if len(self.bossReplacements):
             message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
