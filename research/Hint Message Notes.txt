@@ -2,7 +2,7 @@ Abscesses - No Hints
 Triple Preta - Skyview tutorial?
 Labolas - Rail tutorial?
 Six Pretas(Complete) - They give their name
-Dormarth - Nyami tells you
+Dormarth(Complete) - Nyami tells you
 Apsaras/Leanan(Complete) - Questgiver tells you
 Hydra - Aogami Warning
 Oyamatsumi(Complete) - Questgiver tells you
@@ -31,7 +31,7 @@ Vengeance Lahmu - Aogami Warning? If not 4th floor girl tells you
 Jojozi Mob Fight + Lahmu - Koshimitzu tells you?
 Turbo Granny - Questgiver tells you
 4 Pisacas(Complete) - Questgiver tells you
-Yakshini - Dazai tells you
+Yakshini(Complete) - Dazai tells you
 Lilim/Principality(Complete) - Questgiver tells you
 Loup Garou(Complete)/Eisheth - Aogami Warning
 King Frost(Complete) - Questgiver tells you
@@ -47,22 +47,22 @@ Vouivre(Complete) - Questgiver tells you
 Power 1 - Dialogue when arriving in area 3 tells you?
 Power 2 - No Hints
 Gogmagog(Complete) - Questgiver tells you
-Zhens - Gasser tells you... one of them?
+Zhens(Partial) - Gasser tells you... one of them?
 Chimera(Complete) - Questgiver tells you
-Mara - Questgiver tells you
+Mara(Complete) - Questgiver tells you
 Power Gauntlet - No Hints
 Isis - No Hints?
-Vengeance Khonsu - IDK, Aogami Warning if exists or replace his name in the buildup to the scene or in Miyazu act 1.5 quest
+Vengeance Khonsu - IDK, Aogami Warning if exists or replace his name in the buildup to the scene
 Nuwa + Yakumo - Aogami Warning
 Anansi/Onyakopon(Complete) - Questgiver tells you
-Gurulu - Questgiver tells you
+Gurulu(Complete) - Questgiver tells you
 Moloch(Complete) - Questgiver tells you
 Amanozako(Complete) - Aogami Warning
 Agrat - Aogami Warning? If not she gives her name
 Kresnik/Kudlak(Complete) - Questgiver tells you
 Lilith - Aogami Warning
 Camael(Complete) - Questgiver tells you
-Orochi - Questgiver tells you
+Orochi(Complete) - Questgiver tells you
 Dark Block Bros - No Hints?
 Cherub - No Hints? Tsukuyomi Warning if there is one
 Abdiel - Aogami Warning (Both routes)
@@ -76,8 +76,8 @@ Ishtar(Complete) - Aogami Warning
 Arahabaki(Complete) - Questgiver tells you
 Chernobog - Aogami Warning
 Arioch - Aogami Warning
-Atavaka - Questgiver tells you
-Norn - Questgiver tells you
+Atavaka(Complete) - Questgiver tells you
+Norn(Complete) - Questgiver tells you
 Thor(Complete) - Questgiver tells you
 Garuda(Complete) - Questgiver tells you
 Abaddon(Complete) - Questgiver tells you
@@ -94,12 +94,12 @@ Odin - Aogami Warning
 Zeus 1 - Aogami Warning
 Beelzebub - Tsukuyomi Warning
 Zeus + Odin - Tsukuyomi Warning
-Saturnus - He gives his name
+Saturnus(Complete) - He gives his name
 Gabriel(Partial) - Questgiver tells you
 Shiva(Complete) - He gives his name
 Demi Fiend(Complete) - Probably a warning before fight?
-Samael - Questgiver tells you
-Satan - He gives his name
+Samael(Complete) - Questgiver tells you
+Satan(Complete) - He gives his name
 Masakado(Complete) - He gives his name
 Metatron - Aogami Warning
 Dazai - Aogami Warning
@@ -115,4 +115,4 @@ True Lucifer - choice box "An extremely powerful enemy", give normal lucifer's n
 Nahobino Abdiel - Aogami Warning
 Tsukuyomi - Aogami Warning
 Nahobino Nuwa - Aogami Warning
-Konohana Sakuya/Dagda - IDK (Questgiver tells you?)
+Konohana Sakuya/Dagda(Complete) - They give their name

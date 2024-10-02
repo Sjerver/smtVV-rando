@@ -189,6 +189,23 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2320': [Demon_Sync(771), Demon_Sync(386)], #Side with Anansi (Anansi, Onyankopon)
     'mm_em2350': [Demon_Sync(778)], #Idun Haunt Quest (Thor)
     'mm_em2370': [Demon_Sync(865)], #Siegfried Quest (Garuda)
+    'mm_em2390': [Demon_Sync(776), Demon_Sync(227)], #Cironnup Quest (Atavaka, Masakado)
+    'mm_em2400': [Demon_Sync(760), Demon_Sync(537)], #Samael Quest (Samael, Lucifer)
+    'mm_em2420': [Demon_Sync(681), Demon_Sync(760), Demon_Sync(537), Demon_Sync(596)], #Satan Quest (Satan, Samael, Lucifer, Mastema)
+    'mm_em2460': [Demon_Sync(892)], #Mara Quest (Mara)
+    'mm_em2470': [Demon_Sync(754, nameVariant='TURBO GRANNY')], #Turbo Granny Quest (Turbo Granny)
+    'mm_em2490': [Demon_Sync(122)], #Hare of Inaba 2 Quest (Xiezhai) TODO: Replace Puncture Punch with updated skill
+    'mm_em2500': [Demon_Sync(215), Demon_Sync(122), Demon_Sync(214)], #Hare of Inaba 3 Quest (Okuninushi, Xiezhai, Sukona Hikona for fun)
+    'mm_em2530': [Demon_Sync(751, nameVariant='DORMARTH')], #Dormarth Quest (Dormarth)
+    'mm_em2540': [Demon_Sync(891)], #Gurulu  Quest (Gurulu)
+    'mm_em2550': [Demon_Sync(756, nameVariant='ZHEn')], #Part Time Quest (Zhen) Optionally add the other 2 encounters you can get here but eh
+    'mm_em2570': [Demon_Sync(779), Demon_Sync(838)], #Moirae Haunt Quest (Norn, Zeus 2 for fun)
+    'mm_em2580': [Demon_Sync(776, nameVariant='Daigensui Myouou')], #Yoshitsune Haunt Quest (Atavaka)
+    'mm_em2600': [Demon_Sync(32), Demon_Sync(826)], #Konohana Sakuya Quest (Konohana Sakuya, Oyamatsumi)
+    'mm_em2610': [Demon_Sync(4), Demon_Sync(843)], #Dagda Quest (Dagda, Danu for fun)
+    'mm_em2620': [Demon_Sync(775, nameVariant='Orochi'), Demon_Sync(528)], #Orochi Quest (Orochi, Tsukuyomi)
+    'mm_em2630': [Demon_Sync(782), Demon_Sync(481), Demon_Sync(837)], #Saturnus Quest (Saturnus, CoV Zeus, Baal)
+    'mm_em2640': [Demon_Sync(569), Demon_Sync(564)], #Package Delivery Quest (Lilith, Vengeance Abdiel) Optionally add Yoko Hiromine as Tehom?
 }
 
 #Alternative names to use for demons with names longer than 11 characters
@@ -245,6 +262,9 @@ MISSION_CHECKS_ORIGINAL_IDS = {
     'mm_em2240': [(34, 519, 0)],#Khonsu Ra CoV
     'mm_em2250': [(2, 822, 14)],#VR Kunitsukami Quest
     'mm_em2380': [(121, 781, 0)],#Mo Shuvuu Quest (Andras)
+    'mm_em2440': [(3, 768, 15)],#Yaksini Quest
+    'mm_em2600': [(39, 948, 16)],#Konohana Sakuya Quest
+    'mm_em2610': [(27, 947, 17)],#Dagda Quest
 }
 
 VOICE_REGEX = '<voice.*>\n'
@@ -266,7 +286,10 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "I ask that you convey my words to humanity\nand slay the demon <BOSSNAME>.", #11 - Armati dialogue in Pisaca Quest
                  "Fight <BOSSNAME>.", #12 - Normal Masakdo TODO: Add option to generate hint message without color tags as they don't work for dialogue choices
                  "Fight the true <BOSSNAME>.", #13 - The True Masakado
-                 "We've received permission to use the data that will allow\nus to simulate a battle against <BOSSNAME> for you."] #14 - VR Kunitsukami Quest
+                 "We've received permission to use the data that will allow\nus to simulate a battle against <BOSSNAME> for you.", #14 - VR Kunitsukami Quest
+                 "So, uh... I was following Atsuta, but I saw\n<BOSSNAME> around here.", #15 - Dazai dialogue in Yaksini quest
+                 "Then it is time for the final test!\nI, <BOSSNAME>, shall judge your power for myself!", #16 - Konohana Sakuya Quest
+                 "Now, in this new land, he intends to become\nthe being <BOSSNAME>."] #17 - Danu dialogue in Dagda quest
 
 MISSION_INFO_DEMON_IDS = {
     #TODO: Figure out which ID to use for demon join and cases where demon join is also boss (Mabye handle seperately?)

@@ -88,3 +88,23 @@ Fionn Haunt Quest - 2330
 Idun Haunt Quest - 2350, mentions Loki
 Siegfried Quest (Garuda) - 2370, mentions Odin
 Mo Shuvuu Quest (Andras) - 2380
+Cironnup Quest - 2390, mentions Atavaka, Masakado
+Samael Quest - 2400, mentions Lucifer
+Satan Quest - 2420, mentions Lucifer, Samael, Mastema
+Detective Pixie Quest - 2430
+Yaksini Quest - 2440
+Mara Quest - 2460
+Turbo Granny Quest - 2470
+Nahobeeho Quest - 2480
+Hare of Inaba 2 Quest (Xiezhai with Puncture Punch) - 2490
+Hare of Inaba 3 Quest (Okuninushi) - 2500, mentions Xiezhai, Sukona-Hikona
+Dormarth Quest - 2530
+Gurulu Quest - 2540
+Part Time Gasser (Zhen) - 2550
+Moirae Haunt Quest (Norn) - 2570, mentions Zeus
+Yoshitsune Haunt Quest (Atavaka) - 2580
+Konohana Sakuya Quest - 2600, mentions Oyamatsumi
+Dagda Quest - 2610, mentions Danu
+Orochi Quest - 2620, mentions Tsukuyomi
+Saturnus Quest - 2630, mentions Zeus, Baal
+Package Delivery Quest - 2640, mentions Lilith, Yoko, Abdiel
