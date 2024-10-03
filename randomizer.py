@@ -3729,13 +3729,19 @@ class Randomizer:
             
     '''
     Fixes certain boss flags so that they work outside of their normal location
-    Currently only snake Nuwa (ID 435) is patched to add flag 0x18
+    Currently only snake Nuwa (ID 435) is patched to add flag 0x18.
+    Also removes the Battle Events from the Nuwa (ID 435) Fights
     '''
     def patchBossFlags(self):
+        #Set Encounter ID for battle events of snake nuwa fight(and simulator version) to no encounter
+        self.battleEventArr[21].encounterID = 255
+        self.battleEventArr[23].encounterID = 255
+
         nuwaFlags = next(r for  r in self.bossFlagArr if r.demonID == 435)
         for i, flag in enumerate(nuwaFlags.flags):
             if flag == 0:
                 nuwaFlags.flags[i] = 0x18
+                nuwaFlags.flags[i +1] = 0x1D
                 break
 
     '''

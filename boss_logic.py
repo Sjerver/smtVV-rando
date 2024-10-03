@@ -211,8 +211,8 @@ def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr,
     #Halve HP of Snake Nuwa and Tehom Check
     if oldEncounterID in [35, 163]:
         oldEncounterData.totalHP = oldEncounterData.totalHP // 2
-    #Double HP if Snake Nuwa or Tehom is Replacement
-    if newEncounterID in [35, 163]:
+    #Double HP if  Tehom is Replacement
+    if newEncounterID in [163]:
         oldEncounterData.totalHP = oldEncounterData.totalHP * 2
         
     #Times 7 HP of Tentacle Lahmu checks due to tentacles being the majority of his health
