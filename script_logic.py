@@ -120,7 +120,7 @@ SCRIPT_FOLDERS = {
     'esNPC_m063_20a': CHIYODA_NPC_FOLDER, #Yurlungur NPC
     'esNPC_m063_21a': CHIYODA_NPC_FOLDER, #Setanta NPC
     'esNPC_m060_10a': TAITO_NPC_FOLDER, #Orthrus NPC
-    'esNPC_m016_01a': EMPYREAN_NPC_FOLDER, #Ongyo-Ki NPC
+    'esNPC_m016_02a': EMPYREAN_NPC_FOLDER, #Ongyo-Ki NPC
     'MM_M062_EM1132': M062_FOLDER, #Cait Sith in Fairy Village
     'MM_M060_EM1370_Direct': M060_FOLDER, #Fighting Bishamonten without Quest(shares reward with quest)
     'MM_M061_E2610': MAINMISSION_M061_FOLDER, #Isis Event in CoV
@@ -228,7 +228,7 @@ BASE_GIFT_ITEMS = {
     'esNPC_m063_20a': 835, #Snake Talisman
     'esNPC_m063_21a': 710, #Shadow Warrior Periapt
     'esNPC_m060_10a': 707, #Children of Echidna Periapt
-    'esNPC_m016_01a': 715, #Elemental Oni Periapt
+    'esNPC_m016_02a': 715, #Elemental Oni Periapt
     'MM_M062_EM1132': 706, #Grimalkin Periapt
     'MM_M060_E0763': 845, #Panagia Talisman
     'MM_M064_E2797': 842, #Qadistu Talisman
@@ -239,7 +239,7 @@ BASE_GIFT_ITEMS = {
 }
 # Areas the gifts are scaled after if they are not containing a key item
 GIFT_AREAS = {
-  16: ['esNPC_m016_01a','BP_JakyoEvent','BP_JakyoEvent_Comp_Complete'], #Empyrean
+  16: ['esNPC_m016_02a','BP_JakyoEvent','BP_JakyoEvent_Comp_Complete'], #Empyrean
   35: [], #Temple of Eternity
   36: ['MM_M064_E2797','MM_M064_E2797_PERIAPT','MM_M064_E2795_Direct'], #Demon Kings Castle / Shakan
   38: [], #Demon Kings Castle / Shakan
@@ -257,7 +257,7 @@ GIFT_EQUIVALENT_SCRIPTS = {
     'esNPC_m062_32a': ['esNPC_m062b_32a'],
     'esNPC_m062_33a' : ['esNPC_m062b_33a'],
     'BP_esNPC_TokyoMap_15b' : ['BP_esNPC_TokyoMap_15b2','BP_esNPC_TokyoMap_15c'],
-    'esNPC_m016_01a' : ['esNPC_m016_01b'],
+    'esNPC_m016_02a' : ['esNPC_m016_02b'],
     'MM_M060_E0763' : ['MM_M060_E3001_Direct'],
 }
 # Scripts that use the same script file, for different rewards
@@ -845,8 +845,10 @@ def updateGiftScripts(gifts):
                 uexpData = uexpCorrection[correctScript]
             if any(gift.script in scripts for scripts in GIFT_EQUIVALENT_SCRIPTS.values()): #if script was copied as equivalent, use original base item
                 equivalentScript = getEquivalentSource(gift.script)
+                #print(gift.script + " -> EQ " + equivalentScript +" " +  str(gift.item.ind))
                 updateNPCGiftInScript(BASE_GIFT_ITEMS[equivalentScript], gift.item.ind, uassetData, uexpData)
             else:
+                #print(gift.script + " "+ str(gift.item.ind))
                 updateNPCGiftInScript(BASE_GIFT_ITEMS[gift.script], gift.item.ind, uassetData, uexpData)
         else: #else it is an event script
             if correctScript in ['BP_JakyoEvent']:
