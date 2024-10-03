@@ -1,0 +1,23 @@
+e0262 - Pre-Hydra cutscene where Aogami talks about Lucifer
+e0300 - Return Pillar cutscene, mentions Hydra
+e0310 - Unused Hydra dialogue?
+e0330 - Snake Nuwa Pre-Fight Dialogue
+e0340 - Post Fight Nuwa/Yakumo Dialogue
+e0345 - Dazai dialogue in act 1 diet building
+e0350 - First Abdiel cutscene
+e0367 - Yuzuru dialogue mentioning Dazai joining bethel
+e0375 - Yuzuru/Tao dialogue in early area 2
+e0378 - Dazai/Abdiel talk in area 2, mentions Baal
+e0379 - Fionn 1 Pre-Fight Dialogue
+e0380 - Fionn 1 Post-Fight Dialogue, mentions Lahmu and Yuzuru
+e0390 - Miyazu dialogue in fairy village mentioning Fionn
+e0425 - Jojozi Temple warning (Lamia/Lahmu)
+e0431 - Lahmu 1 Post-Fight Dialogue
+e0435 - Arriving at overrun school dialogue, mentions Lahmu
+e0470 - Lahmu meets Sahori scene
+e0473 - Meeting Hayataro scene, mentions Yuzuru
+e0476 - Dazai scared in school scene
+e0480 - Sahori kills her bullies scene, mentions Lahmu
+e0485 - Final Lahmu warning
+e0490 - Final Lahmu Pre-Fight Dialogue
+e0491 - Final Lahmu mid-fight dialogue

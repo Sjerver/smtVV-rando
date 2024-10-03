@@ -28,7 +28,7 @@ Artemis(Complete) - She gives the name
 Naamah + Labolas - Aogami Save Warning?
 School fights except Lahmu - No Hints
 Vengeance Lahmu - Aogami Warning? If not 4th floor girl tells you
-Jojozi Mob Fight + Lahmu - Koshimitzu tells you?
+Jojozi Mob Fight + Lahmu(Complete) - Aogami warning
 Turbo Granny - Questgiver tells you
 4 Pisacas(Complete) - Questgiver tells you
 Yakshini(Complete) - Dazai tells you
@@ -40,7 +40,7 @@ Kumbhanda(Complete) - Questgiver tells you
 Thunderbird(Complete) - Quest item name
 Gary(Complete) - Quest item name
 Yuzuru - Aogami Warning
-Final Lahmu - Aogami Warning, give both bosses
+Final Lahmu(Complete) - Aogami Warning, give both bosses
 Loki(Complete) - Questgiver tells you + Warning
 Belphegor(Complete) - Questgiver tells you
 Vouivre(Complete) - Questgiver tells you

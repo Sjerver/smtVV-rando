@@ -10,7 +10,8 @@ OUTPUT_FOLDERS = {
     'SkillHelpMess' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Battle/Skill/',
     'MissionFolder' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission/MissionEvent/',
     'ItemHelpMess' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Item/',
-    'MissionInfo' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission/'
+    'MissionInfo' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission/',
+    'EventMessage' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Event/EventMessage/'
 }
 
 #List of folders that have to be created in the output folder in order of creation
@@ -24,6 +25,7 @@ FOLDERS_TO_CREATE = ['rando',
         'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable',
         'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Battle',
         'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission',
+        'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Event',
 ]    
 
 #Dict for items with demon names in them and which demon they should be synced with
@@ -81,7 +83,7 @@ SKILL_DESC_CHANGES = {
     917 : 'Summon demon for chance of inflicting <skill_bst 0> to <skill_tgt>.', #Toxic Cloud Dazai
 }
 
-#Message files for events and what demon(name/id) needs to be updated in them
+#Message files for mission events and what demon(name/id) needs to be updated in them
 #Demon_Sync(demonID mentioned in text, IF applicable id of demon to use replacement for) since boss mentions just use normal enemy ids
 MISSION_EVENTS_DEMON_IDS = {
     'mm_em2030': [Demon_Sync(117)],#Brawny Ambitions (Zhu Tun She)
@@ -208,6 +210,27 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2640': [Demon_Sync(569), Demon_Sync(564)], #Package Delivery Quest (Lilith, Vengeance Abdiel) Optionally add Yoko Hiromine as Tehom?
 }
 
+#Message files for story events and what demon(name/id) needs to be updated in them
+#Demon_Sync(demonID mentioned in text, IF applicable id of demon to use replacement for) since boss mentions just use normal enemy ids
+EVENT_MESSAGE_DEMON_IDS = {
+    'e0262': [Demon_Sync(537)],#Pre-Hydra dialogue (Lucifer)
+    'e0300': [Demon_Sync(432)],#Return Pillar cutscene (Hydra)
+    'e0310': [Demon_Sync(432)],#Unused? Hydra dialogue (Hydra)
+    'e0330': [Demon_Sync(435)],#Snake Nuwa Pre-fight dialogue (Nuwa)
+    'e0340': [Demon_Sync(435)],#Snake Nuwa Post-fight dialogue (Nuwa) Yakumo is mentioned but there's 2 yakumo checks based on route
+    'e0378': [Demon_Sync(837)],#Dazai/Abdiel talk in area 2 (Baal)
+    'e0379': [Demon_Sync(451)],#Fionn 1 Pre-fight dialogue (Fionn)
+    'e0380': [Demon_Sync(452)],#Fionn 1 Post-fight dialogue (Lahmu)
+    'e0390': [Demon_Sync(451, nameVariant='Fionn')],#First Miyazu dialogue in fairy village (Fionn)
+    'e0431': [Demon_Sync(441)],#Lahmu 1 Post-fight dialogue (Lahmu) Note: Lahmu mentions will switch from Lahmu 1 to final Lahmu once you enter area 2
+    'e0435': [Demon_Sync(441)],#Arriving at overrun school (Lahmu)
+    'e0470': [Demon_Sync(441)],#Lahmu meets Sahori (Lahmu)
+    'e0473': [Demon_Sync(152)],#Meeting Hayataro (Hayataro)
+    'e0480': [Demon_Sync(441)],#Sahori kills her bullies (Lahmu)
+    'e0490': [Demon_Sync(452)],#Final Lahmu Pre-fight dialogue (Lahmu) TODO: Make sure shaking text decisions work
+    'e0491': [Demon_Sync(453)],#Final Lahmu between phases dialogue (Lahmu) Note: Start using second phase Lahmu for mentions once phase 1 is dead
+}
+
 #Alternative names to use for demons with names longer than 11 characters
 DEMON_NAMES_SHORT = {
     'Fionn mac Cumhaill' : 'Fionn',
@@ -234,7 +257,7 @@ DEMON_NAMES_SHORT = {
     'Ame-no-Uzume' : 'Uzume',
 }
 
-#Message files for events containing boss checks, which message is the hint message, and what boss demon(name/id) needs to be updated in them
+#Message files for mission events containing boss checks, which message is the hint message, and what boss demon(name/id) needs to be updated in them
 #Value format: [(messageIndex, originalDemonID, hintMessageID), ...]
 MISSION_CHECKS_ORIGINAL_IDS = {
     'mm_em0021': [(8, 433, 0)],#Eligor (and Andras)
@@ -267,6 +290,13 @@ MISSION_CHECKS_ORIGINAL_IDS = {
     'mm_em2610': [(27, 947, 17)],#Dagda Quest
 }
 
+#Message files for story events containing boss checks, which message is the hint message, and what boss demon(name/id) needs to be updated in them
+#Value format: [(messageIndex, originalDemonID, hintMessageID), ...]
+EVENT_CHECKS_ORIGINAL_IDS = {
+    'e0425': [(8, 441, 0), (9, 439, 18)],#Lahmu 1 + Anzus
+    'e0485': [(1, 452, 0), (2, 453, 18)],#Lahmu 2 (both phases)
+}
+
 VOICE_REGEX = '<voice.*>\n'
 NAME_REGEX = '<chara.*>\n'
 HINT_BOSS_PLACEHOLDER = '<BOSSNAME>'
@@ -290,7 +320,8 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "We've received permission to use the data that will allow\nus to simulate a battle against <BOSSNAME> for you.", #14 - VR Kunitsukami Quest
                  "So, uh... I was following Atsuta, but I saw\n<BOSSNAME> around here.", #15 - Dazai dialogue in Yaksini quest
                  "Then it is time for the final test!\nI, <BOSSNAME>, shall judge your power for myself!", #16 - Konohana Sakuya Quest
-                 "Now, in this new land, he intends to become\nthe being <BOSSNAME>."] #17 - Danu dialogue in Dagda quest
+                 "Now, in this new land, he intends to become\nthe being <BOSSNAME>.", #17 - Danu dialogue in Dagda quest
+                 "I'm also detecting the presence of <BOSSNAME>\nbehind the first reading."] #18 - Two-part boss warning
 
 MISSION_INFO_DEMON_IDS = {
     7: [Demon_Sync(281,802)], #The Ultimate Omelet (Jatayu)
@@ -533,104 +564,161 @@ Update the mention of demon names in mission events.
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
 '''
 def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+    updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
     for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
             missionText = file.getMessageStrings()
 
-            for syncDemon in syncDemons:
-                originalDemonID = syncDemon.ind #id of demon mentionend in text
-                syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
-                if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
-                    continue
-                originalName = demonNames[originalDemonID]
-                if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
-                    try:
-                        replacementID = bossReplacements[syncDemonID]
-                    except KeyError:
-                        #print("Key Error: " + str(syncDemonID))
-                        continue
-                else: #else it is a boss
-                    try:
-                        replacementID = encounterReplacements[syncDemonID]
-                    except KeyError:
-                        #print("Key Error: " + str(syncDemonID))
-                        continue
-                #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
-                replacementName = demonNames[replacementID]
-
-                #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName + " for mission " + missionEvent)
-            
-                for index, box in enumerate(missionText): #for every dialogue box
-                    if originalName in box: #Name is plain text
-                        box = box.replace(originalName, replacementName)
-                    if 'enemy ' + str(originalDemonID).zfill(3) in box: #name is talked about via ID
-                        box = box.replace('enemy ' + str(originalDemonID).zfill(3), 'enemy ' + str(replacementID).zfill(3))
-                        #box = box.replace('<enemy ' + str(originalDemonID) + '>', replacementName)
-                        #print(box)
-                    if syncDemon.nameVariant and syncDemon.nameVariant in box:#Name is a variant on normal name (Mothmen instead of Mothman)
-                        box = box.replace(syncDemon.nameVariant, replacementName)
-                    #TODO: Dialogue issues i was having was not due too line length, but still might be necessary once I actually find a case where it's relevant
-                    # lines = box.split("\n")
-                    # for line in lines:
-                    #     pass
-
-                    missionText[index] = box
+            updateDemonsInTextFile(missionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
             file.setMessageStrings(missionText)
             file.writeToFiles()
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
+            
+'''
+Update the mention of demon names in story event messages.
+    Parameters:
+        encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
+        bossReplacements(Dict): map for which boss replaces which boss
+        demonNames(list(String)): list of demon names
+        randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
+'''
+def updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+    for missionEvent,syncDemons in EVENT_MESSAGE_DEMON_IDS.items():
+        try:
+            file = Message_File(missionEvent,'/EventMessage/',OUTPUT_FOLDERS['EventMessage'])
+            missionText = file.getMessageStrings()
+            updateDemonsInTextFile(missionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
+            file.setMessageStrings(missionText)
+            file.writeToFiles()
+        except AssertionError:
+            print("Error during message read for mission file " + missionEvent)
+            
+'''
+Update the mention of demon names in a single event message file
+    Parameters:
+        missionText(List(String)): List of all text boxes in the file to update
+        syncDemons(List(Demon_Sync)): List of all demons that need to be updated to their replacements
+        encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
+        bossReplacements(Dict): map for which boss replaces which boss
+        demonNames(list(String)): list of demon names
+        randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
+'''
+def updateDemonsInTextFile(missionText, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+    for syncDemon in syncDemons:
+        originalDemonID = syncDemon.ind #id of demon mentionend in text
+        syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
+        if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
+            continue
+        originalName = demonNames[originalDemonID]
+        if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
+            try:
+                replacementID = bossReplacements[syncDemonID]
+            except KeyError:
+                #print("Key Error: " + str(syncDemonID))
+                continue
+        else: #else it is a boss
+            try:
+                replacementID = encounterReplacements[syncDemonID]
+            except KeyError:
+                #print("Key Error: " + str(syncDemonID))
+                continue
+        #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
+        replacementName = demonNames[replacementID]
 
+        #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
+            
+        for index, box in enumerate(missionText): #for every dialogue box
+            if originalName in box: #Name is plain text
+                box = box.replace(originalName, replacementName)
+            if 'enemy ' + str(originalDemonID).zfill(3) in box: #name is talked about via ID
+                box = box.replace('enemy ' + str(originalDemonID).zfill(3), 'enemy ' + str(replacementID).zfill(3))
+                #box = box.replace('<enemy ' + str(originalDemonID) + '>', replacementName)
+                #print(box)
+            if syncDemon.nameVariant and syncDemon.nameVariant in box:#Name is a variant on normal name (Mothmen instead of Mothman)
+                box = box.replace(syncDemon.nameVariant, replacementName)
+            #TODO: Dialogue issues i was having was not due too line length, but still might be necessary once I actually find a case where it's relevant
+            # lines = box.split("\n")
+            # for line in lines:
+            #     pass
+
+            missionText[index] = box
 
 '''
-Adds hint messages for various checks
+Adds hint messages for checks related to mission events
 Parameters:
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
 '''
 def addHintMessages(bossReplacements, demonNames):
+    addStoryHintMessages(bossReplacements, demonNames)
     for missionEvent,hints in MISSION_CHECKS_ORIGINAL_IDS.items():
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
             missionText = file.getMessageStrings()
-            for hintInfo in hints:
-                messageIndex = hintInfo[0]
-                originalDemonID = hintInfo[1]
-                hintIndex = hintInfo[2]
-                originalName = demonNames[originalDemonID]
-                try:
-                    replacementID = bossReplacements[originalDemonID]
-                except KeyError:
-                    pass
-                replacementName = demonNames[replacementID]
-        
-                #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
-        
-        
-                #for index, box in enumerate(missionText):
-                #    print(index)
-                #    print(box)
-            
-                hintBox = missionText[messageIndex]
-                #print(hintBox)
-                match = re.search(VOICE_REGEX, hintBox)
-                boxMetadata = ""
-                if match:
-                    splitIndex = match.span()[1]
-                    boxMetadata = hintBox[:splitIndex]
-                    #print(boxMetadata)
-                else:
-                    match = re.search(NAME_REGEX, hintBox)
-                    if match:
-                        splitIndex = match.span()[1]
-                        boxMetadata = hintBox[:splitIndex]
-                hintMessage = boxMetadata + createHintMessageWithID(replacementID, hintIndex) #TODO - Differentiate bosses with the same name using the non-ID version of this function
-                missionText[messageIndex] = hintMessage
-                #print(hintMessage)
-            file.setMessageStrings(missionText)
-            file.writeToFiles()
+            addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
+            
+'''
+Adds hint messages for checks related to story events
+Parameters:
+        bossReplacements(Dict): map for which boss replaces which boss
+        demonNames(list(String)): list of demon names
+'''
+def addStoryHintMessages(bossReplacements, demonNames):
+    for missionEvent,hints in EVENT_CHECKS_ORIGINAL_IDS.items():
+        try:
+            file = Message_File(missionEvent,'/EventMessage/',OUTPUT_FOLDERS['EventMessage'])
+            missionText = file.getMessageStrings()
+            addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+        except AssertionError:
+            print("Error during message read for mission file " + missionEvent)
+            
+'''
+Adds hint messages for a single text file
+Parameters:
+        missionText(List(String)): List of all text boxes in the file to update
+        hints(List((messageIndex, originalDemonID, hintMessageID))): List of all hints for the file including the boss IDs to replace
+        bossReplacements(Dict): map for which boss replaces which boss
+        demonNames(list(String)): list of demon names
+'''
+def addHintMessagesInFile(missionText, hints, bossReplacements, demonNames):
+    for hintInfo in hints:
+        messageIndex = hintInfo[0]
+        originalDemonID = hintInfo[1]
+        hintIndex = hintInfo[2]
+        originalName = demonNames[originalDemonID]
+        try:
+            replacementID = bossReplacements[originalDemonID]
+        except KeyError:
+            pass
+        replacementName = demonNames[replacementID]
+        
+        #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
+        
+        
+        #for index, box in enumerate(missionText):
+        #    print(index)
+        #    print(box)
+            
+        hintBox = missionText[messageIndex]
+        #print(hintBox)
+        match = re.search(VOICE_REGEX, hintBox)
+        boxMetadata = ""
+        if match:
+            splitIndex = match.span()[1]
+            boxMetadata = hintBox[:splitIndex]
+            #print(boxMetadata)
+        else:
+            match = re.search(NAME_REGEX, hintBox)
+            if match:
+                splitIndex = match.span()[1]
+                boxMetadata = hintBox[:splitIndex]
+        hintMessage = boxMetadata + createHintMessageWithID(replacementID, hintIndex) #TODO - Differentiate bosses with the same name using the non-ID version of this function
+        missionText[messageIndex] = hintMessage
+        #print(hintMessage)
 
 '''
 Returns a hint message using a direct string by replacing <BOSSNAME> in a placeholder hint message
