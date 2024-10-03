@@ -909,6 +909,7 @@ class Randomizer:
             entry = Miman_Reward()
             entry.offset = offset
             entry.miman = shopData.readWord(offset)
+            entry.setMsgID = 0#To remove Set Names (to get set names: shopData.readWord(offset +4)
             for i in range(16):
                 item = Reward_Item(shopData.readHalfword(offset + 8 + 4*i),shopData.readHalfword(offset + 10+4*i))
                 entry.items.append(item)
@@ -2421,6 +2422,7 @@ class Randomizer:
             buffer.writeDblword(entry.unlock.value, entry.offset + 4)
         for reward in mimans:
             buffer.writeWord(reward.miman,reward.offset)
+            buffer.writeWord(reward.setMsgID, reward.offset +4)
             for index, item in enumerate(reward.items):
                 buffer.writeHalfword(item.ind, reward.offset + 8 + 4*index)
                 buffer.writeHalfword(item.amount, reward.offset + 10 + 4*index)
@@ -6319,10 +6321,9 @@ class Randomizer:
 
         message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
-        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames)
+        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel)
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel)
         message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
-       
 
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])

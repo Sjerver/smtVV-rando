@@ -751,7 +751,7 @@ Updates the mission info file with randomized demon replacements and adds additi
         fakeMissions(List(Fake_Mission)): list of fake missions to add rewards to description for
         itemNames(List(String)): list of item names
 '''
-def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawnyAmbition2Skill, fakeMissions, itemNames):
+def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawnyAmbition2Skill, fakeMissions, itemNames, randomizeQuestJoinDemons):
     file = Message_File('MissionInfo','/',OUTPUT_FOLDERS['MissionInfo'])
 
     missionText = file.getMessageStrings()
@@ -763,6 +763,8 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
         for syncDemon in syncDemons:
             originalDemonID = syncDemon.ind #id of demon mentionend in text
             syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
+            if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
+                continue
             originalName = demonNames[originalDemonID]
             if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
                 try:
@@ -818,8 +820,7 @@ def addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames):
             explainText = addOn + explainText
             missionText[explainIndex] = explainText
     return missionText
-
-            
+          
 
 
 

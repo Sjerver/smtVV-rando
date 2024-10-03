@@ -80,12 +80,12 @@ class Message_Page_Text_Entry():
     Obtain the bytes of the pages string.
     '''
     def encode(self):
-        if self.encoding == 'ascii':
-            string = self.string + '\x00'
-            return string.encode('ascii') 
-        else:
-            string = self.string + '\x00'
-            return string.encode("utf-16-le")
+        string = self.string + '\x00'
+        try:
+            return string.encode(self.encoding)
+        except UnicodeEncodeError:
+            self.encoding = "utf-16-le"
+        return string.encode(self.encoding)
 
 
 class Message_File:
@@ -240,7 +240,6 @@ class Message_File:
                             messageSizeDiff = messageSizeDiff +  len(pageTextEntry.bytes) - pageSize
                             sizeDifference = sizeDifference + messageSizeDiff
                             for i in range(len(pageTextEntry.bytes) - pageSize):
-                                #TODO: Most likely incorrect for two byte chars
                                 uexpBinary.buffer.insert(currentOffset+ additionalBytes + 4*index + 4 ,0)
                             if pageTextEntry.encoding == 'ascii':
                                 uexpBinary.writeWord(len(pageTextEntry.bytes),currentOffset + additionalBytes + 4* index + 17 * (pageIndex))
@@ -250,7 +249,6 @@ class Message_File:
                             messageSizeDiff = messageSizeDiff + (len(pageTextEntry.bytes) - pageSize)
                             sizeDifference = sizeDifference + messageSizeDiff
                             for i in range(pageSize - len(pageTextEntry.bytes)):
-                                #TODO: Most likely incorrect for two byte chars
                                 uexpBinary.buffer.pop(currentOffset + additionalBytes + 4*index + 4)
                             if pageTextEntry.encoding == 'ascii':
                                 uexpBinary.writeWord(len(pageTextEntry.bytes),currentOffset + additionalBytes + 4* index + 17 * (pageIndex))

@@ -302,7 +302,6 @@ Randomizes free demon joins based on the original joins level by adjusting the v
 Parameters:
     comp List(Compendium_Demon): list of all playable demons
     randomDemons (Boolean): whether to randomize the demon joins or set them to vanilla
-    #TODO: Consider rewrite via uasset method (that way scripts should keep working even if future update changes them and we don't need to adjust the bytes manually)
 '''
 def randomizeDemonJoins(replacements, randomDemons):
     writeFolder(EVENT_FOLDER)
