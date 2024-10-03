@@ -20,4 +20,65 @@ e0476 - Dazai scared in school scene
 e0480 - Sahori kills her bullies scene, mentions Lahmu
 e0485 - Final Lahmu warning
 e0490 - Final Lahmu Pre-Fight Dialogue
-e0491 - Final Lahmu mid-fight dialogue
+e0491 - Final Lahmu Mid-Fight Dialogue
+e0510 - Final Lahmu Post-Fight Dialogue
+e0525 - Pre-Summit dialogue, mentions shiva and Abdiel
+e0530 - Abdiel and Koshimitzu pre-summit talk, mentions Arioch, Yuzuru
+e0550 - Koshimitzu debrief after area 2, mentions Lahmu
+e0560 - Yuzuru/Dazai conversation after area 2, mentions Lahmu
+e0570 - Learning about armies of chaos before area 3, mentions Lahmu, Yuzuru, Dazai
+e0580 - Abdiel gives Dazai angels to use
+e0595 - Surt Pre-Fight Dialogue
+e0600 - Bethel summit introductions, mentions Khonsu, Shiva, Abdiel, Surt, Ishtar, Arioch, Lucifer
+e0602 - Talking to the faction leaders at summit, mentions Shiva, Abdiel
+e0603 - Abdiel Pre-Fight dialogue at summit, mentions Shiva
+e0604 - Abdiel Post-Fight dialogue at summit, mentions Shiva, Tsukuyomi, Abdiel
+e0610 - Angels in area 3 giving directions to DKC, mentions Abdiel
+e0625 - Yakumo Post-Fight dialogue, mentions Lahmu
+e0627 - Aogami talk after Yakumo fight, mentions Lahmu
+e0628 - Dazai dialogue after Surt, mentions Abdiel
+e0640 - Chernobog related dialogue, mentions Abdiel
+e0650 - Dazai/Abdiel talk in DKC, mentions a dominion
+e0660 - Arioch Pre-Fight Dialogue
+e0675 - Yakumo talk after Arioch, mentions Arioch
+e0680 - Abdiel celebrating Arioch's death
+e0690 - Koshimitzu meeting after area 3, mentions Abdiel, Tsukuyomi
+e0715 - Pre-Summit Aogami "warning"
+e0730 - Regarding the war of the gods dialogue, mentions Baal, Lucifer, Tsukuyomi, Yuzuru
+e0735 - Dazai talk after summit, mentions Abdiel
+e0736 - Abdiel/Dazai talk after summit
+e0762 - Nuwa dialogue in area 4, mentions Yakumo
+e0763 - Panagia Tao joining you
+e0765 - Dazai hat scene, mentions Abdiel
+e0770 - Bethel India demon dialogue, mentions Shiva, Vasuki
+e0770_b - Same as e0770 but vengeance variant that also names Beelzebub
+e0775 - Vasuki Pre-Fight Dialogue, mentions Shiva
+e0780 - Bethel Greek demon dialogue, mentions Zeus
+e0780_b - Identical to e0780 but guessing this is the vengeance version
+e0785 - Zeus Pre-Fight Dialogue, mentions Tsukuyomi but in spread out text
+e0800 - Bethel Nordic demon dialogue, mentions Odin
+e0800_b - same as e0800 but vengeance variant that also names Zeus
+e0825 - Metatron pre-fight dialogue and warning
+e0842 - Dazai and Abdiel talk in pre-empyrean cutscene
+e0850 - Argument before Empyrean, mentions Zeus, Odin, Abdiel, Dazai
+e0870 - Joining Dazai in Empyrean, mentions Tsukuyomi, Abdiel
+e0880 - Joining Tsukuyomi in Empyrean, mentions Abdiel, Dazai, Hayataro (Abdiel in spread out text)
+e0885 - Hayataro joining you text
+e0891 - Empyrean minibosses dialogue, only Melchizedek named
+e0900 - Dazai/Abdiel lose to Tsukuyomi, mentions Abdiel. Warning is here but is shared across all routes
+e0910 - Tsukuyomi loses to Dazai/Abdiel
+e0920 - Yakumo/Nuwa lose to Dazai/Abdiel
+e0930 - Nuwa True ending dialogue after Abdiel fight
+e1001 - Lucifer warning and Tao leaving the party
+e1020 - Aogami says goodbye in true ending, mentions Lucifer
+e2005 - Skyview and Husk tutorial
+e2008 - Rail tutorial
+e2010 - Labolas 1 Pre-fight dialogue, mentions Yuzuru, Dazai
+e2015 - Labolas 1 post-fight dialogue, mentions Yuzuru
+e2018 - Unused? Yoko dialogue about Apsaras and Leanan
+e2022 - Naamah pre-fight dialogue (spread out text)
+e2029 - Nuwa post-fight dialogue vengeance, mentions Yakumo, Nuwa and includes spread out text
+e2030 - Dazai in act 1 diet building vengeance, mentions Yuzuru
+e2035 - Using the cylinder to go to Tokyo vengeance, mentions Yuzuru
+e2040 - Meeting Abdiel vengeance
+e2043 - Tao meeting after area 1 vengeance, mentions Yuzuru, Dazai

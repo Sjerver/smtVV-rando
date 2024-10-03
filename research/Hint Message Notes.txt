@@ -1,6 +1,6 @@
 Abscesses - No Hints
-Triple Preta - Skyview tutorial?
-Labolas - Rail tutorial?
+Triple Preta(Complete) - Skyview tutorial
+Labolas(Complete) - Rail tutorial
 Six Pretas(Complete) - They give their name
 Dormarth(Complete) - Nyami tells you
 Apsaras/Leanan(Complete) - Questgiver tells you
@@ -65,7 +65,7 @@ Camael(Complete) - Questgiver tells you
 Orochi(Complete) - Questgiver tells you
 Dark Block Bros - No Hints?
 Cherub - No Hints? Tsukuyomi Warning if there is one
-Abdiel - Aogami Warning (Both routes)
+Abdiel(Partial) - Aogami Warning (Both routes)
 Black Frost/Dionysis(Complete) - Questgiver tells you
 Horus(Complete) - Questgiver tells you
 Hecaton(Complete) - Questgiver tells you
@@ -74,7 +74,7 @@ Surt(Complete) - Aogami Warning
 Ishtar(Complete) - Aogami Warning
 4 Kunitsu(Complete) - They give their name
 Arahabaki(Complete) - Questgiver tells you
-Chernobog - Aogami Warning
+Chernobog(Complete) - Aogami Warning
 Arioch - Aogami Warning
 Atavaka(Complete) - Questgiver tells you
 Norn(Complete) - Questgiver tells you
@@ -101,7 +101,7 @@ Demi Fiend(Complete) - Probably a warning before fight?
 Samael(Complete) - Questgiver tells you
 Satan(Complete) - He gives his name
 Masakado(Complete) - He gives his name
-Metatron - Aogami Warning
+Metatron(Complete) - Aogami Warning
 Dazai - Aogami Warning
 Zeus 2(Complete) - Questgiver tells you
 Empyrean minibosses - No Hints
@@ -110,9 +110,9 @@ Maria/Innana/Danu(Complete) - They give their name (I think after you agree to f
 Tiamat - Warning before route split
 Mastema - Aogami Warning
 Tehom - Aogami Warning
-Lucifer - Time and space warning
-True Lucifer - choice box "An extremely powerful enemy", give normal lucifer's name too
-Nahobino Abdiel - Aogami Warning
-Tsukuyomi - Aogami Warning
-Nahobino Nuwa - Aogami Warning
+Lucifer(Complete) - Time and space warning
+True Lucifer(Complete) - choice box "An extremely powerful enemy", give normal lucifer's name too
+Nahobino Abdiel(Complete) - Can't use warning so learned from various story text
+Tsukuyomi(Complete) - Can't use warning so learned from various story text
+Nahobino Nuwa(Complete) - Can't use warning so learned from various story text
 Konohana Sakuya/Dagda(Complete) - They give their name

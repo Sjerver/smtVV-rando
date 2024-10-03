@@ -217,7 +217,8 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e0300': [Demon_Sync(432)],#Return Pillar cutscene (Hydra)
     'e0310': [Demon_Sync(432)],#Unused? Hydra dialogue (Hydra)
     'e0330': [Demon_Sync(435)],#Snake Nuwa Pre-fight dialogue (Nuwa)
-    'e0340': [Demon_Sync(435)],#Snake Nuwa Post-fight dialogue (Nuwa) Yakumo is mentioned but there's 2 yakumo checks based on route
+    'e0340': [Demon_Sync(465, nameVariant='Yakumo'), Demon_Sync(435)],#Snake Nuwa Post-fight dialogue creation (Yakumo, Nuwa)
+    'e0350': [Demon_Sync(467)],#Meeting Abdiel creation (Abdiel)
     'e0378': [Demon_Sync(837)],#Dazai/Abdiel talk in area 2 (Baal)
     'e0379': [Demon_Sync(451)],#Fionn 1 Pre-fight dialogue (Fionn)
     'e0380': [Demon_Sync(452)],#Fionn 1 Post-fight dialogue (Lahmu)
@@ -229,6 +230,59 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e0480': [Demon_Sync(441)],#Sahori kills her bullies (Lahmu)
     'e0490': [Demon_Sync(452)],#Final Lahmu Pre-fight dialogue (Lahmu) TODO: Make sure shaking text decisions work
     'e0491': [Demon_Sync(453)],#Final Lahmu between phases dialogue (Lahmu) Note: Start using second phase Lahmu for mentions once phase 1 is dead
+    'e0510': [Demon_Sync(453)],#Final Lahmu Post-fight dialogue (Lahmu)
+    'e0525': [Demon_Sync(845), Demon_Sync(467)],#Pre-summit Koshimitzu? Dialogue (Shiva, Creation Abdiel)
+    'e0530': [Demon_Sync(467), Demon_Sync(463)],#Pre-summit Abdiel/Koshimitzu talk (Creation Abdiel, Arioch)
+    'e0550': [Demon_Sync(453)],#Koshimitzu debrief after area 2 (Lahmu)
+    'e0560': [Demon_Sync(453)],#Dazai/Yuzuru talk after area 2 (Lahmu)
+    'e0570': [Demon_Sync(453)],#Learning about armies of chaos before area 3 (Lahmu)
+    'e0595': [Demon_Sync(454)],#Surt Pre-fight dialogue (Surt)
+    'e0600': [Demon_Sync(516), Demon_Sync(845), Demon_Sync(467), Demon_Sync(454), Demon_Sync(455), Demon_Sync(463), Demon_Sync(537)],#First Bethel summit cutscene (Khonsu, Shiva, Abdiel, Surt, Ishtar, Arioch, Lucifer)
+    'e0602': [Demon_Sync(845), Demon_Sync(467)],#Talking to faction leaders at summit (Shiva, Abdiel)
+    'e0603': [Demon_Sync(845)],#Abdiel pre-fight dialogue at summit (Shiva)
+    'e0604': [Demon_Sync(845), Demon_Sync(528), Demon_Sync(467)],#Abdiel post-fight dialogue at summit (Shiva, Tsukuyomi, Abdiel)
+    'e0610': [Demon_Sync(467)],#Angels giving directions to DKC (Abdiel)
+    'e0625': [Demon_Sync(453)],#Yakumo post-fight dialogue (Lahmu)
+    'e0627': [Demon_Sync(453)],#Aogami dialogue after Yakumo fight (Lahmu)
+    'e0628': [Demon_Sync(467)],#Dazai dialogue after Surt (Abdiel)
+    'e0640': [Demon_Sync(466), Demon_Sync(467)],#Chernobog related dialogue (Chernobog, Abdiel)
+    'e0660': [Demon_Sync(463)],#Arioch pre-fight dialogue (Arioch)
+    'e0675': [Demon_Sync(465, nameVariant='Yakumo'), Demon_Sync(463)],#Yakumo talk after Arioch (Yakumo, Arioch)
+    'e0680': [Demon_Sync(467), Demon_Sync(463)],#Abdiel celebrates Arioch's death (Abdiel, Arioch)
+    'e0690': [Demon_Sync(467), Demon_Sync(528)],#Koshimitzu meeting after area 3 (Abdiel, Tsukuyomi)
+    'e0730': [Demon_Sync(837), Demon_Sync(537), Demon_Sync(528)],#Regarding the war of the gods dialogue (Baal, Lucifer, Tsukuyomi)
+    'e0735': [Demon_Sync(467)],#Dazai dialogue after summit (Abdiel)
+    'e0736': [Demon_Sync(467)],#Dazai/Abdiel talk after summit (Abdiel)
+    'e0762': [Demon_Sync(465, nameVariant='Yakumo'), Demon_Sync(520)],#Nuwa in area 4 (Yakumo, Nuwa) Note: I guess start referencing nahobino nuwa/abdiel in area 4?
+    'e0765': [Demon_Sync(525)],#Dazai hat scene (Abdiel)
+    'e0770': [Demon_Sync(468), Demon_Sync(845)],#Bethel India demon dialogue (Vasuki, Shiva)
+    'e0770_b': [Demon_Sync(468), Demon_Sync(845), Demon_Sync(483)],#Bethel India vengeance demon dialogue (Vasuki, Shiva, Beelzebub)
+    'e0775': [Demon_Sync(845)],#Vasuki pre-fight dialogue (Shiva)
+    'e0780': [Demon_Sync(469, nameVariant='ZEUS')],#Bethel Greek demon creation? dialogue (Zeus)
+    'e0780_b': [Demon_Sync(481, nameVariant='ZEUS')],#Bethel Greek demon vengeance? dialogue (Zeus)
+    'e0785': [Demon_Sync(469), Demon_Sync(528)],#Zeus pre-fight dialogue (Zeus, Tsukuyomi) TODO: See if something needs to be done about text that separates all letters with 00 (Tsukuyomi here)
+    'e0800': [Demon_Sync(470)],#Bethel Norse demon creation dialogue (Odin)
+    'e0800_b': [Demon_Sync(482), Demon_Sync(481)],#Bethel Norse demon vengeance dialogue (Odin, Zeus)
+    'e0825': [Demon_Sync(477)],#Metatron pre-fight dialogue (Metatron)
+    'e0850': [Demon_Sync(469), Demon_Sync(470), Demon_Sync(525)],#Argument before Empyrean (Zeus, Odin, Abdiel)
+    'e0870': [Demon_Sync(528), Demon_Sync(525)],#Joining Dazai in Empyrean (Tsukuyomi, Abdiel)
+    'e0880': [Demon_Sync(525), Demon_Sync(152)],#Joining Tsukuyomi in Empyrean (Abdiel, Hayataro) Abdiel spread out text
+    'e0885': [Demon_Sync(152)],#Hayataro joins you (Hayataro)
+    'e0891': [Demon_Sync(471)],#Empyrean minibosses dialogue (Melchizedek)
+    'e0900': [Demon_Sync(525)],#Dazai/Abdiel lose to Tsukuyomi (Abdiel)
+    'e0910': [Demon_Sync(528)],#Tsukuyomi loses to Dazai/Abdiel (Tsukuyomi)
+    'e0920': [Demon_Sync(465, nameVariant='Yakumo'), Demon_Sync(520)],#Yakumo/Nuwa loses to Dazai/Abdiel (Yakumo, Nuwa)
+    'e0930': [Demon_Sync(465, nameVariant='Yakumo')],#Nuwa true ending dialogue after Abdiel (Yakumo)
+    'e1020': [Demon_Sync(529)],#Aogami says goodbye in true neutral ending (True Lucifer)
+    'e2010': [Demon_Sync(552), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(578, nameVariant='Dazai')],#Labolas 1 pre-fight dialogue (Labolas, Yuzuru, Dazai) Note: For vengeance dialogue replacing mentions of Yuzuru/Dazai, but not Yoko for now
+    'e2015': [Demon_Sync(561)],#Labolas 1 post-fight dialogue (Yuzuru)
+    'e2018': [Demon_Sync(43), Demon_Sync(305)],#Possibly unused Yoko dialogue about Apsaras/Leanan (Apsaras, Leanan)
+    'e2022': [Demon_Sync(553)],#Naamah pre-fight dialogue (Naamah) Spread out text
+    'e2029': [Demon_Sync(567, nameVariant='Yakumo'), Demon_Sync(435)],#Nuwa post-fight dialogue vengeance (Yakumo, Nuwa) Includes spread out text
+    'e2030': [Demon_Sync(578), Demon_Sync(561, nameVariant="Yuzuru freakin' Atsuta")],#Dazai in diet building vengeance (Dazai, Yuzuru)
+    'e2035': [Demon_Sync(561, nameVariant="Yuzuru"), Demon_Sync(561, nameVariant="Atsuta")],#Returning to Tokyo from area 1 vengeance (Yuzuru) TODO: Make sure using him with 2 names like this works
+    'e2040': [Demon_Sync(564)],#Meeting Abdiel vengeance (Abdiel)
+    'e2043': [ Demon_Sync(561, nameVariant="Atsuta"), Demon_Sync(578, nameVariant='Dazai')],#Tao meeting after area 1 vengeance (Yuzuru, Dazai)
 }
 
 #Alternative names to use for demons with names longer than 11 characters
@@ -295,6 +349,12 @@ MISSION_CHECKS_ORIGINAL_IDS = {
 EVENT_CHECKS_ORIGINAL_IDS = {
     'e0425': [(8, 441, 0), (9, 439, 18)],#Lahmu 1 + Anzus
     'e0485': [(1, 452, 0), (2, 453, 18)],#Lahmu 2 (both phases)
+    'e0640': [(9, 466, 0)],#Chernobog
+    'e0715': [(2, 467, 0)],#Creation Abdiel
+    'e0825': [(7, 477, 0)],#Metatron
+    'e1001': [(3, 437, 9), (10, 437, 19), (11, 429, 20)],#Lucifer
+    'e2005': [(1, 431, 0)],#Triple Preta
+    'e2008': [(1, 431, 21)],#Labolas 1
 }
 
 VOICE_REGEX = '<voice.*>\n'
@@ -321,7 +381,10 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "So, uh... I was following Atsuta, but I saw\n<BOSSNAME> around here.", #15 - Dazai dialogue in Yaksini quest
                  "Then it is time for the final test!\nI, <BOSSNAME>, shall judge your power for myself!", #16 - Konohana Sakuya Quest
                  "Now, in this new land, he intends to become\nthe being <BOSSNAME>.", #17 - Danu dialogue in Dagda quest
-                 "I'm also detecting the presence of <BOSSNAME>\nbehind the first reading."] #18 - Two-part boss warning
+                 "I'm also detecting the presence of <BOSSNAME>\nbehind the first reading.", #18 - Two-part boss warning
+                 "A powerful <BOSSNAMEPLAINTEXT>.", #19 - Normal Lucifer
+                 "An extremely powerful <BOSSNAMEPLAINTEXT>.", #20 - True Lucifer
+                 "I think I'm detecting <BOSSNAME> ahead.\nIt may ambush us at the train."] #21 - Labolas warning that plays in both routes unfortunately
 
 MISSION_INFO_DEMON_IDS = {
     7: [Demon_Sync(281,802)], #The Ultimate Omelet (Jatayu)
