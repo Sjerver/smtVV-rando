@@ -6321,8 +6321,7 @@ class Randomizer:
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames)
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel)
-        if len(self.bossReplacements):
-            message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
+        message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
        
 
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)

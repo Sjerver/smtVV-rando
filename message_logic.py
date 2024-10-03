@@ -424,6 +424,9 @@ MISSION_INFO_DEMON_IDS = {
     222: [Demon_Sync(242,841),Demon_Sync(83)], #The Red Dragon's Invitation CoV (Michael Boss, Belial)
 }
 
+#Lists of missions without reward page
+MISSIONS_WITHOUT_REWARD_PAGE = [147,148]
+
 '''
 Changes the names and descriptions of items with demon names in them to that of their replacement if there is any
     Parameters:
@@ -693,7 +696,7 @@ def addHintMessagesInFile(missionText, hints, bossReplacements, demonNames):
         try:
             replacementID = bossReplacements[originalDemonID]
         except KeyError:
-            pass
+            continue
         replacementName = demonNames[replacementID]
         
         #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
@@ -805,13 +808,15 @@ Adds additional rewards to the missions description.
 def addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames):
     for mission in fakeMissions:
         for missionID in mission.infoInds: #List of mission ids to add the reward of this fake mission to
-            explainText = missionText[3 + missionID * 7 + 3]
+            explainIndex = missionText.index('NOT USED:mis_info_' + str(missionID).zfill(4) +'_report') -2
+            explainText = missionText[explainIndex]
+            
             newItemName = itemNames[mission.reward.ind]
 
             addOn = "Additional Reward: <c look_begin>" + newItemName + "<c look_end>\n　\n"
 
             explainText = addOn + explainText
-            missionText[3 + missionID * 7 + 3] = explainText
+            missionText[explainIndex] = explainText
     return missionText
 
             
