@@ -412,6 +412,36 @@ LUNATION_FLUX_ID = 927
 BRAWNY_AMBITIONS_ID = 197
 BRAWNY_AMBITIONS2_SKILL = "Puncture Punch"
 
+#List of which demon join is in which script
+SCRIPT_JOIN_DEMONS = {
+    'MM_M061_EM1630': 305, # Leanan Sidhe
+    'MM_M061_EM1640': 43, # Apsaras
+    'MM_M062_EM1660': 257, # Principality
+    'MM_M062_EM1650': 67, # Lilim
+    'MM_M060_EM1690': 265, # Adramelech
+    'MM_M060_EM1700': 201, # Futsunushi
+    'MM_M063_EM1670': 72, # Black Frost
+    'MM_M063_EM1680': 183, # Dionysus
+    'MM_M064_EM2310': 41, # Anansi
+    'MM_M064_EM2320': 386, # Onyankopon
+    'MM_M064_EM2270': 40, # Kresnik
+    'MM_M064_EM2280': 346, # Kudlak
+    'MM_M060_EM1420': 35, # Fionn
+    'MM_M060_EM1602': 38, # Amanozako (Amanazako Could't Join Initially)
+    'MM_M060_EM1601': 38, # Amanozako
+    'MM_M016_E0885': 152, #Hayataro CoC Chaos 
+    'MM_M016_E0885_Direct': 152, #Hayataro CoC Chaos 
+    'MM_M016_EM1450': 19, # Demeter
+    'MM_M035_EM1480': 242, # Michael
+    'MM_M036_EM1490': 83, # Belial
+    'MM_M061_EM1781': 295, # Cleopatra
+    'MM_M061_EM2613_HitAction': 4, # Dagda
+    'MM_M030_EM1769': 78, # Mephisto (Can only join this way)
+    'MM_M061_EM1791': 31, # Artemis
+    'MM_M061_EM2601': 32, # Konohana Sakuya
+    'MM_M063_EM2170': 227 # Masakado
+}
+
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''

@@ -68,36 +68,6 @@ SCRIPT_JOIN_TYPES = {
     'MM_M063_EM2170': Script_Join_Type.MASAKADO, # Guardian of Tokyo
 }
 
-#List of which demon join is in which script
-SCRIPT_JOIN_DEMONS = {
-    'MM_M061_EM1630': 305, # Leanan Sidhe
-    'MM_M061_EM1640': 43, # Apsaras
-    'MM_M062_EM1660': 257, # Principality
-    'MM_M062_EM1650': 67, # Lilim
-    'MM_M060_EM1690': 265, # Adramelech
-    'MM_M060_EM1700': 201, # Futsunushi
-    'MM_M063_EM1670': 72, # Black Frost
-    'MM_M063_EM1680': 183, # Dionysus
-    'MM_M064_EM2310': 41, # Anansi
-    'MM_M064_EM2320': 386, # Onyankopon
-    'MM_M064_EM2270': 40, # Kresnik
-    'MM_M064_EM2280': 346, # Kudlak
-    'MM_M060_EM1420': 35, # Fionn
-    'MM_M060_EM1602': 38, # Amanozako (Amanazako Could't Join Initially)
-    'MM_M060_EM1601': 38, # Amanozako
-    'MM_M016_E0885': 152, #Hayataro CoC Chaos 
-    'MM_M016_E0885_Direct': 152, #Hayataro CoC Chaos 
-    'MM_M016_EM1450': 19, # Demeter
-    'MM_M035_EM1480': 242, # Michael
-    'MM_M036_EM1490': 83, # Belial
-    'MM_M061_EM1781': 295, # Cleopatra
-    'MM_M061_EM2613_HitAction': 4, # Dagda
-    'MM_M030_EM1769': 78, # Mephisto (Can only join this way)
-    'MM_M061_EM1791': 31, # Artemis
-    'MM_M061_EM2601': 32, # Konohana Sakuya
-    'MM_M063_EM2170': 227 # Masakado
-}
-
 #List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
     'MM_M061_EM1630': M061_FOLDER, # The Water Nymph 
@@ -358,7 +328,7 @@ def randomizeDemonJoins(replacements, randomDemons):
             uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
         
         if randomDemons:#randomize the join demons, otherwise values stay the same as OG and potential output files are overwritten with vanilla files
-            oldDemon = SCRIPT_JOIN_DEMONS[script]
+            oldDemon = numbers.SCRIPT_JOIN_DEMONS[script]
             newDemon = replacements[oldDemon]
 
             #Save demon if it is needed in another script or use the saved demon
@@ -381,8 +351,8 @@ def randomizeDemonJoins(replacements, randomDemons):
             if script == 'MM_M030_EM1769':
                 # uexpData.writeHalfword(dagda,619565)
                 # uexpData.writeHalfword(cleopatra,619553)
-                updateDemonJoinInScript(uassetData,uexpData,SCRIPT_JOIN_DEMONS['MM_M061_EM1781'],cleopatra,Script_Join_Type.CLEOPATRA)
-                updateDemonJoinInScript(uassetData,uexpData,SCRIPT_JOIN_DEMONS['MM_M061_EM2613_HitAction'],dagda,Script_Join_Type.DAGDA )
+                updateDemonJoinInScript(uassetData,uexpData,numbers.SCRIPT_JOIN_DEMONS['MM_M061_EM1781'],cleopatra,Script_Join_Type.CLEOPATRA)
+                updateDemonJoinInScript(uassetData,uexpData,numbers.SCRIPT_JOIN_DEMONS['MM_M061_EM2613_HitAction'],dagda,Script_Join_Type.DAGDA )
 
 
         writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )

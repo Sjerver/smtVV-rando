@@ -3607,6 +3607,16 @@ class Randomizer:
                 for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
                     spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
                     self.bossReplacements[encounter.demons[0]] = shuffledEncounters[index].demons[0]
+                    if encounter.demons[1] > 0 and encounter.demons[1] != encounter.demons[0]: #Add up to 2 additional boss demons for mission text purposes. TODO: maybe support summons not present in the demons array?
+                        if shuffledEncounters[index].demons[1] > 0:
+                            self.bossReplacements[encounter.demons[1]] = shuffledEncounters[index].demons[1]
+                        else:
+                            self.bossReplacements[encounter.demons[1]] = shuffledEncounters[index].demons[0]
+                    if encounter.demons[2] > 0 and encounter.demons[2] != encounter.demons[1]:
+                        if shuffledEncounters[index].demons[2] > 0:
+                            self.bossReplacements[encounter.demons[2]] = shuffledEncounters[index].demons[2]
+                        else:
+                            self.bossReplacements[encounter.demons[2]] = self.bossReplacements[encounter.demons[1]]
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     
                     bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings.scaleBossPressTurnsToCheck, self.configSettings.scaleBossInstakillRates)
@@ -6310,7 +6320,7 @@ class Randomizer:
         message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames)
-        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames)
+        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel)
         if len(self.bossReplacements):
             message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
        

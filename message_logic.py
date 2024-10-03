@@ -94,7 +94,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em0143': [Demon_Sync(111, 468), Demon_Sync(178, 845)],#Taito India Amanozako dialogue (Vasuki and Shiva)
     'mm_em0145': [Demon_Sync(8, 469)],#Taito Greek Amanozako dialogue (Zeus)
     'mm_em0147': [Demon_Sync(9, 470)],#Taito Norse Amanozako dialogue (Odin)
-    'mm_em0151': [Demon_Sync(43)],#A Preta Predicament (Apsaras) TODO: Handle case if guest demons do not join at same level (always apsaras, etc)
+    'mm_em0151': [Demon_Sync(43)],#A Preta Predicament (Apsaras)
     'mm_em0152': [Demon_Sync(345, 889)],#A Preta Predicament (Preta)
     'mm_em0170': [Demon_Sync(318, 888)],#Moving on up (Oni, 4 quest files)
     'mm_em0171': [Demon_Sync(318, 888)],
@@ -124,11 +124,11 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1360': [Demon_Sync(204, 862)],#Jikokuten Event Battle Dialogue
     'mm_em1370': [Demon_Sync(203, 863)],#Bishamonten Event Battle Dialogue
     'mm_em1380': [Demon_Sync(7, 516), Demon_Sync(82, 463)],#Khonsu CoC Quest (Khonsu, Arioch)
-    'mm_em1390': [Demon_Sync(181, 829), Demon_Sync(76, 831), Demon_Sync(7, 516), Demon_Sync(82, 463)],#The Winged-Sun Crest (Asura, Amon, Khonsu, Arioch) TODO: Add Mithras 830, who is named but not the first demon in a boss encounter
+    'mm_em1390': [Demon_Sync(181, 829), Demon_Sync(88, 830), Demon_Sync(76, 831), Demon_Sync(7, 516), Demon_Sync(82, 463)],#The Winged-Sun Crest (Asura, Mithras, Amon, Khonsu, Arioch)
     'mm_em1401': [Demon_Sync(15, 519), Demon_Sync(7, 516), Demon_Sync(13, 864)],#Khonsu Ra CoC Quest (Khonsu Ra, Khonsu, Horus)
     'mm_em1410': [Demon_Sync(84, 832)],#Abbadon's Assault (Abaddon)
     'mm_em1420': [Demon_Sync(35)],#Fionn 2 Quest (Fionn)
-    'mm_em1430': [Demon_Sync(243, 836), Demon_Sync(242, 841)],#3 Seraphim Quest (Gabriel, Michael): TODO: Add Uriel 834 and Raphael 835, who are named but not the first demon in a boss encounter
+    'mm_em1430': [Demon_Sync(243, 836), Demon_Sync(247, 834), Demon_Sync(245, 835), Demon_Sync(242, 841)],#3 Seraphim Quest (Gabriel, Uriel, Raphael, Michael):
     'mm_em1440': [Demon_Sync(17, 837), Demon_Sync(86, 804), Demon_Sync(85, 816), Demon_Sync(81, 483), Demon_Sync(2, 537)],#Baal Quest (Baal, Belphegor, Moloch, Beelzebub, Lucifer)
     'mm_em1450': [Demon_Sync(8, 838), Demon_Sync(19)],#A Plot Unveiled (Zeus, Demeter)
     'mm_em1460': [Demon_Sync(94, 839)],#The Gold Dragon's Arrival (Huang Long)
@@ -144,7 +144,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1601': [Demon_Sync(38)],
     'mm_em1602': [Demon_Sync(38), Demon_Sync(877)], #Zaou-Gongen Mentioned here and in 1603
     'mm_em1603': [Demon_Sync(38), Demon_Sync(877)],
-    'mm_em1630': [Demon_Sync(868), Demon_Sync(305)], #Side with Leanan (Apsaras, Leanan) TODO: Add Ippon Datara 867, who is named but not the first demon in a quest
+    'mm_em1630': [Demon_Sync(868), Demon_Sync(305), Demon_Sync(867)], #Side with Leanan (Apsaras, Leanan, Ippon Datara)
     'mm_em1640': [Demon_Sync(866), Demon_Sync(43)], #Side with Apsaras (Leanan, Apsaras)
     'mm_em1641': [Demon_Sync(43), Demon_Sync(889)], #Apsaras' Followers Dialogue (Apsaras, 2 Quest Files, Preta)
     'mm_em1642': [Demon_Sync(43)],
@@ -181,7 +181,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2130': [Demon_Sync(113), Demon_Sync(41), Demon_Sync(386)], #Basilisk Hunt Quest (Basilisk, Anansi, Onyankopon)
     'mm_em2170': [Demon_Sync(227)], #Masakado Quest (Masakado)
     'mm_em2190': [Demon_Sync(552), Demon_Sync(888)], #Halphas Quest (Oni, Glasya-Labolas 1)
-    'mm_em2240': [Demon_Sync(519), Demon_Sync(566), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(864), Demon_Sync(577)], #Vengeance Khonsu-Ra Quest (Khonsu Ra, Khonsu, Yuzuru, Horus, Fallen Abdiel) TODO: Add Dazai who is the second enemy in his fight
+    'mm_em2240': [Demon_Sync(519), Demon_Sync(566), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(864), Demon_Sync(577), Demon_Sync(578)], #Vengeance Khonsu-Ra Quest (Khonsu Ra, Khonsu, Yuzuru, Horus, Fallen Abdiel, Dazai)
     'mm_em2270': [Demon_Sync(772), Demon_Sync(40)], #Side with Kresnik (Kudlak, Kresnik)
     'mm_em2280': [Demon_Sync(774), Demon_Sync(346)], #Side with Kudlak (Kresnik, Kudlak)
     'mm_em2290': [Demon_Sync(890)], #Gogmagog Quest (Gogmagog)
@@ -270,6 +270,7 @@ MISSION_CHECKS_ORIGINAL_IDS = {
 VOICE_REGEX = '<voice.*>\n'
 NAME_REGEX = '<chara.*>\n'
 HINT_BOSS_PLACEHOLDER = '<BOSSNAME>'
+HINT_BOSS_PLACEHOLDER_PLAIN_TEXT = '<BOSSNAMEPLAINTEXT>' #For hint messages that should not use colored text
 
 #Various hint messages that include <BOSSNAME> where the replacement boss name will go
 HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should proceed with caution.", #0 - Generic Aogami Warning
@@ -284,8 +285,8 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "I'm detecting the presence of <BOSSNAME> ahead.\nAre you ready to fight?", #9 - Aogami Warning with Confirmation
                  "Let's find out: I ask that you face <BOSSNAME>.\nSpeak to me when you are ready.", #10 - Artemis dialogue, make sure this works properly in game
                  "I ask that you convey my words to humanity\nand slay the demon <BOSSNAME>.", #11 - Armati dialogue in Pisaca Quest
-                 "Fight <BOSSNAME>.", #12 - Normal Masakdo TODO: Add option to generate hint message without color tags as they don't work for dialogue choices
-                 "Fight the true <BOSSNAME>.", #13 - The True Masakado
+                 "Fight <BOSSNAMEPLAINTEXT>.", #12 - Normal Masakdo
+                 "Fight the true <BOSSNAMEPLAINTEXT>.", #13 - The True Masakado
                  "We've received permission to use the data that will allow\nus to simulate a battle against <BOSSNAME> for you.", #14 - VR Kunitsukami Quest
                  "So, uh... I was following Atsuta, but I saw\n<BOSSNAME> around here.", #15 - Dazai dialogue in Yaksini quest
                  "Then it is time for the final test!\nI, <BOSSNAME>, shall judge your power for myself!", #16 - Konohana Sakuya Quest
@@ -313,7 +314,7 @@ MISSION_INFO_DEMON_IDS = {
     38: [Demon_Sync(205,861)], #Keeper of the West (Koumokuten)
     39: [Demon_Sync(203,859)], #Keeper of the North (Bishamonten)
     40: [Demon_Sync(7,516)], #The Egyptians' Fate (Khonsu)
-    41: [Demon_Sync(76,831),Demon_Sync(181,829),Demon_Sync(7,516)], #The Winged Sun (Khonsu,Amons,Asura) #TODO:Mithras 830
+    41: [Demon_Sync(76,831),Demon_Sync(88, 830),Demon_Sync(181,829),Demon_Sync(7,516)], #The Winged Sun (Khonsu,Amons,Mithras,Asura)
     42: [Demon_Sync(7,516)], #The Succession of Ra (Khonsu)
     43: [Demon_Sync(84,832)], #Abaddon's Assault (Abaddon)
     44: [Demon_Sync(35, nameVariant = "Fionn")], #Fionn's Resolve (Fionn)
@@ -332,7 +333,7 @@ MISSION_INFO_DEMON_IDS = {
     71: [Demon_Sync(305,866),Demon_Sync(43)], #The Spirit of Love (Leanan Sidhe Boss, Apsaras)
     72: [Demon_Sync(13,864)], #The Falcon's Head (Horus)
     73: [Demon_Sync(38,876)], #A Power Beyond Control (Amanozako)
-    74: [Demon_Sync(38)], #The Destined Leader (Amanozako, Kurama) #TODO: Kurama Tengu (37,878) no direct replacement
+    74: [Demon_Sync(38), Demon_Sync(37,878)], #The Destined Leader (Amanozako, Kurama) #TODO: Ensure Kurama replacement works
     75: [Demon_Sync(67),Demon_Sync(257,879)], #Those Seeking Sanctuary (Lilim, Principality Boss)
     76: [Demon_Sync(67,880),Demon_Sync(257)], #Holding the Line (Lilim Boss, Principality)
     77: [Demon_Sync(72),Demon_Sync(183,881)], #Black Frost Strikes Back (Black Frost, Dionysus Boss)
@@ -355,11 +356,11 @@ MISSION_INFO_DEMON_IDS = {
     106: [Demon_Sync(89,810)], #A Golden Opportunity (Loki) CoV
     109: [Demon_Sync(7,566)], #Investigate the Salt Incidents (Khonsu)
     111: [Demon_Sync(7,566)], #Rescue Miyazu Atsuta (Khonsu)
-    115: [Demon_Sync(8,481),Demon_Sync(81,483)], #The Three Keys (Zeus, Odin, Beelzebub) #TODO: 482 Odin isn't main demon in encounter
+    115: [Demon_Sync(8,481),Demon_Sync(9, 482),Demon_Sync(81,483)], #The Three Keys (Zeus, Odin, Beelzebub)
     138: [Demon_Sync(386), Demon_Sync(41,771)], #Reclaim the Golden Stool (Onyankopon, Anansi Boss)
     139: [Demon_Sync(386,770),Demon_Sync(41)], #Liberate the Golden Stool (Onyankopon Boss, Anansi)
     142: [Demon_Sync(248,814)], #The Angel of Destruction (Camael)
-    143: [Demon_Sync(76,831),Demon_Sync(181,829)], #The Winged Sun (Amons,Asura) CoV #TODO:Mithras 830
+    143: [Demon_Sync(76,831),Demon_Sync(88, 830),Demon_Sync(181,829)], #The Winged Sun (Amons,Mithras,Asura) CoV
     144: [Demon_Sync(359,921),Demon_Sync(357,922),Demon_Sync(356,923),Demon_Sync(354,924),Demon_Sync(353,925),Demon_Sync(352,926),Demon_Sync(358,927),Demon_Sync(351,928),
             Demon_Sync(350,929),Demon_Sync(934)], #Return of the True Demon CoV (Matador, Daisoujou, Hell Biker, White Rider, Red Rider, Black Rider, Pale Rider, Mother Harlot, Trumpeter, Demi-fiend)
     147: [Demon_Sync(38,876)], #A Power Beyond Control CoV (Amanozako)
@@ -529,8 +530,9 @@ Update the mention of demon names in mission events.
         encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
+        randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
 '''
-def updateMissionEvents(encounterReplacements, bossReplacements, demonNames):
+def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
     for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
@@ -539,21 +541,25 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames):
             for syncDemon in syncDemons:
                 originalDemonID = syncDemon.ind #id of demon mentionend in text
                 syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
+                if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
+                    continue
                 originalName = demonNames[originalDemonID]
                 if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
                     try:
                         replacementID = bossReplacements[syncDemonID]
                     except KeyError:
+                        #print("Key Error: " + str(syncDemonID))
                         continue
                 else: #else it is a boss
                     try:
                         replacementID = encounterReplacements[syncDemonID]
                     except KeyError:
+                        #print("Key Error: " + str(syncDemonID))
                         continue
                 #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
                 replacementName = demonNames[replacementID]
 
-                #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
+                #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName + " for mission " + missionEvent)
             
                 for index, box in enumerate(missionText): #for every dialogue box
                     if originalName in box: #Name is plain text
@@ -632,6 +638,7 @@ Returns a hint message using a direct string by replacing <BOSSNAME> in a placeh
 def createHintMessage(bossName, hintIndex):
     message = HINT_MESSAGES[hintIndex]
     message = message.replace(HINT_BOSS_PLACEHOLDER, bossName)
+    message = message.replace(HINT_BOSS_PLACEHOLDER_PLAIN_TEXT, bossName)
     return message
 
 '''
@@ -640,6 +647,7 @@ Returns a hint message using a direct string by replacing <BOSSNAME> in a placeh
 def createHintMessageWithID(bossID, hintIndex):
     message = HINT_MESSAGES[hintIndex]
     message = message.replace(HINT_BOSS_PLACEHOLDER, '<c look_begin><enemy ' + str(bossID) + '><c look_end>')
+    message = message.replace(HINT_BOSS_PLACEHOLDER_PLAIN_TEXT, '<enemy ' + str(bossID) + '>')
     return message
 
 '''
@@ -694,8 +702,11 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
     
     missionText = addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames)
 
-    file.setMessageStrings(missionText)
-    file.writeToFiles()
+    try:
+        file.setMessageStrings(missionText)
+        file.writeToFiles()
+    except UnicodeEncodeError:
+        print("Error encoding mission info")
 
 '''
 Adds additional rewards to the missions description.
