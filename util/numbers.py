@@ -187,6 +187,9 @@ MISSION_DUPLICATES = {
   72: [-20], #Falcon's Head and Isis Story Even in CoV both reward Lady Talisman
 }
 
+#Missions that cannot receive macca as a reward
+MACCALESS_MISSIONS = [72] #Falcon's Head cannot get macca as reward due to being synced with Additional reward in CoV Rescue Miyazu Atsuta
+
 #List of exclusive key item rewards from both canons
 CREATION_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 VENGEANCE_EXCLUSIVE_KEY_REWARDS = [] #Currently not any

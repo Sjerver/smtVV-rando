@@ -3,7 +3,7 @@ import util.numbers as numbers
 import re
 from base_classes.message import Message_File, Demon_Sync
 
-MAX_LINE_LENGTH = 50 #Arbitray Number ( at least correct for missionInfo Text)
+MAX_LINE_LENGTH = 48 #Arbitray Number ( at least correct for missionInfo Text)
 
 OUTPUT_FOLDERS = {
     'ItemName' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Item/',
@@ -497,6 +497,14 @@ MISSION_INFO_DEMON_IDS = {
 #Lists of missions without reward page
 MISSIONS_WITHOUT_REWARD_PAGE = [147,148]
 
+COLOR_PATTERN = '<c.*?>'
+MISSION_CONDITION_DATA_PATTERN = '<mission_cond_name.*?>'
+FLAG_PATTERN = "<flag.*?>"
+POST_DEMON_REGEX = r"(?:')?" + r"(?:s)?" + r"(?:{})?".format(COLOR_PATTERN) + r"(?:{})?".format(FLAG_PATTERN) + r"(?:')?" + r"(?:s)?" + r"(?:\.)?(?:,)?(?: )?"
+
+MISSION_CONDITION_REPLACEMAX = "Fionn MacCumhaill Capture Pot"
+LONGEST_DEMON_NAME = "Fionn MacCumhaill" #written wrong to allow for better regex stuff
+
 '''
 Changes the names and descriptions of items with demon names in them to that of their replacement if there is any
     Parameters:
@@ -849,7 +857,7 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
             #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
             replacementName = demonNames[replacementID]
 
-
+            #TODO: Outsource into it's own function? Likely not viable for anything else? Still feels kinda scuffed
             for index in range(missionTextCount):
                 messageComponent = missionText[commonEntries + index + 7 * (missionIndex)]
                 #print(str(missionIndex) + "/" + str(index) + " " + messageComponent)
@@ -861,6 +869,46 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
                     messageComponent = messageComponent.replace(syncDemon.nameVariant, replacementName)
                 if numbers.BRAWNY_AMBITIONS2_SKILL in messageComponent:
                     messageComponent = messageComponent.replace(numbers.BRAWNY_AMBITIONS2_SKILL, brawnyAmbition2Skill)
+
+                lines = messageComponent.split("\n") #Split at line break
+                messageComponent = ""
+                for lineIndex,line in enumerate(lines):
+                    if len(replacementName) > len(originalName) and ("<enemy" in line or replacementName in line):
+                        #replacement's name is longer and name is in line
+                
+                        replacedText = re.sub(COLOR_PATTERN,"",line) #Replace color patterns
+                        replacedText = re.sub(FLAG_PATTERN,"",replacedText) #Replace flag patterns
+                        
+                        replacedText = re.sub(MISSION_CONDITION_DATA_PATTERN,MISSION_CONDITION_REPLACEMAX,replacedText) #Replace mission condition patterns with the maximum value they can have (I think?)
+                
+                        replacedNew = re.sub('<enemy ' + str(replacementID).zfill(3) + '>',replacementName,replacedText) #put replacement name where it should be
+
+                        if "<enemy" in replacedNew: #if there are potential names left, put longest possible name
+                            replacedNew = re.sub('<enemy.*?>',LONGEST_DEMON_NAME,replacedNew)
+                
+                        if len(replacedNew) > MAX_LINE_LENGTH: #after replacements line is still too long
+                            if "<enemy " + str(replacementID).zfill(3) + '>' in line: #enemy call is in line
+                                match = re.search('<enemy ' + str(replacementID).zfill(3) + '>' + POST_DEMON_REGEX,line)
+                                replacedMatch = re.search(replacementName,replacedNew)
+                            elif MISSION_CONDITION_DATA_PATTERN in line: #if some text is gotten via mission condition name
+                                match = re.search(MISSION_CONDITION_DATA_PATTERN,line)
+                                replacedMatch = re.search(MISSION_CONDITION_REPLACEMAX,replacedNew)
+                            else: #name is plaintext
+                               match = re.search(replacementName + POST_DEMON_REGEX,line)
+                               replacedMatch = re.search(replacementName,replacedNew)
+                            if match: #found enemy of current replacement demon
+                                replacedIndex = replacedMatch.start()
+                                startIndex = match.start()
+                                endIndex = match.end()
+                                if replacedIndex < len(replacedNew) /2: #is in first half of line
+                                    line = line[:endIndex]+ '\n' + line[endIndex:] #put line break after
+                                else: #is in second half of line
+                                    line = line[:startIndex] + '\n' + line[startIndex:] #put line break before
+                            
+                    if lineIndex +1 < len(lines): #is not last line
+                        messageComponent = messageComponent + line + "\n"
+                    else:
+                        messageComponent = messageComponent + line
                 missionText[commonEntries + index + 7 * (missionIndex)] = messageComponent
     
     missionText = addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames)
@@ -884,6 +932,8 @@ def addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames):
             explainText = missionText[explainIndex]
             
             newItemName = itemNames[mission.reward.ind]
+            if 'NOT' in newItemName:
+                print(str(mission.reward.ind) + " " + newItemName)
 
             addOn = "Additional Reward: <c look_begin>" + newItemName + "<c look_end>\n　\n"
 

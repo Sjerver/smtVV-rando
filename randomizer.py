@@ -4398,7 +4398,7 @@ class Randomizer:
         for mission in rewardingMissions:
             if scaling: #Set area if reward should scale
                 rewardArea = missionRewardAreas[mission.ind]
-            if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind >= 0: #repeat missions should not have macca
+            if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind >= 0 and mission.ind not in numbers.MACCALESS_MISSIONS: #repeat missions should not have macca
                 if scaling: #Scaled macca ranges depend on area
                     macca = random.randint(numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][0] // 100, numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][1] // 100) *100
                 else:
