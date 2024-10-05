@@ -116,3 +116,13 @@ Passive Skills (Example NullFire)
 0x13539 Effect 2
 0x1353A EffectAmount
 NOT IN YET 0x13561 InnateSkillFlag
+
+
+table 8 handles fusion skills:
+start at 0x255D5
+entry size:  32
+
+skill id (4 bytes)
+required item id (4 bytes)
+up to 5 demon ids (4 bytes each)
+last 4 bytes are first demon:alignment1 alignment2 2nd demon:alignment1 alignment2 (periapts)

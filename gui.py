@@ -217,6 +217,7 @@ def createGUI(configSettings):
     listDemon.insert(12, "Reduce Compendium Cost Drastically")
     listDemon.insert(13, "Restrict Lunation Flux to one demon")
     listDemon.insert(14, "Include Enemy Only Skills in Skill Pool")
+    listDemon.insert(15, "Include Magatsuhi Skills in Skill Pool")
 
     demonScrollbar = tk.Scrollbar(page1FrameTop, orient='vertical')
     demonScrollbar.config(command=listDemon.yview)
@@ -229,12 +230,22 @@ def createGUI(configSettings):
     inheritanceLabel = tk.Label(page1FrameTopRight, text="Unique Skill Inheritance")
     inheritanceLabel.pack()
 
-    listInheritance = tk.Listbox(page1FrameTopRight,selectmode= "single",exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listInheritance = tk.Listbox(page1FrameTopRight,selectmode= "single",height=3,exportselection=False, selectbackground = NAHOBINO_BLUE)
     listInheritance.insert(0, "Vanilla")
     listInheritance.insert(1, "Random")
     listInheritance.insert(2, "Free")
     listInheritance.selection_set(0)
     listInheritance.pack()
+
+    magatsuhiLabel = tk.Label(page1FrameTopRight, text="Magatsuhi Skills")
+    magatsuhiLabel.pack()
+
+    listMagatsuhi = tk.Listbox(page1FrameTopRight,selectmode= "multiple",height=4,width=50,exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listMagatsuhi.insert(0, "Randomize Requirements to Use Magatsuhi Skills")
+    listMagatsuhi.insert(1, "Include Omagatoki:Critical Requirement")
+    listMagatsuhi.insert(2, "Include Omnipotent Succession Requirement")
+    listMagatsuhi.selection_set(0)
+    listMagatsuhi.pack()
 
     musicLabel = tk.Label(page1FrameLeft, text="Boss Music Setting")
     musicLabel.pack()
@@ -476,6 +487,10 @@ def createGUI(configSettings):
             listDemon.selection_set(14)
         else:
             listDemon.selection_clear(14)
+        if configur.get('Demon', 'MagatsuhiSkills') == 'true':
+            listDemon.selection_set(15)
+        else:
+            listDemon.selection_clear(15)
         listInheritance.selection_set(0)
         if configur.get('Inheritance', 'RandomInheritance') == 'true':
             listInheritance.selection_clear(0)
@@ -487,6 +502,18 @@ def createGUI(configSettings):
             listInheritance.selection_set(2)
         else:
             listInheritance.selection_clear(2)
+        if configur.get('Magatsuhi', 'RandomRequirements') == 'true':
+            listMagatsuhi.selection_set(0)
+        else:
+            listMagatsuhi.selection_clear(0)
+        if configur.get('Magatsuhi', 'IncludeCritical') == 'true':
+            listMagatsuhi.selection_set(1)
+        else:
+            listMagatsuhi.selection_clear(1)
+        if configur.get('Magatsuhi', 'IncludeSuccession') == 'true':
+            listMagatsuhi.selection_set(2)
+        else:
+            listMagatsuhi.selection_clear(2)
         listMusic.selection_set(0)
         if configur.get('Music', 'RandomMusic') == 'true':
             listMusic.selection_clear(0)
@@ -724,6 +751,9 @@ def createGUI(configSettings):
         for i in listDemon.curselection():
             demonFlags[i] = True
         inheritanceChoice = listInheritance.curselection()
+        magatsuhiFlags = [False for i in range(listMagatsuhi.size())]
+        for i in listMagatsuhi.curselection():
+            magatsuhiFlags[i] = True
         musicChoice = listMusic.curselection()
         itemFlags = [False for i in range(listItem.size())]
         for i in listItem.curselection():
@@ -845,6 +875,12 @@ def createGUI(configSettings):
         configur.set('Demon', 'EnemyOnlySkills', 'true')
     else:
         configur.set('Demon', 'EnemyOnlySkills', 'false')
+    
+    if demonFlags[15]:
+        configSettings.includeMagatsuhiSkills = True
+        configur.set('Demon', 'MagatsuhiSkills', 'true')
+    else:
+        configur.set('Demon', 'MagatsuhiSkills', 'false')
 
     if len(inheritanceChoice) > 0 and inheritanceChoice[0] == 1:
         configSettings.randomInheritance = True
@@ -857,6 +893,24 @@ def createGUI(configSettings):
         configur.set('Inheritance', 'FreeInheritance', 'true')
     else:
         configur.set('Inheritance', 'FreeInheritance', 'false')
+    
+    if magatsuhiFlags[0]:
+        configSettings.randomizeMagatsuhiSkillReq = True
+        configur.set('Magatsuhi', 'RandomRequirements', 'true')
+    else:
+        configur.set('Magatsuhi', 'RandomRequirements', 'false')
+    
+    if magatsuhiFlags[1]:
+        configSettings.includeOmagatokiCritical = True
+        configur.set('Magatsuhi', 'IncludeCritical', 'true')
+    else:
+        configur.set('Magatsuhi', 'IncludeCritical', 'false')
+    
+    if magatsuhiFlags[2]:
+        configSettings.includeOmnipotentSuccession = True
+        configur.set('Magatsuhi', 'IncludeSuccession', 'true')
+    else:
+        configur.set('Magatsuhi', 'IncludeSuccession', 'false')
             
     if len(musicChoice) > 0 and musicChoice[0] == 2:
         configSettings.randomMusic = True
@@ -1152,12 +1206,14 @@ def createConfigFile(configur):
     configur.read('config.ini')
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
-                                'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False, 'EnemyOnlySkills':False}
+                                'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False, 
+                                'EnemyOnlySkills':False, 'MagatsuhiSkills': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
                         'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False,
                         'RandomizeGiftItems': False, 'CombineKeyItemPools': False, 'IncludeTsukuyomiTalisman': False
                         }
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
+    configur['Magatsuhi'] = {'RandomRequirements': False,'IncludeCritical': False,'IncludeSuccession': False}
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
     configur['Boss'] = {'NormalBossesSelf': False, 'NormalBossesMixed': False, 'RandomizeLucifer': False, 'AbscessBossesSelf': False, 'AbscessBossesMixed': False,
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False,

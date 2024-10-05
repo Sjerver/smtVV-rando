@@ -1,6 +1,7 @@
 Version 1.03
 Features:
-* New setting to include enemy only skills in skill pool
+* New setting to include enemy only skills and magatsuhi skills in demon skill pool
+* New setting to randomize the requirements for using magatsuhi skills, with toggles for Omagatoki:Critical and Omnipotent Succesion
 * New settings to unlock all fusions from the start and to set the chance that a basic enemy gains an additional press turn
 * You can now add inheritance violation to the early miracle list
 * Bosses now have hint messages, excluding abscesses and some minibosses
@@ -15,6 +16,7 @@ Misc:
 * Skill descriptions of unique skills are updated to reflect unique skill inheritance settings
 * Additional rewards of quests are added to the descriptions of quests
 * Quest Descriptions, Dialogue and Item Names and Descriptions have been updated to reflect the results of the randomization
+* Non-alignment periapts now always list the demons required to use their skills
 * The title screen now shows if the randomizer is installed
 
 Version 1.02

@@ -1,6 +1,6 @@
 from util.binary_table import Table
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate, Encounter_Spawn
-from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
+from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner, Fusion_Requirements
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter, Ambush_Type
 from base_classes.base import Translated_Value, Weight_List
@@ -83,6 +83,8 @@ class Randomizer:
         self.bossReplacements = {}
         self.pressTurnChance = 0
         self.brawnyAmbitions2SkillName = "Puncture Punch"
+        self.fusionSkillIDs = []
+        self.fusionSkillReqs = []
 
         self.nahobino = Nahobino()
         
@@ -516,9 +518,9 @@ class Randomizer:
                 toPush.hpDrain = skillData.readByte(locations['hpDrain']),
                 toPush.mpDrain = skillData.readByte(locations['hpDrain'] + 1)
                 toPush.magatsuhi.enable = skillData.readByte(locations['magatsuhiFlag'])
-                toPush.magatsuhi.race1 = Translated_Value(skillData.readByte(locations['magatsuhiFlag'] + 1),
+                toPush.magatsuhi.race1 = Translated_Value(skillData.readWord(locations['magatsuhiFlag'] + 1),
                         RACE_ARRAY[skillData.readByte(locations['magatsuhiFlag'] + 1)])
-                toPush.magatsuhi.race2 = Translated_Value(skillData.readByte(locations['magatsuhiFlag'] + 3),
+                toPush.magatsuhi.race2 = Translated_Value(skillData.readWord(locations['magatsuhiFlag'] + 5),
                         RACE_ARRAY[skillData.readByte(locations['magatsuhiFlag'] + 3)])
                 toPush.modifiers.modifier1 = Translated_Value(skillData.readByte(locations['modifier1']),
                         translation.translateModifier(skillData.readByte(locations['modifier1'])))
@@ -1357,6 +1359,27 @@ class Randomizer:
             item.name = self.itemNames[index +1]
             item.buyPrice = items.readWord(item.offset + 0x5C)
             self.consumableArr.append(item)
+    
+    '''
+    Fills a list with the requirements to use fusion skills.
+        Parameters:
+            binTable (Table): buffer containing skill data
+    '''
+    def fillFusionSkillReqs(self, binTable):
+        start = 0x255D5
+        size = 32
+
+        for index in range(30):
+            offset = start + size * index
+            skill = Fusion_Requirements()
+            skill.offset = offset
+            skill.ind = binTable.readWord(offset)
+            skill.itemID = binTable.readWord(offset +4)
+            for i in range(5):
+                skill.demons.append(binTable.readWord(offset + 8 + 4*i))
+            for i in range(2):
+                skill.alignments.append([binTable.readByte(offset + 28 + i * 2),binTable.readByte(offset + 28 + i * 2 +1)])
+            self.fusionSkillReqs.append(skill)
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
         Parameters:
@@ -1389,6 +1412,20 @@ class Randomizer:
         bonusSkills = numbers.getBonusSkills()
         if self.configSettings.includeEnemyOnlySkills:
             bonusSkills = bonusSkills + numbers.getEnemyOnlySkills()
+        if self.configSettings.includeMagatsuhiSkills:
+            magatsuhiSkills = []
+            for skillID in numbers.MAGATSUHI_SKILLS: #add magatsuhi skills available at all levels
+                if skillID in self.fusionSkillIDs: #do not add fusion skills, since they are demon dependent
+                    continue
+                try: #if the skill has a special level requirement use it
+                    levels = numbers.MAGATSUHI_SKILLS_LEVEL_RESTRICTIONS[skillID]
+                    minLevel = levels[0]
+                    maxLevel = levels[1]
+                except KeyError: #else do from 1 to 99
+                    minLevel = 1
+                    maxLevel = 99
+                magatsuhiSkills.append([translation.translateSkillID(skillID, self.skillNames),skillID,minLevel,maxLevel])
+            bonusSkills = bonusSkills + magatsuhiSkills
         def findBonusSkill(ind):
             goal = []
             for skill in bonusSkills:
@@ -1463,6 +1500,114 @@ class Randomizer:
                 final.append(Skill_Level(name, skill.ind))
             levelList.append(final)
         return levelList
+
+    '''
+    Randomizes the requirements to use magatsuhi skills, either due to race, demon combination or alignment combination.
+    Note: When Critical is randomized, fusion and race skills are not mixed with each other, since the first magatsuhi skill in skill table
+    without races assigned to it, serves as criticals replacement.
+    This also means that succession can never be the replacement for critical.
+    '''
+    def randomizeMagatsuhiSkillReqs(self):
+        magatsuhiSkillResults = []
+        requiredFusionNumber = len(self.fusionSkillIDs)
+        newFusionSkills = []
+        availableRaces = []
+        
+        while len(newFusionSkills) < requiredFusionNumber:
+            skill = random.choice(numbers.MAGATSUHI_SKILLS)
+            if self.configSettings.includeOmagatokiCritical: #Due to how the universal magatsuhi skill is chosen, fusion skills and race skills cannot be mixed if this is randomized
+                newFusionSkills = sorted(self.fusionSkillIDs,key=lambda x: random.random())
+                break
+            if skill in newFusionSkills or (skill == 60) or (skill == 928 and not self.configSettings.includeOmnipotentSuccession):
+                #dont add skills that are already there and critical has to be tied to race and succession depend on setting
+                continue
+            newFusionSkills.append(skill)
+            skill = self.obtainSkillFromID(skill)
+            if skill.magatsuhi.race1.value > 0:
+                availableRaces.append(skill.magatsuhi.race1.value) # gather races
+                skill.magatsuhi.race1.value = 0 #set races to 0
+            if skill.magatsuhi.race2.value > 0: #gather second race if it is there
+                availableRaces.append(skill.magatsuhi.race2.value)
+                skill.magatsuhi.race2.value = 0
+
+        
+        magaSkills = []
+        for skillID in numbers.MAGATSUHI_SKILLS:
+            if skillID in newFusionSkills:
+                continue
+            skill = self.obtainSkillFromID(skillID)
+            if (skill.ind == 60 and not self.configSettings.includeOmagatokiCritical) or (skill.ind == 928 and not self.configSettings.includeOmnipotentSuccession) :
+                #only add race and skill for omagatoki critical and succession when setting is set
+                continue
+            if skill.magatsuhi.race1.value > 0 or skill.ind == 60:
+                availableRaces.append(skill.magatsuhi.race1.value) # gather races
+                skill.magatsuhi.race1.value = 0 #set races to 0
+            if skill.magatsuhi.race2.value > 0: #gather second race if it is there
+                availableRaces.append(skill.magatsuhi.race2.value)
+                skill.magatsuhi.race2.value = 0
+            magaSkills.append(skill)
+        if self.configSettings.includeOmagatokiCritical: #manual choosing of omagatoki criticals replacement
+            success = True
+            while success: #Since Succession can not replace critical repeat until chosen skill is not succession
+                skill = random.choice(magaSkills)
+                if skill != 928:
+                    success = False
+            availableRaces.remove(0)
+            magatsuhiSkillResults.append(skill)
+            magaSkills.remove(skill)
+        while len(availableRaces) > 0: #while there is a race to assign
+            race = random.choice(availableRaces)
+            skill = random.choice(magaSkills)
+            availableRaces.remove(race)
+            if skill.magatsuhi.race1.value == 0: #if first race has not been assigned yet
+                if len(availableRaces) < len(magaSkills): #less races than skills means we need to remove skill to ensure each skill has at least one race assigned to it
+                    magatsuhiSkillResults.append(skill)
+                    magaSkills.remove(skill)
+                skill.magatsuhi.race1.value = race
+            else: #assign second race and remove skill since no races can be assigned to it
+                magatsuhiSkillResults.append(skill)
+                magaSkills.remove(skill)
+                skill.magatsuhi.race2.value = race
+            
+        # for skillID in numbers.MAGATSUHI_SKILLS:
+        #     if skillID in newFusionSkills:
+        #         #print(str(skillID) + "FUSION")
+        #         pass
+        #     else:
+        #         skill = self.obtainSkillFromID(skillID)
+        #         print(str(skillID) + " " + RACE_ARRAY[skill.magatsuhi.race1.value]+ " " + RACE_ARRAY[skill.magatsuhi.race2.value])
+        self.fusionSkillIDs = newFusionSkills
+        self.fusionSkillReqs = self.updateFusionSkillRequirements(newFusionSkills)
+        return magatsuhiSkillResults
+
+    def updateFusionSkillRequirements(self,newFusionSkills):
+        newFusionSkillReqs = []
+        currentIndex = 0
+        for skill in self.fusionSkillReqs:
+            if skill.ind not in self.fusionSkillIDs: #skip empty entry and enemy only fusion skills (Annihilation Ray and another Qadistu Entropy)
+                newFusionSkillReqs.append(skill)
+                continue
+            skill.ind = newFusionSkills[currentIndex]
+            currentIndex += 1
+
+            validDemonChoices = list(filter(lambda demon: 'NOT USED' not in demon.name and 'Mitama' not in demon.name and demon.ind not in numbers.BAD_IDS , self.compendiumArr))
+            if skill.demons[0] != 0: #if fusion req slot has demons tied to it
+                demonsNames = ""
+                newDemons = []
+                for demon in skill.demons:
+                    if demon > 0: #if the demon slot is not empty, get a new demon
+                        newDemon = random.choice(validDemonChoices)
+                        demonID = newDemon.ind
+                        validDemonChoices.remove(newDemon)
+                    else: #else set demon to no demon
+                        demonID = 0
+                    newDemons.append(demonID)
+                    demonsNames = demonsNames + self.enemyNames[demonID]
+                #print(str(skill.ind) + demonsNames)
+                skill.demons = newDemons
+            #print(str(skill.ind) + " " + str(skill.alignments[0][0])+ " " + str(skill.alignments[0][1])+ " " + str(skill.alignments[1][0])+ " " + str(skill.alignments[1][1]))
+            newFusionSkillReqs.append(skill)
+        return newFusionSkillReqs
 
     '''
     Assigns every demon new skills randomized using weights based on the passed settings.
@@ -1572,6 +1717,10 @@ class Randomizer:
                             #Check if skill passes additional conditions or skip that check if skills are not supposed to be weighted by stats and potentials
                             if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon)):
                                 if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),demon,comp,settings):
+                                    if rng in numbers.MAGATSUHI_SKILLS: #only 1 magatsuhi skill assigned to skill set
+                                        for weightIndex,checkSkill in enumerate(weightedSkills.values):
+                                            if checkSkill in numbers.MAGATSUHI_SKILLS:
+                                                weightedSkills.weights[weightIndex] = 0
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
@@ -1592,6 +1741,10 @@ class Randomizer:
                         if not any(e.ind == rng for e in totalSkills):
                             if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon)):
                                 if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),demon,comp,settings):
+                                    if rng in numbers.MAGATSUHI_SKILLS: #only 1 magatsuhi skill assigned to skill set
+                                        for weightIndex,checkSkill in enumerate(weightedSkills.values):
+                                            if checkSkill in numbers.MAGATSUHI_SKILLS:
+                                                weightedSkills.weights[weightIndex] = 0
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
@@ -1803,6 +1956,10 @@ class Randomizer:
                             #Check if skill passes additional conditions or skip that check if skills are not supposed to be weighted by stats and potentials
                             if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, protofiend)):
                                 if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),protofiend,self.compendiumArr,settings):
+                                    if rng in numbers.MAGATSUHI_SKILLS: #only 1 magatsuhi skill assigned to skill set
+                                        for weightIndex,checkSkill in enumerate(weightedSkills.values):
+                                            if checkSkill in numbers.MAGATSUHI_SKILLS:
+                                                weightedSkills.weights[weightIndex] = 0
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
@@ -1820,8 +1977,9 @@ class Randomizer:
             false if adding this skill would leave the demon without an active starting skill and true otherwise
     '''
     def ensureAtLeastOneActive(self,totalSkills, demon, skillIndex):
-        nonEmpty = [d for d in demon.skills if d.ind != 0]
-        if (len(totalSkills) + 1 == len(nonEmpty)) and ((self.determineSkillStructureByID(skillIndex) != "Active") and not any(self.determineSkillStructureByID(e.ind) == "Active" for e in totalSkills)):
+        nonEmpty = [d for d in demon.skills if d.ind != 0] 
+        #Magatsuhi Skills do not count for the active skill requirement
+        if  (len(totalSkills) + 1 == len(nonEmpty)) and ( skillIndex in numbers.MAGATSUHI_SKILLS or ((self.determineSkillStructureByID(skillIndex) != "Active") and not any(self.determineSkillStructureByID(e.ind) == "Active" for e in totalSkills))):
             #Check if we are at last initial skill and we have at least one active or current one is active
             return False
         return True
@@ -1967,6 +2125,9 @@ class Randomizer:
             skill = self.obtainSkillFromID(element)
             if skill.name == 'Filler':
                 continue #Exclude filler skill because it has Null values
+            if skill.ind in numbers.MAGATSUHI_SKILLS:
+                newWeights.append(newWeight)
+                continue  #Magatsuhi skills are not effected by potential and keep their weight
             skillStructure = self.determineSkillStructureByID(skill.ind)
             #Passive skills do not have a corresponding potential by default so we need to handle them seperately
             if skillStructure == "Active":
@@ -2140,9 +2301,9 @@ class Randomizer:
         names = []
         #for every skill...
         for skill in possibleSkills:
-            if skill.ind in ids:
+            if skill.ind in ids and skill.ind not in numbers.MAGATSUHI_SKILLS: #Magatsuhi Skills should always have weight of 1
                 prob[ids.index(skill.ind)] += 1
-            else:
+            elif skill.ind not in ids:
                 #else push value and base weight 
                 ids.append(skill.ind)
                 prob.append(1)
@@ -2593,7 +2754,7 @@ class Randomizer:
             activeSkills (Array(Active_Skill))
             passiveSkills (Array(Passive_Skill))
     '''
-    def updateSkillBuffer(self, buffer, activeSkills, passiveSkills, innates):
+    def updateSkillBuffer(self, buffer, activeSkills, passiveSkills, innates, fusionSkillReqs):
         for index,skill in enumerate(activeSkills):
             if index == 0:
                 # skip filler entry
@@ -2602,6 +2763,8 @@ class Randomizer:
             buffer.write32chars(skill.animation, skill.offsetNumber['animation'])
             buffer.writeWord(skill.healing.flag, skill.offsetNumber['resistEnable'] + 8)
             buffer.writeByte(skill.healing.percent, skill.offsetNumber['resistEnable'] + 12)
+            buffer.writeWord(skill.magatsuhi.race1.value, skill.offsetNumber['magatsuhiFlag'] + 1)
+            buffer.writeWord(skill.magatsuhi.race2.value, skill.offsetNumber['magatsuhiFlag'] + 5)
 
 
         for skill in passiveSkills:
@@ -2610,6 +2773,14 @@ class Randomizer:
 
         for skill in innates:
             pass
+
+        for skill in fusionSkillReqs:
+            buffer.writeWord(skill.ind, skill.offset)
+            for index,demonID in enumerate(skill.demons):
+                buffer.writeWord(demonID, skill.offset + 8 + 4*index)
+            for i,alignments in enumerate(skill.alignments):
+                buffer.writeByte(alignments[0],skill.offset + 28 + i * 2)
+                buffer.writeByte(alignments[1],skill.offset + 28 + i * 2 +1)
         
         return buffer
 
@@ -3315,6 +3486,11 @@ class Randomizer:
                     newID = 382 #Diarama
                 elif newID == 97:
                     newID = 381 #Dia
+                if skill.ind in numbers.MAGATSUHI_SKILLS:
+                    try: #try to use enemy version of magatsuhi skill if possible
+                        newID = numbers.MAGATSUHI_ENEMY_VARIANTS[skill.ind]
+                    except KeyError:
+                        pass
                 newSkills.append(Translated_Value(newID, translation.translateSkillID(newID, self.skillNames)))
 
             newPressTurns = enemy.pressTurns
@@ -6164,6 +6340,7 @@ class Randomizer:
         self.fillMimanRewardArr(shopBuffer)
         self.fillMapSymbolArr(mapSymbolParamBuffer)
         self.fillConsumableArr(itemBuffer)
+        self.fillFusionSkillReqs(skillBuffer)
         
         #self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
         self.eventEncountArr = self.addPositionsToNormalEncountArr(eventEncountPostBuffer, self.eventEncountArr, eventEncountPostUassetBuffer)
@@ -6174,6 +6351,12 @@ class Randomizer:
         
         if config.fixUniqueSkillAnimations:
             self.removeUniqueSkillAnimations()
+        
+        self.fusionSkillIDs = list(filter(lambda skill: 800 < skill and skill < 900,numbers.MAGATSUHI_SKILLS))
+        magatsuhiSkillsRaces = [self.obtainSkillFromID(skill) for skill in filter(lambda skill: 800 > skill or skill > 900, numbers.MAGATSUHI_SKILLS)]
+        if self.configSettings.randomizeMagatsuhiSkillReq:
+            magatsuhiSkillsRaces = self.randomizeMagatsuhiSkillReqs()
+            
 
         skillLevels = self.generateSkillLevelList()
         levelSkillList = self.generateLevelSkillList(skillLevels)
@@ -6325,7 +6508,7 @@ class Randomizer:
             self.applyCheats()
 
 
-        message_logic.updateItemTextWithDemonNames(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr)
+        message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel)
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel)
@@ -6337,7 +6520,7 @@ class Randomizer:
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, self.playerBossArr[numbers.NORMAL_ENEMY_COUNT:])
         if self.configSettings.buffGuestYuzuru:
             self.patchYuzuruGLStats(compendiumBuffer)
-        skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr)
+        skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr, self.fusionSkillReqs)
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
         normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
         encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)

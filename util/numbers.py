@@ -445,6 +445,23 @@ SCRIPT_JOIN_DEMONS = {
     'MM_M063_EM2170': 227 # Masakado
 }
 
+#List of Magatsuhi Skills tied to race (and Critical)
+MAGATSUHI_SKILLS = [60,76,78,87,109,110,111,112,113,114,#Omagatoki: Critical, Big Bang, Freikugel EX, Soul Drain, Twilight Wave, Eternal Prayer, Sea of Stars, Waters of Youth, Accursed Poison, Rasetsu Feast
+                    120,121,130,131,138,145,146,147,177,#Fairy Banquet, Expand:Criical Aura, Expand: Piercing Aura, Shield of God, Impaler's Glory, Dekajaon, Omagatoki: Pierce, Omagatoki: Hit, Omgatoki: Adversity
+                    187,193,201,215,249,274,309,345,928,#Omagatoki: Free, Omagatoki: Doubler, Omagatoki:Dance, Omagatoki: Sincerity, Omagatoki: Savage, Omagatoki: Luck, Omagatoki: Potential, Omagatoki: Charge, Omagtoki: Succession
+                    801,802,803,804,805,806,807,808,809,#
+                    810,811,812,813,814,815,816,817,818,#
+                    819,820,821,822,823,824,825,826,857 #Blossoming Sakura
+                    ]
+
+#Enemy Versions of Magatsuhi Skills
+MAGATSUHI_ENEMY_VARIANTS = {842:131,843:138,934:76,935:78,936:87,937:109,938:110, #Shield of God, Impaler's Glory, Big Bang, Freikugel EX, Sould Drain, Twilight Wave, Eternal Prayer
+                            939:112,940:113,941:114,942:120,943:121,944:138,945:145} #Waters of Youth, Accursed Poison, Rasetsu Feast, Fairy Banquet, Shield of God, Impaler's Glory, Dekajaon
+
+#Lists level ranges for magatsuhi skills that are not the standard 1 to 99
+MAGATSUHI_SKILLS_LEVEL_RESTRICTIONS = {
+    928: [52,99] #Omagatoki:Succession (52 is level of Lilith Boss in CoV, you get Talisman after)
+}
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''

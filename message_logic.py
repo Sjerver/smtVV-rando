@@ -2,6 +2,7 @@
 import util.numbers as numbers
 import re
 from base_classes.message import Message_File, Demon_Sync
+from randomizer import RACE_ARRAY
 
 MAX_LINE_LENGTH = 48 #Arbitray Number ( at least correct for missionInfo Text)
 
@@ -574,15 +575,79 @@ POST_DEMON_REGEX = r"(?:')?" + r"(?:s)?" + r"(?:{})?".format(COLOR_PATTERN) + r"
 MISSION_CONDITION_REPLACEMAX = "Fionn MacCumhaill Capture Pot"
 LONGEST_DEMON_NAME = "Fionn MacCumhaill" #written wrong to allow for better regex stuff
 
+
+SKILL_PATTERN = "<MAGATSUHI_SKILL>"
+RACE_PATTERN = "<RACE>"
+DEMON_LIST_PATTERN = "<DEMONS>"
+ALIGNMENT_PATTERN = "<ALIGNMENT>"
+TALISMAN_PATTERN = "Allows you to use the <RACE> Magatsuhi Skill <MAGATSUHI_SKILL>."
+PERIAPT_DEMON_PATTERN = "Enables the Magatsuhi Skill <MAGATSUHI_SKILL> when <DEMONS> are brought together."
+PERIAPT_ALIGNMENT_PATTERN = "Enables the Magatsuhi Skill <MAGATSUHI_SKILL> when two demons of the <ALIGNMENT> alignment are brought together"
+
+ALIGNMENT_NAMES = {
+    1: "NEUTRAL",
+    2: "LIGHT",
+    3: "DARK",
+    4: "LAW",
+    5: "CHAOS"
+}
+
+#Races and which Key Item ID Talisman belongs to them
+RACE_TALISMANS = {
+   35 :	806,	#	Haunt Talisman
+   8 :	807,    #	Raptor Talisman
+   2 :	808,	#	Herald Talisman
+    3 :	809,	#	Megami Talisman
+   4 :	810,	#	Avian Talisman
+   5 :	811,	#	Divine Talisman
+   6 :	812,	#	Yoma Talisman
+   7 :	813,	#	Vile Talisman
+   10 :	814,	#	Deity Talisman
+   11 :	815,	#	Wargod Talisman
+   12 :	816,	#	Avatar Talisman
+   13 :	817,	#	Holy Talisman
+   14 :	818,	#	Genma Talisman
+   15 :	819,	#	Element Talisman
+   17 :	820,	#	Fairy Talisman
+   18 :	821,	#	Beast Talisman
+   19 :	822,	#	Jirae Talisman
+   20 :	823,	#	Fiend Talisman
+   21 :	824,	#	Jaki Talisman
+   22 :	825,	#	Wilder Talisman
+   23 :	826,	#	Fury Talisman
+   24 :	827,	#	Lady Talisman
+   25 :	828,	#	Dragon Talisman
+   26 :	829,	#	Kishin Talisman
+   27 :	830,	#	Kunitsu Talisman
+   28 :	831,	#	Femme Talisman
+   29 :	832,	#	Brute Talisman
+   30 :	833,	#	Fallen Talisman
+   31 :	834,	#	Night Talisman
+   32 :	835,	#	Snake Talisman
+   33 :	836,	#	Tyrant Talisman
+   34 :	837,	#	Drake Talisman
+   36 :	838,	#	Foul Talisman
+   40 :	839,	#	Tsukuyomi Talisman
+   45 :	840,	#	UMA Talisman
+   44 :	841,	#	Enigma Talisman
+   46 :	842,	#	Qadištu Talisman
+   48 :	843,	#	Primal Talisman
+   38 :	844,	#	Devil Talisman
+   43 :	845,	#	Panagia Talisman
+   37 :	846,	#	Chaos Talisman
+}
+
 '''
-Changes the names and descriptions of items with demon names in them to that of their replacement if there is any
+Changes the names and descriptions of items with demon names in them to that of their replacement if there is any.
+Also adjust the descriptions of talismans and periapts.
     Parameters:
         encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
         comp(List(Compendium_Demon)): list of demons
+        TODO: Add Parameter descriptions and code comments
 '''
-def updateItemTextWithDemonNames(encounterReplacements, bossReplacements, demonNames, comp):  
+def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fusionSkillIDs, fusionSkillReqs, skillNames, magatsuhiRaceSkills):  
     itemFile = Message_File('ItemName','',OUTPUT_FOLDERS['ItemName'])
 
     itemNames = itemFile.getMessageStrings()
@@ -642,8 +707,44 @@ def updateItemTextWithDemonNames(encounterReplacements, bossReplacements, demonN
         itemDescs[oldItemID] = itemDescs[oldItemID].replace(originalName, replacementName)
         #print(itemDescs[oldItemID])
 
+    for skillID in numbers.MAGATSUHI_SKILLS:
+        description = ""
+        if skillID in fusionSkillIDs:
+            reqs = next(skill for skill in fusionSkillReqs if skill.ind == skillID)
+            itemID = reqs.itemID
+            if reqs.demons[0] > 0: #skill has demon requirement
+                skillDemons = ""
+                for demon in reqs.demons:
+                    if demon > 0:
+                        skillDemons = skillDemons + demonNames[demon] + ", "
+                    else:
+                        skillDemons = skillDemons[:-2] + " "
+                        break
+                description = PERIAPT_DEMON_PATTERN.replace(DEMON_LIST_PATTERN, skillDemons).replace(SKILL_PATTERN,skillNames[skillID])
+            else:
+                alignment1 = ALIGNMENT_NAMES[reqs.alignments[0][0]]
+                alignment2 = ALIGNMENT_NAMES[reqs.alignments[0][1]]
+                description = PERIAPT_ALIGNMENT_PATTERN.replace(ALIGNMENT_PATTERN, alignment1 + " - " + alignment2).replace(SKILL_PATTERN,skillNames[skillID])
+            itemDescs[itemID] = description
+        else:
+            #print(skillID)
+            skillObject = next(skill for skill in magatsuhiRaceSkills if skill.ind == skillID)
+            if skillObject.magatsuhi.race1.value > 0:
+                race = skillObject.magatsuhi.race1.value
+                itemID = RACE_TALISMANS[race]
+
+                description=TALISMAN_PATTERN.replace(RACE_PATTERN,RACE_ARRAY[race]).replace(SKILL_PATTERN,skillNames[skillID])
+                itemDescs[itemID] = description
+            if skillObject.magatsuhi.race2.value > 0:
+                race = skillObject.magatsuhi.race2.value
+                itemID = RACE_TALISMANS[race]
+
+                description2=TALISMAN_PATTERN.replace(RACE_PATTERN,RACE_ARRAY[race]).replace(SKILL_PATTERN,skillNames[skillID])
+                itemDescs[itemID] = description2
+
     itemDescFile.setMessageStrings(itemDescs)
     itemDescFile.writeToFiles()
+
 
 '''
 Changes the skill descriptions of skills with the same name to differentiate them.
