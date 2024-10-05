@@ -82,3 +82,70 @@ e2030 - Dazai in act 1 diet building vengeance, mentions Yuzuru
 e2035 - Using the cylinder to go to Tokyo vengeance, mentions Yuzuru
 e2040 - Meeting Abdiel vengeance
 e2043 - Tao meeting after area 1 vengeance, mentions Yuzuru, Dazai
+e2165 - Yakumo talk after Labolas 2, mentions Naamah
+e2170 - Jojozi Temple during invasion vengeance, mentions Hydra(lower case), Lahmu
+e2190 - Tao joins you during invasion vengeance, mentions Lahmu, includes spread out text
+e2210 - Meeting Hayataro vengeance, mentions Yuzuru, Dazai
+e2240 - Dazai scared during invasion vengeance, mentions Yuzuru
+e2245 - Final Tao/Yoko talk before vengeance Lahmu, put warning here
+e2255 - Lilith kills Sahori, mentions Lahmu, Lilith in spread out text
+e2260 - Dazai/Yuzuru argument before area 2
+e2270 - Arriving in area 2 vengeance, mentions Hayataro
+e2275 - Dazai/Abdiel talk in area 2 vengeance, mentions Baal
+e2288 - Yoko/Tao speculate on Eisheth's identity, mentions Naamah, Lilith
+e2290 - Eisheth pre-fight dialogue
+e2295 - Eisheth post-fight dialogue
+e2298 - Fionn 1 post-fight dialogue vengeance, mentions Yuzuru, Eisheth
+e2300 - Dazai tells you to go to village vengeance, mentions Yuzuru
+e2301 - Aogami talk about Dazai in area 2
+e2305 - Arriving in fairy village vengeance, mentions Fionn, Yuzuru, Eisheth
+e2310 - Dazai loses to Eisheth, mentions Yuzuru in spread out text
+e2320 - Yuzuru pre-fight dialogue
+e2325 - Yuzuru post-fight dialogue, mentions Dazai, Eisheth, Naamah, includes spread out text
+e2400 - Aogami talk about Agra post area 2 mentions Hayataro
+e2410 - Koshimizu meeting post area 2 vengeance, mentions Yuzuru
+e2435 - Koshimizu meeting after salt investigation, mentions Hayataro
+e2445 - Koshimizu discovers area 3 vengeance, mentions Hayataro, Yuzuru, Dazai
+e2450 - Dazai goes to Chiyoda instead of Shinjuku, mentions Abdiel
+e2500 - Arriving in Shinjuku (Power hint here), mentions Hayataro
+e2520 - First Nuwa/Yakumo scene in Shinjuku, mentions Cherub
+e2525 - Aogami picks up angel gauntlet readings, hint here if we want to add one
+e2531 - Cherubim are called in after power gauntlet
+e2535 - Tao/Yoko talk where Cherub used to be, mentions Yakumo
+e2562 - Nuwa/Yakumo talk after distracting Cherub
+e2575 - Dazai talk when Miyazu goes to Khonsu, mentions Abdiel, Yuzuru
+e2600 - Koshimizu meeting regarding Khonsu, mentions Yuzuru, Dazai, Yakumo
+e2603 - Dazai/Yuzuru in dorm room
+e2605 - Dazai and Yuzuru become friends
+e2608 - Aogami comments on Yuzuru's distress
+e2610 - Isis fight related text, hint message here, mentions Yuzuru, Dazai
+e2615 - Isis post-fight dialogue, mentions Khonsu
+e2620 - Khonsu pre-fight dialogue vengeance
+e2623 - Khonsu pre-fight dialogue vengeance part 2, mentions Yuzuru
+e2625 - Khonsu post-fight dialogue vengeance, mentions Yuzuru, Khonsu, Abdiel, Mastema in spread out text
+e2630 - Yuzuru talk after Khonsu incident
+e2631 - Aogami discusses Khonsu incident, mentions Yuzuru, Khonsu. Includes spread out text
+e2633 - Yoko discusses Khonsu incident, mentions Khonsu
+e2638 - Dazai joins to see Mastema, mentions Yuzuru
+e2640 - Arriving at Mastema's hill, mentions Khonsu
+e2642 - Meeting Mastema, mentions Khonsu
+e2643 - Dazai turns to salt
+e2645 - Mastema brainwashes Dazai
+e2650 - Nuwa/Yakumo talk after seeing Naamah, mentions Mastema
+e2660 - Koshimizu meeting before Yakumo fight, mentions Mastema
+e2670 - Yuzuru wants to be a Nahobino, mentions Tsukuyomi
+e2685 - Nuwa/Yakumo post-fight dialogue
+e2688 - Koshimizu meeting after Yakumo fight, mentions Yuzuru in spread out text
+e2700 - Meeting Agrat, mentions Yakumo, Eisheth, Naamah
+e2708 - Aogami warning about Lilith fight
+e2713 - Lilith pre-fight dialogue
+e2717 - Lilith post-fight dialogue, mentions Tiamat
+e2718 - Lilith lectures Yoko, mentions Tiamat
+e2740 - Dazai hat cutscene vengeance, mentions Yuzuru, Abdiel
+e2760 - Koshimizu mourns Yuzuru, mentions Abdiel
+e2770 - Koshimizu reveals he's Tsukuyomi, includes spread out text
+e2795 - Qadistu talisman text, mentions Lilith
+e2900 - Mastema sends you to Shakan, mentions Yuzuru, Dazai, Abdiel, Tiamat
+e2902 - Tsukuyomi agrees to go to Shakan, mentions Mastema, Dazai, Tiamat
+e2912 - Dark block bros gossiping, mentions Abdiel, Dazai, Tiamat
+e2915 - Shakan angel gossip, mentions Tiamat, Lilith, Eisheth, Yuzuru

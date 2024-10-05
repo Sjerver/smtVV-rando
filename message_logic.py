@@ -219,14 +219,14 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e0330': [Demon_Sync(435)],#Snake Nuwa Pre-fight dialogue (Nuwa)
     'e0340': [Demon_Sync(465, nameVariant='Yakumo'), Demon_Sync(435)],#Snake Nuwa Post-fight dialogue creation (Yakumo, Nuwa)
     'e0350': [Demon_Sync(467)],#Meeting Abdiel creation (Abdiel)
-    'e0378': [Demon_Sync(837)],#Dazai/Abdiel talk in area 2 (Baal)
+    'e0378': [Demon_Sync(837), Demon_Sync(467)],#Dazai/Abdiel talk in area 2 creation (Baal, Abdiel)
     'e0379': [Demon_Sync(451)],#Fionn 1 Pre-fight dialogue (Fionn)
     'e0380': [Demon_Sync(452)],#Fionn 1 Post-fight dialogue (Lahmu)
     'e0390': [Demon_Sync(451, nameVariant='Fionn')],#First Miyazu dialogue in fairy village (Fionn)
     'e0431': [Demon_Sync(441)],#Lahmu 1 Post-fight dialogue (Lahmu) Note: Lahmu mentions will switch from Lahmu 1 to final Lahmu once you enter area 2
     'e0435': [Demon_Sync(441)],#Arriving at overrun school (Lahmu)
     'e0470': [Demon_Sync(441)],#Lahmu meets Sahori (Lahmu)
-    'e0473': [Demon_Sync(152)],#Meeting Hayataro (Hayataro)
+    'e0473': [Demon_Sync(152)],#Meeting Hayataro creation (Hayataro)
     'e0480': [Demon_Sync(441)],#Sahori kills her bullies (Lahmu)
     'e0490': [Demon_Sync(452)],#Final Lahmu Pre-fight dialogue (Lahmu) TODO: Make sure shaking text decisions work
     'e0491': [Demon_Sync(453)],#Final Lahmu between phases dialogue (Lahmu) Note: Start using second phase Lahmu for mentions once phase 1 is dead
@@ -280,9 +280,73 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e2022': [Demon_Sync(553)],#Naamah pre-fight dialogue (Naamah) Spread out text
     'e2029': [Demon_Sync(567, nameVariant='Yakumo'), Demon_Sync(435)],#Nuwa post-fight dialogue vengeance (Yakumo, Nuwa) Includes spread out text
     'e2030': [Demon_Sync(578), Demon_Sync(561, nameVariant="Yuzuru freakin' Atsuta")],#Dazai in diet building vengeance (Dazai, Yuzuru)
-    'e2035': [Demon_Sync(561, nameVariant="Yuzuru"), Demon_Sync(561, nameVariant="Atsuta")],#Returning to Tokyo from area 1 vengeance (Yuzuru) TODO: Make sure using him with 2 names like this works
+    'e2035': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta')],#Returning to Tokyo from area 1 vengeance (Yuzuru) TODO: Make sure using him with 2 names like this works
     'e2040': [Demon_Sync(564)],#Meeting Abdiel vengeance (Abdiel)
-    'e2043': [ Demon_Sync(561, nameVariant="Atsuta"), Demon_Sync(578, nameVariant='Dazai')],#Tao meeting after area 1 vengeance (Yuzuru, Dazai)
+    'e2043': [Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(578, nameVariant='Dazai')],#Tao meeting after area 1 vengeance (Yuzuru, Dazai)
+    'e2165': [Demon_Sync(554)],#Yakumo talk after Labolas 2 (Naamah)
+    'e2170': [Demon_Sync(556), Demon_Sync(432, nameVariant='hydra')],#Jojozi temple during invasion vengeance (Lahmu, Hydra)
+    'e2190': [Demon_Sync(556)],#Tao joins you during invasion vengeance (Lahmu) Includes spread out text
+    'e2210': [Demon_Sync(562), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(578, nameVariant='Dazai')],#Meeting Hayataro vengeance (Hayataro, Yuzuru, Dazai)
+    'e2240': [Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(578, nameVariant='Ichiro'), Demon_Sync(578, nameVariant='Dazai')],#Dazai scared during invasion vengeance (Yuzuru, Dazai)
+    'e2255': [Demon_Sync(556), Demon_Sync(569)],#Lilith kills Sahori (Lahmu, Lilith) Lilith spread out text
+    'e2260': [Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(578, nameVariant='Dazai')],#Dazai/Yuzuru first argument (Yuzuru, Dazai)
+    'e2270': [Demon_Sync(562)],#Arriving in area 2 vengeance (Hayataro)
+    'e2275': [Demon_Sync(837), Demon_Sync(564), Demon_Sync(578, nameVariant='Dazai')],#Dazai/Abdiel talk in area 2 vengeance (Baal, Abdiel, Dazai)
+    'e2288': [Demon_Sync(554), Demon_Sync(569)],#Yoko/Tao speculate on Eistheth's identity (Naamah, Lilith)
+    'e2290': [Demon_Sync(559)],#Eisheth pre-fight dialogue (Eisheth)
+    'e2295': [Demon_Sync(559)],#Eisheth post-fight dialogue (Eisheth)
+    'e2298': [Demon_Sync(559), Demon_Sync(561, nameVariant='Yuzuru')],#Fionn post-fight dialogue vengeance (Eisheth, Yuzuru)
+    'e2300': [Demon_Sync(561, nameVariant='Atsuta')],#Dazai stops you in area 2 (Yuzuru)
+    'e2301': [Demon_Sync(578)],#Aogami talk about Dazai in area 2 (Dazai)
+    'e2305': [Demon_Sync(451, nameVariant='Fionn'), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(559)],#Arriving in fairy village vengeance (Fionn, Yuzuru, Eisheth)
+    'e2310': [Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Atsuta')],#Dazai loses to Eisheth (Dazai, Yuzuru), Spread text
+    'e2320': [Demon_Sync(561, nameVariant='Yuzuru')],#Yuzuru pre-fight dialogue (Yuzuru)
+    'e2325': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(561, nameVariant='Atsutaaa'), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(559), Demon_Sync(554)],#Yuzuru post-fight dialogue (Yuzuru, Dazai, Eisheth, Naamah), Spread text
+    'e2400': [Demon_Sync(562)],#Aogami talk about Agra after area 2 (Hayataro)
+    'e2410': [Demon_Sync(561, nameVariant='Atsuta')],#Koshimizu meeting after area 2 vengeance (Yuzuru)
+    'e2435': [Demon_Sync(562)],#Koshimizu meeting after salt investigation (Hayataro)
+    'e2445': [Demon_Sync(562), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(578, nameVariant='Dazai')],#Koshimizu discovers shinjuku (Hayataro, Yuzuru, Dazai)
+    'e2450': [Demon_Sync(564)],#Dazai goes to Chiyoda (Abdiel)
+    'e2500': [Demon_Sync(562)],#Arriving in Shinjuku (Hayataro)
+    'e2520': [Demon_Sync(550), Demon_Sync(567), Demon_Sync(486, nameVariant='Cherubim')],#First Nuwa/Yakumo scene in Shinjuku (Nuwa, Yakumo, Cherub)
+    'e2531': [Demon_Sync(486, nameVariant='Cherubim')],#Cherubim are called after Power gauntlet (Cherub)
+    'e2535': [Demon_Sync(567, nameVariant='Yakumo')],#Yoko/Tao talk where Cherub used to be (Yakumo)
+    'e2562': [Demon_Sync(567, nameVariant='Yakumo')],#Nuwa/Yakumo talk at Mastema's hill (Yakumo)
+    'e2575': [Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(564)],#Dazai talk when Miyazu goes to Khonsu (Dazai, Yuzuru, Abdiel)
+    'e2600': [Demon_Sync(566), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(567)],#Koshimizu meeting about Khonsu (Khonsu, Dazai, Yuzuru, Yakumo)
+    'e2603': [Demon_Sync(561, nameVariant='Atsuta')],#Dazai/Yuzuru in dorm room (Yuzuru)
+    'e2605': [Demon_Sync(578, nameVariant='Ichiro'), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Yuzuru')],#Dazai and Yuzuru become friends (Dazai, Yuzuru)
+    'e2608': [Demon_Sync(561)],#Aogami comments on Yuzuru's distress (Yuzuru)
+    'e2610': [Demon_Sync(579), Demon_Sync(578, nameVariant='Ichiro'), Demon_Sync(561, nameVariant='Yuzuru')],#Isis pre-fight dialogue (Isis, Dazai, Yuzuru)
+    'e2615': [Demon_Sync(566)],#Isis post-fight dialogue (Khonsu)
+    'e2620': [Demon_Sync(566)],#Khonsu pre-fight dialogue vengeance part 1 (Khonsu)
+    'e2623': [Demon_Sync(561, nameVariant='Yuzuru')],#Khonsu pre-fight dialogue vengeance part 2 (Yuzuru)
+    'e2625': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(566), Demon_Sync(564), Demon_Sync(596)],#Khonsu post-fight dialogue vengeance (Yuzuru, Khonsu, Abdiel, Mastema)
+    'e2630': [Demon_Sync(561, nameVariant='Yuzuru')],#Yuzuru talk after Khonsu incident (Yuzuru)
+    'e2631': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(566)],#Aogami discusses Khonsu incident (Yuzuru, Khonsu), includes spread out text
+    'e2633': [Demon_Sync(566)],#Yoko discusses Khonsu incident (Khonsu)
+    'e2638': [Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(596)],#Dazai joins to see Mastema (Dazai, Yuzuru, Mastema)
+    'e2640': [Demon_Sync(566), Demon_Sync(596)],#Arriving at Mastema's hill (Khonsu, Mastema)
+    'e2642': [Demon_Sync(566), Demon_Sync(596)],#Meeting Mastema (Khonsu, Mastema)
+    'e2643': [Demon_Sync(578, nameVariant='Dazai')],#Dazai turns to salt (Dazai)
+    'e2645': [Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(578, nameVariant='Ichiro')],#Mastema brainwashes Dazai (Dazai)
+    'e2650': [Demon_Sync(596)],#Nuwa/Yakumo talk after seeing Naamah (Mastema)
+    'e2660': [Demon_Sync(596)],#Koshimizu meeting before Yakumo fight (Mastema)
+    'e2670': [Demon_Sync(528)],#Yuzuru wants to be a Nahobino (Tsukuyomi)
+    'e2685': [Demon_Sync(567, nameVariant='Yakumo'), Demon_Sync(550)],#Yakumo post-fight dialogue (Yakumo, Nuwa)
+    'e2688': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta')],#Koshimizu meeting after Yakumo fight (Yuzuru), has spread out text
+    'e2700': [Demon_Sync(568), Demon_Sync(567, nameVariant='Yakumo'), Demon_Sync(559), Demon_Sync(554)],#Meeting Agrat (Agrat, Yakumo, Eisheth, Naamah)
+    'e2713': [Demon_Sync(569)],#Lilith pre-fight dialogue (Lilith)
+    'e2717': [Demon_Sync(565)],#Lilith post-fight dialogue (Tiamat)
+    'e2718': [Demon_Sync(565)],#Lilith lectures Yoko (Tiamat)
+    'e2740': [Demon_Sync(578, nameVariant='Ichiro'), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(564)],#Dazai hat cutscene vengeance (Dazai, Yuzuru, Abdiel)
+    'e2760': [Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(564)],#Koshimizu mourns Yuzuru (Yuzuru, Abdiel)
+    'e2770': [Demon_Sync(528)],#Koshimizu reveals he's Tsukuyomi (Tsukuyomi)
+    'e2795': [Demon_Sync(569)],#Qadistu talisman text (Lilith)
+    'e2900': [Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(564), Demon_Sync(565)],#Mastema sends you to Shakan (Dazai, Yuzuru, Abdiel, Tiamat)
+    'e2902': [Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(596), Demon_Sync(565)],#Tsukuyomi agrees to go to Shakan (Dazai, Mastema, Tiamat)
+    'e2912': [Demon_Sync(578), Demon_Sync(564), Demon_Sync(565)],#Dark block bros pre-fight (Dazai, Abdiel, Tiamat)
+    'e2915': [Demon_Sync(565), Demon_Sync(569), Demon_Sync(559), Demon_Sync(561, nameVariant='Atsuta')],#Shakan angels gossiping (Tiamat, Lilith, Eisheth, Yuzuru)
 }
 
 #Alternative names to use for demons with names longer than 11 characters
@@ -355,6 +419,10 @@ EVENT_CHECKS_ORIGINAL_IDS = {
     'e1001': [(3, 437, 9), (10, 437, 19), (11, 429, 20)],#Lucifer
     'e2005': [(1, 431, 0)],#Triple Preta
     'e2008': [(1, 431, 21)],#Labolas 1
+    'e2245': [(1, 556, 22)],#Vengeance Lahmu
+    'e2500': [(2, 484, 0)],#Power 1, TODO make sure this is the correct power and not a dummy demon replacement
+    'e2610': [(1, 579, 0)],#Isis
+    'e2708': [(2, 569, 0)],#Lilith
 }
 
 VOICE_REGEX = '<voice.*>\n'
@@ -384,7 +452,8 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "I'm also detecting the presence of <BOSSNAME>\nbehind the first reading.", #18 - Two-part boss warning
                  "A powerful <BOSSNAMEPLAINTEXT>.", #19 - Normal Lucifer
                  "An extremely powerful <BOSSNAMEPLAINTEXT>.", #20 - True Lucifer
-                 "I think I'm detecting <BOSSNAME> ahead.\nIt may ambush us at the train."] #21 - Labolas warning that plays in both routes unfortunately
+                 "I think I'm detecting <BOSSNAME> ahead.\nIt may ambush us at the train.", #21 - Labolas warning that plays in both routes unfortunately
+                 "I'm detecting <BOSSNAME>...? That can't..."] #22 - Tao dialogue before vengeance Lahmu
 
 MISSION_INFO_DEMON_IDS = {
     7: [Demon_Sync(281,802)], #The Ultimate Omelet (Jatayu)

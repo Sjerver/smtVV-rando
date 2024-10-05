@@ -27,7 +27,7 @@ Quetzacoatl(Complete) - Artemis tells you
 Artemis(Complete) - She gives the name
 Naamah + Labolas - Aogami Save Warning?
 School fights except Lahmu - No Hints
-Vengeance Lahmu - Aogami Warning? If not 4th floor girl tells you
+Vengeance Lahmu(Complete) - 4th floor girl cutscene tells you
 Jojozi Mob Fight + Lahmu(Complete) - Aogami warning
 Turbo Granny - Questgiver tells you
 4 Pisacas(Complete) - Questgiver tells you
@@ -44,14 +44,14 @@ Final Lahmu(Complete) - Aogami Warning, give both bosses
 Loki(Complete) - Questgiver tells you + Warning
 Belphegor(Complete) - Questgiver tells you
 Vouivre(Complete) - Questgiver tells you
-Power 1 - Dialogue when arriving in area 3 tells you?
+Power 1(Complete) - Dialogue when arriving in area 3 tells you
 Power 2 - No Hints
 Gogmagog(Complete) - Questgiver tells you
 Zhens(Partial) - Gasser tells you... one of them?
 Chimera(Complete) - Questgiver tells you
 Mara(Complete) - Questgiver tells you
 Power Gauntlet - No Hints
-Isis - No Hints?
+Isis(Complete) - Warning when arriving at bethel egypt
 Vengeance Khonsu - IDK, Aogami Warning if exists or replace his name in the buildup to the scene
 Nuwa + Yakumo - Aogami Warning
 Anansi/Onyakopon(Complete) - Questgiver tells you
