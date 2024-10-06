@@ -462,7 +462,7 @@ EVENT_CHECKS_ORIGINAL_IDS = {
     'e0825': [(7, 477, 0)],#Metatron
     'e1001': [(3, 437, 9), (10, 437, 19), (11, 429, 20)],#Lucifer
     'e2005': [(1, 431, 0)],#Triple Preta
-    'e2008': [(1, 431, 21)],#Labolas 1
+    'e2008': [(1, 552, 21)],#Labolas 1
     'e2019': [(3, 553, 27)],#Naamah 1
     'e2060': [(8, 554, 28)],#Naamah 2
     'e2245': [(1, 556, 22)],#Vengeance Lahmu
