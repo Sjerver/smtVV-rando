@@ -149,3 +149,48 @@ e2900 - Mastema sends you to Shakan, mentions Yuzuru, Dazai, Abdiel, Tiamat
 e2902 - Tsukuyomi agrees to go to Shakan, mentions Mastema, Dazai, Tiamat
 e2912 - Dark block bros gossiping, mentions Abdiel, Dazai, Tiamat
 e2915 - Shakan angel gossip, mentions Tiamat, Lilith, Eisheth, Yuzuru
+e2920 - Abdiel in Shakan pre-fight dialogue, mentions Yuzuru
+e2930 - Abdiel in Shakan post-fight dialogue, mentions Tiamat, Mastema
+e2950 - Mastema dialogue after Shakan, mentions Abdiel
+e2955 - Tsukuyomi meeting before area 4 vengeance, mentions Baal, Lucifer
+e2970 - Meeting Goddess Tao vengeance, mentions Tsukuyomi
+e3010 - Yakumo in area 4 vengeance part 1, mentions Tiamat
+e3020 - Yakumo in area 4 vengeance part 2, mentions Nuwa
+e3021 - Yakumo background check, includes spread out text
+e3022 - Tsukuyomi comments on Yakumo's past
+e3030 - Yakumo saves a student, mentions Tsukuyomi
+e3040 - Yakumo in Jojozi, mentions Nuwa, Agrat, Tsukuyomi
+e3100 - Beelzebub pre-fight dialogue, mentions Shiva, Lucifer
+e3120 - Zeus + Odin pre-fight dialogue
+e3300 - Dazai pre-fight dialogue, mentions Abdiel
+e3310 - Dazai post-fight dialogue, mentions Yuzuru, Abdiel
+e3330 - Yoko shows up in Empyrean, mentions Tiamat, Yuzuru, Yakumo, Dazai
+e3350 - Yoko uses Tiamat on you
+e3352 - Tiamat post-fight dialogue law, Tehom hint here
+e3355 - Tehom pre-fight dialogue
+e3400 - Siding with Yoko, mentions Mastema, Tiamat
+e3415 - Tiamat post-fight dialogue chaos, mentions mastema
+em0013 - Contains preta quest tutorial, can be hint message
+em0025 - Hydra warning
+es609_m062_01 - Yuzuru dialogue in fairy village, mentions Lahmu
+es611_m063_01 - Dazai dialogue in Chiyoda, mentions Abdiel
+es611_m085_01 - Dazai dialogue pre-Chiyoda, mentions Abdiel
+es617_m085b_01 - Koshimizu dialogue throughout Shinjuku, mentions Yuzuru, Dazai, includes spread text
+es618_es418 - Misc Nuwa/Yakumo dialogue creation
+es632_m062_01 - Goko? Area 2 dialogue, mentions Lahmu
+es632_m087_01 - Unusued researcher dialogue?, mentions Lahmu, Baal, Arioch
+npc_m016 - npc text in Empyrean, mentions Abdiel(Both routes), Tsukuyomi, Mastema
+npc_m030 - npc text in Diet Building, mentions Arioch
+npc_m036 - npc text in DKC, mentions Abdiel, Arioch
+npc_m038 - npc text in Shakan, mentions Mastema, Abdiel, Arioch
+npc_m060 - npc text in Area 4, mentions Amon, Khonsu, Arioch, Tiamat
+npc_m061 - npc text in Area 1 creation, mentions Lucifer, Hydra, Khonsu, Seth
+npc_m061_b - npc text in Area 1 vengeance, mentions Lucifer, Hydra, Khonsu, Seth
+npc_m061_navi - nagivator text in Area 1, mentions Pazuzu
+npc_m062 - npc text in Area 2 creation, mentions Lahmu, Fionn
+npc_m062_b - npc text in Area 2 vengeance, mentions Lahmu, Fionn, Gary
+npc_m063 - npc text in Chiyoda, mentions Surt, Ishtar, Abdiel
+npc_m064 - npc text in Shinjuku, mentions Arioch, Abdiel, Dionysus, Orochi, Mastema, Okuninushi, kuDLaK
+npc_m085 - npc text in research lab, mentions Dazai, Michael, Arioch, Yakumo, Abdiel but it's both routes
+npc_TokyoMap - npc text in overworld creation, mentions Yakumo
+npc_TokyoMap_b - npc text in overworld vengeance, mentions Yuzuru, Yakumo

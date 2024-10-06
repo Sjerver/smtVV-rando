@@ -1,7 +1,7 @@
 Abscesses - No Hints
 Triple Preta(Complete) - Skyview tutorial
 Labolas(Complete) - Rail tutorial
-Six Pretas(Complete) - They give their name
+Six Pretas(Complete) - They give their name plus hint message before accepting quest
 Dormarth(Complete) - Nyami tells you
 Apsaras/Leanan(Complete) - Questgiver tells you
 Hydra - Aogami Warning
@@ -108,8 +108,8 @@ Empyrean minibosses - No Hints
 Belial/Michael(Complete) - Questgiver tells you
 Maria/Innana/Danu(Complete) - They give their name (I think after you agree to fight which is awkward)
 Tiamat - Warning before route split
-Mastema - Aogami Warning
-Tehom - Aogami Warning
+Mastema(Complete) - Aogami Warning
+Tehom(Complete) - Aogami Warning
 Lucifer(Complete) - Time and space warning
 True Lucifer(Complete) - choice box "An extremely powerful enemy", give normal lucifer's name too
 Nahobino Abdiel(Complete) - Can't use warning so learned from various story text

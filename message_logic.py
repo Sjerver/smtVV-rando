@@ -348,6 +348,49 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e2902': [Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(596), Demon_Sync(565)],#Tsukuyomi agrees to go to Shakan (Dazai, Mastema, Tiamat)
     'e2912': [Demon_Sync(578), Demon_Sync(564), Demon_Sync(565)],#Dark block bros pre-fight (Dazai, Abdiel, Tiamat)
     'e2915': [Demon_Sync(565), Demon_Sync(569), Demon_Sync(559), Demon_Sync(561, nameVariant='Atsuta')],#Shakan angels gossiping (Tiamat, Lilith, Eisheth, Yuzuru)
+    'e2920': [Demon_Sync(564), Demon_Sync(561, nameVariant='Atsuta')],#Abdiel in Shakan pre-fight dialogue (Abdiel, Yuzuru)
+    'e2930': [Demon_Sync(565), Demon_Sync(596)],#Abdiel in Shakan post-fight dialogue (Tiamat, Mastema)
+    'e2950': [Demon_Sync(564)],#Mastema dialogue after Shakan (Abdiel)
+    'e2955': [Demon_Sync(837), Demon_Sync(537), Demon_Sync(528)],#Tsukuyomi meeting before area 4 vengeance (Baal, Lucifer, Tsukuyomi)
+    'e2970': [Demon_Sync(528)],#Meeting Goddess Tao vengeance (Tsukuyomi)
+    'e3010': [Demon_Sync(565)],#Yakumo in area 4 vengeance part 1 (Tiamat)
+    'e3020': [Demon_Sync(550), Demon_Sync(567)],#Yakumo in area 4 vengeance part 2 (Nuwa, Yakumo)
+    'e3021': [Demon_Sync(567, nameVariant='Yakumo')],#Yakumo background check (Yakumo) includes spread out text
+    'e3022': [Demon_Sync(567, nameVariant='Yakumo')],#Tsukuyomi comments on Yakumo's past (Yakumo)
+    'e3030': [Demon_Sync(528)],#Yakumo saves a student (Tsukuyomi)
+    'e3040': [Demon_Sync(550), Demon_Sync(568), Demon_Sync(528)],#Yakumo in Jojozi (Nuwa, Agrat, Tsukuyomi)
+    'e3100': [Demon_Sync(845), Demon_Sync(537)],#Beelzebub pre-fight dialogue (Shiva, Lucifer)
+    'e3120': [Demon_Sync(482)],#Zeus + Odin pre-fight dialogue (Odin)
+    'e3300': [Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(577)],#Dazai pre-fight dialogue (Dazai, Abdiel)
+    'e3310': [Demon_Sync(561), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(577)],#Dazai post-fight dialogue (Yuzuru, Dazai, Abdiel)
+    'e3330': [Demon_Sync(565), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(567, nameVariant='Yakumo'), Demon_Sync(578, nameVariant='Dazai')],#Yoko shows up in Empyrean (Tiamat, Yuzuru, Yakumo, Dazai)
+    'e3350': [Demon_Sync(565)],#Yoko uses Tiamat on you (Tiamat)
+    'e3352': [Demon_Sync(565)],#Tiamat post-fight dialogue law (Tiamat)
+    'e3355': [Demon_Sync(597)],#Tehom pre-fight dialogue (Tehom)
+    'e3400': [Demon_Sync(596), Demon_Sync(565)],#Siding with Yoko (Mastema, Tiamat)
+    'e3415': [Demon_Sync(596), Demon_Sync(565)],#Tiamat post-fight dialogue chaos (Mastema, Tiamat)
+    'es609_m062_01': [Demon_Sync(452)],#Yuzuru dialogue in fairy village (Lahmu)
+    'es611_m063_01': [Demon_Sync(467)],#Dazai dialogue in Chiyoda (Abdiel)
+    'es611_m085_01': [Demon_Sync(467)],#Dazai dialogue before Chiyoda (Abdiel)
+    'es617_m085b_01': [Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(578, nameVariant='Dazai')],#Koshimizu dialogue throughout Shinjuku (Yuzuru, Dazai)
+    'es618_es418': [Demon_Sync(465, nameVariant='Yakumo')],#Misc Nuwa/Yakumo dialogue creation (Yakumo)
+    'es632_m062_01': [Demon_Sync(452)],#Goko? Area 2 dialogue (Lahmu)
+    'es632_m087_01': [Demon_Sync(452), Demon_Sync(837), Demon_Sync(463)],#Unused researcher or Goko dialogue? (Lahmu, Baal, Arioch)
+    'npc_m016': [Demon_Sync(577), Demon_Sync(528), Demon_Sync(596)],#NPC text in Empyrean (Abdiel(Vengeance), Tsukuyomi, Mastema
+    'npc_m030': [Demon_Sync(463)],#NPC text in Diet Building (Arioch)
+    'npc_m036': [Demon_Sync(467), Demon_Sync(463)],#NPC text in Demon King's Castle (Abdiel, Arioch)
+    'npc_m038': [Demon_Sync(596), Demon_Sync(564), Demon_Sync(463)],#NPC text in Shakan (Mastema, Abdiel, Arioch)
+    'npc_m060': [Demon_Sync(831), Demon_Sync(566), Demon_Sync(463), Demon_Sync(565)],#NPC text in Area 4 (Amon, Khonsu(Vengeance), Arioch, Tiamat)
+    'npc_m061': [Demon_Sync(537), Demon_Sync(432), Demon_Sync(516), Demon_Sync(870)],#NPC text in Area 1 creation (Lucifer, Hydra, Khonsu, Seth)
+    'npc_m061_b': [Demon_Sync(537), Demon_Sync(432), Demon_Sync(566), Demon_Sync(870)],#NPC text in Area 1 vengeance (Lucifer, Hydra, Khonsu, Seth)
+    'npc_m061_navi': [Demon_Sync(801)],#Navigator text in Area 1 (Pazuzu)
+    'npc_m062': [Demon_Sync(452), Demon_Sync(451, nameVariant='Fionn')],#NPC text in Area 2 creation (Lahmu, Fionn)
+    'npc_m062_b': [Demon_Sync(556), Demon_Sync(827)],#NPC text in Area 2 vengeance (Lahmu, Fionn, Girimehkala)
+    'npc_m063': [Demon_Sync(454), Demon_Sync(455), Demon_Sync(467)],#NPC text in Chiyoda (Surt, Ishtar, Abdiel)
+    'npc_m064': [Demon_Sync(463), Demon_Sync(564), Demon_Sync(881), Demon_Sync(775), Demon_Sync(596), Demon_Sync(822), Demon_Sync(772, nameVariant='kuDLaK')],#NPC text in Shinjuku (Arioch, Abdiel, Dionysus, Orochi, Mastema, Okuninushi, Kudlak)
+    'npc_m085': [Demon_Sync(578), Demon_Sync(463), Demon_Sync(841)],#NPC text in research lab (Dazai, Arioch, Michael)
+    'npc_TokyoMap': [Demon_Sync(465, nameVariant='Yakumo')],#NPC text in world map creation (Yakumo)
+    'npc_TokyoMap_b': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(567, nameVariant='Yakumo')],#NPC text in world map vengeance (Yuzuru, Yakumo)
 }
 
 #Alternative names to use for demons with names longer than 11 characters
@@ -424,6 +467,10 @@ EVENT_CHECKS_ORIGINAL_IDS = {
     'e2500': [(2, 484, 0)],#Power 1, TODO make sure this is the correct power and not a dummy demon replacement
     'e2610': [(1, 579, 0)],#Isis
     'e2708': [(2, 569, 0)],#Lilith
+    'e3352': [(13, 597, 23)],#Tehom
+    'em0013': [(10, 889, 24)],#Quest Preta
+    'em0025': [(4, 432, 0)],#Hydra
+    'npc_m016': [(3, 525, 25)],#Nahobino Abdiel
 }
 
 VOICE_REGEX = '<voice.*>\n'
@@ -454,7 +501,10 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "A powerful <BOSSNAMEPLAINTEXT>.", #19 - Normal Lucifer
                  "An extremely powerful <BOSSNAMEPLAINTEXT>.", #20 - True Lucifer
                  "I think I'm detecting <BOSSNAME> ahead.\nIt may ambush us at the train.", #21 - Labolas warning that plays in both routes unfortunately
-                 "I'm detecting <BOSSNAME>...? That can't..."] #22 - Tao dialogue before vengeance Lahmu
+                 "I'm detecting <BOSSNAME>...? That can't...", #22 - Tao dialogue before vengeance Lahmu
+                 "Yoko will turn into <BOSSNAME>.\nWe should probably prepare while we can.", #23 - Tehom
+                 "Young man, I'm detecting several\n<BOSSNAME>s within the cave.", #24 - Preta
+                 "Naturally, those of Bethel stand with Archangel <BOSSNAME>."] #25 - Abdiel mentioned by Dominion in Empyrean because vengeance Abdiel is in the same file
 
 MISSION_INFO_DEMON_IDS = {
     7: [Demon_Sync(281,802)], #The Ultimate Omelet (Jatayu)
