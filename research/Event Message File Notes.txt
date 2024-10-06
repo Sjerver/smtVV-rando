@@ -76,12 +76,14 @@ e2008 - Rail tutorial
 e2010 - Labolas 1 Pre-fight dialogue, mentions Yuzuru, Dazai
 e2015 - Labolas 1 post-fight dialogue, mentions Yuzuru
 e2018 - Unused? Yoko dialogue about Apsaras and Leanan
+e2019 - Hydro post-fight dialogue vengeance, Naamah hint here
 e2022 - Naamah pre-fight dialogue (spread out text)
 e2029 - Nuwa post-fight dialogue vengeance, mentions Yakumo, Nuwa and includes spread out text
 e2030 - Dazai in act 1 diet building vengeance, mentions Yuzuru
 e2035 - Using the cylinder to go to Tokyo vengeance, mentions Yuzuru
 e2040 - Meeting Abdiel vengeance
 e2043 - Tao meeting after area 1 vengeance, mentions Yuzuru, Dazai
+e2060 - Yoko transfers to Jouin, Naamah 2 hint message here
 e2165 - Yakumo talk after Labolas 2, mentions Naamah
 e2170 - Jojozi Temple during invasion vengeance, mentions Hydra(lower case), Lahmu
 e2190 - Tao joins you during invasion vengeance, mentions Lahmu, includes spread out text
@@ -95,6 +97,7 @@ e2275 - Dazai/Abdiel talk in area 2 vengeance, mentions Baal
 e2288 - Yoko/Tao speculate on Eisheth's identity, mentions Naamah, Lilith
 e2290 - Eisheth pre-fight dialogue
 e2295 - Eisheth post-fight dialogue
+e2296 - Marking Fionn on the map vengeance
 e2298 - Fionn 1 post-fight dialogue vengeance, mentions Yuzuru, Eisheth
 e2300 - Dazai tells you to go to village vengeance, mentions Yuzuru
 e2301 - Aogami talk about Dazai in area 2

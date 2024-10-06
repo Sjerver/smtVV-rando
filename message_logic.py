@@ -110,8 +110,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1140': [Demon_Sync(342, 809)],#Kumbhanda Quest (Kumbhanda)
     'mm_em1150': [Demon_Sync(89, 810)],#A Goddess Stolen (Loki, 2 quest files)
     'mm_em1151': [Demon_Sync(89, 810)],
-    'mm_em1160': [Demon_Sync(86, 804)],#The Tyrant of Tennozu (Belphegor, 2 quest files)
-    'mm_em1161': [Demon_Sync(86, 804)],
+    'mm_em1161': [Demon_Sync(86, 804)],#The Tyrant of Tennozu (Belphegor)
     'mm_em1180': [Demon_Sync(87, 821)],#King Frost Quest (King Frost, 2 quest files)
     'mm_em1182': [Demon_Sync(87, 821)],
     'mm_em1210': [Demon_Sync(212, 826), Demon_Sync(80, 454)],#Oyamatsumi Quest (Oyamatsumi and Surt)
@@ -178,7 +177,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1823': [Demon_Sync(934)], #Demi-Fiend, 3 Quest Files
     'mm_em1824': [Demon_Sync(934)],
     'mm_em1825': [Demon_Sync(934)],
-    'mm_em2020': [Demon_Sync(752), Demon_Sync(336)], #Nozuchi Queset (Nozuchi, Normal Enemy Kodama)
+    'mm_em2020': [Demon_Sync(752), Demon_Sync(336, nameVariant='KODAMA')], #Nozuchi Queset (Nozuchi, Normal Enemy Kodama)
     'mm_em2040': [Demon_Sync(803)], #Pisaca Quest part 1 (Anahita)
     'mm_em2111': [Demon_Sync(769)], #Vouivre Quest (Vouivre)
     'mm_em2130': [Demon_Sync(113), Demon_Sync(41), Demon_Sync(386)], #Basilisk Hunt Quest (Basilisk, Anansi, Onyankopon)
@@ -215,7 +214,7 @@ MISSION_EVENTS_DEMON_IDS = {
 #Demon_Sync(demonID mentioned in text, IF applicable id of demon to use replacement for) since boss mentions just use normal enemy ids
 EVENT_MESSAGE_DEMON_IDS = {
     'e0262': [Demon_Sync(537)],#Pre-Hydra dialogue (Lucifer)
-    'e0300': [Demon_Sync(432)],#Return Pillar cutscene (Hydra)
+    'e0300': [Demon_Sync(432, nameVariant='hydra')],#Return Pillar cutscene (Hydra)
     'e0310': [Demon_Sync(432)],#Unused? Hydra dialogue (Hydra)
     'e0330': [Demon_Sync(435)],#Snake Nuwa Pre-fight dialogue (Nuwa)
     'e0340': [Demon_Sync(465, nameVariant='Yakumo'), Demon_Sync(435)],#Snake Nuwa Post-fight dialogue creation (Yakumo, Nuwa)
@@ -261,7 +260,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e0775': [Demon_Sync(845)],#Vasuki pre-fight dialogue (Shiva)
     'e0780': [Demon_Sync(469, nameVariant='ZEUS')],#Bethel Greek demon creation? dialogue (Zeus)
     'e0780_b': [Demon_Sync(481, nameVariant='ZEUS')],#Bethel Greek demon vengeance? dialogue (Zeus)
-    'e0785': [Demon_Sync(469), Demon_Sync(528)],#Zeus pre-fight dialogue (Zeus, Tsukuyomi) TODO: See if something needs to be done about text that separates all letters with 00 (Tsukuyomi here)
+    'e0785': [Demon_Sync(469), Demon_Sync(528)],#Zeus pre-fight dialogue (Zeus, Tsukuyomi)
     'e0800': [Demon_Sync(470)],#Bethel Norse demon creation dialogue (Odin)
     'e0800_b': [Demon_Sync(482), Demon_Sync(481)],#Bethel Norse demon vengeance dialogue (Odin, Zeus)
     'e0825': [Demon_Sync(477)],#Metatron pre-fight dialogue (Metatron)
@@ -302,7 +301,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e2305': [Demon_Sync(451, nameVariant='Fionn'), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(559)],#Arriving in fairy village vengeance (Fionn, Yuzuru, Eisheth)
     'e2310': [Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Atsuta')],#Dazai loses to Eisheth (Dazai, Yuzuru), Spread text
     'e2320': [Demon_Sync(561, nameVariant='Yuzuru')],#Yuzuru pre-fight dialogue (Yuzuru)
-    'e2325': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(561, nameVariant='Atsutaaa'), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(559), Demon_Sync(554)],#Yuzuru post-fight dialogue (Yuzuru, Dazai, Eisheth, Naamah), Spread text
+    'e2325': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsutaaa'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(559), Demon_Sync(554)],#Yuzuru post-fight dialogue (Yuzuru, Dazai, Eisheth, Naamah), Spread text
     'e2400': [Demon_Sync(562)],#Aogami talk about Agra after area 2 (Hayataro)
     'e2410': [Demon_Sync(561, nameVariant='Atsuta')],#Koshimizu meeting after area 2 vengeance (Yuzuru)
     'e2435': [Demon_Sync(562)],#Koshimizu meeting after salt investigation (Hayataro)
@@ -317,7 +316,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e2600': [Demon_Sync(566), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(567)],#Koshimizu meeting about Khonsu (Khonsu, Dazai, Yuzuru, Yakumo)
     'e2603': [Demon_Sync(561, nameVariant='Atsuta')],#Dazai/Yuzuru in dorm room (Yuzuru)
     'e2605': [Demon_Sync(578, nameVariant='Ichiro'), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Yuzuru')],#Dazai and Yuzuru become friends (Dazai, Yuzuru)
-    'e2608': [Demon_Sync(561)],#Aogami comments on Yuzuru's distress (Yuzuru)
+    'e2608': [Demon_Sync(561, nameVariant='Yuzuru')],#Aogami comments on Yuzuru's distress (Yuzuru)
     'e2610': [Demon_Sync(579), Demon_Sync(578, nameVariant='Ichiro'), Demon_Sync(561, nameVariant='Yuzuru')],#Isis pre-fight dialogue (Isis, Dazai, Yuzuru)
     'e2615': [Demon_Sync(566)],#Isis post-fight dialogue (Khonsu)
     'e2620': [Demon_Sync(566)],#Khonsu pre-fight dialogue vengeance part 1 (Khonsu)
@@ -429,7 +428,8 @@ MISSION_CHECKS_ORIGINAL_IDS = {
     'mm_em0070': [(49, 455, 0)],#Ishtar (Surt and Ishtar's name are mentioned lots elsewhere)
     'mm_em0150': [(8, 889, 1)],#A Preta Predicament (just one instance currently)
     'mm_em0173': [(16, 888, 0)],#Moving On Up (Oni)
-    'mm_em1031': [(10, 801, 0)],#The cursed mermaids (Pazuzu), he says his name elsewhere but with his normal enemy version id
+    'mm_em1030': [(5, 801, 26)],#The cursed mermaids (Pazuzu)
+    #'mm_em1031': [(10, 801, 0)],#The cursed mermaids (Pazuzu), This message used in several locations
     'mm_em1151': [(35, 810, 0)],#A Goddess Stolen (Loki)
     'mm_em1160': [(8, 804, 2)],#The Tyrant of Tennozu (Belphegor), he says his name with normal enemy version id in 1161
     'mm_em1180': [(6, 821, 3)],#King Frost Quest
@@ -457,16 +457,21 @@ MISSION_CHECKS_ORIGINAL_IDS = {
 EVENT_CHECKS_ORIGINAL_IDS = {
     'e0425': [(8, 441, 0), (9, 439, 18)],#Lahmu 1 + Anzus
     'e0485': [(1, 452, 0), (2, 453, 18)],#Lahmu 2 (both phases)
-    'e0640': [(9, 466, 0)],#Chernobog
+    'e0640': [(4, 463, 31), (9, 466, 0)],#Chernobog and Arioch
     'e0715': [(2, 467, 0)],#Creation Abdiel
     'e0825': [(7, 477, 0)],#Metatron
     'e1001': [(3, 437, 9), (10, 437, 19), (11, 429, 20)],#Lucifer
     'e2005': [(1, 431, 0)],#Triple Preta
     'e2008': [(1, 431, 21)],#Labolas 1
+    'e2019': [(3, 553, 27)],#Naamah 1
+    'e2060': [(8, 554, 28)],#Naamah 2
     'e2245': [(1, 556, 22)],#Vengeance Lahmu
+    'e2288': [(13, 559, 30)],#Eisheth
+    'e2296': [(3, 451, 29)],#Fionn 1 (Vengeance route) TODO see if this works for creation too
     'e2500': [(2, 484, 0)],#Power 1, TODO make sure this is the correct power and not a dummy demon replacement
     'e2610': [(1, 579, 0)],#Isis
     'e2708': [(2, 569, 0)],#Lilith
+    'e3005': [(3, 483, 32)],#Beelzebub
     'e3352': [(13, 597, 23)],#Tehom
     'em0013': [(10, 889, 24)],#Quest Preta
     'em0025': [(4, 432, 0)],#Hydra
@@ -504,7 +509,14 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "I'm detecting <BOSSNAME>...? That can't...", #22 - Tao dialogue before vengeance Lahmu
                  "Yoko will turn into <BOSSNAME>.\nWe should probably prepare while we can.", #23 - Tehom
                  "Young man, I'm detecting several\n<BOSSNAME>s within the cave.", #24 - Preta
-                 "Naturally, those of Bethel stand with Archangel <BOSSNAME>."] #25 - Abdiel mentioned by Dominion in Empyrean because vengeance Abdiel is in the same file
+                 "Naturally, those of Bethel stand with Archangel <BOSSNAME>.", #25 - Abdiel mentioned by Dominion in Empyrean because vengeance Abdiel is in the same file
+                 "But one day, <BOSSNAME> arrived.", #26 - Mermaid dialogue in Pazuzu quest
+                 "Next we will have to face <BOSSNAME>.\nShe's one of the Qadistu.", #27 - Yoko dialogue after Hydra
+                 "Tomorrow morning, you will encounter <BOSSNAME>\non the way to school.", #28 - Yoko dialogue when she transfers to Jouin
+                 "<BOSSNAME> detected.\nIt's distant, but I've marked its location.", #29 - Marking Fionn's location on the map
+                 "Sounded like they were all\nattacked by <BOSSNAME>.", #30 - Yoko/Tao dialogue after rescuing students attacked by Eisheth
+                 "A shame you will never reach\ndemon king <BOSSNAME>...", #31 - Chernobog dialogue
+                 "We may even encounter <BOSSNAME>, the lord of the flies."] #32 - Tsukuyomi dialogue about the 3 keys
 
 MISSION_INFO_DEMON_IDS = {
     7: [Demon_Sync(281,802)], #The Ultimate Omelet (Jatayu)
@@ -962,7 +974,6 @@ def updateDemonsInTextFile(missionText, syncDemons, encounterReplacements, bossR
         replacementName = demonNames[replacementID]
 
         #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
-            
         for index, box in enumerate(missionText): #for every dialogue box
             if originalName in box: #Name is plain text
                 box = box.replace(originalName, replacementName)

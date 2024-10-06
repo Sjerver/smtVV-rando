@@ -4,10 +4,10 @@ Labolas(Complete) - Rail tutorial
 Six Pretas(Complete) - They give their name plus hint message before accepting quest
 Dormarth(Complete) - Nyami tells you
 Apsaras/Leanan(Complete) - Questgiver tells you
-Hydra - Aogami Warning
+Hydra(Complete) - Aogami Warning
 Oyamatsumi(Complete) - Questgiver tells you
 Nozuchi(Complete) - He gives his name
-Naamah - Aogami Warning
+Naamah(Complete) - Yoko tells you after Hydra
 4 Holy Beasts(Complete) - Quest Description
 Huang Long(Complete) - He gives his name
 Shiki-Ouji(Complete) - He gives his name
@@ -15,31 +15,32 @@ Oni(Complete) - He gives his name
 Pazuzu(Complete) - Questgiver tells you
 Anahita(Complete) - Questgiver tells you
 Eligor(Complete) - Aogami Warning
-Fiends(Complete) - Pillar of light tells you? May be single message in which case no hints
+Fiends(Complete) - No hints
 Snake Nuwa(Complete) - Aogami Warning when angels go missing
 Jatayu(Complete) - Egg quest tells you
-Seth - Aogami Warning
+Seth(Complete) - Lamia dialogue or just use the model
 Heavenly Kings(Complete) - Kunitsu tell you if asked
 Triple Andras(Complete) - Questgiver tells you?
-Cleopatra(Complete) - Aogami Warning
+Cleopatra(Complete) - Angami Warning
 Mephisto(Complete) - Aogami Warning
 Quetzacoatl(Complete) - Artemis tells you
 Artemis(Complete) - She gives the name
-Naamah + Labolas - Aogami Save Warning?
+Naamah + Labolas(Complete) - Yoko tells you when she transfers
 School fights except Lahmu - No Hints
 Vengeance Lahmu(Complete) - 4th floor girl cutscene tells you
 Jojozi Mob Fight + Lahmu(Complete) - Aogami warning
-Turbo Granny - Questgiver tells you
+Turbo Granny(Complete) - She gives her name
 4 Pisacas(Complete) - Questgiver tells you
 Yakshini(Complete) - Dazai tells you
 Lilim/Principality(Complete) - Questgiver tells you
-Loup Garou(Complete)/Eisheth - Aogami Warning
+Loup Garou(Complete) - Aogami Warning
+Eisheth(Complete) - Yoko tells you after saving the students
 King Frost(Complete) - Questgiver tells you
-Fionn 1 - Aogami warning (early)?
+Fionn 1(Partial) - Aogami tells you when marking his map location
 Kumbhanda(Complete) - Questgiver tells you
 Thunderbird(Complete) - Quest item name
 Gary(Complete) - Quest item name
-Yuzuru - Aogami Warning
+Yuzuru(Complete) - In lots of story dialogue
 Final Lahmu(Complete) - Aogami Warning, give both bosses
 Loki(Complete) - Questgiver tells you + Warning
 Belphegor(Complete) - Questgiver tells you
@@ -52,7 +53,7 @@ Chimera(Complete) - Questgiver tells you
 Mara(Complete) - Questgiver tells you
 Power Gauntlet - No Hints
 Isis(Complete) - Warning when arriving at bethel egypt
-Vengeance Khonsu - IDK, Aogami Warning if exists or replace his name in the buildup to the scene
+Vengeance Khonsu(Complete) - Koshimizu/Isis tells you
 Nuwa + Yakumo - Aogami Warning
 Anansi/Onyakopon(Complete) - Questgiver tells you
 Gurulu(Complete) - Questgiver tells you
@@ -60,12 +61,12 @@ Moloch(Complete) - Questgiver tells you
 Amanozako(Complete) - Aogami Warning
 Agrat - Aogami Warning? If not she gives her name
 Kresnik/Kudlak(Complete) - Questgiver tells you
-Lilith - Aogami Warning
+Lilith(Complete) - Aogami Warning
 Camael(Complete) - Questgiver tells you
 Orochi(Complete) - Questgiver tells you
 Dark Block Bros - No Hints?
 Cherub - No Hints? Tsukuyomi Warning if there is one
-Abdiel(Partial) - Aogami Warning (Both routes)
+Abdiel(Complete) - Mentioned often in the story
 Black Frost/Dionysis(Complete) - Questgiver tells you
 Horus(Complete) - Questgiver tells you
 Hecaton(Complete) - Questgiver tells you
@@ -75,7 +76,7 @@ Ishtar(Complete) - Aogami Warning
 4 Kunitsu(Complete) - They give their name
 Arahabaki(Complete) - Questgiver tells you
 Chernobog(Complete) - Aogami Warning
-Arioch - Aogami Warning
+Arioch(Complete) - Chernobog tells you
 Atavaka(Complete) - Questgiver tells you
 Norn(Complete) - Questgiver tells you
 Thor(Complete) - Questgiver tells you
@@ -86,28 +87,28 @@ Fionn 2(Complete) - He gives his name
 Baal(Complete) - Questgiver tells you
 Zaou-Gongen(Complete) - Aogami Warning
 Creation Khonsu(Complete) - Questgiver tells you
-Mithras + Asura(Partial) - Questgiver tells you
+Mithras + Asura(Complete) - Questgiver tells you
 Amon(Complete) - He gives his name
 Khonsu Ra(Complete) - Aogami Warning (Both routes)
-Vasuki - Aogami Warning
-Odin - Aogami Warning
-Zeus 1 - Aogami Warning
-Beelzebub - Tsukuyomi Warning
-Zeus + Odin - Tsukuyomi Warning
+Vasuki(Complete) - Speak to Bethel India demons
+Odin(Complete) - Speak to Valkyrie
+Zeus 1(Complete) - Speak to Bethel Greece demons
+Beelzebub(Complete) - Tsukuyomi tells you when you get to Taito
+Zeus + Odin(Complete) - Talk to their nation's demons
 Saturnus(Complete) - He gives his name
-Gabriel(Partial) - Questgiver tells you
+Gabriel(Complete) - Questgiver tells you
 Shiva(Complete) - He gives his name
 Demi Fiend(Complete) - Probably a warning before fight?
 Samael(Complete) - Questgiver tells you
 Satan(Complete) - He gives his name
 Masakado(Complete) - He gives his name
 Metatron(Complete) - Aogami Warning
-Dazai - Aogami Warning
+Dazai(Complete) - Mentioned often in the story
 Zeus 2(Complete) - Questgiver tells you
 Empyrean minibosses - No Hints
 Belial/Michael(Complete) - Questgiver tells you
 Maria/Innana/Danu(Complete) - They give their name (I think after you agree to fight which is awkward)
-Tiamat - Warning before route split
+Tiamat(Complete) - Mentioned often in the story
 Mastema(Complete) - Aogami Warning
 Tehom(Complete) - Aogami Warning
 Lucifer(Complete) - Time and space warning
