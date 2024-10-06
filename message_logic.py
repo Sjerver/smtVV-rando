@@ -872,6 +872,22 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, ran
             missionText = file.getMessageStrings()
 
             updateDemonsInTextFile(missionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
+            
+            
+            if missionEvent in MISSION_CHECKS_ORIGINAL_IDS.keys():
+                hints = MISSION_CHECKS_ORIGINAL_IDS[missionEvent]
+                addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+            file.setMessageStrings(missionText)
+            file.writeToFiles()
+        except AssertionError:
+            print("Error during message read for mission file " + missionEvent)
+    for missionEvent,hints in MISSION_CHECKS_ORIGINAL_IDS.items():
+        if missionEvent in MISSION_EVENTS_DEMON_IDS.keys():
+            continue
+        try:
+            file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
+            missionText = file.getMessageStrings()
+            addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
             file.setMessageStrings(missionText)
             file.writeToFiles()
         except AssertionError:
@@ -891,10 +907,27 @@ def updateEventMessages(encounterReplacements, bossReplacements, demonNames, ran
             file = Message_File(missionEvent,'/EventMessage/',OUTPUT_FOLDERS['EventMessage'])
             missionText = file.getMessageStrings()
             updateDemonsInTextFile(missionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
+            
+            if missionEvent in EVENT_CHECKS_ORIGINAL_IDS.keys():
+                hints = EVENT_CHECKS_ORIGINAL_IDS[missionEvent]
+                addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+            
             file.setMessageStrings(missionText)
             file.writeToFiles()
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
+    for missionEvent,hints in EVENT_CHECKS_ORIGINAL_IDS.items():
+        if missionEvent in EVENT_MESSAGE_DEMON_IDS.keys():
+            continue
+        try:
+            file = Message_File(missionEvent,'/EventMessage/',OUTPUT_FOLDERS['EventMessage'])
+            missionText = file.getMessageStrings()
+            addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+            file.setMessageStrings(missionText)
+            file.writeToFiles()
+        except AssertionError:
+            print("Error during message read for mission file " + missionEvent)
+            
             
 '''
 Update the mention of demon names in a single event message file
