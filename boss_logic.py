@@ -30,7 +30,7 @@ BOSS_SUMMONS = {
     463: [464], #Arioch - Decarabia
     924: [935], #White Rider - Dominion
     925: [936], #Red Rider - Power
-    926: [937], #Black Rider - Legion
+    926: [937,939], #Black Rider - Legion (Seems to use 2 different legions with the same stats/skills but different AIs)
     927: [938], #Pale Rider - Loa
     843: [885], #Danu - Mandrake
 }

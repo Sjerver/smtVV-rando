@@ -462,7 +462,7 @@ EVENT_CHECKS_ORIGINAL_IDS = {
     'e0825': [(7, 477, 0)],#Metatron
     'e1001': [(3, 437, 9), (10, 437, 19), (11, 429, 20)],#Lucifer
     'e2005': [(1, 431, 0)],#Triple Preta
-    'e2008': [(1, 431, 21)],#Labolas 1
+    'e2008': [(1, 552, 21)],#Labolas 1
     'e2245': [(1, 556, 22)],#Vengeance Lahmu
     'e2500': [(2, 484, 0)],#Power 1, TODO make sure this is the correct power and not a dummy demon replacement
     'e2610': [(1, 579, 0)],#Isis
