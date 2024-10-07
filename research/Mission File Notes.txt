@@ -1,6 +1,8 @@
 The Angels' Request (Eligor) - 0021
 Mostly Angels' Request Dialogue but Nuwa warning is here too - 0020 (message 0x19 is "the angels guarding the path are gone for vengeance nuwa hint)
-Loup Garou - 0043 contains the warning dialogue
+Loup Garou - 0041, 0043 contains the warning dialogue
+Saving the students - 0044 mentions lahmu and is where fionn warning goes
+Golden Apple quest - 0050-0052, mentions Loki, Eisheth in vengeance (0050_b)
 Hellfire Highway (Surt and Yakumo) - 0060, there are extra messages mentioning surt by name besides the warnings
 Ishtar - 0070, Surt's name is mentioned, as is Ishtar's multiple times.
 Zeus mentioned in 0145, Shiva/Vasuki mentioned in 0143, Odin in 0147 (Amanozako dialogue)

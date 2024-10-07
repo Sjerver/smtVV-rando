@@ -91,7 +91,11 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1300': [Demon_Sync(864),Demon_Sync(453),Demon_Sync(463)],#Falcon's Head (Horus Punishing Foe,Shinagawa Station Lahmu II, Arioch)
     'mm_em1400': [Demon_Sync(864)],#Isis Dialogue (Either for other quest or in Minato) (Horus Punishing Foe)
     'mm_em1020': [Demon_Sync(115,432),Demon_Sync(281,802)], #The Ultimate Omelet (Hydra, Jatayu)
-    'mm_em1120': [Demon_Sync(147,nameVariant="Mothmen")], #Can I Keep Them? (Mothman)
+    'mm_em1120': [Demon_Sync(147,nameVariant="Mothmen")], #Can I Keep Them? (Mothman
+    'mm_em0041': [Demon_Sync(136, 450)],#Loup Garou dialogue (Loup Garou)
+    'mm_em0044': [Demon_Sync(452)],#Saving the Students misc dialogue (Lahmu)
+    'mm_em0050_b': [Demon_Sync(559), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta')],#Golden apple quest vengeance (Eisheth, Yuzuru)
+    'mm_em0051': [Demon_Sync(810)],#Golden apple quest Idun dialogue (Loki)
     'mm_em0060': [Demon_Sync(80, 454)],#Hellfire Highway (Surt)
     'mm_em0070': [Demon_Sync(80, 454), Demon_Sync(25, 455)],#Ishtar Quest (Surt and Ishtar)
     'mm_em0143': [Demon_Sync(111, 468), Demon_Sync(178, 845)],#Taito India Amanozako dialogue (Vasuki and Shiva)
@@ -130,7 +134,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1401': [Demon_Sync(15, 519), Demon_Sync(7, 516), Demon_Sync(13, 864)],#Khonsu Ra CoC Quest (Khonsu Ra, Khonsu, Horus)
     'mm_em1410': [Demon_Sync(84, 832)],#Abbadon's Assault (Abaddon)
     'mm_em1420': [Demon_Sync(35)],#Fionn 2 Quest (Fionn)
-    'mm_em1430': [Demon_Sync(243, 836), Demon_Sync(247, 834), Demon_Sync(245, 835), Demon_Sync(242, 841)],#3 Seraphim Quest (Gabriel, Uriel, Raphael, Michael):
+    'mm_em1430': [Demon_Sync(243, 836), Demon_Sync(247, 834), Demon_Sync(245, 835), Demon_Sync(242, 841), Demon_Sync(17, 837)],#3 Seraphim Quest (Gabriel, Uriel, Raphael, Michael, Baal):
     'mm_em1440': [Demon_Sync(17, 837), Demon_Sync(86, 804), Demon_Sync(85, 816), Demon_Sync(81, 483), Demon_Sync(2, 537)],#Baal Quest (Baal, Belphegor, Moloch, Beelzebub, Lucifer)
     'mm_em1450': [Demon_Sync(8, 838), Demon_Sync(19)],#A Plot Unveiled (Zeus, Demeter)
     'mm_em1460': [Demon_Sync(94, 839)],#The Gold Dragon's Arrival (Huang Long)
@@ -424,6 +428,7 @@ MISSION_CHECKS_ORIGINAL_IDS = {
     'mm_em0021': [(8, 433, 0)],#Eligor (and Andras)
     'mm_em0020': [(42, 435, 0)],#Snake Nuwa
     'mm_em0043': [(2, 450, 0)],#Loup Garou
+    'mm_em0044': [(3, 451, 29)],#Fionn 1 (Creation route)
     'mm_em0060': [(62, 454, 0), (66, 465, 0)],#Surt, Yakumo (Surt is mentioned by name in 2 other messages)
     'mm_em0070': [(49, 455, 0)],#Ishtar (Surt and Ishtar's name are mentioned lots elsewhere)
     'mm_em0150': [(8, 889, 1)],#A Preta Predicament (just one instance currently)
@@ -443,11 +448,11 @@ MISSION_CHECKS_ORIGINAL_IDS = {
     'mm_em1780': [(14, 931, 9)],#Cleopatra Quest
     'mm_em1790': [(33, 930, 10)],#Artemis Quest
     'mm_em2040': [(26, 755, 11)],#Pisaca Quest
-    'mm_em2170': [(53, 757, 12), (76, 757, 12), (77, 758, 13)],#Masakdo Quest, make sure this works as a dialogue choice with or without Kiou sword
+    'mm_em2170': [(76, 757, 12), (77, 758, 13)],#Masakdo Quest, make sure this works as a dialogue choice with or without Kiou sword
     'mm_em2240': [(34, 519, 0)],#Khonsu Ra CoV
     'mm_em2250': [(2, 822, 14)],#VR Kunitsukami Quest
     'mm_em2380': [(121, 781, 0)],#Mo Shuvuu Quest (Andras)
-    'mm_em2440': [(3, 768, 15)],#Yaksini Quest
+    'mm_em2440': [(3, 768, 15), (254, 768, 15)],#Yaksini Quest
     'mm_em2600': [(39, 948, 16)],#Konohana Sakuya Quest
     'mm_em2610': [(27, 947, 17)],#Dagda Quest
 }
@@ -460,14 +465,14 @@ EVENT_CHECKS_ORIGINAL_IDS = {
     'e0640': [(4, 463, 31), (9, 466, 0)],#Chernobog and Arioch
     'e0715': [(2, 467, 0)],#Creation Abdiel
     'e0825': [(7, 477, 0)],#Metatron
-    'e1001': [(3, 437, 9), (10, 437, 19), (11, 429, 20)],#Lucifer
+    'e1001': [(3, 537, 9), (10, 537, 19), (11, 529, 20)],#Lucifer
     'e2005': [(1, 431, 0)],#Triple Preta
     'e2008': [(1, 552, 21)],#Labolas 1
     'e2019': [(3, 553, 27)],#Naamah 1
     'e2060': [(8, 554, 28)],#Naamah 2
     'e2245': [(1, 556, 22)],#Vengeance Lahmu
     'e2288': [(13, 559, 30)],#Eisheth
-    'e2296': [(3, 451, 29)],#Fionn 1 (Vengeance route) TODO see if this works for creation too
+    'e2296': [(3, 451, 29)],#Fionn 1 (Vengeance route)
     'e2500': [(2, 484, 0)],#Power 1, TODO make sure this is the correct power and not a dummy demon replacement
     'e2610': [(1, 579, 0)],#Isis
     'e2708': [(2, 569, 0)],#Lilith
@@ -940,7 +945,7 @@ def updateEventMessages(encounterReplacements, bossReplacements, demonNames, ran
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
             
-            
+
 '''
 Update the mention of demon names in a single event message file
     Parameters:
@@ -984,8 +989,8 @@ def updateDemonsInTextFile(missionText, syncDemons, encounterReplacements, bossR
             if syncDemon.nameVariant and syncDemon.nameVariant in box:#Name is a variant on normal name (Mothmen instead of Mothman)
                 box = box.replace(syncDemon.nameVariant, replacementName)
             #TODO: Dialogue issues i was having was not due too line length, but still might be necessary once I actually find a case where it's relevant
-            # lines = box.split("\n")
-            # for line in lines:
+            #lines = box.split("\n")
+            #for line in lines:
             #     pass
 
             missionText[index] = box
@@ -1039,6 +1044,7 @@ def addHintMessagesInFile(missionText, hints, bossReplacements, demonNames):
             replacementID = bossReplacements[originalDemonID]
         except KeyError:
             continue
+        #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
         replacementName = demonNames[replacementID]
         
         #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
