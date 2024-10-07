@@ -107,9 +107,8 @@ PRESS_TURN_MAX_SUMMONS = {
 # Map of boss summons that are summoned in groups of more than one, like Arioch's 2 decarabias
 SUMMONED_DEMON_COUNTS = {
     464: 2, # Decarabia
-    935: 2, # Rider summons
+    935: 2, # Rider summons (Except Legions from Black Rider)
     936: 2,
-    937: 2,
     938: 2,
     885: 2, # Mandrake
 }

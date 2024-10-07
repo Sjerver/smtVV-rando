@@ -1838,6 +1838,9 @@ class Randomizer:
         skill = self.obtainSkillFromID(random.choice(possibleSkills).ind)
         while not validity:
             skill = self.obtainSkillFromID(random.choice(possibleSkills).ind)
+            if skill.ind in numbers.MAGATSUHI_SKILLS and random.random() > 0.5:
+                #Reduce chance that the protagonist starts with magatsuhi skill
+                continue
             if settings.multipleUniques:
             # Unique skill can appear twice
                 # check if skill is unique skill
@@ -2273,7 +2276,7 @@ class Randomizer:
                 # 7 is the base game max and min that occurs
                 maxV = 7
                 if(index > 8):
-                    maxV = 5
+                    maxV = 4
                 newPotentials.append(math.ceil(max(-1 * maxV,min(maxV,absPotAmount * percentage))))
             demon.potential.physical = newPotentials[0]
             demon.potential.fire = newPotentials[1]

@@ -449,9 +449,9 @@ SCRIPT_JOIN_DEMONS = {
 MAGATSUHI_SKILLS = [60,76,78,87,109,110,111,112,113,114,#Omagatoki: Critical, Big Bang, Freikugel EX, Soul Drain, Twilight Wave, Eternal Prayer, Sea of Stars, Waters of Youth, Accursed Poison, Rasetsu Feast
                     120,121,130,131,138,145,146,147,177,#Fairy Banquet, Expand:Criical Aura, Expand: Piercing Aura, Shield of God, Impaler's Glory, Dekajaon, Omagatoki: Pierce, Omagatoki: Hit, Omgatoki: Adversity
                     187,193,201,215,249,274,309,345,928,#Omagatoki: Free, Omagatoki: Doubler, Omagatoki:Dance, Omagatoki: Sincerity, Omagatoki: Savage, Omagatoki: Luck, Omagatoki: Potential, Omagatoki: Charge, Omagtoki: Succession
-                    801,802,803,804,805,806,807,808,809,#
-                    810,811,812,813,814,815,816,817,818,#
-                    819,820,821,822,823,824,825,826,857 #Blossoming Sakura
+                    801,802,803,804,805,806,807,808,809,#Feline Fury, Immolating Breath, Frost Storm, Calamitious Thunder, Raging Whirlwind, Holy Wrath, Diabolical Deluge, Harvest Festival, Omagatoki: Exploit
+                    810,811,812,813,814,815,816,817,818,#Oni Formation, Four Heavenly Edicts, Fairies' Game, Bouncy Body, Guardian Angels, Omagatoki:Bounty, Dana's Wisdom, Waves of Order, Rains of Order
+                    819,820,821,822,823,824,825,826,857 #Wellspring of Order, Tides of Chaos, Torrent of Chaos, Fountain of Chaos, Omagatoki:Momentum, Omagatoki: Conserve, Omagatoki: Strategize, Qadistu Entropy, Blossoming Sakura
                     ]
 
 #Enemy Versions of Magatsuhi Skills
@@ -460,6 +460,32 @@ MAGATSUHI_ENEMY_VARIANTS = {842:131,843:138,934:76,935:78,936:87,937:109,938:110
 
 #Lists level ranges for magatsuhi skills that are not the standard 1 to 99
 MAGATSUHI_SKILLS_LEVEL_RESTRICTIONS = {
+    76: [16,99], #Big Bang (Drake Talisman is gotten via The Ultimate Omelete which has Recommended Level 16)
+    78: [6,99], #Freikugel EX (Wargod Talisman via No Stone Unturned with Recommended level 6)
+    87: [32,99], #Soul Drain (Night Talisman via Kumbhanda's Bottle with Recommended Level 32)
+    109: [3,99], #Twilight Wave (Haunt Talisman via A Preate Predicament with Recommended Level 3)
+    110: [50,99], #Eternal Prayer (Megami Talisman via The Horn of Plenty with Recommended Level 50)
+    111: [28,99], #Sea of Stars (Divine Talisman from Angel after Loup-garou/Eisheth which are level 28)
+    112: [30,99], #Waters of Youth (Enigma Talisman via Song of Nostalgia with Recommended Level 30)
+    113: [16,99], #Accursed Poison (Raptor Talisman via Movin' on Up with Recommended Level 16)
+    114: [20,99], #Rasetsu Feast (Jaki Talisman from Rakshasa on Diet Building after Eligor who is level 20)
+    120: [34,99], #Fairy Banquet (Fairy Talisman via The Root of the Problem with Recommended Level 34)
+    121: [18,99], #Expand:Critical Aura (Brute Talisman via Talisman Hunt with Recommended Level 18)
+    130: [73,99], #Expand: Piercing Aura (Fury Talisman via The Destined Leader with Recommended Level 73)
+    131: [73,99], #Shield of God (Herald Talisman via The Holy Ring with Recommended Level 73)
+    138: [25,99], #Impaler's Glory (Vile Talisman via Magic from the East with Recommended Level 25)
+    145: [50,99], #Dekajaon (Kunitsu Talisman via Kunitsu Quest with Recommended Level 50)
+    146: [32,99], #Omgatoki: Pierce (Kishin Talisman via 90 Miman which requires at least beating Fionn who is level 32)
+    147: [20,99], #Omagtoki: Hit (Avatar Talisman via 45 Miman which requires at least beating Eligor who is level 20)
+    177: [26,99], #Omagatoki: Adversity (Beast Talisman via A Wish for a Fish with Recommended Level 26)
+    187: [17,99], #Omagatoki: Free (Femme Talisman via The Demon of the Spring with Recommended Level 17)
+    193: [16,99], #Omagtoki: Doubler (Fallen Talisman via To Cure a Curse with Recommended Level 16)
+    201: [46,99], #Omagatoki: Dance (Snake Talisman via Yurlungur who can only be accessed in Chiyoda after beating Yakumo who is level 46)
+    215: [17,99], #Omagatoki: Sincerity (Jirae Talisman via Chakra Drop Chomp with Recommended Level 17)
+    249: [71,99], #Omagatoki: Savage (Tyrant Talisman via The Winged Sun with Recommeded Level 71)
+    274: [9,99], #Omagatoki: Luck (Level of lowest level Element demon)
+    309: [11,99], #Omagatoki: Potential (Yoma Talisman via Pollution Panic with Recommended Level 11)
+    345: [69,99], #Omagatoki: Charge (Deity Talisman via The Bull God's Lineage with Recommended Level 69)
     928: [52,99] #Omagatoki:Succession (52 is level of Lilith Boss in CoV, you get Talisman after)
 }
 '''
