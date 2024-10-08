@@ -85,6 +85,7 @@ class Randomizer:
         self.brawnyAmbitions2SkillName = "Puncture Punch"
         self.fusionSkillIDs = []
         self.fusionSkillReqs = []
+        self.alreadyAssignedSkills = set()
 
         self.nahobino = Nahobino()
         
@@ -1636,10 +1637,13 @@ class Randomizer:
             allSkills = []
             for ind in uniqueSkills:
                     allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
-        
+        if not mask:
+            sortedComp = sorted(comp, key=lambda demon: demon.level.value)
+        else:
+            sortedComp = comp
 
         #For every demon...
-        for demon in comp:
+        for demon in sortedComp:
             if mask and demon.ind not in mask:
                 continue
             possibleSkills = []
@@ -1726,6 +1730,7 @@ class Randomizer:
                         attempts -= 1
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
                     totalSkills.append(skillAddition)
+                    self.alreadyAssignedSkills.add(rng)
                     demon.skills[index] = skillAddition
                 #Randomly assign learnable skills; same justifications as starting skills
                 for index in range(len(demon.learnedSkills)):
@@ -1750,6 +1755,7 @@ class Randomizer:
                         attempts -= 1
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
                     totalSkills.append(skillAddition)
+                    self.alreadyAssignedSkills.add(rng)
                     demon.learnedSkills[index] = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames), level=demon.learnedSkills[index].level)
         return comp
     
@@ -2136,11 +2142,12 @@ class Randomizer:
             if skillStructure == "Active":
                 potentialType = skill.potentialType.translation
                 potentialValue = self.obtainPotentialByName(potentialType, potentials)
-                additionalWeight = 2 * potentialValue
+                additionalWeight =  math.ceil(numbers.POTENTIAL_WEIGHT_MULITPLIER * potentialValue)
+                #TODO: Maybe use a different multiplier for phys skills since there are so many?
                 if skill.skillType.value == 0 and demon.stats.str.start < demon.stats.mag.start:
-                    additionalWeight = additionalWeight - 2
+                    additionalWeight = additionalWeight - numbers.SKILL_STAT_PENALTY_WEIGHT
                 elif skill.skillType.value == 1 and demon.stats.str.start > demon.stats.mag.start:
-                    additionalWeight = additionalWeight - 2
+                    additionalWeight = additionalWeight - numbers.SKILL_STAT_PENALTY_WEIGHT
                 
                 if additionalWeight < 0:
                     newWeight = 0
@@ -2304,13 +2311,25 @@ class Randomizer:
         names = []
         #for every skill...
         for skill in possibleSkills:
-            if skill.ind in ids and skill.ind not in numbers.MAGATSUHI_SKILLS: #Magatsuhi Skills should always have weight of 1
-                prob[ids.index(skill.ind)] += 1
-            elif skill.ind not in ids:
+            if skill.ind not in ids:
                 #else push value and base weight 
                 ids.append(skill.ind)
-                prob.append(1)
+                if skill.ind in numbers.MAGATSUHI_SKILLS:
+                    probability = numbers.MAGATSUHI_SKILL_WEIGHT
+                else:
+                    probability = numbers.SKILL_WEIGHT
+                if skill.ind in self.alreadyAssignedSkills:
+                    probability = probability - numbers.SKILL_PENALTY_WEIGHT
+                prob.append(probability)
                 names.append(skill.name)
+        # for skill in possibleSkills:
+        #     if skill.ind in ids and skill.ind not in numbers.MAGATSUHI_SKILLS: #Magatsuhi Skills should always have weight of 1
+        #         prob[ids.index(skill.ind)] += 1
+        #     elif skill.ind not in ids:
+        #         #else push value and base weight 
+        #         ids.append(skill.ind)
+        #         prob.append(1)
+        #         names.append(skill.name)
         return Weight_List(ids, prob, names)
     
     '''
@@ -6410,7 +6429,7 @@ class Randomizer:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
             else:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
-            
+        self.outputSkillSets() 
             
 
         if config.randomInnates:
@@ -6638,6 +6657,24 @@ class Randomizer:
             finalString = finalString + fusion.firstDemon.translation + " + " + fusion.secondDemon.translation + " = " + fusion.result.translation + '\n'
         with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
             file.write(finalString)
+    
+    def outputSkillSets(self):
+        sortedDemons = sorted(self.compendiumArr, key=lambda demon: demon.level.value)
+        with open(paths.SKILL_SET_DEBUG, 'w', encoding="utf-8") as file:
+            for demon in sortedDemons:
+                if "NOT USED" in demon.name:
+                    continue
+                skillString = "[" + str(demon.ind) + "](" + str(demon.level.value) +") " + demon.name + ": "
+                for skill in demon.skills:
+                    if skill.ind == 0:
+                        continue
+                    skillString = skillString + translation.translateSkillID(skill.value, self.skillNames) + "/"
+                for skill in demon.learnedSkills:
+                    if skill.ind == 0:
+                        continue
+                    skillString = skillString + translation.translateSkillID(skill.value, self.skillNames)+ "(" + str(skill.level) + ")" + "/"
+                file.write(skillString + "\n")
+
                     
 if __name__ == '__main__':
     rando = Randomizer()
