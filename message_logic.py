@@ -181,7 +181,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1823': [Demon_Sync(934)], #Demi-Fiend, 3 Quest Files
     'mm_em1824': [Demon_Sync(934)],
     'mm_em1825': [Demon_Sync(934)],
-    'mm_em2020': [Demon_Sync(752), Demon_Sync(336, nameVariant='KODAMA')], #Nozuchi Queset (Nozuchi, Normal Enemy Kodama)
+    'mm_em2020': [Demon_Sync(752, nameVariant='NOZUCHI'), Demon_Sync(336, nameVariant='KODAMA')], #Nozuchi Queset (Nozuchi, Normal Enemy Kodama)
     'mm_em2040': [Demon_Sync(803)], #Pisaca Quest part 1 (Anahita)
     'mm_em2111': [Demon_Sync(769)], #Vouivre Quest (Vouivre)
     'mm_em2130': [Demon_Sync(113), Demon_Sync(41), Demon_Sync(386)], #Basilisk Hunt Quest (Basilisk, Anansi, Onyankopon)
@@ -283,7 +283,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e2018': [Demon_Sync(43), Demon_Sync(305)],#Possibly unused Yoko dialogue about Apsaras/Leanan (Apsaras, Leanan)
     'e2022': [Demon_Sync(553)],#Naamah pre-fight dialogue (Naamah) Spread out text
     'e2029': [Demon_Sync(567, nameVariant='Yakumo'), Demon_Sync(435)],#Nuwa post-fight dialogue vengeance (Yakumo, Nuwa) Includes spread out text
-    'e2030': [Demon_Sync(578), Demon_Sync(561, nameVariant="Yuzuru freakin' Atsuta")],#Dazai in diet building vengeance (Dazai, Yuzuru)
+    'e2030': [Demon_Sync(578), Demon_Sync(561, nameVariant="Yuzuru freakin' Atsuta"), Demon_Sync(561, nameVariant='Atsuta')],#Dazai in diet building vengeance (Dazai, Yuzuru)
     'e2035': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta')],#Returning to Tokyo from area 1 vengeance (Yuzuru) TODO: Make sure using him with 2 names like this works
     'e2040': [Demon_Sync(564)],#Meeting Abdiel vengeance (Abdiel)
     'e2043': [Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(578, nameVariant='Dazai')],#Tao meeting after area 1 vengeance (Yuzuru, Dazai)
