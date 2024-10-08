@@ -455,8 +455,8 @@ MAGATSUHI_SKILLS = [60,76,78,87,109,110,111,112,113,114,#Omagatoki: Critical, Bi
                     ]
 
 #Enemy Versions of Magatsuhi Skills
-MAGATSUHI_ENEMY_VARIANTS = {842:131,843:138,934:76,935:78,936:87,937:109,938:110, #Shield of God, Impaler's Glory, Big Bang, Freikugel EX, Sould Drain, Twilight Wave, Eternal Prayer
-                            939:112,940:113,941:114,942:120,943:121,944:138,945:145} #Waters of Youth, Accursed Poison, Rasetsu Feast, Fairy Banquet, Shield of God, Impaler's Glory, Dekajaon
+MAGATSUHI_ENEMY_VARIANTS = {131:842,138:843,76:934,78:935,87:936,109:937,110:938, #Shield of God, Impaler's Glory, Big Bang, Freikugel EX, Sould Drain, Twilight Wave, Eternal Prayer
+                            112:939,113:940,114:941,120:942,121:943,138:944,145:945} #Waters of Youth, Accursed Poison, Rasetsu Feast, Fairy Banquet, Shield of God, Impaler's Glory, Dekajaon
 
 #Lists level ranges for magatsuhi skills that are not the standard 1 to 99
 MAGATSUHI_SKILLS_LEVEL_RESTRICTIONS = {
@@ -486,7 +486,34 @@ MAGATSUHI_SKILLS_LEVEL_RESTRICTIONS = {
     274: [9,99], #Omagatoki: Luck (Level of lowest level Element demon)
     309: [11,99], #Omagatoki: Potential (Yoma Talisman via Pollution Panic with Recommended Level 11)
     345: [69,99], #Omagatoki: Charge (Deity Talisman via The Bull God's Lineage with Recommended Level 69)
-    928: [52,99] #Omagatoki:Succession (52 is level of Lilith Boss in CoV, you get Talisman after)
+    801: [34,99], #Feline Fury (Nekomata is highest level demon required, 34)
+    802: [64,99], #Immolating Breath (Cerberus is highest level demon required, 64)
+    803: [44,99], #Frost Storm (Black Frost is highest level demon required)
+    804: [61,99], #Calamitious Thunder (Periapt via Rascal of the Norse with Recommended Level 61)
+    805: [55,99], #Raging Whirlwind (Scathach is highest level demon required)
+    806: [80,99], #Holy Wrath (Periapt via The Seraph's Return with Recommended level 80)
+    807: [80,99], #Diaobolical Deluge (Periapt via The Red Dragon's Invitation with Recommended level 80)
+    808: [82,99], #Harvest Festival (Periapt via A Plot Revealed with Recommended level 82)
+    809: [38,99], #Omagatoki: Exploit (Periapt via The Golden Dragon's Arrival with Recommded level 48)
+    810: [75,99], #Oni Formation (Ongyo-Ki is highest level demon required
+    811: [64,99], #Four Heavenly Edicts (Additional Reward of Keeper of the North with Recommended level 64)
+    812: [18,99], #Faerie's Game (High Pixie is highest level demon required)
+    813: [33,99], #Bouncy Body (Black Ooze is highest level demon required)
+    814: [29,99], #Guardian Angels (after Eligor who is level 20)
+    815: [95,99], #Omagatoki: Bounty (Metatron is highest level demon required)
+    816: [75,99], #Dana's Wisdom (Periapt via Holy Will and Profane Dissent with recommended level 75)
+    817: [31,99], #Waves of Order (Periapt via Tough Love with recommended level 31)
+    818: [16,99], #Rains of Order (Periapt via In Pursuit of Knowledge with recommended level 16)
+    819: [9,99], #Wellspring of Order (Periapt via Brawny Ambitions with recommended level 9)
+    820: [21,99], #Tides of Chaos (Periapt via Training:Minato with recommeded level 21)
+    821: [11,99], #Torrent of Chaos (Periapt via Knocking on Death's Door with recommended level 11)
+    822: [17,99], #Fountain of Chaos (Periapt via Home Sweet Home with recommeded level 17)
+    823: [17,99], #Omagatoki: Momentum (Periapt via Beastly Battle of Wits with recommeded level 17)
+    824: [21,99], #Omgatoki: Conserve (Periapt via Essential Research with recommended level 21)
+    825: [17,99], #Omagatoki: Strategize (Periapt via Pixie on the Case with recommended level 17)
+    826: [52,99], #Qadistu Entropy (52 is level of Lilith Boss in CoV, you get Periapt after)
+    857: [47,99], #Blossoming Sakura (Periapt via Sakura Cinders of the East with recommended level 47
+    928: [52,99] #Omnipotent Succession (52 is level of Lilith Boss in CoV, you get Talisman after)
 }
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
