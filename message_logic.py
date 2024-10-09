@@ -446,7 +446,7 @@ MISSION_CHECKS_ORIGINAL_IDS = {
     'mm_em1602': [(13, 877, 0), (14, 877, 0)],#Final Amanozako Quest (Zaou-Gongen)
     'mm_em1770': [(73, 932, 9)],#Mephisto Quest
     'mm_em1780': [(14, 931, 9)],#Cleopatra Quest
-    'mm_em1790': [(33, 930, 10)],#Artemis Quest
+    'mm_em1790': [(39, 930, 10)],#Artemis Quest Note: For some reason, the indexing is off on this file
     'mm_em2040': [(26, 755, 11)],#Pisaca Quest
     'mm_em2170': [(76, 757, 12), (77, 758, 13)],#Masakdo Quest, make sure this works as a dialogue choice with or without Kiou sword
     'mm_em2240': [(34, 519, 0)],#Khonsu Ra CoV
@@ -475,7 +475,7 @@ EVENT_CHECKS_ORIGINAL_IDS = {
     'e2296': [(3, 451, 29)],#Fionn 1 (Vengeance route)
     'e2500': [(2, 484, 0)],#Power 1, TODO make sure this is the correct power and not a dummy demon replacement
     'e2610': [(1, 579, 0)],#Isis
-    'e2708': [(2, 569, 0)],#Lilith
+    'e2708': [(1, 569, 0)],#Lilith
     'e3005': [(3, 483, 32)],#Beelzebub
     'e3352': [(13, 597, 23)],#Tehom
     'em0013': [(10, 889, 24)],#Quest Preta
