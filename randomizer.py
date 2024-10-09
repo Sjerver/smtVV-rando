@@ -2148,7 +2148,10 @@ class Randomizer:
             if skillStructure == "Active":
                 potentialType = skill.potentialType.translation
                 potentialValue = self.obtainPotentialByName(potentialType, potentials)
-                additionalWeight =  math.ceil(numbers.POTENTIAL_WEIGHT_MULITPLIER * potentialValue)
+                if potentialType == "Phys":
+                    additionalWeight = potentialValue
+                else:
+                    additionalWeight =  math.ceil(numbers.POTENTIAL_WEIGHT_MULITPLIER * potentialValue)
                 #TODO: Maybe use a different multiplier for phys skills since there are so many?
                 if skill.skillType.value == 0 and demon.stats.str.start < demon.stats.mag.start:
                     additionalWeight = additionalWeight - numbers.SKILL_STAT_PENALTY_WEIGHT
@@ -2247,8 +2250,8 @@ class Randomizer:
             demon.potential.dark = math.ceil(max(-7,min(7,newAbsPotSum * percentages[6])))
             demon.potential.almighty = math.ceil(max(-7,min(7,newAbsPotSum * percentages[7])))
             demon.potential.ailment = math.ceil(max(-7,min(7,newAbsPotSum * percentages[8])))
-            demon.potential.support = math.ceil(max(-5,min(5,newAbsPotSum * percentages[9])))
-            demon.potential.recover = math.ceil(max(-5,min(5,newAbsPotSum * percentages[10])))
+            demon.potential.support = math.ceil(max(-4,min(4,newAbsPotSum * percentages[9])))
+            demon.potential.recover = math.ceil(max(-4,min(4,newAbsPotSum * percentages[10])))
 
     '''
     Randomizes the potentials of demons. First defines how many potentials the demon should have and then assigns a percentage weight to them.
