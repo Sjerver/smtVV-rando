@@ -1506,7 +1506,7 @@ class Randomizer:
     Randomizes the requirements to use magatsuhi skills, either due to race, demon combination or alignment combination.
     Note: When Critical is randomized, fusion and race skills are not mixed with each other, since the first magatsuhi skill in skill table
     without races assigned to it, serves as criticals replacement.
-    This also means that succession can never be the replacement for critical.
+    This also means that Omnipotent Succession can never be the replacement for critical.
     '''
     def randomizeMagatsuhiSkillReqs(self):
         magatsuhiSkillResults = []
@@ -1514,13 +1514,13 @@ class Randomizer:
         newFusionSkills = []
         availableRaces = []
         
-        while len(newFusionSkills) < requiredFusionNumber:
+        while len(newFusionSkills) < requiredFusionNumber: #get new fusion skills
             skill = random.choice(numbers.MAGATSUHI_SKILLS)
             if self.configSettings.includeOmagatokiCritical: #Due to how the universal magatsuhi skill is chosen, fusion skills and race skills cannot be mixed if this is randomized
                 newFusionSkills = sorted(self.fusionSkillIDs,key=lambda x: random.random())
                 break
             if skill in newFusionSkills or (skill == 60) or (skill == 928 and not self.configSettings.includeOmnipotentSuccession):
-                #dont add skills that are already there and critical has to be tied to race and succession depend on setting
+                #dont add skills that are already there or critical has to be tied to race and succession depends on setting
                 continue
             newFusionSkills.append(skill)
             skill = self.obtainSkillFromID(skill)
@@ -1534,7 +1534,7 @@ class Randomizer:
         
         magaSkills = []
         for skillID in numbers.MAGATSUHI_SKILLS:
-            if skillID in newFusionSkills:
+            if skillID in newFusionSkills: #if skill is already decided to be a fusion skill
                 continue
             skill = self.obtainSkillFromID(skillID)
             if (skill.ind == 60 and not self.configSettings.includeOmagatokiCritical) or (skill.ind == 928 and not self.configSettings.includeOmnipotentSuccession) :
@@ -1581,6 +1581,12 @@ class Randomizer:
         self.fusionSkillReqs = self.updateFusionSkillRequirements(newFusionSkills)
         return magatsuhiSkillResults
 
+    '''
+    Updates the requirements for fusion skills by taking the a list of skill ids and replacing the ids of fusion skills with them.
+    Also randomizes which demons are required to use fusion skills.
+        Parameters:
+            newFusionSkills (Int): list of skill ids to replace current fusion skill ids
+    '''
     def updateFusionSkillRequirements(self,newFusionSkills):
         newFusionSkillReqs = []
         currentIndex = 0
@@ -2299,7 +2305,7 @@ class Randomizer:
                          
     '''
     Based on array of skills creates two arrays where each skill is only included once.
-    Skills that were originally present more than once have increased weight.
+    Weight depends of if skill has already been assigned in the randomization process and if they are a magatsuhi skill.
         Parameters:
             possiblSkills (Array): Array of skills
         Returns:
