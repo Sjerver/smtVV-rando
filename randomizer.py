@@ -86,6 +86,7 @@ class Randomizer:
         self.fusionSkillIDs = []
         self.fusionSkillReqs = []
         self.alreadyAssignedSkills = set()
+        self.scriptFiles = scriptLogic.Script_File_List()
 
         self.nahobino = Nahobino()
         
@@ -4761,7 +4762,7 @@ class Randomizer:
                     itemID = random.choice(validItems)
                 gift.item.ind = itemID
             #print(gift.script + str(gift.item.ind))
-        scriptLogic.updateGiftScripts(pool.allGifts)
+        scriptLogic.updateGiftScripts(pool.allGifts,self.scriptFiles)
 
     '''
     Initializes the pools of all gifts and unique rewards from gifts.
@@ -4787,7 +4788,7 @@ class Randomizer:
     Randomizes the miman and mission rewards, with a combined pool depending on the settings.
     '''
     def randomizeItemRewards(self):
-        self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards()
+        self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards(self.scriptFiles)
         missionPool = self.initializeMissionPools()
         giftPool = self.initializeGiftPools()
         if not self.configSettings.combineKeyItemPools:
@@ -4832,14 +4833,14 @@ class Randomizer:
         if(self.configSettings.randomizeMimanRewards):
             self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea, mimanPool)
         
-        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames, self.encounterReplacements, self.essenceArr)   
+        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames, self.encounterReplacements, self.essenceArr, self.scriptFiles)   
 
         if self.configSettings.randomizeGiftItems:
             self.randomizeGiftItems(giftPool)
 
         if self.configSettings.randomizeMissionRewards:
             self.randomizeMissionRewards(self.configSettings.scaleItemsToArea, missionPool)
-        return scriptLogic.updateAndRemoveFakeMissions(self.missionArr)
+        return scriptLogic.updateAndRemoveFakeMissions(self.missionArr, self.scriptFiles)
     
     '''
     Randomizes the drops of basic enemies, excluding key items and essences.
@@ -6495,7 +6496,7 @@ class Randomizer:
         if config.unlockFusions:
             self.removeFusionFlags()
 
-        scriptLogic.randomizeDemonJoins(self.encounterReplacements,config.ensureDemonJoinLevel)
+        scriptLogic.randomizeDemonJoins(self.encounterReplacements,config.ensureDemonJoinLevel,self.scriptFiles)
             
         if config.randomChests:
             self.randomizeChests(self.configSettings.scaleItemsToArea)
@@ -6623,6 +6624,8 @@ class Randomizer:
         self.copyFile(paths.TITLE_TEXTURE_IN, paths.TITLE_TEXTURE_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         self.copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         
+        self.scriptFiles.writeFiles()
+
         self.applyUnrealPak()
 
     '''

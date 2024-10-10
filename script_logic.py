@@ -129,6 +129,7 @@ SCRIPT_FOLDERS = {
     'MM_M064_E2795_Direct': MAIN_M064_FOLDER, #Tsukuyomi Talisman
     'BP_JakyoEvent': SHOP_EVENT_FOLDER, #Cathedral of Shadows Event
     'MM_M061_EM0020': M061_FOLDER, # The Angel's Request
+    'BP_ShopEvent': SHOP_EVENT_FOLDER, #First Miman Reward
 }
 
 #List of additional rewards in fake missions
@@ -277,6 +278,53 @@ NEWGAMEPLUS_GIFTS = ['BP_JakyoEvent_Comp_Complete', 'BP_JakyoEvent']
 #Script for the Tsukuyomi Talisman
 TSUKUYOMI_TALISMAN_SCRIPT = 'MM_M064_E2795_Direct'
 
+class Script_File_List:
+    def __init__(self):
+        self.files = []
+        self.fileNames = []
+        self.nameCorrections = {}
+
+    def getFile(self,name):
+        if name not in self.fileNames:
+            self.readFile(name)
+
+        index = self.fileNames.index(name)
+        return self.files[index]
+
+    def setFile(self,name,file):
+        index = self.fileNames.index(name)
+        self.files[index] = file
+
+    def writeFiles(self):
+        for index, name in enumerate(self.fileNames):
+            folderKey = name
+            if folderKey not in SCRIPT_FOLDERS.keys():
+                folderKey = getEquivalentSource(name)
+
+            
+            file = self.files[index]
+            writeBinaryTable(file.uexp.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uexp', SCRIPT_FOLDERS[folderKey])
+            writeBinaryTable(file.uasset.binaryTable.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset', SCRIPT_FOLDERS[folderKey])
+
+    def readFile(self,name):
+        if 'NPC' in name:
+            scriptPath = 'NPC/'
+        elif 'ShopEvent' in name or 'JakyoEvent' in name:
+            scriptPath = 'ShopEvent/'
+        elif 'EM' in name:
+            scriptPath = 'SubMission/'
+        else:
+            scriptPath = 'MainMission/'
+        uexp = readBinaryTable('base/Scripts/' + scriptPath + name + '.uexp')
+        uassetData = Script_Uasset(readBinaryTable('base/Scripts/' +scriptPath + name + '.uasset'))
+        self.fileNames.append(name)
+        self.files.append((Script_File(uassetData,uexp)))
+
+class Script_File:
+    def __init__(self,uasset, uexp):
+        self.uasset = uasset 
+        self.uexp = uexp
+
 '''
 Returns the original script that is used as the base for a script with equivalent reward.
 '''
@@ -303,7 +351,7 @@ Parameters:
     comp List(Compendium_Demon): list of all playable demons
     randomDemons (Boolean): whether to randomize the demon joins or set them to vanilla
 '''
-def randomizeDemonJoins(replacements, randomDemons):
+def randomizeDemonJoins(replacements, randomDemons,scriptFiles):
     writeFolder(EVENT_FOLDER)
     writeFolder(SCRIPT_FOLDER)
     writeFolder(SUBMISSION_FOLDER)
@@ -319,12 +367,15 @@ def randomizeDemonJoins(replacements, randomDemons):
     #for every script and its offsets to write to
     for script, type in SCRIPT_JOIN_TYPES.items():
         #Read folder depending on sub or main mission
-        if 'EM' in script:
-            uexpData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
-            uassetData = Script_Uasset(readBinaryTable('base/Scripts/SubMission/' + script + '.uasset'))
-        else:
-            uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
-            uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
+        file = scriptFiles.getFile(script)
+        uexpData = file.uexp
+        uassetData = file.uasset
+        # if 'EM' in script:
+        #     uexpData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
+        #     uassetData = Script_Uasset(readBinaryTable('base/Scripts/SubMission/' + script + '.uasset'))
+        # else:
+        #     uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
+        #     uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
         
         if randomDemons:#randomize the join demons, otherwise values stay the same as OG and potential output files are overwritten with vanilla files
             oldDemon = numbers.SCRIPT_JOIN_DEMONS[script]
@@ -353,17 +404,19 @@ def randomizeDemonJoins(replacements, randomDemons):
                 updateDemonJoinInScript(uassetData,uexpData,numbers.SCRIPT_JOIN_DEMONS['MM_M061_EM1781'],cleopatra,Script_Join_Type.CLEOPATRA)
                 updateDemonJoinInScript(uassetData,uexpData,numbers.SCRIPT_JOIN_DEMONS['MM_M061_EM2613_HitAction'],dagda,Script_Join_Type.DAGDA )
 
-
-        writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
+        scriptFiles.setFile(script,file)
+        #writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
 
 '''
 #TODO: Adjust for rewrite and comment
 '''
-def adjustFirstMimanEventReward(config, compendium, itemNames, replacements, essenceArr):
-    scriptData = readBinaryTable('base/Scripts/ShopEvent/BP_ShopEvent.uexp')
+def adjustFirstMimanEventReward(config, compendium, itemNames, replacements, essenceArr, scriptFiles):
+    file = scriptFiles.getFile('BP_ShopEvent')
+    scriptData = file.uexp
+    # scriptData = readBinaryTable('base/Scripts/ShopEvent/BP_ShopEvent.uexp')
     #byteList = [14113, 26035, 11754, 14361,14407, 21063,21109] #Old list for 1.0.2
-    
-    uassetData = Script_Uasset(readBinaryTable('base/Scripts/ShopEvent/BP_ShopEvent.uasset'))
+    uassetData = file.uasset
+    #uassetData = Script_Uasset(readBinaryTable('base/Scripts/ShopEvent/BP_ShopEvent.uasset'))
 
     ogEssenceID = 496
     essenceID = 496 #Onmorakis Essence
@@ -390,8 +443,8 @@ def adjustFirstMimanEventReward(config, compendium, itemNames, replacements, ess
     #     scriptData.writeHalfword(essenceID, byte)
 
     updateItemRewardInScript(uassetData, scriptData, ogEssenceID, essenceID)
-    
-    writeBinaryTable(scriptData.buffer, SHOP_EVENT_FOLDER + '/BP_ShopEvent.uexp', SHOP_EVENT_FOLDER)
+    scriptFiles.setFile('BP_ShopEvent',file)
+    #writeBinaryTable(scriptData.buffer, SHOP_EVENT_FOLDER + '/BP_ShopEvent.uexp', SHOP_EVENT_FOLDER)
 
 '''
 Reads a file containing game data into a Table with a bytearray
@@ -652,7 +705,7 @@ def updateItemRewardInScriptPaths(uassetPath, uexpPath, oldItemID, newItemID):
 Creates fake missions from certain event scripts involving quests.
     Returns a list of fake missions
 '''
-def createFakeMissionsForEventRewards():
+def createFakeMissionsForEventRewards(scriptFiles):
     fakeMissions = []
 
     for script, indeces in EXTRA_MISSION_IDS.items():
@@ -661,13 +714,16 @@ def createFakeMissionsForEventRewards():
             fakeMission.ind = index
             fakeMission.reward = EXTRA_MISSION_REWARDS[fakeMission.ind]
             fakeMission.originalReward = copy.deepcopy(fakeMission.reward)
-            
-            if 'EM' in script: #is mission from a main story or not
-                uexpData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
-                uassetData = Script_Uasset(readBinaryTable('base/Scripts/SubMission/' + script + '.uasset'))
-            else:
-                uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
-                uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
+
+            file = scriptFiles.getFile(script)
+            uexpData = file.uexp
+            uassetData = file.uasset 
+            # if 'EM' in script: #is mission from a main story or not
+            #     uexpData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
+            #     uassetData = Script_Uasset(readBinaryTable('base/Scripts/SubMission/' + script + '.uasset'))
+            # else:
+            #     uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
+            #     uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
 
             fakeMission.uexp = uexpData
             fakeMission.uasset = uassetData
@@ -683,7 +739,7 @@ Writes the updated reward data to the event scripts and removes the fake mission
         missionArr (List(Mission)): a list of all missions and fake missions
     Returns list with all fake missions removed
 '''
-def updateAndRemoveFakeMissions(missionArr):
+def updateAndRemoveFakeMissions(missionArr,scriptFiles):
     writeFolder(EVENT_FOLDER)
     writeFolder(SCRIPT_FOLDER)
     writeFolder(SUBMISSION_FOLDER)
@@ -698,11 +754,16 @@ def updateAndRemoveFakeMissions(missionArr):
             except KeyError:
                 pass
 
-            #print(str(mission.ind) + ": " + str(mission.originalReward.ind) + " -> " + str(mission.reward.ind) )
-            updateItemRewardInScript(mission.uasset, mission.uexp, mission.originalReward.ind, mission.reward.ind)
+            file = scriptFiles.getFile(mission.script)
 
-            writeFolder(SCRIPT_FOLDERS[mission.script])
-            writeBinaryTable(mission.uexp.buffer, SCRIPT_FOLDERS[mission.script] + '/' + mission.script + '.uexp', SCRIPT_FOLDERS[mission.script])
+            #print(str(mission.ind) + ": " + str(mission.originalReward.ind) + " -> " + str(mission.reward.ind) )
+            updateItemRewardInScript(file.uasset, file.uexp, mission.originalReward.ind, mission.reward.ind)
+
+            #writeFolder(SCRIPT_FOLDERS[mission.script])
+            #writeBinaryTable(mission.uexp.buffer, SCRIPT_FOLDERS[mission.script] + '/' + mission.script + '.uexp', SCRIPT_FOLDERS[mission.script])
+            scriptFiles.setFile(mission.script,file)
+
+
 
             toRemove.append(mission)
     for mission in toRemove:
@@ -824,7 +885,7 @@ Updates all script data regarding item gifts.
     Parameters:
     gifts(List(Gift_Item)): list of all gifts
 '''
-def updateGiftScripts(gifts):
+def updateGiftScripts(gifts, scriptFiles):
     uexpCorrection = {} #dict to save uexp which get modified multiple times
     for gift in gifts:
         if gift.script in GIFT_EQUIVALENT_SCRIPTS.keys(): #if script has script with same reward add copy of gift with new script to gift list
@@ -837,8 +898,12 @@ def updateGiftScripts(gifts):
             correctScript = GIFT_EXTRA_SCRIPTS[gift.script]
         #print(correctScript + " " + str(gift.item.ind))
         if 'NPC' in correctScript: #NPC data tables are handled here   
-            uexpData = readBinaryTable('base/Scripts/NPC/' + correctScript + '.uexp')
-            uassetData = Script_Uasset( readBinaryTable('base/Scripts/NPC/' + correctScript + '.uasset'))
+            file = scriptFiles.getFile(correctScript)
+            uexpData = file.uexp
+            uassetData = file.uasset
+
+            # uexpData = readBinaryTable('base/Scripts/NPC/' + correctScript + '.uexp')
+            # uassetData = Script_Uasset( readBinaryTable('base/Scripts/NPC/' + correctScript + '.uasset'))
             if gift.script in GIFT_EXTRA_SCRIPTS.values(): # add uexp to dict if script has additional versions
                 uexpCorrection[gift.script] = uexpData
             if correctScript in uexpCorrection.keys(): #get already modified uexp from correct script
@@ -851,14 +916,17 @@ def updateGiftScripts(gifts):
                 #print(gift.script + " "+ str(gift.item.ind))
                 updateNPCGiftInScript(BASE_GIFT_ITEMS[gift.script], gift.item.ind, uassetData, uexpData)
         else: #else it is an event script
-            if correctScript in ['BP_JakyoEvent']:
-                missionType = 'ShopEvent/'
-            elif 'EM' in correctScript:
-                missionType = 'SubMission/'
-            else: 
-                missionType = 'MainMission/'
-            uexpData = readBinaryTable('base/Scripts/' + missionType + correctScript + '.uexp')
-            uassetData = Script_Uasset( readBinaryTable('base/Scripts/' + missionType + correctScript + '.uasset'))
+            file = scriptFiles.getFile(correctScript)
+            uexpData = file.uexp
+            uassetData = file.uasset
+            # if correctScript in ['BP_JakyoEvent']:
+            #     missionType = 'ShopEvent/'
+            # elif 'EM' in correctScript:
+            #     missionType = 'SubMission/'
+            # else: 
+            #     missionType = 'MainMission/'
+            # uexpData = readBinaryTable('base/Scripts/' + missionType + correctScript + '.uexp')
+            # uassetData = Script_Uasset( readBinaryTable('base/Scripts/' + missionType + correctScript + '.uasset'))
             if gift.script in GIFT_EXTRA_SCRIPTS.values(): # add uexp to dict if script has additional versions
                 uexpCorrection[gift.script] = uexpData
             if correctScript in uexpCorrection.keys(): #get already modified uexp from correct script
@@ -870,13 +938,15 @@ def updateGiftScripts(gifts):
                 #print(gift.script + ": " + str(BASE_GIFT_ITEMS[gift.script]) + " -> " + str(gift.item.ind) )
                 updateItemRewardInScript(uassetData,uexpData,BASE_GIFT_ITEMS[gift.script],gift.item.ind)
 
-        if gift.script in SCRIPT_FOLDERS.keys(): #if script has folder listed use it
-            writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[gift.script] + '/' + gift.script + '.uexp', SCRIPT_FOLDERS[gift.script])
-        elif correctScript in SCRIPT_FOLDERS.keys():
-            writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[correctScript] + '/' + correctScript + '.uexp', SCRIPT_FOLDERS[correctScript])
-        else: #use folder of equivalent otherwise
-            equivalentScript = getEquivalentSource(gift.script)
-            writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[equivalentScript] + '/' + gift.script + '.uexp', SCRIPT_FOLDERS[equivalentScript])    
+
+        scriptFiles.setFile(correctScript,file)
+        # if gift.script in SCRIPT_FOLDERS.keys(): #if script has folder listed use it
+        #     writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[gift.script] + '/' + gift.script + '.uexp', SCRIPT_FOLDERS[gift.script])
+        # elif correctScript in SCRIPT_FOLDERS.keys():
+        #     writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[correctScript] + '/' + correctScript + '.uexp', SCRIPT_FOLDERS[correctScript])
+        # else: #use folder of equivalent otherwise
+        #     equivalentScript = getEquivalentSource(gift.script)
+        #     writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[equivalentScript] + '/' + gift.script + '.uexp', SCRIPT_FOLDERS[equivalentScript])    
 
 '''
 Updates the old item given through the npc script to the new item.
