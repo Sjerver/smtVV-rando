@@ -97,7 +97,7 @@ DUMMY_EVENT_ENCOUNTERS = [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 89, 14
 # Map of bosses who summon a set number of minions at a time, used to calculate total press turns
 PRESS_TURN_MAX_SUMMONS = {
     934: 3, # Demi-Fiend
-    #681: 2, # Satan
+    681: 3, # Satan
     760: 2, # Samael
     845: 3, # Shiva
     828: 1, # Arahabaki

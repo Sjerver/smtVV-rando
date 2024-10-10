@@ -1,5 +1,6 @@
 
 import util.numbers as numbers
+import copy
 import re
 from base_classes.message import Message_File, Demon_Sync
 from randomizer import RACE_ARRAY
@@ -91,7 +92,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1300': [Demon_Sync(864),Demon_Sync(453),Demon_Sync(463)],#Falcon's Head (Horus Punishing Foe,Shinagawa Station Lahmu II, Arioch)
     'mm_em1400': [Demon_Sync(864)],#Isis Dialogue (Either for other quest or in Minato) (Horus Punishing Foe)
     'mm_em1020': [Demon_Sync(115,432),Demon_Sync(281,802)], #The Ultimate Omelet (Hydra, Jatayu)
-    'mm_em1120': [Demon_Sync(147,nameVariant="Mothmen")], #Can I Keep Them? (Mothman
+    'mm_em1120': [Demon_Sync(147,nameVariant="Mothmen")], #Can I Keep Them? (Mothman)
     'mm_em0041': [Demon_Sync(136, 450)],#Loup Garou dialogue (Loup Garou)
     'mm_em0044': [Demon_Sync(452)],#Saving the Students misc dialogue (Lahmu)
     'mm_em0050_b': [Demon_Sync(559), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta')],#Golden apple quest vengeance (Eisheth, Yuzuru)
@@ -121,7 +122,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1250': [Demon_Sync(215, 822), Demon_Sync(212, 826)],#Kunitsukami Fight Quest (Okuninushi and Oyamatsumi)
     'mm_em1260': [Demon_Sync(127, 812)], #Chimera Quest (Chimera)
     'mm_em1270': [Demon_Sync(322, 813)], #Hecaton Quest (Hecaton)
-    'mm_em1280': [Demon_Sync(248, 814)], #The Archangel of Destruction (Camael, Abdiel is mentioned but there's not one specific boss to pull her from)
+    'mm_em1280': [Demon_Sync(814), Demon_Sync(467)], #The Archangel of Destruction (Camael, Creation Abdiel)
     'mm_em1290': [Demon_Sync(85, 816), Demon_Sync(86, 804)],#Roar of Hatred (Moloch, Belphegor)
     'mm_em1320': [Demon_Sync(232, 827)],#Girimehkala Quest (Girimehkala)
     'mm_em1330': [Demon_Sync(211, 828), Demon_Sync(206, 860), Demon_Sync(205, 861), Demon_Sync(204, 862), Demon_Sync(203, 863)],#Lord's Sword Quest (Arahabaki, Zouchouten, Koumokuten, Jikokuten, Bishamonten)
@@ -130,7 +131,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1360': [Demon_Sync(204, 862)],#Jikokuten Event Battle Dialogue
     'mm_em1370': [Demon_Sync(203, 863)],#Bishamonten Event Battle Dialogue
     'mm_em1380': [Demon_Sync(7, 516), Demon_Sync(82, 463)],#Khonsu CoC Quest (Khonsu, Arioch)
-    'mm_em1390': [Demon_Sync(181, 829), Demon_Sync(88, 830), Demon_Sync(76, 831), Demon_Sync(7, 516), Demon_Sync(82, 463)],#The Winged-Sun Crest (Asura, Mithras, Amon, Khonsu, Arioch)
+    'mm_em1390': [Demon_Sync(829), Demon_Sync(830), Demon_Sync(831), Demon_Sync(516), Demon_Sync(463)],#The Winged-Sun Crest (Asura, Mithras, Amon, Khonsu, Arioch)
     'mm_em1401': [Demon_Sync(15, 519), Demon_Sync(7, 516), Demon_Sync(13, 864)],#Khonsu Ra CoC Quest (Khonsu Ra, Khonsu, Horus)
     'mm_em1410': [Demon_Sync(84, 832)],#Abbadon's Assault (Abaddon)
     'mm_em1420': [Demon_Sync(35)],#Fionn 2 Quest (Fionn)
@@ -160,7 +161,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1680': [Demon_Sync(882), Demon_Sync(183)], #Side with Dionysus (Black Frost, Dionysus)
     'mm_em1690': [Demon_Sync(883), Demon_Sync(265)], #Side with Adramelech (Futsunushi, Adramelech)
     'mm_em1700': [Demon_Sync(884), Demon_Sync(201)], #Side with Futsunushi (Adramelech, Futsunushi)
-    'mm_em1769': [Demon_Sync(78), Demon_Sync(295), Demon_Sync(31), Demon_Sync(4), Demon_Sync(528)], #Tokyo Diet Building Researcher (Mephisto, Cleopatra, Artemis, Dagda, Tsukuyomi) TODO: Differentiate between boss and summonable versions. Optionally add Yuzuru and Yoko/Tehom?
+    'mm_em1769': [Demon_Sync(78), Demon_Sync(295), Demon_Sync(31), Demon_Sync(4), Demon_Sync(528), Demon_Sync(561)], #Tokyo Diet Building Researcher (Mephisto, Cleopatra, Artemis, Dagda, Tsukuyomi, Yuzuru) TODO: Differentiate between boss and summonable versions.
     'mm_em1770': [Demon_Sync(78)], #Mephisto Quest (Mephisto)
     'mm_em1780': [Demon_Sync(295)], #Cleopatra Quest (Cleopatra)
     'mm_em1790': [Demon_Sync(31), Demon_Sync(933), Demon_Sync(432), Demon_Sync(838)], #Artemis Quest (Artemis, Queztalcoatl, Hydra, Zeus 2 for fun)
@@ -194,7 +195,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2310': [Demon_Sync(770), Demon_Sync(41)], #Side with Onyankopon (Onyankopon, Anansi) - Swapped boss/recruit versions due to the way these 2 join compared to others
     'mm_em2320': [Demon_Sync(771), Demon_Sync(386)], #Side with Anansi (Anansi, Onyankopon)
     'mm_em2350': [Demon_Sync(778)], #Idun Haunt Quest (Thor)
-    'mm_em2370': [Demon_Sync(865)], #Siegfried Quest (Garuda)
+    'mm_em2370': [Demon_Sync(865), Demon_Sync(564), Demon_Sync(468), Demon_Sync(481)], #Siegfried Quest (Garuda, Vengeance Abdiel, Vasuki, Vengeance Zeus) Odin is mentioned but the same text box is used in both routes
     'mm_em2390': [Demon_Sync(776), Demon_Sync(227)], #Cironnup Quest (Atavaka, Masakado)
     'mm_em2400': [Demon_Sync(760), Demon_Sync(537)], #Samael Quest (Samael, Lucifer)
     'mm_em2420': [Demon_Sync(681), Demon_Sync(760), Demon_Sync(537), Demon_Sync(596)], #Satan Quest (Satan, Samael, Lucifer, Mastema)
@@ -211,7 +212,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2610': [Demon_Sync(4), Demon_Sync(843)], #Dagda Quest (Dagda, Danu for fun)
     'mm_em2620': [Demon_Sync(775, nameVariant='Orochi'), Demon_Sync(528)], #Orochi Quest (Orochi, Tsukuyomi)
     'mm_em2630': [Demon_Sync(782), Demon_Sync(481), Demon_Sync(837)], #Saturnus Quest (Saturnus, CoV Zeus, Baal)
-    'mm_em2640': [Demon_Sync(569), Demon_Sync(564)], #Package Delivery Quest (Lilith, Vengeance Abdiel) Optionally add Yoko Hiromine as Tehom?
+    'mm_em2640': [Demon_Sync(569), Demon_Sync(564)], #Package Delivery Quest (Lilith, Vengeance Abdiel)
 }
 
 #Message files for story events and what demon(name/id) needs to be updated in them
@@ -440,6 +441,7 @@ MISSION_CHECKS_ORIGINAL_IDS = {
     'mm_em1180': [(6, 821, 3)],#King Frost Quest
     'mm_em1250': [(4, 822, 4)],#Kunitsukami Fight Quest
     'mm_em1260': [(8, 812, 5)],#Chimera Quest
+    'mm_em1280': [(32, 564, 33),(33, 564, 34)],#Archangel of Destruction (Vengeance Abdiel)
     'mm_em1290': [(8, 816, 6)],#Roar of Hatred
     'mm_em1401': [(1, 519, 7)],#Khonsu Ra CoC
     'mm_em1420': [(17, 833, 8)],#Fionn 2 Quest
@@ -521,7 +523,9 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "<BOSSNAME> detected.\nIt's distant, but I've marked its location.", #29 - Marking Fionn's location on the map
                  "Sounded like they were all\nattacked by <BOSSNAME>.", #30 - Yoko/Tao dialogue after rescuing students attacked by Eisheth
                  "A shame you will never reach\ndemon king <BOSSNAME>...", #31 - Chernobog dialogue
-                 "We may even encounter <BOSSNAME>, the lord of the flies."] #32 - Tsukuyomi dialogue about the 3 keys
+                 "We may even encounter <BOSSNAME>, the lord of the flies.", #32 - Tsukuyomi dialogue about the 3 keys
+                 "You have squandered the mercy\ngranted by my fellow archangel, <BOSSNAME>.", #33 - Camael dialogue vengeance
+                 "You leave me no choice. As the angel of\ndestruction, I shall slay you in <BOSSNAME>'s stead."] #34 - Camael dialogue vengeance part 2
 
 MISSION_INFO_DEMON_IDS = {
     7: [Demon_Sync(281,802)], #The Ultimate Omelet (Jatayu)
@@ -887,8 +891,8 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, ran
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
             missionText = file.getMessageStrings()
-
-            updateDemonsInTextFile(missionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
+            originalMissionText = copy.deepcopy(missionText)
+            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
             
             
             if missionEvent in MISSION_CHECKS_ORIGINAL_IDS.keys():
@@ -923,7 +927,8 @@ def updateEventMessages(encounterReplacements, bossReplacements, demonNames, ran
         try:
             file = Message_File(missionEvent,'/EventMessage/',OUTPUT_FOLDERS['EventMessage'])
             missionText = file.getMessageStrings()
-            updateDemonsInTextFile(missionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
+            originalMissionText = copy.deepcopy(missionText)
+            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
             
             if missionEvent in EVENT_CHECKS_ORIGINAL_IDS.keys():
                 hints = EVENT_CHECKS_ORIGINAL_IDS[missionEvent]
@@ -950,13 +955,14 @@ def updateEventMessages(encounterReplacements, bossReplacements, demonNames, ran
 Update the mention of demon names in a single event message file
     Parameters:
         missionText(List(String)): List of all text boxes in the file to update
+        originalMissionText(List(String)): Unchanging version of the text boxes to find original demon names to replace
         syncDemons(List(Demon_Sync)): List of all demons that need to be updated to their replacements
         encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
 '''
-def updateDemonsInTextFile(missionText, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
     for syncDemon in syncDemons:
         originalDemonID = syncDemon.ind #id of demon mentionend in text
         syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
@@ -980,13 +986,14 @@ def updateDemonsInTextFile(missionText, syncDemons, encounterReplacements, bossR
 
         #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
         for index, box in enumerate(missionText): #for every dialogue box
-            if originalName in box: #Name is plain text
+            
+            if originalName in originalMissionText[index]: #Name is plain text
                 box = box.replace(originalName, replacementName)
-            if 'enemy ' + str(originalDemonID).zfill(3) in box: #name is talked about via ID
+            if 'enemy ' + str(originalDemonID).zfill(3) in originalMissionText[index]: #name is talked about via ID
                 box = box.replace('enemy ' + str(originalDemonID).zfill(3), 'enemy ' + str(replacementID).zfill(3))
                 #box = box.replace('<enemy ' + str(originalDemonID) + '>', replacementName)
                 #print(box)
-            if syncDemon.nameVariant and syncDemon.nameVariant in box:#Name is a variant on normal name (Mothmen instead of Mothman)
+            if syncDemon.nameVariant and syncDemon.nameVariant in originalMissionText[index]:#Name is a variant on normal name (Mothmen instead of Mothman)
                 box = box.replace(syncDemon.nameVariant, replacementName)
             #TODO: Dialogue issues i was having was not due too line length, but still might be necessary once I actually find a case where it's relevant
             #lines = box.split("\n")
