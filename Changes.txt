@@ -9,6 +9,7 @@ Features:
 Balance:
 * Press Turns of basic enemies now are based on what they replace (i.e. Tsuchigumos replacement has 2 press turns as an enemy)
 * Snake Nuwa Boss will no longer end on 50% HP when she is randomized, and her HP is no longer higher than the check she replaces
+* Randomized miracle costs will be slightly cheaper on average
 
 Misc:
 * Gaea Rage from Demifiend's Guest skill list has been added to the skill pool

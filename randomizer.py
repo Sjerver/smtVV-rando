@@ -4111,8 +4111,10 @@ class Randomizer:
                 if miracleIndex > 0:
                     if miracleIndex in numbers.DIVINE_GARRISON_IDS:
                         self.miracleArr[miracleIndex].cost = random.randint(minimumCost, maximumCost // 2) * 5 #Make divine garrisons cheaper
-                    else:
+                    elif random.random() > 0.5: #Make miracles a little cheaper on average
                         self.miracleArr[miracleIndex].cost = random.randint(minimumCost, maximumCost) * 5 #Update abscess reward miracle costs
+                    else:
+                        self.miracleArr[miracleIndex].cost = min(random.randint(minimumCost, maximumCost), random.randint(minimumCost, maximumCost)) * 5 
                         
         for dependentMiracles in numbers.MIRACLE_DEPENDENCIES: #For progressive miracles put their costs in order
             costs = []
