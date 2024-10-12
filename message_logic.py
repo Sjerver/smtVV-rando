@@ -13,7 +13,8 @@ OUTPUT_FOLDERS = {
     'MissionFolder' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission/MissionEvent/',
     'ItemHelpMess' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Item/',
     'MissionInfo' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission/',
-    'EventMessage' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Event/EventMessage/'
+    'EventMessage' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Event/EventMessage/',
+    'Garden': 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Garden/'
 }
 
 #List of folders that have to be created in the output folder in order of creation
@@ -422,6 +423,44 @@ DEMON_NAMES_SHORT = {
     'Kurama Tengu' : 'Kurama',
     'Ame-no-Uzume' : 'Uzume',
 }
+
+#Demon IDS of bosses mentioned during Aogami conversations in the demon haunt
+#Demon_Sync(demonID mentioned in text, IF applicable id of demon to use replacement for) since boss mentions just use normal enemy ids
+HAUNT_BENCH_DEMON_IDS = [
+    Demon_Sync(450),#Loup Garou
+    Demon_Sync(559),#Eisheth
+    Demon_Sync(451, nameVariant='Fionn'),#Fionn 1
+    Demon_Sync(453),#Final Lahmu
+    Demon_Sync(454),#Surt
+    Demon_Sync(455),#Ishtar
+    Demon_Sync(566),#Khonsu (Vengeance)
+    Demon_Sync(561, nameVariant='Yuzuru'),#Yuzuru
+    Demon_Sync(596),#Mastema
+    Demon_Sync(468),#Vasuki
+    Demon_Sync(469),#Zeus
+    Demon_Sync(470),#Odin
+    Demon_Sync(537),#Lucifer
+    Demon_Sync(528),#Tsukuyomi
+    Demon_Sync(578, nameVariant='Ichiro'),#Dazai
+    Demon_Sync(432),#Hydra
+    Demon_Sync(433),#Eligor
+    Demon_Sync(434),#Andras
+    Demon_Sync(554),#Naamah
+    Demon_Sync(466),#Chernobog
+    Demon_Sync(568),#Agrat
+    Demon_Sync(486),#Cherub
+    Demon_Sync(565)#Tiamat
+]
+
+#Demon IDS of bosses mentined in the haunt that share a name with other bosses, paired with the text box index they appear in
+HAUNT_BENCH_DEMON_IDS_BY_INDEX = [
+    (Demon_Sync(467), 49),#Creation Abdiel
+    (Demon_Sync(577), 98),#Fallen Abdiel
+    (Demon_Sync(577), 101),
+    (Demon_Sync(465), 185),#Creation Yakumo
+    (Demon_Sync(567, nameVariant='Yakumo'), 58),#Vengeance Yakumo
+    (Demon_Sync(567, nameVariant='Yakumo'), 60),
+]
 
 #Message files for mission events containing boss checks, which message is the hint message, and what boss demon(name/id) needs to be updated in them
 #Value format: [(messageIndex, originalDemonID, hintMessageID), ...]
@@ -886,6 +925,7 @@ Update the mention of demon names in mission events.
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
 '''
 def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+    updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
     updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
     for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():
         try:
@@ -950,6 +990,38 @@ def updateEventMessages(encounterReplacements, bossReplacements, demonNames, ran
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
             
+
+'''
+Update the mention of demon names for the bench in demon haunts.
+    Parameters:
+        encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
+        bossReplacements(Dict): map for which boss replaces which boss
+        demonNames(list(String)): list of demon names
+        randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
+'''
+def updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+        file = Message_File('GardenMsg_PlayerTalk','',OUTPUT_FOLDERS['Garden'])
+        missionText = file.getMessageStrings()
+        originalMissionText = copy.deepcopy(missionText)
+        updateDemonsInTextFile(missionText, originalMissionText,HAUNT_BENCH_DEMON_IDS,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
+        for syncDemon, index in HAUNT_BENCH_DEMON_IDS_BY_INDEX:
+            originalDemonID = syncDemon.ind #id of demon mentionend in text
+            syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
+            originalName = demonNames[originalDemonID]
+            try:
+                replacementID = encounterReplacements[syncDemonID]
+            except KeyError:
+                continue
+            #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
+            replacementName = demonNames[replacementID]
+            if originalName in originalMissionText[index]: #Name is plain text
+                box = box.replace(originalName, replacementName)
+            if 'enemy ' + str(originalDemonID).zfill(3) in originalMissionText[index]: #name is talked about via ID
+                box = box.replace('enemy ' + str(originalDemonID).zfill(3), 'enemy ' + str(replacementID).zfill(3))
+            if syncDemon.nameVariant and syncDemon.nameVariant in originalMissionText[index]:#Name is a variant on normal name (Mothmen instead of Mothman)
+                box = box.replace(syncDemon.nameVariant, replacementName)
+        file.setMessageStrings(missionText)
+        file.writeToFiles()
 
 '''
 Update the mention of demon names in a single event message file
