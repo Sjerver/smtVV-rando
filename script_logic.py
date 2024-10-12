@@ -786,11 +786,10 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
         - the name of the demon also shows up in pre-defined name Strings in the uexpData
     What would therefore at least be needed to make this work?
         - updating size related stuff (lengths and offsets) in and uexp
+        - problem: how to identify offsets that need to change
     More Notes:
-    - moto did not work as pixy replacement even though I would expect it to due to both having names of length of 4
-        - considering the new info below, it might have something to do with Mot's ID not causing him to Spawn or something?
-        - since gurr(Gurulu) also does not work I learned that it is because these demons do not have idleB
-        - now the question is can we just use idleA there, or can't swap there at all
+    - some demons do not have a blueprint ending in "_Simple" and need adjustment of text in uexp alongside figuring out if non simble bps can be used to spawn the actor even
+    - some demons do not have idle b meaning that needs to be replaced with idle a
     - moving the lengthDifference == 0 check to below the writing of demonModelIDBytes demon model get always swapped but animations only play for same length as ogDemonName
     '''
 
@@ -798,10 +797,12 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
     modelNameMap = pd.read_csv(paths.MODEL_NAMES, dtype=str)
     modelNames = {}
     demonIDModelID = {}
+    hasSimpleBP = {}
     for index, row in modelNameMap.iterrows():
         if type(row['MainDemonID']) is str:
              modelNames[row['Number']] = row['folderName']
              demonIDModelID[int(row['MainDemonID'])] = row['Number']
+             hasSimpleBP[int(row['MainDemonID'])] = row['HasSimpleBP']
 
     #Get the String corresponding to the old demon
     oldIDString = demonIDModelID[ogDemonID]
@@ -809,10 +810,11 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
     #Get the String corresponding to the new demon
     newIDString = demonIDModelID[replacementDemonID]
     newName = modelNames[newIDString]
+    print("CHECK: " + oldName + " -> " + newName)
 
     lengthDifference = len(newName) - len(oldName)
-    if lengthDifference == 0:#same length is the only one where everything works for
-        print(oldName + " -> " + newName)
+    if lengthDifference == 0 and hasSimpleBP[replacementDemonID]:#same length is the only one where everything works for
+        print("DO: " + oldName + " -> " + newName)
         #ONLY CHANGE MODEL IF LENGTH OF DEMON MODEL NAMES IS THE SAME
         for index, name in enumerate(uassetData.nameList): #change occurence of old demon ID and name in all names in the uasset
             if oldIDString in name:

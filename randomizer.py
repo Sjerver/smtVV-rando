@@ -3712,7 +3712,7 @@ class Randomizer:
 
         #Currently does not work yet
         #scriptLogic.replaceTutorialPixieModel(replacementDict[59])
-        #scriptLogic.replaceTutorialPixieModel(75)
+        #scriptLogic.replaceTutorialPixieModel(144)
         
         return newSymbolArr
     
