@@ -109,3 +109,12 @@ class Table(object):
         length = endOfString - offset +1
         return self.readXChars(length, offset)
 
+    def getXBytes(self, offset, x):
+        return self.buffer[offset:offset+x]
+    
+    def insertBytes(self,offset,x):
+        index = 0
+        for byte in x:
+            self.buffer.insert(offset +index,byte)
+            index = index +1
+

@@ -798,11 +798,13 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
     modelNames = {}
     demonIDModelID = {}
     hasSimpleBP = {}
+    hasIdleB = {}
     for index, row in modelNameMap.iterrows():
         if type(row['MainDemonID']) is str:
              modelNames[row['Number']] = row['folderName']
              demonIDModelID[int(row['MainDemonID'])] = row['Number']
              hasSimpleBP[int(row['MainDemonID'])] = row['HasSimpleBP']
+             hasIdleB[int(row['MainDemonID'])] = row['HasIdleB']
 
     #Get the String corresponding to the old demon
     oldIDString = demonIDModelID[ogDemonID]
@@ -813,58 +815,115 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
     print("CHECK: " + oldName + " -> " + newName)
 
     lengthDifference = len(newName) - len(oldName)
-    if lengthDifference == 0 and hasSimpleBP[replacementDemonID]:#same length is the only one where everything works for
-        print("DO: " + oldName + " -> " + newName)
-        #ONLY CHANGE MODEL IF LENGTH OF DEMON MODEL NAMES IS THE SAME
-        for index, name in enumerate(uassetData.nameList): #change occurence of old demon ID and name in all names in the uasset
-            if oldIDString in name:
-                uassetData.nameList[index] = uassetData.nameList[index].replace(oldIDString,newIDString)
-            if oldName in name:
-                uassetData.nameList[index] = uassetData.nameList[index].replace(oldName,newName)
+    for index, name in enumerate(uassetData.nameList): #change occurence of old demon ID and name in all names in the uasset
+        if oldIDString in name:
+            uassetData.nameList[index] = uassetData.nameList[index].replace(oldIDString,newIDString)
+        if oldName in name:
+            uassetData.nameList[index] = uassetData.nameList[index].replace(oldName,newName)
         
-        uassetData.updateNameMap()
-
-        demonModelIDBytes = getDemonModelIDByteLocation(uassetData, uexpData)
-        demonModelAssetStringBytes = getDemonModelAssetStringByteLocation(uassetData, uexpData)
-
+    if hasSimpleBP[replacementDemonID]:
+        #print('HasNoSimple')
+        #Change demon to use Blueprint for demon model
+        for index, name in enumerate(uassetData.nameList): 
+            if "_Simple" in name and newIDString in name:
+                uassetData.nameList[index] = uassetData.nameList[index].replace("_Simple","")
+    uassetData.updateNameMap()
+    #uassetData.writeDataToBinaryTable()
+    demonModelIDBytes = getDemonModelIDByteLocation(uassetData, uexpData)
+    demonModelAssetStringBytes = getDemonModelAssetStringByteLocation(uassetData, uexpData)
     
+    toRemove = []
+    for offset in demonModelIDBytes: #remove bytes that were mistakingly found and do not set the old demon id
+        if uexpData.readWord(offset) != ogDemonID:
+            toRemove.append(offset)
+    
+    for offset in toRemove:
+        demonModelIDBytes.remove(offset)
 
-        toRemove = []
-        for offset in demonModelIDBytes: #remove bytes that were mistakingly found and do not set the old demon id
-            if uexpData.readWord(offset) != ogDemonID:
-                toRemove.append(offset)
-        
-        for offset in toRemove:
-            demonModelIDBytes.remove(offset)
+    for byte in demonModelIDBytes:
+        uexpData.writeWord(replacementDemonID, byte)
 
-        for byte in demonModelIDBytes:
-            uexpData.writeWord(replacementDemonID, byte)
-        
-        toRemove = []
-        demonModelAssetStringBytes.sort(reverse=True) #sort offsets so that inserting/removing bytes does not effect offsets that come after in the list
-        for offset in demonModelAssetStringBytes:
-            offsetString = uexpData.readUntilEmptyByte(offset).decode('ascii')
-            '''
-            #TODO: This currently cannot work when the name of two demons is not the same length
-            because I'm not really sure how to find all the offsets I would need to change in order for it to work right
-            '''
-            if oldIDString in offsetString or oldName in offsetString: #only update stuff if need is there
+    demonModelAssetStringBytes.sort(reverse=True) #sort offsets so that inserting/removing bytes does not effect offsets that come after in the list
+    for offset in demonModelAssetStringBytes:
+        offsetString = uexpData.readUntilEmptyByte(offset).decode('ascii')
+        if oldIDString in offsetString:
+            offsetString = offsetString.replace(oldIDString,newIDString)
+        if oldName not in offsetString:
+            offsetString = offsetString.encode('ascii')
+            #print(offset)
+            uexpData.writeXChars(offsetString, len(offsetString), offset)
+            
+        elif oldName in offsetString: #only update stuff if need is there
+            
+            if lengthDifference != 0:#newName is longer
+
+                executeUbergraphNameID = uassetData.nameMap["EntryPoint"]
+                #find the second one and go back for scriptbytecode size and the second size
+                entryPointGoToOffset = uexpData.findWordOffsets(executeUbergraphNameID)[1]
                 
-                if lengthDifference > 0:#newName is longer
-                    for i in range(lengthDifference):
-                        uexpData.buffer.insert(offset + len(offsetString),0)
-                    uassetData.updateExportSizeAndOffsets(offset, lengthDifference)
-                elif lengthDifference < 0: #newName is shorter
-                    for i in range(lengthDifference):
-                        uexpData.buffer.pop(offset + 1)
-                    uassetData.updateExportSizeAndOffsets(offset, lengthDifference)
+                scriptByteCodeSize = uexpData.readWord(entryPointGoToOffset - 19)
+                scriptByteCodeByteSize = uexpData.readWord(entryPointGoToOffset - 15)
+
+                
+                #Grab 8 bytes pre string, string, and 49 bytes post string
+                #stringBytes = uexpData.getXBytes(offset, len(offsetString))
+                newString = offsetString.replace(oldName,newName)
+                #TODO: Animation check if length is different
+                if '02idleB' in newString  and 'False' == hasIdleB[replacementDemonID]:
+                    #print("TRIGGER")
+                    newString = newString.replace('02idleB','05attack')
 
 
+                stringBytes = newString.encode('ascii')
+                ogStringBytes = uexpData.getXBytes(offset, len(offsetString))
+                preStringBytes = uexpData.getXBytes(offset-8,8)
+                postStringBytes = uexpData.getXBytes(offset + len(offsetString), 48)
+                originalTotalBytes = preStringBytes + ogStringBytes + postStringBytes
+                totalBytes = preStringBytes + stringBytes +postStringBytes
+
+                # Figure out end of bytecode 
+                endInsertOffset = uassetData.exports[1].serialOffset - len(uassetData.binaryTable.buffer) - 12
+                uexpData.insertBytes(endInsertOffset,totalBytes)
+
+                jumpBack = bytearray(5)
+                uexpData.insertBytes(endInsertOffset + len(totalBytes),jumpBack)
+                uexpData.writeByte(6,endInsertOffset + len(totalBytes))
+                #HOW DO I KNOW WHERE TO JUMP BACK TO????
+                #TODO: Currently hardcoded to lead to a PopExecutionFlow() in DevilTalk bytecode
+                uexpData.writeWord(21024,endInsertOffset + len(totalBytes) +1)
+                #uexpData.writeWord(len(totalBytes) - len(preStringBytes) + ,endInsertOffset + len(totalBytes) +1)
+                additionalLength = len(totalBytes) + 5 #Jump back is 5
+
+                #Replace original bytes with jump to newly inserted and fill rest with nothing instructions so statement index is the same
+                startOffset = offset - 8
+                uexpData.writeByte(6,startOffset)
+                uexpData.insertBytes(startOffset +1, bytearray(4))
+                additionalLength += 4
+                uexpData.writeWord(scriptByteCodeSize,startOffset +1)
+
+                for i in range(len(originalTotalBytes) - 1):
+                    uexpData.writeByte(0xB, startOffset +5 + i)
+                
+                scriptByteCodeSize = scriptByteCodeSize + additionalLength
+                scriptByteCodeByteSize = scriptByteCodeByteSize + additionalLength
+
+                uexpData.writeWord(scriptByteCodeSize,entryPointGoToOffset - 19)
+                uexpData.writeWord(scriptByteCodeByteSize,entryPointGoToOffset - 15)
+
+                #Consider increasing offsets in the demonModelAssetStringBytes 
+                
+
+                uassetData.updateExportSizeAndOffsets(offset,additionalLength)
+                
+                #For jumps at end set jump to size and then increase size by grabbed plus changes from string size + another jump
+
+            else:
+                # if length is the same just replace it
                 offsetString = offsetString.replace(oldIDString,newIDString).replace(oldName,newName)
                 offsetString = offsetString.encode('ascii')
-
-
                 uexpData.writeXChars(offsetString, len(offsetString), offset)
+            
+
 
     writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script])
     uassetData.writeDataToBinaryTable()

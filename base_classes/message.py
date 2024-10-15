@@ -199,7 +199,8 @@ class Message_File:
     def writeToFiles(self):
         sizeDiff = self.updateUexp()
 
-        self.uasset.binaryTable.writeWord(self.uasset.exports[0].serialSize + sizeDiff , self.uasset.exportOffset + 28)
+        #self.uasset.binaryTable.writeWord(self.uasset.exports[0].serialSize + sizeDiff , self.uasset.exportOffset + 28)
+        self.uasset.exports[0].serialSize = self.uasset.exports[0].serialSize + sizeDiff
         self.uasset.bulkDataOffset = self.uasset.bulkDataOffset  + sizeDiff
         
         self.uasset.writeDataToBinaryTable()

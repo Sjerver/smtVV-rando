@@ -194,6 +194,7 @@ class UAsset:
         currentOffset = self.exportOffset
         for exportEntry in self.exports:
             self.binaryTable.writeDblword(exportEntry.serialOffset, currentOffset +36)
+            self.binaryTable.writeDblword(exportEntry.serialSize, currentOffset +28)
             currentOffset += 104
 
     '''
@@ -206,7 +207,6 @@ class UAsset:
         for index, name in enumerate(self.nameList):
             if name not in self.nameMap.keys():
                 self.nameMap[name] = index
-                
         self.updateImportMaps()
         
     '''
@@ -288,6 +288,7 @@ class UAsset:
             #update serial size
             if index +1 < len(self.exports) and exportEntry.serialOffset <= totalOffset and self.exports[index +1].serialOffset >= totalOffset:
                 exportEntry.serialSize += byteDifference
+        self.bulkDataOffset += byteDifference
 
 
         
