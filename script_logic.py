@@ -311,7 +311,7 @@ class Script_File_List:
             scriptPath = 'NPC/'
         elif 'ShopEvent' in name or 'JakyoEvent' in name:
             scriptPath = 'ShopEvent/'
-        elif 'EM' in name:
+        elif 'EM' in name and not 'DevilTalk' in name:
             scriptPath = 'SubMission/'
         else:
             scriptPath = 'MainMission/'
@@ -404,6 +404,8 @@ def randomizeDemonJoins(replacements, randomDemons,scriptFiles):
                 updateDemonJoinInScript(uassetData,uexpData,numbers.SCRIPT_JOIN_DEMONS['MM_M061_EM1781'],cleopatra,Script_Join_Type.CLEOPATRA)
                 updateDemonJoinInScript(uassetData,uexpData,numbers.SCRIPT_JOIN_DEMONS['MM_M061_EM2613_HitAction'],dagda,Script_Join_Type.DAGDA )
 
+            #if 'EM' in script:
+                #testSubMissionModelReplacement(script,oldDemon,newDemon,scriptFiles, file)
         scriptFiles.setFile(script,file)
         #writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
 
@@ -780,7 +782,7 @@ Replaces the a demon model with the model of another demon in the given script.
         ogDemonID (Integer): the id of the demon that should be replaced
         replacementDemonID (Integer): the id of the replacement demon
 '''
-def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table, ogDemonID, replacementDemonID):
+def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementDemonID, scriptFiles: Script_File_List):
     '''
     #TODO: This does not quite work like this for multiple reasons:
         - the name of the demon also shows up in pre-defined name Strings in the uexpData
@@ -792,6 +794,8 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
     - some demons do not have idle b meaning that needs to be replaced with idle a
     - moving the lengthDifference == 0 check to below the writing of demonModelIDBytes demon model get always swapped but animations only play for same length as ogDemonName
     '''
+    uexpData = file.uexp
+    uassetData = file.uasset
 
     #TODO: Figure out where to better read the csv data
     modelNameMap = pd.read_csv(paths.MODEL_NAMES, dtype=str)
@@ -821,7 +825,7 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
         if oldName in name:
             uassetData.nameList[index] = uassetData.nameList[index].replace(oldName,newName)
         
-    if hasSimpleBP[replacementDemonID]:
+    if 'False' == hasSimpleBP[replacementDemonID]:
         #print('HasNoSimple')
         #Change demon to use Blueprint for demon model
         for index, name in enumerate(uassetData.nameList): 
@@ -844,6 +848,7 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
         uexpData.writeWord(replacementDemonID, byte)
 
     demonModelAssetStringBytes.sort(reverse=True) #sort offsets so that inserting/removing bytes does not effect offsets that come after in the list
+    done = True
     for offset in demonModelAssetStringBytes:
         offsetString = uexpData.readUntilEmptyByte(offset).decode('ascii')
         if oldIDString in offsetString:
@@ -854,12 +859,22 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
             uexpData.writeXChars(offsetString, len(offsetString), offset)
             
         elif oldName in offsetString: #only update stuff if need is there
-            
+            if done:
+                print("DO: " + oldName + " -> " + newName)
+                done = False
             if lengthDifference != 0:#newName is longer
 
                 executeUbergraphNameID = uassetData.nameMap["EntryPoint"]
                 #find the second one and go back for scriptbytecode size and the second size
-                entryPointGoToOffset = uexpData.findWordOffsets(executeUbergraphNameID)[1]
+                potentialEntryPointOffsets = uexpData.findWordOffsets(executeUbergraphNameID)
+                entryPointGoToOffset = potentialEntryPointOffsets[0]
+                for ep in potentialEntryPointOffsets:
+                    check = uexpData.readWord(ep -4)
+                    check2 = uexpData.readHalfword(ep -6)
+                    if check == 1 and check2 == 78:
+                        entryPointGoToOffset = ep
+                        break
+                print(entryPointGoToOffset)
                 
                 scriptByteCodeSize = uexpData.readWord(entryPointGoToOffset - 19)
                 scriptByteCodeByteSize = uexpData.readWord(entryPointGoToOffset - 15)
@@ -877,7 +892,10 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
                 stringBytes = newString.encode('ascii')
                 ogStringBytes = uexpData.getXBytes(offset, len(offsetString))
                 preStringBytes = uexpData.getXBytes(offset-8,8)
-                postStringBytes = uexpData.getXBytes(offset + len(offsetString), 48)
+                postStringBytes = uexpData.getXBytes(offset + len(offsetString), 49)
+                #TODO: Maybe extend this to move the PopExecutionFlow() backwards as well
+                # Would only be an issue if an animation is loaded without PopExecutionFlow() as next instruction
+                # Would mean jump back is unneccessary
                 originalTotalBytes = preStringBytes + ogStringBytes + postStringBytes
                 totalBytes = preStringBytes + stringBytes +postStringBytes
 
@@ -885,14 +903,15 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
                 endInsertOffset = uassetData.exports[1].serialOffset - len(uassetData.binaryTable.buffer) - 12
                 uexpData.insertBytes(endInsertOffset,totalBytes)
 
-                jumpBack = bytearray(5)
-                uexpData.insertBytes(endInsertOffset + len(totalBytes),jumpBack)
-                uexpData.writeByte(6,endInsertOffset + len(totalBytes))
+                #jumpBack = bytearray(5)
+                #uexpData.insertBytes(endInsertOffset + len(totalBytes),jumpBack)
+                #uexpData.writeByte(6,endInsertOffset + len(totalBytes))
                 #HOW DO I KNOW WHERE TO JUMP BACK TO????
                 #TODO: Currently hardcoded to lead to a PopExecutionFlow() in DevilTalk bytecode
-                uexpData.writeWord(21024,endInsertOffset + len(totalBytes) +1)
+                #
+                #uexpData.writeWord(21024,endInsertOffset + len(totalBytes) +1)
                 #uexpData.writeWord(len(totalBytes) - len(preStringBytes) + ,endInsertOffset + len(totalBytes) +1)
-                additionalLength = len(totalBytes) + 5 #Jump back is 5
+                additionalLength = len(totalBytes) #Jump back is 5
 
                 #Replace original bytes with jump to newly inserted and fill rest with nothing instructions so statement index is the same
                 startOffset = offset - 8
@@ -925,21 +944,33 @@ def replaceDemonModelInScript(script, uassetData: Script_Uasset, uexpData: Table
             
 
 
-    writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script])
+    #writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script])
     uassetData.writeDataToBinaryTable()
-    writeBinaryTable(uassetData.binaryTable.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uasset', SCRIPT_FOLDERS[script])
+    scriptFiles.setFile(script,file)
+    #writeBinaryTable(uassetData.binaryTable.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uasset', SCRIPT_FOLDERS[script])
 
 '''
 Replaces the model of the talk tutorial pixie with the demon who the given ID belongs to.
     Parameters:
         replacementDemonID (Integer): id of the demon to replace pixie model
 '''
-def replaceTutorialPixieModel(replacementDemonID):
+def replaceTutorialPixieModel(replacementDemonID,scriptFiles):
     script = 'EM_M061_DevilTalk'
-    uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
-    uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
+    file = scriptFiles.getFile(script)
+    uexpData = file.uexp
+    uassetData = file.uasset
+    #uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
+    #uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
 
-    replaceDemonModelInScript(script, uassetData, uexpData, 59, replacementDemonID)
+    replaceDemonModelInScript(script, file, 59, replacementDemonID,scriptFiles)
+
+def testSubMissionModelReplacement(script,demonID,replacementDemonID,scriptFiles,file):
+    #file = scriptFiles.getFile(script)
+    #uexpData = file.uexp
+    #uassetData = file.uasset
+    #uexpData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
+    #uassetData = Script_Uasset(readBinaryTable('base/Scripts/SubMission/' + script + '.uasset'))
+    replaceDemonModelInScript(script, file, demonID, replacementDemonID,scriptFiles)
 
 '''
 Updates all script data regarding item gifts.

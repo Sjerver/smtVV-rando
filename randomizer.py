@@ -3711,7 +3711,7 @@ class Randomizer:
         self.missionArr = self.adjustMissionsRequiringNormalDemons(replacementDict,enemyArr, self.missionArr)
 
         #Currently does not work yet
-        scriptLogic.replaceTutorialPixieModel(replacementDict[59])
+        scriptLogic.replaceTutorialPixieModel(replacementDict[59],self.scriptFiles)
         
         return newSymbolArr
     
