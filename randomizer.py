@@ -1,4 +1,4 @@
-from util.binary_table import Table
+from util.binary_table import Table, writeBinaryTable, writeFolder, copyFile, readBinaryTable
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate, Encounter_Spawn
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner, Fusion_Requirements
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
@@ -96,18 +96,6 @@ class Randomizer:
         self.elementals = [155,156,157,158]
         
         self.dummyEventIndex = 0
-        
-        
-    '''
-    Reads a file containing game data into a Table with a bytearray
-        Parameters:
-            filePath (string): The path to the file to read.
-        Returns: 
-            The buffer containing file data as a Table
-    '''
-    def readBinaryTable(self, filePath):
-        fileContents = Table(filePath)
-        return fileContents
     
     '''
     Reads the text file containing Character Names and filters out just the names and saves all names in array compendiumNames.
@@ -164,39 +152,6 @@ class Randomizer:
     def readDataminedEnemyNames(self):
         df = pd.read_csv(paths.NKM_CSV_IN, skiprows=4)
         self.enemyNames = df['Name'].values.tolist()
-            
-    '''
-    Writes the given Buffer to the file specified by filePath
-        Parameters:
-            result (Buffer): The data to write
-            filePath (string): The path to write the file at
-            folderPath (string): The path the folder where the file is, used to check if the folder exists
-    '''
-    def writeBinaryTable(self, result, filePath, folderPath):
-        if not os.path.exists(folderPath):
-            os.makedirs(folderPath)
-        with open(filePath, 'wb') as file:
-            file.write(result)
-    '''
-    Creates the folder at the given path if it does not exist.
-        Parameters:
-            folderPath (string): The path of the folder
-    '''
-    def writeFolder(self, folderPath):
-        if not os.path.exists(folderPath):
-            os.makedirs(folderPath)
-    '''
-    Copies a specified file to another location.
-        Parameters:
-            toCopy (string): The path for the file to copy
-            pasteTo (string): The path to write the file at
-            folderPath (string): The path the folder where the file is, used to check if the folder exists
-    '''
-    def copyFile(self, toCopy, pasteTo, folderPath):
-        if not os.path.exists(folderPath):
-            os.mkdir(folderPath)
-        if not os.path.exists(pasteTo):
-            shutil.copy(toCopy,pasteTo)
             
     '''
     Fills the array compendiumArr with data extracted from the Buffer NKMBaseTable.
@@ -4834,7 +4789,7 @@ class Randomizer:
         if(self.configSettings.randomizeMimanRewards):
             self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea, mimanPool)
         
-        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames, self.encounterReplacements, self.essenceArr, self.scriptFiles)   
+        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.itemNames, self.encounterReplacements, self.essenceArr, self.scriptFiles)   
 
         if self.configSettings.randomizeGiftItems:
             self.randomizeGiftItems(giftPool)
@@ -6303,36 +6258,36 @@ class Randomizer:
 
         
 
-        self.writeFolder(paths.DEBUG_FOLDER)
+        writeFolder(paths.DEBUG_FOLDER)
         with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
                 file.write(self.textSeed)
 
-        compendiumBuffer = self.readBinaryTable(paths.NKM_BASE_TABLE_IN)
-        skillBuffer = self.readBinaryTable(paths.SKILL_DATA_IN)
-        normalFusionBuffer = self.readBinaryTable(paths.UNITE_COMBINE_TABLE_IN)
-        otherFusionBuffer = self.readBinaryTable(paths.UNITE_TABLE_IN)
-        encountBuffer = self.readBinaryTable(paths.ENCOUNT_DATA_IN)
-        playGrowBuffer = self.readBinaryTable(paths.MAIN_CHAR_DATA_IN)
-        itemBuffer = self.readBinaryTable(paths.ITEM_DATA_IN)
-        shopBuffer = self.readBinaryTable(paths.SHOP_DATA_IN)
-        eventEncountBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_IN)
-        missionBuffer = self.readBinaryTable(paths.MISSION_DATA_IN)
-        bossFlagBuffer = self.readBinaryTable(paths.BOSS_FLAG_DATA_IN)
-        battleEventsBuffer = self.readBinaryTable(paths.BATTLE_EVENTS_IN)
-        battleEventUassetBuffer = self.readBinaryTable(paths.BATTLE_EVENT_UASSET_IN)
-        devilAssetTableBuffer = self.readBinaryTable(paths.DEVIL_ASSET_TABLE_IN)
-        abscessBuffer = self.readBinaryTable(paths.ABSCESS_TABLE_IN)
-        devilUIBuffer = self.readBinaryTable(paths.DEVIL_UI_IN)
-        talkCameraBuffer = self.readBinaryTable(paths.TALK_CAMERA_OFFSETS_IN)
-        eventEncountPostBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_IN)
-        miracleBuffer = self.readBinaryTable(paths.MIRACLE_TABLE_IN)
-        eventEncountUassetBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_UASSET_IN)
-        uniqueSymbolBuffer = self.readBinaryTable(paths.UNIQUE_SYMBOL_DATA_IN)
-        encountPostBuffer = self.readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_IN)
-        encountPostUassetBuffer = self.readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_UASSET_IN)
-        chestBuffer = self.readBinaryTable(paths.CHEST_TABLE_IN)
-        mapSymbolParamBuffer = self.readBinaryTable(paths.MAP_SYMBOL_PARAM_IN)
-        eventEncountPostUassetBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN)
+        compendiumBuffer = readBinaryTable(paths.NKM_BASE_TABLE_IN)
+        skillBuffer = readBinaryTable(paths.SKILL_DATA_IN)
+        normalFusionBuffer = readBinaryTable(paths.UNITE_COMBINE_TABLE_IN)
+        otherFusionBuffer = readBinaryTable(paths.UNITE_TABLE_IN)
+        encountBuffer = readBinaryTable(paths.ENCOUNT_DATA_IN)
+        playGrowBuffer = readBinaryTable(paths.MAIN_CHAR_DATA_IN)
+        itemBuffer = readBinaryTable(paths.ITEM_DATA_IN)
+        shopBuffer = readBinaryTable(paths.SHOP_DATA_IN)
+        eventEncountBuffer = readBinaryTable(paths.EVENT_ENCOUNT_IN)
+        missionBuffer = readBinaryTable(paths.MISSION_DATA_IN)
+        bossFlagBuffer = readBinaryTable(paths.BOSS_FLAG_DATA_IN)
+        battleEventsBuffer = readBinaryTable(paths.BATTLE_EVENTS_IN)
+        battleEventUassetBuffer = readBinaryTable(paths.BATTLE_EVENT_UASSET_IN)
+        devilAssetTableBuffer = readBinaryTable(paths.DEVIL_ASSET_TABLE_IN)
+        abscessBuffer = readBinaryTable(paths.ABSCESS_TABLE_IN)
+        devilUIBuffer = readBinaryTable(paths.DEVIL_UI_IN)
+        talkCameraBuffer = readBinaryTable(paths.TALK_CAMERA_OFFSETS_IN)
+        eventEncountPostBuffer = readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_IN)
+        miracleBuffer = readBinaryTable(paths.MIRACLE_TABLE_IN)
+        eventEncountUassetBuffer = readBinaryTable(paths.EVENT_ENCOUNT_UASSET_IN)
+        uniqueSymbolBuffer = readBinaryTable(paths.UNIQUE_SYMBOL_DATA_IN)
+        encountPostBuffer = readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_IN)
+        encountPostUassetBuffer = readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_UASSET_IN)
+        chestBuffer = readBinaryTable(paths.CHEST_TABLE_IN)
+        mapSymbolParamBuffer = readBinaryTable(paths.MAP_SYMBOL_PARAM_IN)
+        eventEncountPostUassetBuffer = readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -6581,49 +6536,49 @@ class Randomizer:
         self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
 
-        self.writeFolder(paths.BLUEPRINTS_FOLDER_OUT)
-        self.writeFolder(paths.GAMEDATA_FOLDER_OUT)
-        self.writeFolder(paths.BINTABLE_FOLDER_OUT)
-        self.writeFolder(paths.FACILITY_FOLDER_OUT)
-        self.writeFolder(paths.BATTLE_FOLDER_OUT)
-        self.writeFolder(paths.CAMP_FOLDER_OUT)
-        self.writeFolder(paths.MIRACLE_TOP_FOLDER_OUT)
-        self.writeFolder(paths.COMMON_TOP_FOLDER_OUT)
-        self.writeFolder(paths.BLUEPRINTS_MAP_FOLDER_OUT)
-        self.writeFolder(paths.MAP_ENCOUNT_FOLDER_OUT)
-        self.writeFolder(paths.ENCOUNT_MOVER_FOLDER_OUT)
-        self.writeFolder(paths.MOVER_PARAMTABLE_FOLDER_OUT)
-        self.writeFolder(paths.TITLE_TEXTURE_FOLDER_OUT)
+        writeFolder(paths.BLUEPRINTS_FOLDER_OUT)
+        writeFolder(paths.GAMEDATA_FOLDER_OUT)
+        writeFolder(paths.BINTABLE_FOLDER_OUT)
+        writeFolder(paths.FACILITY_FOLDER_OUT)
+        writeFolder(paths.BATTLE_FOLDER_OUT)
+        writeFolder(paths.CAMP_FOLDER_OUT)
+        writeFolder(paths.MIRACLE_TOP_FOLDER_OUT)
+        writeFolder(paths.COMMON_TOP_FOLDER_OUT)
+        writeFolder(paths.BLUEPRINTS_MAP_FOLDER_OUT)
+        writeFolder(paths.MAP_ENCOUNT_FOLDER_OUT)
+        writeFolder(paths.ENCOUNT_MOVER_FOLDER_OUT)
+        writeFolder(paths.MOVER_PARAMTABLE_FOLDER_OUT)
+        writeFolder(paths.TITLE_TEXTURE_FOLDER_OUT)
 
-        self.writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
-        self.writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
-        self.writeBinaryTable(skillBuffer.buffer, paths.SKILL_DATA_OUT, paths.SKILL_FOLDER_OUT)
-        self.writeBinaryTable(otherFusionBuffer.buffer, paths.UNITE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
-        self.writeBinaryTable(encountBuffer.buffer, paths.ENCOUNT_DATA_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(playGrowBuffer.buffer, paths.MAIN_CHAR_DATA_OUT, paths.COMMON_FOLDER_OUT)
-        self.writeBinaryTable(itemBuffer.buffer, paths.ITEM_DATA_OUT, paths.ITEM_FOLDER_OUT)
-        self.writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_TABLE_FOLDER_OUT)
-        self.writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(missionBuffer.buffer,paths.MISSION_DATA_OUT,paths.MISSION_FOLDER_OUT)
-        self.writeBinaryTable(bossFlagBuffer.buffer, paths.BOSS_FLAG_DATA_OUT, paths.BOSS_FOLDER_OUT)
-        self.writeBinaryTable(battleEventsBuffer.buffer, paths.BATTLE_EVENTS_OUT, paths.BATTLE_EVENT_FOLDER_OUT)
-        self.writeBinaryTable(battleEventUassetBuffer.buffer,paths.BATTLE_EVENT_UASSET_OUT,paths.BATTLE_EVENTS_OUT)
-        self.writeBinaryTable(devilAssetTableBuffer.buffer, paths.DEVIL_ASSET_TABLE_OUT, paths.ASSET_TABLE_FOLDER_OUT)
-        self.writeBinaryTable(devilUIBuffer.buffer, paths.DEVIL_UI_OUT, paths.UI_GRAPHCIS_FOLDER_OUT)
-        self.writeBinaryTable(talkCameraBuffer.buffer,paths.TALK_CAMERA_OFFSETS_OUT,paths.CAMP_STATUS_FOLDER_OUT)
-        self.writeBinaryTable(abscessBuffer.buffer, paths.ABSCESS_TABLE_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        self.writeBinaryTable(miracleBuffer.buffer, paths.MIRACLE_TABLE_OUT, paths.MIRACLE_FOLDER_OUT)
-        #self.writeBinaryTable(eventEncountUassetBuffer.buffer, paths.EVENT_ENCOUNT_UASSET_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(uniqueSymbolBuffer.buffer, paths.UNIQUE_SYMBOL_DATA_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        self.writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        self.writeBinaryTable(chestBuffer.buffer, paths.CHEST_TABLE_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
-        self.writeBinaryTable(eventEncountPostUassetBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        #self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        self.copyFile(paths.TITLE_TEXTURE_IN, paths.TITLE_TEXTURE_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
-        self.copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
+        writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
+        writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
+        writeBinaryTable(skillBuffer.buffer, paths.SKILL_DATA_OUT, paths.SKILL_FOLDER_OUT)
+        writeBinaryTable(otherFusionBuffer.buffer, paths.UNITE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
+        writeBinaryTable(encountBuffer.buffer, paths.ENCOUNT_DATA_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(playGrowBuffer.buffer, paths.MAIN_CHAR_DATA_OUT, paths.COMMON_FOLDER_OUT)
+        writeBinaryTable(itemBuffer.buffer, paths.ITEM_DATA_OUT, paths.ITEM_FOLDER_OUT)
+        writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_TABLE_FOLDER_OUT)
+        writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(missionBuffer.buffer,paths.MISSION_DATA_OUT,paths.MISSION_FOLDER_OUT)
+        writeBinaryTable(bossFlagBuffer.buffer, paths.BOSS_FLAG_DATA_OUT, paths.BOSS_FOLDER_OUT)
+        writeBinaryTable(battleEventsBuffer.buffer, paths.BATTLE_EVENTS_OUT, paths.BATTLE_EVENT_FOLDER_OUT)
+        writeBinaryTable(battleEventUassetBuffer.buffer,paths.BATTLE_EVENT_UASSET_OUT,paths.BATTLE_EVENTS_OUT)
+        writeBinaryTable(devilAssetTableBuffer.buffer, paths.DEVIL_ASSET_TABLE_OUT, paths.ASSET_TABLE_FOLDER_OUT)
+        writeBinaryTable(devilUIBuffer.buffer, paths.DEVIL_UI_OUT, paths.UI_GRAPHCIS_FOLDER_OUT)
+        writeBinaryTable(talkCameraBuffer.buffer,paths.TALK_CAMERA_OFFSETS_OUT,paths.CAMP_STATUS_FOLDER_OUT)
+        writeBinaryTable(abscessBuffer.buffer, paths.ABSCESS_TABLE_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        writeBinaryTable(miracleBuffer.buffer, paths.MIRACLE_TABLE_OUT, paths.MIRACLE_FOLDER_OUT)
+        #writeBinaryTable(eventEncountUassetBuffer.buffer, paths.EVENT_ENCOUNT_UASSET_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(uniqueSymbolBuffer.buffer, paths.UNIQUE_SYMBOL_DATA_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        writeBinaryTable(chestBuffer.buffer, paths.CHEST_TABLE_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
+        writeBinaryTable(eventEncountPostUassetBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        #copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        copyFile(paths.TITLE_TEXTURE_IN, paths.TITLE_TEXTURE_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
+        copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         
         self.scriptFiles.writeFiles()
 

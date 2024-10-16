@@ -1,6 +1,6 @@
 import random
 import os
-from util.binary_table import Table
+from util.binary_table import Table, readBinaryTable, writeBinaryTable, writeFolder
 import util.paths as paths
 import util.numbers as numbers
 from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join_Type
@@ -37,36 +37,6 @@ TOKYO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_TokyoMap
 EMPYREAN_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m016'
 MAIN_M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M060'
 MAIN_M064_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M064'
-
-#Key: EventScriptName, Value: Type for what and where to search for values to be changed
-SCRIPT_JOIN_TYPES = {
-    'MM_M061_EM1630': Script_Join_Type.CODE, # The Water Nymph 
-    'MM_M061_EM1640': Script_Join_Type.CODE, # The Spirit of Love 
-    'MM_M062_EM1660': Script_Join_Type.ENTRYDEVILID, # Holding The Line
-    'MM_M062_EM1650': Script_Join_Type.ENTRYDEVILID, # Those Seeking Sanctuary
-    'MM_M060_EM1690': Script_Join_Type.ENTRYDEVILID, # Raid on Tokyo, Files are same but I got 177252 instead for the Adrammelech location
-    'MM_M060_EM1700': Script_Join_Type.ENTRYDEVILID, # In Defense of Tokyo
-    'MM_M063_EM1670': Script_Join_Type.ENTRYDEVILID, # Black Frost Strikes Back
-    'MM_M063_EM1680': Script_Join_Type.ENTRYDEVILID, # A Sobering Standoff
-    'MM_M064_EM2310': Script_Join_Type.ENTRYNKMID, # Reclaim the Golden Stool 
-    'MM_M064_EM2320': Script_Join_Type.ENTRYNKMID, # Liberate the Golden Stool
-    'MM_M064_EM2270': Script_Join_Type.CODE, # The Vampire in Black
-    'MM_M064_EM2280': Script_Join_Type.CODE, # The Hunter in White
-    'MM_M060_EM1420': Script_Join_Type.CODE, # Fionn's Resolve
-    'MM_M060_EM1602': Script_Join_Type.CODE, # The Destined Leader (Amanazako Could't Join Initially), not 100% sure on v1.02 locations
-    'MM_M060_EM1601': Script_Join_Type.CODE, # The Destined Leader 
-    'MM_M016_E0885': Script_Join_Type.CODE, #Hayataro CoC Chaos
-    'MM_M016_E0885_Direct': Script_Join_Type.CODE, #Hayataro CoC Chaos
-    'MM_M016_EM1450': Script_Join_Type.CODE, # A Plot Revealed
-    'MM_M035_EM1480': Script_Join_Type.CODE, # The Seraph's Return
-    'MM_M036_EM1490': Script_Join_Type.CODE, # The Red Dragon's Invitation
-    'MM_M061_EM1781': Script_Join_Type.CODE, # Rage of a Queen
-    'MM_M061_EM2613_HitAction': Script_Join_Type.CODE, # Holy Will and Profane Dissent
-    'MM_M030_EM1769': Script_Join_Type.MEPHISTO, # Bethel Researcher giving DLC Demons
-    'MM_M061_EM1791': Script_Join_Type.CODE, # A Goddess in Training
-    'MM_M061_EM2601': Script_Join_Type.NKMID, # Sakura Cinders of the East
-    'MM_M063_EM2170': Script_Join_Type.MASAKADO, # Guardian of Tokyo
-}
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
@@ -131,6 +101,37 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM0020': M061_FOLDER, # The Angel's Request
     'BP_ShopEvent': SHOP_EVENT_FOLDER, #First Miman Reward
 }
+
+#Key: EventScriptName, Value: Type for what and where to search for values to be changed
+SCRIPT_JOIN_TYPES = {
+    'MM_M061_EM1630': Script_Join_Type.CODE, # The Water Nymph 
+    'MM_M061_EM1640': Script_Join_Type.CODE, # The Spirit of Love 
+    'MM_M062_EM1660': Script_Join_Type.ENTRYDEVILID, # Holding The Line
+    'MM_M062_EM1650': Script_Join_Type.ENTRYDEVILID, # Those Seeking Sanctuary
+    'MM_M060_EM1690': Script_Join_Type.ENTRYDEVILID, # Raid on Tokyo, Files are same but I got 177252 instead for the Adrammelech location
+    'MM_M060_EM1700': Script_Join_Type.ENTRYDEVILID, # In Defense of Tokyo
+    'MM_M063_EM1670': Script_Join_Type.ENTRYDEVILID, # Black Frost Strikes Back
+    'MM_M063_EM1680': Script_Join_Type.ENTRYDEVILID, # A Sobering Standoff
+    'MM_M064_EM2310': Script_Join_Type.ENTRYNKMID, # Reclaim the Golden Stool 
+    'MM_M064_EM2320': Script_Join_Type.ENTRYNKMID, # Liberate the Golden Stool
+    'MM_M064_EM2270': Script_Join_Type.CODE, # The Vampire in Black
+    'MM_M064_EM2280': Script_Join_Type.CODE, # The Hunter in White
+    'MM_M060_EM1420': Script_Join_Type.CODE, # Fionn's Resolve
+    'MM_M060_EM1602': Script_Join_Type.CODE, # The Destined Leader (Amanazako Could't Join Initially), not 100% sure on v1.02 locations
+    'MM_M060_EM1601': Script_Join_Type.CODE, # The Destined Leader 
+    'MM_M016_E0885': Script_Join_Type.CODE, #Hayataro CoC Chaos
+    'MM_M016_E0885_Direct': Script_Join_Type.CODE, #Hayataro CoC Chaos
+    'MM_M016_EM1450': Script_Join_Type.CODE, # A Plot Revealed
+    'MM_M035_EM1480': Script_Join_Type.CODE, # The Seraph's Return
+    'MM_M036_EM1490': Script_Join_Type.CODE, # The Red Dragon's Invitation
+    'MM_M061_EM1781': Script_Join_Type.CODE, # Rage of a Queen
+    'MM_M061_EM2613_HitAction': Script_Join_Type.CODE, # Holy Will and Profane Dissent
+    'MM_M030_EM1769': Script_Join_Type.MEPHISTO, # Bethel Researcher giving DLC Demons
+    'MM_M061_EM1791': Script_Join_Type.CODE, # A Goddess in Training
+    'MM_M061_EM2601': Script_Join_Type.NKMID, # Sakura Cinders of the East
+    'MM_M063_EM2170': Script_Join_Type.MASAKADO, # Guardian of Tokyo
+}
+
 
 #List of additional rewards in fake missions
 EXTRA_MISSION_REWARDS = {
@@ -277,13 +278,17 @@ VENGEANCE_EXCLUSIVE_GIFTS = ['MM_M064_E2797','MM_M064_E2797_PERIAPT','MM_M064_E2
 NEWGAMEPLUS_GIFTS = ['BP_JakyoEvent_Comp_Complete', 'BP_JakyoEvent']
 #Script for the Tsukuyomi Talisman
 TSUKUYOMI_TALISMAN_SCRIPT = 'MM_M064_E2795_Direct'
-
+  
 class Script_File_List:
     def __init__(self):
         self.files = []
         self.fileNames = []
         self.nameCorrections = {}
 
+    '''
+    Returns a script_file for the given script name. 
+    If there is no script_file for the given name in the list, the file is created by reading the uasset and uexp.
+    '''
     def getFile(self,name):
         if name not in self.fileNames:
             self.readFile(name)
@@ -291,21 +296,29 @@ class Script_File_List:
         index = self.fileNames.index(name)
         return self.files[index]
 
+    '''
+    Set the file of the given script name to the given script_file.
+    '''
     def setFile(self,name,file):
         index = self.fileNames.index(name)
         self.files[index] = file
 
+    '''
+    Writes the uasset and uexp for every file in the list to their respective folder.
+    '''
     def writeFiles(self):
         for index, name in enumerate(self.fileNames):
             folderKey = name
             if folderKey not in SCRIPT_FOLDERS.keys():
                 folderKey = getEquivalentSource(name)
-
             
             file = self.files[index]
             writeBinaryTable(file.uexp.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uexp', SCRIPT_FOLDERS[folderKey])
             writeBinaryTable(file.uasset.binaryTable.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset', SCRIPT_FOLDERS[folderKey])
-
+    
+    '''
+    Read the binary data of the files belonging to the script of the given name and create a Script_File and add it to the list.
+    '''
     def readFile(self,name):
         if 'NPC' in name:
             scriptPath = 'NPC/'
@@ -350,32 +363,20 @@ Randomizes free demon joins based on the original joins level by adjusting the v
 Parameters:
     comp List(Compendium_Demon): list of all playable demons
     randomDemons (Boolean): whether to randomize the demon joins or set them to vanilla
+    scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
 def randomizeDemonJoins(replacements, randomDemons,scriptFiles):
-    writeFolder(EVENT_FOLDER)
-    writeFolder(SCRIPT_FOLDER)
-    writeFolder(SUBMISSION_FOLDER)
-    writeFolder(MAINMISSION_FOLDER)
-    writeFolder(M061_FOLDER)
-    writeFolder(M062_FOLDER)
     #These demons appear in multiple scripts and should be the same in both
     amanozako = None
     hayataro = None
     cleopatra = None
     dagda = None
 
-    #for every script and its offsets to write to
     for script, type in SCRIPT_JOIN_TYPES.items():
-        #Read folder depending on sub or main mission
+        #Get Script from script list
         file = scriptFiles.getFile(script)
         uexpData = file.uexp
         uassetData = file.uasset
-        # if 'EM' in script:
-        #     uexpData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
-        #     uassetData = Script_Uasset(readBinaryTable('base/Scripts/SubMission/' + script + '.uasset'))
-        # else:
-        #     uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
-        #     uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
         
         if randomDemons:#randomize the join demons, otherwise values stay the same as OG and potential output files are overwritten with vanilla files
             oldDemon = numbers.SCRIPT_JOIN_DEMONS[script]
@@ -397,143 +398,39 @@ def randomizeDemonJoins(replacements, randomDemons,scriptFiles):
 
             updateDemonJoinInScript(uassetData,uexpData,oldDemon,newDemon,type)
         
-            #Exception for Dagda/Cleo not being recruited during their Quest but at the researcher instead
+            #Exception for Dagda/Cleo not being recruited during their Quest in some cases but at the researcher instead, which is a different script
             if script == 'MM_M030_EM1769':
-                # uexpData.writeHalfword(dagda,619565)
-                # uexpData.writeHalfword(cleopatra,619553)
                 updateDemonJoinInScript(uassetData,uexpData,numbers.SCRIPT_JOIN_DEMONS['MM_M061_EM1781'],cleopatra,Script_Join_Type.CLEOPATRA)
                 updateDemonJoinInScript(uassetData,uexpData,numbers.SCRIPT_JOIN_DEMONS['MM_M061_EM2613_HitAction'],dagda,Script_Join_Type.DAGDA )
 
-            #if 'EM' in script:
-                #testSubMissionModelReplacement(script,oldDemon,newDemon,scriptFiles, file)
+        #Update script entry in list with changed file
         scriptFiles.setFile(script,file)
-        #writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script] )
 
 '''
-#TODO: Adjust for rewrite and comment
-'''
-def adjustFirstMimanEventReward(config, compendium, itemNames, replacements, essenceArr, scriptFiles):
-    file = scriptFiles.getFile('BP_ShopEvent')
-    scriptData = file.uexp
-    # scriptData = readBinaryTable('base/Scripts/ShopEvent/BP_ShopEvent.uexp')
-    #byteList = [14113, 26035, 11754, 14361,14407, 21063,21109] #Old list for 1.0.2
-    uassetData = file.uasset
-    #uassetData = Script_Uasset(readBinaryTable('base/Scripts/ShopEvent/BP_ShopEvent.uasset'))
-
-    ogEssenceID = 496
-    essenceID = 496 #Onmorakis Essence
-    onmorakiLevel = 4
-    if config.randomizeMimanRewards and not config.scaleItemsToArea:
-        validEssences = []
-        for itemID, itemName in enumerate(itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-            if 'Essence' in itemName and 'Aogami' not in itemName and 'Tsukuyomi' not in itemName and 'Demi-fiend' not in itemName:
-                validEssences.append(itemID)
-        essenceID = random.choice(validEssences)
-    elif (config.randomDemonLevels or config.randomizeMimanRewards) and config.scaleItemsToArea:
-        # essenceNames = [demon.name + "'s Essence" for demon in compendium if demon not in numbers.BAD_IDS and 'Mitama' not in demon.name and demon.level.value == onmorakiLevel]
-        validEssences = []
-        # for itemID, itemName in enumerate(itemNames): 
-        #     if itemName in essenceNames:
-        #         validEssences.append(itemID)
-        demonID = replacements[290]
-        for essence in essenceArr:
-            if essence.demon.value == demonID:
-                validEssences.append(essence.ind)
-        essenceID = random.choice(validEssences)
-
-    # for byte in byteList:
-    #     scriptData.writeHalfword(essenceID, byte)
-
-    updateItemRewardInScript(uassetData, scriptData, ogEssenceID, essenceID)
-    scriptFiles.setFile('BP_ShopEvent',file)
-    #writeBinaryTable(scriptData.buffer, SHOP_EVENT_FOLDER + '/BP_ShopEvent.uexp', SHOP_EVENT_FOLDER)
-
-'''
-Reads a file containing game data into a Table with a bytearray
-    Parameters:
-        filePath (string): The path to the file to read.
-     Returns: 
-        The buffer containing file data as a Table
-'''
-def readBinaryTable(filePath):
-    fileContents = Table(filePath)
-    return fileContents
-
-'''
-Writes the given Buffer to the file specified by filePath
-    Parameters:
-        result (Buffer): The data to write
-        filePath (string): The path to write the file at
-        folderPath (string): The path the folder where the file is, used to check if the folder exists
-'''
-def writeBinaryTable(result, filePath, folderPath):
-    if not os.path.exists(folderPath):
-        os.makedirs(folderPath)
-    with open(filePath, 'wb') as file:
-        file.write(result)
-
-def writeFolder(folderPath):
-        if not os.path.exists(folderPath):
-            os.makedirs(folderPath)      
-
-'''
-Finds the byte offsets relating to the rewarding of items in the script.
+Updates the old demon that joins in the script to the new demon.
     Parameters:
         uassetData (Script_Uasset): the uasset data of the script
         uexpData (Table): the binary data of the uexp of the script
-    Returns a list of offsets where item ids need to be changed so the items given through the script change
-'''
-def getItemRewardByteLocation(uassetData: Script_Uasset, uexpData: Table):
-    byteList = []
-    importedFunctions = { #In the Import Map and therefore have a negative index
-        'ItemGet': 1,
-        'ItemGetNum': 1,
-        }
-
-    namedFunctions = { #In the Name Map and have positive index
-        'IItemWindowSetParameter': 1,
-        'IMsgSetRichTextValueParam': 2 #Second parameter is itemID
-    }
-
-    for name, number in importedFunctions.items():
-        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number)
-    for name, number in namedFunctions.items():
-        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number)
-
-    
-    return byteList
-
-'''
-Finds the byte offsets relating to demon joins in the script.
-    Parameters:
-        uassetData (Script_Uasset): the uasset data of the script
-        uexpData (Table): the binary data of the uexp of the script
+        oldItemID (Integer): the id of the old item to overwrite
+        newItemID (Integer): the id of the new item that overwrites the old one
         joinType (Script_Join_Type): the type that decides which functions to search for in the uexp
-    Returns a list of offsets where item ids need to be changed so the items given through the script change
 '''
-def getDemonJoinByteLocation(uassetData: Script_Uasset, uexpData: Table, joinType):
+def updateDemonJoinInScript(uassetData: Script_Uasset, uexpData: Table, oldDemonID, newDemonID, joinType):
     byteList = []
-    if joinType == Script_Join_Type.CODE: #Functions are in the bytecode directly
-        importedFunctions = {
+    if joinType == Script_Join_Type.CODE: #Functions are in the script bytecode directly
+        importedFunctions = {#In the Import Map and therefore have a negative index
             'IsEntryNkm' : 1,
             'EntryNkmBlank' : 1
             }
 
-        namedFunctions = {
-
-        }
-        bonusBytes = {
-            
-        }
+        namedFunctions = {}#none #In the Name Map and have positive index
+        bonusBytes = {}#Additional extra bytes that apply to some functions from the name list
     else: #Functions are not in the bytecode directly and the value of joinType is equal to the searched function in the name map
+        #Function or name searched is still in the Uexp
         entry = joinType.value
-        importedFunctions = {
-
-            }
-
+        importedFunctions = {}
         namedFunctions = {
             entry : 1
-
         }
         if joinType == Script_Join_Type.MEPHISTO or joinType == Script_Join_Type.CLEOPATRA or joinType == Script_Join_Type.DAGDA:
             #Have a different amount of bytes than all others
@@ -550,97 +447,44 @@ def getDemonJoinByteLocation(uassetData: Script_Uasset, uexpData: Table, joinTyp
     for name, number in namedFunctions.items():
         byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number, bonusBytes[name])
 
-    
-    return byteList
+    for offset in byteList: #find bytes that were found but don't correspond to the oldDemonID
+        if uexpData.readWord(offset) != oldDemonID:
+            continue
+        uexpData.writeWord(newDemonID, offset)
 
 '''
-Finds the byte offsets where a string containing the demon model is in the script.
+Changes the reward for collecting the first miman which is rewarded via an reward.
     Parameters:
-        uassetData (Script_Uasset): the uasset data of the script
-        uexpData (Table): the binary data of the uexp of the script
-    Returns a list of offsets where item ids need to be changed so the items given through the script change
+        config (Settings): randomization settings
+        itemNames (List(String)): list of names of items
+        replacements (Dict): dictionary listing which demon replaces which demon
+        essenceArr (List(Essence)): list of essences
+        scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
-def getDemonModelAssetStringByteLocation(uassetData: Script_Uasset, uexpData: Table):
-    byteList = []
-    importedFunctions = {
-        'LoadAsset': 1,
-        'PrintString' : 1,
-        }
+def adjustFirstMimanEventReward(config, itemNames, replacements, essenceArr, scriptFiles):
+    #Grab file from file list
+    file = scriptFiles.getFile('BP_ShopEvent')
+    scriptData = file.uexp
+    uassetData = file.uasset
 
-    namedFunctions = {
+    ogEssenceID = 496 #Id for Onmoraki's Essence
+    essenceID = 496 #Start with Onmoraki's Essence and change value later
+    if config.randomizeMimanRewards and not config.scaleItemsToArea:
+        #Grab random essence if item rewards not scaling
+        validEssences = []
+        for itemID, itemName in enumerate(itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+            if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES:
+                validEssences.append(itemID)
+        essenceID = random.choice(validEssences)
+    elif (config.randomDemonLevels or config.randomizeMimanRewards) and config.scaleItemsToArea:
+        #Grab essence for Onmoraki's Replacement
+        demonID = replacements[290]
+        for essence in essenceArr:
+            if essence.demon.value == demonID:
+                essenceID = essence.ind
 
-    }
-
-    bonusBytes = {
-        'LoadAsset': 2,
-        'PrintString': 1,
-    }
-
-    for name, number in importedFunctions.items():
-        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number,bonusBytes[name] )
-    for name, number in namedFunctions.items():
-        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number, bonusBytes[name])
-
-    
-    return byteList
-
-'''
-Finds the byte offsets where the id of the demon model is in the script.
-    Parameters:
-        uassetData (Script_Uasset): the uasset data of the script
-        uexpData (Table): the binary data of the uexp of the script
-    Returns a list of offsets where item ids need to be changed so the items given through the script change
-'''
-def getDemonModelIDByteLocation(uassetData: Script_Uasset, uexpData: Table):
-    byteList = []
-    importedFunctions = {
-        
-        }
-
-    namedFunctions = {
-        'BPL_AdjustMapSymbolScale': 2,
-    }
-
-    bonusBytes = {
-        'BPL_AdjustMapSymbolScale': 12,
-    }
-
-    for name, number in importedFunctions.items():
-        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number,bonusBytes[name] )
-    for name, number in namedFunctions.items():
-        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number, bonusBytes[name])
-
-    
-    return byteList
-
-'''
-Finds the byte offsets relating to the rewarding of items in the npc data table.
-    Parameters:
-        uassetData (Script_Uasset): the uasset data of the npc data table
-        uexpData (Table): the binary data of the uexp of the npc data table
-    Returns a list of offsets where item ids need to be changed so the items given through the script change
-'''
-def getNPCGiftItemByteLocation(uassetData: Script_Uasset, uexpData: Table):
-    byteList = []
-    importedFunctions = [
-        
-    ]
-
-    namedFunctions = [
-        'E_EVENT_SCRIPT_TYPE::NewEnumerator52', #Enum entry ItemAdd2 per E_EVENT_SCRIPT_TYPE.uasset
-    ]
-
-    bonusBytes = {
-        'E_EVENT_SCRIPT_TYPE::NewEnumerator52': 33,
-    }
-
-    for name in importedFunctions:
-        byteList = byteList + uassetData.getOffsetsForRowInNPCDataTable(uexpData,name,Script_Function_Type.IMPORT,bonusBytes[name] )
-    for name in namedFunctions:
-        byteList = byteList + uassetData.getOffsetsForRowInNPCDataTable(uexpData,name,Script_Function_Type.NAME, bonusBytes[name])
-
-    
-    return byteList
+    updateItemRewardInScript(uassetData, scriptData, ogEssenceID, essenceID)
+    scriptFiles.setFile('BP_ShopEvent',file)
 
 '''
 Updates the old item given through the script to the new item.
@@ -651,60 +495,36 @@ Updates the old item given through the script to the new item.
         newItemID (Integer): the id of the new item that overwrites the old one
         #TODO: Include amount??
 '''
-def updateItemRewardInScript(uassetData, uexpData, oldItemID, newItemID):
-    byteList = getItemRewardByteLocation(uassetData, uexpData)
+def updateItemRewardInScript(uassetData: Script_Uasset, uexpData: Table, oldItemID, newItemID):
+    
+    byteList = []
+    
+    #FunctionName : desired Parameter
+    importedFunctions = { #In the Import Map and therefore have a negative index
+        'ItemGet': 1,
+        'ItemGetNum': 1,
+        }
+    namedFunctions = { #In the Name Map and have positive index
+        'IItemWindowSetParameter': 1,
+        'IMsgSetRichTextValueParam': 2 #Second parameter is itemID
+    }
+    
+    #Get the offsets where the function is called or used in the bytecode
+    for name, number in importedFunctions.items():
+        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number)
+    for name, number in namedFunctions.items():
+        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number)
 
-    toRemove = []
-    for offset in byteList: #find bytes that were found but don't correspond to the oldItemID
+    for offset in byteList:
         if uexpData.readHalfword(offset) != oldItemID:
-            toRemove.append(offset)
-    
-    for offset in toRemove:
-        byteList.remove(offset)
-    
-    # if len(byteList) > 0:
-    #    print(str(oldItemID) + " -> " + str(newItemID) + " (" + str(len(byteList)))
-
-    for byte in byteList: #write newItemID to the offsets
-        uexpData.writeHalfword(newItemID, byte)
+            continue #skip offsets where the oldItemID is not set
+        uexpData.writeHalfword(newItemID, offset) #update with newItemID else
+        #print(str(oldItemID) + " -> " + str(newItemID) + " (" + str(len(byteList)))
 
 '''
-Updates the old demon that joins in the script to the new demon.
+Creates fake missions from certain event scripts involving quests, that have more than one reward.
     Parameters:
-        uassetData (Script_Uasset): the uasset data of the script
-        uexpData (Table): the binary data of the uexp of the script
-        oldItemID (Integer): the id of the old item to overwrite
-        newItemID (Integer): the id of the new item that overwrites the old one
-        type (Script_Join_Type): the type that decides which functions to search for in the uexp
-'''
-def updateDemonJoinInScript(uassetData, uexpData, oldDemonID, newDemonID, type):
-    byteList = getDemonJoinByteLocation(uassetData, uexpData, type)
-    toRemove = []
-    for offset in byteList: #find bytes that were found but don't correspond to the oldDemonID
-        if uexpData.readWord(offset) != oldDemonID:
-            toRemove.append(offset)
-    
-    for offset in toRemove:
-        byteList.remove(offset)
-    
-    for byte in byteList:
-        #print(str(oldDemonID) + " " + str(byte))
-        uexpData.writeWord(newDemonID, byte)
-'''
-Updates the old item given through the script at the given paths to the new item.
-    Parameters:
-        uassetPath (String): the path to the uasset of the script
-        uexpPath (String): the path to the b the uexp of the script
-        oldItemID (Integer): the id of the old item to overwrite
-        newItemID (Integer): the id of the new item that overwrites the old one
-'''
-def updateItemRewardInScriptPaths(uassetPath, uexpPath, oldItemID, newItemID):
-    uexpData = readBinaryTable(uexpPath)
-    uassetData = Script_Uasset(readBinaryTable(uassetPath))
-    return updateItemRewardInScript(uassetData, uexpData, oldItemID, newItemID)
-
-'''
-Creates fake missions from certain event scripts involving quests.
+        scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
     Returns a list of fake missions
 '''
 def createFakeMissionsForEventRewards(scriptFiles):
@@ -720,12 +540,6 @@ def createFakeMissionsForEventRewards(scriptFiles):
             file = scriptFiles.getFile(script)
             uexpData = file.uexp
             uassetData = file.uasset 
-            # if 'EM' in script: #is mission from a main story or not
-            #     uexpData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
-            #     uassetData = Script_Uasset(readBinaryTable('base/Scripts/SubMission/' + script + '.uasset'))
-            # else:
-            #     uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
-            #     uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
 
             fakeMission.uexp = uexpData
             fakeMission.uasset = uassetData
@@ -739,13 +553,10 @@ def createFakeMissionsForEventRewards(scriptFiles):
 Writes the updated reward data to the event scripts and removes the fake missions from the mission array.
     Parameters:
         missionArr (List(Mission)): a list of all missions and fake missions
-    Returns list with all fake missions removed
+        scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+    Returns list of all fake missions after being removed from missionArr
 '''
 def updateAndRemoveFakeMissions(missionArr,scriptFiles):
-    writeFolder(EVENT_FOLDER)
-    writeFolder(SCRIPT_FOLDER)
-    writeFolder(SUBMISSION_FOLDER)
-    writeFolder(MAINMISSION_FOLDER)
     toRemove = []
     fakeMissions = []
     for index, mission in enumerate(missionArr):
@@ -761,17 +572,12 @@ def updateAndRemoveFakeMissions(missionArr,scriptFiles):
             #print(str(mission.ind) + ": " + str(mission.originalReward.ind) + " -> " + str(mission.reward.ind) )
             updateItemRewardInScript(file.uasset, file.uexp, mission.originalReward.ind, mission.reward.ind)
 
-            #writeFolder(SCRIPT_FOLDERS[mission.script])
-            #writeBinaryTable(mission.uexp.buffer, SCRIPT_FOLDERS[mission.script] + '/' + mission.script + '.uexp', SCRIPT_FOLDERS[mission.script])
             scriptFiles.setFile(mission.script,file)
-
-
 
             toRemove.append(mission)
     for mission in toRemove:
         missionArr.remove(mission)
     return fakeMissions
-
 
 '''
 Replaces the a demon model with the model of another demon in the given script.
@@ -781,19 +587,9 @@ Replaces the a demon model with the model of another demon in the given script.
         uexpData (Table): the binary data of the uexp of the script
         ogDemonID (Integer): the id of the demon that should be replaced
         replacementDemonID (Integer): the id of the replacement demon
+        scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
 def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementDemonID, scriptFiles: Script_File_List):
-    '''
-    #TODO: This does not quite work like this for multiple reasons:
-        - the name of the demon also shows up in pre-defined name Strings in the uexpData
-    What would therefore at least be needed to make this work?
-        - updating size related stuff (lengths and offsets) in and uexp
-        - problem: how to identify offsets that need to change
-    More Notes:
-    - some demons do not have a blueprint ending in "_Simple" and need adjustment of text in uexp alongside figuring out if non simble bps can be used to spawn the actor even
-    - some demons do not have idle b meaning that needs to be replaced with idle a
-    - moving the lengthDifference == 0 check to below the writing of demonModelIDBytes demon model get always swapped but animations only play for same length as ogDemonName
-    '''
     uexpData = file.uexp
     uassetData = file.uasset
 
@@ -810,144 +606,154 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
              hasSimpleBP[int(row['MainDemonID'])] = row['HasSimpleBP']
              hasIdleB[int(row['MainDemonID'])] = row['HasIdleB']
 
-    #Get the String corresponding to the old demon
+    #Get the Strings corresponding to the old demon
     oldIDString = demonIDModelID[ogDemonID]
     oldName = modelNames[oldIDString]
-    #Get the String corresponding to the new demon
+    #Get the Strings corresponding to the new demon
     newIDString = demonIDModelID[replacementDemonID]
     newName = modelNames[newIDString]
-    print("CHECK: " + oldName + " -> " + newName)
+    #print("CHECK: " + oldName + " -> " + newName)
 
     lengthDifference = len(newName) - len(oldName)
-    for index, name in enumerate(uassetData.nameList): #change occurence of old demon ID and name in all names in the uasset
+
+    for index, name in enumerate(uassetData.nameList): #change occurences of oldDemonID and oldDemonName in all names in the uasset
         if oldIDString in name:
             uassetData.nameList[index] = uassetData.nameList[index].replace(oldIDString,newIDString)
         if oldName in name:
             uassetData.nameList[index] = uassetData.nameList[index].replace(oldName,newName)
         
     if 'False' == hasSimpleBP[replacementDemonID]:
-        #print('HasNoSimple')
-        #Change demon to use Blueprint for demon model
+        #If the demon does not have a simple model blueprint use the general model blueprint
         for index, name in enumerate(uassetData.nameList): 
             if "_Simple" in name and newIDString in name:
                 uassetData.nameList[index] = uassetData.nameList[index].replace("_Simple","")
+    #Update maps in uasset before moving on
     uassetData.updateNameMap()
-    #uassetData.writeDataToBinaryTable()
-    demonModelIDBytes = getDemonModelIDByteLocation(uassetData, uexpData)
-    demonModelAssetStringBytes = getDemonModelAssetStringByteLocation(uassetData, uexpData)
     
-    toRemove = []
-    for offset in demonModelIDBytes: #remove bytes that were mistakingly found and do not set the old demon id
+    #Find offsets for where the demonID needs to be updated in function calls
+    demonModelIDBytes =[]
+    namedFunctions = {
+        'BPL_AdjustMapSymbolScale': 2,
+    }
+    bonusBytes = {
+        'BPL_AdjustMapSymbolScale': 12,
+    }
+    for name, number in namedFunctions.items():
+        demonModelIDBytes = demonModelIDBytes + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number, bonusBytes[name])
+
+    
+    for offset in demonModelIDBytes: #remove bytes that were mistakingly found and do not set the ogDemonID in number form
         if uexpData.readWord(offset) != ogDemonID:
-            toRemove.append(offset)
+            continue
+        uexpData.writeWord(replacementDemonID, offset)
     
-    for offset in toRemove:
-        demonModelIDBytes.remove(offset)
+    #Find potential offsets for where the the asset paths need to be updated with the new demon info
+    demonModelAssetStringBytes = []
+    importedFunctions = {
+        'LoadAsset': 1,
+        'PrintString' : 1,
+        }
+    bonusBytes = {
+        'LoadAsset': 2,
+        'PrintString': 1,
+    }
 
-    for byte in demonModelIDBytes:
-        uexpData.writeWord(replacementDemonID, byte)
-
+    for name, number in importedFunctions.items():
+        demonModelAssetStringBytes = demonModelAssetStringBytes + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number,bonusBytes[name] )
+    
     demonModelAssetStringBytes.sort(reverse=True) #sort offsets so that inserting/removing bytes does not effect offsets that come after in the list
-    done = True
     for offset in demonModelAssetStringBytes:
         offsetString = uexpData.readUntilEmptyByte(offset).decode('ascii')
-        if oldIDString in offsetString:
+        if oldIDString in offsetString: 
+            #if the oldID is there in string format, replace with new string
             offsetString = offsetString.replace(oldIDString,newIDString)
-        if oldName not in offsetString:
+        if oldName not in offsetString: 
+            #if oldName is not in string, nothing else needs to be updated and string can be written
             offsetString = offsetString.encode('ascii')
-            #print(offset)
-            uexpData.writeXChars(offsetString, len(offsetString), offset)
-            
-        elif oldName in offsetString: #only update stuff if need is there
-            if done:
-                print("DO: " + oldName + " -> " + newName)
-                done = False
-            if lengthDifference != 0:#newName is longer
-
+            uexpData.writeXChars(offsetString, len(offsetString), offset)  
+        elif oldName in offsetString: 
+            #oldName is in string so needs to be updated
+            if lengthDifference != 0:#newName is not the same length
+                #Main script bytecode function is executeUbergraph which always starts by jumping to the whatever "EntryPoint" is set to
+                
+                # This happens at the beginning and is therefore a set byte distance away from where the ScriptByteCodeSize (how many statements) 
+                # and the Amount of Bytes of the Script byte code has in total is which is th true goal 
                 executeUbergraphNameID = uassetData.nameMap["EntryPoint"]
-                #find the second one and go back for scriptbytecode size and the second size
-                potentialEntryPointOffsets = uexpData.findWordOffsets(executeUbergraphNameID)
+                potentialEntryPointOffsets = uexpData.findWordOffsets(executeUbergraphNameID) #Potential offsets
                 entryPointGoToOffset = potentialEntryPointOffsets[0]
                 for ep in potentialEntryPointOffsets:
                     check = uexpData.readWord(ep -4)
                     check2 = uexpData.readHalfword(ep -6)
-                    if check == 1 and check2 == 78:
+                    if check == 1 and check2 == 78: #These bytes for the computated entryPoint jump are always in front of it, so the correct one needs to have them
                         entryPointGoToOffset = ep
                         break
-                print(entryPointGoToOffset)
+                #print(entryPointGoToOffset)
                 
-                scriptByteCodeSize = uexpData.readWord(entryPointGoToOffset - 19)
-                scriptByteCodeByteSize = uexpData.readWord(entryPointGoToOffset - 15)
+                scriptByteCodeSize = uexpData.readWord(entryPointGoToOffset - 19) #Descripes how many instructions the bytecode contains(I believe)
+                scriptByteCodeByteSize = uexpData.readWord(entryPointGoToOffset - 15)#Describes how many bytes the bytecode takes up
 
                 
-                #Grab 8 bytes pre string, string, and 49 bytes post string
-                #stringBytes = uexpData.getXBytes(offset, len(offsetString))
+               
+                #Create the new String with the newDemonName and transform to bytes at the end
                 newString = offsetString.replace(oldName,newName)
                 #TODO: Animation check if length is different
+                #Change Animation if the demon does not have the required animation
                 if '02idleB' in newString  and 'False' == hasIdleB[replacementDemonID]:
-                    #print("TRIGGER")
                     newString = newString.replace('02idleB','05attack')
-
-
                 stringBytes = newString.encode('ascii')
+
+
+                #Grab 8 bytes pre string, the original string, and 49 bytes post string
                 ogStringBytes = uexpData.getXBytes(offset, len(offsetString))
                 preStringBytes = uexpData.getXBytes(offset-8,8)
                 postStringBytes = uexpData.getXBytes(offset + len(offsetString), 49)
-                #TODO: Maybe extend this to move the PopExecutionFlow() backwards as well
-                # Would only be an issue if an animation is loaded without PopExecutionFlow() as next instruction
-                # Would mean jump back is unneccessary
+                #TODO: Currently takes the popexecutionflow with them but if there is an event where there is no popexecutionflow after loading the asset this wouldn't work
+                #Create bytearrays of the original and the new
                 originalTotalBytes = preStringBytes + ogStringBytes + postStringBytes
                 totalBytes = preStringBytes + stringBytes +postStringBytes
 
-                # Figure out end of bytecode 
+                # Figure out end of bytecode by checking where the next export begins and looking backwards
                 endInsertOffset = uassetData.exports[1].serialOffset - len(uassetData.binaryTable.buffer) - 12
+                
+                #Insert new string at the end
                 uexpData.insertBytes(endInsertOffset,totalBytes)
 
                 #jumpBack = bytearray(5)
                 #uexpData.insertBytes(endInsertOffset + len(totalBytes),jumpBack)
                 #uexpData.writeByte(6,endInsertOffset + len(totalBytes))
-                #HOW DO I KNOW WHERE TO JUMP BACK TO????
-                #TODO: Currently hardcoded to lead to a PopExecutionFlow() in DevilTalk bytecode
-                #
+                #TODO: Figuring out if there is a way to find out where to jump back to the original location of the asset loading. Preferably without having to count the instructions from the start
                 #uexpData.writeWord(21024,endInsertOffset + len(totalBytes) +1)
                 #uexpData.writeWord(len(totalBytes) - len(preStringBytes) + ,endInsertOffset + len(totalBytes) +1)
-                additionalLength = len(totalBytes) #Jump back is 5
+                #additionalLength = len(totalBytes) + 5 #Jump back is 5
+                additionalLength = len(totalBytes) 
 
                 #Replace original bytes with jump to newly inserted and fill rest with nothing instructions so statement index is the same
                 startOffset = offset - 8
-                uexpData.writeByte(6,startOffset)
-                uexpData.insertBytes(startOffset +1, bytearray(4))
+                uexpData.writeByte(6,startOffset) #6 indicates a jump instruction, with a word long offset to jump to afterwards
+                uexpData.insertBytes(startOffset +1, bytearray(4)) 
                 additionalLength += 4
                 uexpData.writeWord(scriptByteCodeSize,startOffset +1)
 
                 for i in range(len(originalTotalBytes) - 1):
-                    uexpData.writeByte(0xB, startOffset +5 + i)
+                    uexpData.writeByte(0xB, startOffset +5 + i)# 0xB indicates a nothing instruction, one byte long
                 
+                #Update script byte code sizes
                 scriptByteCodeSize = scriptByteCodeSize + additionalLength
                 scriptByteCodeByteSize = scriptByteCodeByteSize + additionalLength
-
                 uexpData.writeWord(scriptByteCodeSize,entryPointGoToOffset - 19)
                 uexpData.writeWord(scriptByteCodeByteSize,entryPointGoToOffset - 15)
 
-                #Consider increasing offsets in the demonModelAssetStringBytes 
-                
-
+                #update export data in uasset
                 uassetData.updateExportSizeAndOffsets(offset,additionalLength)
-                
-                #For jumps at end set jump to size and then increase size by grabbed plus changes from string size + another jump
-
             else:
-                # if length is the same just replace it
+                # if length is the same just replace it and write it afterwards
                 offsetString = offsetString.replace(oldIDString,newIDString).replace(oldName,newName)
                 offsetString = offsetString.encode('ascii')
                 uexpData.writeXChars(offsetString, len(offsetString), offset)
-            
 
-
-    #writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uexp', SCRIPT_FOLDERS[script])
+    #update data in uasset and its binary table and then set the file to the script file list        
     uassetData.writeDataToBinaryTable()
     scriptFiles.setFile(script,file)
-    #writeBinaryTable(uassetData.binaryTable.buffer, SCRIPT_FOLDERS[script] + '/' + script + '.uasset', SCRIPT_FOLDERS[script])
 
 '''
 Replaces the model of the talk tutorial pixie with the demon who the given ID belongs to.
@@ -957,25 +763,13 @@ Replaces the model of the talk tutorial pixie with the demon who the given ID be
 def replaceTutorialPixieModel(replacementDemonID,scriptFiles):
     script = 'EM_M061_DevilTalk'
     file = scriptFiles.getFile(script)
-    uexpData = file.uexp
-    uassetData = file.uasset
-    #uexpData = readBinaryTable('base/Scripts/MainMission/' + script + '.uexp')
-    #uassetData = Script_Uasset(readBinaryTable('base/Scripts/MainMission/' + script + '.uasset'))
-
     replaceDemonModelInScript(script, file, 59, replacementDemonID,scriptFiles)
-
-def testSubMissionModelReplacement(script,demonID,replacementDemonID,scriptFiles,file):
-    #file = scriptFiles.getFile(script)
-    #uexpData = file.uexp
-    #uassetData = file.uasset
-    #uexpData = readBinaryTable('base/Scripts/SubMission/' + script + '.uexp')
-    #uassetData = Script_Uasset(readBinaryTable('base/Scripts/SubMission/' + script + '.uasset'))
-    replaceDemonModelInScript(script, file, demonID, replacementDemonID,scriptFiles)
 
 '''
 Updates all script data regarding item gifts.
     Parameters:
     gifts(List(Gift_Item)): list of all gifts
+    scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
 def updateGiftScripts(gifts, scriptFiles):
     uexpCorrection = {} #dict to save uexp which get modified multiple times
@@ -993,9 +787,6 @@ def updateGiftScripts(gifts, scriptFiles):
             file = scriptFiles.getFile(correctScript)
             uexpData = file.uexp
             uassetData = file.uasset
-
-            # uexpData = readBinaryTable('base/Scripts/NPC/' + correctScript + '.uexp')
-            # uassetData = Script_Uasset( readBinaryTable('base/Scripts/NPC/' + correctScript + '.uasset'))
             if gift.script in GIFT_EXTRA_SCRIPTS.values(): # add uexp to dict if script has additional versions
                 uexpCorrection[gift.script] = uexpData
             if correctScript in uexpCorrection.keys(): #get already modified uexp from correct script
@@ -1011,14 +802,6 @@ def updateGiftScripts(gifts, scriptFiles):
             file = scriptFiles.getFile(correctScript)
             uexpData = file.uexp
             uassetData = file.uasset
-            # if correctScript in ['BP_JakyoEvent']:
-            #     missionType = 'ShopEvent/'
-            # elif 'EM' in correctScript:
-            #     missionType = 'SubMission/'
-            # else: 
-            #     missionType = 'MainMission/'
-            # uexpData = readBinaryTable('base/Scripts/' + missionType + correctScript + '.uexp')
-            # uassetData = Script_Uasset( readBinaryTable('base/Scripts/' + missionType + correctScript + '.uasset'))
             if gift.script in GIFT_EXTRA_SCRIPTS.values(): # add uexp to dict if script has additional versions
                 uexpCorrection[gift.script] = uexpData
             if correctScript in uexpCorrection.keys(): #get already modified uexp from correct script
@@ -1030,15 +813,7 @@ def updateGiftScripts(gifts, scriptFiles):
                 #print(gift.script + ": " + str(BASE_GIFT_ITEMS[gift.script]) + " -> " + str(gift.item.ind) )
                 updateItemRewardInScript(uassetData,uexpData,BASE_GIFT_ITEMS[gift.script],gift.item.ind)
 
-
         scriptFiles.setFile(correctScript,file)
-        # if gift.script in SCRIPT_FOLDERS.keys(): #if script has folder listed use it
-        #     writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[gift.script] + '/' + gift.script + '.uexp', SCRIPT_FOLDERS[gift.script])
-        # elif correctScript in SCRIPT_FOLDERS.keys():
-        #     writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[correctScript] + '/' + correctScript + '.uexp', SCRIPT_FOLDERS[correctScript])
-        # else: #use folder of equivalent otherwise
-        #     equivalentScript = getEquivalentSource(gift.script)
-        #     writeBinaryTable(uexpData.buffer, SCRIPT_FOLDERS[equivalentScript] + '/' + gift.script + '.uexp', SCRIPT_FOLDERS[equivalentScript])    
 
 '''
 Updates the old item given through the npc script to the new item.
@@ -1050,15 +825,17 @@ Updates the old item given through the npc script to the new item.
         #TODO: Include amount??
 '''   
 def updateNPCGiftInScript(oldItemID, newItemID, uassetData, uexpData):
-    byteList = getNPCGiftItemByteLocation(uassetData, uexpData)
+    byteList = []
+    namedFunctions = [
+        'E_EVENT_SCRIPT_TYPE::NewEnumerator52', #Enum entry ItemAdd2 per E_EVENT_SCRIPT_TYPE.uasset
+    ]
+    bonusBytes = {
+        'E_EVENT_SCRIPT_TYPE::NewEnumerator52': 33,
+    }
+    for name in namedFunctions:
+        byteList = byteList + uassetData.getOffsetsForRowInNPCDataTable(uexpData,name,Script_Function_Type.NAME, bonusBytes[name])
 
-    toRemove = []
     for offset in byteList:
         if uexpData.readHalfword(offset) != oldItemID:
-            toRemove.append(offset)
-    
-    for offset in toRemove:
-        byteList.remove(offset)
-
-    for byte in byteList:
-        uexpData.writeHalfword(newItemID, byte)
+            continue
+        uexpData.writeHalfword(newItemID, offset)

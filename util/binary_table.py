@@ -1,5 +1,7 @@
+import shutil
 import struct
 from io import BytesIO
+import os
 
 # Wrapper class around low level reads/writes
 # code modified from https://github.com/samfin/mmbn3-random/tree/cleanup
@@ -118,3 +120,46 @@ class Table(object):
             self.buffer.insert(offset +index,byte)
             index = index +1
 
+'''
+Writes the given Buffer to the file specified by filePath
+    Parameters:
+        result (Buffer): The data to write
+        filePath (string): The path to write the file at
+        folderPath (string): The path the folder where the file is, used to check if the folder exists
+'''
+def writeBinaryTable(result, filePath, folderPath):
+    if not os.path.exists(folderPath):
+        os.makedirs(folderPath)
+    with open(filePath, 'wb') as file:
+        file.write(result)
+'''
+Creates the folder at the given path if it does not exist.
+    Parameters:
+        folderPath (string): The path of the folder
+'''
+def writeFolder(folderPath):
+    if not os.path.exists(folderPath):
+        os.makedirs(folderPath)
+'''
+Copies a specified file to another location.
+    Parameters:
+        toCopy (string): The path for the file to copy
+        pasteTo (string): The path to write the file at
+        folderPath (string): The path the folder where the file is, used to check if the folder exists
+'''
+def copyFile(toCopy, pasteTo, folderPath):
+    if not os.path.exists(folderPath):
+        os.mkdir(folderPath)
+    if not os.path.exists(pasteTo):
+        shutil.copy(toCopy,pasteTo)
+
+'''
+Reads a file containing game data into a Table with a bytearray
+    Parameters:
+        filePath (string): The path to the file to read.
+    Returns: 
+        The buffer containing file data as a Table
+'''
+def readBinaryTable(filePath):
+    fileContents = Table(filePath)
+    return fileContents
