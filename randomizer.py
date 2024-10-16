@@ -13,6 +13,7 @@ from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Came
 from base_classes.map_demons import Map_Demon
 import script_logic as scriptLogic
 import message_logic as message_logic
+import model_swap
 import util.numbers as numbers
 import util.paths as paths
 import util.translation as translation
@@ -3664,9 +3665,6 @@ class Randomizer:
         self.adjustBasicEnemyStats(replacementDict, enemyArr)
         
         self.missionArr = self.adjustMissionsRequiringNormalDemons(replacementDict,enemyArr, self.missionArr)
-
-        #Currently does not work yet
-        scriptLogic.replaceTutorialPixieModel(replacementDict[59],self.scriptFiles)
         
         return newSymbolArr
     
@@ -6501,6 +6499,8 @@ class Randomizer:
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel)
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
+
+        model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles)
 
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
