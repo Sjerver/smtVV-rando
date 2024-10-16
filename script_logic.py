@@ -26,6 +26,7 @@ M036_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M036'
 M030_FOLDER =  'rando/Project/Content/Blueprints/Event/Script/SubMission/M030'
 M050_FOLDER =  'rando/Project/Content/Blueprints/Event/Script/SubMission/M050'
 SHOP_EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/ShopEvent'
+M061_EM1640_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM1640'
 M061_EM1710_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM1710'
 GARDEN_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/Garden'
 MINATO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m061'
@@ -100,6 +101,8 @@ SCRIPT_FOLDERS = {
     'BP_JakyoEvent': SHOP_EVENT_FOLDER, #Cathedral of Shadows Event
     'MM_M061_EM0020': M061_FOLDER, # The Angel's Request
     'BP_ShopEvent': SHOP_EVENT_FOLDER, #First Miman Reward
+    'MM_M061_EM1631': M061_FOLDER, # # The Water Nymph (Ippon-Datara)
+    'MM_M061_EM1640_Hit': M061_EM1640_FOLDER # The Spirit of Love First Entry (Apsaras)
 }
 
 #Key: EventScriptName, Value: Type for what and where to search for values to be changed

@@ -9,18 +9,22 @@ MODEL_NAMES = {}
 DEMON_ID_MODEL_ID = {}
 HAS_SIMPLE_BP = {}
 HAS_IDLE_B = {}
+HAS_SKILL_COMPOSITE = {}
 
 #Script files for events and what demon models need to be updated in htem
 #Demon_Sync(demonID in file, if different from demonID in file: demonID to take replacement from)
 EVENT_SCRIPT_MODELS = {
     'EM_M061_DevilTalk': [Demon_Sync(59)], #Talk Tutorial (Pixie)
-    #'MM_M061_EM1630': [Demon_Sync(43,868), Demon_Sync(305), Demon_Sync(316,867)], # The Water Nymph (Apsaras, Leanan, Ippon Datara)
-    #'MM_M061_EM1640': [Demon_Sync(305,866), Demon_Sync(43)], # The Spirit of Love (Leanan, Apsaras)
+    'MM_M061_EM1630': [Demon_Sync(305)], # The Water Nymph (Leanan)
+    'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
+    'MM_M061_EM1640': [Demon_Sync(43)], # The Spirit of Love (Apsaras)
+    'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Entry (Apsaras)
 }
 
 #For bosses that do not use their own model, which model they should use instead
 MODEL_SYNC = {
-    775: 103 #Yamata-no-Orochi 8 turn
+    775: 103, #Yamata-no-Orochi 8 turn
+    476: 249, #Melchizidek
     #TODO: Complete before this can truly work for bosses
 }
 
@@ -32,6 +36,10 @@ def initDemonModelData():
              DEMON_ID_MODEL_ID[int(row['MainDemonID'])] = row['Number']
              HAS_SIMPLE_BP[int(row['MainDemonID'])] = row['HasSimpleBP']
              HAS_IDLE_B[int(row['MainDemonID'])] = row['HasIdleB']
+             try:
+                HAS_SKILL_COMPOSITE[int(row['MainDemonID'])] = row['HasSkillComposite']
+             except KeyError:
+                 continue
 
 
 def updateEventModels(encounterReplacements, bossReplacements, scriptFiles):
@@ -87,8 +95,7 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     newName = MODEL_NAMES[newIDString]
     print("CHECK: " + oldName + " -> " + newName)
 
-    lengthDifference = len(newName) - len(oldName)
-    #TODO: Duplicate Name Map Entries, aka two demons get replaced by the same one
+    #TODO: Duplicate Name Map Entries, aka two demons in one file get replaced by the same one
     for index, name in enumerate(uassetData.nameList): #change occurences of oldDemonID and oldDemonName in all names in the uasset
         if oldIDString in name:
             uassetData.nameList[index] = uassetData.nameList[index].replace(oldIDString,newIDString)
@@ -122,14 +129,15 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     
     #Find potential offsets for where the the asset paths need to be updated with the new demon info
     demonModelAssetStringBytes = []
-    #TODO: Scripts for Leanan/Apsaras use LoadAssetClass too
-    importedFunctions = {
+    importedFunctions = { #each parameter is 5 bytes after
         'LoadAsset': 1,
         'PrintString' : 1,
+        'LoadAssetClass': 1,
         }
     bonusBytes = {
         'LoadAsset': 2,
         'PrintString': 1,
+        'LoadAssetClass': 2,
     }
 
     for name, number in importedFunctions.items():
@@ -138,8 +146,11 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     demonModelAssetStringBytes.sort(reverse=True) #sort offsets so that inserting/removing bytes does not effect offsets that come after in the list
     for offset in demonModelAssetStringBytes:
         offsetString = uexpData.readUntilEmptyByte(offset).decode('ascii')
-        #TODO:Animation checks
-
+        newString = offsetString.replace(oldName,newName)
+        #Change Animation if the demon does not have the required animation
+        newString = replaceNonExistentAnimations(newString, replacementDemonID)
+        
+        lengthDifference = len(newString) - len(offsetString)
         if oldIDString in offsetString: 
             #if the oldID is there in string format, replace with new string
             offsetString = offsetString.replace(oldIDString,newIDString)
@@ -171,12 +182,8 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                 
                
                 #Create the new String with the newDemonName and transform to bytes at the end
-                newString = offsetString.replace(oldName,newName)
-                #TODO: Animation check if length is different
-                #TODO: Animation check if of names is the same
-                #Change Animation if the demon does not have the required animation
-                if '02idleB' in newString  and 'False' == HAS_IDLE_B[replacementDemonID]:
-                    newString = newString.replace('02idleB','05attack')
+                newString = offsetString.replace(oldName,newName)                
+                newString = replaceNonExistentAnimations(newString, replacementDemonID)
                 stringBytes = newString.encode('ascii')
 
 
@@ -231,6 +238,16 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     #update data in uasset and its binary table and then set the file to the script file list        
     uassetData.writeDataToBinaryTable()
     return file
+
+def replaceNonExistentAnimations(string, replacementDemonID):
+    #TODO: Maybe make this depending on script??
+    #TODO: Find a better way to define what animations each demon has
+    if '02idleB' in string  and 'False' == HAS_IDLE_B[replacementDemonID]:
+        string = string.replace('02idleB','05attack')
+    if '06skill_Composite' in string  and 'False' == HAS_SKILL_COMPOSITE[replacementDemonID]:
+        string = string.replace('06skill_Composite','06skill')
+    return string
+
 
 '''
 Replaces the model of the talk tutorial pixie with the demon who the given ID belongs to.

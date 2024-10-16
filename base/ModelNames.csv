@@ -1,4 +1,4 @@
-Number,folderName,DemonName,MainDemonID,HasIdleB,HasSimpleBP,
+Number,folderName,DemonName,MainDemonID,HasIdleB,HasSimpleBP,HasSkillComposite
 001,satan,Satan,1,True,False,
 002,lucifer,Lucifer,2,True,False,
 004,dagda,Dagda,4,True,True,
@@ -44,7 +44,7 @@ Number,folderName,DemonName,MainDemonID,HasIdleB,HasSimpleBP,
 055,kelpie,Kelpie,55,False,True,
 056,highpixy,High Pixie,56,True,True,
 057,jackrantan,Jack O'Lantern,57,True,True,
-058,jackfrost,Jack Frost,58,True,True,
+058,jackfrost,Jack Frost,58,True,True,False
 059,pixy,Pixie,59,True,True,
 060,nahobiho,Nahobeeho,60,True,False,
 064,queenmab,Queen Medb,64,False,True,
