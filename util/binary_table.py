@@ -101,6 +101,18 @@ class Table(object):
 
             result.append(offset)
         return result
+    '''
+    Finds next occurence of the given word (4 bytes) in the tables buffer from offset.
+        Parameter:
+            word (Integer): 4 byte word as integer form
+            currentOffset(Integer): offset to start the search from
+        Returns the offset where the word is next found in the table buffer
+    '''
+    def findNextWordOffsetFromOffset(self,word, currentOffset):
+        searchBytes = struct.pack('<i', word)
+        offset = self.buffer.find(searchBytes, currentOffset)
+        return offset
+
 
     '''
     Reads characters until an empty byte is encountered including the empty byte.

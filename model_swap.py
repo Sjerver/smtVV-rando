@@ -1,6 +1,9 @@
 from script_logic import Script_File, Script_File_List
 from base_classes.script import Script_Function_Type,Script_Uasset
+from base_classes.umap import UMap_File, UMap_File_List
 from base_classes.message import Demon_Sync
+from base_classes.uasset import UAsset
+from util.binary_table import readBinaryTable
 import util.paths as paths
 import util.numbers as numbers
 import pandas as pd
@@ -10,6 +13,21 @@ DEMON_ID_MODEL_ID = {}
 HAS_SIMPLE_BP = {}
 HAS_IDLE_B = {}
 HAS_SKILL_COMPOSITE = {}
+
+#List of which level umaps event scripts use for their location and sizes
+#To find out, look at which MapEventID the Script has in its File and then take a look at map event data
+LEVEL_UASSETS = {
+    'EM_M061_DevilTalk' : 'LV_MainMission_M061',
+    'MM_M061_EM1630': 'LV_EventMission_M061',
+    'MM_M061_EM1631': 'LV_EventMission_M061',
+    'MM_M061_EM1640': 'LV_EventMission_M061',
+    'MM_M061_EM1640_Hit': 'LV_EventMission_M061',
+}
+
+#List of events that require updated scaling to trigger events with large demons
+REQUIRES_HIT_UPDATE = [
+    'MM_M061_EM1630','MM_M061_EM1631', 'MM_M061_EM1640'
+]
 
 #Script files for events and what demon models need to be updated in htem
 #Demon_Sync(demonID in file, if different from demonID in file: demonID to take replacement from)
@@ -24,10 +42,24 @@ EVENT_SCRIPT_MODELS = {
 #For bosses that do not use their own model, which model they should use instead
 MODEL_SYNC = {
     775: 103, #Yamata-no-Orochi 8 turn
-    476: 249, #Melchizidek
+    476: 249, #Melchizedek
+    487: 114, #Copy of School Aitvaras
+    442: 114, #School Aitvaras
+    431: 305, #Three Pretas
+    805: 206, #Zochouten 2 Press Turns
+    455: 25, #Ishtar
+    830: 88, #Mithras
+    888: 318, #Oni
+    755: 341, #Pisaca
+    880: 67, #Lilim
     #TODO: Complete before this can truly work for bosses
 }
 
+
+
+'''
+Reads data about models from the model names csv and fills dictionaries.
+'''
 def initDemonModelData():
     modelNameMap = pd.read_csv(paths.MODEL_NAMES, dtype=str)
     for index, row in modelNameMap.iterrows():
@@ -39,13 +71,21 @@ def initDemonModelData():
              try:
                 HAS_SKILL_COMPOSITE[int(row['MainDemonID'])] = row['HasSkillComposite']
              except KeyError:
-                 continue
+                 continue  
 
-
+'''
+Updates the models used in events.
+    Parameters:
+        encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
+        bossReplacements(Dict): map for which boss replaces which boss
+        scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+'''
 def updateEventModels(encounterReplacements, bossReplacements, scriptFiles):
     initDemonModelData()
+    umapList = UMap_File_List()
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
         file = scriptFiles.getFile(script)
+        umap = umapList.getFile(LEVEL_UASSETS[script])
         for syncDemon in syncDemons:
             
             originalDemonID = syncDemon.ind
@@ -66,9 +106,17 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles):
                 replacementID = MODEL_SYNC[replacementID]
             except KeyError:
                 pass
-            #TODO: Multiple demon model swaps do not work yet
+            #TODO: Multiple demon model swaps do not work yet??
             file = replaceDemonModelInScript(script, file, originalDemonID, replacementID, scriptFiles)
+            
+           
+            if script in REQUIRES_HIT_UPDATE: #TODO: add hitbox size checks, aka only if hitbox of demon is larger
+                #TODO: add calculation for scaling based on hitbox increase
+                scale = 2 #For now just double event hit size
+                umap = updateEventHitScaling(umap,script,scale)
+        
         scriptFiles.setFile(script,file)
+    umapList.writeFiles()
 
 
 
@@ -91,9 +139,13 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     oldIDString = DEMON_ID_MODEL_ID[ogDemonID]
     oldName = MODEL_NAMES[oldIDString]
     #Get the Strings corresponding to the new demon
-    newIDString = DEMON_ID_MODEL_ID[replacementDemonID]
+    try:
+        newIDString = DEMON_ID_MODEL_ID[replacementDemonID]
+    except KeyError:
+        print(str(replacementDemonID) + " needs a model tied to it. Stopping replacement")
+        return file
     newName = MODEL_NAMES[newIDString]
-    print("CHECK: " + oldName + " -> " + newName)
+    print("SWAP: " + oldName + " -> " + newName + " in " + script)
 
     #TODO: Duplicate Name Map Entries, aka two demons in one file get replaced by the same one
     for index, name in enumerate(uassetData.nameList): #change occurences of oldDemonID and oldDemonName in all names in the uasset
@@ -250,11 +302,38 @@ def replaceNonExistentAnimations(string, replacementDemonID):
 
 
 '''
-Replaces the model of the talk tutorial pixie with the demon who the given ID belongs to.
-    Parameters:
-        replacementDemonID (Integer): id of the demon to replace pixie model
+Modifies the scaling for the event hit trigger of the given script by the scale given.
+    umap(UMap_File): file containing the umap and uexp data
+    script(String): name of the script the event hit should be updated for
+    scale(Float): by what the current scale should be multiplied
 '''
-def replaceTutorialPixieModel(replacementDemonID,scriptFiles):
-    script = 'EM_M061_DevilTalk'
-    file = scriptFiles.getFile(script)
-    replaceDemonModelInScript(script, file, 59, replacementDemonID,scriptFiles)
+def updateEventHitScaling(umap: UMap_File,script,scale):
+    uasset = umap.uasset
+    uexp = umap.uexp
+    
+    #Get NameID for EventHit
+    eventHitNameID = uasset.nameList.index('EventHit')
+
+    #Find export for the script data and find which export handles it's eventhit
+    scriptExport = next(exp for exp in uasset.exports if exp.objectName == script)
+    calculatedOffset = scriptExport.serialOffset - len(uasset)
+    nextEventHitNameOffset = uexp.findNextWordOffsetFromOffset(eventHitNameID, calculatedOffset) + 0x19
+    eventHitExportID = uexp.readWord(nextEventHitNameOffset) - 1
+    eventHitExport = uasset.exports[eventHitExportID]
+
+    #Get scaling parameters, update and then write them
+    scalingOffsets = eventHitExport.serialOffset - len(uasset) + 0xA8
+    scalingParam1 = uexp.readFloat(scalingOffsets)
+    scalingParam2 = uexp.readFloat(scalingOffsets+4)
+    scalingParam3 = uexp.readFloat(scalingOffsets+8)
+
+    scalingParam1 *= scale
+    scalingParam1 *= scale
+    scalingParam1 *= scale
+
+    uexp.writeFloat(scalingParam1, scalingOffsets)
+    uexp.writeFloat(scalingParam2, scalingOffsets + 4)
+    uexp.writeFloat(scalingParam3, scalingOffsets + 8)
+
+
+    return umap

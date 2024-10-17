@@ -135,12 +135,14 @@ class UAsset:
             for index in range(self.exportCount):
                 newExport = Export_Entry()
                 newExport.objectNameIndex = binaryTable.readWord(currentOffset + 16)
-                newExport.objectName = self.nameList[newImport.objectNameIndex]
+                newExport.objectName = self.nameList[newExport.objectNameIndex]
 
                 newExport.serialSize = binaryTable.readDblword(currentOffset + 28)
                 newExport.serialOffset = binaryTable.readDblword(currentOffset + 36)
                 self.exports.append(newExport)
                 currentOffset += 104
+    def __len__(self):
+        return len(self.binaryTable.buffer)
     
     '''
     Writes the data of the uasset to the binary table.

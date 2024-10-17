@@ -49,6 +49,7 @@ rando/Project/Content/Blueprints/Event/
 rando/Project/Content/Blueprints/Gamedata/BinTable/Map/TakaraData.uexp
 rando/Project/Content/Blueprints/Map/Encount/Mover/ParamTable/MapSymbolParamTable.uexp
 rando/Project/Content/L10N
+rando/Project/Content/Level
 debug/bossSpoilerLog.txt
 debug/skillsets.txt
 debug/encounterResults.txt

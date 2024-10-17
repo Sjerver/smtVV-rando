@@ -5941,8 +5941,10 @@ class Randomizer:
         doubleOccurences = list(doubleOccurenceSet)
         for occ in doubleOccurences:
             index = questBossIDs.index(occ)
+            questBossIDs.pop(index)
             questBossEncounters.pop(index)
             index = replacementDemonIDs.index(occ)
+            replacementDemonIDs.pop(index)
             replacementDemons.pop(index)
             replacementEncounters.pop(index)
 
