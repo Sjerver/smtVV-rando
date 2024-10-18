@@ -44,6 +44,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
     'MM_M061_EM1640': [Demon_Sync(43)], # The Spirit of Love (Apsaras)
     'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Entry (Apsaras)
+    'MM_M061_E2610' : [Demon_Sync(193,579)], #CoV Isis Event Bethel Egypt #TODO:Dazai/Yuzuru are NPC Models how do they work
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -54,25 +55,241 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M061_EM1631': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Water Nymph (Ippon-Datara)
     'MM_M061_EM1640': [Anim_Sync('06skill_Composite','06_skill')], # The Spirit of Love (Apsaras)
     'MM_M061_EM1640_Hit': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Spirit of Love First Entry (Apsaras)
+    'MM_M061_E2610' : [], #CoV Isis Event Bethel Egypt
 }
 
 #For bosses that do not use their own model, which model they should use instead
 MODEL_SYNC = {
-    775: 103, #Yamata-no-Orochi 8 turn
-    476: 249, #Melchizedek
-    487: 114, #Copy of School Aitvaras
-    442: 114, #School Aitvaras
-    431: 305, #Three Pretas
-    805: 206, #Zochouten 2 Press Turns
-    455: 25, #Ishtar
-    830: 88, #Mithras
-    888: 318, #Oni
-    755: 341, #Pisaca
-    880: 67, #Lilim
-    881: 183,
-    774: 40,
-    725: 141,
-    #TODO: Complete before this can truly work for bosses
+    434: 272, # 2 Andras from Eligor
+    577: 264, # Abdiel (Fallen)
+    564: 240, # Abdiel (Shakan)
+    467: 240, # Abdiel (Summit)
+    884: 265, # Adramelech
+    869: 44, # Agathion (with Apsaras)
+    568: 392, # Agrat
+    487: 114, # Aitvaras (School Copy)
+    442: 114, # Aitvaras (School)
+    473: 198, # Alilat
+    831: 76, # Amon
+    803: 20, # Anahita
+    771: 41, # Anansi
+    781: 272, # Andras (3x)
+    488: 272, # Andras (School Copy)
+    489: 272, # Andras (School Copy)
+    490: 272, # Andras (School Copy)
+    443: 272, # Andras (School)
+    517: 120, # Anubis (CoC Summon)
+    439: 287, # Anzu (Jozoji)
+    728: 287, # Anzu (Single Abcess)
+    605: 287, # Anzu (with Mishaguji)
+    868: 43, # Apsaras
+    463: 82, # Arioch
+    930: 31, # Artemis
+    829: 181, # Asura
+    627: 12, # Atavaka
+    776: 12, # Atavaka (with Rakshasa)
+    837: 17, # Baal
+    856: 126, # Baihu
+    746: 235, # Baphomet
+    628: 119, # Barong
+    738: 113, # Basilisk
+    483: 81, # Beelzebub
+    840: 83, # Belial
+    859: 203, # Bishamonten (2 Turn)
+    863: 203, # Bishamonten (4 Turn)
+    773: 171, # Black Ooze
+    926: 352, # Black Rider
+    814: 248, # Camael
+    466: 182, # Chernobog
+    486: 260, # Cherub
+    931: 295, # Cleopatra
+    611: 36, # Cu Chulainn
+    618: 191, # Cybele
+    947: 4, # Dagda
+    922: 357, # Daisoujou
+    612: 297, # Dakini
+    843: 188, # Danu
+    464: 273, # Decarabia (Summon)
+    881: 183, # Dionysus
+    780: 46, # Dís
+    485: 255, # Dominion
+    751: 141, # Dormarth
+    725: 141, # Dormarth (Abcess)
+    730: 47, # Efreet
+    559: 394, # Eisheth
+    433: 270, # Eligor
+    602: 282, # Feng Huang
+    833: 35, # Fionn mac Cumhaill (2nd)
+    451: 35, # Fionn mac Cumhaill (First)
+    732: 266, # Flauros (Abcess)
+    474: 266, # Flauros (Summon)
+    818: 266, # Flauros (With Moloch)
+    883: 201, # Futsunushi
+    836: 243, # Gabriel
+    865: 278, # Garuda
+    555: 142, # Glasya-Labolas (with Naamah)
+    607: 34, # Hanuman
+    562: 152, # Hayataro
+    923: 356, # Hell Biker
+    864: 13, # Horus
+    844: 189, # Inanna
+    495: 68, # Incubus (School Copy)
+    496: 68, # Incubus (School Copy)
+    497: 68, # Incubus (School Copy)
+    498: 68, # Incubus (School Copy)
+    720: 316, # Ippon-Datara (Abcess)
+    867: 316, # Ippon-Datara (with Leanan)
+    455: 25, # Ishtar
+    579: 193, # Isis
+    610: 193, # Isis (Abcess)
+    802: 281, # Jatayu
+    858: 204, # Jikokuten
+    862: 204, # Jikokuten (4 Turn)
+    606: 66, # Kaiwan
+    516: 7, # Khonsu (CoC)
+    566: 7, # Khonsu (CoC)
+    519: 15, # Khonsu Ra
+    753: 336, # Kodama
+    948: 32, # Konohana Sakuya
+    819: 205, # Koumokuten (2 Turn)
+    861: 205, # Koumokuten (4 Turn)
+    774: 40, # Kresnik
+    772: 346, # Kudlak
+    809: 342, # Kumbhanda
+    723: 342, # Kumbhanda (Abcess)
+    878: 37, # Kurama Tengu (with Zaou)
+    615: 213, # Kushinada-Hime
+    557: 236, # Lahmu (School 2nd TODO: Why did I find you???)
+    556: 441, # Lahmu (School)
+    452: 441, # Lahmu (Shinagawa 1st)
+    453: 236, # Lahmu (Shinagawa 2nd)
+    727: 303, # Lamia (Abcess)
+    440: 303, # Lamia (Jozoji)
+    580: 303, # Lamia (with Isis)
+    710: 305, # Leanan Sidhe (Abcess)
+    866: 305, # Leanan Sidhe (with Ippon)
+    880: 67, # Lilim
+    569: 391, # Lilith
+    810: 89, # Loki
+    450: 136, # Loup-garou
+    537: 529, # Lucifer
+    729: 174, # Mad Gasser
+    601: 121, # Makami
+    500: 302, # Manananggal (School Copy)
+    501: 302, # Manananggal (School Copy)
+    705: 45, # Mandrake
+    842: 30, # Maria
+    757: 227, # Masakado
+    758: 227, # Masakado (True)
+    596: 250, # Mastema
+    921: 359, # Matador
+    471: 249, # Melchizedek
+    476: 249, # Melchizedek (No EXP Revive)
+    932: 78, # Mephisto
+    609: 304, # Mermaid
+    477: 241, # Metatron
+    841: 242, # Michael
+    604: 234, # Mishaguji
+    830: 88, # Mithras
+    624: 11, # Mitra
+    928: 351, # Mother Harlot
+    722: 289, # Muu Shuwuu
+    553: 393, # Naamah
+    554: 393, # Naamah (with GL)
+    603: 104, # Naga Raja
+    779: 22, # Norn
+    752: 107, # Nozuchi
+    435: 197, # Nuwa (Snake)
+    550: 75, # Nuwa (with Yakumo)
+    608: 52, # Oberon
+    470: 9, # Odin (CoC)
+    482: 9, # Odin (CoV)
+    822: 215, # Okuninushi
+    888: 318, # Oni (Quest)
+    499: 318, # Oni (School Copy)
+    446: 318, # Oni (School)
+    706: 290, # Onmoraki
+    770: 386, # Onyankopon
+    731: 139, # Orobas (Abcess)
+    817: 139, # Orobas (With Moloch)
+    726: 135, # Orthrus
+    475: 269, # Ose (Summon)
+    825: 212, # Oyamatsumi (With Kunitsu)
+    927: 358, # Pale Rider
+    801: 233, # Pazuzu
+    755: 341, # Pisaca
+    621: 59, # Pixie
+    506: 256, # Power (5x Copy)
+    504: 256, # Power (Double Copy)
+    503: 256, # Power (Single Copy)
+    505: 256, # Power (Triple Copy)
+    815: 256, # Power (with Camael)
+    484: 256, # Power (With Dominions)
+    713: 345, # Preta (Abcess)
+    889: 345, # Preta (Quest)
+    879: 257, # Principality
+    854: 96, # Qing Long
+    933: 95, # Quetzalcoatl
+    492: 324, # Rakshasa (School Copy)
+    493: 324, # Rakshasa (School Copy)
+    494: 324, # Rakshasa (School Copy)
+    444: 324, # Rakshasa (School)
+    777: 324, # Rakshasa (with Atavaka)
+    491: 324, # Rakshasa(School Copy)
+    625: 296, # Rangda
+    835: 245, # Raphael
+    925: 353, # Red Rider
+    760: 118, # Samael
+    614: 24, # Sarasvati
+    681: 1, # Satan
+    782: 237, # Saturnus
+    617: 26, # Scathach
+    724: 130, # Senri
+    870: 112, # Seth
+    750: 129, # Shiisaa
+    820: 311, # Shiki-Ouji (Quest)
+    502: 311, # Shiki-Ouji (School Copy)
+    448: 311, # Shiki-Ouji (School)
+    845: 178, # Shiva
+    629: 222, # Siegfried
+    613: 53, # Silky
+    626: 192, # Skadi
+    620: 173, # Slime
+    472: 244, # Sraosha
+    721: 65, # Succubus
+    718: 335, # Sudama (Abcess)
+    823: 214, # Sukuna-Hikona
+    824: 216, # Take-Minakata
+    778: 200, # Thor
+    734: 14, # Thoth (Abcess)
+    518: 14, # Thoth (CoC Summon)
+    431: 345, # Three Pretas
+    623: 254, # Throne
+    929: 350, # Trumpeter
+    449: 331, # Tsuchigumo (School)
+    754: 175, # Turbo Granny
+    834: 247, # Uriel
+    468: 111, # Vasuki
+    769: 108, # Vouivre
+    733: 99, # Vritra
+    924: 354, # White Rider
+    857: 97, # Xuanwu
+    768: 299, # Yakshini
+    775: 103, # Yamata-no-Orochi (8 Turn)
+    619: 103, # Yamata-no-Orochi (Abcess)
+    622: 280, # Yatagarasu
+    616: 105, # Yurlungur
+    877: 180, # Zaou-Gongen
+    469: 8, # Zeus (CoC)
+    481: 8, # Zeus (CoV)
+    838: 8, # Zeus (Demeter Quest)
+    509: 288, # Zhen (3x Copy)
+    510: 288, # Zhen (4x Copy)
+    756: 288, # Zhen (5x)
+    855: 279, # Zhuque
+    805: 206, # Zouchouten (2 Turn)
+    860: 206, # Zouchouten (4 Turn)
+    #TODO: Should be complete?
 }
 
 
@@ -110,7 +327,12 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles):
     umapList = UMap_File_List()
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
         file = scriptFiles.getFile(script)
-        umap = umapList.getFile(LEVEL_UASSETS[script])
+        if script in REQUIRES_HIT_UPDATE: #TODO: add hitbox size checks, aka only if hitbox of demon is larger
+            umap = umapList.getFile(LEVEL_UASSETS[script])
+            #TODO: add calculation for scaling based on hitbox increase
+            scale = 1.5 #For now just double event hit size
+            umap = updateEventHitScaling(umap,script,scale)
+            
         for syncDemon in syncDemons:
             
             originalDemonID = syncDemon.ind
@@ -135,13 +357,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles):
                 pass
 
             #TODO: Multiple demon model swaps do not work yet??
-            file = replaceDemonModelInScript(script, file, originalDemonID, replacementID, scriptFiles)
-            
-           
-            if script in REQUIRES_HIT_UPDATE: #TODO: add hitbox size checks, aka only if hitbox of demon is larger
-                #TODO: add calculation for scaling based on hitbox increase
-                scale = 1.5 #For now just double event hit size
-                umap = updateEventHitScaling(umap,script,scale)
+            file = replaceDemonModelInScript(script, file, originalDemonID, replacementID, scriptFiles)   
         
         scriptFiles.setFile(script,file)
     umapList.writeFiles()

@@ -294,9 +294,9 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 452,lucifer2_effect1,Lucifer,-1,FALSE
 453,lucifer2_effect3,Lucifer,-1,FALSE
 455,tiamat,Tiamat,565,FALSE
-456,tiamat_dragon,Dragon Head,-1,FALSE
-457,tiamat_goat,Goat Head,-1,FALSE
-458,tiamat_camel,Camel Head,-1,FALSE
+456,tiamat_dragon,Dragon Head,456,FALSE
+457,tiamat_goat,Goat Head,457,FALSE
+458,tiamat_camel,Camel Head,458,FALSE
 459,tiamat_evt,Tiamat,-1,FALSE
 450,tehom,Tehom,597,FALSE
 461,tehom_evt,Tehom,-1,FALSE
@@ -311,7 +311,7 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 508,chimera_big,Chimera,812,FALSE
 509,arahabaki_big,Arahabaki,828,FALSE
 510,ooyamatumi_big,Oyamatsumi,826,FALSE
-511,girimekara_big,Girimekhala,287,FALSE
+511,girimekara_big,Girimekhala,827,FALSE
 512,thunderbird_big,Thunderbird,808,FALSE
 513,hekatoncheir_big,Hecatoncheires,813,FALSE
 514,kingfrost_big,King Frost,821,FALSE

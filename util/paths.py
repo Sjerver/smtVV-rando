@@ -31,6 +31,7 @@ CHEST_TABLE_IN = 'base/TakaraData.uexp'
 MAP_SYMBOL_PARAM_IN = 'base/MapSymbolParamTable.uexp'
 TITLE_TEXTURE_IN = 'base/title_menu01.uexp'
 TITLE_TEXTURE_UASSET_IN = 'base/title_menu01.uasset'
+MAP_EVENT_DATA_IN = 'base/MapEventData.uexp'
 
 NKM_BASE_TABLE_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uexp'
 DEVIL_FOLDER_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil'
@@ -88,6 +89,7 @@ MOVER_PARAMTABLE_FOLDER_OUT = 'rando/Project/Content/Blueprints/Map/Encount/Move
 TITLE_TEXTURE_FOLDER_OUT = 'rando/Project/Content/L10N/en/Design/UI/Title/SSProjects/title_menu'
 TITLE_TEXTURE_OUT = 'rando/Project/Content/L10N/en/Design/UI/Title/SSProjects/title_menu/title_menu01.uexp'
 TITLE_TEXTURE_UASSET_OUT = 'rando/Project/Content/L10N/en/Design/UI/Title/SSProjects/title_menu/title_menu01.uasset'
+MAP_EVENT_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Map/MapEventData.uexp'
 
 DEBUG_FOLDER = 'debug'
 SEED_FILE = 'debug/currentSeed.txt'
