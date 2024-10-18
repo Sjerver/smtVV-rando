@@ -28,3 +28,8 @@ class Talk_Camera_Offset_Entry:
         self.eyeOffset = None
         self.lookOffset = None
         self.dyingOffset = None
+
+class Demon_Model:
+    def __init__(self):
+        self.modelName = None
+        self.animations = []

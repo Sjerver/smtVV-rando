@@ -2,17 +2,24 @@ from script_logic import Script_File, Script_File_List
 from base_classes.script import Script_Function_Type,Script_Uasset
 from base_classes.umap import UMap_File, UMap_File_List
 from base_classes.message import Demon_Sync
+from base_classes.demon_assets import Demon_Model
 from base_classes.uasset import UAsset
 from util.binary_table import readBinaryTable
 import util.paths as paths
 import util.numbers as numbers
 import pandas as pd
 
+class Anim_Sync():
+    def __init__(self,ind, sync=None):
+        self.ind = ind
+        self.sync = ind
+        if sync:
+            self.sync = sync
+
 MODEL_NAMES = {}
 DEMON_ID_MODEL_ID = {}
 HAS_SIMPLE_BP = {}
-HAS_IDLE_B = {}
-HAS_SKILL_COMPOSITE = {}
+DEMON_MODELS={}
 
 #List of which level umaps event scripts use for their location and sizes
 #To find out, look at which MapEventID the Script has in its File and then take a look at map event data
@@ -39,6 +46,16 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Entry (Apsaras)
 }
 
+#Which animations are being played in scripts that might not be available to every demon and which to use instead
+#Beware Capitalization!!
+SCRIPT_ANIMS_REPLACEMENTS = {
+    'EM_M061_DevilTalk': [Anim_Sync('02idleB','05attack')], #Talk Tutorial (Pixie)
+    'MM_M061_EM1630': [Anim_Sync('06skill_Composite','06_skill')], # The Water Nymph (Leanan)
+    'MM_M061_EM1631': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Water Nymph (Ippon-Datara)
+    'MM_M061_EM1640': [Anim_Sync('06skill_Composite','06_skill')], # The Spirit of Love (Apsaras)
+    'MM_M061_EM1640_Hit': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Spirit of Love First Entry (Apsaras)
+}
+
 #For bosses that do not use their own model, which model they should use instead
 MODEL_SYNC = {
     775: 103, #Yamata-no-Orochi 8 turn
@@ -52,6 +69,9 @@ MODEL_SYNC = {
     888: 318, #Oni
     755: 341, #Pisaca
     880: 67, #Lilim
+    881: 183,
+    774: 40,
+    725: 141,
     #TODO: Complete before this can truly work for bosses
 }
 
@@ -67,11 +87,16 @@ def initDemonModelData():
              MODEL_NAMES[row['Number']] = row['folderName']
              DEMON_ID_MODEL_ID[int(row['MainDemonID'])] = row['Number']
              HAS_SIMPLE_BP[int(row['MainDemonID'])] = row['HasSimpleBP']
-             HAS_IDLE_B[int(row['MainDemonID'])] = row['HasIdleB']
-             try:
-                HAS_SKILL_COMPOSITE[int(row['MainDemonID'])] = row['HasSkillComposite']
-             except KeyError:
-                 continue  
+    demonModelAnimMap = pd.read_csv(paths.MODEL_ANIMS, dtype=str)
+    for index, row in demonModelAnimMap.iterrows():
+        model = Demon_Model()
+        if type(row['Model']) is str:
+            model.modelName = row['Model']
+        for animation in demonModelAnimMap.columns[1:]:  # Skip the 'Model' column
+            if row[animation] == '1':  # If the model has this animation (value is 1)
+                model.animations.append(animation)  # Add the animation to the list
+        DEMON_MODELS.update({model.modelName[3:6] : model})
+            
 
 '''
 Updates the models used in events.
@@ -102,17 +127,20 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles):
                 except KeyError:
                     #print("Key Error: " + str(syncDemonID))
                     continue
-            try:
+            if replacementID == originalDemonID: #do not need to swap models if replacement is the same as originalDemonID
+                continue
+            try: #Does boss use a different model that has no tie to their id
                 replacementID = MODEL_SYNC[replacementID]
             except KeyError:
                 pass
+
             #TODO: Multiple demon model swaps do not work yet??
             file = replaceDemonModelInScript(script, file, originalDemonID, replacementID, scriptFiles)
             
            
             if script in REQUIRES_HIT_UPDATE: #TODO: add hitbox size checks, aka only if hitbox of demon is larger
                 #TODO: add calculation for scaling based on hitbox increase
-                scale = 2 #For now just double event hit size
+                scale = 1.5 #For now just double event hit size
                 umap = updateEventHitScaling(umap,script,scale)
         
         scriptFiles.setFile(script,file)
@@ -154,7 +182,7 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         if oldName in name:
             uassetData.nameList[index] = uassetData.nameList[index].replace(oldName,newName)
         
-    if 'False' == HAS_SIMPLE_BP[replacementDemonID]:
+    if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
         #If the demon does not have a simple model blueprint use the general model blueprint
         for index, name in enumerate(uassetData.nameList): 
             if "_Simple" in name and newIDString in name:
@@ -198,11 +226,11 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     demonModelAssetStringBytes.sort(reverse=True) #sort offsets so that inserting/removing bytes does not effect offsets that come after in the list
     for offset in demonModelAssetStringBytes:
         offsetString = uexpData.readUntilEmptyByte(offset).decode('ascii')
-        newString = offsetString.replace(oldName,newName)
+        newString = offsetString.replace(oldName,newName).replace(oldIDString,newIDString)
         #Change Animation if the demon does not have the required animation
-        newString = replaceNonExistentAnimations(newString, replacementDemonID)
-        
+        newString = replaceNonExistentAnimations(script, newString,newIDString,newName)
         lengthDifference = len(newString) - len(offsetString)
+       
         if oldIDString in offsetString: 
             #if the oldID is there in string format, replace with new string
             offsetString = offsetString.replace(oldIDString,newIDString)
@@ -235,7 +263,7 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                
                 #Create the new String with the newDemonName and transform to bytes at the end
                 newString = offsetString.replace(oldName,newName)                
-                newString = replaceNonExistentAnimations(newString, replacementDemonID)
+                newString = replaceNonExistentAnimations(script, newString, newIDString,newName)
                 stringBytes = newString.encode('ascii')
 
 
@@ -291,13 +319,36 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     uassetData.writeDataToBinaryTable()
     return file
 
-def replaceNonExistentAnimations(string, replacementDemonID):
-    #TODO: Maybe make this depending on script??
-    #TODO: Find a better way to define what animations each demon has
-    if '02idleB' in string  and 'False' == HAS_IDLE_B[replacementDemonID]:
-        string = string.replace('02idleB','05attack')
-    if '06skill_Composite' in string  and 'False' == HAS_SKILL_COMPOSITE[replacementDemonID]:
-        string = string.replace('06skill_Composite','06skill')
+'''
+Replaces the animation in a string with a designated replacement animation if required.
+    Parameters:
+        script(String): the name of the script file
+        string(String): the string for the animation that might be changed
+        replacementID(String): the id of the demon that replaced the old one
+        replacementName(String): the name of the demon that replaced the old one
+'''
+def replaceNonExistentAnimations(script, string, replacementID,replacementName):
+    animations = SCRIPT_ANIMS_REPLACEMENTS[script]
+    for animSync in animations: #go through animations to potentially replace in script
+        animation = animSync.ind
+        replacementAnim = animSync.sync
+        if animation in DEMON_MODELS[replacementID].animations:
+            #Animation exists for the new demon therefore string is fine
+            return string
+        #Animation does not exist for the new demon therefore string needs to be changed
+        if '/' in animation: #Is Animation in Subfolder?
+            animationParts = animation.split("/")
+            searchString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_dev" + replacementID + "_" + animationParts[1]+ "." + "AN_dev" + replacementID + "_" + animationParts[1]
+        else:
+            searchString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + "AN_dev" + replacementID + "_ " + animation+ "." + "AN_dev" + replacementID + "_" + animation
+        if searchString in string: #Is the Animation the one in the current string
+            if '/' in replacementAnim: #Is new Animation in Subfolder?
+                animationParts = replacementAnim.split("/")
+                replacementString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_dev" + replacementID + "_ " + animationParts[1]+ "." + "AN_dev" + replacementID + "_" + animationParts[1]
+            else:
+                replacementString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + "AN_dev" + replacementID + "_" + replacementAnim+ "." + "AN_dev" + replacementID + "_" + replacementAnim
+            string = string.replace(searchString,replacementString)
+
     return string
 
 
