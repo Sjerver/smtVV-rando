@@ -33,7 +33,8 @@ LEVEL_UASSETS = {
 
 #List of events that require updated scaling to trigger events with large demons
 REQUIRES_HIT_UPDATE = [
-    'MM_M061_EM1630','MM_M061_EM1631', 'MM_M061_EM1640'
+    'MM_M061_EM1630','MM_M061_EM1631',
+    #'MM_M061_EM1640', #Does not have relativeScale3D in their EventHit TODO: ;ayne figure out how to add that? Otherwise big models make talking impossible
 ]
 
 #Script files for events and what demon models need to be updated in htem
@@ -322,16 +323,12 @@ Updates the models used in events.
         bossReplacements(Dict): map for which boss replaces which boss
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
-def updateEventModels(encounterReplacements, bossReplacements, scriptFiles):
+def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapSymbolArr):
     initDemonModelData()
     umapList = UMap_File_List()
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
         file = scriptFiles.getFile(script)
-        if script in REQUIRES_HIT_UPDATE: #TODO: add hitbox size checks, aka only if hitbox of demon is larger
-            umap = umapList.getFile(LEVEL_UASSETS[script])
-            #TODO: add calculation for scaling based on hitbox increase
-            scale = 1.5 #For now just double event hit size
-            umap = updateEventHitScaling(umap,script,scale)
+        hitboxUpdated = False
             
         for syncDemon in syncDemons:
             
@@ -354,7 +351,24 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles):
             try: #Does boss use a different model that has no tie to their id
                 replacementID = MODEL_SYNC[replacementID]
             except KeyError:
+                replacementID = 103 #Testing stuff
                 pass
+                
+            if not hitboxUpdated and script in REQUIRES_HIT_UPDATE: #TODO: How to deal with overlap issues
+                umap = umapList.getFile(LEVEL_UASSETS[script])
+                try:
+                    og = next(d for x, d in enumerate(mapSymbolArr) if d.demonID == originalDemonID)
+                    replacement = next(d for x, d in enumerate(mapSymbolArr) if d.demonID == replacementID)
+                    scalingFactor = og.encountCollision.stretchToBox(replacement.encountCollision, ignoreY = True)
+                    if scalingFactor != 0:
+                        print(scalingFactor)
+                        scale = scalingFactor
+                    else:
+                        scale = 1.5 #Increase by 50%
+                except StopIteration:
+                    scale = 1.5 #Increase by 50%
+                hitboxUpdated = True
+                umap = updateEventHitScaling(umap,script,scale)
 
             #TODO: Multiple demon model swaps do not work yet??
             file = replaceDemonModelInScript(script, file, originalDemonID, replacementID, scriptFiles)   
@@ -594,9 +608,18 @@ def updateEventHitScaling(umap: UMap_File,script,scale):
     scalingParam2 = uexp.readFloat(scalingOffsets+4)
     scalingParam3 = uexp.readFloat(scalingOffsets+8)
 
+    #print(scalingParam1)
+    #print(scalingParam2)
+    #print(scalingParam3)
+    #print("SCALE NOW")
+
     scalingParam1 *= scale
-    scalingParam1 *= scale
-    scalingParam1 *= scale
+    scalingParam2 *= scale
+    scalingParam3 *= scale
+
+    #print(scalingParam1)
+    #print(scalingParam2)
+    #print(scalingParam3)
 
     uexp.writeFloat(scalingParam1, scalingOffsets)
     uexp.writeFloat(scalingParam2, scalingOffsets + 4)

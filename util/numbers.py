@@ -246,7 +246,13 @@ SETH_DEMON_ID = 870
 #Event Encounter ID of Seth
 SETH_EVENT_ENCOUNTER_ID = 108
 #List of demons with overly large symbol scaling (>2)
-LARGE_SYMBOL_DEMONS = [77,80,94,127,212,283] #Mara, Surt, Huang Long, Chimera, Oyamatsumi, Thunderbird
+LARGE_SYMBOL_NORMAL_DEMONS = [77,80,94,127,212,283] #Mara, Surt, Huang Long, Chimera, Oyamatsumi, Thunderbird
+#List of demons with huge models with normal scaling, that should use smaller scaling instead
+LARGE_MODEL_NORMAL_DEMONS = {
+    87: 0.7, #King Frost
+    115: 0.5, #Hydra (Currently has no symbol param data)
+}
+
 #Map of punishing foe ID - walkspeed for birds that have large flight cycles
 PUNISHING_FOE_BIRD_SPEEDS = {802: 1400, #Jatayu
                              808: 1200, #Thunderbird

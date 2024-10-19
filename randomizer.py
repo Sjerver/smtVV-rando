@@ -12,6 +12,7 @@ from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
 from base_classes.map_demons import Map_Demon
 from base_classes.map_event import Map_Event
+from base_classes.uasset import UAsset
 import script_logic as scriptLogic
 import message_logic as message_logic
 import model_swap
@@ -1168,17 +1169,23 @@ class Randomizer:
             locations = {
                 'demonID': offset,
                 'walkSpeed': offset + 0x1d,
-                'scaleFactor': offset + 0x74
+                'scaleFactor': offset + 0x74,
+                'encountCollisionX': offset + 0x91,
+                'encountCollisionY': offset + 0xAE,
+                'encountCollisionZ': offset + 0xCB,
+
             }
             demonID = data.readWord(offset)
             walkSpeed = data.readFloat(locations['walkSpeed'])
             scaleFactor = data.readFloat(locations['scaleFactor'])
+            encountCollision = Position( data.readFloat(locations['encountCollisionX']),data.readFloat(locations['encountCollisionY']),data.readFloat(locations['encountCollisionZ']))
             
             mapDemon = Map_Demon()
             mapDemon.offsetNumbers = locations
             mapDemon.demonID = demonID
             mapDemon.walkSpeed = walkSpeed
             mapDemon.scaleFactor = scaleFactor
+            mapDemon.encountCollision = encountCollision
             self.mapSymbolArr.append(mapDemon)
             
     '''
@@ -2445,7 +2452,25 @@ class Randomizer:
             buffer.writeHalfword(fusion.demon4.value, fusion.baseOffset + 8)
             buffer.writeHalfword(fusion.result.value, fusion.baseOffset + 10)
         return buffer
-    
+    '''
+    Write the values in mapSymbolArr to the respective locations in the buffer
+        Parameters:
+            buffer (Table): Buffer of the other mapSymbolParam table
+        Returns:
+            The updated buffer
+    '''
+    def updateMapSymbolBuffer(self,buffer):
+        for mapDemon in self.mapSymbolArr:
+            offsets = mapDemon.offsetNumbers
+            buffer.writeWord(mapDemon.demonID, offsets['demonID'])
+            buffer.writeFloat(mapDemon.walkSpeed, offsets['walkSpeed'])
+            buffer.writeFloat(mapDemon.scaleFactor, offsets['scaleFactor'])
+
+            buffer.writeFloat(mapDemon.encountCollision.x, offsets['encountCollisionX'])
+            buffer.writeFloat(mapDemon.encountCollision.y, offsets['encountCollisionY'])
+            buffer.writeFloat(mapDemon.encountCollision.z, offsets['encountCollisionZ'])
+        return buffer
+
     '''
     Write the values in foes to the respective locations in the buffer
         Parameters:
@@ -6056,22 +6081,42 @@ class Randomizer:
         buffer (Table): contains the bytearray of the MapSymbolParamTable
     Returns the changed buffer
     '''
-    def scaleLargeSymbolDemonsDown(self, buffer):
-        last = 0
-        startingBytes = bytearray(bytes.fromhex('17000000000000003100000000000000'))
-        while buffer.buffer.find(startingBytes,last) != -1:
-            offset = buffer.buffer.find(startingBytes,last) +25
-            last = buffer.buffer.find(startingBytes,last) +100
+    def scaleLargeSymbolDemonsDown(self):
+        for symbol in self.mapSymbolArr:
+            if symbol.demonID in numbers.LARGE_SYMBOL_NORMAL_DEMONS:
+                scaleGoal = 1.2
+                
+                downscaleFactor = scaleGoal / symbol.scaleFactor
+                
+                symbol.scaleFactor = scaleGoal
+                symbol.encountCollision.scale(downscaleFactor)
+            if symbol.demonID in numbers.LARGE_MODEL_NORMAL_DEMONS.keys():
+                scaleGoal = numbers.LARGE_MODEL_NORMAL_DEMONS[symbol.demonID]
+                
+                downscaleFactor = scaleGoal / symbol.scaleFactor
+                
+                symbol.scaleFactor = scaleGoal
+                symbol.encountCollision.scale(downscaleFactor)
 
-            demonID = buffer.readWord(offset)
-            if demonID in numbers.LARGE_SYMBOL_DEMONS:
-                buffer.writeFloat(1.2,offset + 116)
-        return buffer
-    
+    '''
+    Scale replacement of adramelech so that it is not larger to prevent potential softlocks in Temple of Eternity.
+    '''
+    def patchAdramelechReplacementSize(self):
+        adramelech = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == 265)
+        replacementID = self.encounterReplacements[265]
+        try:
+            replacement =  next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == replacementID)
+            scalingFactor = adramelech.encountCollision.fitIntoBox(replacement.encountCollision)
+            if scalingFactor != 0:
+                replacement.scaleFactor = replacement.scaleFactor * scalingFactor
+                replacement.encountCollision.scale(scalingFactor)
+        except StopIteration:
+            pass
     '''
     Speeds up demons on the overworld that replace punishing foe birds with large movement cycles
     Parameters:
         buffer (Table): contains the bytearray of the MapSymbolParamTable
+        #TODO: Rewrite with adding data to symbol arr
     Returns the changed buffer
     '''
     def adjustPunishingFoeSpeeds(self, buffer):
@@ -6519,9 +6564,12 @@ class Randomizer:
         self.capDiarahanDemonHP()
         self.nullBossTones()
         
+        #mapSymbolUasset = UAsset(readBinaryTable(paths.MAP_SYMBOL_PARAM_UASSET_IN))
 
-        mapSymbolParamBuffer = self.scaleLargeSymbolDemonsDown(mapSymbolParamBuffer)
+        self.scaleLargeSymbolDemonsDown()
+        self.patchAdramelechReplacementSize()
         self.adjustPunishingFoeSpeeds(mapSymbolParamBuffer)
+        
             
         if DEV_CHEATS:
             self.applyCheats()
@@ -6533,8 +6581,9 @@ class Randomizer:
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
 
-        model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles)
+        model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolArr)
 
+        mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, newComp)
