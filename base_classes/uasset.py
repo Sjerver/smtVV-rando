@@ -198,6 +198,7 @@ class UAsset:
             self.binaryTable.writeDblword(exportEntry.serialOffset, currentOffset +36)
             self.binaryTable.writeDblword(exportEntry.serialSize, currentOffset +28)
             currentOffset += 104
+        
 
     '''
     Updates the name map to use the names in the name list.
@@ -280,6 +281,7 @@ class UAsset:
 
         for exportEntry in self.exports:
             exportEntry.serialOffset += self.byteDifference
+        self.byteDifference = 0
 
     def updateExportSizeAndOffsets(self, uexpOffset, byteDifference):
         totalOffset = uexpOffset + len(self.binaryTable.buffer)

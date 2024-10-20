@@ -41,7 +41,7 @@ REQUIRES_HIT_UPDATE = [
 #Demon_Sync(demonID in file, if different from demonID in file: demonID to take replacement from)
 EVENT_SCRIPT_MODELS = {
     'EM_M061_DevilTalk': [Demon_Sync(59)], #Talk Tutorial (Pixie)
-    'MM_M061_EM1630': [Demon_Sync(305)], # The Water Nymph (Leanan)
+    'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43)], # The Water Nymph (Leanan)
     'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
     'MM_M061_EM1640': [Demon_Sync(43)], # The Spirit of Love (Apsaras)
     'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Entry (Apsaras)
@@ -290,7 +290,7 @@ MODEL_SYNC = {
     855: 279, # Zhuque
     805: 206, # Zouchouten (2 Turn)
     860: 206, # Zouchouten (4 Turn)
-    #TODO: Should be complete?
+    #TODO: Should be complete? With the exception of bosses who use NPC Models
 }
 
 
@@ -334,13 +334,13 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             
             originalDemonID = syncDemon.ind
             syncDemonID = syncDemon.sync
-            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
+            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is boss
                 try:
                     replacementID = bossReplacements[syncDemonID]
                 except KeyError:
                     #print("Key Error: " + str(syncDemonID))
                     continue
-            else: #else it is a boss
+            else: #else it is a normal demon
                 try:
                     replacementID = encounterReplacements[syncDemonID]
                 except KeyError:
@@ -351,7 +351,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             try: #Does boss use a different model that has no tie to their id
                 replacementID = MODEL_SYNC[replacementID]
             except KeyError:
-                replacementID = 103 #Testing stuff
+                #replacementID = 103 #Testing stuff
                 pass
                 
             if not hitboxUpdated and script in REQUIRES_HIT_UPDATE: #TODO: How to deal with overlap issues
@@ -370,7 +370,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
                 hitboxUpdated = True
                 umap = updateEventHitScaling(umap,script,scale)
 
-            #TODO: Multiple demon model swaps do not work yet??
+            #TODO: Multiple demon model swaps do work, but need to deal with chain replacements,(A->B B->C)
             file = replaceDemonModelInScript(script, file, originalDemonID, replacementID, scriptFiles)   
         
         scriptFiles.setFile(script,file)
@@ -405,9 +405,8 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     newName = MODEL_NAMES[newIDString]
     print("SWAP: " + oldName + " -> " + newName + " in " + script)
 
-    #TODO: Duplicate Name Map Entries, aka two demons in one file get replaced by the same one
     for index, name in enumerate(uassetData.nameList): #change occurences of oldDemonID and oldDemonName in all names in the uasset
-        if oldIDString in name:
+        if "ev" + oldIDString in name: #to just get the model names since sometimes DevXXX or devXXX
             uassetData.nameList[index] = uassetData.nameList[index].replace(oldIDString,newIDString)
         if oldName in name:
             uassetData.nameList[index] = uassetData.nameList[index].replace(oldName,newName)
@@ -464,11 +463,12 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         if oldIDString in offsetString: 
             #if the oldID is there in string format, replace with new string
             offsetString = offsetString.replace(oldIDString,newIDString)
-        if oldName not in offsetString: 
-            #if oldName is not in string, nothing else needs to be updated and string can be written
-            offsetString = offsetString.encode('ascii')
-            uexpData.writeXChars(offsetString, len(offsetString), offset)  
-        elif oldName in offsetString: 
+            if oldName not in offsetString: 
+                #if oldName is not in string, nothing else needs to be updated and string can be written
+                offsetString = offsetString.encode('ascii')
+                uexpData.writeXChars(offsetString, len(offsetString), offset)
+                continue  
+        if oldName in offsetString: 
             #oldName is in string so needs to be updated
             if lengthDifference != 0:#newName is not the same length
                 #Main script bytecode function is executeUbergraph which always starts by jumping to the whatever "EntryPoint" is set to
