@@ -1560,8 +1560,9 @@ class Randomizer:
         #     else:
         #         skill = self.obtainSkillFromID(skillID)
         #         print(str(skillID) + " " + RACE_ARRAY[skill.magatsuhi.race1.value]+ " " + RACE_ARRAY[skill.magatsuhi.race2.value])
-        self.fusionSkillIDs = newFusionSkills
+        
         self.fusionSkillReqs = self.updateFusionSkillRequirements(newFusionSkills)
+        self.fusionSkillIDs = newFusionSkills
         return magatsuhiSkillResults
 
     '''

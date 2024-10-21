@@ -756,7 +756,7 @@ Also adjust the descriptions of talismans and periapts.
         demonNames(list(String)): list of demon names
         comp(List(Compendium_Demon)): list of demons
         fusionSkillIDs (List(Integer)): list of skill ids that are fusion skills 
-        fusionSkillReqs (List(Active_Skill)): list of skills that are fusion skills
+        fusionSkillReqs (List(Fusion_Requirements)): list of fusion skill requirements
         skillNames (List(String)): list of skill names
         magatsuhiRaceSkills (List(Active_Skill)): list of skills that are magatsuhi race skills
         config (Config_Settings): object containing chosen settings of the randomizer
