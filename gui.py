@@ -99,6 +99,15 @@ def createGUI(configSettings):
         presetConfigur.read(paths.PRESET_SETTINGS_FOLDER + "/" + dropdownPresetText.get() + ".ini")
         ApplySettings(presetConfigur)
 
+    def reuseLastSeed():
+        seedEntry.delete(0,len(seedEntry.get()))
+        try:
+            with open(paths.SEED_FILE, 'r') as file:
+                fileContents = file.read()
+                seedEntry.insert(0,fileContents)
+        except FileNotFoundError:
+            seedEntry.insert(0,"")
+
     randomizeButton = tk.Button( #Button to start the randomizer
         persistentFrameLeft,
         text="Randomize!",
@@ -187,6 +196,15 @@ def createGUI(configSettings):
         state=tk.DISABLED,
         command=apply_preset_settings
     )
+
+    reuseLastSeedButton = tk.Button( persistentFrameRight,
+        text="Last Seed",
+        width=10,
+        height=1,
+        bg=NAHOBINO_BLUE,
+        fg="black",
+        command=reuseLastSeed
+    )
     
     def EnableApplySettingsButton(event):
         apply_preset_button.config(state=tk.NORMAL)
@@ -197,6 +215,7 @@ def createGUI(configSettings):
     dropdownPresets.config(fg="black",bg=NAHOBINO_BLUE,activebackground=NAHOBINO_BRIGHT_BLUE)
     dropdownPresets.pack()
     apply_preset_button.pack()
+    reuseLastSeedButton.pack()
 
     demonLabel = tk.Label(page1FrameTop, text="Demon Randomizer")
     demonLabel.grid(row=0, column=0, sticky='nsew', columnspan= 2, padx = [10,0])
