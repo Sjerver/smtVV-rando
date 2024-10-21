@@ -755,9 +755,14 @@ Also adjust the descriptions of talismans and periapts.
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
         comp(List(Compendium_Demon)): list of demons
-        TODO: Add Parameter descriptions and code comments
+        fusionSkillIDs (List(Integer)): list of skill ids that are fusion skills 
+        fusionSkillReqs (List(Active_Skill)): list of skills that are fusion skills
+        skillNames (List(String)): list of skill names
+        magatsuhiRaceSkills (List(Active_Skill)): list of skills that are magatsuhi race skills
+        config (Config_Settings): object containing chosen settings of the randomizer
+        TODO: Add Code comments
 '''
-def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fusionSkillIDs, fusionSkillReqs, skillNames, magatsuhiRaceSkills):  
+def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fusionSkillIDs, fusionSkillReqs, skillNames, magatsuhiRaceSkills, config):  
     itemFile = Message_File('ItemName','',OUTPUT_FOLDERS['ItemName'])
 
     itemNames = itemFile.getMessageStrings()
@@ -816,10 +821,12 @@ def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fus
 
         itemDescs[oldItemID] = itemDescs[oldItemID].replace(originalName, replacementName)
         #print(itemDescs[oldItemID])
-
     for skillID in numbers.MAGATSUHI_SKILLS:
+        if (skillID == 60 and not config.includeOmagatokiCritical) or (skillID == 928 and not config.includeOmnipotentSuccession): 
+            #no need to adjust critical or succession if they aren't in rando pool
+            continue
         description = ""
-        if skillID in fusionSkillIDs:
+        if skillID in fusionSkillIDs: #skill is fusion skill
             reqs = next(skill for skill in fusionSkillReqs if skill.ind == skillID)
             itemID = reqs.itemID
             if reqs.demons[0] > 0: #skill has demon requirement
@@ -831,7 +838,7 @@ def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fus
                         skillDemons = skillDemons[:-2] + " "
                         break
                 description = PERIAPT_DEMON_PATTERN.replace(DEMON_LIST_PATTERN, skillDemons).replace(SKILL_PATTERN,skillNames[skillID])
-            else:
+            else: #skill is alignment based
                 alignment1 = ALIGNMENT_NAMES[reqs.alignments[0][0]]
                 alignment2 = ALIGNMENT_NAMES[reqs.alignments[0][1]]
                 description = PERIAPT_ALIGNMENT_PATTERN.replace(ALIGNMENT_PATTERN, alignment1 + " - " + alignment2).replace(SKILL_PATTERN,skillNames[skillID])
