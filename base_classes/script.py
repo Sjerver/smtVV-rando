@@ -1,5 +1,5 @@
 from enum import IntEnum, StrEnum
-from base_classes.uasset import UAsset
+from base_classes.uasset import UAsset_Custom
 from util.binary_table import Table
 
 class Script_Function_Type(IntEnum):
@@ -16,9 +16,9 @@ class Script_Join_Type(StrEnum):
     CLEOPATRA = 'em1769_0722'
     DAGDA = 'em1769_0723'
 
-class Script_Uasset(UAsset):
+class Script_Uasset(UAsset_Custom):
     def __init__(self, binaryTable: Table):
-        UAsset.__init__(self, binaryTable)
+        UAsset_Custom.__init__(self, binaryTable)
     
     '''
     Returns a list of offsets for all function calls in uexp of the given function where the specified parameter is passed.

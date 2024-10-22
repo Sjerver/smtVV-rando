@@ -3,11 +3,13 @@ from base_classes.script import Script_Function_Type,Script_Uasset
 from base_classes.umap import UMap_File, UMap_File_List
 from base_classes.message import Demon_Sync
 from base_classes.demon_assets import Demon_Model
-from base_classes.uasset import UAsset
+from base_classes.uasset import UAsset_Custom
 from util.binary_table import readBinaryTable
 import util.paths as paths
 import util.numbers as numbers
+import util.jsonExports as jsonExports
 import pandas as pd
+import copy
 
 class Anim_Sync():
     def __init__(self,ind, sync=None):
@@ -34,7 +36,7 @@ LEVEL_UASSETS = {
 #List of events that require updated scaling to trigger events with large demons
 REQUIRES_HIT_UPDATE = [
     'MM_M061_EM1630','MM_M061_EM1631',
-    #'MM_M061_EM1640', #Does not have relativeScale3D in their EventHit TODO: ;ayne figure out how to add that? Otherwise big models make talking impossible
+    'MM_M061_EM1640', #Does not have relativeScale3D in their EventHit TODO: ;ayne figure out how to add that? Otherwise big models make talking impossible
 ]
 
 #Script files for events and what demon models need to be updated in htem
@@ -327,6 +329,9 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
     initDemonModelData()
     umapList = UMap_File_List()
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
+        
+        
+        
         file = scriptFiles.getFile(script)
         hitboxUpdated = False
             
@@ -351,7 +356,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             try: #Does boss use a different model that has no tie to their id
                 replacementID = MODEL_SYNC[replacementID]
             except KeyError:
-                #replacementID = 103 #Testing stuff
+                replacementID = 103 #Testing stuff
                 pass
                 
             if not hitboxUpdated and script in REQUIRES_HIT_UPDATE: #TODO: How to deal with overlap issues
@@ -589,41 +594,61 @@ Modifies the scaling for the event hit trigger of the given script by the scale 
     scale(Float): by what the current scale should be multiplied
 '''
 def updateEventHitScaling(umap: UMap_File,script,scale):
-    uasset = umap.uasset
-    uexp = umap.uexp
+    asset = umap.uasset
+    exports = umap.json['Exports']
+
+    scriptExport = next(exp for exp in exports if script in exp['ObjectName'])
+    eventHitExportID = next(data['Value'] for data in scriptExport['Data'] if data['Name'] == 'EventHit')
+    eventHitExport = exports[eventHitExportID -1]
+
+    try:
+        relativeScale3D = next(data['Value'] for data in eventHitExport['Data'] if data['Name'] == 'RelativeScale3D')
+        
+    except StopIteration: #has no relativeScale3D #TODO: Base scale parameters what should they be??
+        eventHitExport['Data'].append(copy.deepcopy(jsonExports.RELATIVE_SCALE_3D))
+        relativeScale3D = eventHitExport['Data'][-1]['Value']
     
-    #Get NameID for EventHit
-    eventHitNameID = uasset.nameList.index('EventHit')
+    vectorValues = relativeScale3D[0]['Value']
 
-    #Find export for the script data and find which export handles it's eventhit
-    scriptExport = next(exp for exp in uasset.exports if exp.objectName == script)
-    calculatedOffset = scriptExport.serialOffset - len(uasset)
-    nextEventHitNameOffset = uexp.findNextWordOffsetFromOffset(eventHitNameID, calculatedOffset) + 0x19
-    eventHitExportID = uexp.readWord(nextEventHitNameOffset) - 1
-    eventHitExport = uasset.exports[eventHitExportID]
+    vectorValues['X'] *= scale
+    vectorValues['Y'] *= scale
+    vectorValues['Z'] *= scale
+    
+    # uasset = umap.uasset
+    # uexp = umap.uexp
+    
+    # #Get NameID for EventHit
+    # eventHitNameID = uasset.nameList.index('EventHit')
 
-    #Get scaling parameters, update and then write them
-    scalingOffsets = eventHitExport.serialOffset - len(uasset) + 0xA8
-    scalingParam1 = uexp.readFloat(scalingOffsets)
-    scalingParam2 = uexp.readFloat(scalingOffsets+4)
-    scalingParam3 = uexp.readFloat(scalingOffsets+8)
+    # #Find export for the script data and find which export handles it's eventhit
+    # scriptExport = next(exp for exp in uasset.exports if exp.objectName == script)
+    # calculatedOffset = scriptExport.serialOffset - len(uasset)
+    # nextEventHitNameOffset = uexp.findNextWordOffsetFromOffset(eventHitNameID, calculatedOffset) + 0x19
+    # eventHitExportID = uexp.readWord(nextEventHitNameOffset) - 1
+    # eventHitExport = uasset.exports[eventHitExportID]
 
-    #print(scalingParam1)
-    #print(scalingParam2)
-    #print(scalingParam3)
-    #print("SCALE NOW")
+    # #Get scaling parameters, update and then write them
+    # scalingOffsets = eventHitExport.serialOffset - len(uasset) + 0xA8
+    # scalingParam1 = uexp.readFloat(scalingOffsets)
+    # scalingParam2 = uexp.readFloat(scalingOffsets+4)
+    # scalingParam3 = uexp.readFloat(scalingOffsets+8)
 
-    scalingParam1 *= scale
-    scalingParam2 *= scale
-    scalingParam3 *= scale
+    # #print(scalingParam1)
+    # #print(scalingParam2)
+    # #print(scalingParam3)
+    # #print("SCALE NOW")
 
-    #print(scalingParam1)
-    #print(scalingParam2)
-    #print(scalingParam3)
+    # scalingParam1 *= scale
+    # scalingParam2 *= scale
+    # scalingParam3 *= scale
 
-    uexp.writeFloat(scalingParam1, scalingOffsets)
-    uexp.writeFloat(scalingParam2, scalingOffsets + 4)
-    uexp.writeFloat(scalingParam3, scalingOffsets + 8)
+    # #print(scalingParam1)
+    # #print(scalingParam2)
+    # #print(scalingParam3)
+
+    # uexp.writeFloat(scalingParam1, scalingOffsets)
+    # uexp.writeFloat(scalingParam2, scalingOffsets + 4)
+    # uexp.writeFloat(scalingParam3, scalingOffsets + 8)
 
 
     return umap

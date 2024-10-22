@@ -1,5 +1,37 @@
-from base_classes.uasset import UAsset
+from base_classes.uasset import UAsset_Custom
 from util.binary_table import readBinaryTable, writeBinaryTable, Table
+import json
+import os
+import sys
+from pythonnet import load
+
+base_path = os.path.join(os.getcwd(), r'base')
+
+os.environ["PATH"] += os.pathsep + base_path
+sys.path.append(base_path)
+
+runtime_config_path = os.path.join(base_path, 'UAssetAPI.runtimeconfig.json')
+
+coreclrpath = os.path.join(base_path, 'coreclr.dll')
+
+try:
+    load("coreclr")
+    print("CoreCLR loaded successfully")
+except Exception as e:
+    print("Failed to load CoreCLR:", str(e))
+    sys.exit(1)  # Exit if the runtime fails to load
+
+import clr
+try:
+    clr.AddReference('UAssetAPI')
+    print("UAssetAPI DLL loaded successfully")
+except Exception as e:
+    print("Failed to load UAssetAPI DLL:", str(e))
+    sys.exit(1)  
+
+
+from UAssetAPI import UAsset  # type: ignore
+from UAssetAPI.UnrealTypes import EngineVersion  # type: ignore
 
 M061_FOLDER = 'rando/Project/Content/Level/Event/M061'
 
@@ -39,19 +71,29 @@ class UMap_File_List:
             folderKey = name
             
             file = self.files[index]
-            writeBinaryTable(file.uexp.buffer, UMAP_FOLDERS[folderKey] + '/' + name + '.uexp', UMAP_FOLDERS[folderKey])
-            writeBinaryTable(file.uasset.binaryTable.buffer, UMAP_FOLDERS[folderKey] + '/' + name + '.umap', UMAP_FOLDERS[folderKey])
+            stringy = json.dumps(file.json)
+            
+            file.uasset = file.uasset.DeserializeJson(stringy)
+            file.uasset.Write(UMAP_FOLDERS[folderKey] + '/' + name + '.umap')
+            #writeBinaryTable(file.uexp.buffer, UMAP_FOLDERS[folderKey] + '/' + name + '.uexp', UMAP_FOLDERS[folderKey])
+            #writeBinaryTable(file.uasset.binaryTable.buffer, UMAP_FOLDERS[folderKey] + '/' + name + '.umap', UMAP_FOLDERS[folderKey])
     
     '''
     Read the binary data of the files belonging to the umap of the given name and create a UMap_File and add it to the list.
     '''
     def readFile(self,name):
-        uexp = readBinaryTable('base/Level/' + name + '.uexp')
-        uassetData = UAsset(readBinaryTable('base/Level/' + name + '.umap'))
+        # uexp = readBinaryTable('base/Level/' + name + '.uexp')
+        # uassetData = UAsset_Custom(readBinaryTable('base/Level/' + name + '.umap'))
+        my_asset = UAsset('base/Level/' +  name+ '.umap', EngineVersion.VER_UE4_27)
+
+        # Step 2: Serialize the asset to JSON
+        json_serialized_asset = my_asset.SerializeJson()
+        json_object = json.loads(json_serialized_asset)
         self.fileNames.append(name)
-        self.files.append((UMap_File(uassetData,uexp)))
+        self.files.append(UMap_File(my_asset,json_object))
+        
 
 class UMap_File:
-    def __init__(self,uasset: UAsset, uexp: Table):
+    def __init__(self,uasset: UAsset, joson):
         self.uasset = uasset 
-        self.uexp = uexp
+        self.json = joson

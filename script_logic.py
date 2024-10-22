@@ -5,7 +5,7 @@ import util.paths as paths
 import util.numbers as numbers
 from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join_Type
 from base_classes.quests import Mission_Reward, Fake_Mission
-from base_classes.uasset import UAsset
+from base_classes.uasset import UAsset_Custom
 import copy
 
 

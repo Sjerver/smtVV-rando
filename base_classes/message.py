@@ -1,4 +1,4 @@
-from base_classes.uasset import UAsset
+from base_classes.uasset import UAsset_Custom
 from util.binary_table import Table
 from script_logic import readBinaryTable, writeBinaryTable, writeFolder
 
@@ -10,9 +10,9 @@ class Demon_Sync:
             self.sync = sync
         self.nameVariant = nameVariant
 
-class Message_Uasset(UAsset):
+class Message_Uasset(UAsset_Custom):
     def __init__(self, binaryTable: Table):
-        UAsset.__init__(self, binaryTable)
+        UAsset_Custom.__init__(self, binaryTable)
 
 class Message_Uexp():
     def __init__(self, binaryTable: Table):
