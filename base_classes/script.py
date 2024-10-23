@@ -1,5 +1,5 @@
 from enum import IntEnum, StrEnum
-from base_classes.uasset import UAsset_Custom
+from base_classes.uasset_custom import UAsset_Custom
 from util.binary_table import Table
 
 class Script_Function_Type(IntEnum):
@@ -16,6 +16,7 @@ class Script_Join_Type(StrEnum):
     CLEOPATRA = 'em1769_0722'
     DAGDA = 'em1769_0723'
 
+#OUTDATED
 class Script_Uasset(UAsset_Custom):
     def __init__(self, binaryTable: Table):
         UAsset_Custom.__init__(self, binaryTable)
@@ -75,3 +76,70 @@ class Script_Uasset(UAsset_Custom):
         for index, value in enumerate(result):
             result[index] = result[index] + additionalBytes
         return result
+    
+class Bytecode:
+    def __init__(self,jsonForm):
+        self.json = jsonForm
+    
+    '''
+    Returns all occurences of the searched expression in the bytecode.
+    Optional are extra things that narrow down the occurences of search expression.
+        Parameters:
+            searchExpression(String): The expression to search for
+            stackNode(Int): optional value for stackNode that the expression should have
+        Returns list of occurences of the searched expression in bytecode
+    '''
+    def findExpressionUsage(self,searchExpression, stackNode = None, virtualFunctionName = None):
+        foundExpressions = []
+        for expression in self.json:
+            foundExpressions.extend(self.expressionCheck(expression, searchExpression, stackNode, virtualFunctionName))
+        return foundExpressions
+
+    '''
+    Recursively goes through expression and its subexpression to find occurences of searchExpression.
+    Further restrictions to searchExpressions can be added to optional Parameters.
+        Parameters:
+            expression(Dict): The expression to check and check subexpression of
+            searchExpression(String): The expression to search for
+            stackNode(Int): optional value for stackNode that the expression should have
+        Returns list of occurences of the searched expression in bytecode
+    '''
+    def expressionCheck(self,expression, searchExpression, stackNode = None, virtualFunctionName = None):
+        if not expression or not isinstance(expression, dict):
+            #No expression given so return empty list
+            return []
+        if (searchExpression in expression['$type'] and 
+            (stackNode is None or stackNode == expression['StackNode']) and
+            (virtualFunctionName is None or virtualFunctionName == expression['VirtualFunctionName'])):
+                #expression found so return it
+                foundExpressions = [expression]
+                return foundExpressions
+        else:
+            #go through potential subexpressions and add all to list and return that
+            foundExpressions = []
+            foundExpressions.extend(self.expressionCheck(expression.get('Value'), searchExpression, stackNode, virtualFunctionName))
+            foundExpressions.extend(self.expressionCheck(expression.get('New'), searchExpression, stackNode, virtualFunctionName))
+            foundExpressions.extend(self.expressionCheck(expression.get('Expression'), searchExpression, stackNode, virtualFunctionName))
+            foundExpressions.extend(self.expressionCheck(expression.get('Variable'), searchExpression, stackNode, virtualFunctionName))
+            foundExpressions.extend(self.expressionCheck(expression.get('AssignmentExpression'), searchExpression, stackNode, virtualFunctionName))
+            foundExpressions.extend(self.expressionCheck(expression.get('ContextExpression'), searchExpression, stackNode, virtualFunctionName))
+            return foundExpressions
+
+    def getNextExpression(self,expression):
+        try:
+            index = self.json.index(expression)
+            return self.json[index +1]
+        except ValueError:
+            print("Nested in another expression")
+            #TODO: Find next expression here
+
+    def replace(self, expression, newExpression, followInserts):
+        try:
+            index = self.json.index(expression)
+            self.json[index] = newExpression
+            self.json.pop(index +1)#Remove pop execution flow as well
+            for exp in followInserts:
+                self.json.insert(index +1,exp)
+        except ValueError:
+            print("Nested in another expression")
+            #TODO: Find next expression here

@@ -18,7 +18,7 @@ class Mission_Condition:
 class Fake_Mission(Mission):
     def __init__(self):
         Mission.__init__(self)
-        self.uexp = None
+        self.json = None
         self.uasset = None
         self.originalReward = None
         self.script = None

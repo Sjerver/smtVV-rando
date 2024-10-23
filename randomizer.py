@@ -12,6 +12,7 @@ from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
 from base_classes.map_demons import Map_Demon
 from base_classes.map_event import Map_Event
+from base_classes.file_lists import Script_File_List
 import script_logic as scriptLogic
 import message_logic as message_logic
 import model_swap
@@ -88,7 +89,7 @@ class Randomizer:
         self.fusionSkillIDs = []
         self.fusionSkillReqs = []
         self.alreadyAssignedSkills = set()
-        self.scriptFiles = scriptLogic.Script_File_List()
+        self.scriptFiles = Script_File_List()
         self.mapEventArr = []
 
         self.nahobino = Nahobino()

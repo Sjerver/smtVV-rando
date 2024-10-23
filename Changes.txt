@@ -6,6 +6,10 @@ Features:
 * You can now add inheritance violation to the early miracle list
 * Bosses now have hint messages, excluding abscesses and some minibosses
 
+Bugfixes:
+* Adramelech's replacement in Temple of Eternity is scaled down to prevent potential softlocks
+* Hitboxes for scaled down demons now reflect their new size
+
 Balance:
 * Press Turns of basic enemies now are based on what they replace (i.e. Tsuchigumos replacement has 2 press turns as an enemy)
 * Snake Nuwa Boss will no longer end on 50% HP when she is randomized, and her HP is no longer higher than the check she replaces

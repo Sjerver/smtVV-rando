@@ -3,107 +3,11 @@ import os
 from util.binary_table import Table, readBinaryTable, writeBinaryTable, writeFolder
 import util.paths as paths
 import util.numbers as numbers
-from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join_Type
+from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join_Type, Bytecode
 from base_classes.quests import Mission_Reward, Fake_Mission
-from base_classes.uasset import UAsset_Custom
+from base_classes.uasset_custom import UAsset_Custom
 import copy
-
-
-EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event'
-SCRIPT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script' 
-SUBMISSION_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission'
-MAINMISSION_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission'
-MAINMISSION_M061_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission_M061' 
-M061_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061'
-M062_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062'
-M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M060'  
-M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M063'  
-M064_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M064'
-MAIN_M016_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M016' 
-M016_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M016'
-M035_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M035' 
-M036_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M036'
-M030_FOLDER =  'rando/Project/Content/Blueprints/Event/Script/SubMission/M030'
-M050_FOLDER =  'rando/Project/Content/Blueprints/Event/Script/SubMission/M050'
-SHOP_EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/ShopEvent'
-M061_EM1640_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM1640'
-M061_EM1710_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM1710'
-GARDEN_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/Garden'
-MINATO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m061'
-SHINAGAWA_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m062'
-CHIYODA_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m063'
-SHINJUKU_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m064'
-TAITO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m060'
-TOKYO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_TokyoMap'
-EMPYREAN_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m016'
-MAIN_M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M060'
-MAIN_M064_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M064'
-
-#List of which folder each script is in, due to sometimes not being obvious based on file name
-SCRIPT_FOLDERS = {
-    'MM_M061_EM1630': M061_FOLDER, # The Water Nymph 
-    'MM_M061_EM1640': M061_FOLDER, # The Spirit of Love
-    'MM_M062_EM1660': M062_FOLDER, # Holding The Line
-    'MM_M062_EM1650': M062_FOLDER, #Those Seeking Sanctuary
-    'MM_M060_EM1690': M060_FOLDER, # Raid on Tokyo
-    'MM_M060_EM1700': M060_FOLDER, # In Defense of Tokyo
-    'MM_M063_EM1670': M063_FOLDER, # Black Frost Strikes Back
-    'MM_M063_EM1680': M063_FOLDER, # A Sobering Standoff
-    'MM_M064_EM2310': M064_FOLDER, # Reclaim the Golden Stool 
-    'MM_M064_EM2320': M064_FOLDER, # Liberate the Golden Stool
-    'MM_M064_EM2270': M064_FOLDER, # The Vampire in Black
-    'MM_M064_EM2280': M064_FOLDER, # The Hunter in White
-    'MM_M060_EM1420': M060_FOLDER, # Fionn's Resolve
-    'MM_M060_EM1602': M060_FOLDER, # The Destined Leader (Amanazako Could't Join Initially)
-    'MM_M060_EM1601': M060_FOLDER, # The Destined Leader
-    'MM_M016_E0885': MAIN_M016_FOLDER, #Hayataro CoC Chaos
-    'MM_M016_E0885_Direct': MAIN_M016_FOLDER, #Hayataro CoC Chaos
-    'MM_M016_EM1450': M016_FOLDER, # A Plot Revealed
-    'MM_M035_EM1480': M035_FOLDER, # The Seraph's Return
-    'MM_M036_EM1490': M036_FOLDER, # The Red Dragon's Invitation
-    'MM_M061_EM1781': M030_FOLDER, # Rage of a Queen
-    'MM_M030_EM1769': M030_FOLDER, # Bethel Researcher giving DLC Demons 
-    'MM_M061_EM1791': M030_FOLDER, # A Goddess in Training
-    'MM_M061_EM2613_HitAction': M030_FOLDER, # Holy Will and Profane Dissent
-    'MM_M061_EM2601': M061_FOLDER, # Sakura Cinders of the East
-    'MM_M063_EM2170': M063_FOLDER, # Guardian of Tokyo
-    'MM_M061_EM1030': M061_FOLDER, # Cursed Mermaids
-    'MM_M061_EM2050': M050_FOLDER, # Picture-Perfect Debut
-    'MM_M060_EM1310': M060_FOLDER, # Downtown Rock 'n Roll
-    'MM_M060_EM1370': M060_FOLDER, # Keeper of the North
-    'MM_M061_EM1360': M061_FOLDER, # Keeper of the West
-    'MM_M062_EM1340': M062_FOLDER, # Keeper of the South
-    'MM_M063_EM1350': M063_FOLDER, # Keeper of the East
-    'MM_M061_EM1715': M061_EM1710_FOLDER, # Movin' on Up
-    'MM_M060_EM1460': M060_FOLDER, # Gold Dragon's Arrival
-    'MM_M063_EM1592': M063_FOLDER, # A Power Beyond Control 
-    'MM_M030_EM2600': M030_FOLDER, # Sakura Cinders of the East (Periapt Event)
-    'MM_M030_EM2610': M030_FOLDER, # Holy Will and Profane Dissent (Periapt Event
-    'MM_M060_EM2351': GARDEN_FOLDER, # Rascal of the Norse
-    'EM_M061_DevilTalk' : MAINMISSION_M061_FOLDER, # Tutorial Pixie Event
-    'esNPC_m061_31a' : MINATO_NPC_FOLDER, #Rakshasa on Diet Building Roof
-    'esNPC_m061_30a' : MINATO_NPC_FOLDER, #Slime near Qing Long
-    'esNPC_m061_34a' : MINATO_NPC_FOLDER, #Pixie in Kamiyacho
-    'BP_esNPC_TokyoMap_15b': TOKYO_NPC_FOLDER, #Tokyo NPC Mischievous Mascot Periapt
-    'esNPC_m062_32a': SHINAGAWA_NPC_FOLDER, #Nue in Container
-    'esNPC_m062_33a': SHINAGAWA_NPC_FOLDER, #Angel after Loup-garou/Eisheth 
-    'esNPC_m062_40a': SHINAGAWA_NPC_FOLDER, #Slime in Shinagawa
-    'esNPC_m063_20a': CHIYODA_NPC_FOLDER, #Yurlungur NPC
-    'esNPC_m063_21a': CHIYODA_NPC_FOLDER, #Setanta NPC
-    'esNPC_m060_10a': TAITO_NPC_FOLDER, #Orthrus NPC
-    'esNPC_m016_02a': EMPYREAN_NPC_FOLDER, #Ongyo-Ki NPC
-    'MM_M062_EM1132': M062_FOLDER, #Cait Sith in Fairy Village
-    'MM_M060_EM1370_Direct': M060_FOLDER, #Fighting Bishamonten without Quest(shares reward with quest)
-    'MM_M061_E2610': MAINMISSION_M061_FOLDER, #Isis Event in CoV
-    'MM_M060_E0763': MAIN_M060_FOLDER, #Tao Talisman Event at the beginning of Taito
-    'MM_M064_E2797': MAIN_M064_FOLDER, #Qadistu Talisman/Periapt
-    'MM_M064_E2795_Direct': MAIN_M064_FOLDER, #Tsukuyomi Talisman
-    'BP_JakyoEvent': SHOP_EVENT_FOLDER, #Cathedral of Shadows Event
-    'MM_M061_EM0020': M061_FOLDER, # The Angel's Request
-    'BP_ShopEvent': SHOP_EVENT_FOLDER, #First Miman Reward
-    'MM_M061_EM1631': M061_FOLDER, # # The Water Nymph (Ippon-Datara)
-    'MM_M061_EM1640_Hit': M061_EM1640_FOLDER # The Spirit of Love First Entry (Apsaras)
-}
+import json
 
 #Key: EventScriptName, Value: Type for what and where to search for values to be changed
 SCRIPT_JOIN_TYPES = {
@@ -281,65 +185,6 @@ VENGEANCE_EXCLUSIVE_GIFTS = ['MM_M064_E2797','MM_M064_E2797_PERIAPT','MM_M064_E2
 NEWGAMEPLUS_GIFTS = ['BP_JakyoEvent_Comp_Complete', 'BP_JakyoEvent']
 #Script for the Tsukuyomi Talisman
 TSUKUYOMI_TALISMAN_SCRIPT = 'MM_M064_E2795_Direct'
-  
-class Script_File_List:
-    def __init__(self):
-        self.files = []
-        self.fileNames = []
-        self.nameCorrections = {}
-
-    '''
-    Returns a script_file for the given script name. 
-    If there is no script_file for the given name in the list, the file is created by reading the uasset and uexp.
-    '''
-    def getFile(self,name):
-        if name not in self.fileNames:
-            self.readFile(name)
-
-        index = self.fileNames.index(name)
-        return self.files[index]
-
-    '''
-    Set the file of the given script name to the given script_file.
-    '''
-    def setFile(self,name,file):
-        index = self.fileNames.index(name)
-        self.files[index] = file
-
-    '''
-    Writes the uasset and uexp for every file in the list to their respective folder.
-    '''
-    def writeFiles(self):
-        for index, name in enumerate(self.fileNames):
-            folderKey = name
-            if folderKey not in SCRIPT_FOLDERS.keys():
-                folderKey = getEquivalentSource(name)
-            
-            file = self.files[index]
-            writeBinaryTable(file.uexp.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uexp', SCRIPT_FOLDERS[folderKey])
-            writeBinaryTable(file.uasset.binaryTable.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset', SCRIPT_FOLDERS[folderKey])
-    
-    '''
-    Read the binary data of the files belonging to the script of the given name and create a Script_File and add it to the list.
-    '''
-    def readFile(self,name):
-        if 'NPC' in name:
-            scriptPath = 'NPC/'
-        elif 'ShopEvent' in name or 'JakyoEvent' in name:
-            scriptPath = 'ShopEvent/'
-        elif 'EM' in name and not 'DevilTalk' in name:
-            scriptPath = 'SubMission/'
-        else:
-            scriptPath = 'MainMission/'
-        uexp = readBinaryTable('base/Scripts/' + scriptPath + name + '.uexp')
-        uassetData = Script_Uasset(readBinaryTable('base/Scripts/' +scriptPath + name + '.uasset'))
-        self.fileNames.append(name)
-        self.files.append((Script_File(uassetData,uexp)))
-
-class Script_File:
-    def __init__(self,uasset: Script_Uasset, uexp):
-        self.uasset = uasset 
-        self.uexp = uexp
 
 '''
 Returns the original script that is used as the base for a script with equivalent reward.
@@ -378,7 +223,7 @@ def randomizeDemonJoins(replacements, randomDemons,scriptFiles):
     for script, type in SCRIPT_JOIN_TYPES.items():
         #Get Script from script list
         file = scriptFiles.getFile(script)
-        uexpData = file.uexp
+        jsonData = file.json
         uassetData = file.uasset
         
         if randomDemons:#randomize the join demons, otherwise values stay the same as OG and potential output files are overwritten with vanilla files
@@ -399,12 +244,12 @@ def randomizeDemonJoins(replacements, randomDemons,scriptFiles):
             elif script == 'MM_M061_EM2613_HitAction':
                 dagda = newDemon
 
-            updateDemonJoinInScript(uassetData,uexpData,oldDemon,newDemon,type)
+            updateDemonJoinInScript(file,oldDemon,newDemon,type,script)
         
             #Exception for Dagda/Cleo not being recruited during their Quest in some cases but at the researcher instead, which is a different script
             if script == 'MM_M030_EM1769':
-                updateDemonJoinInScript(uassetData,uexpData,numbers.SCRIPT_JOIN_DEMONS['MM_M061_EM1781'],cleopatra,Script_Join_Type.CLEOPATRA)
-                updateDemonJoinInScript(uassetData,uexpData,numbers.SCRIPT_JOIN_DEMONS['MM_M061_EM2613_HitAction'],dagda,Script_Join_Type.DAGDA )
+                updateDemonJoinInScript(file,numbers.SCRIPT_JOIN_DEMONS['MM_M061_EM1781'],cleopatra,Script_Join_Type.CLEOPATRA,script)
+                updateDemonJoinInScript(file,numbers.SCRIPT_JOIN_DEMONS['MM_M061_EM2613_HitAction'],dagda,Script_Join_Type.DAGDA,script )
 
         #Update script entry in list with changed file
         scriptFiles.setFile(script,file)
@@ -418,42 +263,82 @@ Updates the old demon that joins in the script to the new demon.
         newItemID (Integer): the id of the new item that overwrites the old one
         joinType (Script_Join_Type): the type that decides which functions to search for in the uexp
 '''
-def updateDemonJoinInScript(uassetData: Script_Uasset, uexpData: Table, oldDemonID, newDemonID, joinType):
-    byteList = []
-    if joinType == Script_Join_Type.CODE: #Functions are in the script bytecode directly
-        importedFunctions = {#In the Import Map and therefore have a negative index
-            'IsEntryNkm' : 1,
-            'EntryNkmBlank' : 1
-            }
+def updateDemonJoinInScript(file, oldDemonID, newDemonID, joinType,scriptName):
+    jsonData = file.json
+    if joinType == Script_Join_Type.CODE: #Demon ID is set in the script bytecode
+        bytecode = None
+        try: #get bytecode if UAssetAPI can parse it
+            bytecode = Bytecode(jsonData["Exports"][0]['ScriptBytecode'])
+        except KeyError: #otherwise stop and note error
+            print("Script Byte Code only in raw form")
+            return
+        
+        importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+        #These Imports are functions where the demon id to join gets passed as parameter
+        relevantImportNames = ['IsEntryNkm','EntryNkmBlank']
+        relevantImports = {}
+        for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
+            relevantImports[imp] = -1 * importNameList.index(imp) -1
+        
+        for imp,stackNode in relevantImports.items():
+            expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+            for exp in expressions:
+                demonValue = exp['Parameters'][0]['Value']
+                if demonValue == oldDemonID: #only replace old demonID with new one
+                    exp['Parameters'][0]['Value'] = newDemonID
+                    #print(scriptName + ": (DEMON) " + str(oldDemonID) + " -> " + str(newDemonID))
+    else: #Demon ID is set as Data for an export
+        searchName = joinType.value #value of join type is the name of the data we search for
+        relevantExportName = "Default__" + scriptName + "_C" #Export name for script data
 
-        namedFunctions = {}#none #In the Name Map and have positive index
-        bonusBytes = {}#Additional extra bytes that apply to some functions from the name list
-    else: #Functions are not in the bytecode directly and the value of joinType is equal to the searched function in the name map
-        #Function or name searched is still in the Uexp
-        entry = joinType.value
-        importedFunctions = {}
-        namedFunctions = {
-            entry : 1
-        }
-        if joinType == Script_Join_Type.MEPHISTO or joinType == Script_Join_Type.CLEOPATRA or joinType == Script_Join_Type.DAGDA:
-            #Have a different amount of bytes than all others
-            bonusBytes = {
-                entry : -1
-            }
-        else: #Normal amount of bytes between name and id
-            bonusBytes = {
-                entry : 16
-            }
+        relevantExport = next(exp for exp in jsonData["Exports"] if exp['ObjectName'] == relevantExportName)
+        
+        for data in relevantExport['Data']:
+            if data['Name'] == searchName: #The value here is unique per script so no need to check for old demon ID
+                data['Value'] = newDemonID
+                #print(scriptName + ": (DEMON) " + str(oldDemonID) + " -> " + str(newDemonID))
+            if data['Name'] == 'CanEntryDevil_Label_to_ID': #Exception for demons that join at researcher
+                for subData in data['Value']:
+                    if subData[0]['Value'] == searchName:
+                        subData[1]['Value'] = newDemonID
+                        #print(scriptName + ": (DEMON) " + str(oldDemonID) + " -> " + str(newDemonID))
+                        break
+    file.updateFileWithJson(jsonData)                    
+    # byteList = []
+    # if joinType == Script_Join_Type.CODE: #Functions are in the script bytecode directly
+    #     importedFunctions = {#In the Import Map and therefore have a negative index
+    #         'IsEntryNkm' : 1,
+    #         'EntryNkmBlank' : 1
+    #         }
 
-    for name, number in importedFunctions.items():
-        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number)
-    for name, number in namedFunctions.items():
-        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number, bonusBytes[name])
+    #     namedFunctions = {}#none #In the Name Map and have positive index
+    #     bonusBytes = {}#Additional extra bytes that apply to some functions from the name list
+    # else: #Functions are not in the bytecode directly and the value of joinType is equal to the searched function in the name map
+    #     #Function or name searched is still in the Uexp
+    #     entry = joinType.value
+    #     importedFunctions = {}
+    #     namedFunctions = {
+    #         entry : 1
+    #     }
+    #     if joinType == Script_Join_Type.MEPHISTO or joinType == Script_Join_Type.CLEOPATRA or joinType == Script_Join_Type.DAGDA:
+    #         #Have a different amount of bytes than all others
+    #         bonusBytes = {
+    #             entry : -1
+    #         }
+    #     else: #Normal amount of bytes between name and id
+    #         bonusBytes = {
+    #             entry : 16
+    #         }
 
-    for offset in byteList: #find bytes that were found but don't correspond to the oldDemonID
-        if uexpData.readWord(offset) != oldDemonID:
-            continue
-        uexpData.writeWord(newDemonID, offset)
+    # for name, number in importedFunctions.items():
+    #     byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number)
+    # for name, number in namedFunctions.items():
+    #     byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number, bonusBytes[name])
+
+    # for offset in byteList: #find bytes that were found but don't correspond to the oldDemonID
+    #     if uexpData.readWord(offset) != oldDemonID:
+    #         continue
+    #     uexpData.writeWord(newDemonID, offset)
 
 '''
 Changes the reward for collecting the first miman which is rewarded via an reward.
@@ -467,7 +352,7 @@ Changes the reward for collecting the first miman which is rewarded via an rewar
 def adjustFirstMimanEventReward(config, itemNames, replacements, essenceArr, scriptFiles):
     #Grab file from file list
     file = scriptFiles.getFile('BP_ShopEvent')
-    scriptData = file.uexp
+    scriptData = file.json
     uassetData = file.uasset
 
     ogEssenceID = 496 #Id for Onmoraki's Essence
@@ -486,7 +371,7 @@ def adjustFirstMimanEventReward(config, itemNames, replacements, essenceArr, scr
             if essence.demon.value == demonID:
                 essenceID = essence.ind
 
-    updateItemRewardInScript(uassetData, scriptData, ogEssenceID, essenceID)
+    updateItemRewardInScript(file, ogEssenceID, essenceID, 'BP_ShopEvent')
     scriptFiles.setFile('BP_ShopEvent',file)
 
 '''
@@ -498,31 +383,73 @@ Updates the old item given through the script to the new item.
         newItemID (Integer): the id of the new item that overwrites the old one
         #TODO: Include amount??
 '''
-def updateItemRewardInScript(uassetData: Script_Uasset, uexpData: Table, oldItemID, newItemID):
-    
-    byteList = []
-    
-    #FunctionName : desired Parameter
-    importedFunctions = { #In the Import Map and therefore have a negative index
-        'ItemGet': 1,
-        'ItemGetNum': 1,
-        }
-    namedFunctions = { #In the Name Map and have positive index
-        'IItemWindowSetParameter': 1,
-        'IMsgSetRichTextValueParam': 2 #Second parameter is itemID
-    }
-    
-    #Get the offsets where the function is called or used in the bytecode
-    for name, number in importedFunctions.items():
-        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number)
-    for name, number in namedFunctions.items():
-        byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number)
+def updateItemRewardInScript(file, oldItemID, newItemID,scriptName):
+    jsonData = file.json
+    bytecode = None
+    try: #get bytecode if UAssetAPI can parse it
+        exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
+        executeUbergraph = "ExecuteUbergraph_" + scriptName
+        exportIndex = exportNameList.index(executeUbergraph)
 
-    for offset in byteList:
-        if uexpData.readHalfword(offset) != oldItemID:
-            continue #skip offsets where the oldItemID is not set
-        uexpData.writeHalfword(newItemID, offset) #update with newItemID else
-        #print(str(oldItemID) + " -> " + str(newItemID) + " (" + str(len(byteList)))
+        bytecode = Bytecode(jsonData["Exports"][exportIndex]['ScriptBytecode'])
+    except KeyError: #otherwise stop and note error
+        print("Script Byte Code only in raw form")
+        return
+    importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+    #These Imports are functions where the demon id to join gets passed as parameter
+    relevantImportNames = ['ItemGet','ItemGetNum']
+    relevantImports = {}
+    for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
+        relevantImports[imp] = -1 * importNameList.index(imp) -1
+    for imp,stackNode in relevantImports.items():
+            expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+            for exp in expressions:
+                itemValue = exp['Parameters'][0].get('Value')
+                if itemValue == oldItemID:
+                    exp['Parameters'][0]['Value']= newItemID
+                    #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
+                    if imp == 'ItemGet':
+                        #TODO: 2nd Value is amount
+                        pass
+    
+    relevantFunctionNames = ['IItemWindowSetParameter', 'IMsgSetRichTextValueParam']
+    for func in relevantFunctionNames:
+        expressions = bytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
+        for exp in expressions:
+            if func == 'IItemWindowSetParameter':
+                itemValue = exp['Parameters'][0].get('Value')
+                if itemValue == oldItemID:
+                    exp['Parameters'][0]['Value']= newItemID
+                    #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
+            if func == 'IMsgSetRichTextValueParam':
+                itemValue = exp['Parameters'][1].get('Value')
+                if itemValue == oldItemID:
+                    exp['Parameters'][1]['Value']= newItemID
+                    #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
+    file.updateFileWithJson(jsonData)
+    # byteList = []
+    
+    # #FunctionName : desired Parameter
+    # importedFunctions = { #In the Import Map and therefore have a negative index
+    #     'ItemGet': 1,
+    #     'ItemGetNum': 1,
+    #     }
+    # namedFunctions = { #In the Name Map and have positive index
+    #     'IItemWindowSetParameter': 1,
+    #     'IMsgSetRichTextValueParam': 2 #Second parameter is itemID
+    # }
+    
+    # #Get the offsets where the function is called or used in the bytecode
+    # for name, number in importedFunctions.items():
+    #     byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number)
+    # for name, number in namedFunctions.items():
+    #     byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number)
+
+    # for offset in byteList:
+    #     if uexpData.readHalfword(offset) != oldItemID:
+    #         continue #skip offsets where the oldItemID is not set
+    #     uexpData.writeHalfword(newItemID, offset) #update with newItemID else
+    #     #print(str(oldItemID) + " -> " + str(newItemID) + " (" + str(len(byteList)))
 
 '''
 Creates fake missions from certain event scripts involving quests, that have more than one reward.
@@ -541,10 +468,10 @@ def createFakeMissionsForEventRewards(scriptFiles):
             fakeMission.originalReward = copy.deepcopy(fakeMission.reward)
 
             file = scriptFiles.getFile(script)
-            uexpData = file.uexp
+            jsonData = file.json
             uassetData = file.uasset 
 
-            fakeMission.uexp = uexpData
+            fakeMission.json = jsonData
             fakeMission.uasset = uassetData
             fakeMission.script = script
             
@@ -573,7 +500,7 @@ def updateAndRemoveFakeMissions(missionArr,scriptFiles):
             file = scriptFiles.getFile(mission.script)
 
             #print(str(mission.ind) + ": " + str(mission.originalReward.ind) + " -> " + str(mission.reward.ind) )
-            updateItemRewardInScript(file.uasset, file.uexp, mission.originalReward.ind, mission.reward.ind)
+            updateItemRewardInScript(file, mission.originalReward.ind, mission.reward.ind, mission.script)
 
             scriptFiles.setFile(mission.script,file)
 
@@ -602,33 +529,33 @@ def updateGiftScripts(gifts, scriptFiles):
         #print(correctScript + " " + str(gift.item.ind))
         if 'NPC' in correctScript: #NPC data tables are handled here   
             file = scriptFiles.getFile(correctScript)
-            uexpData = file.uexp
+            jsonData = file.json
             uassetData = file.uasset
-            if gift.script in GIFT_EXTRA_SCRIPTS.values(): # add uexp to dict if script has additional versions
-                uexpCorrection[gift.script] = uexpData
-            if correctScript in uexpCorrection.keys(): #get already modified uexp from correct script
-                uexpData = uexpCorrection[correctScript]
+            #if gift.script in GIFT_EXTRA_SCRIPTS.values(): # add uexp to dict if script has additional versions
+                #uexpCorrection[gift.script] = jsonData
+            #if correctScript in uexpCorrection.keys(): #get already modified uexp from correct script
+                #jsonData = uexpCorrection[correctScript]
             if any(gift.script in scripts for scripts in GIFT_EQUIVALENT_SCRIPTS.values()): #if script was copied as equivalent, use original base item
                 equivalentScript = getEquivalentSource(gift.script)
                 #print(gift.script + " -> EQ " + equivalentScript +" " +  str(gift.item.ind))
-                updateNPCGiftInScript(BASE_GIFT_ITEMS[equivalentScript], gift.item.ind, uassetData, uexpData)
+                updateNPCGiftInScript(BASE_GIFT_ITEMS[equivalentScript], gift.item.ind, file, correctScript)
             else:
                 #print(gift.script + " "+ str(gift.item.ind))
-                updateNPCGiftInScript(BASE_GIFT_ITEMS[gift.script], gift.item.ind, uassetData, uexpData)
+                updateNPCGiftInScript(BASE_GIFT_ITEMS[gift.script], gift.item.ind, file, correctScript)
         else: #else it is an event script
             file = scriptFiles.getFile(correctScript)
-            uexpData = file.uexp
+            jsonData = file.json
             uassetData = file.uasset
-            if gift.script in GIFT_EXTRA_SCRIPTS.values(): # add uexp to dict if script has additional versions
-                uexpCorrection[gift.script] = uexpData
-            if correctScript in uexpCorrection.keys(): #get already modified uexp from correct script
-                uexpData = uexpCorrection[correctScript]
+            #if gift.script in GIFT_EXTRA_SCRIPTS.values(): # add uexp to dict if script has additional versions
+                #uexpCorrection[gift.script] = jsonData
+            #if correctScript in uexpCorrection.keys(): #get already modified uexp from correct script
+                #jsonData = uexpCorrection[correctScript]
             if any(gift.script in scripts for scripts in GIFT_EQUIVALENT_SCRIPTS.values()): #if script was copied as equivalent, use original base item
                 equivalentScript = getEquivalentSource(gift.script)
-                updateItemRewardInScript(uassetData,uexpData,BASE_GIFT_ITEMS[equivalentScript],gift.item.ind)
+                updateItemRewardInScript(file,BASE_GIFT_ITEMS[equivalentScript],gift.item.ind, correctScript)
             else:
                 #print(gift.script + ": " + str(BASE_GIFT_ITEMS[gift.script]) + " -> " + str(gift.item.ind) )
-                updateItemRewardInScript(uassetData,uexpData,BASE_GIFT_ITEMS[gift.script],gift.item.ind)
+                updateItemRewardInScript(file,BASE_GIFT_ITEMS[gift.script],gift.item.ind,correctScript)
 
         scriptFiles.setFile(correctScript,file)
 
@@ -641,18 +568,30 @@ Updates the old item given through the npc script to the new item.
         newItemID (Integer): the id of the new item that overwrites the old one
         #TODO: Include amount??
 '''   
-def updateNPCGiftInScript(oldItemID, newItemID, uassetData, uexpData):
-    byteList = []
-    namedFunctions = [
-        'E_EVENT_SCRIPT_TYPE::NewEnumerator52', #Enum entry ItemAdd2 per E_EVENT_SCRIPT_TYPE.uasset
-    ]
-    bonusBytes = {
-        'E_EVENT_SCRIPT_TYPE::NewEnumerator52': 33,
-    }
-    for name in namedFunctions:
-        byteList = byteList + uassetData.getOffsetsForRowInNPCDataTable(uexpData,name,Script_Function_Type.NAME, bonusBytes[name])
+def updateNPCGiftInScript(oldItemID, newItemID, file, script):
+    jsonData = file.json
+    export = next(exp for exp in jsonData['Exports'] if exp['ObjectName'] == script)
 
-    for offset in byteList:
-        if uexpData.readHalfword(offset) != oldItemID:
-            continue
-        uexpData.writeHalfword(newItemID, offset)
+    dataList = export['Table']['Data']
+    for data in dataList:
+        values = data['Value']
+        if values[0].get('EnumValue') == 'E_EVENT_SCRIPT_TYPE::NewEnumerator52':
+            if values[1].get('Value') == oldItemID:
+                values[1]['Value'] = newItemID
+                #print(script + ": " + str(oldItemID) + " -> " + str(newItemID))
+                #values[2] would then be amount
+    file.updateFileWithJson(jsonData)
+    # byteList = []
+    # namedFunctions = [
+    #     'E_EVENT_SCRIPT_TYPE::NewEnumerator52', #Enum entry ItemAdd2 per E_EVENT_SCRIPT_TYPE.uasset
+    # ]
+    # bonusBytes = {
+    #     'E_EVENT_SCRIPT_TYPE::NewEnumerator52': 33,
+    # }
+    # for name in namedFunctions:
+    #     byteList = byteList + uassetData.getOffsetsForRowInNPCDataTable(uexpData,name,Script_Function_Type.NAME, bonusBytes[name])
+
+    # for offset in byteList:
+    #     if uexpData.readHalfword(offset) != oldItemID:
+    #         continue
+    #     uexpData.writeHalfword(newItemID, offset)

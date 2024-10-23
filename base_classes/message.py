@@ -1,4 +1,4 @@
-from base_classes.uasset import UAsset_Custom
+from base_classes.uasset_custom import UAsset_Custom
 from util.binary_table import Table
 from script_logic import readBinaryTable, writeBinaryTable, writeFolder
 

@@ -1,9 +1,8 @@
-from script_logic import Script_File, Script_File_List
-from base_classes.script import Script_Function_Type,Script_Uasset
-from base_classes.umap import UMap_File, UMap_File_List
+from base_classes.script import Script_Function_Type,Script_Uasset,Bytecode
+from base_classes.file_lists import UMap_File, UMap_File_List, Script_File, Script_File_List
 from base_classes.message import Demon_Sync
 from base_classes.demon_assets import Demon_Model
-from base_classes.uasset import UAsset_Custom
+from base_classes.uasset_custom import UAsset_Custom
 from util.binary_table import readBinaryTable
 import util.paths as paths
 import util.numbers as numbers
@@ -35,15 +34,14 @@ LEVEL_UASSETS = {
 
 #List of events that require updated scaling to trigger events with large demons
 REQUIRES_HIT_UPDATE = [
-    'MM_M061_EM1630','MM_M061_EM1631',
-    'MM_M061_EM1640', #Does not have relativeScale3D in their EventHit TODO: ;ayne figure out how to add that? Otherwise big models make talking impossible
+    'MM_M061_EM1630','MM_M061_EM1631','MM_M061_EM1640',
 ]
 
 #Script files for events and what demon models need to be updated in htem
 #Demon_Sync(demonID in file, if different from demonID in file: demonID to take replacement from)
 EVENT_SCRIPT_MODELS = {
     'EM_M061_DevilTalk': [Demon_Sync(59)], #Talk Tutorial (Pixie)
-    'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43)], # The Water Nymph (Leanan)
+    'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43)], # The Water Nymph (Leanan (also Apsaras maybe??))
     'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
     'MM_M061_EM1640': [Demon_Sync(43)], # The Spirit of Love (Apsaras)
     'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Entry (Apsaras)
@@ -293,6 +291,7 @@ MODEL_SYNC = {
     805: 206, # Zouchouten (2 Turn)
     860: 206, # Zouchouten (4 Turn)
     #TODO: Should be complete? With the exception of bosses who use NPC Models
+    #NPC Model Bosses (that came up during testing): 578 Dazai
 }
 
 
@@ -356,7 +355,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             try: #Does boss use a different model that has no tie to their id
                 replacementID = MODEL_SYNC[replacementID]
             except KeyError:
-                replacementID = 103 #Testing stuff
+                #replacementID = 103 #Testing stuff for event hit scaling
                 pass
                 
             if not hitboxUpdated and script in REQUIRES_HIT_UPDATE: #TODO: How to deal with overlap issues
@@ -366,7 +365,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
                     replacement = next(d for x, d in enumerate(mapSymbolArr) if d.demonID == replacementID)
                     scalingFactor = og.encountCollision.stretchToBox(replacement.encountCollision, ignoreY = True)
                     if scalingFactor != 0:
-                        print(scalingFactor)
+                        #print(scalingFactor)
                         scale = scalingFactor
                     else:
                         scale = 1.5 #Increase by 50%
@@ -395,7 +394,7 @@ Replaces the a demon model with the model of another demon in the given script.
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
 def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementDemonID, scriptFiles: Script_File_List):
-    uexpData = file.uexp
+    jsonData = file.json
     uassetData = file.uasset
 
     #Get the Strings corresponding to the old demon
@@ -410,148 +409,239 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     newName = MODEL_NAMES[newIDString]
     print("SWAP: " + oldName + " -> " + newName + " in " + script)
 
-    for index, name in enumerate(uassetData.nameList): #change occurences of oldDemonID and oldDemonName in all names in the uasset
+    for index, name in enumerate(jsonData['NameMap']): #change occurences of oldDemonID and oldDemonName in all names in the uasset
         if "ev" + oldIDString in name: #to just get the model names since sometimes DevXXX or devXXX
-            uassetData.nameList[index] = uassetData.nameList[index].replace(oldIDString,newIDString)
+            nameEntry = file.getNameAtIndex(index)
+            nameEntry = nameEntry.replace(oldIDString,newIDString)
+            if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
+                nameEntry = nameEntry.replace("_Simple","")
+            file.setNameAtIndex(index,nameEntry)
         if oldName in name:
-            uassetData.nameList[index] = uassetData.nameList[index].replace(oldName,newName)
+            nameEntry = file.getNameAtIndex(index)
+            nameEntry = nameEntry.replace(oldName,newName)
+            file.setNameAtIndex(index,nameEntry)
+    
+    jsonData = file.updateJsonWithUasset()
+
+    bytecode = None
+    byteCodeSize = None
+    try: #get bytecode if UAssetAPI can parse it
+        exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
+        executeUbergraph = "ExecuteUbergraph_" + script
+        exportIndex = exportNameList.index(executeUbergraph)
+
+        bytecode = Bytecode(jsonData["Exports"][exportIndex]['ScriptBytecode'])
+        byteCodeSize = jsonData["Exports"][exportIndex]['ScriptBytecodeSize']
+    except KeyError: #otherwise stop and note error
+        print("Script Byte Code only in raw form")
+        return
+    
+    relevantFunctionNames = ['BPL_AdjustMapSymbolScale']
+    for func in relevantFunctionNames:
+        expressions = bytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
+        for exp in expressions:
+            modelValue = exp['Parameters'][1].get('Value')
+            if modelValue == ogDemonID:
+                exp['Parameters'][1]['Value'] = replacementDemonID
+
+    importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+    relevantImportNames = ['LoadAsset','PrintString','LoadAssetClass']
+    relevantImports = {}
+    for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
+        if imp in importNameList:
+            relevantImports[imp] = -1 * importNameList.index(imp) -1
+    for imp,stackNode in relevantImports.items():
+        expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+        expressions.reverse()
+        for exp in expressions:
+            if imp == 'PrintString':
+                stringValue = exp['Parameters'][1].get('Value')
+                stringValue = stringValue.replace(oldIDString,newIDString)
+                exp['Parameters'][1]['Value'] = stringValue
+            elif imp == 'LoadAsset' or imp == 'LoadAssetClass':
+                stringValue = exp['Parameters'][1].get('Value').get('Value')
+                originalLength = len(stringValue)
+                newString = stringValue.replace(oldName,newName).replace(oldIDString,newIDString)
+                newString = replaceNonExistentAnimations(script, newString,newIDString,newName)
+                lengthDifference = len(newString) - len(stringValue)
+
+                if oldIDString in stringValue: 
+                    #if the oldID is there in string format, replace with new string
+                    stringValue = stringValue.replace(oldIDString,newIDString)
+                if oldName in stringValue and lengthDifference == 0:
+                    #length is the same so can swap name and anim
+                    stringValue = stringValue.replace(oldName,newName)
+                    stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName)#exp['Parameters'][1]['Value']['Value'] = stringValue
+                    exp['Parameters'][1]['Value']['Value'] = stringValue
+                elif oldName in stringValue and lengthDifference != 0:
+                    newString = stringValue.replace(oldName,newName)                
+                    newString = replaceNonExistentAnimations(script, newString, newIDString,newName)
+                    
+                    #TODO: Since we can't jump back here grab next exp in bytecode as well which is popExecutionFlow
+                    popExecutionFlow = bytecode.getNextExpression(exp)
+                    newExpression = copy.deepcopy(exp)
+                    newExpression['Parameters'][1]['Value']['Value'] = newString
+                    bytecode.json.append(newExpression)
+                    bytecode.json.append(popExecutionFlow)
+
+                    #change original expression to be jump
+                    expReplacement = copy.deepcopy(jsonExports.BYTECODE_JUMP)
+                    expReplacement['CodeOffset'] = byteCodeSize
+
+                    nothingInsts = []
+                    amount = 8 + 49 + originalLength
+                    for i in range(amount):
+                        nothingInsts.append(jsonExports.BYTECODE_NOTHING)
+
+                    bytecode.replace(exp, expReplacement, nothingInsts)
+
+                    byteCodeSize = byteCodeSize + 4 + 8+ 49 +len(newString) + 1#4 from Jump, 8+49+(newStringLength) + 1 stringEndDeterminator
+                else: #oldNamen not in String
+                    exp['Parameters'][1]['Value']['Value'] = stringValue
+    file.updateFileWithJson(jsonData)
+    
+    # for index, name in enumerate(uassetData.nameList): #change occurences of oldDemonID and oldDemonName in all names in the uasset
+    #     if "ev" + oldIDString in name: #to just get the model names since sometimes DevXXX or devXXX
+    #         uassetData.nameList[index] = uassetData.nameList[index].replace(oldIDString,newIDString)
+    #     if oldName in name:
+    #         uassetData.nameList[index] = uassetData.nameList[index].replace(oldName,newName)
         
-    if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
-        #If the demon does not have a simple model blueprint use the general model blueprint
-        for index, name in enumerate(uassetData.nameList): 
-            if "_Simple" in name and newIDString in name:
-                uassetData.nameList[index] = uassetData.nameList[index].replace("_Simple","")
-    #Update maps in uasset before moving on
-    uassetData.updateNameMap()
+    # if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
+    #     #If the demon does not have a simple model blueprint use the general model blueprint
+    #     for index, name in enumerate(uassetData.nameList): 
+    #         if "_Simple" in name and newIDString in name:
+    #             uassetData.nameList[index] = uassetData.nameList[index].replace("_Simple","")
+    # #Update maps in uasset before moving on
+    # uassetData.updateNameMap()
     
-    #Find offsets for where the demonID needs to be updated in function calls
-    demonModelIDBytes =[]
-    namedFunctions = {
-        'BPL_AdjustMapSymbolScale': 2,
-    }
-    bonusBytes = {
-        'BPL_AdjustMapSymbolScale': 12,
-    }
-    for name, number in namedFunctions.items():
-        demonModelIDBytes = demonModelIDBytes + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number, bonusBytes[name])
+    # #Find offsets for where the demonID needs to be updated in function calls
+    # demonModelIDBytes =[]
+    # namedFunctions = {
+    #     'BPL_AdjustMapSymbolScale': 2,
+    # }
+    # bonusBytes = {
+    #     'BPL_AdjustMapSymbolScale': 12,
+    # }
+    # for name, number in namedFunctions.items():
+    #     demonModelIDBytes = demonModelIDBytes + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number, bonusBytes[name])
 
     
-    for offset in demonModelIDBytes: #remove bytes that were mistakingly found and do not set the ogDemonID in number form
-        if uexpData.readWord(offset) != ogDemonID:
-            continue
-        uexpData.writeWord(replacementDemonID, offset)
+    # for offset in demonModelIDBytes: #remove bytes that were mistakingly found and do not set the ogDemonID in number form
+    #     if uexpData.readWord(offset) != ogDemonID:
+    #         continue
+    #     uexpData.writeWord(replacementDemonID, offset)
     
-    #Find potential offsets for where the the asset paths need to be updated with the new demon info
-    demonModelAssetStringBytes = []
-    importedFunctions = { #each parameter is 5 bytes after
-        'LoadAsset': 1,
-        'PrintString' : 1,
-        'LoadAssetClass': 1,
-        }
-    bonusBytes = {
-        'LoadAsset': 2,
-        'PrintString': 1,
-        'LoadAssetClass': 2,
-    }
+    # #Find potential offsets for where the the asset paths need to be updated with the new demon info
+    # demonModelAssetStringBytes = []
+    # importedFunctions = { #each parameter is 5 bytes after
+    #     'LoadAsset': 1,
+    #     'PrintString' : 1,
+    #     'LoadAssetClass': 1,
+    #     }
+    # bonusBytes = {
+    #     'LoadAsset': 2,
+    #     'PrintString': 1,
+    #     'LoadAssetClass': 2,
+    # }
 
-    for name, number in importedFunctions.items():
-        demonModelAssetStringBytes = demonModelAssetStringBytes + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number,bonusBytes[name] )
+    # for name, number in importedFunctions.items():
+    #     demonModelAssetStringBytes = demonModelAssetStringBytes + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number,bonusBytes[name] )
     
-    demonModelAssetStringBytes.sort(reverse=True) #sort offsets so that inserting/removing bytes does not effect offsets that come after in the list
-    for offset in demonModelAssetStringBytes:
-        offsetString = uexpData.readUntilEmptyByte(offset).decode('ascii')
-        newString = offsetString.replace(oldName,newName).replace(oldIDString,newIDString)
-        #Change Animation if the demon does not have the required animation
-        newString = replaceNonExistentAnimations(script, newString,newIDString,newName)
-        lengthDifference = len(newString) - len(offsetString)
+    # demonModelAssetStringBytes.sort(reverse=True) #sort offsets so that inserting/removing bytes does not effect offsets that come after in the list
+    # for offset in demonModelAssetStringBytes:
+    #     offsetString = uexpData.readUntilEmptyByte(offset).decode('ascii')
+    #     newString = offsetString.replace(oldName,newName).replace(oldIDString,newIDString)
+    #     #Change Animation if the demon does not have the required animation
+    #     newString = replaceNonExistentAnimations(script, newString,newIDString,newName)
+    #     lengthDifference = len(newString) - len(offsetString)
        
-        if oldIDString in offsetString: 
-            #if the oldID is there in string format, replace with new string
-            offsetString = offsetString.replace(oldIDString,newIDString)
-            if oldName not in offsetString: 
-                #if oldName is not in string, nothing else needs to be updated and string can be written
-                offsetString = offsetString.encode('ascii')
-                uexpData.writeXChars(offsetString, len(offsetString), offset)
-                continue  
-        if oldName in offsetString: 
-            #oldName is in string so needs to be updated
-            if lengthDifference != 0:#newName is not the same length
-                #Main script bytecode function is executeUbergraph which always starts by jumping to the whatever "EntryPoint" is set to
+    #     if oldIDString in offsetString: 
+    #         #if the oldID is there in string format, replace with new string
+    #         offsetString = offsetString.replace(oldIDString,newIDString)
+    #         if oldName not in offsetString: 
+    #             #if oldName is not in string, nothing else needs to be updated and string can be written
+    #             offsetString = offsetString.encode('ascii')
+    #             uexpData.writeXChars(offsetString, len(offsetString), offset)
+    #             continue  
+    #     if oldName in offsetString: 
+    #         #oldName is in string so needs to be updated
+    #         if lengthDifference != 0:#newName is not the same length
+    #             #Main script bytecode function is executeUbergraph which always starts by jumping to the whatever "EntryPoint" is set to
                 
-                # This happens at the beginning and is therefore a set byte distance away from where the ScriptByteCodeSize (how many statements) 
-                # and the Amount of Bytes of the Script byte code has in total is which is th true goal 
-                executeUbergraphNameID = uassetData.nameMap["EntryPoint"]
-                potentialEntryPointOffsets = uexpData.findWordOffsets(executeUbergraphNameID) #Potential offsets
-                entryPointGoToOffset = potentialEntryPointOffsets[0]
-                for ep in potentialEntryPointOffsets:
-                    check = uexpData.readWord(ep -4)
-                    check2 = uexpData.readHalfword(ep -6)
-                    if check == 1 and check2 == 78: #These bytes for the computated entryPoint jump are always in front of it, so the correct one needs to have them
-                        entryPointGoToOffset = ep
-                        break
-                #print(entryPointGoToOffset)
+    #             # This happens at the beginning and is therefore a set byte distance away from where the ScriptByteCodeSize (how many statements) 
+    #             # and the Amount of Bytes of the Script byte code has in total is which is th true goal 
+    #             executeUbergraphNameID = uassetData.nameMap["EntryPoint"]
+    #             potentialEntryPointOffsets = uexpData.findWordOffsets(executeUbergraphNameID) #Potential offsets
+    #             entryPointGoToOffset = potentialEntryPointOffsets[0]
+    #             for ep in potentialEntryPointOffsets:
+    #                 check = uexpData.readWord(ep -4)
+    #                 check2 = uexpData.readHalfword(ep -6)
+    #                 if check == 1 and check2 == 78: #These bytes for the computated entryPoint jump are always in front of it, so the correct one needs to have them
+    #                     entryPointGoToOffset = ep
+    #                     break
+    #             #print(entryPointGoToOffset)
                 
-                scriptByteCodeSize = uexpData.readWord(entryPointGoToOffset - 19) #Descripes how many instructions the bytecode contains(I believe)
-                scriptByteCodeByteSize = uexpData.readWord(entryPointGoToOffset - 15)#Describes how many bytes the bytecode takes up
+    #             scriptByteCodeSize = uexpData.readWord(entryPointGoToOffset - 19) #Descripes how many instructions the bytecode contains(I believe)
+    #             scriptByteCodeByteSize = uexpData.readWord(entryPointGoToOffset - 15)#Describes how many bytes the bytecode takes up
 
                 
                
-                #Create the new String with the newDemonName and transform to bytes at the end
-                newString = offsetString.replace(oldName,newName)                
-                newString = replaceNonExistentAnimations(script, newString, newIDString,newName)
-                stringBytes = newString.encode('ascii')
+    #             #Create the new String with the newDemonName and transform to bytes at the end
+    #             newString = offsetString.replace(oldName,newName)                
+    #             newString = replaceNonExistentAnimations(script, newString, newIDString,newName)
+    #             stringBytes = newString.encode('ascii')
 
 
-                #Grab 8 bytes pre string, the original string, and 49 bytes post string
-                ogStringBytes = uexpData.getXBytes(offset, len(offsetString))
-                preStringBytes = uexpData.getXBytes(offset-8,8)
-                postStringBytes = uexpData.getXBytes(offset + len(offsetString), 49)
-                #TODO: Currently takes the popexecutionflow with them but if there is an event where there is no popexecutionflow after loading the asset this wouldn't work
-                #Create bytearrays of the original and the new
-                originalTotalBytes = preStringBytes + ogStringBytes + postStringBytes
-                totalBytes = preStringBytes + stringBytes +postStringBytes
+    #             #Grab 8 bytes pre string, the original string, and 49 bytes post string
+    #             ogStringBytes = uexpData.getXBytes(offset, len(offsetString))
+    #             preStringBytes = uexpData.getXBytes(offset-8,8)
+    #             postStringBytes = uexpData.getXBytes(offset + len(offsetString), 49)
+    #             #TODO: Currently takes the popexecutionflow with them but if there is an event where there is no popexecutionflow after loading the asset this wouldn't work
+    #             #Create bytearrays of the original and the new
+    #             originalTotalBytes = preStringBytes + ogStringBytes + postStringBytes
+    #             totalBytes = preStringBytes + stringBytes +postStringBytes
 
-                # Figure out end of bytecode by checking where the next export begins and looking backwards
-                endInsertOffset = uassetData.exports[1].serialOffset - len(uassetData.binaryTable.buffer) - 12
+    #             # Figure out end of bytecode by checking where the next export begins and looking backwards
+    #             endInsertOffset = uassetData.exports[1].serialOffset - len(uassetData.binaryTable.buffer) - 12
                 
-                #Insert new string at the end
-                uexpData.insertBytes(endInsertOffset,totalBytes)
+    #             #Insert new string at the end
+    #             uexpData.insertBytes(endInsertOffset,totalBytes)
 
-                #jumpBack = bytearray(5)
-                #uexpData.insertBytes(endInsertOffset + len(totalBytes),jumpBack)
-                #uexpData.writeByte(6,endInsertOffset + len(totalBytes))
-                #TODO: Figuring out if there is a way to find out where to jump back to the original location of the asset loading. Preferably without having to count the instructions from the start
-                #uexpData.writeWord(21024,endInsertOffset + len(totalBytes) +1)
-                #uexpData.writeWord(len(totalBytes) - len(preStringBytes) + ,endInsertOffset + len(totalBytes) +1)
-                #additionalLength = len(totalBytes) + 5 #Jump back is 5
-                additionalLength = len(totalBytes) 
+    #             #jumpBack = bytearray(5)
+    #             #uexpData.insertBytes(endInsertOffset + len(totalBytes),jumpBack)
+    #             #uexpData.writeByte(6,endInsertOffset + len(totalBytes))
+    #             #TODO: Figuring out if there is a way to find out where to jump back to the original location of the asset loading. Preferably without having to count the instructions from the start
+    #             #uexpData.writeWord(21024,endInsertOffset + len(totalBytes) +1)
+    #             #uexpData.writeWord(len(totalBytes) - len(preStringBytes) + ,endInsertOffset + len(totalBytes) +1)
+    #             #additionalLength = len(totalBytes) + 5 #Jump back is 5
+    #             additionalLength = len(totalBytes) 
 
-                #Replace original bytes with jump to newly inserted and fill rest with nothing instructions so statement index is the same
-                startOffset = offset - 8
-                uexpData.writeByte(6,startOffset) #6 indicates a jump instruction, with a word long offset to jump to afterwards
-                uexpData.insertBytes(startOffset +1, bytearray(4)) 
-                additionalLength += 4
-                uexpData.writeWord(scriptByteCodeSize,startOffset +1)
+    #             #Replace original bytes with jump to newly inserted and fill rest with nothing instructions so statement index is the same
+    #             startOffset = offset - 8
+    #             uexpData.writeByte(6,startOffset) #6 indicates a jump instruction, with a word long offset to jump to afterwards
+    #             uexpData.insertBytes(startOffset +1, bytearray(4)) 
+    #             additionalLength += 4
+    #             uexpData.writeWord(scriptByteCodeSize,startOffset +1)
 
-                for i in range(len(originalTotalBytes) - 1):
-                    uexpData.writeByte(0xB, startOffset +5 + i)# 0xB indicates a nothing instruction, one byte long
+    #             for i in range(len(originalTotalBytes) - 1):
+    #                 uexpData.writeByte(0xB, startOffset +5 + i)# 0xB indicates a nothing instruction, one byte long
                 
-                #Update script byte code sizes
-                scriptByteCodeSize = scriptByteCodeSize + additionalLength
-                scriptByteCodeByteSize = scriptByteCodeByteSize + additionalLength
-                uexpData.writeWord(scriptByteCodeSize,entryPointGoToOffset - 19)
-                uexpData.writeWord(scriptByteCodeByteSize,entryPointGoToOffset - 15)
+    #             #Update script byte code sizes
+    #             scriptByteCodeSize = scriptByteCodeSize + additionalLength
+    #             scriptByteCodeByteSize = scriptByteCodeByteSize + additionalLength
+    #             uexpData.writeWord(scriptByteCodeSize,entryPointGoToOffset - 19)
+    #             uexpData.writeWord(scriptByteCodeByteSize,entryPointGoToOffset - 15)
 
-                #update export data in uasset
-                uassetData.updateExportSizeAndOffsets(offset,additionalLength)
-            else:
-                # if length is the same just replace it and write it afterwards
-                offsetString = offsetString.replace(oldIDString,newIDString).replace(oldName,newName)
-                offsetString = offsetString.encode('ascii')
-                uexpData.writeXChars(offsetString, len(offsetString), offset)
+    #             #update export data in uasset
+    #             uassetData.updateExportSizeAndOffsets(offset,additionalLength)
+    #         else:
+    #             # if length is the same just replace it and write it afterwards
+    #             offsetString = offsetString.replace(oldIDString,newIDString).replace(oldName,newName)
+    #             offsetString = offsetString.encode('ascii')
+    #             uexpData.writeXChars(offsetString, len(offsetString), offset)
 
-    #update data in uasset and its binary table and then set the file to the script file list        
-    uassetData.writeDataToBinaryTable()
+    # #update data in uasset and its binary table and then set the file to the script file list        
+    # uassetData.writeDataToBinaryTable()
     return file
 
 '''
