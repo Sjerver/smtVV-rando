@@ -125,6 +125,9 @@ class Bytecode:
             foundExpressions.extend(self.expressionCheck(expression.get('ContextExpression'), searchExpression, stackNode, virtualFunctionName))
             return foundExpressions
 
+    '''
+    Returns the expression in the main bytecode expression array at the next index from the given expression.
+    '''
     def getNextExpression(self,expression):
         try:
             index = self.json.index(expression)
@@ -133,13 +136,18 @@ class Bytecode:
             print("Nested in another expression")
             #TODO: Find next expression here
 
-    def replace(self, expression, newExpression, followInserts):
+    '''
+    Replaces the current expression with the newExpression. If followInserts is given, the expression after is removed and in it's place
+    the expressions in that list are inserted.
+    '''
+    def replace(self, expression, newExpression, followInserts = None):
         try:
             index = self.json.index(expression)
             self.json[index] = newExpression
-            self.json.pop(index +1)#Remove pop execution flow as well
-            for exp in followInserts:
-                self.json.insert(index +1,exp)
+            if followInserts:
+                self.json.pop(index +1)#Remove pop execution flow as well
+                for exp in followInserts:
+                    self.json.insert(index +1,exp)
         except ValueError:
             print("Nested in another expression")
             #TODO: Find next expression here

@@ -6,6 +6,7 @@ import util.numbers as numbers
 from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join_Type, Bytecode
 from base_classes.quests import Mission_Reward, Fake_Mission
 from base_classes.uasset_custom import UAsset_Custom
+from base_classes.file_lists import Script_File
 import copy
 import json
 
@@ -257,13 +258,13 @@ def randomizeDemonJoins(replacements, randomDemons,scriptFiles):
 '''
 Updates the old demon that joins in the script to the new demon.
     Parameters:
-        uassetData (Script_Uasset): the uasset data of the script
-        uexpData (Table): the binary data of the uexp of the script
+        file (Script_File): file of the script
         oldItemID (Integer): the id of the old item to overwrite
         newItemID (Integer): the id of the new item that overwrites the old one
         joinType (Script_Join_Type): the type that decides which functions to search for in the uexp
+        scriptName (String): name of the script
 '''
-def updateDemonJoinInScript(file, oldDemonID, newDemonID, joinType,scriptName):
+def updateDemonJoinInScript(file: Script_File, oldDemonID, newDemonID, joinType,scriptName):
     jsonData = file.json
     if joinType == Script_Join_Type.CODE: #Demon ID is set in the script bytecode
         bytecode = None
@@ -280,6 +281,7 @@ def updateDemonJoinInScript(file, oldDemonID, newDemonID, joinType,scriptName):
         for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
             relevantImports[imp] = -1 * importNameList.index(imp) -1
         
+        # go through functions and find where expressions call them
         for imp,stackNode in relevantImports.items():
             expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
             for exp in expressions:
@@ -304,41 +306,6 @@ def updateDemonJoinInScript(file, oldDemonID, newDemonID, joinType,scriptName):
                         #print(scriptName + ": (DEMON) " + str(oldDemonID) + " -> " + str(newDemonID))
                         break
     file.updateFileWithJson(jsonData)                    
-    # byteList = []
-    # if joinType == Script_Join_Type.CODE: #Functions are in the script bytecode directly
-    #     importedFunctions = {#In the Import Map and therefore have a negative index
-    #         'IsEntryNkm' : 1,
-    #         'EntryNkmBlank' : 1
-    #         }
-
-    #     namedFunctions = {}#none #In the Name Map and have positive index
-    #     bonusBytes = {}#Additional extra bytes that apply to some functions from the name list
-    # else: #Functions are not in the bytecode directly and the value of joinType is equal to the searched function in the name map
-    #     #Function or name searched is still in the Uexp
-    #     entry = joinType.value
-    #     importedFunctions = {}
-    #     namedFunctions = {
-    #         entry : 1
-    #     }
-    #     if joinType == Script_Join_Type.MEPHISTO or joinType == Script_Join_Type.CLEOPATRA or joinType == Script_Join_Type.DAGDA:
-    #         #Have a different amount of bytes than all others
-    #         bonusBytes = {
-    #             entry : -1
-    #         }
-    #     else: #Normal amount of bytes between name and id
-    #         bonusBytes = {
-    #             entry : 16
-    #         }
-
-    # for name, number in importedFunctions.items():
-    #     byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number)
-    # for name, number in namedFunctions.items():
-    #     byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number, bonusBytes[name])
-
-    # for offset in byteList: #find bytes that were found but don't correspond to the oldDemonID
-    #     if uexpData.readWord(offset) != oldDemonID:
-    #         continue
-    #     uexpData.writeWord(newDemonID, offset)
 
 '''
 Changes the reward for collecting the first miman which is rewarded via an reward.
@@ -352,8 +319,6 @@ Changes the reward for collecting the first miman which is rewarded via an rewar
 def adjustFirstMimanEventReward(config, itemNames, replacements, essenceArr, scriptFiles):
     #Grab file from file list
     file = scriptFiles.getFile('BP_ShopEvent')
-    scriptData = file.json
-    uassetData = file.uasset
 
     ogEssenceID = 496 #Id for Onmoraki's Essence
     essenceID = 496 #Start with Onmoraki's Essence and change value later
@@ -377,10 +342,10 @@ def adjustFirstMimanEventReward(config, itemNames, replacements, essenceArr, scr
 '''
 Updates the old item given through the script to the new item.
     Parameters:
-        uassetData (Script_Uasset): the uasset data of the script
-        uexpData (Table): the binary data of the uexp of the script
+        file (Script_File): the file for the script
         oldItemID (Integer): the id of the old item to overwrite
         newItemID (Integer): the id of the new item that overwrites the old one
+        scriptName (String): the name of the script file
         #TODO: Include amount??
 '''
 def updateItemRewardInScript(file, oldItemID, newItemID,scriptName):
@@ -427,29 +392,6 @@ def updateItemRewardInScript(file, oldItemID, newItemID,scriptName):
                     exp['Parameters'][1]['Value']= newItemID
                     #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
     file.updateFileWithJson(jsonData)
-    # byteList = []
-    
-    # #FunctionName : desired Parameter
-    # importedFunctions = { #In the Import Map and therefore have a negative index
-    #     'ItemGet': 1,
-    #     'ItemGetNum': 1,
-    #     }
-    # namedFunctions = { #In the Name Map and have positive index
-    #     'IItemWindowSetParameter': 1,
-    #     'IMsgSetRichTextValueParam': 2 #Second parameter is itemID
-    # }
-    
-    # #Get the offsets where the function is called or used in the bytecode
-    # for name, number in importedFunctions.items():
-    #     byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.IMPORT, number)
-    # for name, number in namedFunctions.items():
-    #     byteList = byteList + uassetData.getOffsetsForParamXFromFunctionCalls(uexpData,name,Script_Function_Type.NAME, number)
-
-    # for offset in byteList:
-    #     if uexpData.readHalfword(offset) != oldItemID:
-    #         continue #skip offsets where the oldItemID is not set
-    #     uexpData.writeHalfword(newItemID, offset) #update with newItemID else
-    #     #print(str(oldItemID) + " -> " + str(newItemID) + " (" + str(len(byteList)))
 
 '''
 Creates fake missions from certain event scripts involving quests, that have more than one reward.
@@ -516,7 +458,6 @@ Updates all script data regarding item gifts.
     scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
 def updateGiftScripts(gifts, scriptFiles):
-    uexpCorrection = {} #dict to save uexp which get modified multiple times
     for gift in gifts:
         if gift.script in GIFT_EQUIVALENT_SCRIPTS.keys(): #if script has script with same reward add copy of gift with new script to gift list
             for script in GIFT_EQUIVALENT_SCRIPTS[gift.script]:
@@ -529,12 +470,6 @@ def updateGiftScripts(gifts, scriptFiles):
         #print(correctScript + " " + str(gift.item.ind))
         if 'NPC' in correctScript: #NPC data tables are handled here   
             file = scriptFiles.getFile(correctScript)
-            jsonData = file.json
-            uassetData = file.uasset
-            #if gift.script in GIFT_EXTRA_SCRIPTS.values(): # add uexp to dict if script has additional versions
-                #uexpCorrection[gift.script] = jsonData
-            #if correctScript in uexpCorrection.keys(): #get already modified uexp from correct script
-                #jsonData = uexpCorrection[correctScript]
             if any(gift.script in scripts for scripts in GIFT_EQUIVALENT_SCRIPTS.values()): #if script was copied as equivalent, use original base item
                 equivalentScript = getEquivalentSource(gift.script)
                 #print(gift.script + " -> EQ " + equivalentScript +" " +  str(gift.item.ind))
@@ -544,12 +479,6 @@ def updateGiftScripts(gifts, scriptFiles):
                 updateNPCGiftInScript(BASE_GIFT_ITEMS[gift.script], gift.item.ind, file, correctScript)
         else: #else it is an event script
             file = scriptFiles.getFile(correctScript)
-            jsonData = file.json
-            uassetData = file.uasset
-            #if gift.script in GIFT_EXTRA_SCRIPTS.values(): # add uexp to dict if script has additional versions
-                #uexpCorrection[gift.script] = jsonData
-            #if correctScript in uexpCorrection.keys(): #get already modified uexp from correct script
-                #jsonData = uexpCorrection[correctScript]
             if any(gift.script in scripts for scripts in GIFT_EQUIVALENT_SCRIPTS.values()): #if script was copied as equivalent, use original base item
                 equivalentScript = getEquivalentSource(gift.script)
                 updateItemRewardInScript(file,BASE_GIFT_ITEMS[equivalentScript],gift.item.ind, correctScript)
@@ -562,18 +491,19 @@ def updateGiftScripts(gifts, scriptFiles):
 '''
 Updates the old item given through the npc script to the new item.
     Parameters:
-        uassetData (Script_Uasset): the uasset data of the script
-        uexpData (Table): the binary data of the uexp of the script
         oldItemID (Integer): the id of the old item to overwrite
         newItemID (Integer): the id of the new item that overwrites the old one
+        file (Script_File): the file for script data
+        script (String): the name of the script
         #TODO: Include amount??
 '''   
 def updateNPCGiftInScript(oldItemID, newItemID, file, script):
     jsonData = file.json
+    #Find export for script name
     export = next(exp for exp in jsonData['Exports'] if exp['ObjectName'] == script)
 
     dataList = export['Table']['Data']
-    for data in dataList:
+    for data in dataList: #go through table to find correct script type to change value for
         values = data['Value']
         if values[0].get('EnumValue') == 'E_EVENT_SCRIPT_TYPE::NewEnumerator52':
             if values[1].get('Value') == oldItemID:
@@ -581,17 +511,3 @@ def updateNPCGiftInScript(oldItemID, newItemID, file, script):
                 #print(script + ": " + str(oldItemID) + " -> " + str(newItemID))
                 #values[2] would then be amount
     file.updateFileWithJson(jsonData)
-    # byteList = []
-    # namedFunctions = [
-    #     'E_EVENT_SCRIPT_TYPE::NewEnumerator52', #Enum entry ItemAdd2 per E_EVENT_SCRIPT_TYPE.uasset
-    # ]
-    # bonusBytes = {
-    #     'E_EVENT_SCRIPT_TYPE::NewEnumerator52': 33,
-    # }
-    # for name in namedFunctions:
-    #     byteList = byteList + uassetData.getOffsetsForRowInNPCDataTable(uexpData,name,Script_Function_Type.NAME, bonusBytes[name])
-
-    # for offset in byteList:
-    #     if uexpData.readHalfword(offset) != oldItemID:
-    #         continue
-    #     uexpData.writeHalfword(newItemID, offset)

@@ -2137,7 +2137,6 @@ class Randomizer:
                     additionalWeight = potentialValue
                 else:
                     additionalWeight =  math.ceil(numbers.POTENTIAL_WEIGHT_MULITPLIER * potentialValue)
-                #TODO: Maybe use a different multiplier for phys skills since there are so many?
                 if skill.skillType.value == 0 and demon.stats.str.start < demon.stats.mag.start:
                     additionalWeight = additionalWeight - numbers.SKILL_STAT_PENALTY_WEIGHT
                 elif skill.skillType.value == 1 and demon.stats.str.start > demon.stats.mag.start:

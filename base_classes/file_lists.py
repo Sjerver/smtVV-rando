@@ -130,7 +130,7 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM1640_Hit': M061_EM1640_FOLDER # The Spirit of Love First Entry (Apsaras)
 }
 
-
+#List of which folder each umap should be in when writing output
 UMAP_FOLDERS = {
     'LV_EventMission_M061': LV_M061_FOLDER,
     'LV_MainMission_M061': LV_M061_FOLDER,
@@ -244,7 +244,7 @@ class Script_File_List:
             #writeBinaryTable(file.uasset.binaryTable.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset', SCRIPT_FOLDERS[folderKey])
     
     '''
-    Read the binary data of the files belonging to the script of the given name and create a Script_File and add it to the list.
+    Read the file belonging to the script of the given name and create a Script_File and add it to the list.
     '''
     def readFile(self,name):
         if 'NPC' in name:
@@ -270,10 +270,16 @@ class Script_File:
         self.uasset = uasset 
         self.json = json
     
+    '''
+    Get the name at the index in the name map of the uasset.
+    '''
     def getNameAtIndex(self,index):
         string = self.uasset.GetNameReference(index).ToString()
         return string
 
+    '''
+    Set the value of the entry in the nameMap at the index to the given name.
+    '''
     def setNameAtIndex(self,index,name):
         encoding = None
         try:
@@ -283,11 +289,17 @@ class Script_File:
             encoding = Encoding.Unicode
         self.uasset.SetNameReference(index,FString.FromString(name,encoding))    
     
+    '''
+    Returns a new JSON based on the current uasset data.
+    '''
     def updateJsonWithUasset(self):
         jsonstring = self.uasset.SerializeJson()
         self.json = json.loads(jsonstring)
         return self.json
     
+    '''
+    Updates the uasset data with the given json and replaces the current json object based on the new uasset.
+    '''
     def updateFileWithJson(self, jsonData):
         stringy = json.dumps(jsonData)
         self.uasset = self.uasset.DeserializeJson(stringy)
