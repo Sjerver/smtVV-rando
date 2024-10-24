@@ -1074,7 +1074,6 @@ def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encount
                 #print(box)
             if syncDemon.nameVariant and syncDemon.nameVariant in originalMissionText[index]:#Name is a variant on normal name (Mothmen instead of Mothman)
                 box = box.replace(syncDemon.nameVariant, replacementName)
-            #TODO: Dialogue issues i was having was not due too line length, but still might be necessary once I actually find a case where it's relevant
             #lines = box.split("\n")
             #for line in lines:
             #     pass
@@ -1213,7 +1212,6 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
             #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
             replacementName = demonNames[replacementID]
 
-            #TODO: Outsource into it's own function? Likely not viable for anything else? Still feels kinda scuffed
             for index in range(missionTextCount):
                 messageComponent = missionText[commonEntries + index + 7 * (missionIndex)]
                 #print(str(missionIndex) + "/" + str(index) + " " + messageComponent)

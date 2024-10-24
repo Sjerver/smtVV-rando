@@ -6,7 +6,6 @@ import util.numbers as numbers
 from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join_Type, Bytecode
 from base_classes.quests import Mission_Reward, Fake_Mission
 from base_classes.uasset_custom import UAsset_Custom
-from base_classes.file_lists import Script_File
 import copy
 import json
 
@@ -264,7 +263,7 @@ Updates the old demon that joins in the script to the new demon.
         joinType (Script_Join_Type): the type that decides which functions to search for in the uexp
         scriptName (String): name of the script
 '''
-def updateDemonJoinInScript(file: Script_File, oldDemonID, newDemonID, joinType,scriptName):
+def updateDemonJoinInScript(file, oldDemonID, newDemonID, joinType,scriptName):
     jsonData = file.json
     if joinType == Script_Join_Type.CODE: #Demon ID is set in the script bytecode
         bytecode = None
