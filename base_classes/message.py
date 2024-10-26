@@ -180,6 +180,16 @@ class Message_File:
             for page in message.pages:
                 array.append(page.getText())
         return array
+    
+    '''
+    Returns a list of this files message speaker names.
+    '''
+    def getSpeakerNames(self):
+        array = []
+        for message in self.messages:
+            for pageData in message.pageDataArray:
+                array.append(pageData.name)
+        return array
 
     '''
     Sets this files message strings to the ones in the passed list.
@@ -191,6 +201,18 @@ class Message_File:
         for index, message in enumerate(self.messages):
             for page in message.pages:
                 page.setText(newMessages[currentIndex])
+                currentIndex += 1
+                
+    '''
+    Sets this files speaker names to the ones in the passed list.
+        Parameters:
+            newNames(List(String)): a list of strings that the speaker name with the same index should be set to
+    '''
+    def setSpeakerNames(self, newNames):
+        currentIndex = 0
+        for index, message in enumerate(self.messages):
+            for pageData in message.pageDataArray:
+                pageData.name = newNames[currentIndex]
                 currentIndex += 1
     
     '''

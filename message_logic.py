@@ -204,7 +204,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2470': [Demon_Sync(754, nameVariant='TURBO GRANNY')], #Turbo Granny Quest (Turbo Granny)
     'mm_em2490': [Demon_Sync(122)], #Hare of Inaba 2 Quest (Xiezhai) TODO: Replace Puncture Punch with updated skill
     'mm_em2500': [Demon_Sync(215), Demon_Sync(122), Demon_Sync(214)], #Hare of Inaba 3 Quest (Okuninushi, Xiezhai, Sukona Hikona for fun)
-    'mm_em2530': [Demon_Sync(751, nameVariant='DORMARTH')], #Dormarth Quest (Dormarth)
+    'mm_em2530': [Demon_Sync(141, 751, nameVariant='DORMARTH')], #Dormarth Quest (Dormarth)
     'mm_em2540': [Demon_Sync(891)], #Gurulu  Quest (Gurulu)
     'mm_em2550': [Demon_Sync(756, nameVariant='ZHEn')], #Part Time Quest (Zhen) Optionally add the other 2 encounters you can get here but eh
     'mm_em2570': [Demon_Sync(779), Demon_Sync(838)], #Moirae Haunt Quest (Norn, Zeus 2 for fun)
@@ -937,15 +937,24 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, ran
     for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
+            '''
+            if missionEvent == 'mm_em1640':
+                speakerNames = file.getSpeakerNames();
+                for speaker in speakerNames:
+                    print(speaker)
+            '''
             missionText = file.getMessageStrings()
             originalMissionText = copy.deepcopy(missionText)
             updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
-            
+            speakerNames = file.getSpeakerNames();
+            originalSpeakerNames = copy.deepcopy(speakerNames)
+            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
             
             if missionEvent in MISSION_CHECKS_ORIGINAL_IDS.keys():
                 hints = MISSION_CHECKS_ORIGINAL_IDS[missionEvent]
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
             file.setMessageStrings(missionText)
+            file.setSpeakerNames(speakerNames)
             file.writeToFiles()
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
@@ -976,12 +985,15 @@ def updateEventMessages(encounterReplacements, bossReplacements, demonNames, ran
             missionText = file.getMessageStrings()
             originalMissionText = copy.deepcopy(missionText)
             updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
-            
+            speakerNames = file.getSpeakerNames();
+            originalSpeakerNames = copy.deepcopy(speakerNames)
+            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
             if missionEvent in EVENT_CHECKS_ORIGINAL_IDS.keys():
                 hints = EVENT_CHECKS_ORIGINAL_IDS[missionEvent]
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
             
             file.setMessageStrings(missionText)
+            file.setSpeakerNames(speakerNames)
             file.writeToFiles()
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
@@ -1074,11 +1086,52 @@ def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encount
                 #print(box)
             if syncDemon.nameVariant and syncDemon.nameVariant in originalMissionText[index]:#Name is a variant on normal name (Mothmen instead of Mothman)
                 box = box.replace(syncDemon.nameVariant, replacementName)
+            #if 'chara ' + str(originalDemonID) in originalMissionText[index]: #Replace 'speaker' name, TODO: Uncomment when name data is writtet properly
+            #    box = box.replace('chara ' + str(originalDemonID), 'chara ' + str(normalEnemyIDForBoss(replacementID, demonNames)))
+                #if originalDemonID == 43:
+                #    print(box)
             #lines = box.split("\n")
             #for line in lines:
             #     pass
 
             missionText[index] = box
+            
+'''
+Update the mention of text box speaker names in a single event message file
+    Parameters:
+        speakerNames(List(String)): List of all names in the file to update
+        originalSpeakerNames(List(String)): Unchanging version of the names to find original demon names to replace
+        syncDemons(List(Demon_Sync)): List of all demons that need to be updated to their replacements
+        encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
+        bossReplacements(Dict): map for which boss replaces which boss
+        demonNames(list(String)): list of demon names
+        randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
+'''
+def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+    for syncDemon in syncDemons:
+        originalDemonID = syncDemon.ind #id of demon mentioned in text
+        syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
+        if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
+            continue
+        #originalName = demonNames[originalDemonID]
+        if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
+            try:
+                replacementID = bossReplacements[syncDemonID]
+            except KeyError:
+                continue
+        else: #else it is a boss
+            try:
+                replacementID = encounterReplacements[syncDemonID]
+            except KeyError:
+                continue
+        #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
+        #replacementName = demonNames[replacementID]
+        replacementID = normalEnemyIDForBoss(replacementID, demonNames)
+
+        #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
+        for index, name in enumerate(speakerNames): #for every text box name
+            if bytes(originalDemonID) == bytes(originalSpeakerNames[index]):
+                speakerNames[index] = bytes(replacementID)
 
 '''
 Adds hint messages for checks related to mission events
@@ -1295,6 +1348,13 @@ def addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames):
             missionText[explainIndex] = explainText
     return missionText
           
-
+'''
+Finds the earliest ID of a demon's name that is used for dialogue box speaker names in 'chara' tags'
+    Parameters:
+        bossID (number): The boss ID to find an earlier version of
+        demonNames (List(String)): List of enemy demon names
+'''
+def normalEnemyIDForBoss(bossID, demonNames):
+    return demonNames.index(demonNames[bossID])
 
 
