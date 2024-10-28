@@ -211,9 +211,17 @@ class Message_File:
     def setSpeakerNames(self, newNames):
         currentIndex = 0
         for index, message in enumerate(self.messages):
+            if len(message.pageDataArray) > 0:
+                oldNameSize = len(message.pageDataArray[0].name) #Update pageDataSize value, unsure if this is correct (I think it's not)
+                newNameSize = len(newNames[currentIndex])
+                nameSizeDiff = newNameSize - oldNameSize
+                #print(nameSizeDiff)
+                #message.pageDataSize += nameSizeDiff
             for pageData in message.pageDataArray:
                 pageData.name = newNames[currentIndex]
                 currentIndex += 1
+            
+                
     
     '''
     Writes the data of this message file to both the uexp and uasset, and outputs it to the appropriate rando subfolders.
@@ -281,14 +289,36 @@ class Message_File:
                         uexpBinary.writeXChars(pageTextEntry.bytes, pageSize, currentOffset + additionalBytes + 4* index + 4 + 17 * (pageIndex))
                         additionalBytes = additionalBytes + pageSize
                         messageAddBytes = messageAddBytes + pageSize
+                
                 uexpBinary.writeDblword(messageSizeDiff + message.pageDataSize, currentOffset + additionalBytes - messageAddBytes - 26)
             
 
             #TODO: Add code for writing if these are changed later, currently only read for offset calc
             currentOffset =currentOffset + 8 * 3 + 17*message.pageCount + 4 + 78#name Size
-            for i in range(message.pageDataCount):
-                nameSize = uexpBinary.readWord(currentOffset + additionalBytes)
-                additionalBytes = additionalBytes + nameSize
+            for i, page in enumerate(message.pageDataArray):
+                oldNameSize = uexpBinary.readWord(currentOffset + additionalBytes)
+                newNameSize = len(page.name)
+                nameSizeDiff = newNameSize - oldNameSize
+                if nameSizeDiff < -3:
+                    print(oldNameSize)
+                    print("Issue reading name size of message data for file " + self.fileName)
+                    writeBinaryTable(self.uexp.binaryTable.buffer, self.randoFolder + self.fileName + '.uexp', self.randoFolder)
+                    additionalBytes = additionalBytes + oldNameSize
+                else:
+                    #if uexpBinary.readXChars(oldNameSize,currentOffset + additionalBytes + 4) != page.name:
+                        #print(nameSizeDiff)
+                        #print(str(uexpBinary.readXChars(oldNameSize,currentOffset + additionalBytes + 4)) + " became " + str(page.name))
+                    uexpBinary.writeWord(newNameSize, currentOffset + additionalBytes)
+                    if nameSizeDiff > 0: #New string is larger than old one
+                        sizeDifference = sizeDifference + nameSizeDiff
+                        for j in range(nameSizeDiff):
+                            uexpBinary.buffer.insert(currentOffset + additionalBytes + 4 ,0)
+                    elif nameSizeDiff < 0: #New string is smaller than old one
+                        sizeDifference = sizeDifference + nameSizeDiff
+                        for j in range(-nameSizeDiff):
+                            uexpBinary.buffer.pop(currentOffset + additionalBytes + 4)
+                    uexpBinary.writeXChars(page.name, newNameSize,currentOffset + additionalBytes + 4)
+                    additionalBytes = additionalBytes + newNameSize
 
                 currentOffset = currentOffset + 4 + 25#voice Size
                 voiceSize = uexpBinary.readWord(currentOffset + additionalBytes)

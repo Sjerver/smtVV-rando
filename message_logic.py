@@ -938,7 +938,7 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, ran
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
             '''
-            if missionEvent == 'mm_em1640':
+            if missionEvent == 'mm_em1401':
                 speakerNames = file.getSpeakerNames();
                 for speaker in speakerNames:
                     print(speaker)
@@ -1086,8 +1086,8 @@ def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encount
                 #print(box)
             if syncDemon.nameVariant and syncDemon.nameVariant in originalMissionText[index]:#Name is a variant on normal name (Mothmen instead of Mothman)
                 box = box.replace(syncDemon.nameVariant, replacementName)
-            #if 'chara ' + str(originalDemonID) in originalMissionText[index]: #Replace 'speaker' name, TODO: Uncomment when name data is writtet properly
-            #    box = box.replace('chara ' + str(originalDemonID), 'chara ' + str(normalEnemyIDForBoss(replacementID, demonNames)))
+            if 'chara ' + str(originalDemonID) in originalMissionText[index]: #Replace 'speaker' name TODO: Add back when serialization errors are fixed
+                box = box.replace('chara ' + str(originalDemonID), 'chara ' + str(normalEnemyIDForBoss(replacementID, demonNames)))
                 #if originalDemonID == 43:
                 #    print(box)
             #lines = box.split("\n")
@@ -1130,8 +1130,8 @@ def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, enc
 
         #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
         for index, name in enumerate(speakerNames): #for every text box name
-            if bytes(originalDemonID) == bytes(originalSpeakerNames[index]):
-                speakerNames[index] = bytes(replacementID)
+            if bytes(str(originalDemonID), 'utf-8') + b'\x00' == bytes(originalSpeakerNames[index]):
+                speakerNames[index] = bytes(str(replacementID), 'utf-8') + b'\x00' #Add null byte to end of demon ID
 
 '''
 Adds hint messages for checks related to mission events
@@ -1355,6 +1355,8 @@ Finds the earliest ID of a demon's name that is used for dialogue box speaker na
         demonNames (List(String)): List of enemy demon names
 '''
 def normalEnemyIDForBoss(bossID, demonNames):
-    return demonNames.index(demonNames[bossID])
+    earliestID = demonNames.index(demonNames[bossID])
+    return 141 #Dormarth for testing
+    return earliestID
 
 
