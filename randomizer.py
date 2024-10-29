@@ -6580,7 +6580,7 @@ class Randomizer:
         message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel)
-        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel)
+        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
 
         model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolArr, self.configSettings)
