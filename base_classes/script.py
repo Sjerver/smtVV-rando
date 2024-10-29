@@ -131,10 +131,23 @@ class Bytecode:
     def getNextExpression(self,expression):
         try:
             index = self.json.index(expression)
-            return self.json[index +1]
+            
         except ValueError:
             print("Nested in another expression")
             #TODO: Find next expression here
+        return self.json[index +1]
+
+    '''
+    Returns the index of the expression in the main bytecode expression array.
+    '''
+    def getIndex(self,expression):
+        try:
+            index = self.json.index(expression)
+            
+        except ValueError:
+            print("Nested in another expression")
+            #TODO: Find next expression here
+        return index
 
     '''
     Replaces the current expression with the newExpression. If followInserts is given, the expression after is removed and in it's place
@@ -145,9 +158,9 @@ class Bytecode:
             index = self.json.index(expression)
             self.json[index] = newExpression
             if followInserts:
-                self.json.pop(index +1)#Remove pop execution flow as well
+                #self.json.pop(index +1)#Remove pop execution flow as well
                 for exp in followInserts:
+                    #self.json.insert(index +1,exp)
                     self.json.insert(index +1,exp)
         except ValueError:
             print("Nested in another expression")
-            #TODO: Find next expression here

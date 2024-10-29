@@ -6329,7 +6329,7 @@ class Randomizer:
             config (Settings) 
     '''
     def fullRando(self, config):
-
+        #TODO: Clear rando folder to remove previous rando results
         
 
         writeFolder(paths.DEBUG_FOLDER)
