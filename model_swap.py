@@ -323,8 +323,10 @@ Updates the models used in events.
         encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
         bossReplacements(Dict): map for which boss replaces which boss
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+        mapSymbolArr(List): list of map symbol data
+        config (Config_Settings): settings set for the randomizer
 '''
-def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapSymbolArr):
+def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapSymbolArr, config):
     initDemonModelData()
     umapList = UMap_File_List()
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
@@ -338,6 +340,8 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             
             originalDemonID = syncDemon.ind
             syncDemonID = syncDemon.sync
+            if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not config.ensureDemonJoinLevel: #If demon isn't getting replaced ignore it
+                continue
             if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is boss
                 try:
                     replacementID = bossReplacements[syncDemonID]
