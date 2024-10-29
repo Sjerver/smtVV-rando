@@ -937,12 +937,6 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, ran
     for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
-            '''
-            if missionEvent == 'mm_em1401':
-                speakerNames = file.getSpeakerNames();
-                for speaker in speakerNames:
-                    print(speaker)
-            '''
             missionText = file.getMessageStrings()
             originalMissionText = copy.deepcopy(missionText)
             updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
@@ -1086,7 +1080,7 @@ def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encount
                 #print(box)
             if syncDemon.nameVariant and syncDemon.nameVariant in originalMissionText[index]:#Name is a variant on normal name (Mothmen instead of Mothman)
                 box = box.replace(syncDemon.nameVariant, replacementName)
-            if 'chara ' + str(originalDemonID) in originalMissionText[index]: #Replace 'speaker' name TODO: Add back when serialization errors are fixed
+            if 'chara ' + str(originalDemonID) in originalMissionText[index]: #Replace 'speaker' name
                 box = box.replace('chara ' + str(originalDemonID), 'chara ' + str(normalEnemyIDForBoss(replacementID, demonNames)))
                 #if originalDemonID == 43:
                 #    print(box)
@@ -1356,7 +1350,4 @@ Finds the earliest ID of a demon's name that is used for dialogue box speaker na
 '''
 def normalEnemyIDForBoss(bossID, demonNames):
     earliestID = demonNames.index(demonNames[bossID])
-    return 141 #Dormarth for testing
     return earliestID
-
-
