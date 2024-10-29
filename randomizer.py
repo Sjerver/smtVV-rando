@@ -5612,6 +5612,7 @@ class Randomizer:
             The newly assembled special fusion
     '''
     def generateSpecialFusion(self, demon, base):
+        availableDemons = copy.deepcopy(base)
 
         ingNumber = random.randint(2,4)
         ingredients = []
@@ -5621,8 +5622,9 @@ class Randomizer:
         fusion.result = Translated_Value(demon.ind, demon.name)
 
         for index in range(ingNumber):
-            ing = random.choice(base)
+            ing = random.choice(availableDemons)
             ingredients.append(Translated_Value(ing.ind, ing.name))
+            availableDemons.remove(ing)
         
         fusion.demon1 = ingredients[0]
         fusion.demon2 = ingredients[1]
