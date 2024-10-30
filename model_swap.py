@@ -52,7 +52,9 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
     'MM_M061_EM1640': [Demon_Sync(43),Demon_Sync(44,869)], # The Spirit of Love (Apsaras, Agathion)
     'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Entry (Apsaras)
-    'MM_M061_E2610' : [Demon_Sync(193,579),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Isis Event Bethel Egypt #TODO:Dazai/Yuzuru are NPC Models how do they work
+    'MM_M061_E2610' : [Demon_Sync(193,579),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Isis Event Bethel Egypt (Isis, Yuzuru,Dazai)
+    'MM_M061_E2620': [Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Bethel Egypt (Khonsu,Yuzuru,Dazai)
+    'MM_M061_E2625_Direct': [Demon_Sync(193,579),Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -64,6 +66,8 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M061_EM1640': [Anim_Sync('06skill_Composite','06_skill')], # The Spirit of Love (Apsaras)
     'MM_M061_EM1640_Hit': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Spirit of Love First Entry (Apsaras)
     'MM_M061_E2610' : [], #CoV Isis Event Bethel Egypt
+    'MM_M061_E2620': [],#CoV Khonsu Event Bethel Egypt
+    'MM_M061_E2625_Direct': [], #CoV Khonsu Event Post Fight Bethel Egypt (Khonsu)
 }
 
 #For bosses that do not use their own model, which model they should use instead
@@ -524,7 +528,10 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                 stringValue = stringValue.replace(oldIDString,newIDString)
                 exp['Parameters'][1]['Value'] = stringValue
             elif imp == 'LoadAsset' or imp == 'LoadAssetClass':
-                stringValue = exp['Parameters'][1].get('Value').get('Value')
+                try:
+                    stringValue = exp['Parameters'][1].get('Value').get('Value')
+                except AttributeError:
+                    continue
                 originalLength = len(stringValue)
                 #create new string here for calculation of lenghtDifference
                 newString = replaceOldIDinString(stringValue).replace(oldName,newName)
