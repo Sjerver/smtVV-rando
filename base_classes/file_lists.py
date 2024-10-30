@@ -31,6 +31,7 @@ except Exception as e:
 
 from UAssetAPI import UAsset  # type: ignore
 from UAssetAPI.UnrealTypes import EngineVersion, FString  # type: ignore
+from UAssetAPI.Kismet import KismetSerializer #type:ignore
 from System.Text import Encoding # type: ignore
 
 LV_M061_FOLDER = 'rando/Project/Content/Level/Event/M061'
@@ -305,4 +306,39 @@ class Script_File:
         self.uasset = self.uasset.DeserializeJson(stringy)
         jsonstring = self.uasset.SerializeJson()
         self.json = json.loads(jsonstring)
+    '''
+    Returns a serialized version of the ScriptBytecode that contains Statement indeces.
+        Parameters:
+            exportIndex(Integer): the index of the export to get the scriptBytecode from
+            updateJson(Dict): a dict of the json that should be used to as the base of the uasset 
+    '''
+    def getSerializedScriptBytecode(self,exportIndex, updatedJson = None):
+            KismetSerializer.asset = self.uasset
+            if updatedJson:
+                    stringy = json.dumps(updatedJson)
+                    uasset = self.uasset.DeserializeJson(stringy)
+                    serializedCode = KismetSerializer.SerializeScript(uasset.Exports[exportIndex].ScriptBytecode)
+            else:
+                    serializedCode = KismetSerializer.SerializeScript(self.uasset.Exports[exportIndex].ScriptBytecode)
+            jsonstring = serializedCode.ToString()
+            serializedCodeObject = json.loads(jsonstring)
+            return serializedCodeObject
 
+    '''
+    Calculates the last index for an exports scriptByteCode.
+        Parameters:
+            exportIndex(Integer): the index of the export to get the scriptBytecode from
+            preLastIndex(Integer): the index where the last statement in the script starts at
+            updateJson(Dict): a dict of the json that should be used to as the base of the uasset 
+    '''
+    def calcLastStatementIndex(self,exportIndex, preLastIndex,updatedJson = None):
+        if updatedJson:
+            stringy = json.dumps(updatedJson)
+            uasset = self.uasset.DeserializeJson(stringy)
+            KismetSerializer.asset = uasset
+            newStatementIndex = KismetSerializer.SerializeExpression(uasset.Exports[exportIndex].ScriptBytecode[-1], preLastIndex, True)
+        else:
+            KismetSerializer.asset = self.uasset
+            newStatementIndex = KismetSerializer.SerializeExpression(self.uasset.Exports[exportIndex].ScriptBytecode[-1], preLastIndex, True)
+        return newStatementIndex[1]
+            

@@ -5612,6 +5612,7 @@ class Randomizer:
             The newly assembled special fusion
     '''
     def generateSpecialFusion(self, demon, base):
+        availableDemons = copy.deepcopy(base)
 
         ingNumber = random.randint(2,4)
         ingredients = []
@@ -5621,8 +5622,9 @@ class Randomizer:
         fusion.result = Translated_Value(demon.ind, demon.name)
 
         for index in range(ingNumber):
-            ing = random.choice(base)
+            ing = random.choice(availableDemons)
             ingredients.append(Translated_Value(ing.ind, ing.name))
+            availableDemons.remove(ing)
         
         fusion.demon1 = ingredients[0]
         fusion.demon2 = ingredients[1]
@@ -6329,7 +6331,7 @@ class Randomizer:
             config (Settings) 
     '''
     def fullRando(self, config):
-
+        #TODO: Clear rando folder to remove previous rando results
         
 
         writeFolder(paths.DEBUG_FOLDER)
@@ -6578,10 +6580,10 @@ class Randomizer:
         message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel)
-        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel)
+        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
 
-        model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolArr)
+        model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolArr, self.configSettings)
 
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)

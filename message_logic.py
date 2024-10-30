@@ -6,6 +6,7 @@ from base_classes.message import Message_File, Demon_Sync
 from randomizer import RACE_ARRAY
 
 MAX_LINE_LENGTH = 48 #Arbitray Number ( at least correct for missionInfo Text)
+BRAWNY_AMBITIONS_2 = 'mm_em2490'
 
 OUTPUT_FOLDERS = {
     'ItemName' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Item/',
@@ -946,7 +947,7 @@ Update the mention of demon names in mission events.
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
 '''
-def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, brawnyAmbitions2SkillName):
     updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
     updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
     for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():
@@ -962,6 +963,8 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, ran
             if missionEvent in MISSION_CHECKS_ORIGINAL_IDS.keys():
                 hints = MISSION_CHECKS_ORIGINAL_IDS[missionEvent]
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+            if missionEvent == BRAWNY_AMBITIONS_2:
+                updateSkillNameInFile(missionText, brawnyAmbitions2SkillName)
             file.setMessageStrings(missionText)
             file.setSpeakerNames(speakerNames)
             file.writeToFiles()
@@ -1368,6 +1371,15 @@ def normalEnemyIDForBoss(bossID, demonNames):
     if bossID in SPECIAL_SPEAKER_IDS.keys():
         return SPECIAL_SPEAKER_IDS[bossID]
     earliestID = demonNames.index(demonNames[bossID])
-    if earliestID > 394:
-        print(demonNames[earliestID] + " " + str(earliestID))
+    #if earliestID > 394:
+    #    print(demonNames[earliestID] + " " + str(earliestID))
     return earliestID
+
+'''
+Updates occurences of Puncture Punch with the new skill name.
+'''
+def updateSkillNameInFile(missionText, skillName):
+    for index, box in enumerate(missionText): #for every dialogue box
+        if numbers.BRAWNY_AMBITIONS2_SKILL in box:
+            box = box.replace(numbers.BRAWNY_AMBITIONS2_SKILL, skillName)
+        missionText[index] = box

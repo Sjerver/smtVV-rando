@@ -323,8 +323,10 @@ Updates the models used in events.
         encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
         bossReplacements(Dict): map for which boss replaces which boss
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+        mapSymbolArr(List): list of map symbol data
+        config (Config_Settings): settings set for the randomizer
 '''
-def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapSymbolArr):
+def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapSymbolArr, config):
     initDemonModelData()
     umapList = UMap_File_List()
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
@@ -338,6 +340,8 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             
             originalDemonID = syncDemon.ind
             syncDemonID = syncDemon.sync
+            if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not config.ensureDemonJoinLevel: #If demon isn't getting replaced ignore it
+                continue
             if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is boss
                 try:
                     replacementID = bossReplacements[syncDemonID]
@@ -425,6 +429,7 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
 
     bytecode = None
     byteCodeSize = None
+    exportIndex = None
     try: #get bytecode and bytecode size for main portion if UAssetAPI can parse it
         exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
         executeUbergraph = "ExecuteUbergraph_" + script
@@ -445,6 +450,7 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
             if modelValue == ogDemonID: #Only change demonID for the oldDemon
                 exp['Parameters'][1]['Value'] = replacementDemonID
 
+    serializedByteCode = file.getSerializedScriptBytecode(exportIndex,jsonData)
     
     importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
     relevantImportNames = ['LoadAsset','PrintString','LoadAssetClass']
@@ -456,7 +462,7 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     for imp,stackNode in relevantImports.items():
         expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
         expressions.reverse()
-        for exp in expressions:
+        for expIndex, exp in enumerate(expressions):
             if imp == 'PrintString': #likely not necessary but do it anyway
                 stringValue = exp['Parameters'][1].get('Value')
                 stringValue = stringValue.replace(oldIDString,newIDString)
@@ -482,27 +488,32 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                     #recalc new string just in case
                     newString = stringValue.replace(oldName,newName)                
                     newString = replaceNonExistentAnimations(script, newString, newIDString,newName)
+
+                    currentStatementIndex = serializedByteCode[bytecode.getIndex(exp)]["StatementIndex"]
+                    nextStatementIndex = serializedByteCode[bytecode.getIndex(exp)+1]["StatementIndex"]
+                    lastStatementIndex = file.calcLastStatementIndex(exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData)
+                    statementLength = nextStatementIndex - currentStatementIndex
                     
-                    #TODO: Since we can't jump back here grab next exp in bytecode as well which is popExecutionFlow
-                    popExecutionFlow = bytecode.getNextExpression(exp)
                     #Copy and change values and append to the end
                     newExpression = copy.deepcopy(exp)
                     newExpression['Parameters'][1]['Value']['Value'] = newString
                     bytecode.json.append(newExpression)
-                    bytecode.json.append(popExecutionFlow)
+                    jumpBack = copy.deepcopy(jsonExports.BYTECODE_JUMP)
+                    jumpBack['CodeOffset'] = nextStatementIndex
+                    bytecode.json.append(jumpBack)
 
                     #change original expression to be jump
                     expReplacement = copy.deepcopy(jsonExports.BYTECODE_JUMP)
-                    expReplacement['CodeOffset'] = byteCodeSize
+                    expReplacement['CodeOffset'] = lastStatementIndex #last one is either EndOfScript or jump if already inserted something and we want to start after that
                     # fill with nothing 
                     nothingInsts = []
-                    amount = 8 + 49 + originalLength #for these there are always 8 bytes before and 49 after string (48 without PopExecutinFlow)
+                    amount = statementLength - 5 #(due to jump)
                     for i in range(amount):
                         nothingInsts.append(jsonExports.BYTECODE_NOTHING)
 
                     bytecode.replace(exp, expReplacement, nothingInsts)
-
-                    byteCodeSize = byteCodeSize + 4 + 8+ 49 +len(newString) + 1#4 from Jump, 8+49+(newStringLength) + 1 stringEndDeterminator
+                    #Updated serializedByteCodeList for new statement indeces
+                    serializedByteCode = file.getSerializedScriptBytecode(exportIndex,jsonData)
                 else: #oldName not in String, save id swaps
                     exp['Parameters'][1]['Value']['Value'] = stringValue
     file.updateFileWithJson(jsonData)
@@ -529,11 +540,11 @@ def replaceNonExistentAnimations(script, string, replacementID,replacementName):
             animationParts = animation.split("/")
             searchString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_dev" + replacementID + "_" + animationParts[1]+ "." + "AN_dev" + replacementID + "_" + animationParts[1]
         else:
-            searchString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + "AN_dev" + replacementID + "_ " + animation+ "." + "AN_dev" + replacementID + "_" + animation
+            searchString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + "AN_dev" + replacementID + "_" + animation+ "." + "AN_dev" + replacementID + "_" + animation
         if searchString in string: #Is the Animation the one in the current string
             if '/' in replacementAnim: #Is new Animation in Subfolder?
                 animationParts = replacementAnim.split("/")
-                replacementString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_dev" + replacementID + "_ " + animationParts[1]+ "." + "AN_dev" + replacementID + "_" + animationParts[1]
+                replacementString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_dev" + replacementID + "_" + animationParts[1]+ "." + "AN_dev" + replacementID + "_" + animationParts[1]
             else:
                 replacementString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + "AN_dev" + replacementID + "_" + replacementAnim+ "." + "AN_dev" + replacementID + "_" + replacementAnim
             string = string.replace(searchString,replacementString)

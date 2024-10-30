@@ -9,6 +9,7 @@ Features:
 Bugfixes:
 * Adramelech's replacement in Temple of Eternity is scaled down to prevent potential softlocks
 * Hitboxes for scaled down demons now reflect their new size
+* Special fusions can no longer require multiple the same demon to fuse
 
 Balance:
 * Press Turns of basic enemies now are based on what they replace (i.e. Tsuchigumos replacement has 2 press turns as an enemy)
