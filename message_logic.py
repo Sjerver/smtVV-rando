@@ -98,15 +98,17 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em0044': [Demon_Sync(452)],#Saving the Students misc dialogue (Lahmu)
     'mm_em0050_b': [Demon_Sync(559), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta')],#Golden apple quest vengeance (Eisheth, Yuzuru)
     'mm_em0051': [Demon_Sync(810)],#Golden apple quest Idun dialogue (Loki)
-    'mm_em0060': [Demon_Sync(80, 454)],#Hellfire Highway (Surt)
+    'mm_em0060': [Demon_Sync(80, 454), Demon_Sync(215, 822), Demon_Sync(214, 823), Demon_Sync(216, 824)],#Hellfire Highway (Surt, Okuninushi, Sukuna Hikona, Minakata)
     'mm_em0070': [Demon_Sync(80, 454), Demon_Sync(25, 455)],#Ishtar Quest (Surt and Ishtar)
     'mm_em0143': [Demon_Sync(111, 468), Demon_Sync(178, 845)],#Taito India Amanozako dialogue (Vasuki and Shiva)
     'mm_em0145': [Demon_Sync(8, 469)],#Taito Greek Amanozako dialogue (Zeus)
     'mm_em0147': [Demon_Sync(9, 470)],#Taito Norse Amanozako dialogue (Odin)
+    'mm_em0150': [Demon_Sync(345, 889)], # A Preta Predicament (Preta)
     'mm_em0151': [Demon_Sync(43)],#A Preta Predicament (Apsaras)
     'mm_em0152': [Demon_Sync(345, 889)],#A Preta Predicament (Preta)
-    'mm_em0170': [Demon_Sync(318, 888)],#Moving on up (Oni, 4 quest files)
+    'mm_em0170': [Demon_Sync(318, 888)],#Moving on up (Oni, 5 quest files)
     'mm_em0171': [Demon_Sync(318, 888)],
+    'mm_em0172': [Demon_Sync(318, 888)],
     'mm_em0173': [Demon_Sync(318, 888)],
     'mm_em0174': [Demon_Sync(318, 888)],
     'mm_em1031': [Demon_Sync(233, 801)],#The Cursed Mermaids (Pazuzu)
@@ -116,103 +118,110 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1140': [Demon_Sync(342, 809)],#Kumbhanda Quest (Kumbhanda)
     'mm_em1150': [Demon_Sync(89, 810)],#A Goddess Stolen (Loki, 2 quest files)
     'mm_em1151': [Demon_Sync(89, 810)],
-    'mm_em1161': [Demon_Sync(86, 804)],#The Tyrant of Tennozu (Belphegor)
+    'mm_em1160': [Demon_Sync(19)],#The Tyrant of Tennozu Demeter lines (Demeter)
+    'mm_em1161': [Demon_Sync(86, 804)],#The Tyrant of Tennozu Belphegor lines (Belphegor)
     'mm_em1180': [Demon_Sync(87, 821)],#King Frost Quest (King Frost, 2 quest files)
     'mm_em1182': [Demon_Sync(87, 821)],
-    'mm_em1210': [Demon_Sync(212, 826), Demon_Sync(80, 454)],#Oyamatsumi Quest (Oyamatsumi and Surt)
-    'mm_em1250': [Demon_Sync(215, 822), Demon_Sync(212, 826)],#Kunitsukami Fight Quest (Okuninushi and Oyamatsumi)
-    'mm_em1260': [Demon_Sync(127, 812)], #Chimera Quest (Chimera)
+    'mm_em1210': [Demon_Sync(212, 826), Demon_Sync(216, 824), Demon_Sync(80, 454)],#Oyamatsumi Quest (Oyamatsumi, Minakata, Surt)
+    'mm_em1250': [Demon_Sync(215, 822), Demon_Sync(214, 823), Demon_Sync(212, 826)],#Kunitsukami Fight Quest (Okuninushi, Sukuna Hikona, Oyamatsumi)
+    'mm_em1260': [Demon_Sync(19), Demon_Sync(127, 812)], #Chimera Quest (Demeter, Chimera)
     'mm_em1270': [Demon_Sync(322, 813)], #Hecaton Quest (Hecaton)
-    'mm_em1280': [Demon_Sync(814), Demon_Sync(467)], #The Archangel of Destruction (Camael, Creation Abdiel)
-    'mm_em1290': [Demon_Sync(85, 816), Demon_Sync(86, 804)],#Roar of Hatred (Moloch, Belphegor)
+    'mm_em1280': [Demon_Sync(248, 814), Demon_Sync(467)], #The Archangel of Destruction (Camael, Creation Abdiel)
+    'mm_em1290': [Demon_Sync(19), Demon_Sync(85, 816), Demon_Sync(86, 804)],#Roar of Hatred (Demeter, Moloch, Belphegor)
     'mm_em1320': [Demon_Sync(232, 827)],#Girimehkala Quest (Girimehkala)
-    'mm_em1330': [Demon_Sync(211, 828), Demon_Sync(206, 860), Demon_Sync(205, 861), Demon_Sync(204, 862), Demon_Sync(203, 863)],#Lord's Sword Quest (Arahabaki, Zouchouten, Koumokuten, Jikokuten, Bishamonten)
+    'mm_em1330': [Demon_Sync(211, 828), Demon_Sync(206, 860), Demon_Sync(205, 861), Demon_Sync(204, 862), Demon_Sync(203, 863), Demon_Sync(215, 822)],#Lord's Sword Quest (Arahabaki, Zouchouten, Koumokuten, Jikokuten, Bishamonten, Okuninushi)
     'mm_em1340': [Demon_Sync(206, 860)],#Zouchouten Event Battle Dialogue
     'mm_em1350': [Demon_Sync(205, 861)],#Koumokuten Event Battle Dialogue
     'mm_em1360': [Demon_Sync(204, 862)],#Jikokuten Event Battle Dialogue
     'mm_em1370': [Demon_Sync(203, 863)],#Bishamonten Event Battle Dialogue
     'mm_em1380': [Demon_Sync(7, 516), Demon_Sync(82, 463)],#Khonsu CoC Quest (Khonsu, Arioch)
-    'mm_em1390': [Demon_Sync(829), Demon_Sync(830), Demon_Sync(831), Demon_Sync(516), Demon_Sync(463)],#The Winged-Sun Crest (Asura, Mithras, Amon, Khonsu, Arioch)
+    'mm_em1390': [Demon_Sync(181, 829), Demon_Sync(88, 830), Demon_Sync(76, 831), Demon_Sync(7, 516), Demon_Sync(463)],#The Winged-Sun Crest (Asura, Mithras, Amon, Khonsu, Arioch)
     'mm_em1401': [Demon_Sync(15, 519), Demon_Sync(7, 516), Demon_Sync(13, 864)],#Khonsu Ra CoC Quest (Khonsu Ra, Khonsu, Horus)
     'mm_em1410': [Demon_Sync(84, 832)],#Abbadon's Assault (Abaddon)
     'mm_em1420': [Demon_Sync(35)],#Fionn 2 Quest (Fionn)
     'mm_em1430': [Demon_Sync(243, 836), Demon_Sync(247, 834), Demon_Sync(245, 835), Demon_Sync(242, 841), Demon_Sync(17, 837)],#3 Seraphim Quest (Gabriel, Uriel, Raphael, Michael, Baal):
-    'mm_em1440': [Demon_Sync(17, 837), Demon_Sync(86, 804), Demon_Sync(85, 816), Demon_Sync(81, 483), Demon_Sync(2, 537)],#Baal Quest (Baal, Belphegor, Moloch, Beelzebub, Lucifer)
+    'mm_em1440': [Demon_Sync(19), Demon_Sync(17, 837), Demon_Sync(86, 804), Demon_Sync(85, 816), Demon_Sync(81, 483), Demon_Sync(2, 537)],#Baal Quest (Demeter, Baal, Belphegor, Moloch, Beelzebub, Lucifer)
     'mm_em1450': [Demon_Sync(8, 838), Demon_Sync(19)],#A Plot Unveiled (Zeus, Demeter)
     'mm_em1460': [Demon_Sync(94, 839)],#The Gold Dragon's Arrival (Huang Long)
+    'mm_em1470': [Demon_Sync(94, 839)],#Huang Long Fight (Huang Long)
     'mm_em1480': [Demon_Sync(83, 840), Demon_Sync(242), Demon_Sync(82, 463)],#Side with Michael (Belial, Michael, Arioch)
     'mm_em1490': [Demon_Sync(242, 841), Demon_Sync(83), Demon_Sync(82, 463)],#Side with Belial (Michael, Belial, Arioch)
     'mm_em1500': [Demon_Sync(30, 842), Demon_Sync(188, 843), Demon_Sync(189, 844)],#Seed of Life Quest (Maria, Danu, Innana)
     'mm_em1530': [Demon_Sync(178, 845), Demon_Sync(111, 468)],#A Universe in Peril (Shiva, Vasuki)
     'mm_em1570': [Demon_Sync(845)],#Sarasvati Collection Quest (Shiva)
     'mm_em1590': [Demon_Sync(876), Demon_Sync(453)],#Berserk Amanozako Quest (Amanozako, 3 Quest Files, Final Lahmu)
-    'mm_em1591': [Demon_Sync(876)],
-    'mm_em1592': [Demon_Sync(876)],
+    'mm_em1591': [Demon_Sync(38, 876)],
+    'mm_em1592': [Demon_Sync(38, 876)],
     'mm_em1600': [Demon_Sync(38), Demon_Sync(454)], #Final Amanozako Quest (Amanozako, 4 Quest Files, Surt)
     'mm_em1601': [Demon_Sync(38)],
     'mm_em1602': [Demon_Sync(38), Demon_Sync(877)], #Zaou-Gongen Mentioned here and in 1603
     'mm_em1603': [Demon_Sync(38), Demon_Sync(877)],
-    'mm_em1630': [Demon_Sync(868), Demon_Sync(305), Demon_Sync(867)], #Side with Leanan (Apsaras, Leanan, Ippon Datara)
-    'mm_em1640': [Demon_Sync(866), Demon_Sync(43)], #Side with Apsaras (Leanan, Apsaras)
-    'mm_em1641': [Demon_Sync(43), Demon_Sync(889)], #Apsaras' Followers Dialogue (Apsaras, 2 Quest Files, Preta)
+    'mm_em1630': [Demon_Sync(43, 868), Demon_Sync(305), Demon_Sync(316, 867)], #Side with Leanan (Apsaras, Leanan, Ippon Datara)
+    'mm_em1640': [Demon_Sync(306, 866), Demon_Sync(43)], #Side with Apsaras (Leanan, Apsaras)
+    'mm_em1641': [Demon_Sync(43), Demon_Sync(345, 889)], #Apsaras' Followers Dialogue (Apsaras, 2 Quest Files, Preta)
     'mm_em1642': [Demon_Sync(43)],
-    'mm_em1650': [Demon_Sync(879), Demon_Sync(67)], #Side with Lilim (Principality, Lilim)
-    'mm_em1660': [Demon_Sync(880), Demon_Sync(257)], #Side with Principality (Lilim, Principality)
-    'mm_em1670': [Demon_Sync(881), Demon_Sync(72)], #Side with Black Frost (Dionysus, Black Frost)
-    'mm_em1680': [Demon_Sync(882), Demon_Sync(183)], #Side with Dionysus (Black Frost, Dionysus)
-    'mm_em1690': [Demon_Sync(883), Demon_Sync(265)], #Side with Adramelech (Futsunushi, Adramelech)
-    'mm_em1700': [Demon_Sync(884), Demon_Sync(201)], #Side with Futsunushi (Adramelech, Futsunushi)
+    'mm_em1650': [Demon_Sync(257, 879), Demon_Sync(67)], #Side with Lilim (Principality, Lilim)
+    'mm_em1660': [Demon_Sync(67, 880), Demon_Sync(257)], #Side with Principality (Lilim, Principality)
+    'mm_em1670': [Demon_Sync(183, 881), Demon_Sync(72)], #Side with Black Frost (Dionysus, Black Frost)
+    'mm_em1680': [Demon_Sync(72, 882), Demon_Sync(183)], #Side with Dionysus (Black Frost, Dionysus)
+    'mm_em1690': [Demon_Sync(201, 883), Demon_Sync(265)], #Side with Adramelech (Futsunushi, Adramelech)
+    'mm_em1700': [Demon_Sync(265, 884), Demon_Sync(201)], #Side with Futsunushi (Adramelech, Futsunushi)
     'mm_em1769': [Demon_Sync(78), Demon_Sync(295), Demon_Sync(31), Demon_Sync(4), Demon_Sync(528), Demon_Sync(561)], #Tokyo Diet Building Researcher (Mephisto, Cleopatra, Artemis, Dagda, Tsukuyomi, Yuzuru) TODO: Differentiate between boss and summonable versions.
     'mm_em1770': [Demon_Sync(78)], #Mephisto Quest (Mephisto)
     'mm_em1780': [Demon_Sync(295)], #Cleopatra Quest (Cleopatra)
-    'mm_em1790': [Demon_Sync(31), Demon_Sync(933), Demon_Sync(432), Demon_Sync(838)], #Artemis Quest (Artemis, Queztalcoatl, Hydra, Zeus 2 for fun)
-    'mm_em1802': [Demon_Sync(921)], #Matador, 2 Quest Files
+    #'mm_em1790': [Demon_Sync(31), Demon_Sync(933), Demon_Sync(432), Demon_Sync(8, 838)], #Artemis Quest (Artemis, Queztalcoatl, Hydra, Zeus 2 for fun)
+    'mm_em1802': [Demon_Sync(359, 921)], #Matador, 2 Quest Files
     'mm_em1803': [Demon_Sync(921)],
-    'mm_em1805': [Demon_Sync(922)], #Daisoujou
-    'mm_em1807': [Demon_Sync(923)], #Hell Biker
-    'mm_em1810': [Demon_Sync(924)], #White Rider, 2 Quest Files
+    'mm_em1804': [Demon_Sync(357, 922)], #Daisoujou
+    'mm_em1805': [Demon_Sync(922)],
+    'mm_em1806': [Demon_Sync(356, 923)], #Hell Biker
+    'mm_em1807': [Demon_Sync(923)],
+    'mm_em1810': [Demon_Sync(354, 924)], #White Rider
     'mm_em1811': [Demon_Sync(924)],
-    'mm_em1812': [Demon_Sync(925)], #Red Rider, 2 Quest Files
+    'mm_em1812': [Demon_Sync(353, 925)], #Red Rider
     'mm_em1813': [Demon_Sync(925)],
-    'mm_em1814': [Demon_Sync(926)], #Black Rider, 2 Quest Files
+    'mm_em1814': [Demon_Sync(352, 926)], #Black Rider
     'mm_em1815': [Demon_Sync(926)],
-    'mm_em1817': [Demon_Sync(927)], #Pale Rider
-    'mm_em1820': [Demon_Sync(928)], #Mother Harlot
-    'mm_em1821': [Demon_Sync(929)], #Trumpeter, 2 Quest Files
+    'mm_em1816': [Demon_Sync(358, 927)], #Pale Rider
+    'mm_em1817': [Demon_Sync(927)],
+    'mm_em1819': [Demon_Sync(351, 928)], #Mother Harlot
+    'mm_em1820': [Demon_Sync(928)],
+    'mm_em1821': [Demon_Sync(350, 929)], #Trumpeter, 2 Quest Files
     'mm_em1822': [Demon_Sync(929), Demon_Sync(934)], #Demi-Fiend named here as well
     'mm_em1823': [Demon_Sync(934)], #Demi-Fiend, 3 Quest Files
     'mm_em1824': [Demon_Sync(934)],
     'mm_em1825': [Demon_Sync(934)],
-    'mm_em2020': [Demon_Sync(752, nameVariant='NOZUCHI'), Demon_Sync(336, nameVariant='KODAMA')], #Nozuchi Queset (Nozuchi, Normal Enemy Kodama)
-    'mm_em2040': [Demon_Sync(803)], #Pisaca Quest part 1 (Anahita)
-    'mm_em2111': [Demon_Sync(769)], #Vouivre Quest (Vouivre)
+    'mm_em2020': [Demon_Sync(107, 752, nameVariant='NOZUCHI'), Demon_Sync(336, nameVariant='KODAMA')], #Nozuchi Queset (Nozuchi, Normal Enemy Kodama)
+    'mm_em2040': [Demon_Sync(20, 803)], #Pisaca Quest part 1 (Anahita)
+    'mm_em2090': [Demon_Sync(561), Demon_Sync(562)], #Yuzuru Supply Run Quest (Yuzuru, Hayataro)
+    'mm_em2111': [Demon_Sync(108, 769)], #Vouivre Quest (Vouivre)
     'mm_em2130': [Demon_Sync(113), Demon_Sync(41), Demon_Sync(386)], #Basilisk Hunt Quest (Basilisk, Anansi, Onyankopon)
     'mm_em2170': [Demon_Sync(227)], #Masakado Quest (Masakado)
-    'mm_em2190': [Demon_Sync(552), Demon_Sync(888)], #Halphas Quest (Oni, Glasya-Labolas 1)
-    'mm_em2240': [Demon_Sync(519), Demon_Sync(566), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(864), Demon_Sync(577), Demon_Sync(578)], #Vengeance Khonsu-Ra Quest (Khonsu Ra, Khonsu, Yuzuru, Horus, Fallen Abdiel, Dazai)
-    'mm_em2270': [Demon_Sync(772), Demon_Sync(40)], #Side with Kresnik (Kudlak, Kresnik)
-    'mm_em2280': [Demon_Sync(774), Demon_Sync(346)], #Side with Kudlak (Kresnik, Kudlak)
+    'mm_em2190': [Demon_Sync(552), Demon_Sync(318, 888)], #Halphas Quest (Glasya-Labolas 1, Oni)
+    'mm_em2240': [Demon_Sync(15, 519), Demon_Sync(7, 566), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(864), Demon_Sync(577), Demon_Sync(578)], #Vengeance Khonsu-Ra Quest (Khonsu Ra, Khonsu, Yuzuru, Horus, Fallen Abdiel, Dazai)
+    'mm_em2270': [Demon_Sync(346, 772), Demon_Sync(40)], #Side with Kresnik (Kudlak, Kresnik)
+    'mm_em2280': [Demon_Sync(40, 774), Demon_Sync(346)], #Side with Kudlak (Kresnik, Kudlak)
     'mm_em2290': [Demon_Sync(890)], #Gogmagog Quest (Gogmagog)
-    'mm_em2310': [Demon_Sync(770), Demon_Sync(41)], #Side with Onyankopon (Onyankopon, Anansi) - Swapped boss/recruit versions due to the way these 2 join compared to others
-    'mm_em2320': [Demon_Sync(771), Demon_Sync(386)], #Side with Anansi (Anansi, Onyankopon)
-    'mm_em2350': [Demon_Sync(778)], #Idun Haunt Quest (Thor)
-    'mm_em2370': [Demon_Sync(865), Demon_Sync(564), Demon_Sync(468), Demon_Sync(481)], #Siegfried Quest (Garuda, Vengeance Abdiel, Vasuki, Vengeance Zeus) Odin is mentioned but the same text box is used in both routes
+    'mm_em2310': [Demon_Sync(386, 770), Demon_Sync(41)], #Side with Onyankopon (Onyankopon, Anansi) - Swapped boss/recruit versions due to the way these 2 join compared to others
+    'mm_em2320': [Demon_Sync(41, 771), Demon_Sync(386)], #Side with Anansi (Anansi, Onyankopon)
+    'mm_em2350': [Demon_Sync(200, 778)], #Idun Haunt Quest (Thor)
+    'mm_em2370': [Demon_Sync(278, 865), Demon_Sync(564), Demon_Sync(468), Demon_Sync(481)], #Siegfried Quest (Garuda, Vengeance Abdiel, Vasuki, Vengeance Zeus) Odin is mentioned but the same text box is used in both routes
     'mm_em2390': [Demon_Sync(776), Demon_Sync(227)], #Cironnup Quest (Atavaka, Masakado)
-    'mm_em2400': [Demon_Sync(760), Demon_Sync(537)], #Samael Quest (Samael, Lucifer)
-    'mm_em2420': [Demon_Sync(681), Demon_Sync(760), Demon_Sync(537), Demon_Sync(596)], #Satan Quest (Satan, Samael, Lucifer, Mastema)
-    'mm_em2460': [Demon_Sync(892)], #Mara Quest (Mara)
-    'mm_em2470': [Demon_Sync(754, nameVariant='TURBO GRANNY')], #Turbo Granny Quest (Turbo Granny)
+    'mm_em2400': [Demon_Sync(118, 760), Demon_Sync(537)], #Samael Quest (Samael, Lucifer)
+    'mm_em2420': [Demon_Sync(1, 681), Demon_Sync(760), Demon_Sync(537), Demon_Sync(250, 596)], #Satan Quest (Satan, Samael, Lucifer, Mastema)
+    'mm_em2460': [Demon_Sync(77, 892)], #Mara Quest (Mara)
+    'mm_em2470': [Demon_Sync(175, 754, nameVariant='TURBO GRANNY')], #Turbo Granny Quest (Turbo Granny)
     'mm_em2490': [Demon_Sync(122)], #Hare of Inaba 2 Quest (Xiezhai) TODO: Replace Puncture Punch with updated skill
     'mm_em2500': [Demon_Sync(215), Demon_Sync(122), Demon_Sync(214)], #Hare of Inaba 3 Quest (Okuninushi, Xiezhai, Sukona Hikona for fun)
     'mm_em2530': [Demon_Sync(141, 751, nameVariant='DORMARTH')], #Dormarth Quest (Dormarth)
-    'mm_em2540': [Demon_Sync(891)], #Gurulu  Quest (Gurulu)
+    'mm_em2540': [Demon_Sync(291, 891)], #Gurulu Quest (Gurulu)
     'mm_em2550': [Demon_Sync(756, nameVariant='ZHEn')], #Part Time Quest (Zhen) Optionally add the other 2 encounters you can get here but eh
-    'mm_em2570': [Demon_Sync(779), Demon_Sync(838)], #Moirae Haunt Quest (Norn, Zeus 2 for fun)
-    'mm_em2580': [Demon_Sync(776, nameVariant='Daigensui Myouou')], #Yoshitsune Haunt Quest (Atavaka)
+    'mm_em2570': [Demon_Sync(22, 779), Demon_Sync(838)], #Moirae Haunt Quest (Norn, Zeus 2 for fun)
+    'mm_em2580': [Demon_Sync(12, 776, nameVariant='Daigensui Myouou')], #Yoshitsune Haunt Quest (Atavaka)
     'mm_em2600': [Demon_Sync(32), Demon_Sync(826)], #Konohana Sakuya Quest (Konohana Sakuya, Oyamatsumi)
-    'mm_em2610': [Demon_Sync(4), Demon_Sync(843)], #Dagda Quest (Dagda, Danu for fun)
+    'mm_em2610': [Demon_Sync(4), Demon_Sync(188, 843)], #Dagda Quest (Dagda, Danu for fun)
     'mm_em2620': [Demon_Sync(775, nameVariant='Orochi'), Demon_Sync(528)], #Orochi Quest (Orochi, Tsukuyomi)
-    'mm_em2630': [Demon_Sync(782), Demon_Sync(481), Demon_Sync(837)], #Saturnus Quest (Saturnus, CoV Zeus, Baal)
+    'mm_em2630': [Demon_Sync(237, 782), Demon_Sync(481), Demon_Sync(837)], #Saturnus Quest (Saturnus, CoV Zeus, Baal)
     'mm_em2640': [Demon_Sync(569), Demon_Sync(564)], #Package Delivery Quest (Lilith, Vengeance Abdiel)
 }
 
@@ -747,6 +756,12 @@ RACE_TALISMANS = {
    37 :	846,	#	Chaos Talisman
 }
 
+#Map of demon ID to speaker box name ID for characters without normal enemy demon counterparts
+SPECIAL_SPEAKER_IDS = {
+    561: 466, # Yuzuru
+    528: 510, # Tsukuyomi/Koshimizu
+}
+
 '''
 Changes the names and descriptions of items with demon names in them to that of their replacement if there is any.
 Also adjust the descriptions of talismans and periapts.
@@ -1080,8 +1095,8 @@ def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encount
                 #print(box)
             if syncDemon.nameVariant and syncDemon.nameVariant in originalMissionText[index]:#Name is a variant on normal name (Mothmen instead of Mothman)
                 box = box.replace(syncDemon.nameVariant, replacementName)
-            if 'chara ' + str(originalDemonID) in originalMissionText[index]: #Replace 'speaker' name
-                box = box.replace('chara ' + str(originalDemonID), 'chara ' + str(normalEnemyIDForBoss(replacementID, demonNames)))
+            if 'chara ' + str(originalDemonID) + '>' in originalMissionText[index]: #Replace 'speaker' name
+                box = box.replace('chara ' + str(originalDemonID) + '>', 'chara ' + str(normalEnemyIDForBoss(replacementID, demonNames)) + '>')
                 #if originalDemonID == 43:
                 #    print(box)
             #lines = box.split("\n")
@@ -1344,10 +1359,15 @@ def addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames):
           
 '''
 Finds the earliest ID of a demon's name that is used for dialogue box speaker names in 'chara' tags'
+If the demon uses a specific name ID instead of their normal enemy version, the specific one is returned instead
     Parameters:
         bossID (number): The boss ID to find an earlier version of
         demonNames (List(String)): List of enemy demon names
 '''
 def normalEnemyIDForBoss(bossID, demonNames):
+    if bossID in SPECIAL_SPEAKER_IDS.keys():
+        return SPECIAL_SPEAKER_IDS[bossID]
     earliestID = demonNames.index(demonNames[bossID])
+    if earliestID > 394:
+        print(demonNames[earliestID] + " " + str(earliestID))
     return earliestID
