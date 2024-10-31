@@ -60,6 +60,10 @@ EVENT_SCRIPT_MODELS = {
     'MM_M016_E0891': [Demon_Sync(249,471)], #Empyrean Melchizedek
     'MM_M016_E0892': [Demon_Sync(244,472)], #Empyrean Sraosha
     'MM_M016_E0893': [Demon_Sync(198,473)], #Empyrean Alilat
+    'MM_M035_E0825': [Demon_Sync(241,477)], #Temple of Eternity Metatron
+    'MM_M036_E0644': [Demon_Sync(182,466)], #DKC Chernobog
+    'MM_M036_E0650': [Demon_Sync(240,467)], #DKC Abdiel
+    'MM_M036_E0670': [Demon_Sync(465),Demon_Sync(82,463),Demon_Sync(240,467)], #DKC (Yakumo,Arioch,Abdiel)
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -419,7 +423,6 @@ Replaces the a demon model with the model of another demon in the given script.
 '''
 def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementDemonID, scriptFiles: Script_File_List):
     jsonData = file.json
-    
     #Get the Strings corresponding to the old demon
     oldIDString = DEMON_ID_MODEL_ID[ogDemonID]
     oldName = MODEL_NAMES[oldIDString]

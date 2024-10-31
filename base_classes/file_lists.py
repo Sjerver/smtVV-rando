@@ -64,6 +64,8 @@ TOKYO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_TokyoMap
 EMPYREAN_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m016'
 MAIN_M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M060'
 MAIN_M064_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M064'
+MAIN_M035_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M035'
+MAIN_M036_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M036'
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
@@ -134,6 +136,10 @@ SCRIPT_FOLDERS = {
     'MM_M016_E0891': MAIN_M016_FOLDER, #Empyrean Melchizedek
     'MM_M016_E0892': MAIN_M016_FOLDER, #Empyrean Sraosha
     'MM_M016_E0893': MAIN_M016_FOLDER, #Empyrean Alilat
+    'MM_M035_E0825': MAIN_M035_FOLDER, #Temple of Eternity Metatron
+    'MM_M036_E0644': MAIN_M036_FOLDER, #DKC Chernobog
+    'MM_M036_E0650': MAIN_M036_FOLDER, #DKC Abdiel
+    'MM_M036_E0670': MAIN_M036_FOLDER, #DKC Yakumo Arioch
 }
 
 #List of which folder each umap should be in when writing output
