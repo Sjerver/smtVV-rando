@@ -66,6 +66,7 @@ MAIN_M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M0
 MAIN_M064_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M064'
 MAIN_M035_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M035'
 MAIN_M036_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M036'
+MAIN_M038_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M038'
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
@@ -140,6 +141,9 @@ SCRIPT_FOLDERS = {
     'MM_M036_E0644': MAIN_M036_FOLDER, #DKC Chernobog
     'MM_M036_E0650': MAIN_M036_FOLDER, #DKC Abdiel
     'MM_M036_E0670': MAIN_M036_FOLDER, #DKC Yakumo Arioch
+    'MM_M038_E2912': MAIN_M038_FOLDER, #Shakan Dark Block Bros
+    'MM_M038_E2917': MAIN_M038_FOLDER,#Shakan Cherub
+    'MM_M038_E2930_Direct': MAIN_M038_FOLDER,#Shakan Abdiel
 }
 
 #List of which folder each umap should be in when writing output

@@ -64,6 +64,9 @@ EVENT_SCRIPT_MODELS = {
     'MM_M036_E0644': [Demon_Sync(182,466)], #DKC Chernobog
     'MM_M036_E0650': [Demon_Sync(240,467)], #DKC Abdiel
     'MM_M036_E0670': [Demon_Sync(465),Demon_Sync(82,463),Demon_Sync(240,467)], #DKC (Yakumo,Arioch,Abdiel)
+    'MM_M038_E2912': [Demon_Sync(256,484),Demon_Sync(255,485)], #Shakan Dark Block Bros
+    'MM_M038_E2917': [Demon_Sync(260,486)], #Shakan Cherub
+    'MM_M038_E2930_Direct': [Demon_Sync(240,564)], #Shakan Abdiel
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
