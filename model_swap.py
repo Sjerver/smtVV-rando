@@ -32,16 +32,16 @@ DEMON_MODELS={}
 #List of which level umaps event scripts use for their location and sizes
 #To find out, look at which MapEventID the Script has in its File and then take a look at map event data
 LEVEL_UASSETS = {
-    'EM_M061_DevilTalk' : 'LV_MainMission_M061',
     'MM_M061_EM1630': 'LV_EventMission_M061',
     'MM_M061_EM1631': 'LV_EventMission_M061',
     'MM_M061_EM1640': 'LV_EventMission_M061',
-    'MM_M061_EM1640_Hit': 'LV_EventMission_M061',
 }
 
 #List of events that require updated scaling to trigger events with large demons
 REQUIRES_HIT_UPDATE = [
     'MM_M061_EM1630','MM_M061_EM1631','MM_M061_EM1640',
+    #TODO:'MM_M016_E0885' couldn't find a UMap for this but all of them and this have EventHit_GEN_VARIABLE that is easier to update maybe 
+    # (is however the same for all at base so need to rethink Math stuff)
 ]
 
 #Script files for events and what demon models need to be updated in htem
@@ -55,6 +55,11 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_E2610' : [Demon_Sync(193,579),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Isis Event Bethel Egypt (Isis, Yuzuru,Dazai)
     'MM_M061_E2620': [Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Bethel Egypt (Khonsu,Yuzuru,Dazai)
     'MM_M061_E2625_Direct': [Demon_Sync(193,579),Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
+    'MM_M016_E0885': [Demon_Sync(152)], #CoC Chaos Route Empyrean Hayataro Joins After Stock is Full (Hayataro)
+    'MM_M016_E0885_Direct': [Demon_Sync(152)], #CoC Chaos Route Empyrean Hayataro Joins Stock is Full so wait (Hayataro)
+    'MM_M016_E0891': [Demon_Sync(249,471)], #Empyrean Melchizedek
+    'MM_M016_E0892': [Demon_Sync(244,472)], #Empyrean Sraosha
+    'MM_M016_E0893': [Demon_Sync(198,473)], #Empyrean Alilat
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -93,17 +98,17 @@ MODEL_SYNC = {
     517: 120, # Anubis (CoC Summon)
     439: 287, # Anzu (Jozoji)
     728: 287, # Anzu (Single Abcess)
-    605: 287, # Anzu (with Mishaguji)
+    606: 287, # Anzu (with Mishaguji)
     868: 43, # Apsaras
     463: 82, # Arioch
     930: 31, # Artemis
     829: 181, # Asura
-    627: 12, # Atavaka
+    628: 12, # Atavaka
     776: 12, # Atavaka (with Rakshasa)
     837: 17, # Baal
     856: 126, # Baihu
     746: 235, # Baphomet
-    628: 119, # Barong
+    629: 119, # Barong
     738: 113, # Basilisk
     483: 81, # Beelzebub
     840: 83, # Belial
@@ -115,11 +120,11 @@ MODEL_SYNC = {
     466: 182, # Chernobog
     486: 260, # Cherub
     931: 295, # Cleopatra
-    611: 36, # Cu Chulainn
-    618: 191, # Cybele
+    612: 36, # Cu Chulainn
+    619: 191, # Cybele
     947: 4, # Dagda
     922: 357, # Daisoujou
-    612: 297, # Dakini
+    613: 297, # Dakini
     843: 188, # Danu
     464: 273, # Decarabia (Summon)
     881: 183, # Dionysus
@@ -130,7 +135,7 @@ MODEL_SYNC = {
     730: 47, # Efreet
     559: 394, # Eisheth
     433: 270, # Eligor
-    602: 282, # Feng Huang
+    603: 282, # Feng Huang
     833: 35, # Fionn mac Cumhaill (2nd)
     451: 35, # Fionn mac Cumhaill (First)
     732: 266, # Flauros (Abcess)
@@ -140,7 +145,7 @@ MODEL_SYNC = {
     836: 243, # Gabriel
     865: 278, # Garuda
     555: 142, # Glasya-Labolas (with Naamah)
-    607: 34, # Hanuman
+    608: 34, # Hanuman
     562: 152, # Hayataro
     923: 356, # Hell Biker
     864: 13, # Horus
@@ -153,11 +158,11 @@ MODEL_SYNC = {
     867: 316, # Ippon-Datara (with Leanan)
     455: 25, # Ishtar
     579: 193, # Isis
-    610: 193, # Isis (Abcess)
+    611: 193, # Isis (Abcess)
     802: 281, # Jatayu
     858: 204, # Jikokuten
     862: 204, # Jikokuten (4 Turn)
-    606: 66, # Kaiwan
+    607: 66, # Kaiwan
     516: 7, # Khonsu (CoC)
     566: 7, # Khonsu (CoC)
     519: 15, # Khonsu Ra
@@ -170,7 +175,7 @@ MODEL_SYNC = {
     809: 342, # Kumbhanda
     723: 342, # Kumbhanda (Abcess)
     878: 37, # Kurama Tengu (with Zaou)
-    615: 213, # Kushinada-Hime
+    616: 213, # Kushinada-Hime
     557: 236, # Lahmu (School 2nd TODO: Why did I find you???)
     556: 441, # Lahmu (School)
     452: 441, # Lahmu (Shinagawa 1st)
@@ -186,7 +191,7 @@ MODEL_SYNC = {
     450: 136, # Loup-garou
     537: 529, # Lucifer
     729: 174, # Mad Gasser
-    601: 121, # Makami
+    602: 121, # Makami
     500: 302, # Manananggal (School Copy)
     501: 302, # Manananggal (School Copy)
     705: 45, # Mandrake
@@ -198,22 +203,22 @@ MODEL_SYNC = {
     471: 249, # Melchizedek
     476: 249, # Melchizedek (No EXP Revive)
     932: 78, # Mephisto
-    609: 304, # Mermaid
+    610: 304, # Mermaid
     477: 241, # Metatron
     841: 242, # Michael
-    604: 234, # Mishaguji
+    605: 234, # Mishaguji
     830: 88, # Mithras
-    624: 11, # Mitra
+    625: 11, # Mitra
     928: 351, # Mother Harlot
     722: 289, # Muu Shuwuu
     553: 393, # Naamah
     554: 393, # Naamah (with GL)
-    603: 104, # Naga Raja
+    604: 104, # Naga Raja
     779: 22, # Norn
     752: 107, # Nozuchi
     435: 197, # Nuwa (Snake)
     550: 75, # Nuwa (with Yakumo)
-    608: 52, # Oberon
+    609: 52, # Oberon
     470: 9, # Odin (CoC)
     482: 9, # Odin (CoV)
     822: 215, # Okuninushi
@@ -248,14 +253,14 @@ MODEL_SYNC = {
     444: 324, # Rakshasa (School)
     777: 324, # Rakshasa (with Atavaka)
     491: 324, # Rakshasa(School Copy)
-    625: 296, # Rangda
+    626: 296, # Rangda
     835: 245, # Raphael
     925: 353, # Red Rider
     760: 118, # Samael
     614: 24, # Sarasvati
     681: 1, # Satan
     782: 237, # Saturnus
-    617: 26, # Scathach
+    618: 26, # Scathach
     724: 130, # Senri
     870: 112, # Seth
     750: 129, # Shiisaa
@@ -263,10 +268,10 @@ MODEL_SYNC = {
     502: 311, # Shiki-Ouji (School Copy)
     448: 311, # Shiki-Ouji (School)
     845: 178, # Shiva
-    629: 222, # Siegfried
-    613: 53, # Silky
-    626: 192, # Skadi
-    620: 173, # Slime
+    630: 222, # Siegfried
+    615: 53, # Silky
+    627: 192, # Skadi
+    622: 173, # Slime
     472: 244, # Sraosha
     721: 65, # Succubus
     718: 335, # Sudama (Abcess)
@@ -276,7 +281,7 @@ MODEL_SYNC = {
     734: 14, # Thoth (Abcess)
     518: 14, # Thoth (CoC Summon)
     431: 345, # Three Pretas
-    623: 254, # Throne
+    624: 254, # Throne
     929: 350, # Trumpeter
     449: 331, # Tsuchigumo (School)
     754: 175, # Turbo Granny
@@ -288,9 +293,9 @@ MODEL_SYNC = {
     857: 97, # Xuanwu
     768: 299, # Yakshini
     775: 103, # Yamata-no-Orochi (8 Turn)
-    619: 103, # Yamata-no-Orochi (Abcess)
-    622: 280, # Yatagarasu
-    616: 105, # Yurlungur
+    620: 103, # Yamata-no-Orochi (Abcess)
+    623: 280, # Yatagarasu
+    617: 105, # Yurlungur
     877: 180, # Zaou-Gongen
     469: 8, # Zeus (CoC)
     481: 8, # Zeus (CoV)
@@ -302,6 +307,11 @@ MODEL_SYNC = {
     805: 206, # Zouchouten (2 Turn)
     860: 206, # Zouchouten (4 Turn)
     558: 441, # Tentacle (use Lahmu model instead)
+    424: 441, # Tentacle (use Lahmu model instead)
+    593: 565, # Dragon Head (use Tiamat)
+    594: 565, # Goat Head (use Tiamat)
+    595: 565, # Camel Head (use Tiamat)
+
     #TODO: Should be complete? With the exception of bosses who use NPC Models
 }
 
@@ -595,7 +605,10 @@ Replaces the animation in a string with a designated replacement animation if re
         replacementName(String): the name of the demon that replaced the old one
 '''
 def replaceNonExistentAnimations(script, string, replacementID,replacementName, oFPrefix, oPrefix, nFPrefix, nPrefix):
-    animations = SCRIPT_ANIMS_REPLACEMENTS[script]
+    try:
+        animations = SCRIPT_ANIMS_REPLACEMENTS[script]
+    except KeyError: #Script does not have any special animations that can be replaced
+        return string
     for animSync in animations: #go through animations to potentially replace in script
         animation = animSync.ind
         replacementAnim = animSync.sync

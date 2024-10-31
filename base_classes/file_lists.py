@@ -131,6 +131,9 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM1640_Hit': M061_EM1640_FOLDER, # The Spirit of Love First Entry (Apsaras)
     'MM_M061_E2620': MAINMISSION_M061_FOLDER, #CoV Khonsu Event Bethel Egypt
     'MM_M061_E2625_Direct': MAINMISSION_M061_FOLDER, #CoV Khonsu Event Post Fight Bethel Egypt
+    'MM_M016_E0891': MAIN_M016_FOLDER, #Empyrean Melchizedek
+    'MM_M016_E0892': MAIN_M016_FOLDER, #Empyrean Sraosha
+    'MM_M016_E0893': MAIN_M016_FOLDER, #Empyrean Alilat
 }
 
 #List of which folder each umap should be in when writing output
