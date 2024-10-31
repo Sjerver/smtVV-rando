@@ -17,6 +17,13 @@ class Anim_Sync():
         if sync:
             self.sync = sync
 
+DEVIL_PREFIX = "/Devil/"
+NPC_PREFIX = "/NPC/"
+NPC_MODEL_START = 600
+
+#Model IDs that use Dev Class Blueprints but are in NPC folder otherwise
+NPC_MODELS_DEV_BLUEPRINT = [621,622,625,626,627,641,642,643,646,647,648,649,650,651]
+
 MODEL_NAMES = {}
 DEMON_ID_MODEL_ID = {}
 HAS_SIMPLE_BP = {}
@@ -43,9 +50,11 @@ EVENT_SCRIPT_MODELS = {
     'EM_M061_DevilTalk': [Demon_Sync(59)], #Talk Tutorial (Pixie)
     'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43)], # The Water Nymph (Leanan (also Apsaras maybe??))
     'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
-    'MM_M061_EM1640': [Demon_Sync(43)], # The Spirit of Love (Apsaras)
+    'MM_M061_EM1640': [Demon_Sync(43),Demon_Sync(44,869)], # The Spirit of Love (Apsaras, Agathion)
     'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Entry (Apsaras)
-    'MM_M061_E2610' : [Demon_Sync(193,579)], #CoV Isis Event Bethel Egypt #TODO:Dazai/Yuzuru are NPC Models how do they work
+    'MM_M061_E2610' : [Demon_Sync(193,579),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Isis Event Bethel Egypt (Isis, Yuzuru,Dazai)
+    'MM_M061_E2620': [Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Bethel Egypt (Khonsu,Yuzuru,Dazai)
+    'MM_M061_E2625_Direct': [Demon_Sync(193,579),Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -57,6 +66,8 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M061_EM1640': [Anim_Sync('06skill_Composite','06_skill')], # The Spirit of Love (Apsaras)
     'MM_M061_EM1640_Hit': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Spirit of Love First Entry (Apsaras)
     'MM_M061_E2610' : [], #CoV Isis Event Bethel Egypt
+    'MM_M061_E2620': [],#CoV Khonsu Event Bethel Egypt
+    'MM_M061_E2625_Direct': [], #CoV Khonsu Event Post Fight Bethel Egypt (Khonsu)
 }
 
 #For bosses that do not use their own model, which model they should use instead
@@ -290,8 +301,8 @@ MODEL_SYNC = {
     855: 279, # Zhuque
     805: 206, # Zouchouten (2 Turn)
     860: 206, # Zouchouten (4 Turn)
+    558: 441, # Tentacle (use Lahmu model instead)
     #TODO: Should be complete? With the exception of bosses who use NPC Models
-    #NPC Model Bosses (that came up during testing): 578 Dazai
 }
 
 
@@ -359,9 +370,8 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             try: #Does boss use a different model that has no tie to their id
                 replacementID = MODEL_SYNC[replacementID]
             except KeyError:
-                #replacementID = 103 #Testing stuff for event hit scaling
-                pass
-                
+                #replacementID = 934 #Testing stuff for event hit scaling
+                pass 
             if not hitboxUpdated and script in REQUIRES_HIT_UPDATE: #TODO: How to deal with overlap issues
                 umap = umapList.getFile(LEVEL_UASSETS[script])
                 try:
@@ -399,10 +409,17 @@ Replaces the a demon model with the model of another demon in the given script.
 '''
 def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementDemonID, scriptFiles: Script_File_List):
     jsonData = file.json
-
+    
     #Get the Strings corresponding to the old demon
     oldIDString = DEMON_ID_MODEL_ID[ogDemonID]
     oldName = MODEL_NAMES[oldIDString]
+    oldFolderPrefix = DEVIL_PREFIX
+    oldPrefix = "dev"
+    oldPrefixVariant = "Dev"
+    if int(oldIDString) > NPC_MODEL_START:
+        oldFolderPrefix = NPC_PREFIX
+        oldPrefix = "npc"
+        oldPrefixVariant = "Npc"
     #Get the Strings corresponding to the new demon
     try:
         newIDString = DEMON_ID_MODEL_ID[replacementDemonID]
@@ -410,15 +427,47 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         print(str(replacementDemonID) + " needs a model tied to it. Stopping replacement")
         return file
     newName = MODEL_NAMES[newIDString]
-    print("SWAP: " + oldName + " -> " + newName + " in " + script)
+    newPrefix = "dev"
+    newFolderPrefix = DEVIL_PREFIX
+    newPrefixVariant = "Dev"
+    if int(newIDString) > NPC_MODEL_START:
+        newPrefix = "npc"
+        newFolderPrefix = NPC_PREFIX
+        newPrefixVariant = "Npc"
+    print("SWAP: " + oldPrefix +"/" +  oldName + " -> " + newPrefix +"/"+ newName + " in " + script)
+
+    #There are some special cases for these class blueprints
+    classOldFolderPrefix = copy.deepcopy(oldFolderPrefix)
+    classOldPrefix = copy.deepcopy(oldPrefix)
+    classOldPrefixVariant = copy.deepcopy(oldPrefixVariant)
+    classNewFolderPrefix = copy.deepcopy(newFolderPrefix)
+    classNewPrefix = copy.deepcopy(newPrefix)
+    classNewPrefixVariant = copy.deepcopy(newPrefixVariant)
+    if int(newIDString) in NPC_MODELS_DEV_BLUEPRINT:
+        #only new is exception that use devil instead of npc for this
+        classNewFolderPrefix = DEVIL_PREFIX
+        classNewPrefix = "dev"
+        classNewPrefixVariant = "Dev"
+        
+    elif int(oldIDString) in NPC_MODELS_DEV_BLUEPRINT:
+        #old is exception that use devil instead of npc for this
+        classOldFolderPrefix = DEVIL_PREFIX
+        classOldPrefix = "dev"
+        classOldPrefixVariant = "Dev"
 
     for index, name in enumerate(jsonData['NameMap']): #change occurences of oldDemonID and oldDemonName in all names in the uasset
-        if "ev" + oldIDString in name: #to just get the model names since sometimes DevXXX or devXXX
-            nameEntry = file.getNameAtIndex(index)
-            nameEntry = nameEntry.replace(oldIDString,newIDString)
+        nameEntry = file.getNameAtIndex(index)
+        if oldIDString in name and ("/Blueprints/Character" in name or "_C" in name): 
+            nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
+            nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
             if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
                 nameEntry = nameEntry.replace("_Simple","")
-            file.setNameAtIndex(index,nameEntry)
+        elif oldIDString in name: #to just get the model names since sometimes DevXXX or devXXX
+            nameEntry = nameEntry.replace(oldFolderPrefix + oldPrefix + oldIDString, newFolderPrefix + newPrefix +newIDString).replace(oldPrefix + oldIDString, newPrefix +newIDString)
+            nameEntry = nameEntry.replace(oldFolderPrefix + oldPrefixVariant + oldIDString, newFolderPrefix + newPrefixVariant +newIDString).replace(oldPrefixVariant + oldIDString, newPrefixVariant +newIDString)
+            if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
+                nameEntry = nameEntry.replace("_Simple","")
+        file.setNameAtIndex(index,nameEntry)
         if oldName in name:
             nameEntry = file.getNameAtIndex(index)
             nameEntry = nameEntry.replace(oldName,newName)
@@ -452,6 +501,17 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
 
     serializedByteCode = file.getSerializedScriptBytecode(exportIndex,jsonData)
     
+    def replaceOldIDinString(string):
+        if ("/Blueprints/Character" in string or "_C" in string):
+            nstring = string.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
+            nstring = nstring.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
+            nstring = replaceNonExistentAnimations(script, nstring,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix)
+        else:
+            nstring = string.replace(oldFolderPrefix + oldPrefix + oldIDString, newFolderPrefix + newPrefix +newIDString).replace(oldPrefix + oldIDString, newPrefix +newIDString)
+            nstring = nstring.replace(oldFolderPrefix + oldPrefixVariant + oldIDString, newFolderPrefix + newPrefixVariant +newIDString).replace(oldPrefixVariant + oldIDString, newPrefixVariant +newIDString)
+            nstring = replaceNonExistentAnimations(script, nstring,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix)
+        return nstring
+
     importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
     relevantImportNames = ['LoadAsset','PrintString','LoadAssetClass']
     relevantImports = {}
@@ -468,26 +528,33 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                 stringValue = stringValue.replace(oldIDString,newIDString)
                 exp['Parameters'][1]['Value'] = stringValue
             elif imp == 'LoadAsset' or imp == 'LoadAssetClass':
-                stringValue = exp['Parameters'][1].get('Value').get('Value')
+                try:
+                    stringValue = exp['Parameters'][1].get('Value').get('Value')
+                except AttributeError:
+                    continue
                 originalLength = len(stringValue)
                 #create new string here for calculation of lenghtDifference
-                newString = stringValue.replace(oldName,newName).replace(oldIDString,newIDString)
-                newString = replaceNonExistentAnimations(script, newString,newIDString,newName)
-                lengthDifference = len(newString) - len(stringValue)
+                newString = replaceOldIDinString(stringValue).replace(oldName,newName)
+                lengthDifference = len(newString) - originalLength
 
-                if oldIDString in stringValue: 
+                if oldIDString in stringValue and lengthDifference == 0: 
                     #if the oldID is there in string format, replace with new string
-                    stringValue = stringValue.replace(oldIDString,newIDString)
+                    stringValue= replaceOldIDinString(stringValue)
+                    
                 if oldName in stringValue and lengthDifference == 0:
                     #length is the same so can swap name and anim
                     stringValue = stringValue.replace(oldName,newName)
-                    stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName)#exp['Parameters'][1]['Value']['Value'] = stringValue
+                    if ("/Blueprints/Character" in stringValue or "_C" in stringValue):
+                        stringValue = replaceNonExistentAnimations(script, newString,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix)
+                    else:
+                        stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix)#exp['Parameters'][1]['Value']['Value'] = stringValue
                     exp['Parameters'][1]['Value']['Value'] = stringValue
-                elif oldName in stringValue and lengthDifference != 0:
+                elif lengthDifference != 0:
                     #length is not the same so need to move expression around
                     #recalc new string just in case
-                    newString = stringValue.replace(oldName,newName)                
-                    newString = replaceNonExistentAnimations(script, newString, newIDString,newName)
+                    stringValue = replaceOldIDinString(stringValue)
+                    newString = stringValue.replace(oldName,newName)
+                    newString = replaceOldIDinString(newString)
 
                     currentStatementIndex = serializedByteCode[bytecode.getIndex(exp)]["StatementIndex"]
                     nextStatementIndex = serializedByteCode[bytecode.getIndex(exp)+1]["StatementIndex"]
@@ -527,26 +594,29 @@ Replaces the animation in a string with a designated replacement animation if re
         replacementID(String): the id of the demon that replaced the old one
         replacementName(String): the name of the demon that replaced the old one
 '''
-def replaceNonExistentAnimations(script, string, replacementID,replacementName):
+def replaceNonExistentAnimations(script, string, replacementID,replacementName, oFPrefix, oPrefix, nFPrefix, nPrefix):
     animations = SCRIPT_ANIMS_REPLACEMENTS[script]
     for animSync in animations: #go through animations to potentially replace in script
         animation = animSync.ind
         replacementAnim = animSync.sync
-        if animation in DEMON_MODELS[replacementID].animations:
-            #Animation exists for the new demon therefore string is fine
+        try: #TODO: Add npc models to the animation csv
+            if animation in DEMON_MODELS[replacementID].animations:
+                #Animation exists for the new demon therefore string is fine
+                return string
+        except KeyError:
             return string
         #Animation does not exist for the new demon therefore string needs to be changed
         if '/' in animation: #Is Animation in Subfolder?
             animationParts = animation.split("/")
-            searchString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_dev" + replacementID + "_" + animationParts[1]+ "." + "AN_dev" + replacementID + "_" + animationParts[1]
+            searchString = "/Game/Design/Character/"+oFPrefix+"/"+oPrefix + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_"+oPrefix + replacementID + "_" + animationParts[1]+ "." + "AN_"+oPrefix + replacementID + "_" + animationParts[1]
         else:
-            searchString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + "AN_dev" + replacementID + "_" + animation+ "." + "AN_dev" + replacementID + "_" + animation
+            searchString = "/Game/Design/Character/"+oFPrefix+"/"+oPrefix + replacementID + "_" + replacementName + "/Anim/" + "AN_"+oPrefix + replacementID + "_" + animation+ "." + "AN_"+oPrefix + replacementID + "_" + animation
         if searchString in string: #Is the Animation the one in the current string
             if '/' in replacementAnim: #Is new Animation in Subfolder?
                 animationParts = replacementAnim.split("/")
-                replacementString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_dev" + replacementID + "_" + animationParts[1]+ "." + "AN_dev" + replacementID + "_" + animationParts[1]
+                replacementString = "/Game/Design/Character/"+nFPrefix+"/"+nPrefix + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_"+nPrefix + replacementID + "_" + animationParts[1]+ "." + "AN_"+nPrefix + replacementID + "_" + animationParts[1]
             else:
-                replacementString = "/Game/Design/Character/Devil/dev" + replacementID + "_" + replacementName + "/Anim/" + "AN_dev" + replacementID + "_" + replacementAnim+ "." + "AN_dev" + replacementID + "_" + replacementAnim
+                replacementString = "/Game/Design/Character/"+nFPrefix+"/"+nPrefix + replacementID + "_" + replacementName + "/Anim/" + "AN_"+nPrefix + replacementID + "_" + replacementAnim+ "." + "AN_"+nPrefix + replacementID + "_" + replacementAnim
             string = string.replace(searchString,replacementString)
 
     return string

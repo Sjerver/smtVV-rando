@@ -320,3 +320,18 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 517,gurr_big,Gurulu,891,FALSE
 518,gogmagog_big,Gogmagog,890,FALSE
 519,glasyalabolas_big,Glasya-Labolas,552,FALSE
+605,lawko,Tao,-1,FALSE
+606,lawko_bag,Tao Schoolbag,-1,FALSE
+607,chaoko,Yoko,-1,FALSE
+609,tomoo,Yuzuru,561,TRUE
+610,tomoo_bag,Yuzuru Schoolbag,-1,FALSE
+611,karuo,Dazai,1151,TRUE
+612,karuo_bag,Dazai Schoolbag,-1,FALSE
+618,kichio,Yakumo,465,TRUE
+621,lawko_megami_1st,Tao Panagia,-1,FALSE
+623,chaoko_megami_1st,Yoko Panagia,-1,FALSE
+625,tomoo_union,Tsukuyomi Nahobino,528,FALSE
+626,karuo_union,Abdiel Nahobino,525,FALSE
+627,kichio_union,Nuwa Nahobino,520,FALSE
+629,karuo_hairdiff,Dazai Hair,578,FALSE
+651,demi_fiend,Demi-fiend,934,FALSE
