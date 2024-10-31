@@ -170,7 +170,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1769': [Demon_Sync(78), Demon_Sync(295), Demon_Sync(31), Demon_Sync(4), Demon_Sync(528), Demon_Sync(561)], #Tokyo Diet Building Researcher (Mephisto, Cleopatra, Artemis, Dagda, Tsukuyomi, Yuzuru) TODO: Differentiate between boss and summonable versions.
     'mm_em1770': [Demon_Sync(78)], #Mephisto Quest (Mephisto)
     'mm_em1780': [Demon_Sync(295)], #Cleopatra Quest (Cleopatra)
-    #'mm_em1790': [Demon_Sync(31), Demon_Sync(933), Demon_Sync(432), Demon_Sync(8, 838)], #Artemis Quest (Artemis, Queztalcoatl, Hydra, Zeus 2 for fun)
+    'mm_em1790': [Demon_Sync(31), Demon_Sync(933), Demon_Sync(432), Demon_Sync(8, 838)], #Artemis Quest (Artemis, Queztalcoatl, Hydra, Zeus 2 for fun) Note: If Artemis's speaker voice is changed the game crashes
     'mm_em1802': [Demon_Sync(359, 921)], #Matador, 2 Quest Files
     'mm_em1803': [Demon_Sync(921)],
     'mm_em1804': [Demon_Sync(357, 922)], #Daisoujou
@@ -761,6 +761,10 @@ RACE_TALISMANS = {
 SPECIAL_SPEAKER_IDS = {
     561: 466, # Yuzuru
     528: 510, # Tsukuyomi/Koshimizu
+    467: 511, # Abdiels
+    525: 511,
+    564: 511,
+    577: 511,
 }
 
 '''

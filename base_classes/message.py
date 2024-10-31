@@ -271,18 +271,16 @@ class Message_File:
                     else: # there is a need to rewrite the string in the uexp
                         if pageSize < len(pageTextEntry.bytes): #New string is larger than old one
                             messageSizeDiff = messageSizeDiff +  len(pageTextEntry.bytes) - pageSize
-                            sizeDifference = sizeDifference + messageSizeDiff
                             for i in range(len(pageTextEntry.bytes) - pageSize):
-                                uexpBinary.buffer.insert(currentOffset+ additionalBytes + 4*index + 4 ,0)
+                                uexpBinary.buffer.insert(currentOffset+ additionalBytes + 4*index + 4 + 17 * (pageIndex),0)
                             if pageTextEntry.encoding == 'ascii':
                                 uexpBinary.writeWord(len(pageTextEntry.bytes),currentOffset + additionalBytes + 4* index + 17 * (pageIndex))
                             else:
                                 uexpBinary.writeWord(len(pageTextEntry.bytes) // -2,currentOffset + additionalBytes + 4* index + 17 * (pageIndex))
                         elif pageSize > len(pageTextEntry.bytes): #New string is smaller than old one
                             messageSizeDiff = messageSizeDiff + (len(pageTextEntry.bytes) - pageSize)
-                            sizeDifference = sizeDifference + messageSizeDiff
                             for i in range(pageSize - len(pageTextEntry.bytes)):
-                                uexpBinary.buffer.pop(currentOffset + additionalBytes + 4*index + 4)
+                                uexpBinary.buffer.pop(currentOffset + additionalBytes + 4*index + 4 + 17 * (pageIndex))
                             if pageTextEntry.encoding == 'ascii':
                                 uexpBinary.writeWord(len(pageTextEntry.bytes),currentOffset + additionalBytes + 4* index + 17 * (pageIndex))
                             else:
@@ -291,13 +289,14 @@ class Message_File:
                         uexpBinary.writeXChars(pageTextEntry.bytes, pageSize, currentOffset + additionalBytes + 4* index + 4 + 17 * (pageIndex))
                         additionalBytes = additionalBytes + pageSize
                         messageAddBytes = messageAddBytes + pageSize
-                
+                        
                 uexpBinary.writeDblword(messageSizeDiff + message.pageDataSize, currentOffset + additionalBytes - messageAddBytes - 26)
-            
+            sizeDifference = sizeDifference + messageSizeDiff
 
             #TODO: Add code for writing if voice is changed later, currently only read for offset calc
             currentOffset =currentOffset + 8 * 3 + 17*message.pageCount + 4 + 78#name Size
             uexpBinary.writeWord(message.metadataSize, currentOffset + additionalBytes - 78 - 17)
+            uexpBinary.writeWord(message.metadataSize-53, currentOffset + additionalBytes - 78 - 17 + 37) #Magic number 53 less than the metadata size
             for i, page in enumerate(message.pageDataArray):
                 oldNameSize = uexpBinary.readWord(currentOffset + additionalBytes)
                 newNameSize = len(page.name)
