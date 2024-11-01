@@ -143,10 +143,11 @@ class Bytecode:
     def getIndex(self,expression):
         try:
             index = self.json.index(expression)
-            
         except ValueError:
-            print("Nested in another expression")
+            #Also occurs if lines are already moved around or replaced
+            #print("Nested in another expression")
             #TODO: Find next expression here
+            return None
         return index
 
     '''

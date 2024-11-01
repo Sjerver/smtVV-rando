@@ -17,6 +17,8 @@ class Anim_Sync():
         if sync:
             self.sync = sync
 
+DEBUG_SWAP_PRINT = True
+
 DEVIL_PREFIX = "/Devil/"
 NPC_PREFIX = "/NPC/"
 NPC_MODEL_START = 600
@@ -39,9 +41,7 @@ LEVEL_UASSETS = {
 
 #List of events that require updated scaling to trigger events with large demons
 REQUIRES_HIT_UPDATE = [
-    'MM_M061_EM1630','MM_M061_EM1631','MM_M061_EM1640',
-    #TODO:'MM_M016_E0885' couldn't find a UMap for this but all of them and this have EventHit_GEN_VARIABLE that is easier to update maybe 
-    # (is however the same for all at base so need to rethink Math stuff)
+    'MM_M061_EM1630','MM_M061_EM1631','MM_M061_EM1640','MM_M016_E0885'
 ]
 
 #Script files for events and what demon models need to be updated in htem
@@ -53,7 +53,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_EM1640': [Demon_Sync(43),Demon_Sync(44,869)], # The Spirit of Love (Apsaras, Agathion)
     'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Entry (Apsaras)
     'MM_M061_E2610' : [Demon_Sync(193,579),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Isis Event Bethel Egypt (Isis, Yuzuru,Dazai)
-    'MM_M061_E2620': [Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Bethel Egypt (Khonsu,Yuzuru,Dazai)
+    'MM_M061_E2620': [Demon_Sync(561),Demon_Sync(1151,578),Demon_Sync(7,566)], #CoV Khonsu Event Bethel Egypt (Khonsu,Yuzuru,Dazai)
     'MM_M061_E2625_Direct': [Demon_Sync(193,579),Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
     'MM_M016_E0885': [Demon_Sync(152)], #CoC Chaos Route Empyrean Hayataro Joins After Stock is Full (Hayataro)
     'MM_M016_E0885_Direct': [Demon_Sync(152)], #CoC Chaos Route Empyrean Hayataro Joins Stock is Full so wait (Hayataro)
@@ -61,12 +61,12 @@ EVENT_SCRIPT_MODELS = {
     'MM_M016_E0892': [Demon_Sync(244,472)], #Empyrean Sraosha
     'MM_M016_E0893': [Demon_Sync(198,473)], #Empyrean Alilat
     'MM_M035_E0825': [Demon_Sync(241,477)], #Temple of Eternity Metatron
-    'MM_M036_E0644': [Demon_Sync(182,466)], #DKC Chernobog
-    'MM_M036_E0650': [Demon_Sync(240,467)], #DKC Abdiel
-    'MM_M036_E0670': [Demon_Sync(465),Demon_Sync(82,463),Demon_Sync(240,467)], #DKC (Yakumo,Arioch,Abdiel)
+    'MM_M036_E0644': [Demon_Sync(182,466)], #DKC Pre Chernobog
+    'MM_M036_E0650': [Demon_Sync(240,467)], #DKC Abdiel & Dazai Event
+    'MM_M036_E0670': [Demon_Sync(465),Demon_Sync(82,463),Demon_Sync(240,467)], #DKC Post Arioch(Yakumo,Arioch,Abdiel)
     'MM_M038_E2912': [Demon_Sync(256,484),Demon_Sync(255,485)], #Shakan Dark Block Bros
     'MM_M038_E2917': [Demon_Sync(260,486)], #Shakan Cherub
-    'MM_M038_E2930_Direct': [Demon_Sync(240,564)], #Shakan Abdiel
+    'MM_M038_E2930_Direct': [Demon_Sync(240,564)], #Shakan Abdiel Post Fight
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -77,9 +77,8 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M061_EM1631': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Water Nymph (Ippon-Datara)
     'MM_M061_EM1640': [Anim_Sync('06skill_Composite','06_skill')], # The Spirit of Love (Apsaras)
     'MM_M061_EM1640_Hit': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Spirit of Love First Entry (Apsaras)
-    'MM_M061_E2610' : [], #CoV Isis Event Bethel Egypt
-    'MM_M061_E2620': [],#CoV Khonsu Event Bethel Egypt
-    'MM_M061_E2625_Direct': [], #CoV Khonsu Event Post Fight Bethel Egypt (Khonsu)
+    'MM_M061_E2625_Direct': [Anim_Sync('map/700000_dying','04dying')], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
+    'MM_M038_E2930_Direct': [Anim_Sync('EVT_E0604c01m_loop','04dying')], #Shakan Abdiel Post Fight
 }
 
 #For bosses that do not use their own model, which model they should use instead
@@ -166,6 +165,7 @@ MODEL_SYNC = {
     455: 25, # Ishtar
     579: 193, # Isis
     611: 193, # Isis (Abcess)
+    601: 58, # Jack Frost (Abcess)
     802: 281, # Jatayu
     858: 204, # Jikokuten
     862: 204, # Jikokuten (4 Turn)
@@ -318,6 +318,13 @@ MODEL_SYNC = {
     593: 565, # Dragon Head (use Tiamat)
     594: 565, # Goat Head (use Tiamat)
     595: 565, # Camel Head (use Tiamat)
+    567: 465, # Shohei Yakumo (Vengeance)
+    521: 627, # Thunder Bit (use Nahobino Nuwa)
+    522: 627, # Thunder Bit (use Nahobino Nuwa)
+    523: 627, # Thunder Bit (use Nahobino Nuwa)
+    524: 627, # Thunder Bit (use Nahobino Nuwa)
+    526: 525, # Depraved Arm (use Nahobino Abdiel)
+    527: 525, # Depraved Wing (use Nahobino Abdiel)
 
     #TODO: Should be complete? With the exception of bosses who use NPC Models
 }
@@ -338,12 +345,12 @@ def initDemonModelData():
     for index, row in demonModelAnimMap.iterrows():
         model = Demon_Model()
         if type(row['Model']) is str:
-            model.modelName = row['Model']
+            model.modelName = row['Model'].split('_', 1)[1]
         for animation in demonModelAnimMap.columns[1:]:  # Skip the 'Model' column
             if row[animation] == '1':  # If the model has this animation (value is 1)
                 model.animations.append(animation)  # Add the animation to the list
         DEMON_MODELS.update({model.modelName[3:6] : model})
-            
+
 
 '''
 Updates the models used in events.
@@ -359,13 +366,8 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
     umapList = UMap_File_List()
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
         
-        
-        
-        file = scriptFiles.getFile(script)
-        hitboxUpdated = False
-            
+        replacementMap = {}
         for syncDemon in syncDemons:
-            
             originalDemonID = syncDemon.ind
             syncDemonID = syncDemon.sync
             if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not config.ensureDemonJoinLevel: #If demon isn't getting replaced ignore it
@@ -384,13 +386,25 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
                     continue
             if replacementID == originalDemonID: #do not need to swap models if replacement is the same as originalDemonID
                 continue
-            try: #Does boss use a different model that has no tie to their id
+            try: #Does replacement boss use a different model that has no tie to their id
                 replacementID = MODEL_SYNC[replacementID]
             except KeyError:
                 #replacementID = 934 #Testing stuff for event hit scaling
                 pass 
-            if not hitboxUpdated and script in REQUIRES_HIT_UPDATE: #TODO: How to deal with overlap issues
-                umap = umapList.getFile(LEVEL_UASSETS[script])
+            try: #Does original boss use a different model that has no tie to their id
+                originalDemonID = MODEL_SYNC[originalDemonID]
+            except KeyError:
+                #replacementID = 934 #Testing stuff for event hit scaling
+                pass
+            # if originalDemonID in replacementMap.values():
+            #     print("Causes Chain replacement: " + str(originalDemonID) + " " + str(replacementID) )
+            replacementMap[originalDemonID] = replacementID
+        
+        file = scriptFiles.getFile(script)
+        hitboxUpdated = False
+            
+        for originalDemonID, replacementID in replacementMap.items():
+            if not hitboxUpdated:
                 try:
                     og = next(d for x, d in enumerate(mapSymbolArr) if d.demonID == originalDemonID)
                     replacement = next(d for x, d in enumerate(mapSymbolArr) if d.demonID == replacementID)
@@ -402,8 +416,13 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
                         scale = 1.5 #Increase by 50%
                 except StopIteration:
                     scale = 1.5 #Increase by 50%
+           
+            if not hitboxUpdated and script in REQUIRES_HIT_UPDATE and script in LEVEL_UASSETS.keys(): #TODO: How to deal with overlap issues
+                umap = umapList.getFile(LEVEL_UASSETS[script])
                 hitboxUpdated = True
                 umap = updateEventHitScaling(umap,script,scale)
+            elif not hitboxUpdated and script in REQUIRES_HIT_UPDATE: #no umap for event exists
+                updateEventHitGen(file,scale,script)
 
             #TODO: Multiple demon model swaps do work, but need to deal with chain replacements,(A->B B->C)
             file = replaceDemonModelInScript(script, file, originalDemonID, replacementID, scriptFiles)   
@@ -423,6 +442,7 @@ Replaces the a demon model with the model of another demon in the given script.
         ogDemonID (Integer): the id of the demon that should be replaced
         replacementDemonID (Integer): the id of the replacement demon
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+        #TODO: Think about how to optimize this function
 '''
 def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementDemonID, scriptFiles: Script_File_List):
     jsonData = file.json
@@ -450,7 +470,9 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         newPrefix = "npc"
         newFolderPrefix = NPC_PREFIX
         newPrefixVariant = "Npc"
-    print("SWAP: " + oldPrefix +"/" +  oldName + " -> " + newPrefix +"/"+ newName + " in " + script)
+    
+    if DEBUG_SWAP_PRINT:
+        print("SWAP: " + oldPrefix +"/" +  oldName + " -> " + newPrefix +"/"+ newName + " in " + script)
 
     #There are some special cases for these class blueprints
     classOldFolderPrefix = copy.deepcopy(oldFolderPrefix)
@@ -471,8 +493,12 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         classOldPrefix = "dev"
         classOldPrefixVariant = "Dev"
 
-    for index, name in enumerate(jsonData['NameMap']): #change occurences of oldDemonID and oldDemonName in all names in the uasset
+    if file.originalNameMap is None: #use original name map to prevent chain replacements
+        file.originalNameMap = copy.deepcopy(jsonData['NameMap'])
+
+    for index, name in enumerate(file.originalNameMap): #change occurences of oldDemonID and oldDemonName in all names in the uasset
         nameEntry = file.getNameAtIndex(index)
+        #TODO: Add something for anims which are in this name map
         if oldIDString in name and ("/Blueprints/Character" in name or "_C" in name): 
             nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
             nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
@@ -506,10 +532,14 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         print("Script Byte Code only in raw form")
         return
     
+    if file.originalByteCodeSize is None: 
+        file.originalByteCodeSize = byteCodeSize#Set bytecode size to not replace bytecode moved to the end
+        file.originalBytecode = copy.deepcopy(bytecode)#Also use original bytecode to prevent chain replacements
+
     #Adjust cases where the function name is explicitly in the code
     relevantFunctionNames = ['BPL_AdjustMapSymbolScale']
     for func in relevantFunctionNames:
-        expressions = bytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
+        expressions = file.originalBytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
         for exp in expressions:
             modelValue = exp['Parameters'][1].get('Value')
             if modelValue == ogDemonID: #Only change demonID for the oldDemon
@@ -536,13 +566,18 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
             relevantImports[imp] = -1 * importNameList.index(imp) -1
     #Adjust cases where function name is not explicit in code due to being an import
     for imp,stackNode in relevantImports.items():
-        expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+        expressions = file.originalBytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
         expressions.reverse()
         for expIndex, exp in enumerate(expressions):
+            if bytecode.getIndex(exp) is None:
+                # First case: Nested expression (will be fixed at some point)
+                # Second case: Expression has already been modified in the new one, so we can skip it here
+                continue
             if imp == 'PrintString': #likely not necessary but do it anyway
                 stringValue = exp['Parameters'][1].get('Value')
                 stringValue = stringValue.replace(oldIDString,newIDString)
-                exp['Parameters'][1]['Value'] = stringValue
+                newExpression = bytecode.json[bytecode.getIndex(exp)]
+                newExpression['Parameters'][1]['Value'] = stringValue
             elif imp == 'LoadAsset' or imp == 'LoadAssetClass':
                 try:
                     stringValue = exp['Parameters'][1].get('Value').get('Value')
@@ -564,7 +599,8 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                         stringValue = replaceNonExistentAnimations(script, newString,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix)
                     else:
                         stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix)#exp['Parameters'][1]['Value']['Value'] = stringValue
-                    exp['Parameters'][1]['Value']['Value'] = stringValue
+                    newExpression = bytecode.json[bytecode.getIndex(exp)]
+                    newExpression['Parameters'][1]['Value']['Value'] = stringValue
                 elif lengthDifference != 0:
                     #length is not the same so need to move expression around
                     #recalc new string just in case
@@ -577,6 +613,8 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                     lastStatementIndex = file.calcLastStatementIndex(exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData)
                     statementLength = nextStatementIndex - currentStatementIndex
                     
+                    if currentStatementIndex > file.originalByteCodeSize: #to not move code that has been moved already!
+                        continue
                     #Copy and change values and append to the end
                     newExpression = copy.deepcopy(exp)
                     newExpression['Parameters'][1]['Value']['Value'] = newString
@@ -598,7 +636,8 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                     #Updated serializedByteCodeList for new statement indeces
                     serializedByteCode = file.getSerializedScriptBytecode(exportIndex,jsonData)
                 else: #oldName not in String, save id swaps
-                    exp['Parameters'][1]['Value']['Value'] = stringValue
+                    newExpression = bytecode.json[bytecode.getIndex(exp)]
+                    newExpression['Parameters'][1]['Value']['Value'] = stringValue
     file.updateFileWithJson(jsonData)
     return file
 
@@ -618,11 +657,8 @@ def replaceNonExistentAnimations(script, string, replacementID,replacementName, 
     for animSync in animations: #go through animations to potentially replace in script
         animation = animSync.ind
         replacementAnim = animSync.sync
-        try: #TODO: Add npc models to the animation csv
-            if animation in DEMON_MODELS[replacementID].animations:
-                #Animation exists for the new demon therefore string is fine
-                return string
-        except KeyError:
+        if animation in DEMON_MODELS[replacementID].animations:
+            #Animation exists for the new demon therefore string is fine
             return string
         #Animation does not exist for the new demon therefore string needs to be changed
         if '/' in animation: #Is Animation in Subfolder?
@@ -669,3 +705,26 @@ def updateEventHitScaling(umap: UMap_File,script,scale):
     vectorValues['Z'] *= scale
 
     return umap
+
+'''
+Updates the EventHit_GEN_VARIABLE export of a script file.
+    Parameters:
+        file(Script_File): file of the script
+        scale(Float): modifier for the event hit scale
+        script(String): name of the script
+'''
+def updateEventHitGen(file, scale, script):
+    exports = file.json['Exports']
+    try:
+        hitGenExport = next(exp for exp in exports if 'EventHit_GEN_VARIABLE' in exp['ObjectName'])
+        relativeScale3D = next(data['Value'] for data in hitGenExport['Data'] if data['Name'] == 'RelativeScale3D')
+        vectorValues = relativeScale3D[0]['Value']
+        vectorValues['X'] *= scale
+        vectorValues['Y'] *= scale
+        vectorValues['Z'] *= scale
+
+    except StopIteration:
+        print("Could not perform scale update on EventHitGen for: " + script)
+    
+    file.updateFileWithJson(file.json)
+    

@@ -285,6 +285,9 @@ class Script_File:
     def __init__(self,uasset: UAsset, json):
         self.uasset = uasset 
         self.json = json
+        self.originalByteCodeSize = None
+        self.originalBytecode = None
+        self.originalNameMap = None
     
     '''
     Get the name at the index in the name map of the uasset.
