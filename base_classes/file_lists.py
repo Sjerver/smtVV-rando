@@ -67,6 +67,8 @@ MAIN_M064_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M0
 MAIN_M035_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M035'
 MAIN_M036_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M036'
 MAIN_M038_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M038'
+MAIN_M062_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M062'
+M062_PLEIADES_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M062/Pleiades' 
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
@@ -154,6 +156,15 @@ SCRIPT_FOLDERS = {
     'MM_M060_E3110_Direct': MAIN_M060_FOLDER, #CoV Beelzebub
     'MM_M060_E3130_Direct': MAIN_M060_FOLDER, #CoV Zeus + Odin
     'MM_M060_Npc609Talk': MAIN_M060_FOLDER, #CoC Yuzuru Hayataro NPC Event?
+    'MM_M062_E0378': MAIN_M062_FOLDER, #Dazai/Abdiel talk in area 2 creation (Abdiel)
+    'MM_M062_E0380': MAIN_M062_FOLDER, #Fionn 1 Post-fight (Fionn)
+    'MM_M062_E0492': MAIN_M062_FOLDER,#Final Lahmu (Lahmu Phase 2)
+    'MM_M062_EM0041': MAIN_M062_FOLDER, #Loup-garous Event
+    'MM_M062_E2275': M062_PLEIADES_FOLDER, #Dazai/Abdiel talk in area 2 vengeance
+    'MM_M062_E2295_Direct': M062_PLEIADES_FOLDER, #Eisheth pre-fight
+    'MM_M062_E2298_Direct': M062_PLEIADES_FOLDER, #Fionn post-fight Vengeance
+    'MM_M062_E2300': M062_PLEIADES_FOLDER,  #Dazai Pre-Blocker Vengeance
+    'MM_M062_E2302': M062_PLEIADES_FOLDER, #Arriving in fairy village vengeance
 }
 
 #List of which folder each umap should be in when writing output
@@ -161,6 +172,11 @@ UMAP_FOLDERS = {
     'LV_EventMission_M061': LV_M061_FOLDER,
     'LV_MainMission_M061': LV_M061_FOLDER,
 }
+
+#List of scripts that are in the main mission folder despite submission naming convention
+MAINMISSION_EXCEPTIONS = [
+'MM_M062_EM0041'
+]
 
 class UMap_File_List:
     def __init__(self):
@@ -280,6 +296,8 @@ class Script_File_List:
         elif 'EM' in name and not 'DevilTalk' in name:
             scriptPath = 'SubMission/'
         else:
+            scriptPath = 'MainMission/'
+        if name in MAINMISSION_EXCEPTIONS:
             scriptPath = 'MainMission/'
         #uexp = readBinaryTable('base/Scripts/' + scriptPath + name + '.uexp')
         #uassetData = Script_Uasset(readBinaryTable('base/Scripts/' +scriptPath + name + '.uasset'))

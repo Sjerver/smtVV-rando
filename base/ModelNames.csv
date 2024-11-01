@@ -272,14 +272,14 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 395,lilith_evt,Lilith,-1,FALSE
 396,agrat_evt,Agrat,-1,FALSE
 401,lahmu_mask,Lahmu,441,FALSE
-402,lahmu_white,Lahmu,236,FALSE
+402,lahmu_white,Lahmu,-1,FALSE
 403,lahmu_tentacle1,Lahmu's Tentacle,-1,FALSE
 404,lahmu_tentacle2,Lahmu's Tentacle,-1,FALSE
 405,lahmu_tentacle3,Lahmu's Tentacle,-1,FALSE
 406,lahmu_tentacle4,Lahmu's Tentacle,-1,FALSE
 407,lahmu_tentacle5,Lahmu's Tentacle,-1,FALSE
 408,lahmu_tentacle6,Lahmu's Tentacle,-1,FALSE
-409,lahmu_all,Lahmu,-1,FALSE
+409,lahmu_all,Lahmu,236,FALSE
 416,joka_1st,Nuwa,75,TRUE
 417,joka_2nd,Nuwa,197,FALSE
 418,joka_all,Nuwa,-1,FALSE

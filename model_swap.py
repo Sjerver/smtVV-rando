@@ -9,6 +9,7 @@ import util.numbers as numbers
 import util.jsonExports as jsonExports
 import pandas as pd
 import copy
+import random
 
 class Anim_Sync():
     def __init__(self,ind, sync=None):
@@ -22,6 +23,7 @@ DEBUG_SWAP_PRINT = True
 DEVIL_PREFIX = "/Devil/"
 NPC_PREFIX = "/NPC/"
 NPC_MODEL_START = 600
+LAHMU_2ND_FORM_ID = 236
 
 #Model IDs that use Dev Class Blueprints but are in NPC folder otherwise
 NPC_MODELS_DEV_BLUEPRINT = [621,622,625,626,627,641,642,643,646,647,648,649,650,651]
@@ -76,7 +78,16 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_E3020': [Demon_Sync(465,567)], #Yakumo in area 4 vengeance part 2
     'MM_M060_E3110_Direct': [Demon_Sync(81,483)], #CoV Beelzebub
     'MM_M060_E3130_Direct': [Demon_Sync(482),Demon_Sync(481)], #CoV Zeus + Odin
-    'MM_M060_Npc609Talk': [Demon_Sync(152)] #CoC Yuzuru Hayataro NPC Event?
+    'MM_M060_Npc609Talk': [Demon_Sync(152)], #CoC Yuzuru Hayataro NPC Event?
+    'MM_M062_E0378': [Demon_Sync(467)], #Dazai/Abdiel talk in area 2 creation (Abdiel)
+    'MM_M062_E0380': [Demon_Sync(35,451)], #Fionn 1 Post-fight (Fionn)
+    'MM_M062_E0492': [Demon_Sync(453)], #Final Lahmu (Lahmu Phase 2)
+    'MM_M062_EM0041': [Demon_Sync(450)], #Loup-garous Event
+    'MM_M062_E2275': [Demon_Sync(564),Demon_Sync(1151,578)], #Dazai/Abdiel talk in area 2 vengeance (Abdiel,Dazai)
+    'MM_M062_E2295_Direct': [Demon_Sync(559)], #Eisheth pre-fight
+    'MM_M062_E2298_Direct': [Demon_Sync(451)], #Fionn post-fight Vengeance
+    'MM_M062_E2300': [Demon_Sync(1151,578)], #Dazai Pre-Blocker Vengeance
+    'MM_M062_E2302': [Demon_Sync(561),Demon_Sync(1151,578)], #Arriving in fairy village vengeance (Yuzuru,Dazai)
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -92,6 +103,11 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M038_E2930_Direct': [Anim_Sync('EVT_E0604c01m_loop','04dying')], #Shakan Abdiel Post Fight
     'MM_M060_E762': [Anim_Sync('map/700000_event_idle', '01idleA')],#Nuwa in area 4 at the gate
     'MM_M060_E3020': [Anim_Sync('Event/EVT_v_turnwalk_inout','11run')], #Yakumo in area 4 vengeance part 2
+    'MM_M062_E0380': [Anim_Sync('Map/700002_event_idle','01idleA')], #Fionn 1 Post-fight (Fionn)
+    'MM_M062_E0492': [Anim_Sync('3rd_01idleA','01idleA'),Anim_Sync('3rd_41encount','41encount')], #Final Lahmu (Lahmu Phase 2)
+    #'MM_M062_EM0041': [Anim_Sync('Event/EVT_SlowEncount_inout','41encount')], #Loup-garous Event
+    'MM_M062_E2295_Direct': [Anim_Sync('02idleB','05attack')],#Eisheth pre-fight
+    'MM_M062_E2298_Direct': [Anim_Sync('Map/700002_event_idle','01idleA')], #Fionn 1 Post-fight Vengeance (Fionn)
 }
 
 #For bosses that do not use their own model, which model they should use instead
@@ -409,6 +425,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             except KeyError:
                 #replacementID = 934 #Testing stuff for event hit scaling
                 pass
+            #replacementID = random.choice([441,236]) #Testing stuff
             # if originalDemonID in replacementMap.values():
             #     print("Causes Chain replacement: " + str(originalDemonID) + " " + str(replacementID) )
             replacementMap[originalDemonID] = replacementID
@@ -482,7 +499,10 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         newPrefix = "npc"
         newFolderPrefix = NPC_PREFIX
         newPrefixVariant = "Npc"
-    
+    if replacementDemonID == LAHMU_2ND_FORM_ID:
+        lahmuSuffix = "_3rd"
+    else:
+        lahmuSuffix = ""
     if DEBUG_SWAP_PRINT:
         print("SWAP: " + oldPrefix +"/" +  oldName + " -> " + newPrefix +"/"+ newName + " in " + script)
 
@@ -563,11 +583,11 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         if ("/Blueprints/Character" in string or "_C" in string):
             nstring = string.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
             nstring = nstring.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
-            nstring = replaceNonExistentAnimations(script, nstring,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix)
+            nstring = replaceNonExistentAnimations(script, nstring,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
         else:
             nstring = string.replace(oldFolderPrefix + oldPrefix + oldIDString, newFolderPrefix + newPrefix +newIDString).replace(oldPrefix + oldIDString, newPrefix +newIDString)
             nstring = nstring.replace(oldFolderPrefix + oldPrefixVariant + oldIDString, newFolderPrefix + newPrefixVariant +newIDString).replace(oldPrefixVariant + oldIDString, newPrefixVariant +newIDString)
-            nstring = replaceNonExistentAnimations(script, nstring,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix)
+            nstring = replaceNonExistentAnimations(script, nstring,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)
         return nstring
 
     importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
@@ -608,9 +628,9 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                     #length is the same so can swap name and anim
                     stringValue = stringValue.replace(oldName,newName)
                     if ("/Blueprints/Character" in stringValue or "_C" in stringValue):
-                        stringValue = replaceNonExistentAnimations(script, newString,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix)
+                        stringValue = replaceNonExistentAnimations(script, newString,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
                     else:
-                        stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix)#exp['Parameters'][1]['Value']['Value'] = stringValue
+                        stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)#exp['Parameters'][1]['Value']['Value'] = stringValue
                     newExpression = bytecode.json[bytecode.getIndex(exp)]
                     newExpression['Parameters'][1]['Value']['Value'] = stringValue
                 elif lengthDifference != 0:
@@ -661,7 +681,7 @@ Replaces the animation in a string with a designated replacement animation if re
         replacementID(String): the id of the demon that replaced the old one
         replacementName(String): the name of the demon that replaced the old one
 '''
-def replaceNonExistentAnimations(script, string, replacementID,replacementName, oFPrefix, oPrefix, nFPrefix, nPrefix):
+def replaceNonExistentAnimations(script, string, replacementID,replacementName, oFPrefix, oPrefix, nFPrefix, nPrefix,lahmuSuffix= ""):
     try:
         animations = SCRIPT_ANIMS_REPLACEMENTS[script]
     except KeyError: #Script does not have any special animations that can be replaced
@@ -675,15 +695,15 @@ def replaceNonExistentAnimations(script, string, replacementID,replacementName, 
         #Animation does not exist for the new demon therefore string needs to be changed
         if '/' in animation: #Is Animation in Subfolder?
             animationParts = animation.split("/")
-            searchString = "/Game/Design/Character/"+oFPrefix+"/"+oPrefix + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_"+oPrefix + replacementID + "_" + animationParts[1]+ "." + "AN_"+oPrefix + replacementID + "_" + animationParts[1]
+            searchString = "/Game/Design/Character/"+oFPrefix+"/"+oPrefix + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_"+oPrefix + replacementID + lahmuSuffix + "_" + animationParts[1]+ "." + "AN_"+oPrefix + replacementID + lahmuSuffix+ "_" + animationParts[1]
         else:
-            searchString = "/Game/Design/Character/"+oFPrefix+"/"+oPrefix + replacementID + "_" + replacementName + "/Anim/" + "AN_"+oPrefix + replacementID + "_" + animation+ "." + "AN_"+oPrefix + replacementID + "_" + animation
+            searchString = "/Game/Design/Character/"+oFPrefix+"/"+oPrefix + replacementID + "_" + replacementName + "/Anim/" + "AN_"+oPrefix + replacementID+ lahmuSuffix + "_" + animation+ "." + "AN_"+oPrefix + replacementID+ lahmuSuffix + "_" + animation
         if searchString in string: #Is the Animation the one in the current string
             if '/' in replacementAnim: #Is new Animation in Subfolder?
                 animationParts = replacementAnim.split("/")
-                replacementString = "/Game/Design/Character/"+nFPrefix+"/"+nPrefix + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_"+nPrefix + replacementID + "_" + animationParts[1]+ "." + "AN_"+nPrefix + replacementID + "_" + animationParts[1]
+                replacementString = "/Game/Design/Character/"+nFPrefix+"/"+nPrefix + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_"+nPrefix + replacementID+ lahmuSuffix + "_" + animationParts[1]+ "." + "AN_"+nPrefix + replacementID+ lahmuSuffix + "_" + animationParts[1]
             else:
-                replacementString = "/Game/Design/Character/"+nFPrefix+"/"+nPrefix + replacementID + "_" + replacementName + "/Anim/" + "AN_"+nPrefix + replacementID + "_" + replacementAnim+ "." + "AN_"+nPrefix + replacementID + "_" + replacementAnim
+                replacementString = "/Game/Design/Character/"+nFPrefix+"/"+nPrefix + replacementID + "_" + replacementName + "/Anim/" + "AN_"+nPrefix + replacementID+ lahmuSuffix + "_" + replacementAnim+ "." + "AN_"+nPrefix + replacementID + lahmuSuffix+ "_" + replacementAnim
             string = string.replace(searchString,replacementString)
 
     return string
