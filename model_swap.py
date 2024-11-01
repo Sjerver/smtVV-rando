@@ -67,10 +67,21 @@ EVENT_SCRIPT_MODELS = {
     'MM_M038_E2912': [Demon_Sync(256,484),Demon_Sync(255,485)], #Shakan Dark Block Bros
     'MM_M038_E2917': [Demon_Sync(260,486)], #Shakan Cherub
     'MM_M038_E2930_Direct': [Demon_Sync(240,564)], #Shakan Abdiel Post Fight
+    'MM_M060_E0762': [Demon_Sync(75,520),Demon_Sync(465)], #Nuwa in area 4 at the gate (Uses Replacement for Nahobino Nuwa, Yakumo)
+    'MM_M060_E0778': [Demon_Sync(468),Demon_Sync(37,878)], #Vasuki Post Fight Event (Vasuki, Kurama Tengu)
+    'MM_M060_E0785': [Demon_Sync(8,469)], #CoC Taito Zeus Appears
+    'MM_M060_E0790': [Demon_Sync(8,469),Demon_Sync(37,878)],#CoC Taito Zeus PostFight (Zeus, Kurama Tengu)
+    'MM_M060_E0810': [Demon_Sync(9,470),Demon_Sync(37,878)],#CoC Odin PostFight (Odin, Kurama Tengu)
+    'MM_M060_E3010': [Demon_Sync(465,567)], #Yakumo in area 4 vengeance
+    'MM_M060_E3020': [Demon_Sync(465,567)], #Yakumo in area 4 vengeance part 2
+    'MM_M060_E3110_Direct': [Demon_Sync(81,483)], #CoV Beelzebub
+    'MM_M060_E3130_Direct': [Demon_Sync(482),Demon_Sync(481)], #CoV Zeus + Odin
+    'MM_M060_Npc609Talk': [Demon_Sync(152)] #CoC Yuzuru Hayataro NPC Event?
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
 #Beware Capitalization!!
+#TODO: A lot of story events have very specific animations that all would most likely just be replaced by IdleA which in most cases seems to be playing on default anyway so they can be skipped?
 SCRIPT_ANIMS_REPLACEMENTS = {
     'EM_M061_DevilTalk': [Anim_Sync('02idleB','05attack')], #Talk Tutorial (Pixie)
     'MM_M061_EM1630': [Anim_Sync('06skill_Composite','06_skill')], # The Water Nymph (Leanan)
@@ -79,6 +90,8 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M061_EM1640_Hit': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Spirit of Love First Entry (Apsaras)
     'MM_M061_E2625_Direct': [Anim_Sync('map/700000_dying','04dying')], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
     'MM_M038_E2930_Direct': [Anim_Sync('EVT_E0604c01m_loop','04dying')], #Shakan Abdiel Post Fight
+    'MM_M060_E762': [Anim_Sync('map/700000_event_idle', '01idleA')],#Nuwa in area 4 at the gate
+    'MM_M060_E3020': [Anim_Sync('Event/EVT_v_turnwalk_inout','11run')], #Yakumo in area 4 vengeance part 2
 }
 
 #For bosses that do not use their own model, which model they should use instead
@@ -424,7 +437,6 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             elif not hitboxUpdated and script in REQUIRES_HIT_UPDATE: #no umap for event exists
                 updateEventHitGen(file,scale,script)
 
-            #TODO: Multiple demon model swaps do work, but need to deal with chain replacements,(A->B B->C)
             file = replaceDemonModelInScript(script, file, originalDemonID, replacementID, scriptFiles)   
         
         scriptFiles.setFile(script,file)

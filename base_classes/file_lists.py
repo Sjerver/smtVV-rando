@@ -144,6 +144,16 @@ SCRIPT_FOLDERS = {
     'MM_M038_E2912': MAIN_M038_FOLDER, #Shakan Dark Block Bros
     'MM_M038_E2917': MAIN_M038_FOLDER,#Shakan Cherub
     'MM_M038_E2930_Direct': MAIN_M038_FOLDER,#Shakan Abdiel
+    'MM_M060_E0762': MAIN_M060_FOLDER, #Nuwa in area 4 at the gate
+    'MM_M060_E0778': MAIN_M060_FOLDER, #Vasuki Fight Event?
+    'MM_M060_E0785': MAIN_M060_FOLDER, #CoC Taito Zeus Appears
+    'MM_M060_E0790': MAIN_M060_FOLDER, #CoC Taito Zeus PostFight?
+    'MM_M060_E0810': MAIN_M060_FOLDER, #CoC Odin PostFight?
+    'MM_M060_E3010': MAIN_M060_FOLDER, #Yakumo in area 4 vengeance
+    'MM_M060_E3020': MAIN_M060_FOLDER, #Yakumo in area 4 vengeance part 2
+    'MM_M060_E3110_Direct': MAIN_M060_FOLDER, #CoV Beelzebub
+    'MM_M060_E3130_Direct': MAIN_M060_FOLDER, #CoV Zeus + Odin
+    'MM_M060_Npc609Talk': MAIN_M060_FOLDER, #CoC Yuzuru Hayataro NPC Event?
 }
 
 #List of which folder each umap should be in when writing output
