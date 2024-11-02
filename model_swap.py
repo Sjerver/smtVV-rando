@@ -44,11 +44,19 @@ LEVEL_UASSETS = {
 #List of events that require updated scaling to trigger events with large demons
 REQUIRES_HIT_UPDATE = [
     'MM_M061_EM1630','MM_M061_EM1631','MM_M061_EM1640','MM_M016_E0885'
+    'MM_M064_E2512'
 ]
+
+#TODO: Investigate certain events which might have the used models in umaps (example: Arioch Pre-Fight, Odin, Vasuki, Meeting Mastema 2ndHalf)
+#Swapping works! but animations might also be possible since they are in the sequence files (need to investigate this in more detail)
+EVENT_CUTSCENES = {
+    'LV_E0660': [Demon_Sync(82,463)], #UMAP Arioch Event
+}
 
 #Script files for events and what demon models need to be updated in htem
 #Demon_Sync(demonID in file, if different from demonID in file: demonID to take replacement from)
 EVENT_SCRIPT_MODELS = {
+    #Initial & Mainmission M061 (Minato)
     'EM_M061_DevilTalk': [Demon_Sync(59)], #Talk Tutorial (Pixie)
     'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43)], # The Water Nymph (Leanan (also Apsaras maybe??))
     'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
@@ -57,18 +65,22 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_E2610' : [Demon_Sync(193,579),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Isis Event Bethel Egypt (Isis, Yuzuru,Dazai)
     'MM_M061_E2620': [Demon_Sync(561),Demon_Sync(1151,578),Demon_Sync(7,566)], #CoV Khonsu Event Bethel Egypt (Khonsu,Yuzuru,Dazai)
     'MM_M061_E2625_Direct': [Demon_Sync(193,579),Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
+    #Mainmission M016 (Empyrean)
     'MM_M016_E0885': [Demon_Sync(152)], #CoC Chaos Route Empyrean Hayataro Joins After Stock is Full (Hayataro)
     'MM_M016_E0885_Direct': [Demon_Sync(152)], #CoC Chaos Route Empyrean Hayataro Joins Stock is Full so wait (Hayataro)
     'MM_M016_E0891': [Demon_Sync(249,471)], #Empyrean Melchizedek
     'MM_M016_E0892': [Demon_Sync(244,472)], #Empyrean Sraosha
     'MM_M016_E0893': [Demon_Sync(198,473)], #Empyrean Alilat
+    #Mainmission M035 & 36 (Temple of Eternity & DKC)
     'MM_M035_E0825': [Demon_Sync(241,477)], #Temple of Eternity Metatron
     'MM_M036_E0644': [Demon_Sync(182,466)], #DKC Pre Chernobog
     'MM_M036_E0650': [Demon_Sync(240,467)], #DKC Abdiel & Dazai Event
-    'MM_M036_E0670': [Demon_Sync(465),Demon_Sync(82,463),Demon_Sync(240,467)], #DKC Post Arioch(Yakumo,Arioch,Abdiel)
+    'MM_M036_E0670': [Demon_Sync(465),Demon_Sync(82,463),Demon_Sync(240,467),Demon_Sync(75,435)], #DKC Post Arioch(Yakumo,Arioch,Abdiel)
+    #Mainmission M038 (Shakan)
     'MM_M038_E2912': [Demon_Sync(256,484),Demon_Sync(255,485)], #Shakan Dark Block Bros
     'MM_M038_E2917': [Demon_Sync(260,486)], #Shakan Cherub
     'MM_M038_E2930_Direct': [Demon_Sync(240,564)], #Shakan Abdiel Post Fight
+    #Mainmission M060 (Taito)
     'MM_M060_E0762': [Demon_Sync(75,520),Demon_Sync(465)], #Nuwa in area 4 at the gate (Uses Replacement for Nahobino Nuwa, Yakumo)
     'MM_M060_E0778': [Demon_Sync(468),Demon_Sync(37,878)], #Vasuki Post Fight Event (Vasuki, Kurama Tengu)
     'MM_M060_E0785': [Demon_Sync(8,469)], #CoC Taito Zeus Appears
@@ -79,6 +91,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_E3110_Direct': [Demon_Sync(81,483)], #CoV Beelzebub
     'MM_M060_E3130_Direct': [Demon_Sync(482),Demon_Sync(481)], #CoV Zeus + Odin
     'MM_M060_Npc609Talk': [Demon_Sync(152)], #CoC Yuzuru Hayataro NPC Event?
+    #Mainmission M062 (Shinagawa)
     'MM_M062_E0378': [Demon_Sync(467)], #Dazai/Abdiel talk in area 2 creation (Abdiel)
     'MM_M062_E0380': [Demon_Sync(35,451)], #Fionn 1 Post-fight (Fionn)
     'MM_M062_E0492': [Demon_Sync(453)], #Final Lahmu (Lahmu Phase 2)
@@ -88,6 +101,26 @@ EVENT_SCRIPT_MODELS = {
     'MM_M062_E2298_Direct': [Demon_Sync(451)], #Fionn post-fight Vengeance
     'MM_M062_E2300': [Demon_Sync(1151,578)], #Dazai Pre-Blocker Vengeance
     'MM_M062_E2302': [Demon_Sync(561),Demon_Sync(1151,578)], #Arriving in fairy village vengeance (Yuzuru,Dazai)
+    #Mainmission M063 (Chiyoda)
+    'MM_M063_E0625': [Demon_Sync(465),Demon_Sync(75,435)], #Yakumo post-fight Chiyoda (Yakumo, Nuwa)
+    'MM_M063_EM0061': [Demon_Sync(822),Demon_Sync(823),Demon_Sync(824)], #Hellfire Highway (Okuninushi, Sukuna Hikona, Minakata)
+    'MM_M063_EM0079': [Demon_Sync(455)], #Ishtar Post Fight
+    'MM_M063_M0680': [Demon_Sync(467)],#Abdiel celebrates Arioch's death (Abdiel)
+    #Mainmission M064 (Shinjuku)
+    'MM_M064_E2510_Direct': [Demon_Sync(503)], #First Power Fight in Shinjuku
+    'MM_M064_E2512': [Demon_Sync(504)], #Second Power Fight in Shinjuku
+    'MM_M064_E2514': [Demon_Sync(505)], #Powers detecting other intruders (uses Triple Power Fight Replacement)
+    'MM_M064_E2520_Direct': [Demon_Sync(550),Demon_Sync(567)], #First Nuwa/Yakumo scene in Shinjuku 
+    'MM_M064_E2540': [Demon_Sync(506)], #Power Gauntlet (uses last Power Fight Replacement)
+    'MM_M064_E2550': [Demon_Sync(486)], #Cherub Blocker in Shinjuku (?)
+    'MM_M064_E2560': [Demon_Sync(550),Demon_Sync(567)], #Nuwa/Yakumo talk at Mastema's hill
+    'MM_M064_E2562_Direct': [Demon_Sync(550),Demon_Sync(567)], #Nuwa/Yakumo talk at Mastema's hill 2 
+    'MM_M064_E2638': [Demon_Sync(1151,578)], #Dazai joins to see Mastema 2 (?)
+    'MM_M064_E2642_Direct': [Demon_Sync(1151,578),Demon_Sync(596)], #Meeting Mastema (Dazai,Mastema)
+    'MM_M064_E2650_Direct': [Demon_Sync(550),Demon_Sync(567)], #Nuwa/Yakumo talk after seeing Naamah (Nuwa, Yakumo)
+    'MM_M064_E2690': [Demon_Sync(486)], #Dead Cherubim 
+    'MM_M064_E2900': [Demon_Sync(596)],#Mastema sends you to Shakan
+    'MM_M064_E2950_Direct': [Demon_Sync(596)],#Mastema after Shakan
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -108,6 +141,7 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     #'MM_M062_EM0041': [Anim_Sync('Event/EVT_SlowEncount_inout','41encount')], #Loup-garous Event
     'MM_M062_E2295_Direct': [Anim_Sync('02idleB','05attack')],#Eisheth pre-fight
     'MM_M062_E2298_Direct': [Anim_Sync('Map/700002_event_idle','01idleA')], #Fionn 1 Post-fight Vengeance (Fionn)
+    'MM_M064_E2690': [Anim_Sync('map/700000_dead01','04dying'),Anim_Sync('map/700001_dead02','04dying')], #Dead Cherubim
 }
 
 #For bosses that do not use their own model, which model they should use instead
@@ -446,7 +480,8 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
                         scale = 1.5 #Increase by 50%
                 except StopIteration:
                     scale = 1.5 #Increase by 50%
-           
+            if scale <= 1: #do not update hitbox size if scale would be smaller
+                continue
             if not hitboxUpdated and script in REQUIRES_HIT_UPDATE and script in LEVEL_UASSETS.keys(): #TODO: How to deal with overlap issues
                 umap = umapList.getFile(LEVEL_UASSETS[script])
                 hitboxUpdated = True

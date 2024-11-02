@@ -798,6 +798,7 @@ SPECIAL_SPEAKER_IDS = {
     465: 512, # Yakumos
     567: 512,
     584: 506, # Dazai
+    601: 25, #Abcess Jack Frost (Jack Frost is also Dummy Name)
 }
 
 '''

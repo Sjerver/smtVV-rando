@@ -51,6 +51,7 @@ rando/Project/Content/Blueprints/Map/Encount/Mover/ParamTable/MapSymbolParamTabl
 rando/Project/Content/L10N
 rando/Project/Content/Level
 rando/Project/Content/Blueprints/Gamedata/BinTable/Map
+rando/Project/Content/Design/Event/
 debug/bossSpoilerLog.txt
 debug/skillsets.txt
 debug/encounterResults.txt

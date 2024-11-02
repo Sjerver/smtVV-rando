@@ -4204,6 +4204,8 @@ class Randomizer:
                     pair[0].conditions[0].type = 1
                     pair[0].conditions[0].ind = keyDemon
                     pair[0].conditions[0].amount = amounts
+                    if pair[0].conditions[0].ind == bossLogic.LUCIFER_PHASES[0]: #Use last phase of lucifer for mission condition
+                        pair[0].conditions[0].ind = bossLogic.LUCIFER_PHASES[2]
                     self.updatedMissionConditionIDs.append(pair[0].ind)
 
             if encounter.ind in fourHolyBeastEncounters:
@@ -4260,12 +4262,18 @@ class Randomizer:
                     #print(symbol.symbol.translation + " replaced " + staticArr[index].symbol.translation)
                     pair[0].conditions[0].type = 1
                     pair[0].conditions[0].ind = symbol.symbol.value
+                    if pair[0].conditions[0].ind == bossLogic.LUCIFER_PHASES[0]: #Use last phase of lucifer for mission condition
+                        pair[0].conditions[0].ind = bossLogic.LUCIFER_PHASES[2]
                     pair[0].conditions[0].amount = 1
             if staticArr[index].symbol.value == artemisQuestQuetz: #Artemis quest has Quetz as the second mission condition, not the first
                 artemisQuest.conditions[1].ind = symbol.symbol.value
+                if artemisQuest.conditions[1].ind == bossLogic.LUCIFER_PHASES[0]: #Use last phase of lucifer for mission condition
+                         artemisQuest.conditions[1].ind = bossLogic.LUCIFER_PHASES[2]
             if staticArr[index].symbol.value in fourHolyBeastDemons:
                 hBIndex = fourHolyBeastDemons.index(staticArr[index].symbol.value)
                 fourHolyBeastMission.conditions[hBIndex].ind = symbol.symbol.value
+                if fourHolyBeastMission.conditions[hBIndex].ind == bossLogic.LUCIFER_PHASES[0]: #Use last phase of lucifer for mission condition
+                        fourHolyBeastMission.conditions[hBIndex].ind = bossLogic.LUCIFER_PHASES[2]
     '''
     Adds the data containing the positions of demon slots in event encounters to the respective Event_Encounter.
     Parameters:

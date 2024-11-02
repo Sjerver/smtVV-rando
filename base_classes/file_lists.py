@@ -69,6 +69,8 @@ MAIN_M036_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M0
 MAIN_M038_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M038'
 MAIN_M062_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M062'
 M062_PLEIADES_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M062/Pleiades' 
+MAIN_M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M063'
+E0660_FOLDER = 'rando/Project/Content/Design/Event/E0660'
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
@@ -165,6 +167,25 @@ SCRIPT_FOLDERS = {
     'MM_M062_E2298_Direct': M062_PLEIADES_FOLDER, #Fionn post-fight Vengeance
     'MM_M062_E2300': M062_PLEIADES_FOLDER,  #Dazai Pre-Blocker Vengeance
     'MM_M062_E2302': M062_PLEIADES_FOLDER, #Arriving in fairy village vengeance
+    'MM_M063_E0625': MAIN_M063_FOLDER, #Yakumo post-fight Chiyoda 
+    'MM_M063_EM0061': MAIN_M063_FOLDER, #Hellfire Highway Shrine Event
+    'MM_M063_EM0079': MAIN_M063_FOLDER, #Ishtar Post Fight
+    'MM_M063_M0680': MAIN_M063_FOLDER, #Abdiel celebrates Arioch's death
+    'MM_M064_E2510_Direct': MAIN_M064_FOLDER, #First Power Fight in Shinjuku
+    'MM_M064_E2512': MAIN_M064_FOLDER, #Second Power Fight in Shinjuku
+    'MM_M064_E2514': MAIN_M064_FOLDER, #Powers detecting other intruders (uses Triple Power Fight Replacement)
+    'MM_M064_E2520_Direct': MAIN_M064_FOLDER, #First Nuwa/Yakumo scene in Shinjuku 
+    'MM_M064_E2540': MAIN_M064_FOLDER, #Power Gauntlet (uses last Power Fight Replacement)
+    'MM_M064_E2550': MAIN_M064_FOLDER, #Cherub Blocker in Shinjuku (?)
+    'MM_M064_E2560': MAIN_M064_FOLDER, #Nuwa/Yakumo talk at Mastema's hill
+    'MM_M064_E2562_Direct': MAIN_M064_FOLDER, #Nuwa/Yakumo talk at Mastema's hill 2 
+    'MM_M064_E2638': MAIN_M064_FOLDER, #Dazai joins to see Mastema 2 (?)
+    'MM_M064_E2642_Direct': MAIN_M064_FOLDER, #Meeting Mastema (Dazai,Mastema)
+    'MM_M064_E2650_Direct': MAIN_M064_FOLDER, #Nuwa/Yakumo talk after seeing Naamah (Nuwa, Yakumo)
+    'MM_M064_E2690': MAIN_M064_FOLDER, #Dead Cherubim 
+    'MM_M064_E2900': MAIN_M064_FOLDER,#Mastema sends you to Shakan
+    'MM_M064_E2950_Direct': MAIN_M064_FOLDER,#Mastema after Shakan
+    'LV_E0660': E0660_FOLDER, #Arioch Cutscene Test
 }
 
 #List of which folder each umap should be in when writing output
@@ -175,7 +196,11 @@ UMAP_FOLDERS = {
 
 #List of scripts that are in the main mission folder despite submission naming convention
 MAINMISSION_EXCEPTIONS = [
-'MM_M062_EM0041'
+'MM_M062_EM0041','MM_M063_EM0061','MM_M063_EM0079'
+]
+
+EVENT_UMAPS = [
+    'MM_M036_E0660'
 ]
 
 class UMap_File_List:
@@ -280,8 +305,10 @@ class Script_File_List:
             writeFolder(SCRIPT_FOLDERS[folderKey])
             
             file.uasset = file.uasset.DeserializeJson(stringy)
-            file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset')
-            
+            if name in EVENT_UMAPS:
+                file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.umap')
+            else:
+                file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset')
             #writeBinaryTable(file.uexp.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uexp', SCRIPT_FOLDERS[folderKey])
             #writeBinaryTable(file.uasset.binaryTable.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset', SCRIPT_FOLDERS[folderKey])
     
@@ -299,9 +326,12 @@ class Script_File_List:
             scriptPath = 'MainMission/'
         if name in MAINMISSION_EXCEPTIONS:
             scriptPath = 'MainMission/'
+        if name in EVENT_UMAPS and 'LV' in name:
+            assetobject = UAsset('base/Scripts/' + scriptPath + name + '.umap', EngineVersion.VER_UE4_27)
+        else:
         #uexp = readBinaryTable('base/Scripts/' + scriptPath + name + '.uexp')
         #uassetData = Script_Uasset(readBinaryTable('base/Scripts/' +scriptPath + name + '.uasset'))
-        assetobject = UAsset('base/Scripts/' + scriptPath + name + '.uasset', EngineVersion.VER_UE4_27)
+            assetobject = UAsset('base/Scripts/' + scriptPath + name + '.uasset', EngineVersion.VER_UE4_27)
 
         jsonstring = assetobject.SerializeJson()
         jsonobject = json.loads(jsonstring)
