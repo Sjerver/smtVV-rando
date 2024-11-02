@@ -70,6 +70,15 @@ MAIN_M038_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M0
 MAIN_M062_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M062'
 M062_PLEIADES_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M062/Pleiades' 
 MAIN_M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M063'
+MAIN_M080_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M080'
+MAIN_M082_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M082'
+MAIN_M083_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M083'
+MAIN_M085_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M085'
+MAIN_M087_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M087'
+MAIN_M088_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M088'
+MAIN_M092_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M092'
+MAIN_M115_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M115'
+MAIN_M203_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M203'
 E0660_FOLDER = 'rando/Project/Content/Design/Event/E0660'
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
@@ -185,6 +194,39 @@ SCRIPT_FOLDERS = {
     'MM_M064_E2690': MAIN_M064_FOLDER, #Dead Cherubim 
     'MM_M064_E2900': MAIN_M064_FOLDER,#Mastema sends you to Shakan
     'MM_M064_E2950_Direct': MAIN_M064_FOLDER,#Mastema after Shakan
+    'MM_M080_E2670_Direct': MAIN_M080_FOLDER,#Yuzuru wants to be a Nahobino
+    'MM_M082_E3030_Direct': MAIN_M082_FOLDER,#Yakumo saves a student
+    'MM_M083_E2160_Direct': MAIN_M083_FOLDER,#Labolas 2 post-fight 
+    'MM_M085_E0690': MAIN_M085_FOLDER, #Koshimizu meeting after area 3 CoC (Koshimizu using Tsukuyomi Replacement)
+    'MM_M085_E0730': MAIN_M085_FOLDER, #Regarding the war of the gods scene CoC (Koshimizu using Tsukuyomi Replacement)
+    'MM_M085_E0730_ready': MAIN_M085_FOLDER, #End of Regarding the war of the gods scene CoC (Koshimizu using Tsukuyomi Replacement)
+    'MM_M085_E2420': MAIN_M085_FOLDER,#Yuzuru apologizes for attacking you (Yuzuru)
+    'MM_M085_E2445': MAIN_M085_FOLDER,#Koshimizu meeting after salt investigation (Hayataro)
+    'MM_M085_E2575_Direct': MAIN_M085_FOLDER, #Dazai talk when Miyazu goes to Khonsu (Dazai)
+    'MM_M085_E2630_Direct': MAIN_M085_FOLDER,#Yuzuru talk after Khonsu incident (Yuzuru, Dazai)
+    'MM_M085_E2635_Direct': MAIN_M085_FOLDER, #Dazai joins to see Mastema 1 
+    'MM_M085_E2660': MAIN_M085_FOLDER, #Koshimizu meeting before Yakumo fight(Yuzuru)
+    'MM_M085_E2688': MAIN_M085_FOLDER, #Koshimizu meeting after Yakumo fight (Yuzuru)
+    'MM_M087_E2450_Direct': MAIN_M087_FOLDER, #Dazai goes to Chiyoda
+    'MM_M088_E0602_Abdiel': MAIN_M088_FOLDER, #Summmit (Abdiel)
+    'MM_M088_E0602_Khons': MAIN_M088_FOLDER, #Summmit (Khonsu)
+    'MM_M088_E0602_Koshimizu': MAIN_M088_FOLDER, #Summmit (Koshimizu as Tsukuyomi Replacement)
+    'MM_M088_E0602_Vasuki': MAIN_M088_FOLDER, #Summmit (Vasuki)
+    'MM_M088_E0602_Odin': MAIN_M088_FOLDER, #Summmit (Odin)
+    'MM_M088_E0602_Zeus': MAIN_M088_FOLDER, #Summmit (Zeus)
+    'MM_M092_EM101_': MAIN_M092_FOLDER, #School Oni [63]
+    'MM_M092_EM102_': MAIN_M092_FOLDER, #School Andras + Rakshasa [56]
+    'MM_M092_EM104': MAIN_M092_FOLDER, #School Incubus [58]
+    'MM_M092_EM105_1': MAIN_M092_FOLDER, #School Tsuchigumo [62]
+    'MM_M092_EM106_': MAIN_M092_FOLDER, #School Manananggal +Shiki Ouji [66]
+    'MM_M092_EM107_': MAIN_M092_FOLDER, #School Rakshasa + Incubus [57]
+    'MM_M092_EM108_': MAIN_M092_FOLDER, #School Rakshasa [59]
+    'MM_M092_EM109_a': MAIN_M092_FOLDER, #School Save Jack Frost (Manananggal) [64]
+    'MM_M092_EM110': MAIN_M092_FOLDER, #School Incubus (Aitvaras is normal Leader for this one) [61]
+    'MM_M092_EM111': MAIN_M092_FOLDER, #School Aitvaras + Shiki Ouji [61][65]
+    'MM_M092_EM112_': MAIN_M092_FOLDER, #School Optional Multiple Fights [65][129][60] (Manananggal,Shiki Ouji,Andras)
+    'MM_M115_E2603_Direct': MAIN_M115_FOLDER, #Dazai/Yuzuru in dorm room
+    'MM_M203_E2718_Direct': MAIN_M203_FOLDER, #Lilith post-fight lecture
     'LV_E0660': E0660_FOLDER, #Arioch Cutscene Test
 }
 
@@ -199,8 +241,8 @@ MAINMISSION_EXCEPTIONS = [
 'MM_M062_EM0041','MM_M063_EM0061','MM_M063_EM0079'
 ]
 
+#List of umaps for cutscene events
 EVENT_UMAPS = [
-    'MM_M036_E0660'
 ]
 
 class UMap_File_List:
@@ -320,7 +362,7 @@ class Script_File_List:
             scriptPath = 'NPC/'
         elif 'ShopEvent' in name or 'JakyoEvent' in name:
             scriptPath = 'ShopEvent/'
-        elif 'EM' in name and not 'DevilTalk' in name:
+        elif 'EM' in name and not 'DevilTalk' in name and not 'M092' in name:
             scriptPath = 'SubMission/'
         else:
             scriptPath = 'MainMission/'

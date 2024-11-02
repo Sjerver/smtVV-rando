@@ -77,7 +77,7 @@ SUPERBOSS_ENCOUNTERS = [88, 121, 157, 168, 169]
 #Event Encounter IDs that contain minibosses, including some weaker quest bosses
 MINIBOSS_ENCOUNTERS = [13, 14, 15, #Empyrean angels
                        29, 30, 36, 54, 55,    #Belial, Michael, Pazuzu, Initial Lahmu and demons before him
-                       56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, #School fights
+                       56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66,129, #School fights
                        84, 97, 98, 102, 103, 104, 105, #Shiki-Ouji, Leanan, Apsaras, Principality, Lilim, Dionysus, BFrost
                        106, 107, 132, 133, 134, 144, 145, #Futsunushi, Adramelech, 6 Pretas, Oni, 3 Pretas, Dormarth, Nozuchi
                        147, 158, 159, 160, 170, 172, 173, 174, 175, #Pisaca, Zhen*3, Yakshini, Onyakopon, Anansi, Kudlak, Kresnik

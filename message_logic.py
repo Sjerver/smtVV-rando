@@ -541,7 +541,7 @@ MISSION_CHECKS_ORIGINAL_IDS = {
 #Message files for story events containing boss checks, which message is the hint message, and what boss demon(name/id) needs to be updated in them
 #Value format: [(messageIndex, originalDemonID, hintMessageID), ...]
 EVENT_CHECKS_ORIGINAL_IDS = {
-    'e0425': [(8, 441, 0), (9, 439, 18)],#Lahmu 1 + Anzus
+    'e0425': [(8, 439, 0), (9, 441, 18)],# Anzus + Lahmu 1
     'e0485': [(1, 452, 0), (2, 453, 18)],#Lahmu 2 (both phases)
     'e0640': [(4, 463, 31), (9, 466, 0)],#Chernobog and Arioch
     'e0715': [(2, 467, 0)],#Creation Abdiel

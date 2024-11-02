@@ -10,6 +10,7 @@ import util.jsonExports as jsonExports
 import pandas as pd
 import copy
 import random
+import datetime
 
 class Anim_Sync():
     def __init__(self,ind, sync=None):
@@ -90,7 +91,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_E3020': [Demon_Sync(465,567)], #Yakumo in area 4 vengeance part 2
     'MM_M060_E3110_Direct': [Demon_Sync(81,483)], #CoV Beelzebub
     'MM_M060_E3130_Direct': [Demon_Sync(482),Demon_Sync(481)], #CoV Zeus + Odin
-    'MM_M060_Npc609Talk': [Demon_Sync(152)], #CoC Yuzuru Hayataro NPC Event?
+    'MM_M060_Npc609Talk': [Demon_Sync(152)], #CoC Yuzuru Hayataro NPC Event? (Hayataro)
     #Mainmission M062 (Shinagawa)
     'MM_M062_E0378': [Demon_Sync(467)], #Dazai/Abdiel talk in area 2 creation (Abdiel)
     'MM_M062_E0380': [Demon_Sync(35,451)], #Fionn 1 Post-fight (Fionn)
@@ -121,6 +122,48 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_E2690': [Demon_Sync(486)], #Dead Cherubim 
     'MM_M064_E2900': [Demon_Sync(596)],#Mastema sends you to Shakan
     'MM_M064_E2950_Direct': [Demon_Sync(596)],#Mastema after Shakan
+    #Mainmission M080 (Dorm Roof) 
+    'MM_M080_E2670_Direct': [Demon_Sync(561)], #Yuzuru wants to be a Nahobino
+    #Mainmission M082 (Tokyo Streets?) (NOT YET TESTED IN GAME)
+    'MM_M082_E3030_Direct': [Demon_Sync(561)],#Yakumo saves a student
+    #Mainmission M083 (Shinagawa Station Real Tokyo (?)) (NOT YET TESTED IN GAME)
+    'MM_M083_E2160_Direct': [Demon_Sync(75,435),Demon_Sync(567)], #Labolas 2 post-fight (Yakumo,Nuwa)
+    #Mainmission M085 (Top Room of Tokyo Building whose name I do not remember)
+    'MM_M085_E0690': [Demon_Sync(-617,528)], #Koshimizu meeting after area 3 CoC (Koshimizu using Tsukuyomi Replacement)
+    'MM_M085_E0730': [Demon_Sync(-617,528)], #Regarding the war of the gods scene CoC (Koshimizu using Tsukuyomi Replacement)
+    'MM_M085_E0730_ready': [Demon_Sync(-617,528)], #End of Regarding the war of the gods scene CoC (Koshimizu using Tsukuyomi Replacement)
+    'MM_M085_E2420': [Demon_Sync(561)],#Yuzuru apologizes for attacking you (Yuzuru) (NOT YET TESTED IN GAME)
+    'MM_M085_E2445': [Demon_Sync(152,562)],#Koshimizu meeting after salt investigation (Hayataro) (NOT YET TESTED IN GAME)
+    'MM_M085_E2575_Direct': [Demon_Sync(1151,578)], #Dazai talk when Miyazu goes to Khonsu (Dazai) (NOT YET TESTED IN GAME)
+    'MM_M085_E2630_Direct': [Demon_Sync(1151,578),Demon_Sync(561)],#Yuzuru talk after Khonsu incident (Yuzuru, Dazai)
+    'MM_M085_E2635_Direct': [Demon_Sync(1151,578)], #Dazai joins to see Mastema 1 
+    'MM_M085_E2660': [Demon_Sync(561)], #Koshimizu meeting before Yakumo fight(Yuzuru)
+    'MM_M085_E2688': [Demon_Sync(561)], #Koshimizu meeting after Yakumo fight (Yuzuru)
+    #Mainmission M087 (Shrine Vengeance (Normal Lightning)) (NOT YET TESTED)
+    'MM_M087_E2450_Direct': [Demon_Sync(1151,578)],#Dazai goes to Chiyoda #TODO: This has a bead that Could be included as event item randomization
+    #Mainmission M088 (Summit)
+    'MM_M088_E0602_Abdiel': [Demon_Sync(467)], #Summmit (Abdiel)
+    'MM_M088_E0602_Khons': [Demon_Sync(516)], #Summmit (Khonsu)
+    'MM_M088_E0602_Koshimizu': [Demon_Sync(-617,528)], #Summmit (Koshimizu as Tsukuyomi Replacement)
+    'MM_M088_E0602_Vasuki': [Demon_Sync(468)], #Summmit (Vasuki)
+    'MM_M088_E0602_Odin': [Demon_Sync(470)], #Summmit (Odin)
+    'MM_M088_E0602_Zeus': [Demon_Sync(469)], #Summmit (Zeus)
+    #Mainmission M092 (School Attacked)
+    'MM_M092_EM101_': [Demon_Sync(446)], #School Oni [63] (Down in the Direction where Jack is looking)
+    'MM_M092_EM102_': [Demon_Sync(488),Demon_Sync(491)], #School Andras + Rakshasa [56] (First Floor Hallway)
+    'MM_M092_EM104': [Demon_Sync(496)], #School Incubus [58] (Fake School Girl)
+    'MM_M092_EM105_1': [Demon_Sync(449)], #School Tsuchigumo [62] (Second Floor Hallway)
+    'MM_M092_EM106_': [Demon_Sync(501),Demon_Sync(448)], #School Manananggal +Shiki Ouji [66] (CoV 3rd Floor Corner from Far 2nd Floor Staircase, CoC 3rd Floor Hallway)
+    'MM_M092_EM107_': [Demon_Sync(492),Demon_Sync(495)], #School Rakshasa + Incubus [57] (Left at the Entrance)
+    'MM_M092_EM108_': [Demon_Sync(493)], #School Rakshasa [59] (2nd Floor Corner)
+    'MM_M092_EM109_a': [Demon_Sync(500)], #School Save Jack Frost (Manananggal) [64]
+    'MM_M092_EM110': [Demon_Sync(497)], #School Incubus [61] (CoV 3rd Floor Hallway, CoC  3rd Floor Corner from Far 2nd Floor Staircase)
+    'MM_M092_EM111': [Demon_Sync(487),Demon_Sync(502)], #School Aitvaras + Shiki Ouji [61][65] (4th Floor, Encounter depends on choice)
+    'MM_M092_EM112_': [Demon_Sync(442),Demon_Sync(447),Demon_Sync(443)], #School Optional Multiple Fights [65][129][60] (Manananggal,Shiki Ouji,Andras) (4th Floor Far Corner)
+    #Mainmission M115 (Dorm Room) (NOT YET TESTED IN GAME)
+    'MM_M115_E2603_Direct': [Demon_Sync(1151,578), Demon_Sync(561)], #Dazai/Yuzuru in dorm room
+    #Mainmission M203 (Qadistu Dimension)
+    'MM_M203_E2718_Direct': [Demon_Sync(569)], #Lilith post-fight lecture(?)
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -142,6 +185,8 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M062_E2295_Direct': [Anim_Sync('02idleB','05attack')],#Eisheth pre-fight
     'MM_M062_E2298_Direct': [Anim_Sync('Map/700002_event_idle','01idleA')], #Fionn 1 Post-fight Vengeance (Fionn)
     'MM_M064_E2690': [Anim_Sync('map/700000_dead01','04dying'),Anim_Sync('map/700001_dead02','04dying')], #Dead Cherubim
+    'MM_M092_EM107_': [Anim_Sync('06skill_a','06skill'),Anim_Sync('06skill_b','06skill'),Anim_Sync('06skill_c','06skill')], #School Rakshasa + Incubus
+    'MM_M092_EM109_a': [Anim_Sync('02idleB','05attack')], #School Save Jack Frost (Manananggal)
 }
 
 #For bosses that do not use their own model, which model they should use instead
@@ -160,7 +205,7 @@ MODEL_SYNC = {
     803: 20, # Anahita
     771: 41, # Anansi
     781: 272, # Andras (3x)
-    488: 272, # Andras (School Copy)
+    488: 272, # Andras (School Copy) with 491 Rakshasa
     489: 272, # Andras (School Copy)
     490: 272, # Andras (School Copy)
     443: 272, # Andras (School)
@@ -220,9 +265,10 @@ MODEL_SYNC = {
     864: 13, # Horus
     844: 189, # Inanna
     495: 68, # Incubus (School Copy)
-    496: 68, # Incubus (School Copy)
+    496: 68, # Incubus (School Copy) with 489 Andras
     497: 68, # Incubus (School Copy)
     498: 68, # Incubus (School Copy)
+    445: 68, # Incubus (School)
     720: 316, # Ippon-Datara (Abcess)
     867: 316, # Ippon-Datara (with Leanan)
     455: 25, # Ishtar
@@ -234,7 +280,7 @@ MODEL_SYNC = {
     862: 204, # Jikokuten (4 Turn)
     607: 66, # Kaiwan
     516: 7, # Khonsu (CoC)
-    566: 7, # Khonsu (CoC)
+    566: 7, # Khonsu (CoV)
     519: 15, # Khonsu Ra
     753: 336, # Kodama
     948: 32, # Konohana Sakuya
@@ -263,7 +309,8 @@ MODEL_SYNC = {
     729: 174, # Mad Gasser
     602: 121, # Makami
     500: 302, # Manananggal (School Copy)
-    501: 302, # Manananggal (School Copy)
+    501: 302, # Manananggal (School Copy) with 448 Shiki Ouji
+    447: 302, # Manananggal (School)
     705: 45, # Mandrake
     842: 30, # Maria
     757: 227, # Masakado
@@ -294,7 +341,7 @@ MODEL_SYNC = {
     822: 215, # Okuninushi
     888: 318, # Oni (Quest)
     499: 318, # Oni (School Copy)
-    446: 318, # Oni (School)
+    446: 318, # Oni (School) with 444 Rakshasa
     706: 290, # Onmoraki
     770: 386, # Onyankopon
     731: 139, # Orobas (Abcess)
@@ -353,7 +400,7 @@ MODEL_SYNC = {
     431: 345, # Three Pretas
     624: 254, # Throne
     929: 350, # Trumpeter
-    449: 331, # Tsuchigumo (School)
+    449: 331, # Tsuchigumo (School) with 499 Oni
     754: 175, # Turbo Granny
     834: 247, # Uriel
     468: 111, # Vasuki
@@ -382,10 +429,10 @@ MODEL_SYNC = {
     594: 565, # Goat Head (use Tiamat)
     595: 565, # Camel Head (use Tiamat)
     567: 465, # Shohei Yakumo (Vengeance)
-    521: 627, # Thunder Bit (use Nahobino Nuwa)
-    522: 627, # Thunder Bit (use Nahobino Nuwa)
-    523: 627, # Thunder Bit (use Nahobino Nuwa)
-    524: 627, # Thunder Bit (use Nahobino Nuwa)
+    521: 520, # Thunder Bit (use Nahobino Nuwa)
+    522: 520, # Thunder Bit (use Nahobino Nuwa)
+    523: 520, # Thunder Bit (use Nahobino Nuwa)
+    524: 520, # Thunder Bit (use Nahobino Nuwa)
     526: 525, # Depraved Arm (use Nahobino Abdiel)
     527: 525, # Depraved Wing (use Nahobino Abdiel)
 
@@ -425,6 +472,7 @@ Updates the models used in events.
         config (Config_Settings): settings set for the randomizer
 '''
 def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapSymbolArr, config):
+    print(datetime.datetime.now())
     initDemonModelData()
     umapList = UMap_File_List()
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
@@ -492,6 +540,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             file = replaceDemonModelInScript(script, file, originalDemonID, replacementID, scriptFiles)   
         
         scriptFiles.setFile(script,file)
+    print(datetime.datetime.now())
     umapList.writeFiles()
 
 
@@ -655,6 +704,10 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                 newString = replaceOldIDinString(stringValue).replace(oldName,newName)
                 lengthDifference = len(newString) - originalLength
 
+                if stringValue == newString:
+                    #No change
+                    continue
+
                 if oldIDString in stringValue and lengthDifference == 0: 
                     #if the oldID is there in string format, replace with new string
                     stringValue= replaceOldIDinString(stringValue)
@@ -724,7 +777,7 @@ def replaceNonExistentAnimations(script, string, replacementID,replacementName, 
     for animSync in animations: #go through animations to potentially replace in script
         animation = animSync.ind
         replacementAnim = animSync.sync
-        if animation in DEMON_MODELS[replacementID].animations:
+        if animation in DEMON_MODELS[replacementID].animations or 'Anim' not in string:
             #Animation exists for the new demon therefore string is fine
             return string
         #Animation does not exist for the new demon therefore string needs to be changed
