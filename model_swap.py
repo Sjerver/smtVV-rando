@@ -9,7 +9,6 @@ import util.numbers as numbers
 import util.jsonExports as jsonExports
 import pandas as pd
 import copy
-import random
 import datetime
 
 class Anim_Sync():
@@ -19,7 +18,7 @@ class Anim_Sync():
         if sync:
             self.sync = sync
 
-DEBUG_SWAP_PRINT = True
+DEBUG_SWAP_PRINT = False
 
 DEVIL_PREFIX = "/Devil/"
 NPC_PREFIX = "/NPC/"
@@ -45,7 +44,12 @@ LEVEL_UASSETS = {
 #List of events that require updated scaling to trigger events with large demons
 REQUIRES_HIT_UPDATE = [
     'MM_M061_EM1630','MM_M061_EM1631','MM_M061_EM1640','MM_M016_E0885'
-    'MM_M064_E2512'
+    'MM_M064_E2512','MM_M064_E2540','MM_M088_E0602_Khons','MM_M088_E0602_Koshimizu','MM_M088_E0602_Vasuki'
+    'MM_M088_E0602_Odin','MM_M088_E0602_Zeus','MM_M092_EM102_','MM_M092_EM105_1','MM_M092_EM111',
+    #Unsure if needed: #TODO: Needs significantly more testing
+    'MM_M038_E2912','MM_M038_E2917','MM_M060_E0785','MM_M060_Npc609Talk','MM_M063_EM0061',
+    'MM_M064_E2550','MM_M085_E0690','MM_M085_E0730','MM_M085_E2445','MM_M085_E2660','MM_M085_E2688',
+    'MM_M092_EM101_','MM_M092_EM106_','MM_M092_EM108_','MM_M092_EM110',
 ]
 
 #TODO: Investigate certain events which might have the used models in umaps (example: Arioch Pre-Fight, Odin, Vasuki, Meeting Mastema 2ndHalf)
@@ -59,10 +63,6 @@ EVENT_CUTSCENES = {
 EVENT_SCRIPT_MODELS = {
     #Initial & Mainmission M061 (Minato)
     'EM_M061_DevilTalk': [Demon_Sync(59)], #Talk Tutorial (Pixie)
-    'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43)], # The Water Nymph (Leanan (also Apsaras maybe??))
-    'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
-    'MM_M061_EM1640': [Demon_Sync(43),Demon_Sync(44,869)], # The Spirit of Love (Apsaras, Agathion)
-    'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Entry (Apsaras)
     'MM_M061_E2610' : [Demon_Sync(193,579),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Isis Event Bethel Egypt (Isis, Yuzuru,Dazai)
     'MM_M061_E2620': [Demon_Sync(561),Demon_Sync(1151,578),Demon_Sync(7,566)], #CoV Khonsu Event Bethel Egypt (Khonsu,Yuzuru,Dazai)
     'MM_M061_E2625_Direct': [Demon_Sync(193,579),Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
@@ -119,7 +119,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_E2638': [Demon_Sync(1151,578)], #Dazai joins to see Mastema 2 (?)
     'MM_M064_E2642_Direct': [Demon_Sync(1151,578),Demon_Sync(596)], #Meeting Mastema (Dazai,Mastema)
     'MM_M064_E2650_Direct': [Demon_Sync(550),Demon_Sync(567)], #Nuwa/Yakumo talk after seeing Naamah (Nuwa, Yakumo)
-    'MM_M064_E2690': [Demon_Sync(486)], #Dead Cherubim 
+    'MM_M064_E2690': [Demon_Sync(486)], #Dead Cherubim #TODO: Might be issue with too large demons blocking stuff
     'MM_M064_E2900': [Demon_Sync(596)],#Mastema sends you to Shakan
     'MM_M064_E2950_Direct': [Demon_Sync(596)],#Mastema after Shakan
     #Mainmission M080 (Dorm Roof) 
@@ -159,11 +159,18 @@ EVENT_SCRIPT_MODELS = {
     'MM_M092_EM109_a': [Demon_Sync(500)], #School Save Jack Frost (Manananggal) [64]
     'MM_M092_EM110': [Demon_Sync(497)], #School Incubus [61] (CoV 3rd Floor Hallway, CoC  3rd Floor Corner from Far 2nd Floor Staircase)
     'MM_M092_EM111': [Demon_Sync(487),Demon_Sync(502)], #School Aitvaras + Shiki Ouji [61][65] (4th Floor, Encounter depends on choice)
-    'MM_M092_EM112_': [Demon_Sync(442),Demon_Sync(447),Demon_Sync(443)], #School Optional Multiple Fights [65][129][60] (Manananggal,Shiki Ouji,Andras) (4th Floor Far Corner)
+    'MM_M092_EM112_': [Demon_Sync(502),Demon_Sync(447),Demon_Sync(443)], #School Optional Multiple Fights [65][129][60] (Manananggal,Shiki Ouji,Andras) (4th Floor Far Corner) #TODO: Demon Syncs are wrong here
     #Mainmission M115 (Dorm Room) (NOT YET TESTED IN GAME)
     'MM_M115_E2603_Direct': [Demon_Sync(1151,578), Demon_Sync(561)], #Dazai/Yuzuru in dorm room
     #Mainmission M203 (Qadistu Dimension)
-    'MM_M203_E2718_Direct': [Demon_Sync(569)], #Lilith post-fight lecture(?)
+    'MM_M203_E2718_Direct': [Demon_Sync(569)], #Lilith post-fight lecture
+
+    #SubMission M061
+    'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43)], # The Water Nymph (Leanan (also Apsaras maybe??))
+    'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
+    'MM_M061_EM1640': [Demon_Sync(43),Demon_Sync(44,869)], # The Spirit of Love (Apsaras, Agathion)
+    'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Entry (Apsaras)
+    
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -176,7 +183,7 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M061_EM1640': [Anim_Sync('06skill_Composite','06_skill')], # The Spirit of Love (Apsaras)
     'MM_M061_EM1640_Hit': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Spirit of Love First Entry (Apsaras)
     'MM_M061_E2625_Direct': [Anim_Sync('map/700000_dying','04dying')], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
-    'MM_M038_E2930_Direct': [Anim_Sync('EVT_E0604c01m_loop','04dying')], #Shakan Abdiel Post Fight
+    'MM_M038_E2930_Direct': [Anim_Sync('Event/EVT_E0604c01m_loop','04dying')], #Shakan Abdiel Post Fight
     'MM_M060_E762': [Anim_Sync('map/700000_event_idle', '01idleA')],#Nuwa in area 4 at the gate
     'MM_M060_E3020': [Anim_Sync('Event/EVT_v_turnwalk_inout','11run')], #Yakumo in area 4 vengeance part 2
     'MM_M062_E0380': [Anim_Sync('Map/700002_event_idle','01idleA')], #Fionn 1 Post-fight (Fionn)
@@ -352,7 +359,7 @@ MODEL_SYNC = {
     927: 358, # Pale Rider
     801: 233, # Pazuzu
     755: 341, # Pisaca
-    621: 59, # Pixie
+    622: 59, # Pixie
     506: 256, # Power (5x Copy)
     504: 256, # Power (Double Copy)
     503: 256, # Power (Single Copy)
@@ -388,7 +395,7 @@ MODEL_SYNC = {
     630: 222, # Siegfried
     615: 53, # Silky
     627: 192, # Skadi
-    622: 173, # Slime
+    621: 173, # Slime
     472: 244, # Sraosha
     721: 65, # Succubus
     718: 335, # Sudama (Abcess)
@@ -472,11 +479,13 @@ Updates the models used in events.
         config (Config_Settings): settings set for the randomizer
 '''
 def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapSymbolArr, config):
-    print(datetime.datetime.now())
     initDemonModelData()
+    startTime = datetime.datetime.now()
     umapList = UMap_File_List()
+    totalScripts = len(EVENT_SCRIPT_MODELS.keys())
+    currentScriptIndex = 0
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
-        
+        currentScriptIndex += 1
         replacementMap = {}
         for syncDemon in syncDemons:
             originalDemonID = syncDemon.ind
@@ -514,35 +523,86 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
         
         file = scriptFiles.getFile(script)
         hitboxUpdated = False
-            
+        rawCode = prepareScriptFileForModelReplacement(script, file)
+        if rawCode: #script does not have byte code so continue with next one (Debug print happens elsewhere)
+            continue
+        scale = 1
+        currentScale = 1
         for originalDemonID, replacementID in replacementMap.items():
-            if not hitboxUpdated:
-                try:
-                    og = next(d for x, d in enumerate(mapSymbolArr) if d.demonID == originalDemonID)
-                    replacement = next(d for x, d in enumerate(mapSymbolArr) if d.demonID == replacementID)
-                    scalingFactor = og.encountCollision.stretchToBox(replacement.encountCollision, ignoreY = True)
-                    if scalingFactor != 0:
-                        #print(scalingFactor)
-                        scale = scalingFactor
-                    else:
-                        scale = 1.5 #Increase by 50%
-                except StopIteration:
+            try:
+                og = next(d for x, d in enumerate(mapSymbolArr) if d.demonID == originalDemonID)
+                replacement = next(d for x, d in enumerate(mapSymbolArr) if d.demonID == replacementID)
+                scalingFactor = og.encountCollision.stretchToBox(replacement.encountCollision, ignoreY = True)
+                if scalingFactor != 0:
+                    #print(scalingFactor)
+                    scale = scalingFactor
+                else:
                     scale = 1.5 #Increase by 50%
+            except StopIteration:
+                scale = 1.5 #Increase by 50%
             if scale <= 1: #do not update hitbox size if scale would be smaller
                 continue
-            if not hitboxUpdated and script in REQUIRES_HIT_UPDATE and script in LEVEL_UASSETS.keys(): #TODO: How to deal with overlap issues
+            #Need to make sure that it is updated for biggest demon in file
+            if (not hitboxUpdated or scale >= currentScale) and script in REQUIRES_HIT_UPDATE and script in LEVEL_UASSETS.keys(): #TODO: How to deal with overlap issues
                 umap = umapList.getFile(LEVEL_UASSETS[script])
                 hitboxUpdated = True
                 umap = updateEventHitScaling(umap,script,scale)
-            elif not hitboxUpdated and script in REQUIRES_HIT_UPDATE: #no umap for event exists
+                currentScale = scale
+            elif (not hitboxUpdated or scale >= currentScale) and script in REQUIRES_HIT_UPDATE: #no umap for event exists, update all others this way for safety
                 updateEventHitGen(file,scale,script)
-
-            file = replaceDemonModelInScript(script, file, originalDemonID, replacementID, scriptFiles)   
+                currentScale = scale
+            
+            file = replaceDemonModelInScript(script, file, originalDemonID, replacementID)   
         
         scriptFiles.setFile(script,file)
-    print(datetime.datetime.now())
+        print("Swapped Models in " + str(currentScriptIndex) + " of " + str(totalScripts) + " Scripts")
+    endTime = datetime.datetime.now()
+    print(endTime - startTime)
     umapList.writeFiles()
 
+'''
+Prepares the given script file by preparing data that gets used in the model swap process.
+'''
+def prepareScriptFileForModelReplacement(script, file: Script_File):
+    jsonData = file.json
+    if file.originalNameMap is None: #use original name map to prevent chain replacements
+        file.originalNameMap = copy.deepcopy(jsonData['NameMap'])
+    file.exportIndex = None
+    try: #get bytecode and bytecode size for main portion if UAssetAPI can parse it
+        file.exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
+        file.executeUbergraph = "ExecuteUbergraph_" + script
+        file.exportIndex = file.exportNameList.index(file.executeUbergraph)
+        bytecode = Bytecode(jsonData["Exports"][file.exportIndex]['ScriptBytecode'])
+        byteCodeSize = jsonData["Exports"][file.exportIndex]['ScriptBytecodeSize']
+    except KeyError: #otherwise stop and note error
+        print("Script Byte Code only in raw form: " + script)
+        return True
+    
+    if file.originalByteCodeSize is None: 
+        file.originalByteCodeSize = byteCodeSize#Set bytecode size to not replace bytecode moved to the end
+        file.originalBytecode = copy.deepcopy(bytecode)#Also use original bytecode to prevent chain replacements
+    
+    #Find cases where the function name is explicitly in the code
+    file.relevantFunctionExps = []
+    file.relevantFunctionNames = ['BPL_AdjustMapSymbolScale']
+    for func in file.relevantFunctionNames:
+        expressions = file.originalBytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
+        file.relevantFunctionExps.append(expressions)
+    
+    #Build import list
+    file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+    file.relevantImportNames = ['LoadAsset','PrintString','LoadAssetClass']
+    file.relevantImports = {}
+    for imp in file.relevantImportNames: #Determine import id for relevant import names which is always negative
+        if imp in file.importNameList:
+            file.relevantImports[imp] = -1 * file.importNameList.index(imp) -1
+    #Find cases where function name is not explicit in code due to being an import
+    file.relevantImportExps = {}
+    for imp,stackNode in file.relevantImports.items():
+        
+        expressions = file.originalBytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+        expressions.reverse()
+        file.relevantImportExps[stackNode] = expressions
 
 
 
@@ -557,9 +617,9 @@ Replaces the a demon model with the model of another demon in the given script.
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
         #TODO: Think about how to optimize this function
 '''
-def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementDemonID, scriptFiles: Script_File_List):
+def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementDemonID):
     jsonData = file.json
-    #Get the Strings corresponding to the old demon
+    #Get the Strings corresponding to the old demon and the prefixes
     oldIDString = DEMON_ID_MODEL_ID[ogDemonID]
     oldName = MODEL_NAMES[oldIDString]
     oldFolderPrefix = DEVIL_PREFIX
@@ -569,7 +629,7 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         oldFolderPrefix = NPC_PREFIX
         oldPrefix = "npc"
         oldPrefixVariant = "Npc"
-    #Get the Strings corresponding to the new demon
+    #Get the Strings corresponding to the new demon and the prefixes
     try:
         newIDString = DEMON_ID_MODEL_ID[replacementDemonID]
     except KeyError:
@@ -609,12 +669,10 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         classOldPrefix = "dev"
         classOldPrefixVariant = "Dev"
 
-    if file.originalNameMap is None: #use original name map to prevent chain replacements
-        file.originalNameMap = copy.deepcopy(jsonData['NameMap'])
+    
 
     for index, name in enumerate(file.originalNameMap): #change occurences of oldDemonID and oldDemonName in all names in the uasset
         nameEntry = file.getNameAtIndex(index)
-        #TODO: Add something for anims which are in this name map
         if oldIDString in name and ("/Blueprints/Character" in name or "_C" in name): 
             nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
             nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
@@ -625,44 +683,32 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
             nameEntry = nameEntry.replace(oldFolderPrefix + oldPrefixVariant + oldIDString, newFolderPrefix + newPrefixVariant +newIDString).replace(oldPrefixVariant + oldIDString, newPrefixVariant +newIDString)
             if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
                 nameEntry = nameEntry.replace("_Simple","")
-        file.setNameAtIndex(index,nameEntry)
         if oldName in name:
-            nameEntry = file.getNameAtIndex(index)
             nameEntry = nameEntry.replace(oldName,newName)
-            file.setNameAtIndex(index,nameEntry)
+        if "Anim/" in name or name[:3] == "AN_":
+            nameEntry = replaceNonExistentAnimations(script, nameEntry,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
+        file.setNameAtIndex(index,nameEntry)
+        
+        
     
     #get updated jsonData
     jsonData = file.updateJsonWithUasset()
 
-    bytecode = None
-    byteCodeSize = None
-    exportIndex = None
-    try: #get bytecode and bytecode size for main portion if UAssetAPI can parse it
-        exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
-        executeUbergraph = "ExecuteUbergraph_" + script
-        exportIndex = exportNameList.index(executeUbergraph)
-
-        bytecode = Bytecode(jsonData["Exports"][exportIndex]['ScriptBytecode'])
-        byteCodeSize = jsonData["Exports"][exportIndex]['ScriptBytecodeSize']
-    except KeyError: #otherwise stop and note error
-        print("Script Byte Code only in raw form")
-        return
-    
-    if file.originalByteCodeSize is None: 
-        file.originalByteCodeSize = byteCodeSize#Set bytecode size to not replace bytecode moved to the end
-        file.originalBytecode = copy.deepcopy(bytecode)#Also use original bytecode to prevent chain replacements
-
-    #Adjust cases where the function name is explicitly in the code
-    relevantFunctionNames = ['BPL_AdjustMapSymbolScale']
-    for func in relevantFunctionNames:
-        expressions = file.originalBytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
-        for exp in expressions:
+    #get the bytecode and size and export name listanew
+    bytecode = Bytecode(jsonData["Exports"][file.exportIndex]['ScriptBytecode'])
+    #Adjust cases where demon ID is in function call
+    for index,func in enumerate(file.relevantFunctionNames):
+        for exp in file.relevantFunctionExps[index]:
             modelValue = exp['Parameters'][1].get('Value')
             if modelValue == ogDemonID: #Only change demonID for the oldDemon
                 exp['Parameters'][1]['Value'] = replacementDemonID
 
-    serializedByteCode = file.getSerializedScriptBytecode(exportIndex,jsonData)
+    # get serialized bytecode to calculate statement indeces
+    serializedByteCode = file.getSerializedScriptBytecode(file.exportIndex,jsonData)
     
+    '''
+    Replaces ids in animation or blueprint class strings
+    '''
     def replaceOldIDinString(string):
         if ("/Blueprints/Character" in string or "_C" in string):
             nstring = string.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
@@ -674,20 +720,18 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
             nstring = replaceNonExistentAnimations(script, nstring,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)
         return nstring
 
-    importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
-    relevantImportNames = ['LoadAsset','PrintString','LoadAssetClass']
-    relevantImports = {}
-    for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
-        if imp in importNameList:
-            relevantImports[imp] = -1 * importNameList.index(imp) -1
-    #Adjust cases where function name is not explicit in code due to being an import
-    for imp,stackNode in relevantImports.items():
-        expressions = file.originalBytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
-        expressions.reverse()
+    # for all cases where the function is an import and the id or name is in a string
+    for imp,stackNode in file.relevantImports.items():
+        expressions = file.relevantImportExps[stackNode]
         for expIndex, exp in enumerate(expressions):
             if bytecode.getIndex(exp) is None:
                 # First case: Nested expression (will be fixed at some point)
                 # Second case: Expression has already been modified in the new one, so we can skip it here
+                continue
+            currentStatementIndex = serializedByteCode[bytecode.getIndex(exp)]["StatementIndex"]
+            
+            
+            if currentStatementIndex > file.originalByteCodeSize: #to not potentially move or adjust code that has been moved already!
                 continue
             if imp == 'PrintString': #likely not necessary but do it anyway
                 stringValue = exp['Parameters'][1].get('Value')
@@ -699,13 +743,17 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                     stringValue = exp['Parameters'][1].get('Value').get('Value')
                 except AttributeError:
                     continue
+                if oldIDString not in stringValue and oldName not in stringValue:
+                    #if neither oldID or oldName are in the string go to next exp
+                    continue
+                #print(stringValue)
                 originalLength = len(stringValue)
                 #create new string here for calculation of lenghtDifference
                 newString = replaceOldIDinString(stringValue).replace(oldName,newName)
                 lengthDifference = len(newString) - originalLength
 
                 if stringValue == newString:
-                    #No change
+                    #No change in string
                     continue
 
                 if oldIDString in stringValue and lengthDifference == 0: 
@@ -728,13 +776,10 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                     newString = stringValue.replace(oldName,newName)
                     newString = replaceOldIDinString(newString)
 
-                    currentStatementIndex = serializedByteCode[bytecode.getIndex(exp)]["StatementIndex"]
                     nextStatementIndex = serializedByteCode[bytecode.getIndex(exp)+1]["StatementIndex"]
-                    lastStatementIndex = file.calcLastStatementIndex(exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData)
+                    lastStatementIndex = file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData)
                     statementLength = nextStatementIndex - currentStatementIndex
                     
-                    if currentStatementIndex > file.originalByteCodeSize: #to not move code that has been moved already!
-                        continue
                     #Copy and change values and append to the end
                     newExpression = copy.deepcopy(exp)
                     newExpression['Parameters'][1]['Value']['Value'] = newString
@@ -754,13 +799,14 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
 
                     bytecode.replace(exp, expReplacement, nothingInsts)
                     #Updated serializedByteCodeList for new statement indeces
-                    serializedByteCode = file.getSerializedScriptBytecode(exportIndex,jsonData)
+                    #TODO: This seems to be the main cause of why the whole process takes long, can I use this less aka calculate index myself again?
+                    serializedByteCode = file.getSerializedScriptBytecode(file.exportIndex,jsonData)
                 else: #oldName not in String, save id swaps
                     newExpression = bytecode.json[bytecode.getIndex(exp)]
                     newExpression['Parameters'][1]['Value']['Value'] = stringValue
+                
     file.updateFileWithJson(jsonData)
     return file
-
 '''
 Replaces the animation in a string with a designated replacement animation if required.
     Parameters:
@@ -777,23 +823,47 @@ def replaceNonExistentAnimations(script, string, replacementID,replacementName, 
     for animSync in animations: #go through animations to potentially replace in script
         animation = animSync.ind
         replacementAnim = animSync.sync
-        if animation in DEMON_MODELS[replacementID].animations or 'Anim' not in string:
+        if animation in DEMON_MODELS[replacementID].animations or animation not in string:
             #Animation exists for the new demon therefore string is fine
+            continue
+        if 'Anim/' not in string and string[:3] == "AN_":
+            if '/' in animation: #Is Animation in Subfolder?
+                animationParts = animation.split("/")
+            else:
+                animationParts = ["",animation] #I'm lazy so fake list it is
+            searchString = "AN_"+oPrefix + replacementID + lahmuSuffix + "_" + animationParts[1]
+            if searchString in string:
+                if '/' in replacementAnim: #Is Animation in Subfolder?
+                    animationParts = replacementAnim.split("/")
+                else:
+                    animationParts = ["",replacementAnim] #I'm lazy so fake list it is
+                replacementString = "AN_"+nPrefix + replacementID+ lahmuSuffix + "_" + animationParts[1]
+                string = string.replace(searchString,replacementString)
+        elif 'Anim/' not in string:
             return string
         #Animation does not exist for the new demon therefore string needs to be changed
         if '/' in animation: #Is Animation in Subfolder?
             animationParts = animation.split("/")
-            searchString = "/Game/Design/Character/"+oFPrefix+"/"+oPrefix + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_"+oPrefix + replacementID + lahmuSuffix + "_" + animationParts[1]+ "." + "AN_"+oPrefix + replacementID + lahmuSuffix+ "_" + animationParts[1]
+            searchString = "/Game/Design/Character"+oFPrefix+oPrefix + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_"+oPrefix + replacementID + lahmuSuffix + "_" + animationParts[1]
+            if '.' in string:
+                searchString += "." + "AN_"+oPrefix + replacementID + lahmuSuffix+ "_" + animationParts[1]
         else:
-            searchString = "/Game/Design/Character/"+oFPrefix+"/"+oPrefix + replacementID + "_" + replacementName + "/Anim/" + "AN_"+oPrefix + replacementID+ lahmuSuffix + "_" + animation+ "." + "AN_"+oPrefix + replacementID+ lahmuSuffix + "_" + animation
+            searchString = "/Game/Design/Character"+oFPrefix+oPrefix + replacementID + "_" + replacementName + "/Anim/" + "AN_"+oPrefix + replacementID+ lahmuSuffix + "_" + animation
+            if '.' in string:
+                searchString += "." + "AN_"+oPrefix + replacementID+ lahmuSuffix + "_" + animation
+
         if searchString in string: #Is the Animation the one in the current string
             if '/' in replacementAnim: #Is new Animation in Subfolder?
                 animationParts = replacementAnim.split("/")
-                replacementString = "/Game/Design/Character/"+nFPrefix+"/"+nPrefix + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_"+nPrefix + replacementID+ lahmuSuffix + "_" + animationParts[1]+ "." + "AN_"+nPrefix + replacementID+ lahmuSuffix + "_" + animationParts[1]
+                replacementString = "/Game/Design/Character"+nFPrefix+nPrefix + replacementID + "_" + replacementName + "/Anim/" + animationParts[0] + "/" + "AN_"+nPrefix + replacementID+ lahmuSuffix + "_" + animationParts[1]
+                if '.' in string:
+                    replacementString += "." + "AN_"+nPrefix + replacementID+ lahmuSuffix + "_" + animationParts[1]
             else:
-                replacementString = "/Game/Design/Character/"+nFPrefix+"/"+nPrefix + replacementID + "_" + replacementName + "/Anim/" + "AN_"+nPrefix + replacementID+ lahmuSuffix + "_" + replacementAnim+ "." + "AN_"+nPrefix + replacementID + lahmuSuffix+ "_" + replacementAnim
+                replacementString = "/Game/Design/Character"+nFPrefix+nPrefix + replacementID + "_" + replacementName + "/Anim/" + "AN_"+nPrefix + replacementID+ lahmuSuffix + "_" + replacementAnim
+                if '.' in string:
+                    replacementString += "." + "AN_"+nPrefix + replacementID + lahmuSuffix+ "_" + replacementAnim
             string = string.replace(searchString,replacementString)
-
+            
     return string
 
 
