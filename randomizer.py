@@ -3820,7 +3820,7 @@ class Randomizer:
                 shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
                 shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
                 for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
-                    spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
+                    spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + "(" + str(encounter.demons[0]) + ") "+ self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
                     self.bossReplacements[encounter.demons[0]] = shuffledEncounters[index].demons[0]
                     if encounter.demons[1] > 0 and encounter.demons[1] != encounter.demons[0]: #Add up to 2 additional boss demons for mission text purposes. TODO: maybe support summons not present in the demons array?
                         if shuffledEncounters[index].demons[1] > 0:
@@ -6340,7 +6340,7 @@ class Randomizer:
     '''
     def fullRando(self, config):
         #TODO: Clear rando folder to remove previous rando results
-        
+        shutil.rmtree("rando")
 
         writeFolder(paths.DEBUG_FOLDER)
         with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
@@ -6590,8 +6590,9 @@ class Randomizer:
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel)
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
-
-        model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolArr, self.configSettings)
+        
+        if self.configSettings.swapCutsceneModels:
+            model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolArr, self.configSettings)
 
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)

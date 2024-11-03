@@ -59,6 +59,7 @@ class Settings(object):
         self.pressTurnChance = 0.1                  # Chance that normal enemies have an additional press turn
         self.unlockFusions = False                  # Unlock all fusions from the beginning
         self.includeOmagatokiCritical = False       # Randomizes which skill is universable available as a magatsuhi skill
-        self.includeOmnipotentSuccession = False     # Randomizes the skill belonging to the Nahobino Race
+        self.includeOmnipotentSuccession = False    # Randomizes the skill belonging to the Nahobino Race
         self.includeMagatsuhiSkills = False         # Allows magatsuhi skills to be assigned to demons skill sets
         self.randomizeMagatsuhiSkillReq = False     # Randomize which race, demon alignments, or demons are required to use magatsuhi skills
+        self.swapCutsceneModels = False             #Whether demon models in cutscenes & events should be swapped

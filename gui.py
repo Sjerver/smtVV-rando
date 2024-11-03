@@ -117,7 +117,11 @@ def createGUI(configSettings):
         fg="black",
         command=randomizeClick,
     )
+
+    swapCutsceneModels= tk.BooleanVar()
+    swapCutsceneModelCheckbox = tk.Checkbutton(persistentFrameLeft, text="(Experimental) Swap Cutscene Models", variable=swapCutsceneModels, onvalue=True, offvalue=False)
     randomizeButton.pack()
+    swapCutsceneModelCheckbox.pack()
         
     leftButton = tk.Button( #Button to go to the previous page
         buttonControlsFrame,
@@ -446,6 +450,10 @@ def createGUI(configSettings):
     page1Frame.tkraise()
     
     def ApplySettings(configur):
+        if configur.get('Patches', 'swapCutsceneModels') == 'true':
+            swapCutsceneModelCheckbox.select()
+        else:
+            swapCutsceneModelCheckbox.deselect()
         if configur.get('Demon', 'RandomLevels') == 'true':
             listDemon.selection_set(0)
         else:
@@ -766,6 +774,7 @@ def createGUI(configSettings):
     try:
         #Store all GUI selections into variables before closing the GUI
         textSeed = seedEntry.get()
+        cutsceneChoice = swapCutsceneModels.get()
         demonFlags = [False for i in range(listDemon.size())]
         for i in listDemon.curselection():
             demonFlags[i] = True
@@ -805,6 +814,11 @@ def createGUI(configSettings):
         raise(RuntimeError)        
 
     #Set the config settings
+    configSettings.swapCutsceneModels = cutsceneChoice
+    if cutsceneChoice:
+        configur.set('Patches', 'swapCutsceneModels', 'true')
+    else:
+        configur.set('Patches', 'swapCutsceneModels', 'false')
     if demonFlags[0]:
         configSettings.randomDemonLevels = True
         configur.set('Demon', 'RandomLevels', 'true')
@@ -1239,7 +1253,7 @@ def createConfigFile(configur):
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
                                  'ScaleInstakillRates': False}
-    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.1, 'UnlockFusions': False}
+    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.1, 'UnlockFusions': False, 'swapCutsceneModels': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
                         'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False, 'EarlyInheritenceViolation': False}
