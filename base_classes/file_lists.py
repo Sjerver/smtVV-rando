@@ -79,7 +79,7 @@ MAIN_M088_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M0
 MAIN_M092_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M092'
 MAIN_M115_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M115'
 MAIN_M203_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M203'
-E0660_FOLDER = 'rando/Project/Content/Design/Event/E0660'
+DESIGN_EVENT_FOLDER = 'rando/Project/Content/Design/Event/'
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
@@ -227,7 +227,13 @@ SCRIPT_FOLDERS = {
     'MM_M092_EM112_': MAIN_M092_FOLDER, #School Optional Multiple Fights [65][129][60] (Manananggal,Shiki Ouji,Andras)
     'MM_M115_E2603_Direct': MAIN_M115_FOLDER, #Dazai/Yuzuru in dorm room
     'MM_M203_E2718_Direct': MAIN_M203_FOLDER, #Lilith post-fight lecture
-    'LV_E0660': E0660_FOLDER, #Arioch Cutscene Test
+    'LV_E0660': DESIGN_EVENT_FOLDER, #Arioch Cutscene Test
+    'LV_E0180': DESIGN_EVENT_FOLDER, #Triple Preta Cutscene
+    'LV_E0330': DESIGN_EVENT_FOLDER, #Snake Nuwa Pre-fight Cutscene
+    'LV_E0340': DESIGN_EVENT_FOLDER, #Snake Nuwa Post-fight Cutscene
+    'LV_E0350': DESIGN_EVENT_FOLDER, #Meeting Abdiel Cutscene
+    'LV_E0375': DESIGN_EVENT_FOLDER, #Arioch Hayataro in Beginning of Shinagawa Cutscene
+    'LV_E0379': DESIGN_EVENT_FOLDER, #Arioch Fionn 1 Cutscene
 }
 
 #List of which folder each umap should be in when writing output
@@ -243,6 +249,7 @@ MAINMISSION_EXCEPTIONS = [
 
 #List of umaps for cutscene events
 EVENT_UMAPS = [
+    'LV_E0660','LV_E0180','LV_E0330','LV_E0340','LV_E0350','LV_E0375','LV_E0379'
 ]
 
 class UMap_File_List:
@@ -348,7 +355,9 @@ class Script_File_List:
             
             file.uasset = file.uasset.DeserializeJson(stringy)
             if name in EVENT_UMAPS:
-                file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.umap')
+                subFolder = folderKey.split("_")[1]
+                writeFolder(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder)
+                file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder + '/' + name + '.umap')
             else:
                 file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset')
             #writeBinaryTable(file.uexp.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uexp', SCRIPT_FOLDERS[folderKey])
@@ -368,8 +377,8 @@ class Script_File_List:
             scriptPath = 'MainMission/'
         if name in MAINMISSION_EXCEPTIONS:
             scriptPath = 'MainMission/'
-        if name in EVENT_UMAPS and 'LV' in name:
-            assetobject = UAsset('base/Scripts/' + scriptPath + name + '.umap', EngineVersion.VER_UE4_27)
+        if 'LV' == name[:2] or name in EVENT_UMAPS:
+            assetobject = UAsset('base/Design Event/' + name + '.umap', EngineVersion.VER_UE4_27)
         else:
         #uexp = readBinaryTable('base/Scripts/' + scriptPath + name + '.uexp')
         #uassetData = Script_Uasset(readBinaryTable('base/Scripts/' +scriptPath + name + '.uasset'))

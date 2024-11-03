@@ -55,7 +55,13 @@ REQUIRES_HIT_UPDATE = [
 #TODO: Investigate certain events which might have the used models in umaps (example: Arioch Pre-Fight, Odin, Vasuki, Meeting Mastema 2ndHalf)
 #Swapping works! but animations might also be possible since they are in the sequence files (need to investigate this in more detail)
 EVENT_CUTSCENES = {
-    'LV_E0660': [Demon_Sync(82,463)], #UMAP Arioch Event
+    'LV_E0660': [Demon_Sync(82,463)], #UMAP Arioch Cutscene
+    'LV_E0180': [Demon_Sync(431)], #UMAP Triple Preta Cutscene
+    'LV_E0330': [Demon_Sync(75, 435),Demon_Sync(435)], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa, Snake Nuwa)
+    'LV_E0340': [Demon_Sync(465),Demon_Sync(75, 435),Demon_Sync(435)], #UMAP Snake Nuwa Post-fight Cutscene (Yakumo, Nuwa, Snake Nuwa)
+    'LV_E0350': [Demon_Sync(467)], #UMAP Meeting Abdiel Cutscene
+    'LV_E0375': [Demon_Sync(152)], #UMAP Hayataro in Beginning of Shinagawa Cutscene
+    'LV_E0379': [Demon_Sync(451)], #UMAP Fionn 1 Cutscene
 }
 
 #Script files for events and what demon models need to be updated in htem
@@ -558,7 +564,9 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
         print("Swapped Models in " + str(currentScriptIndex) + " of " + str(totalScripts) + " Scripts")
     endTime = datetime.datetime.now()
     print(endTime - startTime)
+    
     umapList.writeFiles()
+    updateCutsceneModels(encounterReplacements, bossReplacements,config)
 
 '''
 Prepares the given script file by preparing data that gets used in the model swap process.
@@ -917,4 +925,62 @@ def updateEventHitGen(file, scale, script):
         print("Could not perform scale update on EventHitGen for: " + script)
     
     file.updateFileWithJson(file.json)
-    
+
+def updateCutsceneModels(encounterReplacements, bossReplacements, config):
+    cutsceneFiles = Script_File_List()
+    totalFiles = len(EVENT_CUTSCENES.keys())
+    currentFileIndex = 0
+    for event, syncDemons in EVENT_CUTSCENES.items():
+        replacementMap = {}
+        currentFileIndex += 1
+        for syncDemon in syncDemons:
+            originalDemonID = syncDemon.ind
+            syncDemonID = syncDemon.sync
+            if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not config.ensureDemonJoinLevel: #If demon isn't getting replaced ignore it
+                continue
+            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is boss
+                try:
+                    replacementID = bossReplacements[syncDemonID]
+                except KeyError:
+                    #print("Key Error: " + str(syncDemonID))
+                    continue
+            else: #else it is a normal demon
+                try:
+                    replacementID = encounterReplacements[syncDemonID]
+                except KeyError:
+                    #print("Key Error: " + str(syncDemonID))
+                    continue
+            if replacementID == originalDemonID: #do not need to swap models if replacement is the same as originalDemonID
+                continue
+            try: #Does replacement boss use a different model that has no tie to their id
+                replacementID = MODEL_SYNC[replacementID]
+            except KeyError:
+                #replacementID = 934 #Testing stuff for event hit scaling
+                pass 
+            try: #Does original boss use a different model that has no tie to their id
+                originalDemonID = MODEL_SYNC[originalDemonID]
+            except KeyError:
+                #replacementID = 934 #Testing stuff for event hit scaling
+                pass
+            #replacementID = random.choice([441,236]) #Testing stuff
+            # if originalDemonID in replacementMap.values():
+            #     print("Causes Chain replacement: " + str(originalDemonID) + " " + str(replacementID) )
+            replacementMap[originalDemonID] = replacementID
+
+
+        if 'LV' in event:
+            file = cutsceneFiles.getFile(event)
+            
+            rawCode = prepareScriptFileForModelReplacement(event, file)
+            if rawCode: #script does not have byte code so continue with next one (Debug print happens elsewhere)
+                continue
+            
+            for originalDemonID, replacementID in replacementMap.items():
+                file = replaceDemonModelInScript(event, file, originalDemonID, replacementID)
+            cutsceneFiles.setFile(event,file)
+            print("Swapped Models in " + str(currentFileIndex) + " of " + str(totalFiles) + " Cutscenes")
+        else:
+            #TODO: Sequences
+            pass
+        
+    cutsceneFiles.writeFiles()
