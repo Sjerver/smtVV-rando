@@ -6340,7 +6340,8 @@ class Randomizer:
     '''
     def fullRando(self, config):
         #TODO: Clear rando folder to remove previous rando results
-        shutil.rmtree("rando")
+        if os.path.exists("rando"):
+            shutil.rmtree("rando")
 
         writeFolder(paths.DEBUG_FOLDER)
         with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
