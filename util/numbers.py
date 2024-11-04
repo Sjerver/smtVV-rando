@@ -15,7 +15,7 @@ DUPLICATE_SOURCES = {442 : [61 ,65], #School Aitvaras
 #Selection of dummy demons to be overwritten with overlapping demons
 DUMMY_DEMONS= [487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511]
 
-NORMAL_ENEMY_COUNT = 395
+NORMAL_ENEMY_COUNT = 396
 
 BAD_IDS = [71, 365, 364, 366] #Old Lilith, Tao x2, Yoko
 
@@ -185,6 +185,7 @@ MISSION_DUPLICATES = {
   28: [173], #Clash with the Kunitsukami, Special Training: Kunitsukami (Both normally give Kunitsu Talisman)
   -18: [-19], #Duplicates for the fake missions handling the Heavenly Kings Periapt
   72: [-20], #Falcon's Head and Isis Story Even in CoV both reward Lady Talisman
+  218: [219], #Guardian of Light CoC And CoV
 }
 
 #Missions that cannot receive macca as a reward
@@ -330,7 +331,7 @@ REWARD_AREA_MISSIONS = {
   35: [81,95],
   36: [212,114,174],
   38: [212,114,174],
-  60: [33,35,36,37,38,39,40,42,43,44,45,46,49,63,64,65,66,67,74,79,80,82,87,94,165,172,181,183,185,193,196,198,205,209,211,41],
+  60: [33,35,36,37,38,39,40,42,43,44,45,46,49,63,64,65,66,67,74,79,80,82,87,94,165,172,181,183,185,193,196,198,205,209,211,41,218],
   61: [6,7,8,9,13,56,57,58,61,68,69,70,71,86,150,151,166,167,170,201],
   62: [12,92,14,15,16,17,18,19,20,21,75,76,83,91,152,155,156,157,160,161,162,189,191,192,197],
   63: [73,34,139,59,22,24,25,26,27,28,138,30,48,32,72,62,77,78,93,31,159,164,186,187,204,206,208,29],

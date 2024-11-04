@@ -4,7 +4,7 @@ Modified files:
  - BossFlag.uexp                    #File Update DONE (recheck entry size)
  - DevilAssetTable.uexp             #File Update DONE
  - DevilUIGraphicsTable.uexp        #File Update DONE
- - EncountData.uexp                 #File Update + recheck entry sizes
+ - EncountData.uexp                 #File Update + recheck entry sizes DONE
  - EventEncountData.uasset          #File Update + updates in at least boss logic + has 1 more entry
  - EventEncountData.uexp            #File Update + updates in at least boss logic
  - EventEncountPostDataTable.uasset #File Update DONE
@@ -14,7 +14,7 @@ Modified files:
  - NKMBaseTable.uexp                #File Update + Needs updates
  - SkillData.uexp                   #File Update should be enough
  - TalkCameraOffsetTable.uexp       #File Update DONE
- - UniteCombineTable.uexp           #File Update + maybe stuff in fusion logic due to fusion number
+ - UniteCombineTable.uexp           #File Update +  DONE ? maybe stuff in fusion logic due to fusion number
  - UniteTable.uexp                  #File Update DONE
  - LV_EventMission_M061.uexp        #File Update DONE
  - LV_EventMission_M061.umap        #File Update DONE
