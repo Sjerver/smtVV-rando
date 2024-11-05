@@ -888,10 +888,11 @@ class Randomizer:
         size = 0x60
         #encounterDebugData = []
         demonDict = {}
-        for index in range(252):
+        for index in range(253):
             offset = start + size * index
             encounter = Event_Encounter()
-            encounter.ind = data.readByte(offset + 0x20) 
+            encounter.ind = data.readByte(offset + 0x20)
+            encounter.nextEnc =  data.readByte(offset + 0x21)
             encounter.levelpath = data.read32chars(offset)
             encounter.offsets = {
                 'demons': offset + 0x48,
@@ -918,9 +919,11 @@ class Randomizer:
             originalIndex = next((x for x, val in enumerate(self.eventEncountArr) if val.compareDemons(encounter)), -1)
             if originalIndex > -1:
                 self.bossDuplicateMap[index] = originalIndex
+                #print("Duplicate " + str(index) +" to " +str(originalIndex))
 
             self.eventEncountArr.append(encounter)
             self.staticEventEncountArr.append(copy.deepcopy(encounter))
+            #print(str(index) + ": (" + str(demons[0].value) + ") " + self.enemyNames[demons[0].value] + " " + str(encounter.track) + " NEXT: " + str(encounter.nextEnc))
         
     '''
     Fills the array bossFlagArr with data on boss flags.
@@ -2633,7 +2636,8 @@ class Randomizer:
         totalSize = buffer.readWord(0x39)
         
         for ind, enc in enumerate(evEncount):
-            if ind >= 252:
+            #print(str(ind) + ": (" + str(enc.demons[0].value) + ") " + self.enemyNames[enc.demons[0].value] + " " + str(enc.track) + " NEXT: " + str(enc.nextEnc))
+            if ind >= 253:
                 for i in range (0,96,4):
                     buffer.buffer.insert(-16,0)
                     buffer.buffer.insert(-16,0)

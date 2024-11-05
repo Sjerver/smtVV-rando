@@ -733,6 +733,8 @@ MISSION_INFO_DEMON_IDS = {
     209: [Demon_Sync(4)], #Holy Will and Profane Dissent (Dagda)
     210: [Demon_Sync(103,775)], #Heroes of Heaven and Earth (Yamata-no-Orochi)
     211: [Demon_Sync(8,481),Demon_Sync(237,782)], #God of Old, Devourer of Kin (Zeus, Saturnus)
+    218: [Demon_Sync(207)], #Guardian of Light (Marici)
+    219: [Demon_Sync(207)], #Guardian of Light (Marici)
     221: [Demon_Sync(242),Demon_Sync(83,840)], #The Seraph's Return CoV (Michael, Belial Boss)
     222: [Demon_Sync(242,841),Demon_Sync(83)], #The Red Dragon's Invitation CoV (Michael Boss, Belial)
 }

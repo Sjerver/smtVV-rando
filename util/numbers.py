@@ -449,7 +449,8 @@ SCRIPT_JOIN_DEMONS = {
     'MM_M030_EM1769': 78, # Mephisto (Can only join this way)
     'MM_M061_EM1791': 31, # Artemis
     'MM_M061_EM2601': 32, # Konohana Sakuya
-    'MM_M063_EM2170': 227 # Masakado
+    'MM_M063_EM2170': 227, # Masakado
+    'MM_M061_EM2705': 207, # Marici
 }
 
 #List of Magatsuhi Skills tied to race (and Critical)

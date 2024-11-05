@@ -6,9 +6,8 @@ import random
 #Encounter IDs that should not be randomized
 BANNED_BOSSES = [0, 7, 32, #Dummy Abbadon, Tutorial Pixie, Tutorial Daemon
                  #33, #Hydra (game hangs when supposed to lose limbs)
-                 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, #Normal Cleopatra, Dummy Pretas x 5, Normal Andras, Dummy Mandrake, Attis, Shiva, King Frost, then all 4,
+                 #TODO: Encounter 45 has a copy of mara boss for the virtual trainer
                  #57, 58, 59, 60, 63, 64, 65, #School dungeon fights with overlapping demons(Temp)
-                 89, #Dummy Demi-Fiend
                  #129, 159, 160, #Mananangal/Incubus overlap with school(Temp), Zhens in gasser sidequest that overlap with each other(Temp)
                  141, #Dummy Eisheth
                  #232, 233, 234, 235, 236, 237 #Area 3 Powers that overlap with each other(Temp)
@@ -33,6 +32,7 @@ BOSS_SUMMONS = {
     926: [937,939], #Black Rider - Legion (Seems to use 2 different legions with the same stats/skills but different AIs)
     927: [938], #Pale Rider - Loa
     843: [885], #Danu - Mandrake
+    783: [784,785,786], #Marici - Conquering Mirage, Stitching Mirage, Warding Mirage
 }
 
 #Boss IDs (first in the encounter) with multiple enemies of equal strength
@@ -71,8 +71,9 @@ GROUP_HP_MODIFIER = 0.85
 #Event Encounter IDs that contain Lucifer (normal and true version), excluding VR battle duplicates
 LUCIFER_ENCOUNTERS = [6, 12]
 
-#Event Encounter IDs that contain superbosses (Shiva, Demi-Fiend, Satan, Masakado x2)
-SUPERBOSS_ENCOUNTERS = [88, 121, 157, 168, 169]
+#Event Encounter IDs that contain superbosses (Shiva x2, Demi-Fiend x2, Satan x2, Masakado x3)
+SUPERBOSS_ENCOUNTERS = [46, 88, 89,121, 48, 157, 168, 169, 53]
+#TODO: Duplicate Map for Superbosses does not seem to work always
 
 #Event Encounter IDs that contain minibosses, including some weaker quest bosses
 MINIBOSS_ENCOUNTERS = [13, 14, 15, #Empyrean angels
@@ -92,7 +93,8 @@ BOSS_HP_MODIFIERS = {
 EVENT_ONLY_BOSSES = [6, 39, 69, 138]
 
 #Event Encounter IDs that have DUMMY fights and can be replaced with probelematic demons like True Lucifer
-DUMMY_EVENT_ENCOUNTERS = [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 89, 141]
+DUMMY_EVENT_ENCOUNTERS = [ 141]
+#TODO: Since we only have one we have a problem, we could add a slot to the eventEncountTable but that's pretty much it?
 
 # Map of bosses who summon a set number of minions at a time, used to calculate total press turns
 PRESS_TURN_MAX_SUMMONS = {
@@ -440,7 +442,7 @@ def createBossEncounterPools(eventEncountArr, encountArr, uniqueSymbolArr, absce
                     and index not in LUCIFER_ENCOUNTERS and index not in SUPERBOSS_ENCOUNTERS and index not in MINIBOSS_ENCOUNTERS and index not in foundEventEncounters]
     if configSettings.randomizeLucifer:
         normalPool = normalPool + [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in LUCIFER_ENCOUNTERS]
-    superbossPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in SUPERBOSS_ENCOUNTERS]
+    superbossPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in SUPERBOSS_ENCOUNTERS and index not in bossDuplicateMap.keys()]
     minibossPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in MINIBOSS_ENCOUNTERS]
     if configSettings.mixedRandomizeNormalBosses:
         mixedPool = mixedPool + normalPool

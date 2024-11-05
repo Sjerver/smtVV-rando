@@ -549,6 +549,8 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             if scale <= 1: #do not update hitbox size if scale would be smaller
                 continue
             #Need to make sure that it is updated for biggest demon in file
+            #TODO: What if instead of changing event scale we changed the map scale of the model, since each boss only replaces one check.
+            # Would of course require a base hitbox for every boss, to have a basis for calculation
             if (not hitboxUpdated or scale >= currentScale) and script in REQUIRES_HIT_UPDATE and script in LEVEL_UASSETS.keys(): #TODO: How to deal with overlap issues
                 umap = umapList.getFile(LEVEL_UASSETS[script])
                 hitboxUpdated = True

@@ -54,6 +54,7 @@ M050_FOLDER =  'rando/Project/Content/Blueprints/Event/Script/SubMission/M050'
 SHOP_EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/ShopEvent'
 M061_EM1640_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM1640'
 M061_EM1710_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM1710'
+M060_EM2700_FODLER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M060/EM2700'
 GARDEN_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/Garden'
 MINATO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m061'
 SHINAGAWA_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m062'
@@ -109,6 +110,7 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM2613_HitAction': M030_FOLDER, # Holy Will and Profane Dissent
     'MM_M061_EM2601': M061_FOLDER, # Sakura Cinders of the East
     'MM_M063_EM2170': M063_FOLDER, # Guardian of Tokyo
+    'MM_M061_EM2705': M060_EM2700_FODLER, #Guardian of Light
     'MM_M061_EM1030': M061_FOLDER, # Cursed Mermaids
     'MM_M061_EM2050': M050_FOLDER, # Picture-Perfect Debut
     'MM_M060_EM1310': M060_FOLDER, # Downtown Rock 'n Roll

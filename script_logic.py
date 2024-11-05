@@ -37,6 +37,7 @@ SCRIPT_JOIN_TYPES = {
     'MM_M061_EM1791': Script_Join_Type.CODE, # A Goddess in Training
     'MM_M061_EM2601': Script_Join_Type.NKMID, # Sakura Cinders of the East
     'MM_M063_EM2170': Script_Join_Type.MASAKADO, # Guardian of Tokyo
+    'MM_M061_EM2705': Script_Join_Type.CODE, # Guardian of Light
 }
 
 
