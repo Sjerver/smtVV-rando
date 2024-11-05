@@ -224,6 +224,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2620': [Demon_Sync(775, nameVariant='Orochi'), Demon_Sync(510, 528)], #Orochi Quest (Orochi, Tsukuyomi)
     'mm_em2630': [Demon_Sync(237, 782), Demon_Sync(481), Demon_Sync(837)], #Saturnus Quest (Saturnus, CoV Zeus, Baal)
     'mm_em2640': [Demon_Sync(569), Demon_Sync(564)], #Package Delivery Quest (Lilith, Vengeance Abdiel)
+    'mm_em2700': [Demon_Sync(207)], #Marici Quest (Marici)
 }
 
 #Message files for story events and what demon(name/id) needs to be updated in them
@@ -556,6 +557,7 @@ MISSION_CHECKS_ORIGINAL_IDS = {
     'mm_em2440': [(3, 768, 15), (254, 768, 15)],#Yaksini Quest
     'mm_em2600': [(39, 948, 16)],#Konohana Sakuya Quest
     'mm_em2610': [(27, 947, 17)],#Dagda Quest
+    'mm_em2700': [(84, 783, 35)],#Marici Quest
 }
 
 #Message files for story events containing boss checks, which message is the hint message, and what boss demon(name/id) needs to be updated in them
@@ -624,7 +626,8 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "A shame you will never reach\ndemon king <BOSSNAME>...", #31 - Chernobog dialogue
                  "We may even encounter <BOSSNAME>, the lord of the flies.", #32 - Tsukuyomi dialogue about the 3 keys
                  "You have squandered the mercy\ngranted by my fellow archangel, <BOSSNAME>.", #33 - Camael dialogue vengeance
-                 "You leave me no choice. As the angel of\ndestruction, I shall slay you in <BOSSNAME>'s stead."] #34 - Camael dialogue vengeance part 2
+                 "You leave me no choice. As the angel of\ndestruction, I shall slay you in <BOSSNAME>'s stead.", #34 - Camael dialogue vengeance part 2
+                 "Speak to me and face <BOSSNAME>."] #35 - Goko dialogue in Marici quest
 
 MISSION_INFO_DEMON_IDS = {
     7: [Demon_Sync(281,802)], #The Ultimate Omelet (Jatayu)
