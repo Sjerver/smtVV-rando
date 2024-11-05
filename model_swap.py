@@ -175,8 +175,10 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43)], # The Water Nymph (Leanan (also Apsaras maybe??))
     'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
     'MM_M061_EM1640': [Demon_Sync(43),Demon_Sync(44,869)], # The Spirit of Love (Apsaras, Agathion)
-    'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Entry (Apsaras)
+    'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Area Entry (Apsaras)
     
+    #SubMission M060
+    'MM_M061_EM2705': [Demon_Sync(207)], # The Guardian of Light (Marici)
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead

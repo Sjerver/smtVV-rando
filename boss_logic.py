@@ -6,7 +6,7 @@ import random
 #Encounter IDs that should not be randomized
 BANNED_BOSSES = [0, 7, 32, #Dummy Abbadon, Tutorial Pixie, Tutorial Daemon
                  #33, #Hydra (game hangs when supposed to lose limbs)
-                 #TODO: Encounter 45 has a copy of mara boss for the virtual trainer
+                 #TODO: Encounter 45 has a copy of mara boss for the virtual trainer, that version of mara is the same except for their AI
                  #57, 58, 59, 60, 63, 64, 65, #School dungeon fights with overlapping demons(Temp)
                  #129, 159, 160, #Mananangal/Incubus overlap with school(Temp), Zhens in gasser sidequest that overlap with each other(Temp)
                  141, #Dummy Eisheth

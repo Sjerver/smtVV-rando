@@ -50,6 +50,8 @@
 11run
 11run_Composite
 11run_EvtRemote
+11run_field
+11run_field2
 11run_in
 11run_map
 11run_map_Composite
@@ -1968,6 +1970,7 @@ Map/700001_hinsi
 Map/700002_battle_in
 Map/700002_event_idle
 Map/700003_battle_loop
+Map/700003_event_handup
 Map/700003_event_lturn
 Map/700004_event_rturn
 Map/700005_event_talk
