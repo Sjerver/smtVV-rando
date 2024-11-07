@@ -171,13 +171,51 @@ EVENT_SCRIPT_MODELS = {
     #Mainmission M203 (Qadistu Dimension)
     'MM_M203_E2718_Direct': [Demon_Sync(569)], #Lilith post-fight lecture
 
-    #SubMission M061
+    #SubMission M016 (Empyrean)
+    'MM_M016_EM1450': [Demon_Sync(8, 838), Demon_Sync(19)], # A Plot Unveiled (Zeus, Demeter)
+    'MM_M016_EM1500': [Demon_Sync(30, 842), Demon_Sync(188, 843), Demon_Sync(189, 844)], #Seed of Life Quest (Maria, Danu, Innana)
+    'MM_M016_EM1531': [Demon_Sync(178, 845)], # A Universe in Peril (Shiva)
+    
+    #Submission M030 (Diet Building)
+    'MM_M060_EM1819': [Demon_Sync(928)], # Mother Harlot Fiend Fight
+    'MM_M060_EM1819_NewRoute': [Demon_Sync(928)], # Mother Harlot Fiend Fight (Vengeance)
+    'MM_M060_EM1821': [Demon_Sync(929)], # Trumpeter Fiend Fight
+    'MM_M060_EM1821_NewRoute': [Demon_Sync(929)], # Trumpeter Fiend Fight
+    'MM_M061_EM1771': [Demon_Sync(78)], #Mephisto Quest (Mephisto)
+    'MM_M061_EM1781': [Demon_Sync(295)], #Cleopatra Quest (Cleopatra)
+    'MM_M061_EM1782': [Demon_Sync(295)], #Cleopatra Quest (Cleopatra) Couldn't join due to full party
+    'MM_M061_EM1791': [Demon_Sync(31),Demon_Sync(8, 838)], #Artemis Quest (Artemis, Zeus 2 for fun)
+    'MM_M061_EM1802': [Demon_Sync(921)], # Matador Fiend Fight
+    'MM_M061_EM1802_NewRoute': [Demon_Sync(921)], # Matador Fiend Fight
+    'MM_M061_EM2611': [Demon_Sync(188, 843)], #Dagda Quest Danu Event (Danu for fun)
+    'MM_M061_EM2613_HitAction': [Demon_Sync(4),Demon_Sync(188, 843)], #Dagda Quest (Dagda, Danu for fun)
+    'MM_M062_EM1804': [Demon_Sync(922)], #Daisoujou Fiend Fight
+    'MM_M062_EM1804_NewRoute': [Demon_Sync(922)], #Daisoujou Fiend Fight
+    'MM_M062_EM1806': [Demon_Sync(923)], #Hell Biker Fiend Fight
+    'MM_M062_EM1806_NewRoute': [Demon_Sync(923)], #Hell Biker Fiend Fight
+    'MM_M063_EM1809': [Demon_Sync(924),Demon_Sync(925),Demon_Sync(926),Demon_Sync(927)], #Inital Rider Meeting Chiyoda (White Rider,Red Rider,Black Rider,Pale Rider)
+    'MM_M063_EM1810': [Demon_Sync(924)], #White Rider Fight Chiyoda
+    'MM_M063_EM1812': [Demon_Sync(925)], #Red Rider Fight Chiyoda
+    'MM_M063_EM1814': [Demon_Sync(926)], #Black Rider Fight Chiyoda
+    'MM_M063_EM1816': [Demon_Sync(927)], #Pale Rider Fight Chiyoda
+    'MM_M064_EM1809': [Demon_Sync(924),Demon_Sync(925),Demon_Sync(926),Demon_Sync(927)], #Inital Rider Meeting Shinjuku (White Rider,Red Rider,Black Rider,Pale Rider)
+    'MM_M064_EM1810': [Demon_Sync(924)], #White Rider Fight Shinjuku
+    'MM_M064_EM1812': [Demon_Sync(925)], #Red Rider Fight Shinjuku
+    'MM_M064_EM1814': [Demon_Sync(926)], #Black Rider Fight Shinjuku
+    'MM_M064_EM1816': [Demon_Sync(927)], #Pale Rider Fight Shinjuku
+    'MM_M107_EM1824': [Demon_Sync(934)], #Demi-Fiend
+    'MM_M107_EM1825_Dev651': [Demon_Sync(934)], #Demi-Fiend (Post Fight)
+    'MM_M107_EM1825_Direct': [Demon_Sync(934)], #Demi-Fiend (End of Fight)
+    'MM_M107_EM1825_Hit': [Demon_Sync(934)], #Demi-Fiend (Fight/Join Prompt)
+
+
+    #SubMission M061 (Minato)
     'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43)], # The Water Nymph (Leanan (also Apsaras maybe??))
     'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
     'MM_M061_EM1640': [Demon_Sync(43),Demon_Sync(44,869)], # The Spirit of Love (Apsaras, Agathion)
     'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Area Entry (Apsaras)
     
-    #SubMission M060
+    #SubMission M060 (Taito)
     'MM_M061_EM2705': [Demon_Sync(207)], # The Guardian of Light (Marici)
 }
 
@@ -186,9 +224,9 @@ EVENT_SCRIPT_MODELS = {
 #TODO: A lot of story events have very specific animations that all would most likely just be replaced by IdleA which in most cases seems to be playing on default anyway so they can be skipped?
 SCRIPT_ANIMS_REPLACEMENTS = {
     'EM_M061_DevilTalk': [Anim_Sync('02idleB','05attack')], #Talk Tutorial (Pixie)
-    'MM_M061_EM1630': [Anim_Sync('06skill_Composite','06_skill')], # The Water Nymph (Leanan)
+    'MM_M061_EM1630': [Anim_Sync('06skill_Composite','06skill')], # The Water Nymph (Leanan)
     'MM_M061_EM1631': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Water Nymph (Ippon-Datara)
-    'MM_M061_EM1640': [Anim_Sync('06skill_Composite','06_skill')], # The Spirit of Love (Apsaras)
+    'MM_M061_EM1640': [Anim_Sync('06skill_Composite','06skill')], # The Spirit of Love (Apsaras)
     'MM_M061_EM1640_Hit': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Spirit of Love First Entry (Apsaras)
     'MM_M061_E2625_Direct': [Anim_Sync('map/700000_dying','04dying')], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
     'MM_M038_E2930_Direct': [Anim_Sync('Event/EVT_E0604c01m_loop','04dying')], #Shakan Abdiel Post Fight
@@ -202,6 +240,23 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M064_E2690': [Anim_Sync('map/700000_dead01','04dying'),Anim_Sync('map/700001_dead02','04dying')], #Dead Cherubim
     'MM_M092_EM107_': [Anim_Sync('06skill_a','06skill'),Anim_Sync('06skill_b','06skill'),Anim_Sync('06skill_c','06skill')], #School Rakshasa + Incubus
     'MM_M092_EM109_a': [Anim_Sync('02idleB','05attack')], #School Save Jack Frost (Manananggal)
+
+    'MM_M016_EM1450': [Anim_Sync('02idleB','41encount'),Anim_Sync('41encount','05attack'),Anim_Sync('51yes','51yes_Composite')], #A Plot Unveiled
+    'MM_M016_EM1500': [Anim_Sync('06skill_Composite','06skill'),Anim_Sync('51yes','51yes_Composite')], #A Universe in Peril
+    'MM_M016_EM1531': [Anim_Sync('41encount','05attack'),Anim_Sync('51yes','51yes_Composite')], #A Universe in Peril
+    'MM_M060_EM1819': [Anim_Sync('51yes','05attack')], #Mother Harlot Fight
+    'MM_M060_EM1819_NewRoute': [Anim_Sync('51yes','05attack')], #Mother Harlot Fight (Vengeance?)
+    'MM_M061_EM1781': [Anim_Sync('02idleB','05attack')], #Cleopatra Quest 
+    'MM_M061_EM1791': [Anim_Sync('02idleB','05attack'),Anim_Sync('map/700000_event_idle', '01idleA')], #Artemis Quest 
+    'MM_M061_EM2613_HitAction': [Anim_Sync('02idleB','41encount'),Anim_Sync('Sub/Sub_13skill_ex1','06skill')], #Dagda Quest
+    'MM_M062_EM1806': [Anim_Sync('06skill_Composite','06skill')], # Hell Biker Fight
+    'MM_M062_EM1806_NewRoute': [Anim_Sync('06skill_Composite','06skill')], # Hell Biker Fight
+    'MM_M063_EM1810': [Anim_Sync('06skill_Composite','06skill')], #White Rider Fight Chiyoda
+    'MM_M063_EM1812': [Anim_Sync('06skill_Composite','06skill')], #Red Rider Fight Chiyoda
+    'MM_M063_EM1814': [Anim_Sync('06skill_a','06skill'),Anim_Sync('06skill_b','06skill'),Anim_Sync('06skill_c','06skill'),Anim_Sync('06skill_d','06skill')], #Black Rider Fight Chiyoda
+    'MM_M064_EM1810': [Anim_Sync('06skill_Composite','06skill')], #White Rider Fight Shinjuku
+    'MM_M064_EM1812': [Anim_Sync('06skill_Composite','06skill')], #Red Rider Fight Shinjuku
+    'MM_M064_EM1814': [Anim_Sync('06skill_a','06skill'),Anim_Sync('06skill_b','06skill'),Anim_Sync('06skill_c','06skill'),Anim_Sync('06skill_d','06skill')], #Black Rider Fight Shinjuku
 }
 
 #For bosses that do not use their own model, which model they should use instead
@@ -328,6 +383,10 @@ MODEL_SYNC = {
     447: 302, # Manananggal (School)
     705: 45, # Mandrake
     842: 30, # Maria
+    783: 207, # Marici
+    784: 207, # Conquering Mirage
+    785: 207, # Stitching Mirage
+    786: 207, # Warding Mirage
     757: 227, # Masakado
     758: 227, # Masakado (True)
     596: 250, # Mastema
@@ -603,11 +662,12 @@ def prepareScriptFileForModelReplacement(script, file: Script_File):
     
     #Build import list
     file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
-    file.relevantImportNames = ['LoadAsset','PrintString','LoadAssetClass']
+    file.relevantImportNames = ['LoadAsset','PrintString','LoadAssetClass','TargetBinding']
     file.relevantImports = {}
     for imp in file.relevantImportNames: #Determine import id for relevant import names which is always negative
         if imp in file.importNameList:
             file.relevantImports[imp] = -1 * file.importNameList.index(imp) -1
+    #print(file.relevantImports.keys())
     #Find cases where function name is not explicit in code due to being an import
     file.relevantImportExps = {}
     for imp,stackNode in file.relevantImports.items():
@@ -685,6 +745,9 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
 
     for index, name in enumerate(file.originalNameMap): #change occurences of oldDemonID and oldDemonName in all names in the uasset
         nameEntry = file.getNameAtIndex(index)
+        if script in name:
+            #Do not change names for Main File Exports if DemonId or Name is in script
+            continue
         if oldIDString in name and ("/Blueprints/Character" in name or "_C" in name): 
             nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
             nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
@@ -745,12 +808,14 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
             
             if currentStatementIndex > file.originalByteCodeSize: #to not potentially move or adjust code that has been moved already!
                 continue
-            if imp == 'PrintString': #likely not necessary but do it anyway
+            if imp == 'PrintString' or imp == "TargetBinding": 
                 stringValue = exp['Parameters'][1].get('Value')
-                stringValue = stringValue.replace(oldIDString,newIDString)
-                newExpression = bytecode.json[bytecode.getIndex(exp)]
-                newExpression['Parameters'][1]['Value'] = stringValue
+                if stringValue[:3] in ["dev","Dev","npc","Npc"]:
+                    stringValue = replaceOldIDinString(stringValue)
+                    newExpression = bytecode.json[bytecode.getIndex(exp)]
+                    newExpression['Parameters'][1]['Value'] = stringValue
             elif imp == 'LoadAsset' or imp == 'LoadAssetClass':
+                #TODO: Eventual Simple Removal for AssetClassLoading
                 try:
                     stringValue = exp['Parameters'][1].get('Value').get('Value')
                 except AttributeError:
@@ -762,6 +827,10 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                 originalLength = len(stringValue)
                 #create new string here for calculation of lenghtDifference
                 newString = replaceOldIDinString(stringValue).replace(oldName,newName)
+
+                if imp == "LoadAssetClass" and "Simple" in newString and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
+                    newString = newString.replace("_Simple","")
+
                 lengthDifference = len(newString) - originalLength
 
                 if stringValue == newString:
@@ -779,6 +848,8 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                         stringValue = replaceNonExistentAnimations(script, newString,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
                     else:
                         stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)#exp['Parameters'][1]['Value']['Value'] = stringValue
+                    if imp == "LoadAssetClass" and "Simple" in stringValue and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
+                        stringValue = newString.replace("_Simple","")
                     newExpression = bytecode.json[bytecode.getIndex(exp)]
                     newExpression['Parameters'][1]['Value']['Value'] = stringValue
                 elif lengthDifference != 0:
@@ -787,6 +858,8 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                     stringValue = replaceOldIDinString(stringValue)
                     newString = stringValue.replace(oldName,newName)
                     newString = replaceOldIDinString(newString)
+                    if imp == "LoadAssetClass" and "Simple" in newString and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
+                        newString = newString.replace("_Simple","")
 
                     nextStatementIndex = serializedByteCode[bytecode.getIndex(exp)+1]["StatementIndex"]
                     lastStatementIndex = file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData)
@@ -835,7 +908,7 @@ def replaceNonExistentAnimations(script, string, replacementID,replacementName, 
     for animSync in animations: #go through animations to potentially replace in script
         animation = animSync.ind
         replacementAnim = animSync.sync
-        if animation in DEMON_MODELS[replacementID].animations or animation not in string:
+        if animation in DEMON_MODELS[replacementID].animations or ('/' not in animation and animation not in string):
             #Animation exists for the new demon therefore string is fine
             continue
         if 'Anim/' not in string and string[:3] == "AN_":
@@ -875,7 +948,6 @@ def replaceNonExistentAnimations(script, string, replacementID,replacementName, 
                 if '.' in string:
                     replacementString += "." + "AN_"+nPrefix + replacementID + lahmuSuffix+ "_" + replacementAnim
             string = string.replace(searchString,replacementString)
-            
     return string
 
 

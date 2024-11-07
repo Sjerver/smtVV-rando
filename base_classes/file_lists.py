@@ -229,6 +229,38 @@ SCRIPT_FOLDERS = {
     'MM_M092_EM112_': MAIN_M092_FOLDER, #School Optional Multiple Fights [65][129][60] (Manananggal,Shiki Ouji,Andras)
     'MM_M115_E2603_Direct': MAIN_M115_FOLDER, #Dazai/Yuzuru in dorm room
     'MM_M203_E2718_Direct': MAIN_M203_FOLDER, #Lilith post-fight lecture
+    'MM_M016_EM1500': M016_FOLDER, #Seed of Life Quest
+    'MM_M016_EM1531': M016_FOLDER, #A Universe in Peril
+    'MM_M060_EM1819': M030_FOLDER, # Mother Harlot Fiend Fight
+    'MM_M060_EM1819_NewRoute': M030_FOLDER, # Mother Harlot Fiend Fight
+    'MM_M060_EM1821': M030_FOLDER, # Trumpeter Fiend Fight
+    'MM_M060_EM1821_NewRoute': M030_FOLDER,# Trumpeter Fiend Fight
+    'MM_M061_EM1771': M030_FOLDER,#Mephisto Quest
+    'MM_M061_EM1782': M030_FOLDER,#Cleopatra Quest (Cleopatra) Couldn't join due to full party#TODO: Check script join
+    'MM_M061_EM1791': M030_FOLDER, #Artemis Quest
+    'MM_M061_EM1802': M030_FOLDER, # Matador Fiend Fight
+    'MM_M061_EM1802_NewRoute': M030_FOLDER, # Matador Fiend Fight
+    'MM_M061_EM2611': M030_FOLDER, # Dagda Quest Danu Event
+    'MM_M061_EM2613_HitAction': M030_FOLDER,  #Dagda Quest
+    'MM_M062_EM1804': M030_FOLDER, #Daisoujou Fiend Fight
+    'MM_M062_EM1804_NewRoute': M030_FOLDER, #Daisoujou Fiend Fight
+    'MM_M062_EM1806': M030_FOLDER,  #Hell Biker Fiend Fight
+    'MM_M062_EM1806_NewRoute': M030_FOLDER,  #Hell Biker Fiend Fight
+    'MM_M063_EM1809': M030_FOLDER, #Inital Rider Meeting Chiyoda
+    'MM_M063_EM1810': M030_FOLDER,  #White Rider Fight Chiyoda
+    'MM_M063_EM1812': M030_FOLDER,  #Red Rider Fight Chiyoda
+    'MM_M063_EM1814': M030_FOLDER,  #Black Rider Fight Chiyoda
+    'MM_M063_EM1816': M030_FOLDER,  #Pale Rider Fight Chiyoda
+    'MM_M064_EM1809': M030_FOLDER, #Inital Rider Meeting Shinjuku
+    'MM_M064_EM1810': M030_FOLDER,  #White Rider Fight Shinjuku
+    'MM_M064_EM1812': M030_FOLDER,  #Red Rider Fight Shinjuku
+    'MM_M064_EM1814': M030_FOLDER,  #Black Rider Fight Shinjuku
+    'MM_M064_EM1816': M030_FOLDER,  #Pale Rider Fight Shinjuku
+    'MM_M107_EM1824': M030_FOLDER,  #Demi-Fiend
+    'MM_M107_EM1825_Dev651': M030_FOLDER,  #Demi-Fiend (Post Fight)
+    'MM_M107_EM1825_Direct': M030_FOLDER,  #Demi-Fiend (End of Fight)
+    'MM_M107_EM1825_Hit': M030_FOLDER,  #Demi-Fiend (Fight/Join Prompt)
+    
     'LV_E0660': DESIGN_EVENT_FOLDER, #Arioch Cutscene Test
     'LV_E0180': DESIGN_EVENT_FOLDER, #Triple Preta Cutscene
     'LV_E0330': DESIGN_EVENT_FOLDER, #Snake Nuwa Pre-fight Cutscene
