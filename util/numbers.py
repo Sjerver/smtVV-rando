@@ -528,7 +528,7 @@ SKILL_STAT_PENALTY_WEIGHT = 2 #Penalty applied to weight in skill rando if stat 
 POTENTIAL_WEIGHT_MULITPLIER = 1.5 #Multiplier applied to potential to update weight of skill rando
 MAGATSUHI_SKILL_WEIGHT = 6 #Base weight of magatsuhi skills if included in skill rando
 SKILL_WEIGHT = 10 #Base weight for all skills in skill rando
-SKILL_PENALTY_WEIGHT = 3 #Weight penalty for skills if the skill has already been assigned in process in an attempt to diversify skill sets
+SKILL_PENALTY_WEIGHT = 4 #Weight penalty for skills if the skill has already been assigned in process in an attempt to diversify skill sets
 
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
