@@ -208,6 +208,14 @@ EVENT_SCRIPT_MODELS = {
     'MM_M107_EM1825_Direct': [Demon_Sync(934)], #Demi-Fiend (End of Fight)
     'MM_M107_EM1825_Hit': [Demon_Sync(934)], #Demi-Fiend (Fight/Join Prompt)
 
+    #SubMission M035 & M036 (Empyrean & DKC)
+    'MM_M035_EM1480': [Demon_Sync(242)], # The Seraph's Return (Michael)
+    'MM_M035_EM1491': [Demon_Sync(242)], # The Red Dragon's Invitation (Michael)
+    'MM_M036_EM1490': [Demon_Sync(83)], # The Red Dragon's Invitation (Belial)
+    'MM_M036_EM1481': [Demon_Sync(83)], # The Seraph's Return (Belial)
+
+    #SubMission M50 (Tokyo Map)
+    'MM_M201_EM2411': [Demon_Sync(754)], #Turbo Granny Quest (Turbo Granny)
 
     #SubMission M061 (Minato)
     'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43)], # The Water Nymph (Leanan (also Apsaras maybe??))

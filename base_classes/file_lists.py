@@ -51,6 +51,7 @@ M035_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M035'
 M036_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M036'
 M030_FOLDER =  'rando/Project/Content/Blueprints/Event/Script/SubMission/M030'
 M050_FOLDER =  'rando/Project/Content/Blueprints/Event/Script/SubMission/M050'
+M050_EM2410_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M050/EM2410'
 SHOP_EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/ShopEvent'
 M061_EM1640_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM1640'
 M061_EM1710_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM1710'
@@ -260,7 +261,10 @@ SCRIPT_FOLDERS = {
     'MM_M107_EM1825_Dev651': M030_FOLDER,  #Demi-Fiend (Post Fight)
     'MM_M107_EM1825_Direct': M030_FOLDER,  #Demi-Fiend (End of Fight)
     'MM_M107_EM1825_Hit': M030_FOLDER,  #Demi-Fiend (Fight/Join Prompt)
-    
+    'MM_M036_EM1481': M036_FOLDER, # The Seraph's Return
+    'MM_M035_EM1491': M035_FOLDER, # The Red Dragon's Invitation
+    'MM_M201_EM2411': M050_EM2410_FOLDER, # Turbo Granny Quest
+
     'LV_E0660': DESIGN_EVENT_FOLDER, #Arioch Cutscene Test
     'LV_E0180': DESIGN_EVENT_FOLDER, #Triple Preta Cutscene
     'LV_E0330': DESIGN_EVENT_FOLDER, #Snake Nuwa Pre-fight Cutscene
