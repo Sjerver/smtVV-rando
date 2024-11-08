@@ -41,6 +41,7 @@ SUBMISSION_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission'
 MAINMISSION_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission'
 MAINMISSION_M061_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission_M061' 
 M061_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061'
+M061_EM0150_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM0150'
 M062_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062'
 M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M060'  
 M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M063'  
@@ -55,6 +56,11 @@ M050_EM2410_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M
 SHOP_EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/ShopEvent'
 M061_EM1640_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM1640'
 M061_EM1710_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM1710'
+M061_EM2020_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2020'
+M061_EM2030_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2030'
+M061_EM2040_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2040'
+M061_EM2240_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2240'
+M061_EM2380_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2380'
 M060_EM2700_FODLER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M060/EM2700'
 GARDEN_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/Garden'
 MINATO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m061'
@@ -264,6 +270,29 @@ SCRIPT_FOLDERS = {
     'MM_M036_EM1481': M036_FOLDER, # The Seraph's Return
     'MM_M035_EM1491': M035_FOLDER, # The Red Dragon's Invitation
     'MM_M201_EM2411': M050_EM2410_FOLDER, # Turbo Granny Quest
+    'MM_M061_EM0021': M061_FOLDER, # Eligor and Andras Event
+    'MM_M061_EM1031': M061_FOLDER,  #Pazuzu Event Mermaid Quest
+    'MM_M061_EM1041': M061_FOLDER, #Anahita Event Mermaid Quest 2
+    'MM_M061_EM1050_New': M061_FOLDER, #Talisman Hunt (Shiki Ouji)
+    'MM_M061_EM2190': M061_FOLDER, #Halphas Quest(Oni)
+    'MM_M061_EM2531': M061_FOLDER,  #Dormarth Quest (Dormarth)
+    'MM_M061_EM1383': M061_FOLDER,  #Seth Event Battle Dialogue
+    'esNPC_em0150_02': M061_EM0150_FOLDER, # A Preta Predicament (Preta) 
+    'esNPC_em0150_03': M061_EM0150_FOLDER, # A Preta Predicament (Preta) 
+    'esNPC_em0150_04': M061_EM0150_FOLDER, # A Preta Predicament (Preta)
+    'esNPC_em0150_05': M061_EM0150_FOLDER, # A Preta Predicament (Preta)
+    'esNPC_em0150_06': M061_EM0150_FOLDER, # A Preta Predicament (Preta) 
+    'MM_M061_EM0151': M061_EM0150_FOLDER, # A Preta Predicament (Preta)
+    'MM_M061_EM0152': M061_EM0150_FOLDER, # A Preta Predicament (Preta)
+    'MM_M061_EM0154': M061_EM0150_FOLDER, # A Preta Predicament (Preta)
+    'MM_M061_EM1710': M061_EM1710_FOLDER, # Movin' on Up
+    'MM_M061_EM2020': M061_EM2020_FOLDER, # Nozuchi Quest
+    'MM_M061_EM2030': M061_EM2030_FOLDER, #Brawny Ambitions
+    'MM_M201_EM2040':M061_EM2040_FOLDER, #Pisaca Quest
+    'MM_M061_EM2240':M061_EM2240_FOLDER, #CoV Khonsu Ra Quest
+    'MM_M061_EM2242':M061_EM2240_FOLDER, #CoV Khonsu Ra Quest
+    'MM_M061_EM2245':M061_EM2240_FOLDER, #CoV Khonsu Ra Quest
+    'MM_M061_EM2380':M061_EM2380_FOLDER, #Mo Shuvuu Quest (Andras)
 
     'LV_E0660': DESIGN_EVENT_FOLDER, #Arioch Cutscene Test
     'LV_E0180': DESIGN_EVENT_FOLDER, #Triple Preta Cutscene

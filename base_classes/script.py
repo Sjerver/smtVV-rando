@@ -144,11 +144,33 @@ class Bytecode:
         try:
             index = self.json.index(expression)
         except ValueError:
+            foundExp = False
+            for index,topExp in enumerate(self.json):
+                
+                foundExp = self.checkSubExpressions(topExp,expression)
+                
+                
+                if foundExp:
+                    break
+
+
             #Also occurs if lines are already moved around or replaced
             #print("Nested in another expression")
             #TODO: Find next expression here
-            return None
+            #return None
         return index
+
+    def checkSubExpressions(self,expression,searchExpression):
+        if not expression or not isinstance(expression, dict):
+            #No expression given so return empty list
+            return False
+        if expression == searchExpression:
+            return True
+        for key in ['Value', 'New', 'Expression', 'Variable', 'AssignmentExpression', 'ContextExpression']:
+            subExpression = expression.get(key)
+            if self.checkSubExpressions(subExpression, searchExpression):
+                return True
+        return False
 
     '''
     Replaces the current expression with the newExpression. If followInserts is given, the expression after is removed and in it's place

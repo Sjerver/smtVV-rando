@@ -214,15 +214,42 @@ EVENT_SCRIPT_MODELS = {
     'MM_M036_EM1490': [Demon_Sync(83)], # The Red Dragon's Invitation (Belial)
     'MM_M036_EM1481': [Demon_Sync(83)], # The Seraph's Return (Belial)
 
-    #SubMission M50 (Tokyo Map)
+    #SubMission M050 (Tokyo Map)
     'MM_M201_EM2411': [Demon_Sync(754)], #Turbo Granny Quest (Turbo Granny)
 
     #SubMission M061 (Minato)
+    'MM_M061_EM0021': [Demon_Sync(433),Demon_Sync(434)], #Eligor and Andras Event
+    'MM_M061_EM1031': [Demon_Sync(801)], #Pazuzu Event Mermaid Quest
+    'MM_M061_EM1041': [Demon_Sync(803)], #Anahita Event Mermaid Quest 2
+    'MM_M061_EM1050_New': [Demon_Sync(820)], #Talisman Hunt (Shiki Ouji)
+    'MM_M061_EM1360': [Demon_Sync(861)], #Koumokuten Event Battle Dialogue
+    'MM_M061_EM1383': [Demon_Sync(870)], #Seth Event Battle Dialogue
     'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43)], # The Water Nymph (Leanan (also Apsaras maybe??))
     'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
     'MM_M061_EM1640': [Demon_Sync(43),Demon_Sync(44,869)], # The Spirit of Love (Apsaras, Agathion)
     'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Area Entry (Apsaras)
-    
+    'MM_M061_EM2190': [Demon_Sync(888)], #Halphas Quest (Oni) #TODO:TEST
+    'MM_M061_EM2531': [Demon_Sync(751)], #Dormarth Quest (Dormarth)
+    #'MM_M061_EM2601': [Demon_Sync(32)], #Konohana Sakuya Quest (Konohana Sakuya) #TODO: Softlocks after fight, do not know why
+    'esNPC_em0150_02': [Demon_Sync(889)], # A Preta Predicament (Preta) 
+    'esNPC_em0150_03': [Demon_Sync(889)], # A Preta Predicament (Preta) 
+    'esNPC_em0150_04': [Demon_Sync(889)], # A Preta Predicament (Preta) 
+    'esNPC_em0150_05': [Demon_Sync(889)], # A Preta Predicament (Preta) 
+    'esNPC_em0150_06': [Demon_Sync(889)], # A Preta Predicament (Preta) 
+    'MM_M061_EM0151': [Demon_Sync(889)], # A Preta Predicament (Preta)
+    'MM_M061_EM0152': [Demon_Sync(889)], # A Preta Predicament (Preta) 
+    'MM_M061_EM0154': [Demon_Sync(889)], # A Preta Predicament (Preta)
+
+    'MM_M061_EM1710': [Demon_Sync(888)], # Moving on up (Oni)
+    'MM_M061_EM1715': [Demon_Sync(888)], # Moving on up (Oni) (Oni Outside Event)
+    #'MM_M061_EM2020': [Demon_Sync(752)], #Nozuchi Queset (Nozuchi) #TODO: Softlocks after fight, do not know why
+    'MM_M061_EM2030': [Demon_Sync(117)], #Brawny Ambitions (Zhu Tun She)
+    'MM_M201_EM2040': [Demon_Sync(755)], #Pisaca Quest
+    'MM_M061_EM2240': [Demon_Sync(519),Demon_Sync(566)], #CoV Khonsu Ra Quest (Khonsu Ra, Khonsu) #TODO:TEST
+    'MM_M061_EM2242': [Demon_Sync(561)], #CoV Khonsu Ra Quest (Isis)
+    'MM_M061_EM2245': [Demon_Sync(566)], #CoV Khonsu Ra Quest (Khonsu)
+    'MM_M061_EM2380': [Demon_Sync(781)], #Mo Shuvuu Quest (Andras)
+
     #SubMission M060 (Taito)
     'MM_M061_EM2705': [Demon_Sync(207)], # The Guardian of Light (Marici)
 }
@@ -265,6 +292,20 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M064_EM1810': [Anim_Sync('06skill_Composite','06skill')], #White Rider Fight Shinjuku
     'MM_M064_EM1812': [Anim_Sync('06skill_Composite','06skill')], #Red Rider Fight Shinjuku
     'MM_M064_EM1814': [Anim_Sync('06skill_a','06skill'),Anim_Sync('06skill_b','06skill'),Anim_Sync('06skill_c','06skill'),Anim_Sync('06skill_d','06skill')], #Black Rider Fight Shinjuku
+    'MM_M061_EM0021': [Anim_Sync('09skill_d','06skill'),Anim_Sync('08skill_c','06skill')], #Eligor and Andras Event
+    'MM_M061_EM1031': [Anim_Sync('09skill_d','06skill'),Anim_Sync('08skill_c','06skill')], #Pazuzu Event Mermaid Quest
+    'MM_M061_EM1041': [Anim_Sync('02idleB','05attack')], #Anahita Event Mermaid Quest 2
+    'esNPC_em0150_02': [Anim_Sync('map/700002_event_idle','03dmg')], # A Preta Predicament (Preta) 
+    'esNPC_em0150_03': [Anim_Sync('map/700003_event_idle','04dying')], # A Preta Predicament (Preta)
+    'esNPC_em0150_04': [Anim_Sync('map/700005_event_idle','11run')], # A Preta Predicament (Preta)
+    'esNPC_em0150_05': [Anim_Sync('map/700007_event_idle','51yes')], # A Preta Predicament (Preta)
+    'esNPC_em0150_06': [Anim_Sync('map/700006_event_idle','14command')], # A Preta Predicament (Preta) 
+    'MM_M061_EM0151': [Anim_Sync('map/700000_event_idle','01idleA')], # A Preta Predicament (Preta)
+    'MM_M061_EM0152': [Anim_Sync('map/700006_event_idle','14command'),Anim_Sync('map/700007_event_idle','51yes'),Anim_Sync('map/700005_event_idle','11run'),Anim_Sync('map/700003_event_idle','04dying'),Anim_Sync('map/700002_event_idle','03dmg')], # A Preta Predicament (Preta) event idles 2,3,4,5,6,7,8,9
+    'MM_M061_EM0154': [Anim_Sync('map/700005_event_idle','11run')], # A Preta Predicament (Preta) event idle 5
+    'MM_M061_EM1710': [Anim_Sync('map/700000_event_idle', '01idleA')], # Moving on up (Oni)
+    'MM_M061_EM1715': [Anim_Sync('07skill_b','06skill')], # Moving on up (Oni) (Oni Outside Event)
+    'MM_M061_EM2020': [Anim_Sync('map/700010_jitabata','11run')], # Nozuchi Quest
 }
 
 #For bosses that do not use their own model, which model they should use instead
@@ -287,6 +328,7 @@ MODEL_SYNC = {
     489: 272, # Andras (School Copy)
     490: 272, # Andras (School Copy)
     443: 272, # Andras (School)
+    434: 272, # Andras (With Eligor)
     517: 120, # Anubis (CoC Summon)
     439: 287, # Anzu (Jozoji)
     728: 287, # Anzu (Single Abcess)
@@ -390,6 +432,7 @@ MODEL_SYNC = {
     501: 302, # Manananggal (School Copy) with 448 Shiki Ouji
     447: 302, # Manananggal (School)
     705: 45, # Mandrake
+    893: 77, #Mara (Virtual Trainer)
     842: 30, # Maria
     783: 207, # Marici
     784: 207, # Conquering Mirage
@@ -766,8 +809,11 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
             nameEntry = nameEntry.replace(oldFolderPrefix + oldPrefixVariant + oldIDString, newFolderPrefix + newPrefixVariant +newIDString).replace(oldPrefixVariant + oldIDString, newPrefixVariant +newIDString)
             if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
                 nameEntry = nameEntry.replace("_Simple","")
-        if oldName in name:
+        if oldName in name and ("Character" in name or "Anim" in name): #to prevent stuff like replacing set(seth) in LoadAsset
+            #print(nameEntry)
             nameEntry = nameEntry.replace(oldName,newName)
+        # elif oldName in name:
+        #     print("EXTRA CHECK Necessary? " + nameEntry)
         if "Anim/" in name or name[:3] == "AN_":
             nameEntry = replaceNonExistentAnimations(script, nameEntry,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
         file.setNameAtIndex(index,nameEntry)
@@ -782,9 +828,11 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     #Adjust cases where demon ID is in function call
     for index,func in enumerate(file.relevantFunctionNames):
         for exp in file.relevantFunctionExps[index]:
-            modelValue = exp['Parameters'][1].get('Value')
-            if modelValue == ogDemonID: #Only change demonID for the oldDemon
-                exp['Parameters'][1]['Value'] = replacementDemonID
+            if func == "BPL_AdjustMapSymbolScale":
+                modelValue = exp['Parameters'][1].get('Value')
+                if modelValue == ogDemonID: #Only change demonID for the oldDemon
+                    newExpression = bytecode.json[bytecode.getIndex(exp)]['ContextExpression']
+                    newExpression['Parameters'][1]['Value'] = replacementDemonID
 
     # get serialized bytecode to calculate statement indeces
     serializedByteCode = file.getSerializedScriptBytecode(file.exportIndex,jsonData)
@@ -835,7 +883,11 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                 originalLength = len(stringValue)
                 #create new string here for calculation of lenghtDifference
                 newString = replaceOldIDinString(stringValue).replace(oldName,newName)
-
+                if ("/Blueprints/Character" in stringValue or "_C" in stringValue):
+                    newString = replaceNonExistentAnimations(script, newString,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
+                else:
+                    newString = replaceNonExistentAnimations(script, newString,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)#exp['Parameters'][1]['Value']['Value'] = stringValue
+                    
                 if imp == "LoadAssetClass" and "Simple" in newString and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
                     newString = newString.replace("_Simple","")
 
@@ -853,7 +905,7 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                     #length is the same so can swap name and anim
                     stringValue = stringValue.replace(oldName,newName)
                     if ("/Blueprints/Character" in stringValue or "_C" in stringValue):
-                        stringValue = replaceNonExistentAnimations(script, newString,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
+                        stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
                     else:
                         stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)#exp['Parameters'][1]['Value']['Value'] = stringValue
                     if imp == "LoadAssetClass" and "Simple" in stringValue and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
