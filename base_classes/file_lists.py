@@ -61,6 +61,9 @@ M061_EM2030_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M
 M061_EM2040_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2040'
 M061_EM2240_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2240'
 M061_EM2380_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2380'
+M062_EM1650_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM1650'
+M062_EM2110_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2110'
+M062_EM2440_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2440'
 M060_EM2700_FODLER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M060/EM2700'
 GARDEN_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/Garden'
 MINATO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m061'
@@ -293,6 +296,25 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM2242':M061_EM2240_FOLDER, #CoV Khonsu Ra Quest
     'MM_M061_EM2245':M061_EM2240_FOLDER, #CoV Khonsu Ra Quest
     'MM_M061_EM2380':M061_EM2380_FOLDER, #Mo Shuvuu Quest (Andras)
+    'MM_M062_EM1141': M062_FOLDER, #Kumbhanda Bottle Quest
+    'MM_M062_EM1151_Hit': M062_FOLDER, #A Goddess Stolen
+    'MM_M062_EM1160': M062_FOLDER, #The Tyrant of Tennozu (Demeter)
+    'MM_M062_EM1161_A': M062_FOLDER, #The Tyrant of Tennozu  (Belphegor)
+    'MM_M062_EM1181': M062_FOLDER, #King Frost Quest (King Frost)
+    'MM_M062_EM1331': M062_FOLDER, #Lord's Sword Quest (Arahabaki)
+    'MM_M062_EM1401': M062_FOLDER, #Khonsu Ra CoC Quest (Khonsu Ra, Khonsu)
+    'MM_M062_EM1402': M062_FOLDER, #Khonsu Ra CoC Quest (Khonsu Ra, Khonsu)
+    'MM_M062_EM2040': M062_FOLDER, #Pisaca Quest part 1 (Anahita)
+    'MM_M062_EM2090': M062_FOLDER, #Yuzuru Supply Run Quest (Yuzuru, Hayataro)
+    'MM_M062_EM2490': M062_FOLDER, #Brawny Ambitions II (Xiezhai)
+    'esNPC_em1650_01': M062_EM1650_FOLDER,  # Lilim/Principality Quest NPCs (Lilim)
+    'esNPC_em1650_02': M062_EM1650_FOLDER,  # Lilim/Principality Quest NPCs (Lilim)
+    'esNPC_em1650_03': M062_EM1650_FOLDER,  # Lilim/Principality Quest NPCs (Lilim)
+    'esNPC_em1650_04': M062_EM1650_FOLDER,  # Lilim/Principality Quest NPCs (Lilim)
+    'esNPC_em1650_05': M062_EM1650_FOLDER,  # Lilim/Principality Quest NPCs (Lilim)
+    'esNPC_em1650_06': M062_EM1650_FOLDER,  # Lilim/Principality Quest NPCs (Lilim) 
+    'MM_M062_EM2110_Enemy': M062_EM2110_FOLDER, #Vouivre Quest (Vouivre) 
+    'MM_M062_EM2440': M062_EM2440_FOLDER, #Amanozako Control Quest(Yakshini)
 
     'LV_E0660': DESIGN_EVENT_FOLDER, #Arioch Cutscene Test
     'LV_E0180': DESIGN_EVENT_FOLDER, #Triple Preta Cutscene

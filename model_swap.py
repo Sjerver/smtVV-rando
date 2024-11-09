@@ -239,16 +239,41 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_EM0151': [Demon_Sync(889)], # A Preta Predicament (Preta)
     'MM_M061_EM0152': [Demon_Sync(889)], # A Preta Predicament (Preta) 
     'MM_M061_EM0154': [Demon_Sync(889)], # A Preta Predicament (Preta)
-
     'MM_M061_EM1710': [Demon_Sync(888)], # Moving on up (Oni)
     'MM_M061_EM1715': [Demon_Sync(888)], # Moving on up (Oni) (Oni Outside Event)
     #'MM_M061_EM2020': [Demon_Sync(752)], #Nozuchi Queset (Nozuchi) #TODO: Softlocks after fight, do not know why
     'MM_M061_EM2030': [Demon_Sync(117)], #Brawny Ambitions (Zhu Tun She)
     'MM_M201_EM2040': [Demon_Sync(755)], #Pisaca Quest
     'MM_M061_EM2240': [Demon_Sync(519),Demon_Sync(566)], #CoV Khonsu Ra Quest (Khonsu Ra, Khonsu) #TODO:TEST
-    'MM_M061_EM2242': [Demon_Sync(561)], #CoV Khonsu Ra Quest (Isis)
+    'MM_M061_EM2242': [Demon_Sync(579)], #CoV Khonsu Ra Quest (Isis)
     'MM_M061_EM2245': [Demon_Sync(566)], #CoV Khonsu Ra Quest (Khonsu)
     'MM_M061_EM2380': [Demon_Sync(781)], #Mo Shuvuu Quest (Andras)
+
+    #SubMission M062 (Shinagawa)
+    'MM_M062_EM1141': [Demon_Sync(809)], #Kumbhanda Bottle Quest (Kumbhanda)
+    'MM_M062_EM1151_Hit': [Demon_Sync(810)], #A Goddess Stolen (Loki)
+    'MM_M062_EM1160': [Demon_Sync(19)], #The Tyrant of Tennozu (Demeter)
+    'MM_M062_EM1161_A': [Demon_Sync(804)], #The Tyrant of Tennozu  (Belphegor) #TODO: Mandrake was in the ground? Talking still possible
+    'MM_M062_EM1181': [Demon_Sync(821)], #King Frost Quest (King Frost) 
+    'MM_M062_EM1331': [Demon_Sync(828)],#Lord's Sword Quest (Arahabaki)  #TODO
+    'MM_M062_EM1340': [Demon_Sync(860)], #Zouchouten Event Battle  #TODO
+    'MM_M062_EM1401': [Demon_Sync(519),Demon_Sync(516)], #Khonsu Ra CoC Quest (Khonsu Ra, Khonsu)  #TODO
+    'MM_M062_EM1402': [Demon_Sync(519),Demon_Sync(516)], #Khonsu Ra CoC Quest (Khonsu Ra, Khonsu)  #TODO
+    'MM_M062_EM1650': [Demon_Sync(67)], # Lilim/Principality Quest (Lilim)
+    'MM_M062_EM1660': [Demon_Sync(257)], # Lilim/Principality Quest (Principality)
+    'MM_M062_EM2040': [Demon_Sync(803)], #Pisaca Quest part 1 (Anahita)  #TODO: where is this event even?
+    'MM_M062_EM2090': [Demon_Sync(561),Demon_Sync(562)],  #Yuzuru Supply Run Quest (Yuzuru, Hayataro) 
+    'MM_M062_EM2490': [Demon_Sync(122)], #Brawny Ambitions II (Xiezhai)
+
+    'esNPC_em1650_01': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) #TODO
+    'esNPC_em1650_02': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) 
+    'esNPC_em1650_03': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) 
+    'esNPC_em1650_04': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim)
+    'esNPC_em1650_05': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) 
+    'esNPC_em1650_06': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim)
+    'MM_M062_EM2110_Enemy': [Demon_Sync(769)], #Vouivre Quest (Vouivre) 
+    'MM_M062_EM2440': [Demon_Sync(768)], #Amanozako Control Quest(Yakshini)
+
 
     #SubMission M060 (Taito)
     'MM_M061_EM2705': [Demon_Sync(207)], # The Guardian of Light (Marici)
@@ -306,6 +331,12 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M061_EM1710': [Anim_Sync('map/700000_event_idle', '01idleA')], # Moving on up (Oni)
     'MM_M061_EM1715': [Anim_Sync('07skill_b','06skill')], # Moving on up (Oni) (Oni Outside Event)
     'MM_M061_EM2020': [Anim_Sync('map/700010_jitabata','11run')], # Nozuchi Quest
+    'MM_M061_EM1650': [Anim_Sync('02idleB','05attack')], # Lilim/Principality Quest (Lilim)
+    'esNPC_em1650_02': [Anim_Sync('map/700003_event_idle','03dmg')], # Lilim/Principality Quest NPCs (Lilim) 
+    'esNPC_em1650_03': [Anim_Sync('map/700001_event_idle','11run')], # Lilim/Principality Quest NPCs (Lilim)
+    'esNPC_em1650_04': [Anim_Sync('map/700004_event_idle','14command')], # Lilim/Principality Quest NPCs (Lilim)
+    'esNPC_em1650_05': [Anim_Sync('map/700002_event_idle','51yes')], # Lilim/Principality Quest NPCs (Lilim)
+    'esNPC_em1650_06': [Anim_Sync('map/700000_event_idle','04dying')], # Lilim/Principality Quest NPCs (Lilim) 
 }
 
 #For bosses that do not use their own model, which model they should use instead
@@ -346,6 +377,7 @@ MODEL_SYNC = {
     738: 113, # Basilisk
     483: 81, # Beelzebub
     840: 83, # Belial
+    804: 86, #Belphegor
     859: 203, # Bishamonten (2 Turn)
     863: 203, # Bishamonten (4 Turn)
     773: 171, # Black Ooze
@@ -399,6 +431,7 @@ MODEL_SYNC = {
     858: 204, # Jikokuten
     862: 204, # Jikokuten (4 Turn)
     607: 66, # Kaiwan
+    821: 87, #King Frost
     516: 7, # Khonsu (CoC)
     566: 7, # Khonsu (CoV)
     519: 15, # Khonsu Ra
@@ -830,6 +863,7 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         for exp in file.relevantFunctionExps[index]:
             if func == "BPL_AdjustMapSymbolScale":
                 modelValue = exp['Parameters'][1].get('Value')
+                #print(modelValue)
                 if modelValue == ogDemonID: #Only change demonID for the oldDemon
                     newExpression = bytecode.json[bytecode.getIndex(exp)]['ContextExpression']
                     newExpression['Parameters'][1]['Value'] = replacementDemonID
