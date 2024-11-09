@@ -253,7 +253,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M062_EM1141': [Demon_Sync(809)], #Kumbhanda Bottle Quest (Kumbhanda)
     'MM_M062_EM1151_Hit': [Demon_Sync(810)], #A Goddess Stolen (Loki)
     'MM_M062_EM1160': [Demon_Sync(19)], #The Tyrant of Tennozu (Demeter)
-    'MM_M062_EM1161_A': [Demon_Sync(804)], #The Tyrant of Tennozu  (Belphegor) #TODO: Mandrake was in the ground? Talking still possible
+    'MM_M062_EM1161_A': [Demon_Sync(804)], #The Tyrant of Tennozu  (Belphegor)
     'MM_M062_EM1181': [Demon_Sync(821)], #King Frost Quest (King Frost) 
     'MM_M062_EM1331': [Demon_Sync(828)],#Lord's Sword Quest (Arahabaki)  #TODO
     'MM_M062_EM1340': [Demon_Sync(860)], #Zouchouten Event Battle  #TODO
@@ -264,8 +264,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M062_EM2040': [Demon_Sync(803)], #Pisaca Quest part 1 (Anahita)  #TODO: where is this event even?
     'MM_M062_EM2090': [Demon_Sync(561),Demon_Sync(562)],  #Yuzuru Supply Run Quest (Yuzuru, Hayataro) 
     'MM_M062_EM2490': [Demon_Sync(122)], #Brawny Ambitions II (Xiezhai)
-
-    'esNPC_em1650_01': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) #TODO
+    'esNPC_em1650_01': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) 
     'esNPC_em1650_02': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) 
     'esNPC_em1650_03': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) 
     'esNPC_em1650_04': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim)
@@ -274,9 +273,74 @@ EVENT_SCRIPT_MODELS = {
     'MM_M062_EM2110_Enemy': [Demon_Sync(769)], #Vouivre Quest (Vouivre) 
     'MM_M062_EM2440': [Demon_Sync(768)], #Amanozako Control Quest(Yakshini)
 
+    #SubMission M063 (Chiyoda)
+    'MM_M063_EM1210': [Demon_Sync(824),Demon_Sync(826)], #Oyamatsumi Quest (Take-Minakata,Oyamatsumi)
+    'MM_M063_EM1211': [Demon_Sync(826)], #Oyamatsumi Quest (Oyamatsumi)
+    #'MM_M063_EM1250': [Demon_Sync(822)],#Kunitsukami Fight Quest (Okuninushi) #TODO:Post fight softlock
+    'MM_M063_EM1251': [Demon_Sync(823)],#Kunitsukami Fight Quest (Sukuna Hikona)
+    'MM_M063_EM1260': [Demon_Sync(19)], #Demeter Defeat Chimera (Demeter) #TODO Test
+    'MM_M063_EM1281': [Demon_Sync(814)], #The Archangel of Destruction (Camael)
+    'MM_M063_EM1291': [Demon_Sync(816)], #Roar of Hatred (Moloch) #TODO Test
+    'MM_M063_EM1350': [Demon_Sync(861)], #Koumokuten Event Battle #TODO Test
+    'MM_M063_EM1592': [Demon_Sync(876)], #Berserk Amanozako Quest (Amanozako Runaway) 
+    'MM_M063_EM1670': [Demon_Sync(72)], #Black Frost Dionysus Quest (Black Frost) 
+    'MM_M063_EM1680': [Demon_Sync(183)], #Black Frost Dionysus Quest (Dionysus)
+    'MM_M063_EM2170': [Demon_Sync(227)], #Masakado Quest #TODO Test
+    'MM_M063_EM2580': [Demon_Sync(776)], #Yoshitsune Haunt Quest (Atavaka)
+
+    #SubMission M064 (Shinjuku)
+    'MM_M064_EM1260': [Demon_Sync(19)], #Demeter Defeat Chimera Shinjuku (Demeter)
+    'MM_M064_EM1261': [Demon_Sync(812)], #Demeter Defeat Chimera Shinjuku (Chimera)
+    'MM_M064_EM1281': [Demon_Sync(814)], #The Archangel of Destruction Shinjuku(Camael)
+    'MM_M064_EM1291': [Demon_Sync(816)], #Roar of Hatred Shinjuku(Moloch)
+    'MM_M064_EM1391': [Demon_Sync(829),Demon_Sync(830)], #Winged Sun (Mithras, Asura) #TODO Test
+    'MM_M064_EM2130': [Demon_Sync(41), Demon_Sync(386)], #Basilisk Hunt Quest (Anansi, Onyankopon)
+    'MM_M064_EM2131': [Demon_Sync(41)], #Basilisk Hunt Quest (Anansi)
+    'MM_M064_EM2270': [Demon_Sync(40)], #Kresnik Kudlak Quest (Kresnik) 
+    'MM_M064_EM2280': [Demon_Sync(346)], #Kresnik Kudlak Quest (Kudlak)
+    'MM_M064_EM2310': [Demon_Sync(386, 770), Demon_Sync(41)], #Onyakopon Anansi Quest (Onyakopon Side)
+    'MM_M064_EM2320': [Demon_Sync(41, 771), Demon_Sync(386)], #Onyakopon Anansi Quest (Anansi Side)
+    'MM_M064_EM2400': [Demon_Sync(596)], #Samael Quest (Mastema) #TODO Test
+    'MM_M064_EM2402': [Demon_Sync(760)], #Samael Quest (Samael) #TODO Test
+    'MM_M064_EM2421_Direct': [Demon_Sync(681)], #Satan Quest (Satan) #TODO Test
+    'MM_M064_EM2461': [Demon_Sync(892)], #Mara Quest (Mara) #TODO Test
+    'MM_M064_EM2500': [Demon_Sync(215)], #Brawny Ambitions III (Okuninushi) #TODO Test
+    'MM_M064_EM2552': [Demon_Sync(509)], #MadGasser Quest (Zhen (3xCopy))
+    'MM_M064_EM2621': [Demon_Sync(775)], #Orochi Quest (Orochi) #TODO Test
 
     #SubMission M060 (Taito)
+    'MM_M060_EM1370': [Demon_Sync(863)], #Bishamonten Event Battle #TODO Test
+    'MM_M060_EM1381': [Demon_Sync(516)], #Khonsu CoC Quest (Khonsu) #TODO Test
+    'MM_M060_EM1390': [Demon_Sync(831),Demon_Sync(516)], #Winged Sun CoC (Amon,Khonsu) #TODO Test 
+    'MM_M060_EM1390_NewRoute': [Demon_Sync(831)], #Winged Sun CoV (Amon) #TODO Test
+    'MM_M060_EM1391': [Demon_Sync(829),Demon_Sync(830)], #Winged Sun CoC(Mithras, Asura) #TODO Test
+    'MM_M060_EM1420': [Demon_Sync(35)], #Fionn 2 Quest (Fionn) #TODO Test
+    'MM_M060_EM1431': [Demon_Sync(836),Demon_Sync(834),Demon_Sync(835)], #Holy Ring Quest (Uriel, Raphael,Gabriel) #TODO
+    'MM_M060_EM1440': [Demon_Sync(19)], #Baal Quest (Demeter) #TODO TestTest
+    'MM_M060_EM1441': [Demon_Sync(837)], #Baal Quest (Baal) #TODOTest
+    'MM_M060_EM1460': [Demon_Sync(839)], #The Gold Dragon's Arrival (Huang Long) #TODO Test
+    'MM_M060_EM1600': [Demon_Sync(878)],  #Final Amanozako Quest (Kurama Tengu) 
+    'MM_M060_EM1601': [Demon_Sync(878),Demon_Sync(38),Demon_Sync(877)], #Final Amanozako Quest (Kurama Tengu,Amanozako, Zaou Gongen)
+    'MM_M060_EM1602': [Demon_Sync(38)],  #Final Amanozako Quest (Amanozako) 
+    'MM_M060_EM1690': [Demon_Sync(265)],  #Adramelech Futsunushi Quest (Adramalech) 
+    'MM_M060_EM1700': [Demon_Sync(201)],  #Adramelech Futsunushi Quest (Futsunushi) 
+    'MM_M060_EM2371': [Demon_Sync(865)],  #Garuda Quest (Garuda) #TODO Test
+    'MM_M060_EM2570': [Demon_Sync(22, 779)], #Moirae Haunt Quest (Norn)
+    'MM_M060_EM2630': [Demon_Sync(782)],  #Saturnus Quest(Saturnus) #TODO Test
     'MM_M061_EM2705': [Demon_Sync(207)], # The Guardian of Light (Marici)
+
+    #Garden SubMission
+    'MM_M060_EM2351': [Demon_Sync(778)],  #Idun Haunt Quest (Thor) #TODO Test
+
+    #NPCs
+    'BP_es035_m063_01': [Demon_Sync(35)],#Fionn area 3 (Fionn) #TODO Test
+    'BP_es152_m062_01': [Demon_Sync(152)],#Hayataro area 2 (Hayataro) #TODO Test
+    'BP_es152_m063_01': [Demon_Sync(152)],#Hayataro area 3 (Hayataro) #TODO Test
+    'BP_es416_m060_01': [Demon_Sync(75, 435)],#Nuwa in Area 4 #TODO Test
+    'BP_es618_m060_01': [Demon_Sync(465)],#Yakumo in Area 4 #TODO Test
+    'BP_es418_m063_01': [Demon_Sync(75, 435)],#Nuwa in Area 3 #TODO Test
+    'BP_es618_m063_01': [Demon_Sync(465)],#Yakumo in Area 3 #TODO Test
+
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -337,6 +401,18 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'esNPC_em1650_04': [Anim_Sync('map/700004_event_idle','14command')], # Lilim/Principality Quest NPCs (Lilim)
     'esNPC_em1650_05': [Anim_Sync('map/700002_event_idle','51yes')], # Lilim/Principality Quest NPCs (Lilim)
     'esNPC_em1650_06': [Anim_Sync('map/700000_event_idle','04dying')], # Lilim/Principality Quest NPCs (Lilim) 
+    'MM_M063_EM1210': [Anim_Sync('06skill_Composite','06skill')], #Kunitsu Quest (Take-Minakata,Oyamatsumi)
+    'MM_M063_EM1281': [Anim_Sync('21skillB','06skill')],#The Archangel of Destruction (Camael)
+    'MM_M062_EM1680': [Anim_Sync('06skill_Composite','06skill')],#Black Frost Dionysus Quest (Dionysus)
+    'MM_M064_EM1281': [Anim_Sync('21skillB','06skill')],#The Archangel of Destruction Shinjuku (Camael)
+    'MM_M064_EM2130': [Anim_Sync('02idleB','05attack'),Anim_Sync('map/700020_stick','14command'),Anim_Sync('map/700010_laugh','14command')], #Basilisk Hunt Quest (Anansi, Onyankopon)
+    'MM_M064_EM2310': [Anim_Sync('02idleB','05attack')],#Onyakopon Anansi Quest (Onyakopon Side)
+    'MM_M064_EM2400': [Anim_Sync('13skill_ex2','06skill')], #Samael Quest (Mastema)
+    'MM_M064_EM2421_Direct': [Anim_Sync('13skill_ex3_Composite','05attack')], #Satan Quest (Satan)
+    'MM_M064_EM2552': [Anim_Sync('map/700002_event_idle','11run'),Anim_Sync('map/700000_event_idle','02idleB'),Anim_Sync('map/700001_event_notice','05attack')], #MadGasser Quest (Zhen (3xCopy))
+    'MM_M060_EM1381': [Anim_Sync('09skill_d','06skill'),Anim_Sync('09skill_c','06skill'),Anim_Sync('02idleB','14command')], #Winge Sun CoC (Amon,Khonsu)
+    'MM_M060_EM1420': [Anim_Sync('Map/700002_event_idle','14command'),Anim_Sync('Map/700000_event_idle','51yes')], #Fionn 2 Quest (Fionn)
+    'MM_M060_EM1440': [Anim_Sync('02idleB','14command')], #Baal Quest (Demeter)
 }
 
 #For bosses that do not use their own model, which model they should use instead
@@ -383,6 +459,7 @@ MODEL_SYNC = {
     773: 171, # Black Ooze
     926: 352, # Black Rider
     814: 248, # Camael
+    812: 127, # Chimera
     466: 182, # Chernobog
     486: 260, # Cherub
     931: 295, # Cleopatra
@@ -415,6 +492,7 @@ MODEL_SYNC = {
     562: 152, # Hayataro
     923: 356, # Hell Biker
     864: 13, # Horus
+    839: 94, # Huang Long
     844: 189, # Inanna
     495: 68, # Incubus (School Copy)
     496: 68, # Incubus (School Copy) with 489 Andras
@@ -465,6 +543,7 @@ MODEL_SYNC = {
     501: 302, # Manananggal (School Copy) with 448 Shiki Ouji
     447: 302, # Manananggal (School)
     705: 45, # Mandrake
+    892: 77, #Mara (Punishing)
     893: 77, #Mara (Virtual Trainer)
     842: 30, # Maria
     783: 207, # Marici
@@ -485,6 +564,7 @@ MODEL_SYNC = {
     830: 88, # Mithras
     625: 11, # Mitra
     928: 351, # Mother Harlot
+    816: 85, #Moloch
     722: 289, # Muu Shuwuu
     553: 393, # Naamah
     554: 393, # Naamah (with GL)
@@ -506,6 +586,7 @@ MODEL_SYNC = {
     817: 139, # Orobas (With Moloch)
     726: 135, # Orthrus
     475: 269, # Ose (Summon)
+    826: 212, # Oyamatsumi (Punishing)
     825: 212, # Oyamatsumi (With Kunitsu)
     927: 358, # Pale Rider
     801: 233, # Pazuzu
@@ -837,7 +918,7 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
             nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
             if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
                 nameEntry = nameEntry.replace("_Simple","")
-        elif oldIDString in name: #to just get the model names since sometimes DevXXX or devXXX
+        elif oldIDString in name and not "Spawn" in name: #to just get the model names since sometimes DevXXX or devXXX
             nameEntry = nameEntry.replace(oldFolderPrefix + oldPrefix + oldIDString, newFolderPrefix + newPrefix +newIDString).replace(oldPrefix + oldIDString, newPrefix +newIDString)
             nameEntry = nameEntry.replace(oldFolderPrefix + oldPrefixVariant + oldIDString, newFolderPrefix + newPrefixVariant +newIDString).replace(oldPrefixVariant + oldIDString, newPrefixVariant +newIDString)
             if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
@@ -865,8 +946,9 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                 modelValue = exp['Parameters'][1].get('Value')
                 #print(modelValue)
                 if modelValue == ogDemonID: #Only change demonID for the oldDemon
-                    newExpression = bytecode.json[bytecode.getIndex(exp)]['ContextExpression']
-                    newExpression['Parameters'][1]['Value'] = replacementDemonID
+                    newExpression = bytecode.json[bytecode.getIndex(exp)]
+                    #print(newExpression['$type'])
+                    newExpression['ContextExpression']['Parameters'][1]['Value'] = replacementDemonID
 
     # get serialized bytecode to calculate statement indeces
     serializedByteCode = file.getSerializedScriptBytecode(file.exportIndex,jsonData)

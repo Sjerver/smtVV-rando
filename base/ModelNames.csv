@@ -306,18 +306,18 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 502,surtr1_big,Surt,454,FALSE
 503,surtr2_big,Surt,-1,FALSE
 504,abaddon_big,Abaddon,832,FALSE
-505,moloch_big,Moloch,816,FALSE
+505,moloch_big,Moloch,-1,FALSE
 506,belphegor_big,Belphegor,-1,FALSE
-507,koyru_big,Huang Long,839,FALSE
-508,chimera_big,Chimera,812,FALSE
+507,koyru_big,Huang Long,-1,FALSE
+508,chimera_big,Chimera,-1,FALSE
 509,arahabaki_big,Arahabaki,828,FALSE
-510,ooyamatumi_big,Oyamatsumi,826,FALSE
+510,ooyamatumi_big,Oyamatsumi,-1,FALSE
 511,girimekara_big,Girimekhala,827,FALSE
 512,thunderbird_big,Thunderbird,808,FALSE
 513,hekatoncheir_big,Hecatoncheires,813,FALSE
 514,kingfrost_big,King Frost,-1,FALSE
 515,jaakufrost_big,Black Frost,882,FALSE
-516,maare_big,Mara,892,FALSE
+516,maare_big,Mara,-1,FALSE
 517,gurr_big,Gurulu,891,FALSE
 518,gogmagog_big,Gogmagog,890,FALSE
 519,glasyalabolas_big,Glasya-Labolas,552,FALSE

@@ -64,6 +64,7 @@ M061_EM2380_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M
 M062_EM1650_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM1650'
 M062_EM2110_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2110'
 M062_EM2440_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2440'
+M064_EM2620_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M064/EM2620'
 M060_EM2700_FODLER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M060/EM2700'
 GARDEN_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/Garden'
 MINATO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m061'
@@ -91,6 +92,11 @@ MAIN_M092_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M0
 MAIN_M115_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M115'
 MAIN_M203_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M203'
 DESIGN_EVENT_FOLDER = 'rando/Project/Content/Design/Event/'
+ES035_M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es035_m063'
+ES152_M062_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es152_m062'
+ES152_M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es152_m063'
+ES618_M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es618_m063'
+ES618_M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es618_m060'
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
@@ -315,7 +321,50 @@ SCRIPT_FOLDERS = {
     'esNPC_em1650_06': M062_EM1650_FOLDER,  # Lilim/Principality Quest NPCs (Lilim) 
     'MM_M062_EM2110_Enemy': M062_EM2110_FOLDER, #Vouivre Quest (Vouivre) 
     'MM_M062_EM2440': M062_EM2440_FOLDER, #Amanozako Control Quest(Yakshini)
-
+    'MM_M063_EM1210': M063_FOLDER, #Oyamatsumi Quest (Take-Minakata,Oyamatsumi)
+    'MM_M063_EM1211': M063_FOLDER, #Oyamatsumi Quest (Oyamatsumi)
+    'MM_M063_EM1250': M063_FOLDER,#Kunitsukami Fight Quest (Okuninushi)
+    'MM_M063_EM1251': M063_FOLDER,#Kunitsukami Fight Quest (Sukuna Hikona)
+    'MM_M063_EM1260': M063_FOLDER, #Demeter Defeat Chimera (Demeter)
+    'MM_M063_EM1281': M063_FOLDER, #The Archangel of Destruction (Camael)
+    'MM_M063_EM1291': M063_FOLDER, #Roar of Hatred (Moloch)
+    'MM_M063_EM1592': M063_FOLDER, #Berserk Amanozako Quest (Amanozako Runaway)
+    'MM_M063_EM2170': M063_FOLDER, #Masakado Quest
+    'MM_M063_EM2580': M063_FOLDER, #Yoshitsune Haunt Quest (Atavaka)
+    'MM_M064_EM1260': M064_FOLDER, #Demeter Defeat Chimera Shinjuku (Demeter)
+    'MM_M064_EM1261': M064_FOLDER, #Demeter Defeat Chimera Shinjuku (Chimera)
+    'MM_M064_EM1281': M064_FOLDER, #The Archangel of Destruction Shinjuku(Camael)
+    'MM_M064_EM1291': M064_FOLDER, #Roar of Hatred Shinjuku(Moloch)
+    'MM_M064_EM1391': M064_FOLDER, #Winged Sun (Mithras, Asura)
+    'MM_M064_EM2130': M064_FOLDER, #Basilisk Hunt Quest (Anansi, Onyankopon)
+    'MM_M064_EM2131': M064_FOLDER, #Basilisk Hunt Quest (Anansi)
+    'MM_M064_EM2400': M064_FOLDER, #Samael Quest (Mastema)
+    'MM_M064_EM2402': M064_FOLDER, #Samael Quest (Samael)
+    'MM_M064_EM2421_Direct': M064_FOLDER, #Satan Quest (Satan)
+    'MM_M064_EM2461': M064_FOLDER, #Mara Quest (Mara)
+    'MM_M064_EM2500': M064_FOLDER, #Brawny Ambitions III (Okuninushi)
+    'MM_M064_EM2552': M064_FOLDER, #MadGasser Quest (Zhen (3xCopy))
+    'MM_M064_EM2621':M064_EM2620_FOLDER , #Orochi Quest (Orochi)
+    'MM_M060_EM1381': M060_FOLDER, #Khonsu CoC Quest (Khonsu)
+    'MM_M060_EM1390': M060_FOLDER, #Winged Sun CoC (Amon,Khonsu)
+    'MM_M060_EM1390_NewRoute': M060_FOLDER, #Winged Sun CoV (Amon)
+    'MM_M060_EM1391': M060_FOLDER, #Winged Sun CoC(Mithras, Asura)
+    'MM_M060_EM1431': M060_FOLDER, #Holy Ring Quest (Uriel, Raphael,Gabriel)
+    'MM_M060_EM1440': M060_FOLDER, #Baal Quest (Demeter)
+    'MM_M060_EM1441': M060_FOLDER, #Baal Quest (Baal)
+    'MM_M060_EM1600': M060_FOLDER,  #Final Amanozako Quest (Kurama Tengu)
+    'MM_M060_EM2371': M060_FOLDER,  #Garuda Quest (Garuda)
+    'MM_M060_EM2570': M060_FOLDER, #Moirae Haunt Quest (Norn)
+    'MM_M060_EM2630': M060_FOLDER,  #Saturnus Quest()
+    
+    'BP_es035_m063_01': ES035_M063_FOLDER,#Fionn area 3 (Fionn)
+    'BP_es152_m062_01': ES152_M062_FOLDER,#,#Hayataro area 2
+    'BP_es152_m063_01': ES152_M063_FOLDER,#,#Hayataro area 3
+    'BP_es416_m060_01': ES618_M060_FOLDER,#Nuwa in Area 4 
+    'BP_es618_m060_01': ES618_M060_FOLDER,#Yakumo in Area 4 
+    'BP_es418_m063_01': ES618_M063_FOLDER,#Nuwa in Area 3
+    'BP_es618_m063_01': ES618_M063_FOLDER,#Yakumo in Area 3 
+    
     'LV_E0660': DESIGN_EVENT_FOLDER, #Arioch Cutscene Test
     'LV_E0180': DESIGN_EVENT_FOLDER, #Triple Preta Cutscene
     'LV_E0330': DESIGN_EVENT_FOLDER, #Snake Nuwa Pre-fight Cutscene
@@ -456,7 +505,7 @@ class Script_File_List:
     Read the file belonging to the script of the given name and create a Script_File and add it to the list.
     '''
     def readFile(self,name):
-        if 'NPC' in name:
+        if 'NPC' in name or 'BP_es' in name :
             scriptPath = 'NPC/'
         elif 'ShopEvent' in name or 'JakyoEvent' in name:
             scriptPath = 'ShopEvent/'
