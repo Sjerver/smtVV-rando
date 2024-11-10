@@ -6095,6 +6095,19 @@ class Randomizer:
             self.staticBossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = self.configSettings.ishtarPressTurns
     
     '''
+    Make Punishing Foe Mara use the AI of the Virtual Trainer one, and replace the mara in the virtual trainer encounter with punishing mara.
+    '''
+    def syncMaras(self):
+        self.bossArr[numbers.PUNISHING_MARA_DEMON].AI = self.bossArr[numbers.VIRTUAL_MARA_DEMON].AI
+        self.staticBossArr[numbers.PUNISHING_MARA_DEMON].AI = self.staticBossArr[numbers.VIRTUAL_MARA_DEMON].AI
+        self.eventEncountArr[numbers.VIRTUAL_MARA_ENCOUNTER].demons[0] = self.eventEncountArr[numbers.PUNISHING_MARA_ENCOUNTER].demons[0]
+        self.staticEventEncountArr[numbers.VIRTUAL_MARA_ENCOUNTER].demons[0] = self.staticEventEncountArr[numbers.PUNISHING_MARA_ENCOUNTER].demons[0]
+        self.eventEncountArr[numbers.VIRTUAL_MARA_ENCOUNTER].unknownDemon = self.eventEncountArr[numbers.PUNISHING_MARA_ENCOUNTER].unknownDemon
+        self.staticEventEncountArr[numbers.VIRTUAL_MARA_ENCOUNTER].unknownDemon = self.staticEventEncountArr[numbers.PUNISHING_MARA_ENCOUNTER].unknownDemon
+        self.bossDuplicateMap[numbers.VIRTUAL_MARA_ENCOUNTER] = numbers.PUNISHING_MARA_ENCOUNTER
+
+
+    '''
     Changes the scaling of normal demon symbols with overly large scaling factors to the normal 1.2 factor.
     Parameters:
         buffer (Table): contains the bytearray of the MapSymbolParamTable
@@ -6518,6 +6531,7 @@ class Randomizer:
         if (config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses) and not (config.randomMusic or config.checkBasedMusic):
             self.patchMissingBossMusic()
         self.removeIshtarCopies()
+        self.syncMaras()
         self.randomizeBosses()
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()

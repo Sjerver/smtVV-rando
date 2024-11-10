@@ -402,6 +402,12 @@ TRUE_ISHTAR_ENCOUNTER = 75
 #Demon ID of the Ishtar that is kept in the pool
 TRUE_ISHTAR_DEMON = 455
 
+#Demon and EventEncounter IDs of the Maras both punishing and virtual trainer
+PUNISHING_MARA_DEMON = 892
+PUNISHING_MARA_ENCOUNTER = 240
+VIRTUAL_MARA_DEMON = 893
+VIRTUAL_MARA_ENCOUNTER = 45
+
 #Event Encounter Ids of bosses that appear up until and including Hydra
 EARLY_STORY_EVENT_ENCOUNTERS = [87, 134, 33] #Glasya-Labolas, 3 Pretas, Hydra
 

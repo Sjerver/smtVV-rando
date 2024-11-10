@@ -6,7 +6,6 @@ import random
 #Encounter IDs that should not be randomized
 BANNED_BOSSES = [0, 7, 32, #Dummy Abbadon, Tutorial Pixie, Tutorial Daemon
                  #33, #Hydra (game hangs when supposed to lose limbs)
-                 #TODO: Encounter 45 has a copy of mara boss for the virtual trainer, that version of mara is the same except for their AI
                  #57, 58, 59, 60, 63, 64, 65, #School dungeon fights with overlapping demons(Temp)
                  #129, 159, 160, #Mananangal/Incubus overlap with school(Temp), Zhens in gasser sidequest that overlap with each other(Temp)
                  141, #Dummy Eisheth
@@ -93,7 +92,6 @@ EVENT_ONLY_BOSSES = [6, 39, 69, 138]
 
 #Event Encounter IDs that have DUMMY fights and can be replaced with probelematic demons like True Lucifer
 DUMMY_EVENT_ENCOUNTERS = [141]
-#TODO: Since we only have one we have a problem, we could add a slot to the eventEncountTable but that's pretty much it?
 
 # Map of bosses who summon a set number of minions at a time, used to calculate total press turns
 PRESS_TURN_MAX_SUMMONS = {
