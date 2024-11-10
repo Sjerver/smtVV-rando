@@ -3820,12 +3820,12 @@ class Randomizer:
             return
         with open(paths.BOSS_SPOILER, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
             for filteredEncounters in encounterPools:
-                forcedEventEncounterIndeces = [i for i, e in enumerate(filteredEncounters) if e.ind in bossLogic.EVENT_ONLY_BOSSES]
                 validForcedEventEncounter = False
                 shuffledEncounters = []
                 while not validForcedEventEncounter: #until solution is found where event only bosses are replaced by event encounters
                     shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
-                    if all(shuffledEncounters[i].isEvent for i in forcedEventEncounterIndeces):
+                    forcedEventEncounterIndeces = [i for i, e in enumerate(shuffledEncounters) if e.ind in bossLogic.EVENT_ONLY_BOSSES]
+                    if all(filteredEncounters[i].isEvent for i in forcedEventEncounterIndeces):
                           validForcedEventEncounter = True
                 shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
                 for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
