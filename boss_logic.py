@@ -73,7 +73,6 @@ LUCIFER_ENCOUNTERS = [6, 12]
 
 #Event Encounter IDs that contain superbosses (Shiva x2, Demi-Fiend x2, Satan x2, Masakado x3)
 SUPERBOSS_ENCOUNTERS = [46, 88, 89,121, 48, 157, 168, 169, 53]
-#TODO: Duplicate Map for Superbosses does not seem to work always
 
 #Event Encounter IDs that contain minibosses, including some weaker quest bosses
 MINIBOSS_ENCOUNTERS = [13, 14, 15, #Empyrean angels
@@ -93,7 +92,7 @@ BOSS_HP_MODIFIERS = {
 EVENT_ONLY_BOSSES = [6, 39, 69, 138]
 
 #Event Encounter IDs that have DUMMY fights and can be replaced with probelematic demons like True Lucifer
-DUMMY_EVENT_ENCOUNTERS = [ 141]
+DUMMY_EVENT_ENCOUNTERS = [141]
 #TODO: Since we only have one we have a problem, we could add a slot to the eventEncountTable but that's pretty much it?
 
 # Map of bosses who summon a set number of minions at a time, used to calculate total press turns

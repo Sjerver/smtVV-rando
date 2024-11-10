@@ -10,6 +10,7 @@ import util.jsonExports as jsonExports
 import pandas as pd
 import copy
 import datetime
+import random
 
 class Anim_Sync():
     def __init__(self,ind, sync=None):
@@ -55,13 +56,40 @@ REQUIRES_HIT_UPDATE = [
 #TODO: Investigate certain events which might have the used models in umaps (example: Arioch Pre-Fight, Odin, Vasuki, Meeting Mastema 2ndHalf)
 #Swapping works! but animations might also be possible since they are in the sequence files (need to investigate this in more detail)
 EVENT_CUTSCENES = {
-    'LV_E0660': [Demon_Sync(82,463)], #UMAP Arioch Cutscene
+    
     'LV_E0180': [Demon_Sync(431)], #UMAP Triple Preta Cutscene
     'LV_E0330': [Demon_Sync(75, 435),Demon_Sync(435)], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa, Snake Nuwa)
     'LV_E0340': [Demon_Sync(465),Demon_Sync(75, 435),Demon_Sync(435)], #UMAP Snake Nuwa Post-fight Cutscene (Yakumo, Nuwa, Snake Nuwa)
     'LV_E0350': [Demon_Sync(467)], #UMAP Meeting Abdiel Cutscene
     'LV_E0375': [Demon_Sync(152)], #UMAP Hayataro in Beginning of Shinagawa Cutscene
     'LV_E0379': [Demon_Sync(451)], #UMAP Fionn 1 Cutscene
+    #TODO: These files are currently neither in fileList nor in base Folder
+    'LV_E0431': [Demon_Sync(441)], #UMAP Lahmu 1 Post-fight dialogue (Lahmu)
+    'LV_E0432': [Demon_Sync(441)], #UMAP Lahmu 1 Pre-fight dialogue (Lahmu)
+    'LV_E0470': [Demon_Sync(441)], #UMAP Lahmu 1 Pre-fight dialogue (Lahmu)
+    'LV_E0473': [Demon_Sync(152)], #UMAP Meeting Hayataro creation (Hayataro)
+    'LV_E0480': [Demon_Sync(441)], #UMAP Sahori kills her bullies (Lahmu)
+    'LV_E0490': [Demon_Sync(452)], #UMAP Final Lahmu Pre-fight dialogue
+    'LV_E0530': [Demon_Sync(467)], #Pre-summit Abdiel/Koshimitzu talk
+    'LV_E0580': [Demon_Sync(467)], #Meeting Abdiel in Chiyoda (Abdiel)
+    'LV_E0595': [Demon_Sync(80, 454),Demon_Sync(454)], #Surt Pre-fight (uses two Surt Models)
+    'LV_E0598': [Demon_Sync(455)], #Ishtar Pre-fight
+    'LV_E0600': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #First Bethel summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
+    'LV_E0603': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #Abdiel pre-fight summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
+    'LV_E0603': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #Abdiel post-fight summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
+    'LV_E0620': [Demon_Sync(465), Demon_Sync(75, 435)], #Yakumo pre-fight (Yakumo, Nuwa 1)
+    'LV_E0630': [Demon_Sync(467)], #Abdiel dialogue before DKC (Abdiel)
+    'LV_E0660': [Demon_Sync(82,463)], #UMAP Arioch Cutscene
+    'LV_E0736': [Demon_Sync(467)],#Dazai/Abdiel talk after summit
+    'LV_E0775': [Demon_Sync(468)], #UMAP Vasuki Cutscene
+    'LV_E0785': [Demon_Sync(469)], #UMAP Zeus CoC Cutscene
+    'LV_E0805': [Demon_Sync(470)], #UMAP Odin CoC Cutscene
+    'LV_E0841': [Demon_Sync(-617,528)], #Chaos rep overview pre-empyrean (Tsukuyomi)
+    'LV_E0841': [Demon_Sync(240, 525)], #Law rep overview pre-empyrean (Abdiel)
+    'LV_E0850': [Demon_Sync(240, 525),Demon_Sync(264, 525),Demon_Sync(75, 520),Demon_Sync(465),Demon_Sync(-617,528)], #Argument before Empyrean (Abdiel, Abdiel Fallen, Nuwa as Naho, Yakumo, Tsukuyomi)
+    'LV_E0870': [Demon_Sync(264, 525)], #Joining Dazai in Empyrean (Abdiel)
+    'LV_E0870': [Demon_Sync(-617,528),Demon_Sync(152)], #Joining Tsukuyomi in Empyrean (Tsukuyomi, Hayataro)
+    'LV_E0870': [Demon_Sync(264, 525),Demon_Sync(-617,528),Demon_Sync(528)],#Dazai/Abdiel lose to Tsukuyomi 
 }
 
 #Script files for events and what demon models need to be updated in htem
@@ -244,7 +272,7 @@ EVENT_SCRIPT_MODELS = {
     #'MM_M061_EM2020': [Demon_Sync(752)], #Nozuchi Queset (Nozuchi) #TODO: Softlocks after fight, do not know why
     'MM_M061_EM2030': [Demon_Sync(117)], #Brawny Ambitions (Zhu Tun She)
     'MM_M201_EM2040': [Demon_Sync(755)], #Pisaca Quest
-    'MM_M061_EM2240': [Demon_Sync(519),Demon_Sync(566)], #CoV Khonsu Ra Quest (Khonsu Ra, Khonsu) #TODO:TEST
+    'MM_M061_EM2240': [Demon_Sync(519),Demon_Sync(566)], #CoV Khonsu Ra Quest (Khonsu Ra, Khonsu) 
     'MM_M061_EM2242': [Demon_Sync(579)], #CoV Khonsu Ra Quest (Isis)
     'MM_M061_EM2245': [Demon_Sync(566)], #CoV Khonsu Ra Quest (Khonsu)
     'MM_M061_EM2380': [Demon_Sync(781)], #Mo Shuvuu Quest (Andras)
@@ -293,26 +321,26 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_EM1261': [Demon_Sync(812)], #Demeter Defeat Chimera Shinjuku (Chimera)
     'MM_M064_EM1281': [Demon_Sync(814)], #The Archangel of Destruction Shinjuku(Camael)
     'MM_M064_EM1291': [Demon_Sync(816)], #Roar of Hatred Shinjuku(Moloch)
-    'MM_M064_EM1391': [Demon_Sync(829),Demon_Sync(830)], #Winged Sun (Mithras, Asura) #TODO Test
+    'MM_M064_EM1391': [Demon_Sync(829),Demon_Sync(830)], #Winged Sun (Mithras, Asura) 
     'MM_M064_EM2130': [Demon_Sync(41), Demon_Sync(386)], #Basilisk Hunt Quest (Anansi, Onyankopon)
     'MM_M064_EM2131': [Demon_Sync(41)], #Basilisk Hunt Quest (Anansi)
     'MM_M064_EM2270': [Demon_Sync(40)], #Kresnik Kudlak Quest (Kresnik) 
     'MM_M064_EM2280': [Demon_Sync(346)], #Kresnik Kudlak Quest (Kudlak)
     'MM_M064_EM2310': [Demon_Sync(386, 770), Demon_Sync(41)], #Onyakopon Anansi Quest (Onyakopon Side)
     'MM_M064_EM2320': [Demon_Sync(41, 771), Demon_Sync(386)], #Onyakopon Anansi Quest (Anansi Side)
-    'MM_M064_EM2400': [Demon_Sync(596)], #Samael Quest (Mastema) #TODO Test
+    'MM_M064_EM2400': [Demon_Sync(596)], #Samael Quest (Mastema) 
     'MM_M064_EM2402': [Demon_Sync(760)], #Samael Quest (Samael) #TODO Test
-    'MM_M064_EM2421_Direct': [Demon_Sync(681)], #Satan Quest (Satan) #TODO Test
+    'MM_M064_EM2421_Direct': [Demon_Sync(681)], #Satan Quest (Satan) 
     'MM_M064_EM2461': [Demon_Sync(892)], #Mara Quest (Mara) #TODO Test
     'MM_M064_EM2500': [Demon_Sync(215)], #Brawny Ambitions III (Okuninushi) #TODO Test
     'MM_M064_EM2552': [Demon_Sync(509)], #MadGasser Quest (Zhen (3xCopy))
-    'MM_M064_EM2621': [Demon_Sync(775)], #Orochi Quest (Orochi) #TODO Test
+    'MM_M064_EM2621': [Demon_Sync(775)], #Orochi Quest (Orochi) 
 
     #SubMission M060 (Taito)
     'MM_M060_EM1370': [Demon_Sync(863)], #Bishamonten Event Battle #TODO Test
     'MM_M060_EM1381': [Demon_Sync(516)], #Khonsu CoC Quest (Khonsu) #TODO Test
     'MM_M060_EM1390': [Demon_Sync(831),Demon_Sync(516)], #Winged Sun CoC (Amon,Khonsu) #TODO Test 
-    'MM_M060_EM1390_NewRoute': [Demon_Sync(831)], #Winged Sun CoV (Amon) #TODO Test
+    'MM_M060_EM1390_NewRoute': [Demon_Sync(831)], #Winged Sun CoV (Amon) t
     'MM_M060_EM1391': [Demon_Sync(829),Demon_Sync(830)], #Winged Sun CoC(Mithras, Asura) #TODO Test
     'MM_M060_EM1420': [Demon_Sync(35)], #Fionn 2 Quest (Fionn) #TODO Test
     'MM_M060_EM1431': [Demon_Sync(836),Demon_Sync(834),Demon_Sync(835)], #Holy Ring Quest (Uriel, Raphael,Gabriel) #TODO
@@ -748,7 +776,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             except KeyError:
                 #replacementID = 934 #Testing stuff for event hit scaling
                 pass
-            #replacementID = random.choice([441,236]) #Testing stuff
+            #replacementID = random.choice([565,525,520]) #Testing big demon models (Tiamat, Abdiel Naho, Nuwa Naho)
             # if originalDemonID in replacementMap.values():
             #     print("Causes Chain replacement: " + str(originalDemonID) + " " + str(replacementID) )
             replacementMap[originalDemonID] = replacementID
@@ -777,6 +805,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             #Need to make sure that it is updated for biggest demon in file
             #TODO: What if instead of changing event scale we changed the map scale of the model, since each boss only replaces one check.
             # Would of course require a base hitbox for every boss, to have a basis for calculation
+            #Don't think this works since I don't think can easily do that, if actual boss id isn't event used in files 
             if (not hitboxUpdated or scale >= currentScale) and script in REQUIRES_HIT_UPDATE and script in LEVEL_UASSETS.keys(): #TODO: How to deal with overlap issues
                 umap = umapList.getFile(LEVEL_UASSETS[script])
                 hitboxUpdated = True
@@ -789,12 +818,13 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             file = replaceDemonModelInScript(script, file, originalDemonID, replacementID)   
         
         scriptFiles.setFile(script,file)
-        print("Swapped Models in " + str(currentScriptIndex) + " of " + str(totalScripts) + " Scripts")
+        print("Swapped Models in " + str(currentScriptIndex) + " of " + str(totalScripts) + " Scripts", end='\r')
     endTime = datetime.datetime.now()
-    print(endTime - startTime)
+    print("Elapsed Time: " + endTime - startTime)
     
     umapList.writeFiles()
-    updateCutsceneModels(encounterReplacements, bossReplacements,config)
+    #TODO: Uncomment, when I actually get around to properly implementing this
+    #updateCutsceneModels(encounterReplacements, bossReplacements,config)
 
 '''
 Prepares the given script file by preparing data that gets used in the model swap process.
@@ -852,7 +882,7 @@ Replaces the a demon model with the model of another demon in the given script.
         ogDemonID (Integer): the id of the demon that should be replaced
         replacementDemonID (Integer): the id of the replacement demon
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
-        #TODO: Think about how to optimize this function
+        #TODO: Think about how to optimize this function: Maybe rewrite to use API for all and not modify json
 '''
 def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementDemonID):
     jsonData = file.json
@@ -987,7 +1017,6 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
                     newExpression = bytecode.json[bytecode.getIndex(exp)]
                     newExpression['Parameters'][1]['Value'] = stringValue
             elif imp == 'LoadAsset' or imp == 'LoadAssetClass':
-                #TODO: Eventual Simple Removal for AssetClassLoading
                 try:
                     stringValue = exp['Parameters'][1].get('Value').get('Value')
                 except AttributeError:
@@ -1230,7 +1259,7 @@ def updateCutsceneModels(encounterReplacements, bossReplacements, config):
             for originalDemonID, replacementID in replacementMap.items():
                 file = replaceDemonModelInScript(event, file, originalDemonID, replacementID)
             cutsceneFiles.setFile(event,file)
-            print("Swapped Models in " + str(currentFileIndex) + " of " + str(totalFiles) + " Cutscenes")
+            print("Swapped Models in " + str(currentFileIndex) + " of " + str(totalFiles) + " Cutscenes", end='\r')
         else:
             #TODO: Sequences
             pass

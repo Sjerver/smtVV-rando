@@ -3815,13 +3815,18 @@ class Randomizer:
     '''
     def randomizeBosses(self):
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
-        
         encounterPools = bossLogic.createBossEncounterPools(self.eventEncountArr, self.encountArr, self.uniqueSymbolArr, self.abscessArr, self.bossDuplicateMap, self.configSettings)
         if not encounterPools:
             return
         with open(paths.BOSS_SPOILER, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
             for filteredEncounters in encounterPools:
-                shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
+                forcedEventEncounterIndeces = [i for i, e in enumerate(filteredEncounters) if e.ind in bossLogic.EVENT_ONLY_BOSSES]
+                validForcedEventEncounter = False
+                shuffledEncounters = []
+                while not validForcedEventEncounter: #until solution is found where event only bosses are replaced by event encounters
+                    shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
+                    if all(shuffledEncounters[i].isEvent for i in forcedEventEncounterIndeces):
+                          validForcedEventEncounter = True
                 shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
                 for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
                     spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + "(" + str(encounter.demons[0]) + ") "+ self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
@@ -6343,7 +6348,6 @@ class Randomizer:
             config (Settings) 
     '''
     def fullRando(self, config):
-        #TODO: Clear rando folder to remove previous rando results
         if os.path.exists("rando"):
             shutil.rmtree("rando")
 

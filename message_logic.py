@@ -670,7 +670,7 @@ MISSION_INFO_DEMON_IDS = {
     71: [Demon_Sync(305,866),Demon_Sync(43)], #The Spirit of Love (Leanan Sidhe Boss, Apsaras)
     72: [Demon_Sync(13,864)], #The Falcon's Head (Horus)
     73: [Demon_Sync(38,876)], #A Power Beyond Control (Amanozako)
-    74: [Demon_Sync(38), Demon_Sync(37,878)], #The Destined Leader (Amanozako, Kurama) #TODO: Ensure Kurama replacement works
+    74: [Demon_Sync(38), Demon_Sync(37,878)], #The Destined Leader (Amanozako, Kurama)
     75: [Demon_Sync(67),Demon_Sync(257,879)], #Those Seeking Sanctuary (Lilim, Principality Boss)
     76: [Demon_Sync(67,880),Demon_Sync(257)], #Holding the Line (Lilim Boss, Principality)
     77: [Demon_Sync(72),Demon_Sync(183,881)], #Black Frost Strikes Back (Black Frost, Dionysus Boss)

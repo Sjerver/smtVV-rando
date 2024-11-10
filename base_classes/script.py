@@ -129,12 +129,7 @@ class Bytecode:
     Returns the expression in the main bytecode expression array at the next index from the given expression.
     '''
     def getNextExpression(self,expression):
-        try:
-            index = self.json.index(expression)
-            
-        except ValueError:
-            print("Nested in another expression")
-            #TODO: Find next expression here
+        index = self.getIndex(expression)
         return self.json[index +1]
 
     '''
@@ -156,7 +151,6 @@ class Bytecode:
 
             #Also occurs if lines are already moved around or replaced
             #print("Nested in another expression")
-            #TODO: Find next expression here
             #return None
         return index
 

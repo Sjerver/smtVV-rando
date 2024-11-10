@@ -303,8 +303,8 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 461,tehom_evt,Tehom,-1,FALSE
 500,lucifer,Lucifer,-1,FALSE
 501,artemis,Artemis,31,FALSE
-502,surtr1_big,Surt,454,FALSE
-503,surtr2_big,Surt,-1,FALSE
+502,surtr1_big,Surt,-1,FALSE
+503,surtr2_big,Surt,454,FALSE
 504,abaddon_big,Abaddon,832,FALSE
 505,moloch_big,Moloch,-1,FALSE
 506,belphegor_big,Belphegor,-1,FALSE
