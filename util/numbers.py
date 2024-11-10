@@ -1,3 +1,5 @@
+from base_classes.demon_assets import Position 
+
 PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,110,1111,1112,1113,1114,1115,1116,1117,1118]
 
 #Demons that overlap in Event Encounters and in which ones they do
@@ -252,6 +254,18 @@ LARGE_SYMBOL_NORMAL_DEMONS = [77,80,94,127,212,283] #Mara, Surt, Huang Long, Chi
 LARGE_MODEL_NORMAL_DEMONS = {
     87: 0.7, #King Frost
     115: 0.5, #Hydra (Currently has no symbol param data)
+    565: 0.3, #Tiamat
+    525: 0.4, #Abdiel Nahobino
+    520: 0.4, #Nuwa Nahobino
+    435: 0.5, #Hydra (boss)
+}
+#List of demons that should be added to the MapSymbolParamTable for the sake of collision calculation
+ADD_LARGE_MODEL_DEMONS = {
+    565: Position(1000,1000,1000), #Tiamat
+    525: Position(800,800,800), #Abdiel Nahobino
+    520: Position(800,1000,800), #Nuwa Nahobino
+    435: Position(450,450,450), #Hydra (boss)
+    115: Position(450,450,450), #Hydra (Normal)
 }
 
 #Map of punishing foe ID - walkspeed for birds that have large flight cycles
@@ -531,7 +545,7 @@ MAGATSUHI_SKILLS_LEVEL_RESTRICTIONS = {
 }
 
 SKILL_STAT_PENALTY_WEIGHT = 2 #Penalty applied to weight in skill rando if stat used to attack is lower than other attacking stat
-POTENTIAL_WEIGHT_MULITPLIER = 1.5 #Multiplier applied to potential to update weight of skill rando
+POTENTIAL_WEIGHT_MULITPLIER = 1.7 #Multiplier applied to potential to update weight of skill rando
 MAGATSUHI_SKILL_WEIGHT = 6 #Base weight of magatsuhi skills if included in skill rando
 SKILL_WEIGHT = 10 #Base weight for all skills in skill rando
 SKILL_PENALTY_WEIGHT = 4 #Weight penalty for skills if the skill has already been assigned in process in an attempt to diversify skill sets
@@ -568,7 +582,7 @@ def getEnemyOnlySkills():
             [ 'Moonlight Frost',255,83,83],
             [ 'Frenzy',283,15,15],
             [ 'Galvanic Slash',284,46,49],
-            [ 'Red Capote',295,24,24],
+            [ 'Red Capote',295,25,25], #+1 so it does not roll on the same demon as often when skills are scaled
             [ 'Dreadful Gleam',312,52,52],
             [ 'Purgatorium',320,83,83],
             [ 'Impetus',321,83,83],

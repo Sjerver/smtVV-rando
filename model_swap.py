@@ -1,7 +1,7 @@
 from base_classes.script import Script_Function_Type,Script_Uasset,Bytecode
 from base_classes.file_lists import UMap_File, UMap_File_List, Script_File, Script_File_List
 from base_classes.message import Demon_Sync
-from base_classes.demon_assets import Demon_Model
+from base_classes.demon_assets import Demon_Model, Position
 from base_classes.uasset_custom import UAsset_Custom
 from util.binary_table import readBinaryTable
 import util.paths as paths
@@ -20,6 +20,7 @@ class Anim_Sync():
             self.sync = sync
 
 DEBUG_SWAP_PRINT = False
+DEBUG_BIG_MODEL_TEST = True
 
 DEVIL_PREFIX = "/Devil/"
 NPC_PREFIX = "/NPC/"
@@ -44,13 +45,34 @@ LEVEL_UASSETS = {
 
 #List of events that require updated scaling to trigger events with large demons
 REQUIRES_HIT_UPDATE = [
-    'MM_M061_EM1630','MM_M061_EM1631','MM_M061_EM1640','MM_M016_E0885'
-    'MM_M064_E2512','MM_M064_E2540','MM_M088_E0602_Khons','MM_M088_E0602_Koshimizu','MM_M088_E0602_Vasuki'
-    'MM_M088_E0602_Odin','MM_M088_E0602_Zeus','MM_M092_EM102_','MM_M092_EM105_1','MM_M092_EM111',
-    #Unsure if needed: #TODO: Needs significantly more testing
-    'MM_M038_E2912','MM_M038_E2917','MM_M060_E0785','MM_M060_Npc609Talk','MM_M063_EM0061',
-    'MM_M064_E2550','MM_M085_E0690','MM_M085_E0730','MM_M085_E2445','MM_M085_E2660','MM_M085_E2688',
-    'MM_M092_EM101_','MM_M092_EM106_','MM_M092_EM108_','MM_M092_EM110',
+    'MM_M016_E0885','MM_M038_E2912','MM_M038_E2917','MM_M060_Npc609Talk',
+    'MM_M063_EM0061','MM_M064_E2512','MM_M064_E2540','MM_M085_E0690','MM_M085_E0730',
+    'MM_M085_E2660','MM_M085_E2688',
+    'MM_M088_E0602_Abdiel','MM_M088_E0602_Khons','MM_M088_E0602_Koshimizu','MM_M088_E0602_Vasuki','MM_M088_E0602_Odin','MM_M088_E0602_Zeus',
+    'MM_M092_EM101_','MM_M092_EM102_','MM_M092_EM105_1','MM_M092_EM106_','MM_M092_EM110',
+    'MM_M016_EM1450','MM_M016_EM1500','MM_M016_EM1531',
+    'MM_M061_EM1782','MM_M061_EM1791','MM_M061_EM2611','MM_M107_EM1824','MM_M107_EM1825_Dev651','MM_M107_EM1825_Hit',
+    'MM_M035_EM1480','MM_M035_EM1491','MM_M036_EM1490','MM_M036_EM1481',
+    'MM_M061_EM1041','MM_M061_EM1050_New','MM_M061_EM1360','MM_M061_EM1630','MM_M061_EM1640', 'MM_M061_EM2190','MM_M061_EM2531',
+    'MM_M061_EM0151','MM_M061_EM0152','MM_M061_EM0154','MM_M061_EM1710','MM_M061_EM2240','MM_M061_EM2245',
+    'MM_M062_EM1160','MM_M062_EM1161_A','MM_M062_EM1181','MM_M062_EM1331','MM_M062_EM1340','MM_M062_EM1401','MM_M062_EM1650','MM_M062_EM1660','MM_M062_EM2090','MM_M062_EM2110_Enemy',
+    'MM_M063_EM1210','MM_M063_EM1250','MM_M063_EM1260','MM_M063_EM1291','MM_M063_EM1350','MM_M063_EM1670','MM_M063_EM1680','MM_M063_EM2170',
+    'MM_M064_EM1260','MM_M064_EM1261','MM_M064_EM1291','MM_M064_EM2130','MM_M064_EM2270','MM_M064_EM2280','MM_M064_EM2310','MM_M064_EM2320','MM_M064_EM2400','MM_M064_EM2402','MM_M064_EM2552','MM_M064_EM2621',
+    'MM_M060_EM1370','MM_M060_EM1381','MM_M060_EM1390','MM_M060_EM1390_NewRoute','MM_M060_EM1420','MM_M060_EM1440','MM_M060_EM1441','MM_M060_EM1600','MM_M060_EM1601','MM_M060_EM1602','MM_M060_EM1690','MM_M060_EM1700','MM_M060_EM2630',
+    'BP_es035_m063_01','BP_es152_m062_01','BP_es152_m063_01','BP_es416_m060_01','BP_es618_m060_01','BP_es418_m063_01','BP_es618_m063_01',
+    'esNPC_em1650_01','esNPC_em1650_02','esNPC_em1650_03','esNPC_em1650_04','esNPC_em1650_05','esNPC_em1650_06','esNPC_em0150_02','esNPC_em0150_03','esNPC_em0150_04','esNPC_em0150_05','esNPC_em0150_06','MM_M061_EM1631',
+    
+    
+    
+    
+    
+    # 'MM_M061_EM1630','MM_M061_EM1631','MM_M061_EM1640','MM_M016_E0885'
+    # 'MM_M064_E2512','MM_M064_E2540','MM_M088_E0602_Khons','MM_M088_E0602_Koshimizu','MM_M088_E0602_Vasuki'
+    # 'MM_M088_E0602_Odin','MM_M088_E0602_Zeus','MM_M092_EM102_','MM_M092_EM105_1','MM_M092_EM111',
+    # #Unsure if needed: #TODO: Needs significantly more testing
+    # 'MM_M038_E2912','MM_M038_E2917','MM_M060_E0785','MM_M060_Npc609Talk','MM_M063_EM0061',
+    # 'MM_M064_E2550','MM_M085_E0690','MM_M085_E0730','MM_M085_E2445','MM_M085_E2660','MM_M085_E2688',
+    # 'MM_M092_EM101_','MM_M092_EM106_','MM_M092_EM108_','MM_M092_EM110',
 ]
 
 #TODO: Investigate certain events which might have the used models in umaps (example: Arioch Pre-Fight, Odin, Vasuki, Meeting Mastema 2ndHalf)
@@ -340,7 +362,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_EM1370': [Demon_Sync(863)], #Bishamonten Event Battle #TODO Test
     'MM_M060_EM1381': [Demon_Sync(516)], #Khonsu CoC Quest (Khonsu) #TODO Test
     'MM_M060_EM1390': [Demon_Sync(831),Demon_Sync(516)], #Winged Sun CoC (Amon,Khonsu) #TODO Test 
-    'MM_M060_EM1390_NewRoute': [Demon_Sync(831)], #Winged Sun CoV (Amon) t
+    'MM_M060_EM1390_NewRoute': [Demon_Sync(831)], #Winged Sun CoV (Amon) 
     'MM_M060_EM1391': [Demon_Sync(829),Demon_Sync(830)], #Winged Sun CoC(Mithras, Asura) #TODO Test
     'MM_M060_EM1420': [Demon_Sync(35)], #Fionn 2 Quest (Fionn) #TODO Test
     'MM_M060_EM1431': [Demon_Sync(836),Demon_Sync(834),Demon_Sync(835)], #Holy Ring Quest (Uriel, Raphael,Gabriel) #TODO
@@ -738,7 +760,8 @@ Updates the models used in events.
         mapSymbolArr(List): list of map symbol data
         config (Config_Settings): settings set for the randomizer
 '''
-def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapSymbolArr, config):
+def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapSymbolFile, config):
+    mapSymbolTable = mapSymbolFile.json["Exports"][0]["Table"]["Data"]
     initDemonModelData()
     startTime = datetime.datetime.now()
     umapList = UMap_File_List()
@@ -776,7 +799,8 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             except KeyError:
                 #replacementID = 934 #Testing stuff for event hit scaling
                 pass
-            #replacementID = random.choice([565,525,520]) #Testing big demon models (Tiamat, Abdiel Naho, Nuwa Naho)
+            if DEBUG_BIG_MODEL_TEST:
+                replacementID = random.choice([565,525,520]) #Testing big demon models (Tiamat, Abdiel Naho, Nuwa Naho)
             # if originalDemonID in replacementMap.values():
             #     print("Causes Chain replacement: " + str(originalDemonID) + " " + str(replacementID) )
             replacementMap[originalDemonID] = replacementID
@@ -790,9 +814,12 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
         currentScale = 1
         for originalDemonID, replacementID in replacementMap.items():
             try:
-                og = next(d for x, d in enumerate(mapSymbolArr) if d.demonID == originalDemonID)
-                replacement = next(d for x, d in enumerate(mapSymbolArr) if d.demonID == replacementID)
-                scalingFactor = og.encountCollision.stretchToBox(replacement.encountCollision, ignoreY = True)
+                og = next(d for x, d in enumerate(mapSymbolTable) if d["Value"][0]["Value"] == originalDemonID)
+                replacement = next(d for x, d in enumerate(mapSymbolTable) if d["Value"][0]["Value"] == replacementID)
+                baseCollision = Position(og["Value"][5]["Value"],og["Value"][6]["Value"],og["Value"][7]["Value"])
+                replacementCollision = Position(replacement["Value"][5]["Value"],replacement["Value"][6]["Value"],replacement["Value"][7]["Value"])
+                scalingFactor = baseCollision.stretchToBox(replacementCollision)
+                #scalingFactor = og.encountCollision.stretchToBox(replacement.encountCollision, ignoreY = True)
                 if scalingFactor != 0:
                     #print(scalingFactor)
                     scale = scalingFactor
@@ -800,7 +827,11 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
                     scale = 1.5 #Increase by 50%
             except StopIteration:
                 scale = 1.5 #Increase by 50%
-            if scale <= 1: #do not update hitbox size if scale would be smaller
+                if file.relevantFunctionExps[0] == [] and script in REQUIRES_HIT_UPDATE:
+                    # if is never scaled to symbol scale and no valid scaling found skip model replacement
+                    continue
+            if scale <= 1 or scale > 2.5 or (scale > 2 and file.relevantFunctionExps[0] == [] and script in REQUIRES_HIT_UPDATE): #do not update hitbox size if scale would be smaller
+                #do not double if there is no modelScaling in code and update is needed
                 continue
             #Need to make sure that it is updated for biggest demon in file
             #TODO: What if instead of changing event scale we changed the map scale of the model, since each boss only replaces one check.
@@ -812,15 +843,17 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
                 umap = updateEventHitScaling(umap,script,scale)
                 currentScale = scale
             elif (not hitboxUpdated or scale >= currentScale) and script in REQUIRES_HIT_UPDATE: #no umap for event exists, update all others this way for safety
-                updateEventHitGen(file,scale,script)
+                successful = updateEventHitGen(file,scale,script)
                 currentScale = scale
+                if not successful:
+                    continue
             
             file = replaceDemonModelInScript(script, file, originalDemonID, replacementID)   
         
         scriptFiles.setFile(script,file)
         print("Swapped Models in " + str(currentScriptIndex) + " of " + str(totalScripts) + " Scripts", end='\r')
     endTime = datetime.datetime.now()
-    print("Elapsed Time: " + endTime - startTime)
+    print(endTime - startTime)
     
     umapList.writeFiles()
     #TODO: Uncomment, when I actually get around to properly implementing this
@@ -1203,9 +1236,11 @@ def updateEventHitGen(file, scale, script):
         vectorValues['Z'] *= scale
 
     except StopIteration:
-        print("Could not perform scale update on EventHitGen for: " + script)
+        #print("Could not perform scale update on EventHitGen for: " + script)
+        return False
     
     file.updateFileWithJson(file.json)
+    return True
 
 def updateCutsceneModels(encounterReplacements, bossReplacements, config):
     cutsceneFiles = Script_File_List()

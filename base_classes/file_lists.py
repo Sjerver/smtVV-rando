@@ -16,7 +16,7 @@ try:
     print("CoreCLR loaded successfully")
 except Exception as e:
     print("Failed to load CoreCLR:", str(e))
-    print("No .net Installation found. Please install .net: https://dotnet.microsoft.com/en-us/download/dotnet/8.0")
+    print("No .net Installation found. Please install .net 8.0 : https://dotnet.microsoft.com/en-us/download/dotnet/8.0")
     sys.exit(1)  # Exit if the runtime fails to load
 
 import clr
@@ -607,3 +607,16 @@ class Script_File:
             newStatementIndex = KismetSerializer.SerializeExpression(self.uasset.Exports[exportIndex].ScriptBytecode[-1], preLastIndex, True)
         return newStatementIndex[1]
             
+class General_UAsset:
+    def __init__(self,name, writePath):
+        self.uasset =  UAsset('base/' +  name+ '.uasset', EngineVersion.VER_UE4_27)
+        self.name = name
+        self.writePath = writePath
+        jsonstring = self.uasset.SerializeJson()
+        self.json = json.loads(jsonstring)
+    
+    def write(self):
+        writeFolder(self.writePath)
+        stringy = json.dumps(self.json)
+        self.uasset = self.uasset.DeserializeJson(stringy)
+        self.uasset.Write(self.writePath + self.name +'.uasset')

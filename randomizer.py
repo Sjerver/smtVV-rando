@@ -12,7 +12,8 @@ from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
 from base_classes.map_demons import Map_Demon
 from base_classes.map_event import Map_Event
-from base_classes.file_lists import Script_File_List
+from base_classes.file_lists import Script_File_List, General_UAsset
+from util.jsonExports import BASE_MAPSYMBOLPARAMS
 import script_logic as scriptLogic
 import message_logic as message_logic
 import model_swap
@@ -78,6 +79,7 @@ class Randomizer:
         self.updatedNormalEncounters = []
         self.chestArr = []
         self.mapSymbolArr = []
+        self.mapSymbolFile = General_UAsset("MapSymbolParamTable","rando/Project/Content/Blueprints/Map/Encount/Mover/ParamTable/")
         self.bossSymbolReplacementMap = {}
         self.validBossDemons = set()
         self.essenceBannedBosses = set()
@@ -6106,6 +6108,24 @@ class Randomizer:
         self.staticEventEncountArr[numbers.VIRTUAL_MARA_ENCOUNTER].unknownDemon = self.staticEventEncountArr[numbers.PUNISHING_MARA_ENCOUNTER].unknownDemon
         self.bossDuplicateMap[numbers.VIRTUAL_MARA_ENCOUNTER] = numbers.PUNISHING_MARA_ENCOUNTER
 
+    '''
+    Adds entries to the MapSymbolScaleTable.
+    '''
+    def addEntriesToMapSymbolScaleTable(self):
+        json = self.mapSymbolFile.json
+
+        table = json["Exports"][0]["Table"]["Data"]
+
+        for demonID in numbers.ADD_LARGE_MODEL_DEMONS.keys():
+            entry = copy.deepcopy(BASE_MAPSYMBOLPARAMS)
+
+            entry["Value"][4]["Value"] = 1.2
+            entry["Value"][0]["Value"] = demonID
+            entry["Value"][5]["Value"] = numbers.ADD_LARGE_MODEL_DEMONS[demonID].x
+            entry["Value"][6]["Value"] = numbers.ADD_LARGE_MODEL_DEMONS[demonID].y
+            entry["Value"][7]["Value"] = numbers.ADD_LARGE_MODEL_DEMONS[demonID].z
+
+            table.append(entry)
 
     '''
     Changes the scaling of normal demon symbols with overly large scaling factors to the normal 1.2 factor.
@@ -6114,56 +6134,108 @@ class Randomizer:
     Returns the changed buffer
     '''
     def scaleLargeSymbolDemonsDown(self):
-        for symbol in self.mapSymbolArr:
-            if symbol.demonID in numbers.LARGE_SYMBOL_NORMAL_DEMONS:
+        json = self.mapSymbolFile.json
+
+        table = json["Exports"][0]["Table"]["Data"]
+
+        for entry in table:
+            demonID = entry["Value"][0]["Value"]
+            if demonID in numbers.LARGE_SYMBOL_NORMAL_DEMONS:
                 scaleGoal = 1.2
+                downscaleFactor = scaleGoal / entry["Value"][4]["Value"]
+
+                entry["Value"][4]["Value"] = scaleGoal
+                baseCollision = Position(entry["Value"][5]["Value"],entry["Value"][6]["Value"],entry["Value"][7]["Value"])
+                baseCollision.scale(downscaleFactor)
+                entry["Value"][5]["Value"] = baseCollision.x
+                entry["Value"][6]["Value"] = baseCollision.y
+                entry["Value"][7]["Value"] = baseCollision.z
+            if demonID in numbers.LARGE_MODEL_NORMAL_DEMONS.keys():
+                scaleGoal = numbers.LARGE_MODEL_NORMAL_DEMONS[demonID]
+                downscaleFactor = scaleGoal / entry["Value"][4]["Value"]
+                entry["Value"][4]["Value"] = scaleGoal
+                baseCollision = Position(entry["Value"][5]["Value"],entry["Value"][6]["Value"],entry["Value"][7]["Value"])
+                baseCollision.scale(downscaleFactor)
+                entry["Value"][5]["Value"] = baseCollision.x
+                entry["Value"][6]["Value"] = baseCollision.y
+                entry["Value"][7]["Value"] = baseCollision.z
+        
+        # for symbol in self.mapSymbolArr:
+        #     if symbol.demonID in numbers.LARGE_SYMBOL_NORMAL_DEMONS:
+        #         scaleGoal = 1.2
                 
-                downscaleFactor = scaleGoal / symbol.scaleFactor
+        #         downscaleFactor = scaleGoal / symbol.scaleFactor
                 
-                symbol.scaleFactor = scaleGoal
-                symbol.encountCollision.scale(downscaleFactor)
-            if symbol.demonID in numbers.LARGE_MODEL_NORMAL_DEMONS.keys():
-                scaleGoal = numbers.LARGE_MODEL_NORMAL_DEMONS[symbol.demonID]
+        #         symbol.scaleFactor = scaleGoal
+        #         symbol.encountCollision.scale(downscaleFactor)
                 
-                downscaleFactor = scaleGoal / symbol.scaleFactor
+        #     if symbol.demonID in numbers.LARGE_MODEL_NORMAL_DEMONS.keys():
+        #         scaleGoal = numbers.LARGE_MODEL_NORMAL_DEMONS[symbol.demonID]
                 
-                symbol.scaleFactor = scaleGoal
-                symbol.encountCollision.scale(downscaleFactor)
+        #         downscaleFactor = scaleGoal / symbol.scaleFactor
+                
+        #         symbol.scaleFactor = scaleGoal
+        #         symbol.encountCollision.scale(downscaleFactor)
 
     '''
     Scale replacement of adramelech so that it is not larger to prevent potential softlocks in Temple of Eternity.
     '''
     def patchAdramelechReplacementSize(self):
-        adramelech = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == 265)
+        json = self.mapSymbolFile.json
+
+        table = json["Exports"][0]["Table"]["Data"]
+        adramelech = next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == 265)
+        #adramelech = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == 265)
         replacementID = self.encounterReplacements[265]
         try:
-            replacement =  next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == replacementID)
-            scalingFactor = adramelech.encountCollision.fitIntoBox(replacement.encountCollision)
+            replacement =  next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == replacementID)
+            #replacement =  next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == replacementID)
+            adraColl = Position(adramelech["Value"][5]["Value"],adramelech["Value"][6]["Value"],adramelech["Value"][7]["Value"])
+            replaceCollision = Position(replacement["Value"][5]["Value"],replacement["Value"][6]["Value"],replacement["Value"][7]["Value"])
+            scalingFactor = adraColl.fitIntoBox(replaceCollision)
+            #scalingFactor = adramelech.encountCollision.fitIntoBox(replacement.encountCollision)
             if scalingFactor != 0:
-                replacement.scaleFactor = replacement.scaleFactor * scalingFactor
-                replacement.encountCollision.scale(scalingFactor)
+                replacement["Value"][4]["Value"] = replacement["Value"][4]["Value"]* scalingFactor
+                #replacement.scaleFactor = replacement.scaleFactor * scalingFactor
+                baseCollision = Position(replacement["Value"][5]["Value"],replacement["Value"][6]["Value"],replacement["Value"][7]["Value"])
+                baseCollision.scale(scalingFactor)
+                replacement["Value"][5]["Value"] = baseCollision.x
+                replacement["Value"][6]["Value"] = baseCollision.y
+                replacement["Value"][7]["Value"] = baseCollision.z
+                #replacement.encountCollision.scale(scalingFactor)
         except StopIteration:
             pass
     '''
     Speeds up demons on the overworld that replace punishing foe birds with large movement cycles
-    Parameters:
-        buffer (Table): contains the bytearray of the MapSymbolParamTable
-        #TODO: Rewrite with adding data to symbol arr
-    Returns the changed buffer
     '''
-    def adjustPunishingFoeSpeeds(self, buffer):
+    def adjustPunishingFoeSpeeds(self):
+        json = self.mapSymbolFile.json
+
+        table = json["Exports"][0]["Table"]["Data"]
         
         for birdID, walkSpeed in numbers.PUNISHING_FOE_BIRD_SPEEDS.items():
             replacementID = self.bossSymbolReplacementMap[birdID]
             try:
-                replacementSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == replacementID)
-                buffer.writeFloat(walkSpeed,replacementSymbol.offsetNumbers['walkSpeed'])
+                replacementSymbol = next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == replacementID)
+                #replacementSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == replacementID)
+                replacementSymbol["Value"][1]["Value"] = walkSpeed
+                #buffer.writeFloat(walkSpeed,replacementSymbol.offsetNumbers['walkSpeed'])
                     
             except StopIteration:
-                birdSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == birdID)
-                buffer.writeWord(replacementID, birdSymbol.offsetNumbers['demonID'])
+                try: 
+                    normalDemonEquivalent = model_swap.MODEL_SYNC[replacementID]
+                    copiedSymbol = copy.deepcopy(next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == normalDemonEquivalent))
+                    copiedSymbol["Value"][0]["Value"] = replacementID
+                    copiedSymbol["Value"][1]["Value"] = walkSpeed
+                    table.append(copiedSymbol)
 
-        return buffer
+                except (KeyError,StopIteration) as e:
+                    birdSymbol = next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == birdID)
+                    #birdSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == birdID)
+                    birdSymbol["Value"][0]["Value"] = replacementID
+                    #buffer.writeWord(replacementID, birdSymbol.offsetNumbers['demonID'])
+
+        #return buffer
 
     '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
@@ -6599,9 +6671,10 @@ class Randomizer:
         
         #mapSymbolUasset = UAsset(readBinaryTable(paths.MAP_SYMBOL_PARAM_UASSET_IN))
 
+        self.addEntriesToMapSymbolScaleTable()
         self.scaleLargeSymbolDemonsDown()
         self.patchAdramelechReplacementSize()
-        self.adjustPunishingFoeSpeeds(mapSymbolParamBuffer)
+        self.adjustPunishingFoeSpeeds()
         
             
         if DEV_CHEATS:
@@ -6615,7 +6688,7 @@ class Randomizer:
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
         
         if self.configSettings.swapCutsceneModels:
-            model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolArr, self.configSettings)
+            model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings)
 
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
@@ -6697,6 +6770,8 @@ class Randomizer:
         copyFile(paths.TITLE_TEXTURE_IN, paths.TITLE_TEXTURE_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         
+        self.mapSymbolFile.write()
+
         self.scriptFiles.writeFiles()
 
         self.applyUnrealPak()
