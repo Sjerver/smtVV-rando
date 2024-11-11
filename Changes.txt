@@ -1,3 +1,7 @@
+Version 1.021
+* Randomizer now works with game version 1.03 instead of 1.02
+* Marici will randomize as a playable demon, but not the boss version, and Marici will always join when completing her quest instead of a replacement demon.
+
 Version 1.02
 Features:
 * New boss randomizer settings - Scale boss damage, scale boss press turns to check, scale boss instakill susceptibility to check, prevent ambush bosses until after Hydra, boss dependent ambushes, nerf boss healing and set Ishtar's press turns

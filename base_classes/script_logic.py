@@ -132,7 +132,7 @@ SCRIPT_JOIN_BYTES = {
     'MM_M030_EM1769': [619541], # Bethel Researcher giving DLC Demons
     'MM_M061_EM1791': [137156,138009], # A Goddess in Training
     'MM_M061_EM2601': [212904], # Sakura Cinders of the East
-    'MM_M063_EM2170': [326663], # Guardian of Tokyo
+    'MM_M063_EM2170': [340519], # Guardian of Tokyo
 }
 
 #List of which demon join is in which script

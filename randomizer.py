@@ -550,7 +550,7 @@ class Randomizer:
         fusionOffset = 0x7C
 
         #For every fusion (37401 = ((n-1)*(n))/2 with n being the number of fusable(excludes Tao/Yoko for example) registerable demons)
-        for index in range(37401):
+        for index in range(38226):
             offset = startValue + index * fusionOffset
             locations = {
                 'firstDemon': offset,
@@ -762,7 +762,7 @@ class Randomizer:
         size = 0x64
 
         #The tables standard size for symbols is 2081
-        for index in range(2081):
+        for index in range(2082):
             offset = start + size * index
 
             locations = {
@@ -794,7 +794,7 @@ class Randomizer:
     '''
     def fillEncountArr(self, encounters):
 
-        start = 0x32D55
+        start = 0x32DB5
         size = 0x1C
 
         #Table in EncountData is of this size
@@ -963,7 +963,7 @@ class Randomizer:
         start = 0x45
         size = 0x24
         
-        for index in range(130):
+        for index in range(134):
             offset = start + size * index
             bossFlags = Boss_Flags()
             bossFlags.offset = offset
@@ -6368,7 +6368,7 @@ class Randomizer:
 if __name__ == '__main__':
     rando = Randomizer()
     print('Warning: This is an early build of the randomizer and some things may not work as intended. Performance will be somewhat worse than vanilla SMTVV')
-    print('Welcome to the SMTVV Rando v1.02. This version was created with game version 1.02 and will likely not work with other versions of SMTVV')
+    print('Welcome to the SMTVV Rando v1.021. This version was created with game version 1.03 and will likely not work with other versions of SMTVV')
     try:
         rando.configSettings, rando.textSeed = gui.createGUI(rando.configSettings)
         rando.createSeed()
