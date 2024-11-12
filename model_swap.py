@@ -20,7 +20,8 @@ class Anim_Sync():
             self.sync = sync
 
 DEBUG_SWAP_PRINT = False
-DEBUG_BIG_MODEL_TEST = True
+DEBUG_BIG_MODEL_TEST = False
+DEBUG_MODELS = [565,525,520]
 
 DEVIL_PREFIX = "/Devil/"
 NPC_PREFIX = "/NPC/"
@@ -50,7 +51,7 @@ REQUIRES_HIT_UPDATE = [
     'MM_M085_E2660','MM_M085_E2688',
     'MM_M088_E0602_Abdiel','MM_M088_E0602_Khons','MM_M088_E0602_Koshimizu','MM_M088_E0602_Vasuki','MM_M088_E0602_Odin','MM_M088_E0602_Zeus',
     'MM_M092_EM101_','MM_M092_EM102_','MM_M092_EM105_1','MM_M092_EM106_','MM_M092_EM110',
-    'MM_M016_EM1450','MM_M016_EM1500','MM_M016_EM1531',
+    'MM_M016_EM1450','MM_M016_EM1500',
     'MM_M061_EM1782','MM_M061_EM1791','MM_M061_EM2611','MM_M107_EM1824','MM_M107_EM1825_Dev651','MM_M107_EM1825_Hit',
     'MM_M035_EM1480','MM_M035_EM1491','MM_M036_EM1490','MM_M036_EM1481',
     'MM_M061_EM1041','MM_M061_EM1050_New','MM_M061_EM1360','MM_M061_EM1630','MM_M061_EM1640', 'MM_M061_EM2190','MM_M061_EM2531',
@@ -58,21 +59,9 @@ REQUIRES_HIT_UPDATE = [
     'MM_M062_EM1160','MM_M062_EM1161_A','MM_M062_EM1181','MM_M062_EM1331','MM_M062_EM1340','MM_M062_EM1401','MM_M062_EM1650','MM_M062_EM1660','MM_M062_EM2090','MM_M062_EM2110_Enemy',
     'MM_M063_EM1210','MM_M063_EM1250','MM_M063_EM1260','MM_M063_EM1291','MM_M063_EM1350','MM_M063_EM1670','MM_M063_EM1680','MM_M063_EM2170',
     'MM_M064_EM1260','MM_M064_EM1261','MM_M064_EM1291','MM_M064_EM2130','MM_M064_EM2270','MM_M064_EM2280','MM_M064_EM2310','MM_M064_EM2320','MM_M064_EM2400','MM_M064_EM2402','MM_M064_EM2552','MM_M064_EM2621',
-    'MM_M060_EM1370','MM_M060_EM1381','MM_M060_EM1390','MM_M060_EM1390_NewRoute','MM_M060_EM1420','MM_M060_EM1440','MM_M060_EM1441','MM_M060_EM1600','MM_M060_EM1601','MM_M060_EM1602','MM_M060_EM1690','MM_M060_EM1700','MM_M060_EM2630',
+    'MM_M060_EM1370','MM_M060_EM1381','MM_M060_EM1390','MM_M060_EM1390_NewRoute','MM_M060_EM1420','MM_M060_EM1441','MM_M060_EM1600','MM_M060_EM1601','MM_M060_EM1602','MM_M060_EM1690','MM_M060_EM1700','MM_M060_EM2630',
     'BP_es035_m063_01','BP_es152_m062_01','BP_es152_m063_01','BP_es416_m060_01','BP_es618_m060_01','BP_es418_m063_01','BP_es618_m063_01',
     'esNPC_em1650_01','esNPC_em1650_02','esNPC_em1650_03','esNPC_em1650_04','esNPC_em1650_05','esNPC_em1650_06','esNPC_em0150_02','esNPC_em0150_03','esNPC_em0150_04','esNPC_em0150_05','esNPC_em0150_06','MM_M061_EM1631',
-    
-    
-    
-    
-    
-    # 'MM_M061_EM1630','MM_M061_EM1631','MM_M061_EM1640','MM_M016_E0885'
-    # 'MM_M064_E2512','MM_M064_E2540','MM_M088_E0602_Khons','MM_M088_E0602_Koshimizu','MM_M088_E0602_Vasuki'
-    # 'MM_M088_E0602_Odin','MM_M088_E0602_Zeus','MM_M092_EM102_','MM_M092_EM105_1','MM_M092_EM111',
-    # #Unsure if needed: #TODO: Needs significantly more testing
-    # 'MM_M038_E2912','MM_M038_E2917','MM_M060_E0785','MM_M060_Npc609Talk','MM_M063_EM0061',
-    # 'MM_M064_E2550','MM_M085_E0690','MM_M085_E0730','MM_M085_E2445','MM_M085_E2660','MM_M085_E2688',
-    # 'MM_M092_EM101_','MM_M092_EM106_','MM_M092_EM108_','MM_M092_EM110',
 ]
 
 #TODO: Investigate certain events which might have the used models in umaps (example: Arioch Pre-Fight, Odin, Vasuki, Meeting Mastema 2ndHalf)
@@ -86,32 +75,32 @@ EVENT_CUTSCENES = {
     'LV_E0375': [Demon_Sync(152)], #UMAP Hayataro in Beginning of Shinagawa Cutscene
     'LV_E0379': [Demon_Sync(451)], #UMAP Fionn 1 Cutscene
     #TODO: These files are currently neither in fileList nor in base Folder
-    'LV_E0431': [Demon_Sync(441)], #UMAP Lahmu 1 Post-fight dialogue (Lahmu)
-    'LV_E0432': [Demon_Sync(441)], #UMAP Lahmu 1 Pre-fight dialogue (Lahmu)
-    'LV_E0470': [Demon_Sync(441)], #UMAP Lahmu 1 Pre-fight dialogue (Lahmu)
-    'LV_E0473': [Demon_Sync(152)], #UMAP Meeting Hayataro creation (Hayataro)
-    'LV_E0480': [Demon_Sync(441)], #UMAP Sahori kills her bullies (Lahmu)
-    'LV_E0490': [Demon_Sync(452)], #UMAP Final Lahmu Pre-fight dialogue
-    'LV_E0530': [Demon_Sync(467)], #Pre-summit Abdiel/Koshimitzu talk
-    'LV_E0580': [Demon_Sync(467)], #Meeting Abdiel in Chiyoda (Abdiel)
-    'LV_E0595': [Demon_Sync(80, 454),Demon_Sync(454)], #Surt Pre-fight (uses two Surt Models)
-    'LV_E0598': [Demon_Sync(455)], #Ishtar Pre-fight
-    'LV_E0600': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #First Bethel summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
-    'LV_E0603': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #Abdiel pre-fight summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
-    'LV_E0603': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #Abdiel post-fight summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
-    'LV_E0620': [Demon_Sync(465), Demon_Sync(75, 435)], #Yakumo pre-fight (Yakumo, Nuwa 1)
-    'LV_E0630': [Demon_Sync(467)], #Abdiel dialogue before DKC (Abdiel)
-    'LV_E0660': [Demon_Sync(82,463)], #UMAP Arioch Cutscene
-    'LV_E0736': [Demon_Sync(467)],#Dazai/Abdiel talk after summit
-    'LV_E0775': [Demon_Sync(468)], #UMAP Vasuki Cutscene
-    'LV_E0785': [Demon_Sync(469)], #UMAP Zeus CoC Cutscene
-    'LV_E0805': [Demon_Sync(470)], #UMAP Odin CoC Cutscene
-    'LV_E0841': [Demon_Sync(-617,528)], #Chaos rep overview pre-empyrean (Tsukuyomi)
-    'LV_E0841': [Demon_Sync(240, 525)], #Law rep overview pre-empyrean (Abdiel)
-    'LV_E0850': [Demon_Sync(240, 525),Demon_Sync(264, 525),Demon_Sync(75, 520),Demon_Sync(465),Demon_Sync(-617,528)], #Argument before Empyrean (Abdiel, Abdiel Fallen, Nuwa as Naho, Yakumo, Tsukuyomi)
-    'LV_E0870': [Demon_Sync(264, 525)], #Joining Dazai in Empyrean (Abdiel)
-    'LV_E0870': [Demon_Sync(-617,528),Demon_Sync(152)], #Joining Tsukuyomi in Empyrean (Tsukuyomi, Hayataro)
-    'LV_E0870': [Demon_Sync(264, 525),Demon_Sync(-617,528),Demon_Sync(528)],#Dazai/Abdiel lose to Tsukuyomi 
+    # 'LV_E0431': [Demon_Sync(441)], #UMAP Lahmu 1 Post-fight dialogue (Lahmu)
+    # 'LV_E0432': [Demon_Sync(441)], #UMAP Lahmu 1 Pre-fight dialogue (Lahmu)
+    # 'LV_E0470': [Demon_Sync(441)], #UMAP Lahmu 1 Pre-fight dialogue (Lahmu)
+    # 'LV_E0473': [Demon_Sync(152)], #UMAP Meeting Hayataro creation (Hayataro)
+    # 'LV_E0480': [Demon_Sync(441)], #UMAP Sahori kills her bullies (Lahmu)
+    # 'LV_E0490': [Demon_Sync(452)], #UMAP Final Lahmu Pre-fight dialogue
+    # 'LV_E0530': [Demon_Sync(467)], #Pre-summit Abdiel/Koshimitzu talk
+    # 'LV_E0580': [Demon_Sync(467)], #Meeting Abdiel in Chiyoda (Abdiel)
+    # 'LV_E0595': [Demon_Sync(80, 454),Demon_Sync(454)], #Surt Pre-fight (uses two Surt Models)
+    # 'LV_E0598': [Demon_Sync(455)], #Ishtar Pre-fight
+    # 'LV_E0600': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #First Bethel summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
+    # 'LV_E0603': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #Abdiel pre-fight summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
+    # 'LV_E0603': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #Abdiel post-fight summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
+    # 'LV_E0620': [Demon_Sync(465), Demon_Sync(75, 435)], #Yakumo pre-fight (Yakumo, Nuwa 1)
+    # 'LV_E0630': [Demon_Sync(467)], #Abdiel dialogue before DKC (Abdiel)
+    # 'LV_E0660': [Demon_Sync(82,463)], #UMAP Arioch Cutscene
+    # 'LV_E0736': [Demon_Sync(467)],#Dazai/Abdiel talk after summit
+    # 'LV_E0775': [Demon_Sync(468)], #UMAP Vasuki Cutscene
+    # 'LV_E0785': [Demon_Sync(469)], #UMAP Zeus CoC Cutscene
+    # 'LV_E0805': [Demon_Sync(470)], #UMAP Odin CoC Cutscene
+    # 'LV_E0841': [Demon_Sync(-617,528)], #Chaos rep overview pre-empyrean (Tsukuyomi)
+    # 'LV_E0841': [Demon_Sync(240, 525)], #Law rep overview pre-empyrean (Abdiel)
+    # 'LV_E0850': [Demon_Sync(240, 525),Demon_Sync(264, 525),Demon_Sync(75, 520),Demon_Sync(465),Demon_Sync(-617,528)], #Argument before Empyrean (Abdiel, Abdiel Fallen, Nuwa as Naho, Yakumo, Tsukuyomi)
+    # 'LV_E0870': [Demon_Sync(264, 525)], #Joining Dazai in Empyrean (Abdiel)
+    # 'LV_E0870': [Demon_Sync(-617,528),Demon_Sync(152)], #Joining Tsukuyomi in Empyrean (Tsukuyomi, Hayataro)
+    # 'LV_E0870': [Demon_Sync(264, 525),Demon_Sync(-617,528),Demon_Sync(528)],#Dazai/Abdiel lose to Tsukuyomi 
 }
 
 #Script files for events and what demon models need to be updated in htem
@@ -280,7 +269,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Area Entry (Apsaras)
     'MM_M061_EM2190': [Demon_Sync(888)], #Halphas Quest (Oni) #TODO:TEST
     'MM_M061_EM2531': [Demon_Sync(751)], #Dormarth Quest (Dormarth)
-    #'MM_M061_EM2601': [Demon_Sync(32)], #Konohana Sakuya Quest (Konohana Sakuya) #TODO: Softlocks after fight, do not know why
+    'MM_M061_EM2601': [Demon_Sync(32)], #Konohana Sakuya Quest (Konohana Sakuya) 
     'esNPC_em0150_02': [Demon_Sync(889)], # A Preta Predicament (Preta) 
     'esNPC_em0150_03': [Demon_Sync(889)], # A Preta Predicament (Preta) 
     'esNPC_em0150_04': [Demon_Sync(889)], # A Preta Predicament (Preta) 
@@ -291,7 +280,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_EM0154': [Demon_Sync(889)], # A Preta Predicament (Preta)
     'MM_M061_EM1710': [Demon_Sync(888)], # Moving on up (Oni)
     'MM_M061_EM1715': [Demon_Sync(888)], # Moving on up (Oni) (Oni Outside Event)
-    #'MM_M061_EM2020': [Demon_Sync(752)], #Nozuchi Queset (Nozuchi) #TODO: Softlocks after fight, do not know why
+    'MM_M061_EM2020': [Demon_Sync(752)], #Nozuchi Queset (Nozuchi) 
     'MM_M061_EM2030': [Demon_Sync(117)], #Brawny Ambitions (Zhu Tun She)
     'MM_M201_EM2040': [Demon_Sync(755)], #Pisaca Quest
     'MM_M061_EM2240': [Demon_Sync(519),Demon_Sync(566)], #CoV Khonsu Ra Quest (Khonsu Ra, Khonsu) 
@@ -305,10 +294,10 @@ EVENT_SCRIPT_MODELS = {
     'MM_M062_EM1160': [Demon_Sync(19)], #The Tyrant of Tennozu (Demeter)
     'MM_M062_EM1161_A': [Demon_Sync(804)], #The Tyrant of Tennozu  (Belphegor)
     'MM_M062_EM1181': [Demon_Sync(821)], #King Frost Quest (King Frost) 
-    'MM_M062_EM1331': [Demon_Sync(828)],#Lord's Sword Quest (Arahabaki)  #TODO
-    'MM_M062_EM1340': [Demon_Sync(860)], #Zouchouten Event Battle  #TODO
-    'MM_M062_EM1401': [Demon_Sync(519),Demon_Sync(516)], #Khonsu Ra CoC Quest (Khonsu Ra, Khonsu)  #TODO
-    'MM_M062_EM1402': [Demon_Sync(519),Demon_Sync(516)], #Khonsu Ra CoC Quest (Khonsu Ra, Khonsu)  #TODO
+    'MM_M062_EM1331': [Demon_Sync(828)],#Lord's Sword Quest (Arahabaki)  
+    'MM_M062_EM1340': [Demon_Sync(860)], #Zouchouten Event Battle  
+    'MM_M062_EM1401': [Demon_Sync(519),Demon_Sync(516)], #Khonsu Ra CoC Quest (Khonsu Ra, Khonsu)  
+    'MM_M062_EM1402': [Demon_Sync(519),Demon_Sync(516)], #Khonsu Ra CoC Quest (Khonsu Ra, Khonsu)  
     'MM_M062_EM1650': [Demon_Sync(67)], # Lilim/Principality Quest (Lilim)
     'MM_M062_EM1660': [Demon_Sync(257)], # Lilim/Principality Quest (Principality)
     'MM_M062_EM2040': [Demon_Sync(803)], #Pisaca Quest part 1 (Anahita)  #TODO: where is this event even?
@@ -326,16 +315,16 @@ EVENT_SCRIPT_MODELS = {
     #SubMission M063 (Chiyoda)
     'MM_M063_EM1210': [Demon_Sync(824),Demon_Sync(826)], #Oyamatsumi Quest (Take-Minakata,Oyamatsumi)
     'MM_M063_EM1211': [Demon_Sync(826)], #Oyamatsumi Quest (Oyamatsumi)
-    #'MM_M063_EM1250': [Demon_Sync(822)],#Kunitsukami Fight Quest (Okuninushi) #TODO:Post fight softlock
+    'MM_M063_EM1250': [Demon_Sync(822)],#Kunitsukami Fight Quest (Okuninushi) 
     'MM_M063_EM1251': [Demon_Sync(823)],#Kunitsukami Fight Quest (Sukuna Hikona)
-    'MM_M063_EM1260': [Demon_Sync(19)], #Demeter Defeat Chimera (Demeter) #TODO Test
+    'MM_M063_EM1260': [Demon_Sync(19)], #Demeter Defeat Chimera (Demeter) 
     'MM_M063_EM1281': [Demon_Sync(814)], #The Archangel of Destruction (Camael)
-    'MM_M063_EM1291': [Demon_Sync(816)], #Roar of Hatred (Moloch) #TODO Test
-    'MM_M063_EM1350': [Demon_Sync(861)], #Koumokuten Event Battle #TODO Test
+    'MM_M063_EM1291': [Demon_Sync(816)], #Roar of Hatred (Moloch) 
+    'MM_M063_EM1350': [Demon_Sync(862)], #Jikoukuten Event Battle 
     'MM_M063_EM1592': [Demon_Sync(876)], #Berserk Amanozako Quest (Amanozako Runaway) 
     'MM_M063_EM1670': [Demon_Sync(72)], #Black Frost Dionysus Quest (Black Frost) 
     'MM_M063_EM1680': [Demon_Sync(183)], #Black Frost Dionysus Quest (Dionysus)
-    'MM_M063_EM2170': [Demon_Sync(227)], #Masakado Quest #TODO Test
+    'MM_M063_EM2170': [Demon_Sync(227)], #Masakado Quest 
     'MM_M063_EM2580': [Demon_Sync(776)], #Yoshitsune Haunt Quest (Atavaka)
 
     #SubMission M064 (Shinjuku)
@@ -359,15 +348,15 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_EM2621': [Demon_Sync(775)], #Orochi Quest (Orochi) 
 
     #SubMission M060 (Taito)
-    'MM_M060_EM1370': [Demon_Sync(863)], #Bishamonten Event Battle #TODO Test
-    'MM_M060_EM1381': [Demon_Sync(516)], #Khonsu CoC Quest (Khonsu) #TODO Test
-    'MM_M060_EM1390': [Demon_Sync(831),Demon_Sync(516)], #Winged Sun CoC (Amon,Khonsu) #TODO Test 
+    'MM_M060_EM1370': [Demon_Sync(863)], #Bishamonten Event Battle 
+    'MM_M060_EM1381': [Demon_Sync(516)], #Khonsu CoC Quest (Khonsu) 
+    'MM_M060_EM1390': [Demon_Sync(831),Demon_Sync(516)], #Winged Sun CoC (Amon,Khonsu)  
     'MM_M060_EM1390_NewRoute': [Demon_Sync(831)], #Winged Sun CoV (Amon) 
-    'MM_M060_EM1391': [Demon_Sync(829),Demon_Sync(830)], #Winged Sun CoC(Mithras, Asura) #TODO Test
+    'MM_M060_EM1391': [Demon_Sync(829),Demon_Sync(830)], #Winged Sun CoC(Mithras, Asura) 
     'MM_M060_EM1420': [Demon_Sync(35)], #Fionn 2 Quest (Fionn) #TODO Test
     'MM_M060_EM1431': [Demon_Sync(836),Demon_Sync(834),Demon_Sync(835)], #Holy Ring Quest (Uriel, Raphael,Gabriel) #TODO
-    'MM_M060_EM1440': [Demon_Sync(19)], #Baal Quest (Demeter) #TODO TestTest
-    'MM_M060_EM1441': [Demon_Sync(837)], #Baal Quest (Baal) #TODOTest
+    'MM_M060_EM1440': [Demon_Sync(19)], #Baal Quest (Demeter) 
+    'MM_M060_EM1441': [Demon_Sync(837)], #Baal Quest (Baal) 
     'MM_M060_EM1460': [Demon_Sync(839)], #The Gold Dragon's Arrival (Huang Long) #TODO Test
     'MM_M060_EM1600': [Demon_Sync(878)],  #Final Amanozako Quest (Kurama Tengu) 
     'MM_M060_EM1601': [Demon_Sync(878),Demon_Sync(38),Demon_Sync(877)], #Final Amanozako Quest (Kurama Tengu,Amanozako, Zaou Gongen)
@@ -468,6 +457,7 @@ SCRIPT_ANIMS_REPLACEMENTS = {
 #For bosses that do not use their own model, which model they should use instead
 MODEL_SYNC = {
     434: 272, # 2 Andras from Eligor
+    832: 84, #Abaddon
     577: 264, # Abdiel (Fallen)
     564: 240, # Abdiel (Shakan)
     467: 240, # Abdiel (Summit)
@@ -491,6 +481,7 @@ MODEL_SYNC = {
     728: 287, # Anzu (Single Abcess)
     606: 287, # Anzu (with Mishaguji)
     868: 43, # Apsaras
+    828: 211, #Arahabaki
     463: 82, # Arioch
     930: 31, # Artemis
     829: 181, # Asura
@@ -506,6 +497,7 @@ MODEL_SYNC = {
     804: 86, #Belphegor
     859: 203, # Bishamonten (2 Turn)
     863: 203, # Bishamonten (4 Turn)
+    882: 72, #Black Frost
     773: 171, # Black Ooze
     926: 352, # Black Rider
     814: 248, # Camael
@@ -537,12 +529,18 @@ MODEL_SYNC = {
     883: 201, # Futsunushi
     836: 243, # Gabriel
     865: 278, # Garuda
+    827: 232, # Girimekhala 
+    552: 142, # Glaysa-Labolas (I)
     555: 142, # Glasya-Labolas (with Naamah)
+    890: 337, #Gogmagog
+    891: 291, #Gurulu
     608: 34, # Hanuman
     562: 152, # Hayataro
+    813: 322, #Hecatoncheires
     923: 356, # Hell Biker
     864: 13, # Horus
     839: 94, # Huang Long
+    432: 115, #Hydra
     844: 189, # Inanna
     495: 68, # Incubus (School Copy)
     496: 68, # Incubus (School Copy) with 489 Andras
@@ -688,6 +686,7 @@ MODEL_SYNC = {
     518: 14, # Thoth (CoC Summon)
     431: 345, # Three Pretas
     624: 254, # Throne
+    808: 283, #Thunderbird
     929: 350, # Trumpeter
     449: 331, # Tsuchigumo (School) with 499 Oni
     754: 175, # Turbo Granny
@@ -762,6 +761,7 @@ Updates the models used in events.
 '''
 def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapSymbolFile, config):
     mapSymbolTable = mapSymbolFile.json["Exports"][0]["Table"]["Data"]
+    originalMapSymbolTable = mapSymbolFile.originalJson["Exports"][0]["Table"]["Data"]
     initDemonModelData()
     startTime = datetime.datetime.now()
     umapList = UMap_File_List()
@@ -800,7 +800,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
                 #replacementID = 934 #Testing stuff for event hit scaling
                 pass
             if DEBUG_BIG_MODEL_TEST:
-                replacementID = random.choice([565,525,520]) #Testing big demon models (Tiamat, Abdiel Naho, Nuwa Naho)
+                replacementID = random.choice(DEBUG_MODELS) #Testing big demon models (Tiamat, Abdiel Naho, Nuwa Naho)
             # if originalDemonID in replacementMap.values():
             #     print("Causes Chain replacement: " + str(originalDemonID) + " " + str(replacementID) )
             replacementMap[originalDemonID] = replacementID
@@ -813,9 +813,12 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
         scale = 1
         currentScale = 1
         for originalDemonID, replacementID in replacementMap.items():
+            currentMapSymbolTable = mapSymbolTable
+            if file.relevantFunctionExps[0] == []:
+                currentMapSymbolTable = originalMapSymbolTable
             try:
-                og = next(d for x, d in enumerate(mapSymbolTable) if d["Value"][0]["Value"] == originalDemonID)
-                replacement = next(d for x, d in enumerate(mapSymbolTable) if d["Value"][0]["Value"] == replacementID)
+                og = next(d for x, d in enumerate(currentMapSymbolTable) if d["Value"][0]["Value"] == originalDemonID)
+                replacement = next(d for x, d in enumerate(currentMapSymbolTable) if d["Value"][0]["Value"] == replacementID)
                 baseCollision = Position(og["Value"][5]["Value"],og["Value"][6]["Value"],og["Value"][7]["Value"])
                 replacementCollision = Position(replacement["Value"][5]["Value"],replacement["Value"][6]["Value"],replacement["Value"][7]["Value"])
                 scalingFactor = baseCollision.stretchToBox(replacementCollision)
@@ -823,29 +826,33 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
                 if scalingFactor != 0:
                     #print(scalingFactor)
                     scale = scalingFactor
+                elif scalingFactor < 1:
+                    scale = 1
                 else:
                     scale = 1.5 #Increase by 50%
             except StopIteration:
                 scale = 1.5 #Increase by 50%
                 if file.relevantFunctionExps[0] == [] and script in REQUIRES_HIT_UPDATE:
                     # if is never scaled to symbol scale and no valid scaling found skip model replacement
+                    print("CANNOT CALCULATE SCALING AND NO SYMBOL SCALE ADJUSTED IN :" + script + " for replacment " + str(replacementID))
                     continue
-            if scale <= 1 or scale > 2.5 or (scale > 2 and file.relevantFunctionExps[0] == [] and script in REQUIRES_HIT_UPDATE): #do not update hitbox size if scale would be smaller
+            if (scale > 6 and script in REQUIRES_HIT_UPDATE) or (scale > 3 and file.relevantFunctionExps[0] == [] and script in REQUIRES_HIT_UPDATE): #do not update hitbox size if scale would be smaller
+                #TODO: Number values could maybe be fine tuned
                 #do not double if there is no modelScaling in code and update is needed
+                #print("REPLACEMENT MODEL SIZE IS TOO LARGE:" + script)
                 continue
             #Need to make sure that it is updated for biggest demon in file
-            #TODO: What if instead of changing event scale we changed the map scale of the model, since each boss only replaces one check.
-            # Would of course require a base hitbox for every boss, to have a basis for calculation
-            #Don't think this works since I don't think can easily do that, if actual boss id isn't event used in files 
-            if (not hitboxUpdated or scale >= currentScale) and script in REQUIRES_HIT_UPDATE and script in LEVEL_UASSETS.keys(): #TODO: How to deal with overlap issues
+            if scale != 1 and (not hitboxUpdated or scale >= currentScale) and script in REQUIRES_HIT_UPDATE and script in LEVEL_UASSETS.keys(): #TODO: How to deal with overlap issues
                 umap = umapList.getFile(LEVEL_UASSETS[script])
                 hitboxUpdated = True
                 umap = updateEventHitScaling(umap,script,scale)
                 currentScale = scale
-            elif (not hitboxUpdated or scale >= currentScale) and script in REQUIRES_HIT_UPDATE: #no umap for event exists, update all others this way for safety
+            elif scale != 1 and (not hitboxUpdated or scale >= currentScale) and script in REQUIRES_HIT_UPDATE: #no umap for event exists, update all others this way for safety
                 successful = updateEventHitGen(file,scale,script)
                 currentScale = scale
                 if not successful:
+                    #TODO: Can I force this?
+                    #print("FAILED TO UPDATE HIT SCALE IN:" + script)
                     continue
             
             file = replaceDemonModelInScript(script, file, originalDemonID, replacementID)   
@@ -968,6 +975,14 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         classOldFolderPrefix = DEVIL_PREFIX
         classOldPrefix = "dev"
         classOldPrefixVariant = "Dev"
+    
+    
+    for index, name in enumerate(file.originalNameMap):
+        if "DevilBaseLight" in name and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] :
+            #Applies to CoC Nuwa Gate, Kunitsukami Fight, Dagda, 4 Heavenly Kings, Pisaca Quest Anahita Event, Konohana Sakuya, Nozuchi, Huang Long
+            #print("DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
+            return file # since we might run into softlocks otherwise
+    #print("NO DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
 
     
 

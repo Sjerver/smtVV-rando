@@ -614,6 +614,7 @@ class General_UAsset:
         self.writePath = writePath
         jsonstring = self.uasset.SerializeJson()
         self.json = json.loads(jsonstring)
+        self.originalJson = json.loads(jsonstring)
     
     def write(self):
         writeFolder(self.writePath)

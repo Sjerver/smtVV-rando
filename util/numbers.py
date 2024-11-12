@@ -261,12 +261,37 @@ LARGE_MODEL_NORMAL_DEMONS = {
 }
 #List of demons that should be added to the MapSymbolParamTable for the sake of collision calculation
 ADD_LARGE_MODEL_DEMONS = {
+    #TODO: Check implications for punishing replacements/ normal enemies like Hydra
     565: Position(1000,1000,1000), #Tiamat
     525: Position(800,800,800), #Abdiel Nahobino
     520: Position(800,1000,800), #Nuwa Nahobino
     435: Position(450,450,450), #Hydra (boss)
     115: Position(450,450,450), #Hydra (Normal)
+    441: Position(200,350,420) ,# Lahmu Mask (Zhuque Collision)
+
+    -617: Position(60,70,120), #Koshimizu (Parvati Collision)
+    561: Position(60,70,120), #Yuzuru (Parvati Collision)
+    240: Position(160,180,240), #Abdiel (Zeus Collision)
+    7: Position(160,180,240), #Khonsu (Zeus Collision)
+    15: Position(160,180,240), #Khonsu Ra (Zeus Collision)
+    31: Position(60,70,120), #Artemis (Parvati Collision)
+    934: Position(60,70,120), #Demi-fiend (Parvati Collision)
+    41: Position(60,70,120), #Anansi (Parvati Collision)
+    386: Position(60,70,120), #Onyankopon (Parvati Collision)
+    250: Position(60,70,120), #Mastema (Parvati Collision)
+    118: Position(110,150,230), #Samael (Vishnu Collision)
+    38: Position(60,70,120), #Amanozako (Parvati Collision)
+    237: Position(60,70,120), #Saturnus (Zeus Collision)
+    75: Position(60,70,120), #Nuwa (Parvati Collision)
+    465: Position(60,70,120), #Yakumo (Parvati Collision)
+    227: Position(110,150,230), #Masakado (Vishnu Collision)
+    876: Position(60,70,120), #Amanozako Rage(Parvati Collision)
+    40: Position(60,70,120), #Kresnik (Parvati Collision)
+    394: Position(60,70,120), #Eisheth (Parvati Collision)
+
 }
+#List of demons that should be removed to the MapSymbolParamTable after collision calculation is done
+REMOVE_TEMP_MODEL_DEMONS = [-617,561,240,7,15,31,934,41,386,250,118,38,237,75,465,227,876,40,394]
 
 #Map of punishing foe ID - walkspeed for birds that have large flight cycles
 PUNISHING_FOE_BIRD_SPEEDS = {802: 1400, #Jatayu

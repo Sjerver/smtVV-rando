@@ -6127,6 +6127,34 @@ class Randomizer:
 
             table.append(entry)
 
+        originalJson = self.mapSymbolFile.originalJson
+        table = originalJson["Exports"][0]["Table"]["Data"]
+
+        for demonID in numbers.ADD_LARGE_MODEL_DEMONS.keys():
+            entry = copy.deepcopy(BASE_MAPSYMBOLPARAMS)
+
+            entry["Value"][4]["Value"] = 1.2
+            entry["Value"][0]["Value"] = demonID
+            entry["Value"][5]["Value"] = numbers.ADD_LARGE_MODEL_DEMONS[demonID].x
+            entry["Value"][6]["Value"] = numbers.ADD_LARGE_MODEL_DEMONS[demonID].y
+            entry["Value"][7]["Value"] = numbers.ADD_LARGE_MODEL_DEMONS[demonID].z
+
+            table.append(entry)
+    '''
+    Removes entries in the map symbol scale table that were added to aid in collision calculation in model swapping.
+    '''
+    def removeCalcOnlyMapSymbolScales(self):
+        json = self.mapSymbolFile.json
+
+        table = json["Exports"][0]["Table"]["Data"]
+        tableCopy = copy.deepcopy(table)
+
+        for entry in tableCopy:
+            demonID = entry["Value"][0]["Value"]
+            if demonID in numbers.REMOVE_TEMP_MODEL_DEMONS:
+                table.remove(entry)
+        
+
     '''
     Changes the scaling of normal demon symbols with overly large scaling factors to the normal 1.2 factor.
     Parameters:
@@ -6673,9 +6701,6 @@ class Randomizer:
 
         self.addEntriesToMapSymbolScaleTable()
         self.scaleLargeSymbolDemonsDown()
-        self.patchAdramelechReplacementSize()
-        self.adjustPunishingFoeSpeeds()
-        
             
         if DEV_CHEATS:
             self.applyCheats()
@@ -6686,9 +6711,13 @@ class Randomizer:
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel)
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
-        
+
         if self.configSettings.swapCutsceneModels:
             model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings)
+
+        self.removeCalcOnlyMapSymbolScales()
+        self.patchAdramelechReplacementSize()
+        self.adjustPunishingFoeSpeeds()
 
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)

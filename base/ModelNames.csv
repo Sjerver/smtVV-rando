@@ -290,7 +290,7 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 426,khons_1st,Khonsu,7,TRUE
 427,khons_2nd,Khonsu Ra,15,FALSE
 431,hydra,Hydra,115,FALSE
-432,hydra_big,Hydra,432,FALSE
+432,hydra_big,Hydra,-1,FALSE
 451,lucifer2,Lucifer,529,FALSE
 452,lucifer2_effect1,Lucifer,-1,FALSE
 453,lucifer2_effect3,Lucifer,-1,FALSE
@@ -305,22 +305,22 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 501,artemis,Artemis,31,FALSE
 502,surtr1_big,Surt,-1,FALSE
 503,surtr2_big,Surt,454,FALSE
-504,abaddon_big,Abaddon,832,FALSE
+504,abaddon_big,Abaddon,-1,FALSE
 505,moloch_big,Moloch,-1,FALSE
 506,belphegor_big,Belphegor,-1,FALSE
 507,koyru_big,Huang Long,-1,FALSE
 508,chimera_big,Chimera,-1,FALSE
-509,arahabaki_big,Arahabaki,828,FALSE
+509,arahabaki_big,Arahabaki,-1,FALSE
 510,ooyamatumi_big,Oyamatsumi,-1,FALSE
-511,girimekara_big,Girimekhala,827,FALSE
-512,thunderbird_big,Thunderbird,808,FALSE
-513,hekatoncheir_big,Hecatoncheires,813,FALSE
+511,girimekara_big,Girimekhala,-1,FALSE
+512,thunderbird_big,Thunderbird,-1,FALSE
+513,hekatoncheir_big,Hecatoncheires,-1,FALSE
 514,kingfrost_big,King Frost,-1,FALSE
-515,jaakufrost_big,Black Frost,882,FALSE
+515,jaakufrost_big,Black Frost,-1,FALSE
 516,maare_big,Mara,-1,FALSE
-517,gurr_big,Gurulu,891,FALSE
-518,gogmagog_big,Gogmagog,890,FALSE
-519,glasyalabolas_big,Glasya-Labolas,552,FALSE
+517,gurr_big,Gurulu,-1,FALSE
+518,gogmagog_big,Gogmagog,-1,FALSE
+519,glasyalabolas_big,Glasya-Labolas,-1,FALSE
 605,lawko,Tao,-1,FALSE
 606,lawko_bag,Tao Schoolbag,-1,FALSE
 607,chaoko,Yoko,-1,FALSE
