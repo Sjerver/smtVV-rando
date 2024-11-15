@@ -2304,6 +2304,7 @@ class Randomizer:
             An object with an array of values and an array of weights and an array of names for the skills
     '''
     def createWeightedList(self, possibleSkills):
+        random.shuffle(possibleSkills) 
         ids = []
         prob = []
         names = []
@@ -2318,6 +2319,9 @@ class Randomizer:
                     probability = numbers.SKILL_WEIGHT
                 if skill.ind in self.alreadyAssignedSkills:
                     probability = probability - numbers.SKILL_PENALTY_WEIGHT
+                if skill.ind not in self.alreadyAssignedSkills and self.configSettings.forceUniqueSkills and self.obtainSkillFromID(skill.ind).owner.ind !=0:
+                    #increase weight if skill is unique and uniques need to be forced
+                    probability = probability * numbers.UNIQUE_SKILL_MULTIPLIER
                 prob.append(probability)
                 names.append(skill.name)
         # for skill in possibleSkills:
@@ -2450,7 +2454,8 @@ class Randomizer:
             The updated buffer
     '''
     def updateOtherFusionBuffer(self, buffer, fusions):
-        for fusion in fusions:
+        for index,fusion in enumerate(fusions):
+            buffer.writeHalfword(index, fusion.baseOffset)
             buffer.writeHalfword(fusion.demon1.value, fusion.baseOffset + 2)
             buffer.writeHalfword(fusion.demon2.value, fusion.baseOffset + 4)
             buffer.writeHalfword(fusion.demon3.value, fusion.baseOffset + 6)
@@ -3138,8 +3143,22 @@ class Randomizer:
         Parameters:
             fusions (Array) Array containing data on the new special fusions
             comp (Array) Array containing data on all playable demons
+            expBuffer(Table): table for the special fusion buffer
     '''
-    def adjustSpecialFusionTable(self,fusions,comp):
+    def adjustSpecialFusionTable(self,fusions,comp,expBuffer):
+        if len(fusions) > len(self.specialFusionArr):
+            newEntries = len(fusions) - len(self.specialFusionArr)
+            expBuffer = self.extendSpecialFusionTable(newEntries,expBuffer)
+
+        startValue = 0xCC5
+        fusionOffset = 0xC
+        for index in range(newEntries): #add new special fusion dummies to array to replace with actual randomized data
+            offset = startValue + (numbers.SPECIAL_FUSION_COUNT + index) * fusionOffset
+            fusion = copy.deepcopy(self.specialFusionArr[0])
+            fusion.ind = index + numbers.SPECIAL_FUSION_COUNT
+            fusion.baseOffset = offset
+            self.specialFusionArr.append(fusion)
+
         for index, fusion in enumerate(fusions):
             #Set original demons fusability to 0
             # seperate in case an og special fusion is still a special version
@@ -3157,6 +3176,35 @@ class Randomizer:
             replaced.demon3 = fusion.demon3
             replaced.demon4 = fusion.demon4
             replaced.result = fusion.result
+        return expBuffer
+
+    '''
+    Extend the special fusion table and write the corresponding uasset file
+        Parameters:
+            newEntries(Integer): how many entries should be added to the table
+            expBuffer(Table): table for the special fusion buffer
+    '''
+    def extendSpecialFusionTable(self, newEntries, expBuffer):
+        uassetBuffer = readBinaryTable(paths.UNITE_TABLE_UASSET_IN)
+        additionalSize = 0xC * newEntries
+
+        toUpdateInEXP = [0xCB9,0x45,0x49,0x4D,0x51,0x55,0x59,0x5D,0x21,0x10]
+
+        for offset in toUpdateInEXP:
+            old = expBuffer.readWord(offset)
+            expBuffer.writeWord(old + additionalSize, offset)
+
+        for j in range(additionalSize):
+            expBuffer.buffer.insert(0xCC5 +numbers.SPECIAL_FUSION_COUNT * 0xC,0)
+
+        toUpdateInUasset = [0x247,0xA9]
+        for offset in toUpdateInUasset:
+            old = uassetBuffer.readWord(offset)
+            uassetBuffer.writeWord(old + additionalSize, offset)
+        
+        writeBinaryTable(uassetBuffer.buffer, paths.UNITE_TABLE_UASSET_OUT,paths.UNITE_FOLDER_OUT)
+
+        return expBuffer
     
     '''
     Randomizes the races for all relevant demons in comp. Each race has at least 1 demon and makes sure all demons should still be fusable after level shuffling.
@@ -3249,9 +3297,10 @@ class Randomizer:
     The distribution of races roughly follows the amount of times they appear as an result in the fusion chart.
     Parameters:
         comp List(Compendium_Demon): list of all compendium demons
+        buffer(Table): table for the special fusion buffer
     Returns: the ids of the 4 new demons of the Element race
     '''
-    def randomizeRacesFixedLevels(self, comp):
+    def randomizeRacesFixedLevels(self, comp,buffer):
 
         for demonInd in self.elementals:
             #Reset compendium costs for original elements
@@ -3366,11 +3415,13 @@ class Randomizer:
                     raceWeights[ratioIndex] = raceResults[ratioIndex]
                 elif raceResults[ratioIndex] / (raceAssignments[ratioIndex] + 1) < 2.5:
                     raceWeights[ratioIndex] = 0
-        #Check if fusions of the base 10 demons can result in each other, and note the fusions as such
+        fusableDemonS = []
+        #Check if demons in the base 10 can fuse into each other
         for b in base:
             possibleFusions = [f for f in fusions if f[2].race.translation == b.race.translation and f[2].ind == -1 and f[2].level.value <= b.level.value]
             for p in possibleFusions:
                 p[2] = b
+                fusableDemonS.append(b)
 
         attempts = 0
         #until no relevant demon left or no valid race assignment can be created
@@ -3415,6 +3466,7 @@ class Randomizer:
                         fusions.append([demon,b,dummy])
                 #add demon to base
                 base.append(demon)
+                fusableDemonS.append(demon)
                 # add level to the appropriate race level list
                 raceLevels[demon.race.value].append(demon.level.value)
             else:
@@ -3452,6 +3504,7 @@ class Randomizer:
                         fusions.append([demon,b,dummy])
                 #add demon to base
                 base.append(demon)
+                fusableDemonS.append(demon)
                 # add level to the appropriate race level list
                 raceLevels[demon.race.value].append(demon.level.value)
             #At end of while, check ratio eligibility for races and set their weights accordingly
@@ -3464,7 +3517,24 @@ class Randomizer:
         if attempts >= 300:
             print("Could not assign all races properly")
             return False
-        return elementals      
+        
+        notFusableCurrently = [demon for demon in base if demon not in fusableDemonS]
+        #check if there isn't a fusion for current unfusable that was somehow missed
+        for demon in notFusableCurrently:
+            possibleFusions = [f for f in fusions if f[2].race.translation == demon.race.translation and f[2].ind == -1 and f[2].level.value <= demon.level.value]
+            for p in possibleFusions:
+                p[2] = demon
+                fusableDemonS.append(demon)
+        
+        notFusableCurrently = [demon for demon in base if demon not in fusableDemonS and demon.race.translation in numbers.NO_DOWNFUSE_RACES]
+        #for all other unfusables that also are not available via element fusion, add an extra special fusion
+        for demon in notFusableCurrently:
+            #print(demon.name + " " + str(demon.level.value))
+            specialFusions.append(self.generateSpecialFusion(demon, [b for b in base if b.level.value < demon.level.value + 5 and b.level.value != demon.level.value]))
+        
+        buffer = self.adjustSpecialFusionTable(specialFusions,comp,buffer)
+
+        return [elementals, buffer] 
         
     '''
     Randomize the tone of each playable demon that does not have a tone with talk data assigned.
@@ -5344,10 +5414,11 @@ class Randomizer:
     The shuffling process takes the fusions of demons into account by assembling the fusion tree from the bottom.
         Parameters:
             comp (Array(Compendium_Demon)): The array of playable demons
+            buffer(Table): table for the special fusion buffer
         Returns:
             The array of playable demons with shuffled levels
     '''
-    def shuffleLevel(self, comp, config):
+    def shuffleLevel(self, comp, config,buffer):
         
 
         #Array that defines for each index=Level how many demons can have this level
@@ -5458,12 +5529,13 @@ class Randomizer:
                 # add demon to base and remove from valid demons
                 base.append(demon)
                 validDemons.pop(validDemons.index(demon))
-        
+        fusableDemonS = []
         #Check if demons in the base 10 can fuse into each other
         for b in base:
             possibleFusions = [f for f in fusions if f[2].race.translation == b.race.translation and f[2].ind == -1 and f[2].level.value <= b.level.value]
             for p in possibleFusions:
                 p[2] = b
+                fusableDemonS.append(b)
 
         attempts = 0
         #attempts usually average around 40 by my tests
@@ -5500,6 +5572,7 @@ class Randomizer:
                         fusions.append([demon,b,dummy])
                 
                 base.append(demon)
+                fusableDemonS.append(demon)
                 validDemons.pop(validDemons.index(demon))
             else:
                 #if no special fusion at this level available
@@ -5527,58 +5600,32 @@ class Randomizer:
                         dummy.level = Demon_Level(math.ceil((demon.level.value + b.level.value) / 2) +1, curLevel)
                         fusions.append([demon,b,dummy])
                 base.append(demon)
+                fusableDemonS.append(demon)
                 validDemons.pop(validDemons.index(demon))
 
         #do not continue if attempts elapse 300
         if attempts >= 300:
             print("Could not assign all levels properly")
             return False
-            
 
-        # #For all flagged demons...
-        # for e in flaggedDemons:
-        #     validLevel = False
-        #     somethingWrong = False 
-        #     attempts = 100 #Band-aid fix to stop infinite loop
-        #     #assign new level based on highest free level as max and the minimum level unlock level based on flag
-        #     while not validLevel:
-        #         if getHighestFreeLevel() < e.minUnlock or somethingWrong:
-        #             newLevel = self.getRandomLevel(slots, getHighestFreeLevel(), getLowestFreeLevel()) #Something went wrong, no levels are free above minUnlock
-        #         else:
-        #             newLevel = self.getRandomLevel(slots, getHighestFreeLevel(), e.minUnlock)
-        #         if slots[newLevel] > 0 and newLevel not in raceLevels[RACE_ARRAY.index(e.race.translation)]:
-        #             #make sure slot is available and no demon of the same race has the same level
-        #             validLevel = True
-        #         attempts -= 1
-        #         if attempts < 0:
-        #             somethingWrong = True
-        #     slots[newLevel] = slots[newLevel] - 1
-        #     comp[e.ind].level.value = newLevel
-        #     raceLevels[RACE_ARRAY.index(e.race.translation)].append(newLevel)
-
-        # for index, e in enumerate(validDemons):
-        #     validLevel = False
-        #     attempts = 100 #Band-aid fix to stop infinite loop
-        #     while not validLevel:
-        #         newLevel = self.getRandomLevel(slots, getHighestFreeLevel(), getLowestFreeLevel())
-        #         if slots[newLevel] > 0 and newLevel not in raceLevels[RACE_ARRAY.index(e.race.translation)]:
-        #             #make sure slot is available and no demon of the same race has the same level
-        #             validLevel = True
-        #         else:
-        #             attempts -= 1
-        #             if attempts <= 0:
-        #                 validLevel = True
-        #     slots[newLevel] = slots[newLevel] - 1
-        #     comp[e.ind].level.value = newLevel
-        #     raceLevels[RACE_ARRAY.index(e.race.translation)].append(newLevel)
-
-
+        notFusableCurrently = [demon for demon in base if demon not in fusableDemonS]
+        for demon in notFusableCurrently:
+            possibleFusions = [f for f in fusions if f[2].race.translation == demon.race.translation and f[2].ind == -1 and f[2].level.value <= demon.level.value]
+            for p in possibleFusions:
+                p[2] = demon
+                fusableDemonS.append(demon)
+        
+        notFusableCurrently = [demon for demon in base if demon not in fusableDemonS and demon.race.translation in numbers.NO_DOWNFUSE_RACES]
+        for demon in notFusableCurrently:
+            #print(demon.name + " " + str(demon.level.value))
+            specialFusions.append(self.generateSpecialFusion(demon, [b for b in base if b.level.value < demon.level.value + 5 and b.level.value != demon.level.value]))
+        
         #slots = self.defineLevelSlots(comp)
         #print(slots)
         self.adjustLearnedSkillLevels(comp)
         comp = self.adjustStatsToLevel(comp)
         self.adjustFusionFlagsToLevel(comp)
-        self.adjustSpecialFusionTable(specialFusions,comp)
+        self.adjustSpecialFusionTable(specialFusions,comp,buffer)
         
         return comp
     
@@ -6577,13 +6624,15 @@ class Randomizer:
         if config.randomRaces and config.randomDemonLevels:
             self.elementals = self.randomizeRaces(self.compendiumArr)
         elif config.randomRaces:
-            self.elementals = self.randomizeRacesFixedLevels(self.compendiumArr)
+            result = self.randomizeRacesFixedLevels(self.compendiumArr,otherFusionBuffer)
+            self.elementals= result[0]
+            otherFusionBuffer = result[1]
 
         if config.randomDemonLevels:
             newComp = False
             attempts = 0
             while not newComp and attempts < 10:
-                newComp = self.shuffleLevel(self.compendiumArr, config)
+                newComp = self.shuffleLevel(self.compendiumArr, config,otherFusionBuffer)
                 if not newComp:
                     self.resetLevelToOriginal(self.compendiumArr)
                     attempts += 1
@@ -6608,7 +6657,6 @@ class Randomizer:
             else:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
         self.outputSkillSets() 
-            
 
         if config.randomInnates:
             self.assignRandomInnates(newComp)

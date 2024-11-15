@@ -241,6 +241,7 @@ def createGUI(configSettings):
     listDemon.insert(13, "Restrict Lunation Flux to one demon")
     listDemon.insert(14, "Include Enemy Only Skills in Skill Pool")
     listDemon.insert(15, "Include Magatsuhi Skills in Skill Pool")
+    listDemon.insert(16, "Ensure all Unique Skills are Available")
 
     demonScrollbar = tk.Scrollbar(page1FrameTop, orient='vertical')
     demonScrollbar.config(command=listDemon.yview)
@@ -518,6 +519,10 @@ def createGUI(configSettings):
             listDemon.selection_set(15)
         else:
             listDemon.selection_clear(15)
+        if configur.get('Demon', 'ForceUniqueSkills') == 'true':
+            listDemon.selection_set(16)
+        else:
+            listDemon.selection_clear(16)
         listInheritance.selection_set(0)
         if configur.get('Inheritance', 'RandomInheritance') == 'true':
             listInheritance.selection_clear(0)
@@ -914,6 +919,12 @@ def createGUI(configSettings):
         configur.set('Demon', 'MagatsuhiSkills', 'true')
     else:
         configur.set('Demon', 'MagatsuhiSkills', 'false')
+    
+    if demonFlags[16]:
+        configSettings.forceUniqueSkills = True
+        configur.set('Demon', 'ForceUniqueSkills', 'true')
+    else:
+        configur.set('Demon', 'ForceUniqueSkills', 'false')
 
     if len(inheritanceChoice) > 0 and inheritanceChoice[0] == 1:
         configSettings.randomInheritance = True
@@ -1240,7 +1251,7 @@ def createConfigFile(configur):
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
                                 'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False, 
-                                'EnemyOnlySkills':False, 'MagatsuhiSkills': False}
+                                'EnemyOnlySkills':False, 'MagatsuhiSkills': False, 'ForceUniqueSkills': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
                         'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False,
                         'RandomizeGiftItems': False, 'CombineKeyItemPools': False, 'IncludeTsukuyomiTalisman': False

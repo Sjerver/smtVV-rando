@@ -23,6 +23,10 @@ BAD_IDS = [71, 365, 364, 366] #Old Lilith, Tao x2, Yoko
 
 TOTAL_DEMON_COUNT = 1201
 
+SPECIAL_FUSION_COUNT = 62
+#Races that cannot be downfused with an element
+NO_DOWNFUSE_RACES = ["Enigma","Fiend","UMA","Qadistu","Devil","Primal",""]
+
 #Obtained by creating a linear trend function for the potential of compendium demons
 POTENTIAL_SCALING_FACTOR = 0.167
 BASE_POTENTIAL_VALUE = 6.67
@@ -588,6 +592,7 @@ POTENTIAL_WEIGHT_MULITPLIER = 1.7 #Multiplier applied to potential to update wei
 MAGATSUHI_SKILL_WEIGHT = 6 #Base weight of magatsuhi skills if included in skill rando
 SKILL_WEIGHT = 10 #Base weight for all skills in skill rando
 SKILL_PENALTY_WEIGHT = 4 #Weight penalty for skills if the skill has already been assigned in process in an attempt to diversify skill sets
+UNIQUE_SKILL_MULTIPLIER = 6 #Multiplier to ensure unique skills are assigned to at least one enemy
 
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
@@ -646,13 +651,14 @@ def getEnemyOnlySkills():
             [ 'Seething Mansemat',863,84,84],
             [ 'Untainted Wind',864,84,84],
             [ 'Boundless Sea',865,83,83],
+            [ 'Holy Crucifixion',343,95,99],
             ]
 
 def getBonusSkills():
     return [
-            ['Intercalation',452,69,69],
-            ['Elusive Eclipse',451,52,52],
-            ['Rooted Soul',450,12,12],
+            [ 'Intercalation',452,69,69],
+            [ 'Elusive Eclipse',451,52,52],
+            [ 'Rooted Soul',450,12,12],
             [ 'Sakanagi',292,25,25],
             [ 'Divine Arrowfall',293,41,41],
             [ 'Murakumo',294,67,67],
@@ -692,3 +698,5 @@ def getBonusSkills():
             [ 'Lunation Flux',927,69,69],
             [ 'Gaea Rage',830,95,99]
         ]
+
+#TODO: 311 Revival Chant is not in pool, test with different animation
