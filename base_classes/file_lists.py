@@ -3,6 +3,7 @@ from util.binary_table import readBinaryTable, writeBinaryTable, Table, writeFol
 import json
 import os
 import sys
+import copy
 from script_logic import getEquivalentSource
 from pythonnet import load
 
@@ -485,17 +486,24 @@ class Script_File_List:
             folderKey = name
             if folderKey not in SCRIPT_FOLDERS.keys():
                 folderKey = getEquivalentSource(name)
+            if 'SEQ' in name:
+                subFolder = name.split("_")[1]
+                folderKey = "LV_" + subFolder
             
             file = self.files[index]
-            stringy = json.dumps(file.json)
+            if 'SEQ' not in name:
+                stringy = json.dumps(file.json)
+                file.uasset = file.uasset.DeserializeJson(stringy)
 
             writeFolder(SCRIPT_FOLDERS[folderKey])
-            
-            file.uasset = file.uasset.DeserializeJson(stringy)
             if name in EVENT_UMAPS:
                 subFolder = folderKey.split("_")[1]
                 writeFolder(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder)
                 file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder + '/' + name + '.umap')
+            elif 'SEQ' in name:
+                subFolder = name.split("_")[1]
+                writeFolder(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder)
+                file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder + '/' + name + '.uasset')
             else:
                 file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset')
             #writeBinaryTable(file.uexp.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uexp', SCRIPT_FOLDERS[folderKey])
@@ -517,6 +525,8 @@ class Script_File_List:
             scriptPath = 'MainMission/'
         if 'LV' == name[:2] or name in EVENT_UMAPS:
             assetobject = UAsset('base/Design Event/' + name + '.umap', EngineVersion.VER_UE4_27)
+        elif 'SEQ' in name:
+            assetobject = UAsset('base/Design Event/' + name + '.uasset', EngineVersion.VER_UE4_27)
         else:
         #uexp = readBinaryTable('base/Scripts/' + scriptPath + name + '.uexp')
         #uassetData = Script_Uasset(readBinaryTable('base/Scripts/' +scriptPath + name + '.uasset'))
@@ -530,8 +540,9 @@ class Script_File_List:
 
 class Script_File:
     def __init__(self,uasset: UAsset, json):
-        self.uasset = uasset 
+        self.uasset = uasset
         self.json = json
+        self.originalJson = copy.deepcopy(json)
         self.originalByteCodeSize = None
         self.originalBytecode = None
         self.originalNameMap = None

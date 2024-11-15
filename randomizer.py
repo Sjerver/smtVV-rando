@@ -6119,11 +6119,13 @@ class Randomizer:
         for demonID in numbers.ADD_LARGE_MODEL_DEMONS.keys():
             entry = copy.deepcopy(BASE_MAPSYMBOLPARAMS)
 
+            referenceEntry = next(entry for entry in table if entry["Value"][0]["Value"] == numbers.ADD_LARGE_MODEL_DEMONS[demonID])
+
             entry["Value"][4]["Value"] = 1.2
             entry["Value"][0]["Value"] = demonID
-            entry["Value"][5]["Value"] = numbers.ADD_LARGE_MODEL_DEMONS[demonID].x
-            entry["Value"][6]["Value"] = numbers.ADD_LARGE_MODEL_DEMONS[demonID].y
-            entry["Value"][7]["Value"] = numbers.ADD_LARGE_MODEL_DEMONS[demonID].z
+            entry["Value"][5]["Value"] = referenceEntry["Value"][5]["Value"]
+            entry["Value"][6]["Value"] = referenceEntry["Value"][6]["Value"]
+            entry["Value"][7]["Value"] = referenceEntry["Value"][7]["Value"]
 
             table.append(entry)
 
@@ -6133,11 +6135,13 @@ class Randomizer:
         for demonID in numbers.ADD_LARGE_MODEL_DEMONS.keys():
             entry = copy.deepcopy(BASE_MAPSYMBOLPARAMS)
 
+            referenceEntry = next(entry for entry in table if entry["Value"][0]["Value"] == numbers.ADD_LARGE_MODEL_DEMONS[demonID])
+
             entry["Value"][4]["Value"] = 1.2
             entry["Value"][0]["Value"] = demonID
-            entry["Value"][5]["Value"] = numbers.ADD_LARGE_MODEL_DEMONS[demonID].x
-            entry["Value"][6]["Value"] = numbers.ADD_LARGE_MODEL_DEMONS[demonID].y
-            entry["Value"][7]["Value"] = numbers.ADD_LARGE_MODEL_DEMONS[demonID].z
+            entry["Value"][5]["Value"] = referenceEntry["Value"][5]["Value"]
+            entry["Value"][6]["Value"] = referenceEntry["Value"][6]["Value"]
+            entry["Value"][7]["Value"] = referenceEntry["Value"][7]["Value"]
 
             table.append(entry)
     '''

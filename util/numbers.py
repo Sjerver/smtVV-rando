@@ -259,39 +259,53 @@ LARGE_MODEL_NORMAL_DEMONS = {
     520: 0.4, #Nuwa Nahobino
     435: 0.5, #Hydra (boss)
 }
-#List of demons that should be added to the MapSymbolParamTable for the sake of collision calculation
+#List of demons that should be added to the MapSymbolParamTable for the sake of collision calculation and which demons encount collision they should use
 ADD_LARGE_MODEL_DEMONS = {
     #TODO: Check implications for punishing replacements/ normal enemies like Hydra
-    565: Position(1000,1000,1000), #Tiamat
-    525: Position(800,800,800), #Abdiel Nahobino
-    520: Position(800,1000,800), #Nuwa Nahobino
-    435: Position(450,450,450), #Hydra (boss)
-    115: Position(450,450,450), #Hydra (Normal)
-    441: Position(200,350,420) ,# Lahmu Mask (Zhuque Collision)
+    565: 832, #Tiamat (Abaddon)
+    525: 832, #Abdiel Nahobino  (Abaddon)
+    520: 826, #Nuwa Nahobino  (Oyamatsumi)
+    435: 812, #Hydra (boss) (Chimera)
+    115: 812, #Hydra (Normal) (Chimera)
+    441: 855 ,# Lahmu Mask (Zhuque Collision)
 
-    -617: Position(60,70,120), #Koshimizu (Parvati Collision)
-    561: Position(60,70,120), #Yuzuru (Parvati Collision)
-    240: Position(160,180,240), #Abdiel (Zeus Collision)
-    7: Position(160,180,240), #Khonsu (Zeus Collision)
-    15: Position(160,180,240), #Khonsu Ra (Zeus Collision)
-    31: Position(60,70,120), #Artemis (Parvati Collision)
-    934: Position(60,70,120), #Demi-fiend (Parvati Collision)
-    41: Position(60,70,120), #Anansi (Parvati Collision)
-    386: Position(60,70,120), #Onyankopon (Parvati Collision)
-    250: Position(60,70,120), #Mastema (Parvati Collision)
-    118: Position(110,150,230), #Samael (Vishnu Collision)
-    38: Position(60,70,120), #Amanozako (Parvati Collision)
-    237: Position(60,70,120), #Saturnus (Zeus Collision)
-    75: Position(60,70,120), #Nuwa (Parvati Collision)
-    465: Position(60,70,120), #Yakumo (Parvati Collision)
-    227: Position(110,150,230), #Masakado (Vishnu Collision)
-    876: Position(60,70,120), #Amanozako Rage(Parvati Collision)
-    40: Position(60,70,120), #Kresnik (Parvati Collision)
-    394: Position(60,70,120), #Eisheth (Parvati Collision)
+    -617: 27, #Koshimizu (Parvati Collision)
+    561: 27, #Yuzuru (Parvati Collision)
+    240: 8, #Abdiel (Zeus Collision)
+    7: 27, #Khonsu (Parvati Collision)
+    15: 8, #Khonsu Ra (Zeus Collision)
+    31: 27, #Artemis (Parvati Collision)
+    934: 27, #Demi-fiend (Parvati Collision)
+    41: 27, #Anansi (Parvati Collision)
+    386: 27, #Onyankopon (Parvati Collision)
+    250: 27, #Mastema (Parvati Collision)
+    118: 16, #Samael (Vishnu Collision)
+    38: 27, #Amanozako (Parvati Collision)
+    237: 8, #Saturnus (Zeus Collision)
+    75: 27, #Nuwa (Parvati Collision)
+    465: 27, #Yakumo (Parvati Collision)
+    227: 16, #Masakado (Vishnu Collision)
+    876: 27, #Amanozako Rage(Parvati Collision)
+    40: 27, #Kresnik (Parvati Collision)
+    394: 576, #Eisheth (Agrat Copy Collision)
+
+    393: 576, #Naamah (Agrat Copy Collision)
+    392: 576, #Agrat (Agrat Copy Collision)
+    391: 576, #Lilith (Agrat Copy Collision)
+    529: 855, #Lucifer (Phase 1) (Zhuque Collision)
+    236: 855, #Lahmu (Zhuque Collision))
+    197: 16, #Snake Nuwa (Vishnu Collision)
+    32: 576, #Konohana Sakuya (Agrat Copy Collision)
+    597: 812, #Tehom (Chimera)
+    1: 8, #Lucifer (Demon) (Zeus Collision)
+    175: 27, #Turbo Granny (Parvati Collision)
+    99: 16, #Vritra (Vishnu Collision)
+    4: 8, #Dagda (Zeus Collision)
+    142: 352, #Glasya-Labolas (Black Rider Collision)
 
 }
 #List of demons that should be removed to the MapSymbolParamTable after collision calculation is done
-REMOVE_TEMP_MODEL_DEMONS = [-617,561,240,7,15,31,934,41,386,250,118,38,237,75,465,227,876,40,394]
+REMOVE_TEMP_MODEL_DEMONS = [-617,561,240,7,15,31,934,41,386,250,118,38,237,75,465,227,876,40,394,393,392,391,529,236,197,32,597,1,175,99,4,142]
 
 #Map of punishing foe ID - walkspeed for birds that have large flight cycles
 PUNISHING_FOE_BIRD_SPEEDS = {802: 1400, #Jatayu

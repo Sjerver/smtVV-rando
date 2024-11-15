@@ -64,13 +64,12 @@ REQUIRES_HIT_UPDATE = [
     'esNPC_em1650_01','esNPC_em1650_02','esNPC_em1650_03','esNPC_em1650_04','esNPC_em1650_05','esNPC_em1650_06','esNPC_em0150_02','esNPC_em0150_03','esNPC_em0150_04','esNPC_em0150_05','esNPC_em0150_06','MM_M061_EM1631',
 ]
 
-#TODO: Investigate certain events which might have the used models in umaps (example: Arioch Pre-Fight, Odin, Vasuki, Meeting Mastema 2ndHalf)
-#Swapping works! but animations might also be possible since they are in the sequence files (need to investigate this in more detail)
+
 EVENT_CUTSCENES = {
     
     'LV_E0180': [Demon_Sync(431)], #UMAP Triple Preta Cutscene
-    'LV_E0330': [Demon_Sync(75, 435),Demon_Sync(435)], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa, Snake Nuwa)
-    'LV_E0340': [Demon_Sync(465),Demon_Sync(75, 435),Demon_Sync(435)], #UMAP Snake Nuwa Post-fight Cutscene (Yakumo, Nuwa, Snake Nuwa)
+    'LV_E0330': [Demon_Sync(75,550),Demon_Sync(435)], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa (CoV w/Yakumo), Snake Nuwa)
+    'LV_E0340': [Demon_Sync(465),Demon_Sync(75,550),Demon_Sync(435)], #UMAP Snake Nuwa Post-fight Cutscene (Yakumo, Nuwa (CoV w/Yakumo), Snake Nuwa)
     'LV_E0350': [Demon_Sync(467)], #UMAP Meeting Abdiel Cutscene
     'LV_E0375': [Demon_Sync(152)], #UMAP Hayataro in Beginning of Shinagawa Cutscene
     'LV_E0379': [Demon_Sync(451)], #UMAP Fionn 1 Cutscene
@@ -101,6 +100,15 @@ EVENT_CUTSCENES = {
     # 'LV_E0870': [Demon_Sync(264, 525)], #Joining Dazai in Empyrean (Abdiel)
     # 'LV_E0870': [Demon_Sync(-617,528),Demon_Sync(152)], #Joining Tsukuyomi in Empyrean (Tsukuyomi, Hayataro)
     # 'LV_E0870': [Demon_Sync(264, 525),Demon_Sync(-617,528),Demon_Sync(528)],#Dazai/Abdiel lose to Tsukuyomi 
+}
+
+LV_SEQUENCES = {
+    'LV_E0180': ['SEQ_E0180_c01','SEQ_E0180_c02','SEQ_E0180_c03','SEQ_E0180_c04','SEQ_E0180_c05','SEQ_E0180_c06','SEQ_E0180_c07','SEQ_E0180_c08','SEQ_E0180_c09'], #Triple Preta Cutscene
+    'LV_E0330': ['SEQ_E0330_c01','SEQ_E0330_c02','SEQ_E0330_c03','SEQ_E0330_c04','SEQ_E0330_c06','SEQ_E0330_c08','SEQ_E0330_c09','SEQ_E0330_c10','SEQ_E0330_c10B','SEQ_E0330_c11','SEQ_E0330_c13','SEQ_E0330_c14','SEQ_E0330_c15','SEQ_E0330_c16','SEQ_E0330_c17','SEQ_E0330_c20'], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa, Snake Nuwa)
+    'LV_E0340': ['SEQ_E0340_c01','SEQ_E0340_c02','SEQ_E0340_c02B','SEQ_E0340_c04','SEQ_E0340_c04B','SEQ_E0340_c05','SEQ_E0340_c06','SEQ_E0340_c07','SEQ_E0340_c08','SEQ_E0340_c09','SEQ_E0340_c11','SEQ_E0340_c12','SEQ_E0340_c13',], #UMAP Snake Nuwa Post-fight Cutscene (Yakumo, Nuwa, Snake Nuwa)
+    'LV_E0350': ['SEQ_E0350_c01','SEQ_E0350_c02','SEQ_E0350_c03','SEQ_E0350_c04','SEQ_E0350_c06','SEQ_E0350_c07','SEQ_E0350_c08','SEQ_E0350_c09B','SEQ_E0350_c10','SEQ_E0350_c11','SEQ_E0350_c12','SEQ_E0350_c13','SEQ_E0350_c14','SEQ_E0350_c14A','SEQ_E0350_c14B','SEQ_E0350_c15','SEQ_E0350_c16','SEQ_E0350_c16B','SEQ_E0350_c17','SEQ_E0350_c18','SEQ_E0350_c19'], #UMAP Meeting Abdiel Cutscene
+    'LV_E0375': ['SEQ_E0375_c01','SEQ_E0375_c01B','SEQ_E0375_c02','SEQ_E0375_c03','SEQ_E0375_c04','SEQ_E0375_c05','SEQ_E0375_c06','SEQ_E0375_c07','SEQ_E0375_c08','SEQ_E0375_c09','SEQ_E0375_c10','SEQ_E0375_c11','SEQ_E0375_c12','SEQ_E0375_c13','SEQ_E0375_c14','SEQ_E0375_c15',], #UMAP Hayataro in Beginning of Shinagawa Cutscene
+    'LV_E0379': ['SEQ_E0379_c01','SEQ_E0379_c02','SEQ_E0379_c03','SEQ_E0379_c04','SEQ_E0379_c05','SEQ_E0379_c06','SEQ_E0379_c07','SEQ_E0379_c08','SEQ_E0379_c08B','SEQ_E0379_c09','SEQ_E0379_c10',], #UMAP Fionn 1 Cutscene
 }
 
 #Script files for events and what demon models need to be updated in htem
@@ -851,20 +859,19 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
                 successful = updateEventHitGen(file,scale,script)
                 currentScale = scale
                 if not successful:
-                    #TODO: Can I force this?
+                    #TODO: Can I force this to not be the case in updateEventHitGen?
                     #print("FAILED TO UPDATE HIT SCALE IN:" + script)
                     continue
             
             file = replaceDemonModelInScript(script, file, originalDemonID, replacementID)   
         
         scriptFiles.setFile(script,file)
-        print("Swapped Models in " + str(currentScriptIndex) + " of " + str(totalScripts) + " Scripts", end='\r')
+        print("Swapped Models for " + str(currentScriptIndex) + " of " + str(totalScripts) + " Scripts", end='\r')
     endTime = datetime.datetime.now()
     print(endTime - startTime)
     
     umapList.writeFiles()
-    #TODO: Uncomment, when I actually get around to properly implementing this
-    #updateCutsceneModels(encounterReplacements, bossReplacements,config)
+    updateCutsceneModels(encounterReplacements, bossReplacements,config)
 
 '''
 Prepares the given script file by preparing data that gets used in the model swap process.
@@ -1293,25 +1300,163 @@ def updateCutsceneModels(encounterReplacements, bossReplacements, config):
             except KeyError:
                 #replacementID = 934 #Testing stuff for event hit scaling
                 pass
-            #replacementID = random.choice([441,236]) #Testing stuff
+            if DEBUG_BIG_MODEL_TEST:
+                replacementID = random.choice(DEBUG_MODELS) #Testing big demon models (Tiamat, Abdiel Naho, Nuwa Naho)
             # if originalDemonID in replacementMap.values():
             #     print("Causes Chain replacement: " + str(originalDemonID) + " " + str(replacementID) )
-            replacementMap[originalDemonID] = replacementID
+            if replacementID not in replacementMap.values():
+                replacementMap[originalDemonID] = replacementID
 
 
-        if 'LV' in event:
-            file = cutsceneFiles.getFile(event)
-            
-            rawCode = prepareScriptFileForModelReplacement(event, file)
-            if rawCode: #script does not have byte code so continue with next one (Debug print happens elsewhere)
-                continue
-            
-            for originalDemonID, replacementID in replacementMap.items():
-                file = replaceDemonModelInScript(event, file, originalDemonID, replacementID)
-            cutsceneFiles.setFile(event,file)
-            print("Swapped Models in " + str(currentFileIndex) + " of " + str(totalFiles) + " Cutscenes", end='\r')
-        else:
-            #TODO: Sequences
-            pass
+        file = cutsceneFiles.getFile(event)
+        
+        
+        rawCode = prepareScriptFileForModelReplacement(event, file)
+        if rawCode: #script does not have byte code so continue with next one (Debug print happens elsewhere)
+            continue
+        #TODO:Also might be problematic if replacement is a demon that is already in event, but not swapped EX: Dead Powers in the Nuwa I event
+        for originalDemonID, replacementID in replacementMap.items():
+            file = replaceDemonModelInScript(event, file, originalDemonID, replacementID)
+        cutsceneFiles.setFile(event,file)
+        
+        if event in LV_SEQUENCES.keys():
+            for seq in LV_SEQUENCES[event]:
+                fileSeq = cutsceneFiles.getFile(seq)
+                for originalDemonID, replacementID in replacementMap.items():
+                    fileSeq = replaceDemonInSequence(seq,fileSeq,originalDemonID,replacementID,event)
+            cutsceneFiles.setFile(seq,fileSeq)
+        
+        print("Swapped Models for " + str(currentFileIndex) + " of " + str(totalFiles) + " Cutscenes", end='\r')
         
     cutsceneFiles.writeFiles()
+
+
+def replaceDemonInSequence(seq, file:Script_File, ogDemonID, replacementDemonID,event):
+    
+    '''
+    Replaces ids in animation or blueprint class strings
+    '''
+    def replaceOldIDinString(string):
+        if ("/Blueprints/Character" in string or "_C" in string):
+            nstring = string.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
+            nstring = nstring.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
+            nstring = replaceNonExistentAnimations(seq, nstring,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
+        else:
+            nstring = string.replace(oldFolderPrefix + oldPrefix + oldIDString, newFolderPrefix + newPrefix +newIDString).replace(oldPrefix + oldIDString, newPrefix +newIDString)
+            nstring = nstring.replace(oldFolderPrefix + oldPrefixVariant + oldIDString, newFolderPrefix + newPrefixVariant +newIDString).replace(oldPrefixVariant + oldIDString, newPrefixVariant +newIDString)
+            nstring = replaceNonExistentAnimations(seq, nstring,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)
+        return nstring
+
+    jsonData = file.json
+    if file.originalNameMap is None: #use original name map to prevent chain replacements
+        file.originalNameMap = copy.deepcopy(jsonData['NameMap'])
+        file.exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
+    #Get the Strings corresponding to the old demon and the prefixes
+    oldIDString = DEMON_ID_MODEL_ID[ogDemonID]
+    oldName = MODEL_NAMES[oldIDString]
+    oldFolderPrefix = DEVIL_PREFIX
+    oldPrefix = "dev"
+    oldPrefixVariant = "Dev"
+    if int(oldIDString) > NPC_MODEL_START:
+        oldFolderPrefix = NPC_PREFIX
+        oldPrefix = "npc"
+        oldPrefixVariant = "Npc"
+    #Get the Strings corresponding to the new demon and the prefixes
+    try:
+        newIDString = DEMON_ID_MODEL_ID[replacementDemonID]
+    except KeyError:
+        print(str(replacementDemonID) + " needs a model tied to it. Stopping replacement")
+        return file
+    newName = MODEL_NAMES[newIDString]
+    newPrefix = "dev"
+    newFolderPrefix = DEVIL_PREFIX
+    newPrefixVariant = "Dev"
+    if int(newIDString) > NPC_MODEL_START:
+        newPrefix = "npc"
+        newFolderPrefix = NPC_PREFIX
+        newPrefixVariant = "Npc"
+    if replacementDemonID == LAHMU_2ND_FORM_ID:
+        lahmuSuffix = "_3rd"
+    else:
+        lahmuSuffix = ""
+    if DEBUG_SWAP_PRINT:
+        print("SWAP: " + oldPrefix +"/" +  oldName + " -> " + newPrefix +"/"+ newName + " in " + seq)
+
+    #There are some special cases for these class blueprints
+    classOldFolderPrefix = copy.deepcopy(oldFolderPrefix)
+    classOldPrefix = copy.deepcopy(oldPrefix)
+    classOldPrefixVariant = copy.deepcopy(oldPrefixVariant)
+    classNewFolderPrefix = copy.deepcopy(newFolderPrefix)
+    classNewPrefix = copy.deepcopy(newPrefix)
+    classNewPrefixVariant = copy.deepcopy(newPrefixVariant)
+    if int(newIDString) in NPC_MODELS_DEV_BLUEPRINT:
+        #only new is exception that use devil instead of npc for this
+        classNewFolderPrefix = DEVIL_PREFIX
+        classNewPrefix = "dev"
+        classNewPrefixVariant = "Dev"
+        
+    elif int(oldIDString) in NPC_MODELS_DEV_BLUEPRINT:
+        #old is exception that use devil instead of npc for this
+        classOldFolderPrefix = DEVIL_PREFIX
+        classOldPrefix = "dev"
+        classOldPrefixVariant = "Dev"
+    
+    
+    for index, name in enumerate(file.originalNameMap):
+        if "DevilBaseLight" in name and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] :
+            #Applies to CoC Nuwa Gate, Kunitsukami Fight, Dagda, 4 Heavenly Kings, Pisaca Quest Anahita Event, Konohana Sakuya, Nozuchi, Huang Long
+            #print("DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
+            return file # since we might run into softlocks otherwise
+    #print("NO DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
+
+    
+
+    for index, name in enumerate(file.originalNameMap): #change occurences of oldDemonID and oldDemonName in all names in the uasset
+        nameEntry = file.getNameAtIndex(index)
+        if seq in name:
+            #Do not change names for Main File Exports if DemonId or Name is in script
+            continue
+        if oldIDString in name and ("/Blueprints/Character" in name or "_C" in name): 
+            nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
+            nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
+            if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
+                nameEntry = nameEntry.replace("_Simple","")
+        elif oldIDString in name and not "Spawn" in name: #to just get the model names since sometimes DevXXX or devXXX
+            nameEntry = nameEntry.replace(oldFolderPrefix + oldPrefix + oldIDString, newFolderPrefix + newPrefix +newIDString).replace(oldPrefix + oldIDString, newPrefix +newIDString)
+            nameEntry = nameEntry.replace(oldFolderPrefix + oldPrefixVariant + oldIDString, newFolderPrefix + newPrefixVariant +newIDString).replace(oldPrefixVariant + oldIDString, newPrefixVariant +newIDString)
+            if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
+                nameEntry = nameEntry.replace("_Simple","")
+        if oldName in name and ("Character" in name or "Anim" in name): #to prevent stuff like replacing set(seth) in LoadAsset
+            #print(nameEntry)
+            nameEntry = nameEntry.replace(oldName,newName)
+        # elif oldName in name:
+        #     print("EXTRA CHECK Necessary? " + nameEntry)
+        if "Anim/" in name or name[:3] == "AN_":
+            nameEntry = replaceNonExistentAnimations(event, nameEntry,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
+        file.setNameAtIndex(index,nameEntry)
+
+    
+    movieSceneName = "MovieScene_0"
+    file.exportIndex = file.exportNameList.index(movieSceneName)
+
+    dataNames = [exp['Name'] for exp in file.originalJson["Exports"][file.exportIndex]["Data"]]
+    possessables = file.uasset.Exports[file.exportIndex].Data[dataNames.index("Possessables")]
+    objectBindings = file.uasset.Exports[file.exportIndex].Data[dataNames.index('ObjectBindings')]
+
+    for i,possessable in enumerate(possessables.Value):
+        if oldIDString in file.originalJson["Exports"][file.exportIndex]["Data"][dataNames.index("Possessables")]["Value"][i]["Value"][2]["Value"]:
+            possessable.Value[2].Value.Value = replaceOldIDinString(possessable.Value[2].Value.Value)
+    
+    for i,objectBinding in enumerate(objectBindings.Value):
+        if oldIDString in file.originalJson["Exports"][file.exportIndex]["Data"][dataNames.index("ObjectBindings")]["Value"][i]["Value"][1]["Value"]:
+            objectBinding.Value[1].Value.Value = replaceOldIDinString(objectBinding.Value[1].Value.Value)
+    file.exportIndex = file.exportNameList.index(seq)
+    bindList = file.uasset.Exports[file.exportIndex].Data[1].Value[0].Value
+    for i,entry in enumerate(bindList):
+        try:
+            if oldIDString in file.originalJson["Exports"][file.exportIndex]["Data"][1]["Value"][0]["Value"][i][1]["Value"][0]["Value"][0]["Value"][0]["Value"][0]["Value"]["SubPathString"]:
+                entry.Value.Value[0].Value[0].Value[0].Value[0].Value.SubPathString.Value = replaceOldIDinString(entry.Value.Value[0].Value[0].Value[0].Value[0].Value.SubPathString.Value)
+        except (TypeError, AttributeError) as e:
+            #not bad error, just too lazy to stop differently
+            pass
+    return file
