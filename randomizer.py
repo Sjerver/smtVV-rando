@@ -3150,14 +3150,14 @@ class Randomizer:
             newEntries = len(fusions) - len(self.specialFusionArr)
             expBuffer = self.extendSpecialFusionTable(newEntries,expBuffer)
 
-        startValue = 0xCC5
-        fusionOffset = 0xC
-        for index in range(newEntries): #add new special fusion dummies to array to replace with actual randomized data
-            offset = startValue + (numbers.SPECIAL_FUSION_COUNT + index) * fusionOffset
-            fusion = copy.deepcopy(self.specialFusionArr[0])
-            fusion.ind = index + numbers.SPECIAL_FUSION_COUNT
-            fusion.baseOffset = offset
-            self.specialFusionArr.append(fusion)
+            startValue = 0xCC5
+            fusionOffset = 0xC
+            for index in range(newEntries): #add new special fusion dummies to array to replace with actual randomized data
+                offset = startValue + (numbers.SPECIAL_FUSION_COUNT + index) * fusionOffset
+                fusion = copy.deepcopy(self.specialFusionArr[0])
+                fusion.ind = index + numbers.SPECIAL_FUSION_COUNT
+                fusion.baseOffset = offset
+                self.specialFusionArr.append(fusion)
 
         for index, fusion in enumerate(fusions):
             #Set original demons fusability to 0
@@ -6854,6 +6854,7 @@ class Randomizer:
         self.mapSymbolFile.write()
 
         self.scriptFiles.writeFiles()
+        del self.scriptFiles
 
         self.applyUnrealPak()
 

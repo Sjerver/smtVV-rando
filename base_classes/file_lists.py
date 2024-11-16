@@ -386,11 +386,6 @@ MAINMISSION_EXCEPTIONS = [
 'MM_M062_EM0041','MM_M063_EM0061','MM_M063_EM0079'
 ]
 
-#List of umaps for cutscene events
-EVENT_UMAPS = [
-    'LV_E0660','LV_E0180','LV_E0330','LV_E0340','LV_E0350','LV_E0375','LV_E0379'
-]
-
 class UMap_File_List:
     def __init__(self):
         self.files = []
@@ -494,12 +489,14 @@ class Script_File_List:
             if 'SEQ' not in name:
                 stringy = json.dumps(file.json)
                 file.uasset = file.uasset.DeserializeJson(stringy)
-
-            writeFolder(SCRIPT_FOLDERS[folderKey])
-            if name in EVENT_UMAPS:
+            if 'LV_E' in folderKey:
+                writeFolder(DESIGN_EVENT_FOLDER)
+            else:
+                writeFolder(SCRIPT_FOLDERS[folderKey])
+            if 'LV_E' in folderKey:
                 subFolder = folderKey.split("_")[1]
-                writeFolder(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder)
-                file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder + '/' + name + '.umap')
+                writeFolder(DESIGN_EVENT_FOLDER + '/'  + subFolder)
+                file.uasset.Write(DESIGN_EVENT_FOLDER + '/'  + subFolder + '/' + name + '.umap')
             elif 'SEQ' in name:
                 subFolder = name.split("_")[1]
                 writeFolder(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder)
@@ -523,7 +520,7 @@ class Script_File_List:
             scriptPath = 'MainMission/'
         if name in MAINMISSION_EXCEPTIONS:
             scriptPath = 'MainMission/'
-        if 'LV' == name[:2] or name in EVENT_UMAPS:
+        if 'LV' == name[:2]:
             assetobject = UAsset('base/Design Event/' + name + '.umap', EngineVersion.VER_UE4_27)
         elif 'SEQ' in name:
             assetobject = UAsset('base/Design Event/' + name + '.uasset', EngineVersion.VER_UE4_27)

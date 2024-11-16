@@ -271,7 +271,7 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 393,naamah,Naamah,393,FALSE
 394,eisheth,Eisheth,394,FALSE
 395,lilith_evt,Lilith,-1,FALSE
-396,agrat_evt,Agrat,-1,FALSE
+396,agrat_evt,Agrat,-396,FALSE
 401,lahmu_mask,Lahmu,441,FALSE
 402,lahmu_white,Lahmu,-1,FALSE
 403,lahmu_tentacle1,Lahmu's Tentacle,-1,FALSE
@@ -298,7 +298,7 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 456,tiamat_dragon,Dragon Head,-1,FALSE
 457,tiamat_goat,Goat Head,-1,FALSE
 458,tiamat_camel,Camel Head,-1,FALSE
-459,tiamat_evt,Tiamat,-1,FALSE
+459,tiamat_evt,Tiamat,-459,FALSE
 460,tehom,Tehom,597,FALSE
 461,tehom_evt,Tehom,-1,FALSE
 500,lucifer,Lucifer,-1,FALSE
@@ -328,12 +328,14 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 610,tomoo_bag,Yuzuru Schoolbag,-1,FALSE
 611,karuo,Dazai,1151,TRUE
 612,karuo_bag,Dazai Schoolbag,-1,FALSE
-618,kichio,Yakumo,465,TRUE
 617,sori,Koshimizu,-617,FALSE
+618,kichio,Yakumo,465,TRUE
 621,lawko_megami_1st,Tao Panagia,-1,FALSE
 623,chaoko_megami_1st,Yoko Panagia,-1,FALSE
 625,tomoo_union,Tsukuyomi Nahobino,528,FALSE
-626,karuo_union,Abdiel Nahobino,525,FALSE
-627,kichio_union,Nuwa Nahobino,520,FALSE
+626,karuo_union,Abdiel Nahobino,-1,FALSE
+627,kichio_union,Nuwa Nahobino,-1,FALSE
 629,karuo_hairdiff,Dazai Hair,578,FALSE
+643,karuo_union_all,Abdiel Nahobino,525,FALSE
+650,kichio_union_all,Nuwa Nahobino,520,FALSE
 651,demi_fiend,Demi-fiend,934,FALSE
