@@ -235,7 +235,7 @@ def createGUI(configSettings):
     listDemon.insert(7, "Unique Skills can show up more than once")
     listDemon.insert(8, "Randomize Races")
     listDemon.insert(9, "Randomize Alignment")
-    listDemon.insert(10, "Same Level for Quest Join Demons")
+    listDemon.insert(10, "Randomize Quest Demon Joins")
     listDemon.insert(11, "Randomize Stat Modifiers")
     listDemon.insert(12, "Reduce Compendium Cost Drastically")
     listDemon.insert(13, "Restrict Lunation Flux to one demon")

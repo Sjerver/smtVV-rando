@@ -290,7 +290,7 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 426,khons_1st,Khonsu,7,TRUE
 427,khons_2nd,Khonsu Ra,15,FALSE
 431,hydra,Hydra,115,FALSE
-432,hydra_big,Hydra,-1,FALSE
+432,hydra_big,Hydra,-432,FALSE
 451,lucifer2,Lucifer,529,FALSE
 452,lucifer2_effect1,Lucifer,-1,FALSE
 453,lucifer2_effect3,Lucifer,-1,FALSE

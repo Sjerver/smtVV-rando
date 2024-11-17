@@ -41,7 +41,9 @@ OVERLAPPING_SCRIPTS = [
 ]
 
 EVENT_CUTSCENES = {
+    #TODO: Where is the Hydra Cutscenes?? 310 is hydra
     'LV_E0180': [Demon_Sync(431)], #UMAP Triple Preta Cutscene
+    'LV_E0310': [Demon_Sync(-432,432)], #Hydra Cutscene
     'LV_E0330': [Demon_Sync(75,550),Demon_Sync(435)], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa (CoV w/Yakumo), Snake Nuwa)
     'LV_E0340': [Demon_Sync(465),Demon_Sync(75,550),Demon_Sync(435)], #UMAP Snake Nuwa Post-fight Cutscene (Yakumo, Nuwa (CoV w/Yakumo), Snake Nuwa)
     'LV_E0350': [Demon_Sync(467)], #UMAP Meeting Abdiel Cutscene
@@ -778,6 +780,7 @@ MODEL_SYNC = {
 
 LV_SEQUENCES = {
     'LV_E0180': ['SEQ_E0180_c01','SEQ_E0180_c02','SEQ_E0180_c03','SEQ_E0180_c04','SEQ_E0180_c05','SEQ_E0180_c06','SEQ_E0180_c07','SEQ_E0180_c08','SEQ_E0180_c09'], #Triple Preta Cutscene
+    'LV_E0310': ['SEQ_E0310_c01', 'SEQ_E0310_c02', 'SEQ_E0310_c03', 'SEQ_E0310_c05', 'SEQ_E0310_c06', 'SEQ_E0310_c07', 'SEQ_E0310_c08', 'SEQ_E0310_c09'],
     'LV_E0330': ['SEQ_E0330_c01','SEQ_E0330_c02','SEQ_E0330_c03','SEQ_E0330_c04','SEQ_E0330_c06','SEQ_E0330_c08','SEQ_E0330_c09','SEQ_E0330_c10','SEQ_E0330_c10B','SEQ_E0330_c11','SEQ_E0330_c13','SEQ_E0330_c14','SEQ_E0330_c15','SEQ_E0330_c16','SEQ_E0330_c17','SEQ_E0330_c20'], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa, Snake Nuwa)
     'LV_E0340': ['SEQ_E0340_c01','SEQ_E0340_c02','SEQ_E0340_c02B','SEQ_E0340_c04','SEQ_E0340_c04B','SEQ_E0340_c05','SEQ_E0340_c06','SEQ_E0340_c07','SEQ_E0340_c08','SEQ_E0340_c09','SEQ_E0340_c11','SEQ_E0340_c12','SEQ_E0340_c13',], #UMAP Snake Nuwa Post-fight Cutscene (Yakumo, Nuwa, Snake Nuwa)
     'LV_E0350': ['SEQ_E0350_c01','SEQ_E0350_c02','SEQ_E0350_c03','SEQ_E0350_c04','SEQ_E0350_c06','SEQ_E0350_c07','SEQ_E0350_c08','SEQ_E0350_c09B','SEQ_E0350_c10','SEQ_E0350_c11','SEQ_E0350_c12','SEQ_E0350_c13','SEQ_E0350_c14','SEQ_E0350_c14A','SEQ_E0350_c14B','SEQ_E0350_c15','SEQ_E0350_c16','SEQ_E0350_c16B','SEQ_E0350_c17','SEQ_E0350_c18','SEQ_E0350_c19'], #UMAP Meeting Abdiel Cutscene

@@ -158,7 +158,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1602': [Demon_Sync(38), Demon_Sync(877)], #Zaou-Gongen Mentioned here and in 1603
     'mm_em1603': [Demon_Sync(38), Demon_Sync(877)],
     'mm_em1630': [Demon_Sync(43, 868), Demon_Sync(305), Demon_Sync(316, 867)], #Side with Leanan (Apsaras, Leanan, Ippon Datara)
-    'mm_em1640': [Demon_Sync(306, 866), Demon_Sync(43)], #Side with Apsaras (Leanan, Apsaras)
+    'mm_em1640': [Demon_Sync(305, 866), Demon_Sync(43)], #Side with Apsaras (Leanan, Apsaras)
     'mm_em1641': [Demon_Sync(43), Demon_Sync(345, 889)], #Apsaras' Followers Dialogue (Apsaras, 2 Quest Files, Preta)
     'mm_em1642': [Demon_Sync(43)],
     'mm_em1650': [Demon_Sync(257, 879), Demon_Sync(67)], #Side with Lilim (Principality, Lilim)
