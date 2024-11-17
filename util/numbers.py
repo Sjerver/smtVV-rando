@@ -292,7 +292,6 @@ ADD_LARGE_MODEL_DEMONS = {
     876: 27, #Amanozako Rage(Parvati Collision)
     40: 27, #Kresnik (Parvati Collision)
     394: 576, #Eisheth (Agrat Copy Collision)
-
     393: 576, #Naamah (Agrat Copy Collision)
     392: 576, #Agrat (Agrat Copy Collision)
     391: 576, #Lilith (Agrat Copy Collision)
@@ -309,11 +308,13 @@ ADD_LARGE_MODEL_DEMONS = {
     528 : 8, #Tsukuyomi (Zeus Collision)
     454 : 80, #Surt Boss (Surt)
     385: 576, #Kinmamon (Agrat Copy Collision)
+    207:16, #Marici (Vishnu Collision)
+    387: 59, #Amabie (pixie collision)
 
 }
 #List of demons that should be removed to the MapSymbolParamTable after collision calculation is done
 REMOVE_TEMP_MODEL_DEMONS = [-617,561,240,7,15,31,934,41,386,250,118,38,237,75,465,227,876,40,394,393,392,391,529,236,197,32,597,1,175,99,4,142,
-                            528,454,385]
+                            528,454,385,207]
 
 #Map of punishing foe ID - walkspeed for birds that have large flight cycles
 PUNISHING_FOE_BIRD_SPEEDS = {802: 1400, #Jatayu

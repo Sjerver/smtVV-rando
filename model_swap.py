@@ -139,10 +139,14 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             if (scale > 6 and script in REQUIRES_HIT_UPDATE) or (scale > 3 and file.relevantFunctionExps[0] == [] and script in REQUIRES_HIT_UPDATE): #do not update hitbox size if scale would be smaller
                 #TODO: Number values could maybe be fine tuned
                 #do not double if there is no modelScaling in code and update is needed
-                #print("REPLACEMENT MODEL SIZE IS TOO LARGE:" + script)
+                #print("REPLACEMENT MODEL SIZE IS TOO LARGE:" + script + " " + str(originalDemonID) + "->" + str(replacementID) + " = " + str(scale))
+                continue
+            if scale > 2 and script in OVERLAPPING_SCRIPTS:
+                #print("OVERLAP PREVENTION " + script)
+                #minimum measure to prevent important overlap
                 continue
             #Need to make sure that it is updated for biggest demon in file
-            if scale != 1 and (not hitboxUpdated or scale >= currentScale) and script in REQUIRES_HIT_UPDATE and script in LEVEL_UASSETS.keys(): #TODO: How to deal with overlap issues
+            if scale != 1 and (not hitboxUpdated or scale >= currentScale) and script in REQUIRES_HIT_UPDATE and script in LEVEL_UASSETS.keys():
                 umap = umapList.getFile(LEVEL_UASSETS[script])
                 hitboxUpdated = True
                 umap = updateEventHitScaling(umap,script,scale)
@@ -543,15 +547,25 @@ def updateEventHitGen(file, scale, script):
     exports = file.json['Exports']
     try:
         hitGenExport = next(exp for exp in exports if 'EventHit_GEN_VARIABLE' in exp['ObjectName'])
+    except StopIteration:
+        # has no hitgen
+        print(script + " has no hitgen")
+        return False
+    try:
         relativeScale3D = next(data['Value'] for data in hitGenExport['Data'] if data['Name'] == 'RelativeScale3D')
-        vectorValues = relativeScale3D[0]['Value']
-        vectorValues['X'] *= scale
-        vectorValues['Y'] *= scale
-        vectorValues['Z'] *= scale
 
     except StopIteration:
-        #print("Could not perform scale update on EventHitGen for: " + script)
-        return False
+        #print(script + " added relativeScale to it and nameMap")
+        #has no relativeScale3D
+        hitGenExport['Data'].append(copy.deepcopy(jsonExports.RELATIVE_SCALE_3D))
+        relativeScale3D = hitGenExport['Data'][-1]['Value']
+        file.json['NameMap'].append("RelativeScale3D")
+    
+    vectorValues = relativeScale3D[0]['Value']
+
+    vectorValues['X'] *= scale
+    vectorValues['Y'] *= scale
+    vectorValues['Z'] *= scale
     
     file.updateFileWithJson(file.json)
     return True

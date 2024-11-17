@@ -36,6 +36,9 @@ REQUIRES_HIT_UPDATE = [
     'esNPC_em1650_01','esNPC_em1650_02','esNPC_em1650_03','esNPC_em1650_04','esNPC_em1650_05','esNPC_em1650_06','esNPC_em0150_02','esNPC_em0150_03','esNPC_em0150_04','esNPC_em0150_05','esNPC_em0150_06','MM_M061_EM1631',
 ]
 
+OVERLAPPING_SCRIPTS = [
+    'esNPC_em1650_01','esNPC_em1650_02','esNPC_em1650_03','esNPC_em1650_04','esNPC_em1650_05','esNPC_em1650_06','esNPC_em0150_02','esNPC_em0150_03','esNPC_em0150_04','esNPC_em0150_05','esNPC_em0150_06','MM_M061_EM1631',
+]
 
 EVENT_CUTSCENES = {
     'LV_E0180': [Demon_Sync(431)], #UMAP Triple Preta Cutscene
