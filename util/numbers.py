@@ -273,24 +273,25 @@ ADD_LARGE_MODEL_DEMONS = {
     115: 812, #Hydra (Normal) (Chimera)
     441: 855 ,# Lahmu Mask (Zhuque Collision)
 
-    -617: 27, #Koshimizu (Parvati Collision)
-    561: 27, #Yuzuru (Parvati Collision)
+    -617: 20, #Koshimizu (Anahita Collision)
+    561: 20, #Yuzuru (Anahita Collision)
     240: 8, #Abdiel (Zeus Collision)
-    7: 27, #Khonsu (Parvati Collision)
+    264: 8, #Abdiel Fallen(Zeus Collision)
+    7: 20, #Khonsu (Anahita Collision)
     15: 8, #Khonsu Ra (Zeus Collision)
     31: 27, #Artemis (Parvati Collision)
-    934: 27, #Demi-fiend (Parvati Collision)
-    41: 27, #Anansi (Parvati Collision)
+    934: 20, #Demi-fiend (Anahita Collision)
+    41: 20, #Anansi (Anahita Collision)
     386: 27, #Onyankopon (Parvati Collision)
-    250: 27, #Mastema (Parvati Collision)
+    250: 20, #Mastema (Anahita Collision)
     118: 16, #Samael (Vishnu Collision)
     38: 27, #Amanozako (Parvati Collision)
     237: 8, #Saturnus (Zeus Collision)
-    75: 27, #Nuwa (Parvati Collision)
-    465: 27, #Yakumo (Parvati Collision)
+    75: 20, #Nuwa (Anahita Collision)
+    465: 20, #Yakumo (Anahita Collision)
     227: 16, #Masakado (Vishnu Collision)
     876: 27, #Amanozako Rage(Parvati Collision)
-    40: 27, #Kresnik (Parvati Collision)
+    40: 20, #Kresnik (Anahita Collision)
     394: 576, #Eisheth (Agrat Copy Collision)
     393: 576, #Naamah (Agrat Copy Collision)
     392: 576, #Agrat (Agrat Copy Collision)
@@ -300,7 +301,8 @@ ADD_LARGE_MODEL_DEMONS = {
     197: 16, #Snake Nuwa (Vishnu Collision)
     32: 576, #Konohana Sakuya (Agrat Copy Collision)
     597: 812, #Tehom (Chimera)
-    1: 8, #Lucifer (Demon) (Zeus Collision)
+    1: 8, #Satan (Demon) (Zeus Collision)
+    2: 8, #Lucifer (Demon) (Zeus Collision)
     175: 27, #Turbo Granny (Parvati Collision)
     99: 16, #Vritra (Vishnu Collision)
     4: 8, #Dagda (Zeus Collision)
@@ -310,11 +312,18 @@ ADD_LARGE_MODEL_DEMONS = {
     385: 576, #Kinmamon (Agrat Copy Collision)
     207:16, #Marici (Vishnu Collision)
     387: 59, #Amabie (pixie collision)
+    381: 345, #Hare of Inaba (Preta Collision)
+    60: 58, #Nahobeeho (Jack Frost)
+    100: 59, #Nyami Nyami (pixie collision)
+    122: 20, #Xiezhai (Anahita Collision)
+    226: 27, #Nezha Taishi (Parvati Collision)
+    251 :254, #Armaiti (Throne Collision)
+    275 :16, #Azazel (Vishnu Collision)
 
 }
 #List of demons that should be removed to the MapSymbolParamTable after collision calculation is done
 REMOVE_TEMP_MODEL_DEMONS = [-617,561,240,7,15,31,934,41,386,250,118,38,237,75,465,227,876,40,394,393,392,391,529,236,197,32,597,1,175,99,4,142,
-                            528,454,385,207]
+                            528,454,385,207,387,381,60,100,122,226,2,251,275,264]
 
 #Map of punishing foe ID - walkspeed for birds that have large flight cycles
 PUNISHING_FOE_BIRD_SPEEDS = {802: 1400, #Jatayu

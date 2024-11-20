@@ -22,6 +22,7 @@ LAHMU_2ND_FORM_ID = 236
 
 #Model IDs that use Dev Class Blueprints but are in NPC folder otherwise
 NPC_MODELS_DEV_BLUEPRINT = [621,622,625,626,627,641,642,643,646,647,648,649,650,651]
+FOLDER_SWITCH_RESTRICTIONS = ["LV_E0905","LV_E0965"]
 
 MODEL_NAMES = {}
 DEMON_ID_MODEL_ID = {}
@@ -155,7 +156,6 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
                 successful = updateEventHitGen(file,scale,script)
                 currentScale = scale
                 if not successful:
-                    #TODO: Can I force this to not be the case in updateEventHitGen?
                     #print("FAILED TO UPDATE HIT SCALE IN:" + script)
                     continue
             
@@ -273,7 +273,7 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         classNewPrefix = "dev"
         classNewPrefixVariant = "Dev"
         
-    elif int(oldIDString) in NPC_MODELS_DEV_BLUEPRINT:
+    elif int(oldIDString) in NPC_MODELS_DEV_BLUEPRINT and script not in FOLDER_SWITCH_RESTRICTIONS:
         #old is exception that use devil instead of npc for this
         classOldFolderPrefix = DEVIL_PREFIX
         classOldPrefix = "dev"
@@ -548,8 +548,8 @@ def updateEventHitGen(file, scale, script):
     try:
         hitGenExport = next(exp for exp in exports if 'EventHit_GEN_VARIABLE' in exp['ObjectName'])
     except StopIteration:
-        # has no hitgen
-        print(script + " has no hitgen")
+        # has no hitgen 
+        #print(script + " has no hitgen")
         return False
     try:
         relativeScale3D = next(data['Value'] for data in hitGenExport['Data'] if data['Name'] == 'RelativeScale3D')
@@ -667,7 +667,7 @@ def replaceDemonInSequence(seq, file:Script_File, ogDemonID, replacementDemonID,
     oldFolderPrefix = DEVIL_PREFIX
     oldPrefix = "dev"
     oldPrefixVariant = "Dev"
-    if int(oldIDString) > NPC_MODEL_START:
+    if int(oldIDString) > NPC_MODEL_START :
         oldFolderPrefix = NPC_PREFIX
         oldPrefix = "npc"
         oldPrefixVariant = "Npc"
@@ -705,7 +705,7 @@ def replaceDemonInSequence(seq, file:Script_File, ogDemonID, replacementDemonID,
         classNewPrefix = "dev"
         classNewPrefixVariant = "Dev"
         
-    elif int(oldIDString) in NPC_MODELS_DEV_BLUEPRINT:
+    elif int(oldIDString) in NPC_MODELS_DEV_BLUEPRINT and event not in FOLDER_SWITCH_RESTRICTIONS:
         #old is exception that use devil instead of npc for this
         classOldFolderPrefix = DEVIL_PREFIX
         classOldPrefix = "dev"

@@ -18,8 +18,9 @@ LEVEL_UASSETS = {
 
 #List of events that require updated scaling to trigger events with large demons
 REQUIRES_HIT_UPDATE = [
-    'MM_M016_E0885','MM_M038_E2912','MM_M038_E2917','MM_M060_Npc609Talk',
+    'MM_M016_E0885','MM_M038_E2912','MM_M060_Npc609Talk',
     'MM_M063_EM0061','MM_M064_E2512','MM_M064_E2540','MM_M085_E0690','MM_M085_E0730',
+    "MM_M064_E2690",
     'MM_M085_E2660','MM_M085_E2688',
     'MM_M088_E0602_Abdiel','MM_M088_E0602_Khons','MM_M088_E0602_Koshimizu','MM_M088_E0602_Vasuki','MM_M088_E0602_Odin','MM_M088_E0602_Zeus',
     'MM_M092_EM101_','MM_M092_EM102_','MM_M092_EM105_1','MM_M092_EM106_','MM_M092_EM110',
@@ -41,7 +42,6 @@ OVERLAPPING_SCRIPTS = [
 ]
 
 EVENT_CUTSCENES = {
-    #TODO: Where is the Hydra Cutscenes?? 310 is hydra
     'LV_E0180': [Demon_Sync(431)], #UMAP Triple Preta Cutscene
     'LV_E0310': [Demon_Sync(-432,432)], #Hydra Cutscene
     'LV_E0330': [Demon_Sync(75,550),Demon_Sync(435)], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa (CoV w/Yakumo), Snake Nuwa)
@@ -49,22 +49,22 @@ EVENT_CUTSCENES = {
     'LV_E0350': [Demon_Sync(467)], #UMAP Meeting Abdiel Cutscene
     'LV_E0375': [Demon_Sync(152)], #UMAP Hayataro in Beginning of Shinagawa Cutscene
     'LV_E0379': [Demon_Sync(451)], #UMAP Fionn 1 Cutscene
-    #TODO: Test the ones after this point
-    'LV_E0431': [Demon_Sync(441)], #UMAP Lahmu 1 Post-fight dialogue (Lahmu)
-    'LV_E0432': [Demon_Sync(441)], #UMAP Lahmu 1 Pre-fight dialogue (Lahmu)
+    
+    'LV_E0431': [Demon_Sync(236,441)], #UMAP Lahmu 1 Post-fight dialogue (Lahmu) 
+    'LV_E0432': [Demon_Sync(236,441)], #UMAP Lahmu 1 Pre-fight dialogue (Lahmu) 
     'LV_E0470': [Demon_Sync(236,441)], #UMAP Lahmu meets Sayori (Lahmu)
     'LV_E0473': [Demon_Sync(152)], #UMAP Meeting Hayataro creation (Hayataro)
-    'LV_E0480': [Demon_Sync(441)], #UMAP Sahori kills her bullies (Lahmu)
-    'LV_E0490': [Demon_Sync(452)], #UMAP Final Lahmu Pre-fight dialogue
-    'LV_E0530': [Demon_Sync(467)], #Pre-summit Abdiel/Koshimitzu talk
+    'LV_E0480': [Demon_Sync(236,441)], #UMAP Sahori kills her bullies (Lahmu) 
+    'LV_E0490': [Demon_Sync(236,452)], #UMAP Final Lahmu Pre-fight dialogue 
+    'LV_E0530': [Demon_Sync(467),Demon_Sync(-617,528)], #Pre-summit Abdiel/Koshimitzu talk 
     'LV_E0580': [Demon_Sync(467)], #Meeting Abdiel in Chiyoda (Abdiel)
-    'LV_E0595': [Demon_Sync(80, 454),Demon_Sync(454)], #Surt Pre-fight (uses two Surt Models)
+    'LV_E0595': [Demon_Sync(454)], #Surt Pre-fight
     'LV_E0598': [Demon_Sync(455)], #Ishtar Pre-fight
     'LV_E0600': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #First Bethel summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
     'LV_E0603': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #Abdiel pre-fight summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
-    'LV_E0603': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #Abdiel post-fight summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
+    'LV_E0604': [Demon_Sync(469),Demon_Sync(470),Demon_Sync(468),Demon_Sync(467),Demon_Sync(516),Demon_Sync(-617,528)], #Abdiel post-fight summit cutscene (Zeus, Odin, Vasuki, Abdiel, Khonsu, Koshimizu as Tsukuyomi)
     'LV_E0620': [Demon_Sync(465), Demon_Sync(75, 435)], #Yakumo pre-fight (Yakumo, Nuwa 1)
-    'LV_E0630': [Demon_Sync(467)], #Abdiel dialogue before DKC (Abdiel)
+    'LV_E0630': [Demon_Sync(467)], #Abdiel dialogue before DKC (Abdiel) 
     'LV_E0660': [Demon_Sync(82,463)], #UMAP Arioch Cutscene
     'LV_E0736': [Demon_Sync(467)],#Dazai/Abdiel talk after summit
     'LV_E0775': [Demon_Sync(468)], #UMAP Vasuki Cutscene
@@ -77,25 +77,28 @@ EVENT_CUTSCENES = {
     'LV_E0880': [Demon_Sync(-617,528),Demon_Sync(152)], #Joining Tsukuyomi in Empyrean (Tsukuyomi, Hayataro)
     'LV_E0900': [Demon_Sync(264, 525),Demon_Sync(528)],#Dazai/Abdiel lose to Tsukuyomi (koshimizu form unchanged) 
     'LV_E0905': [Demon_Sync(528)],#Tsukuyomi death scene? (koshimizu form unchanged) 
-    'LV_E0910': [Demon_Sync(264, 525),Demon_Sync(-617,528)],#Tsukuyomi loses to Dazai/Abdiel (Abdiel, Tsukuyomi) (koshimizu form unchanged) 
-    'LV_E0915': [Demon_Sync(264, 525)],#Abdiel death Scene? 
-    'LV_E0920': [Demon_Sync(264, 525),Demon_Sync(465),Demon_Sync(75, 520)], #Yakumo/Nuwa loses to Dazai/Abdiel (Abdiel, Yakumo, Nuwa)
+    'LV_E0910': [Demon_Sync(467),Demon_Sync(525),Demon_Sync(-617,528)],#Tsukuyomi loses to Dazai/Abdiel (Abdiel, Tsukuyomi) (koshimizu form unchanged) 
+    'LV_E0915': [Demon_Sync(467),Demon_Sync(525)],#Abdiel death Scene? 
+    'LV_E0920': [Demon_Sync(467),Demon_Sync(525),Demon_Sync(465),Demon_Sync(75, 520)], #Yakumo/Nuwa loses to Dazai/Abdiel (Abdiel, Yakumo, Nuwa)
     'LV_E0930': [Demon_Sync(75, 520)],#Nuwa true ending dialogue after Abdiel (Nuwa)
     'LV_E0940': [Demon_Sync(520),Demon_Sync(75, 435),Demon_Sync(465)],#Nahobino Nuwa pre-fight dialogue (Yakumo, Nuwa as Nuwa 1 AND Nahobino Form)
     'LV_E0945': [Demon_Sync(520),Demon_Sync(75, 435),Demon_Sync(465)],#Nahobino Nuwa post-fight dialogue (Yakumo, Nuwa as Nuwa 1 AND Nahobino Form)
     'LV_E0955': [Demon_Sync(-617,528)], #Tsukuyomi death scene (TNE?) (as koshimizu)
     'LV_E0957': [Demon_Sync(264, 525)], #Abdiel death scene (TNE?) (Fallen ABdiel)
     'LV_E0960': [Demon_Sync(528)], #Tsukuyomi neutral route pre-fight dialogue (Tsukuyomi) (no koshimizu change)
-    'LV_E0965': [Demon_Sync(-617,528)], #Tsukuyomi neutral route post-fight dialogue (Tsukuyomi)
+    'LV_E0965': [Demon_Sync(528)], #Tsukuyomi neutral route post-fight dialogue (Tsukuyomi)
     'LV_E0975': [Demon_Sync(240, 525)], #Abdiel is in here? as her first form
+    #'LV_E1000': [Demon_Sync(-500, 537)],#Lucifer pre-fight (Blue one)(Does not do anything, no idea how the luci model appears here)
     'LV_E1010': [Demon_Sync(529, 537)],#Lucifer pre-fight
     'LV_E1015': [Demon_Sync(529, 537)],#Lucifer pre-fight II
+
     'LV_E1100': [Demon_Sync(934)],#Demi-fiend Pre Fight I think
+   
     'LV_E2010': [Demon_Sync(552),Demon_Sync(561)],#Labolas 1 pre-fight (Labolas, Yuzuru, Dazai)
     'LV_E2015': [Demon_Sync(552),Demon_Sync(561)],#Labolas 1 post-fight (Labolas, Yuzuru, Dazai)
     'LV_E2020': [Demon_Sync(393, 553)],#Naamah pre-fight dialogue 1 (Naamah)
     'LV_E2022': [Demon_Sync(393, 553)],#Naamah pre-fight dialogue 2 (Naamah)
-    'LV_E2025': [Demon_Sync(393, 553),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(391, 569)],#Naamah post-fight dialogue (Naamah,Agrat,Eisheth,Lilith)
+    'LV_E2025': [Demon_Sync(393, 553),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(-395, 569)],#Naamah post-fight dialogue (Naamah,Agrat,Eisheth,Lilith)
     'LV_E2029': [Demon_Sync(567),Demon_Sync(75,550),Demon_Sync(435)],#Nuwa post-fight dialogue vengeance
     'LV_E2030': [Demon_Sync(1151,578),Demon_Sync(561)],#Dazai in diet building vengeance (Dazai, Yuzuru)
     'LV_E2035': [Demon_Sync(1151,578),Demon_Sync(561)],#Returning to Tokyo from area 1 vengeance (Dazai, Yuzuru)
@@ -113,10 +116,10 @@ EVENT_CUTSCENES = {
     'LV_E2297': [Demon_Sync(451)],#Fionn pre(?)-fight vengeance
     'LV_E2310': [Demon_Sync(1151,578)],#Dazai loses to Eisheth (Dazai)
     'LV_E2320': [Demon_Sync(561),Demon_Sync(394, 559),Demon_Sync(152, 562)],#Yuzuru pre-fight dialogue (Yuzuru, Eisheth, Hayataro)
-    'LV_E2325': [Demon_Sync(561),Demon_Sync(394, 559),Demon_Sync(152, 562),Demon_Sync(1151,578),Demon_Sync(392, 568),Demon_Sync(7,566)], #Yuzuru post-fight dialogue (Yuzuru,Eisheth,Hayataro, Dazai, Agrat, Khonsu)
+    'LV_E2325': [Demon_Sync(561),Demon_Sync(394, 559),Demon_Sync(152, 562),Demon_Sync(1151,578),Demon_Sync(-396, 568),Demon_Sync(7,566)], #Yuzuru post-fight dialogue (Yuzuru,Eisheth,Hayataro, Dazai, Agrat, Khonsu)
     'LV_E2330': [Demon_Sync(1151,578),Demon_Sync(561)],#Discovering Salted Village (Dazai, Yuzuru)
     'LV_E2440': [Demon_Sync(393, 554),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(391, 569)], #Qadistu Dream ??? (Naamah II ,Agrat,Eisheth,Lilith)
-    'LV_E2519': [Demon_Sync(550), Demon_Sync(567)],#First Nuwa/Yakumo scene in Shinjuku(Nuwa, Yakumo) #TODO: Also a power is in here
+    'LV_E2519': [Demon_Sync(550), Demon_Sync(567)],#First Nuwa/Yakumo scene in Shinjuku(Nuwa, Yakumo)
     'LV_E2560': [Demon_Sync(550), Demon_Sync(567)],#Nuwa/Yakumo talk at Mastema's hill 1(Nuwa, Yakumo)
     'LV_E2605': [Demon_Sync(1151,578),Demon_Sync(561)],#Dazai and Yuzuru become friends (Dazai, Yuzuru)
     'LV_E2623': [Demon_Sync(7,566),Demon_Sync(1151,578),Demon_Sync(561)], #Khonsu pre-fight dialogue vengeance part 2 (Khonsu, Yuzuru, Dazai)
@@ -129,14 +132,14 @@ EVENT_CUTSCENES = {
     'LV_E2700': [Demon_Sync(-396,568)],#Meeting Agrat
     'LV_E2703': [Demon_Sync(568)],#Agrat pre-fight
     'LV_E2705': [Demon_Sync(568),Demon_Sync(394, 559),Demon_Sync(393, 554)],#Agrat post-fight dialogue (Agrat, Eisheth, Naamah)
-    'LV_E2713': [Demon_Sync(393, 554),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(391, 569)],#Lilith pre-fight dialogue (Naamah II ,Agrat,Eisheth,Lilith)
-    'LV_E2717': [Demon_Sync(393, 554),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(391, 569)],#Lilith post-fight dialogue (Naamah II ,Agrat,Eisheth,Lilith)
+    'LV_E2713': [Demon_Sync(393, 554),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(-395, 569)],#Lilith pre-fight dialogue (Naamah II ,Agrat,Eisheth,Lilith)
+    'LV_E2717': [Demon_Sync(393, 554),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(-395, 569)],#Lilith post-fight dialogue (Naamah II ,Agrat,Eisheth,Lilith)
     'LV_E2720': [Demon_Sync(596),Demon_Sync(-459,565),Demon_Sync(550),Demon_Sync(564),Demon_Sync(1151,578),Demon_Sync(561),Demon_Sync(550)],#Timat Unleashed (Mastema,Tiamat,Nuwa,Abdiel,Dazai,Yuzuru,Yakumo)
     'LV_E2740': [Demon_Sync(578),Demon_Sync(561),Demon_Sync(564)],#Dazai hat cutscene vengeance (Dazai (Hatless), Yuzuru, Abdiel) 
-    'LV_E2740': [Demon_Sync(564)], #Abdiel in Shakan pre-fight dialogue 
+    'LV_E2920': [Demon_Sync(564)], #Abdiel in Shakan pre-fight dialogue 
     'LV_E3040': [Demon_Sync(567)], #Yakumo in Jojozi (Yakumo)
     'LV_E3100': [Demon_Sync(483),Demon_Sync(468)], #Beelzebub pre-fight dialogue(Beelzebub, Vasuki)
-    'LV_E3120': [Demon_Sync(481),Demon_Sync(482)], #Zeus + Odin pre-fight dialogue (Zeus, Odin)
+    'LV_E3120': [Demon_Sync(482),Demon_Sync(481)], #Zeus + Odin pre-fight dialogue (Odin,Zeus)
     'LV_E3300': [Demon_Sync(578),Demon_Sync(577)], #Dazai pre-fight dialogue (Dazai, Abdiel)
     'LV_E3310': [Demon_Sync(578),Demon_Sync(577)],#Dazai post-fight dialogue (Dazai, Abdiel)
     'LV_E3350': [Demon_Sync(-459,565)], #Yoko uses Tiamat on you (Tiamat)
@@ -203,7 +206,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M063_EM0079': [Demon_Sync(455)], #Ishtar Post Fight
     'MM_M063_M0680': [Demon_Sync(467)],#Abdiel celebrates Arioch's death (Abdiel)
     #Mainmission M064 (Shinjuku)
-    'MM_M064_E2510_Direct': [Demon_Sync(503)], #First Power Fight in Shinjuku
+    'MM_M064_E2510_Direct': [Demon_Sync(503)], #First Power Fight in Shinjuku 
     'MM_M064_E2512': [Demon_Sync(504)], #Second Power Fight in Shinjuku
     'MM_M064_E2514': [Demon_Sync(505)], #Powers detecting other intruders (uses Triple Power Fight Replacement)
     'MM_M064_E2520_Direct': [Demon_Sync(550),Demon_Sync(567)], #First Nuwa/Yakumo scene in Shinjuku 
@@ -213,8 +216,9 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_E2562_Direct': [Demon_Sync(550),Demon_Sync(567)], #Nuwa/Yakumo talk at Mastema's hill 2 
     'MM_M064_E2638': [Demon_Sync(1151,578)], #Dazai joins to see Mastema 2 (?)
     'MM_M064_E2642_Direct': [Demon_Sync(1151,578),Demon_Sync(596)], #Meeting Mastema (Dazai,Mastema)
+    'MM_M064_E2644_Direct': [Demon_Sync(596)], #Dazai got salted (Mastema)
     'MM_M064_E2650_Direct': [Demon_Sync(550),Demon_Sync(567)], #Nuwa/Yakumo talk after seeing Naamah (Nuwa, Yakumo)
-    'MM_M064_E2690': [Demon_Sync(486)], #Dead Cherubim #TODO: Might be issue with too large demons blocking stuff
+    'MM_M064_E2690': [Demon_Sync(486)], #Dead Cherubim
     'MM_M064_E2900': [Demon_Sync(596)],#Mastema sends you to Shakan
     'MM_M064_E2950_Direct': [Demon_Sync(596)],#Mastema after Shakan
     #Mainmission M080 (Dorm Roof) 
@@ -317,7 +321,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
     'MM_M061_EM1640': [Demon_Sync(43),Demon_Sync(44,869)], # The Spirit of Love (Apsaras, Agathion)
     'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Area Entry (Apsaras)
-    'MM_M061_EM2190': [Demon_Sync(888)], #Halphas Quest (Oni) #TODO:TEST
+    'MM_M061_EM2190': [Demon_Sync(888)], #Halphas Quest (Oni) 
     'MM_M061_EM2531': [Demon_Sync(751)], #Dormarth Quest (Dormarth)
     'MM_M061_EM2601': [Demon_Sync(32)], #Konohana Sakuya Quest (Konohana Sakuya) 
     'esNPC_em0150_02': [Demon_Sync(889)], # A Preta Predicament (Preta) 
@@ -390,10 +394,10 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_EM2310': [Demon_Sync(386, 770), Demon_Sync(41)], #Onyakopon Anansi Quest (Onyakopon Side)
     'MM_M064_EM2320': [Demon_Sync(41, 771), Demon_Sync(386)], #Onyakopon Anansi Quest (Anansi Side)
     'MM_M064_EM2400': [Demon_Sync(596)], #Samael Quest (Mastema) 
-    'MM_M064_EM2402': [Demon_Sync(760)], #Samael Quest (Samael) #TODO Test
+    'MM_M064_EM2402': [Demon_Sync(760)], #Samael Quest (Samael) 
     'MM_M064_EM2421_Direct': [Demon_Sync(681)], #Satan Quest (Satan) 
-    'MM_M064_EM2461': [Demon_Sync(892)], #Mara Quest (Mara) #TODO Test
-    'MM_M064_EM2500': [Demon_Sync(215)], #Brawny Ambitions III (Okuninushi) #TODO Test
+    'MM_M064_EM2461': [Demon_Sync(892)], #Mara Quest (Mara) 
+    'MM_M064_EM2500': [Demon_Sync(215)], #Brawny Ambitions III (Okuninushi) 
     'MM_M064_EM2552': [Demon_Sync(509)], #MadGasser Quest (Zhen (3xCopy))
     'MM_M064_EM2621': [Demon_Sync(775)], #Orochi Quest (Orochi) 
 
@@ -403,38 +407,37 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_EM1390': [Demon_Sync(831),Demon_Sync(516)], #Winged Sun CoC (Amon,Khonsu)  
     'MM_M060_EM1390_NewRoute': [Demon_Sync(831)], #Winged Sun CoV (Amon) 
     'MM_M060_EM1391': [Demon_Sync(829),Demon_Sync(830)], #Winged Sun CoC(Mithras, Asura) 
-    'MM_M060_EM1420': [Demon_Sync(35)], #Fionn 2 Quest (Fionn) #TODO Test
-    'MM_M060_EM1431': [Demon_Sync(836),Demon_Sync(834),Demon_Sync(835)], #Holy Ring Quest (Uriel, Raphael,Gabriel) #TODO
+    'MM_M060_EM1420': [Demon_Sync(35)], #Fionn 2 Quest (Fionn) 
+    'MM_M060_EM1431': [Demon_Sync(836),Demon_Sync(834),Demon_Sync(835)], #Holy Ring Quest (Uriel, Raphael,Gabriel) 
     'MM_M060_EM1440': [Demon_Sync(19)], #Baal Quest (Demeter) 
     'MM_M060_EM1441': [Demon_Sync(837)], #Baal Quest (Baal) 
-    'MM_M060_EM1460': [Demon_Sync(839)], #The Gold Dragon's Arrival (Huang Long) #TODO Test
+    'MM_M060_EM1460': [Demon_Sync(839)], #The Gold Dragon's Arrival (Huang Long) 
     'MM_M060_EM1600': [Demon_Sync(878)],  #Final Amanozako Quest (Kurama Tengu) 
     'MM_M060_EM1601': [Demon_Sync(878),Demon_Sync(38),Demon_Sync(877)], #Final Amanozako Quest (Kurama Tengu,Amanozako, Zaou Gongen)
     'MM_M060_EM1602': [Demon_Sync(38)],  #Final Amanozako Quest (Amanozako) 
     'MM_M060_EM1690': [Demon_Sync(265)],  #Adramelech Futsunushi Quest (Adramalech) 
     'MM_M060_EM1700': [Demon_Sync(201)],  #Adramelech Futsunushi Quest (Futsunushi) 
-    'MM_M060_EM2371': [Demon_Sync(865)],  #Garuda Quest (Garuda) #TODO Test
+    'MM_M060_EM2371': [Demon_Sync(865)],  #Garuda Quest (Garuda) 
     'MM_M060_EM2570': [Demon_Sync(22, 779)], #Moirae Haunt Quest (Norn)
-    'MM_M060_EM2630': [Demon_Sync(782)],  #Saturnus Quest(Saturnus) #TODO Test
+    'MM_M060_EM2630': [Demon_Sync(782)],  #Saturnus Quest(Saturnus) 
     'MM_M061_EM2705': [Demon_Sync(207)], # The Guardian of Light (Marici)
 
     #Garden SubMission
-    'MM_M060_EM2351': [Demon_Sync(778)],  #Idun Haunt Quest (Thor) #TODO Test
+    'MM_M060_EM2351': [Demon_Sync(778)],  #Idun Haunt Quest (Thor)
 
     #NPCs
-    'BP_es035_m063_01': [Demon_Sync(35)],#Fionn area 3 (Fionn) #TODO Test
-    'BP_es152_m062_01': [Demon_Sync(152)],#Hayataro area 2 (Hayataro) #TODO Test
-    'BP_es152_m063_01': [Demon_Sync(152)],#Hayataro area 3 (Hayataro) #TODO Test
-    'BP_es416_m060_01': [Demon_Sync(75, 435)],#Nuwa in Area 4 #TODO Test
-    'BP_es618_m060_01': [Demon_Sync(465)],#Yakumo in Area 4 #TODO Test
-    'BP_es418_m063_01': [Demon_Sync(75, 435)],#Nuwa in Area 3 #TODO Test
-    'BP_es618_m063_01': [Demon_Sync(465)],#Yakumo in Area 3 #TODO Test
+    'BP_es035_m063_01': [Demon_Sync(35)],#Fionn area 3 (Fionn) 
+    'BP_es152_m062_01': [Demon_Sync(152)],#Hayataro area 2 (Hayataro) 
+    'BP_es152_m063_01': [Demon_Sync(152)],#Hayataro area 3 (Hayataro) 
+    'BP_es416_m060_01': [Demon_Sync(75, 435)],#Nuwa in Area 4 
+    'BP_es618_m060_01': [Demon_Sync(465)],#Yakumo in Area 4 
+    'BP_es418_m063_01': [Demon_Sync(75, 435)],#Nuwa in Area 3 #TODO No clue where they are
+    'BP_es618_m063_01': [Demon_Sync(465)],#Yakumo in Area 3 #TODO No clue where they are
 
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
 #Beware Capitalization!!
-#TODO: A lot of story events have very specific animations that all would most likely just be replaced by IdleA which in most cases seems to be playing on default anyway so they can be skipped?
 SCRIPT_ANIMS_REPLACEMENTS = {
     'EM_M061_DevilTalk': [Anim_Sync('02idleB','05attack')], #Talk Tutorial (Pixie)
     'MM_M061_EM1630': [Anim_Sync('06skill_Composite','06skill')], # The Water Nymph (Leanan)
@@ -774,7 +777,6 @@ MODEL_SYNC = {
     526: 525, # Depraved Arm (use Nahobino Abdiel)
     527: 525, # Depraved Wing (use Nahobino Abdiel)
 
-    #TODO: Should be complete? With the exception of bosses who use NPC Models
 }
 
 
@@ -798,6 +800,7 @@ LV_SEQUENCES = {
     'LV_E0598': ['SEQ_E0598_c01', 'SEQ_E0598_c02', 'SEQ_E0598_c03', 'SEQ_E0598_c04', 'SEQ_E0598_c05', 'SEQ_E0598_c06'],
     'LV_E0600': ['SEQ_E0600_c00', 'SEQ_E0600_c00B', 'SEQ_E0600_c01', 'SEQ_E0600_c01B', 'SEQ_E0600_c02', 'SEQ_E0600_c03', 'SEQ_E0600_c04', 'SEQ_E0600_c05', 'SEQ_E0600_c06', 'SEQ_E0600_c08', 'SEQ_E0600_c08B', 'SEQ_E0600_c09'],
     'LV_E0603': ['SEQ_E0603_c01', 'SEQ_E0603_c02', 'SEQ_E0603_c03', 'SEQ_E0603_c04', 'SEQ_E0603_c05', 'SEQ_E0603_c06', 'SEQ_E0603_c06B', 'SEQ_E0603_c07', 'SEQ_E0603_c08', 'SEQ_E0603_c09', 'SEQ_E0603_c10', 'SEQ_E0603_c10B', 'SEQ_E0603_c10C', 'SEQ_E0603_c10D', 'SEQ_E0603_c11', 'SEQ_E0603_c12'],
+    'LV_E0604': ['SEQ_E0604_c01', 'SEQ_E0604_c02', 'SEQ_E0604_c03', 'SEQ_E0604_c04', 'SEQ_E0604_c05', 'SEQ_E0604_c06', 'SEQ_E0604_c07', 'SEQ_E0604_c08', 'SEQ_E0604_c09', 'SEQ_E0604_c10', 'SEQ_E0604_c11', 'SEQ_E0604_c12', 'SEQ_E0604_c16'],
     'LV_E0620': ['SEQ_E0620_c01', 'SEQ_E0620_c01B', 'SEQ_E0620_c02', 'SEQ_E0620_c03', 'SEQ_E0620_c04', 'SEQ_E0620_c05', 'SEQ_E0620_c05A', 'SEQ_E0620_c05B', 'SEQ_E0620_c06', 'SEQ_E0620_c07', 'SEQ_E0620_c08', 'SEQ_E0620_c09', 'SEQ_E0620_c10', 'SEQ_E0620_c12', 'SEQ_E0620_c13', 'SEQ_E0620_c14'],
     'LV_E0630': ['SEQ_E0630_c01', 'SEQ_E0630_c02', 'SEQ_E0630_c03', 'SEQ_E0630_c04', 'SEQ_E0630_c05', 'SEQ_E0630_c06', 'SEQ_E0630_c07', 'SEQ_E0630_c08', 'SEQ_E0630_c09A', 'SEQ_E0630_c09B', 'SEQ_E0630_c10', 'SEQ_E0630_c11'],
     'LV_E0660': ['SEQ_E0660_c01', 'SEQ_E0660_c03', 'SEQ_E0660_c04', 'SEQ_E0660_c05', 'SEQ_E0660_c06', 'SEQ_E0660_c07', 'SEQ_E0660_c08'],
@@ -823,6 +826,7 @@ LV_SEQUENCES = {
     'LV_E0960': ['SEQ_E0960_c00', 'SEQ_E0960_c01', 'SEQ_E0960_c02', 'SEQ_E0960_c03', 'SEQ_E0960_c04', 'SEQ_E0960_c05', 'SEQ_E0960_c06', 'SEQ_E0960_c07', 'SEQ_E0960_c08', 'SEQ_E0960_c09', 'SEQ_E0960_c10', 'SEQ_E0960_c11', 'SEQ_E0960_c12', 'SEQ_E0960_c13', 'SEQ_E0960_c13B', 'SEQ_E0960_c14', 'SEQ_E0960_c14B', 'SEQ_E0960_c15', 'SEQ_E0960_c16', 'SEQ_E0960_c17', 'SEQ_E0960_c18', 'SEQ_E0960_c19', 'SEQ_E0960_c20'],
     'LV_E0965': ['SEQ_E0965_c01', 'SEQ_E0965_c02', 'SEQ_E0965_c03', 'SEQ_E0965_c04', 'SEQ_E0965_c05'],
     'LV_E0975': ['SEQ_E0975_c01', 'SEQ_E0975_c02', 'SEQ_E0975_c03', 'SEQ_E0975_c04', 'SEQ_E0975_c05', 'SEQ_E0975_c06', 'SEQ_E0975_c07', 'SEQ_E0975_c08', 'SEQ_E0975_c10', 'SEQ_E0975_c15', 'SEQ_E0975_c16'],
+    'LV_E1000': ['SEQ_E1000_c01', 'SEQ_E1000_c02', 'SEQ_E1000_c03', 'SEQ_E1000_c04', 'SEQ_E1000_c05'],
     'LV_E1010': ['SEQ_E1010_c01', 'SEQ_E1010_c01B', 'SEQ_E1010_c01C', 'SEQ_E1010_c01D', 'SEQ_E1010_c02', 'SEQ_E1010_c02B', 'SEQ_E1010_c03', 'SEQ_E1010_c04', 'SEQ_E1010_c05B', 'SEQ_E1010_c07', 'SEQ_E1010_c08', 'SEQ_E1010_c09'],
     'LV_E1015': ['SEQ_E1015_c01', 'SEQ_E1015_c02', 'SEQ_E1015_c02B', 'SEQ_E1015_c03', 'SEQ_E1015_c05', 'SEQ_E1015_c06', 'SEQ_E1015_c07'],
     'LV_E1100': ['SEQ_E1100_c01', 'SEQ_E1100_c01B', 'SEQ_E1100_c02', 'SEQ_E1100_c02B', 'SEQ_E1100_c03', 'SEQ_E1100_c04', 'SEQ_E1100_c04B', 'SEQ_E1100_c04C', 'SEQ_E1100_c05', 'SEQ_E1100_c06'],
@@ -868,6 +872,7 @@ LV_SEQUENCES = {
     'LV_E2717': ['SEQ_E2717_c01', 'SEQ_E2717_c02', 'SEQ_E2717_c03', 'SEQ_E2717_c04', 'SEQ_E2717_c07', 'SEQ_E2717_c08', 'SEQ_E2717_c09', 'SEQ_E2717_c10', 'SEQ_E2717_c11', 'SEQ_E2717_c13', 'SEQ_E2717_c14', 'SEQ_E2717_c15', 'SEQ_E2717_c16', 'SEQ_E2717_c19', 'SEQ_E2717_c20', 'SEQ_E2717_c20B', 'SEQ_E2717_c21', 'SEQ_E2717_c22', 'SEQ_E2717_c23A', 'SEQ_E2717_c23B', 'SEQ_E2717_c23C', 'SEQ_E2717_c23D', 'SEQ_E2717_c24', 'SEQ_E2717_c25', 'SEQ_E2717_c26', 'SEQ_E2717_c27', 'SEQ_E2717_c28', 'SEQ_E2717_c29', 'SEQ_E2717_c30', 'SEQ_E2717_c31', 'SEQ_E2717_c32', 'SEQ_E2717_c33', 'SEQ_E2717_c35', 'SEQ_E2717_c36', 'SEQ_E2717_c36B', 'SEQ_E2717_c37'],
     'LV_E2720': ['SEQ_E2720_c01', 'SEQ_E2720_c02', 'SEQ_E2720_c03', 'SEQ_E2720_c04', 'SEQ_E2720_c05', 'SEQ_E2720_c05B', 'SEQ_E2720_c06', 'SEQ_E2720_c07', 'SEQ_E2720_c08', 'SEQ_E2720_c09', 'SEQ_E2720_c10', 'SEQ_E2720_c11', 'SEQ_E2720_c12', 'SEQ_E2720_c13', 'SEQ_E2720_c14', 'SEQ_E2720_c15', 'SEQ_E2720_c16', 'SEQ_E2720_c17', 'SEQ_E2720_c18', 'SEQ_E2720_c19', 'SEQ_E2720_c20', 'SEQ_E2720_c21', 'SEQ_E2720_c22', 'SEQ_E2720_c23', 'SEQ_E2720_c24', 'SEQ_E2720_c25', 'SEQ_E2720_c26', 'SEQ_E2720_c27', 'SEQ_E2720_c27B', 'SEQ_E2720_c28', 'SEQ_E2720_c29', 'SEQ_E2720_c30'],
     'LV_E2740': ['SEQ_E2740_c01', 'SEQ_E2740_c02', 'SEQ_E2740_c02B', 'SEQ_E2740_c03', 'SEQ_E2740_c03B', 'SEQ_E2740_c04', 'SEQ_E2740_c04B', 'SEQ_E2740_c05', 'SEQ_E2740_c06', 'SEQ_E2740_c07', 'SEQ_E2740_c08', 'SEQ_E2740_c09', 'SEQ_E2740_c10', 'SEQ_E2740_c11', 'SEQ_E2740_c12', 'SEQ_E2740_c13', 'SEQ_E2740_c14', 'SEQ_E2740_c14B', 'SEQ_E2740_c15', 'SEQ_E2740_c15A', 'SEQ_E2740_c15B', 'SEQ_E2740_c16', 'SEQ_E2740_c17', 'SEQ_E2740_c18', 'SEQ_E2740_c19', 'SEQ_E2740_c19B', 'SEQ_E2740_c21', 'SEQ_E2740_c22', 'SEQ_E2740_c23', 'SEQ_E2740_c24', 'SEQ_E2740_c24A', 'SEQ_E2740_c24B', 'SEQ_E2740_c25'],
+    'LV_E2920': ['SEQ_E2920_c01', 'SEQ_E2920_c01B', 'SEQ_E2920_c01C', 'SEQ_E2920_c02', 'SEQ_E2920_c03', 'SEQ_E2920_c04', 'SEQ_E2920_c05', 'SEQ_E2920_c05B', 'SEQ_E2920_c06', 'SEQ_E2920_c07', 'SEQ_E2920_c07B', 'SEQ_E2920_c08', 'SEQ_E2920_c09', 'SEQ_E2920_c10', 'SEQ_E2920_c10B', 'SEQ_E2920_c11', 'SEQ_E2920_c12', 'SEQ_E2920_c13', 'SEQ_E2920_c13B', 'SEQ_E2920_c14', 'SEQ_E2920_c15', 'SEQ_E2920_c16', 'SEQ_E2920_c17', 'SEQ_E2920_c18', 'SEQ_E2920_c19', 'SEQ_E2920_c20'],
     'LV_E3040': ['SEQ_E3040_c01', 'SEQ_E3040_c02', 'SEQ_E3040_c03', 'SEQ_E3040_c04', 'SEQ_E3040_c04A', 'SEQ_E3040_c05A', 'SEQ_E3040_c05B', 'SEQ_E3040_c05C', 'SEQ_E3040_c06A', 'SEQ_E3040_c06B', 'SEQ_E3040_c06C', 'SEQ_E3040_c07', 'SEQ_E3040_c08', 'SEQ_E3040_c08A', 'SEQ_E3040_c10', 'SEQ_E3040_c11', 'SEQ_E3040_c12', 'SEQ_E3040_c13', 'SEQ_E3040_c14', 'SEQ_E3040_c15', 'SEQ_E3040_c15A', 'SEQ_E3040_c16'],
     'LV_E3100': ['SEQ_E3100_c01', 'SEQ_E3100_c01B', 'SEQ_E3100_c02', 'SEQ_E3100_c02B', 'SEQ_E3100_c03', 'SEQ_E3100_c03B', 'SEQ_E3100_c04', 'SEQ_E3100_c04B', 'SEQ_E3100_c04C', 'SEQ_E3100_c04D', 'SEQ_E3100_c05', 'SEQ_E3100_c06', 'SEQ_E3100_c06B', 'SEQ_E3100_c06C', 'SEQ_E3100_c07', 'SEQ_E3100_c08', 'SEQ_E3100_c08B', 'SEQ_E3100_c09', 'SEQ_E3100_c09A', 'SEQ_E3100_c09B'],
     'LV_E3120': ['SEQ_E3120_c01', 'SEQ_E3120_c02', 'SEQ_E3120_c02B', 'SEQ_E3120_c03', 'SEQ_E3120_c03A', 'SEQ_E3120_c04', 'SEQ_E3120_c04B', 'SEQ_E3120_c04C', 'SEQ_E3120_c04D', 'SEQ_E3120_c05', 'SEQ_E3120_c05B', 'SEQ_E3120_c06'],

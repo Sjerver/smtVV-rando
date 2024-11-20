@@ -209,6 +209,7 @@ SCRIPT_FOLDERS = {
     'MM_M064_E2562_Direct': MAIN_M064_FOLDER, #Nuwa/Yakumo talk at Mastema's hill 2 
     'MM_M064_E2638': MAIN_M064_FOLDER, #Dazai joins to see Mastema 2 (?)
     'MM_M064_E2642_Direct': MAIN_M064_FOLDER, #Meeting Mastema (Dazai,Mastema)
+    'MM_M064_E2644_Direct': MAIN_M064_FOLDER, #Dazai got salted (Dazai,Mastema)
     'MM_M064_E2650_Direct': MAIN_M064_FOLDER, #Nuwa/Yakumo talk after seeing Naamah (Nuwa, Yakumo)
     'MM_M064_E2690': MAIN_M064_FOLDER, #Dead Cherubim 
     'MM_M064_E2900': MAIN_M064_FOLDER,#Mastema sends you to Shakan

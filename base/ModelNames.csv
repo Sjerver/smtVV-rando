@@ -270,7 +270,7 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 392,agrat,Agrat,392,FALSE
 393,naamah,Naamah,393,FALSE
 394,eisheth,Eisheth,394,FALSE
-395,lilith_evt,Lilith,-1,FALSE
+395,lilith_evt,Lilith,-395,FALSE
 396,agrat_evt,Agrat,-396,FALSE
 401,lahmu_mask,Lahmu,441,FALSE
 402,lahmu_white,Lahmu,-1,FALSE
@@ -301,7 +301,7 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 459,tiamat_evt,Tiamat,-459,FALSE
 460,tehom,Tehom,597,FALSE
 461,tehom_evt,Tehom,-1,FALSE
-500,lucifer,Lucifer,-1,FALSE
+500,lucifer,Lucifer,-500,FALSE
 501,artemis,Artemis,31,FALSE
 502,surtr1_big,Surt,-1,FALSE
 503,surtr2_big,Surt,454,FALSE
