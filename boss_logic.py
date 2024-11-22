@@ -398,6 +398,8 @@ def patchSpecialBossDemons(bossArr, configSettings):
         luciferPhase3.money = luciferPhase1.money
         luciferPhase1.experience = 0
         luciferPhase1.money = 0
+        luciferPhase2.damageMultiplier = luciferPhase1.damageMultiplier
+        luciferPhase3.damageMultiplier = luciferPhase1.damageMultiplier
     
 
 '''
