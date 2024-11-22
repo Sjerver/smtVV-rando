@@ -223,9 +223,9 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_E2950_Direct': [Demon_Sync(596)],#Mastema after Shakan
     #Mainmission M080 (Dorm Roof) 
     'MM_M080_E2670_Direct': [Demon_Sync(561)], #Yuzuru wants to be a Nahobino
-    #Mainmission M082 (Tokyo Streets?) (NOT YET TESTED IN GAME)
+    #Mainmission M082 (School Outside)
     'MM_M082_E3030_Direct': [Demon_Sync(561)],#Yakumo saves a student
-    #Mainmission M083 (Shinagawa Station Real Tokyo (?)) (NOT YET TESTED IN GAME)
+    #Mainmission M083 (Shinagawa Station Real Tokyo ) 
     'MM_M083_E2160_Direct': [Demon_Sync(75,435),Demon_Sync(567)], #Labolas 2 post-fight (Yakumo,Nuwa)
     #Mainmission M085 (Top Room of Tokyo Building whose name I do not remember)
     'MM_M085_E0690': [Demon_Sync(-617,528)], #Koshimizu meeting after area 3 CoC (Koshimizu using Tsukuyomi Replacement)
@@ -258,8 +258,8 @@ EVENT_SCRIPT_MODELS = {
     'MM_M092_EM109_a': [Demon_Sync(500)], #School Save Jack Frost (Manananggal) [64]
     'MM_M092_EM110': [Demon_Sync(497)], #School Incubus [61] (CoV 3rd Floor Hallway, CoC  3rd Floor Corner from Far 2nd Floor Staircase)
     'MM_M092_EM111': [Demon_Sync(487),Demon_Sync(502)], #School Aitvaras + Shiki Ouji [61][65] (4th Floor, Encounter depends on choice)
-    'MM_M092_EM112_': [Demon_Sync(502),Demon_Sync(447),Demon_Sync(443)], #School Optional Multiple Fights [65][129][60] (Manananggal,Shiki Ouji,Andras) (4th Floor Far Corner) #TODO: Demon Syncs are wrong here
-    #Mainmission M115 (Dorm Room) (NOT YET TESTED IN GAME)
+    'MM_M092_EM112_': [Demon_Sync(502),Demon_Sync(447),Demon_Sync(443)], #School Optional Multiple Fights [65][129][60] (Manananggal,Shiki Ouji,Andras) (4th Floor Far Corner)
+    #Mainmission M115 (Dorm Room) 
     'MM_M115_E2603_Direct': [Demon_Sync(1151,578), Demon_Sync(561)], #Dazai/Yuzuru in dorm room
     #Mainmission M203 (Qadistu Dimension)
     'MM_M203_E2718_Direct': [Demon_Sync(569)], #Lilith post-fight lecture

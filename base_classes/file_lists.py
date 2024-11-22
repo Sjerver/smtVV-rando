@@ -17,7 +17,8 @@ try:
     print("CoreCLR loaded successfully")
 except Exception as e:
     print("Failed to load CoreCLR:", str(e))
-    print("No .net Installation found. Please install .net 8.0 : https://dotnet.microsoft.com/en-us/download/dotnet/8.0")
+    print("No .net Installation found. Please install .net 8.0 SDK : https://dotnet.microsoft.com/en-us/download/dotnet/8.0")
+    input('Press [Enter] to exit')
     sys.exit(1)  # Exit if the runtime fails to load
 
 import clr
@@ -26,7 +27,10 @@ try:
     clr.AddReference('System')
     print("UAssetAPI DLL loaded successfully")
 except Exception as e:
+    
     print("Failed to load UAssetAPI DLL:", str(e))
+    print("You might have not extracted the base folder to the same directory as the randomizer.exe")
+    input('Press [Enter] to exit')
     sys.exit(1)  
 
 
