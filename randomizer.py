@@ -6712,8 +6712,6 @@ class Randomizer:
         
         if config.unlockFusions:
             self.removeFusionFlags()
-
-        scriptLogic.randomizeDemonJoins(self.encounterReplacements,config.ensureDemonJoinLevel,self.scriptFiles)
             
         if config.randomChests:
             self.randomizeChests(self.configSettings.scaleItemsToArea)
@@ -6723,7 +6721,6 @@ class Randomizer:
         self.replaceSpyglassInShop()
         self.adjustItemPrices()
 
-        fakeMissions = self.randomizeItemRewards()
         
         if self.configSettings.selfRandomizeNormalBosses or self.configSettings.mixedRandomizeNormalBosses or self.configSettings.selfRandomizeOverworldBosses or self.configSettings.mixedRandomizeOverworldBosses:
             self.patchQuestBossDrops()
@@ -6749,7 +6746,9 @@ class Randomizer:
         self.capDiarahanDemonHP()
         self.nullBossTones()
         
-        #mapSymbolUasset = UAsset(readBinaryTable(paths.MAP_SYMBOL_PARAM_UASSET_IN))
+        scriptLogic.randomizeDemonJoins(self.encounterReplacements,config.ensureDemonJoinLevel,self.scriptFiles)
+
+        fakeMissions = self.randomizeItemRewards()
 
         self.addEntriesToMapSymbolScaleTable()
         self.scaleLargeSymbolDemonsDown()
@@ -6820,6 +6819,11 @@ class Randomizer:
         writeFolder(paths.MOVER_PARAMTABLE_FOLDER_OUT)
         writeFolder(paths.TITLE_TEXTURE_FOLDER_OUT)
 
+        self.mapSymbolFile.write()
+
+        self.scriptFiles.writeFiles()
+        del self.scriptFiles
+
         writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
         writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
         writeBinaryTable(skillBuffer.buffer, paths.SKILL_DATA_OUT, paths.SKILL_FOLDER_OUT)
@@ -6851,10 +6855,7 @@ class Randomizer:
         copyFile(paths.TITLE_TEXTURE_IN, paths.TITLE_TEXTURE_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         
-        self.mapSymbolFile.write()
-
-        self.scriptFiles.writeFiles()
-        del self.scriptFiles
+        
 
         self.applyUnrealPak()
 
