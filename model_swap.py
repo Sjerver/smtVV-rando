@@ -633,7 +633,7 @@ def updateCutsceneModels(encounterReplacements, bossReplacements, config):
                 for originalDemonID, replacementID in replacementMap.items():
                     fileSeq = replaceDemonInSequence(seq,fileSeq,originalDemonID,replacementID,event)
             cutsceneFiles.setFile(seq,fileSeq)
-            cutsceneFiles.writeFile(seq,file)
+            cutsceneFiles.writeFile(seq,fileSeq)
         
         print("Swapped Models for " + str(currentFileIndex) + " of " + str(totalFiles) + " Cutscenes", end='\r')
         cutsceneFiles.writeFile(event,file)

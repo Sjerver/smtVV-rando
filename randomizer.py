@@ -6198,9 +6198,9 @@ class Randomizer:
         json = self.mapSymbolFile.json
 
         table = json["Exports"][0]["Table"]["Data"]
-        tableCopy = copy.deepcopy(table)
+        #tableCopy = copy.deepcopy(table)
 
-        for entry in tableCopy:
+        for entry in table:
             demonID = entry["Value"][0]["Value"]
             if demonID in numbers.REMOVE_TEMP_MODEL_DEMONS:
                 table.remove(entry)
@@ -6819,7 +6819,7 @@ class Randomizer:
         writeFolder(paths.MOVER_PARAMTABLE_FOLDER_OUT)
         writeFolder(paths.TITLE_TEXTURE_FOLDER_OUT)
 
-        self.mapSymbolFile.write()
+        
 
         self.scriptFiles.writeFiles()
         del self.scriptFiles
@@ -6855,7 +6855,7 @@ class Randomizer:
         copyFile(paths.TITLE_TEXTURE_IN, paths.TITLE_TEXTURE_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         
-        
+        self.mapSymbolFile.write()
 
         self.applyUnrealPak()
 
