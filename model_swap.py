@@ -60,7 +60,7 @@ Updates the models used in events.
         mapSymbolArr(List): list of map symbol data
         config (Config_Settings): settings set for the randomizer
 '''
-def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapSymbolFile, config):
+def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Script_File_List, mapSymbolFile, config):
     mapSymbolTable = mapSymbolFile.json["Exports"][0]["Table"]["Data"]
     originalMapSymbolTable = mapSymbolFile.originalJson["Exports"][0]["Table"]["Data"]
     initDemonModelData()
@@ -142,7 +142,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
                 #do not double if there is no modelScaling in code and update is needed
                 #print("REPLACEMENT MODEL SIZE IS TOO LARGE:" + script + " " + str(originalDemonID) + "->" + str(replacementID) + " = " + str(scale))
                 continue
-            if scale > 2 and script in OVERLAPPING_SCRIPTS:
+            if scale > 1.5 and script in OVERLAPPING_SCRIPTS:
                 #print("OVERLAP PREVENTION " + script)
                 #minimum measure to prevent important overlap
                 continue
@@ -162,6 +162,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles, mapS
             file = replaceDemonModelInScript(script, file, originalDemonID, replacementID)   
         
         scriptFiles.setFile(script,file)
+        scriptFiles.writeFile(script,file)
         print("Swapped Models for " + str(currentScriptIndex) + " of " + str(totalScripts) + " Scripts", end='\r')
     endTime = datetime.datetime.now()
     print(endTime - startTime)
@@ -632,9 +633,10 @@ def updateCutsceneModels(encounterReplacements, bossReplacements, config):
                 for originalDemonID, replacementID in replacementMap.items():
                     fileSeq = replaceDemonInSequence(seq,fileSeq,originalDemonID,replacementID,event)
             cutsceneFiles.setFile(seq,fileSeq)
+            cutsceneFiles.writeFile(seq,fileSeq)
         
         print("Swapped Models for " + str(currentFileIndex) + " of " + str(totalFiles) + " Cutscenes", end='\r')
-    
+        cutsceneFiles.writeFile(event,file)
     cutsceneFiles.writeFiles()
     del cutsceneFiles
     endTime = datetime.datetime.now()

@@ -66,6 +66,6 @@ The mod should now work when loading the game.
 
 Since the randomizer makes edits to a plethora of files it is incompatible with most mods. For a concrete list of files the randomizer modifies check the base folder.
 
-One final note: using the 'Randomize Cutscene Models' setting is experimental and will cause the randomizer to take a long time to run (30-60 minutes). This is normal and it may even take several minutes to complete a single cutscene at times.
+One final note: using the 'Randomize Cutscene Models' setting is experimental and may cause the randomizer to take a long time to run (10-30+ minutes)
 
 If you have any questions or technical difficulties, join the SMT Randomizer discord: https://discord.gg/d25ZAha

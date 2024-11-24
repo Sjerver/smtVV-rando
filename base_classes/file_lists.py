@@ -477,6 +477,37 @@ class Script_File_List:
     def setFile(self,name,file):
         index = self.fileNames.index(name)
         self.files[index] = file
+    
+    def writeFile(self,name,file):
+        folderKey = name
+        if folderKey not in SCRIPT_FOLDERS.keys():
+            folderKey = getEquivalentSource(name)
+        if 'SEQ' in name:
+            subFolder = name.split("_")[1]
+            folderKey = "LV_" + subFolder
+        
+        if 'SEQ' not in name:
+            stringy = json.dumps(file.json)
+            file.uasset = file.uasset.DeserializeJson(stringy)
+        if 'LV_E' in folderKey:
+            writeFolder(DESIGN_EVENT_FOLDER)
+        else:
+            writeFolder(SCRIPT_FOLDERS[folderKey])
+        if 'LV_E' in folderKey:
+            subFolder = folderKey.split("_")[1]
+            writeFolder(DESIGN_EVENT_FOLDER + '/'  + subFolder)
+            file.uasset.Write(DESIGN_EVENT_FOLDER + '/'  + subFolder + '/' + name + '.umap')
+        elif 'SEQ' in name:
+            subFolder = name.split("_")[1]
+            writeFolder(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder)
+            file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder + '/' + name + '.uasset')
+        else:
+            file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset')
+        index = self.fileNames.index(name)
+        self.fileNames.pop(index)
+        self.files.pop(index)
+        del file
+        
 
     '''
     Writes the uasset and uexp for every file in the list to their respective folder.
