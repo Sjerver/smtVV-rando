@@ -1,0 +1,199 @@
+e0262 - Pre-Hydra cutscene where Aogami talks about Lucifer
+e0300 - Return Pillar cutscene, mentions Hydra
+e0310 - Unused Hydra dialogue?
+e0330 - Snake Nuwa Pre-Fight Dialogue
+e0340 - Post Fight Nuwa/Yakumo Dialogue
+e0345 - Dazai dialogue in act 1 diet building
+e0350 - First Abdiel cutscene
+e0367 - Yuzuru dialogue mentioning Dazai joining bethel
+e0375 - Yuzuru/Tao dialogue in early area 2
+e0378 - Dazai/Abdiel talk in area 2, mentions Baal
+e0379 - Fionn 1 Pre-Fight Dialogue
+e0380 - Fionn 1 Post-Fight Dialogue, mentions Lahmu and Yuzuru
+e0390 - Miyazu dialogue in fairy village mentioning Fionn
+e0425 - Jojozi Temple warning (Lamia/Lahmu)
+e0431 - Lahmu 1 Post-Fight Dialogue
+e0435 - Arriving at overrun school dialogue, mentions Lahmu
+e0470 - Lahmu meets Sahori scene
+e0473 - Meeting Hayataro scene, mentions Yuzuru
+e0476 - Dazai scared in school scene
+e0480 - Sahori kills her bullies scene, mentions Lahmu
+e0485 - Final Lahmu warning
+e0490 - Final Lahmu Pre-Fight Dialogue
+e0491 - Final Lahmu Mid-Fight Dialogue
+e0510 - Final Lahmu Post-Fight Dialogue
+e0525 - Pre-Summit dialogue, mentions shiva and Abdiel
+e0530 - Abdiel and Koshimitzu pre-summit talk, mentions Arioch, Yuzuru
+e0550 - Koshimitzu debrief after area 2, mentions Lahmu
+e0560 - Yuzuru/Dazai conversation after area 2, mentions Lahmu
+e0570 - Learning about armies of chaos before area 3, mentions Lahmu, Yuzuru, Dazai
+e0580 - Abdiel gives Dazai angels to use
+e0595 - Surt Pre-Fight Dialogue
+e0600 - Bethel summit introductions, mentions Khonsu, Shiva, Abdiel, Surt, Ishtar, Arioch, Lucifer
+e0602 - Talking to the faction leaders at summit, mentions Shiva, Abdiel
+e0603 - Abdiel Pre-Fight dialogue at summit, mentions Shiva
+e0604 - Abdiel Post-Fight dialogue at summit, mentions Shiva, Tsukuyomi, Abdiel
+e0610 - Angels in area 3 giving directions to DKC, mentions Abdiel
+e0625 - Yakumo Post-Fight dialogue, mentions Lahmu
+e0627 - Aogami talk after Yakumo fight, mentions Lahmu
+e0628 - Dazai dialogue after Surt, mentions Abdiel
+e0640 - Chernobog related dialogue, mentions Abdiel
+e0650 - Dazai/Abdiel talk in DKC, mentions a dominion
+e0660 - Arioch Pre-Fight Dialogue
+e0675 - Yakumo talk after Arioch, mentions Arioch
+e0680 - Abdiel celebrating Arioch's death
+e0690 - Koshimitzu meeting after area 3, mentions Abdiel, Tsukuyomi
+e0715 - Pre-Summit Aogami "warning"
+e0730 - Regarding the war of the gods dialogue, mentions Baal, Lucifer, Tsukuyomi, Yuzuru
+e0735 - Dazai talk after summit, mentions Abdiel
+e0736 - Abdiel/Dazai talk after summit
+e0762 - Nuwa dialogue in area 4, mentions Yakumo
+e0763 - Panagia Tao joining you
+e0765 - Dazai hat scene, mentions Abdiel
+e0770 - Bethel India demon dialogue, mentions Shiva, Vasuki
+e0770_b - Same as e0770 but vengeance variant that also names Beelzebub
+e0775 - Vasuki Pre-Fight Dialogue, mentions Shiva
+e0780 - Bethel Greek demon dialogue, mentions Zeus
+e0780_b - Identical to e0780 but guessing this is the vengeance version
+e0785 - Zeus Pre-Fight Dialogue, mentions Tsukuyomi but in spread out text
+e0800 - Bethel Nordic demon dialogue, mentions Odin
+e0800_b - same as e0800 but vengeance variant that also names Zeus
+e0825 - Metatron pre-fight dialogue and warning
+e0842 - Dazai and Abdiel talk in pre-empyrean cutscene
+e0850 - Argument before Empyrean, mentions Zeus, Odin, Abdiel, Dazai
+e0870 - Joining Dazai in Empyrean, mentions Tsukuyomi, Abdiel
+e0880 - Joining Tsukuyomi in Empyrean, mentions Abdiel, Dazai, Hayataro (Abdiel in spread out text)
+e0885 - Hayataro joining you text
+e0891 - Empyrean minibosses dialogue, only Melchizedek named
+e0900 - Dazai/Abdiel lose to Tsukuyomi, mentions Abdiel. Warning is here but is shared across all routes
+e0910 - Tsukuyomi loses to Dazai/Abdiel
+e0920 - Yakumo/Nuwa lose to Dazai/Abdiel
+e0930 - Nuwa True ending dialogue after Abdiel fight
+e1001 - Lucifer warning and Tao leaving the party
+e1020 - Aogami says goodbye in true ending, mentions Lucifer
+e2005 - Skyview and Husk tutorial
+e2008 - Rail tutorial
+e2010 - Labolas 1 Pre-fight dialogue, mentions Yuzuru, Dazai
+e2015 - Labolas 1 post-fight dialogue, mentions Yuzuru
+e2018 - Unused? Yoko dialogue about Apsaras and Leanan
+e2019 - Hydro post-fight dialogue vengeance, Naamah hint here
+e2022 - Naamah pre-fight dialogue (spread out text)
+e2029 - Nuwa post-fight dialogue vengeance, mentions Yakumo, Nuwa and includes spread out text
+e2030 - Dazai in act 1 diet building vengeance, mentions Yuzuru
+e2035 - Using the cylinder to go to Tokyo vengeance, mentions Yuzuru
+e2040 - Meeting Abdiel vengeance
+e2043 - Tao meeting after area 1 vengeance, mentions Yuzuru, Dazai
+e2060 - Yoko transfers to Jouin, Naamah 2 hint message here
+e2165 - Yakumo talk after Labolas 2, mentions Naamah
+e2170 - Jojozi Temple during invasion vengeance, mentions Hydra(lower case), Lahmu
+e2190 - Tao joins you during invasion vengeance, mentions Lahmu, includes spread out text
+e2210 - Meeting Hayataro vengeance, mentions Yuzuru, Dazai
+e2240 - Dazai scared during invasion vengeance, mentions Yuzuru
+e2245 - Final Tao/Yoko talk before vengeance Lahmu, put warning here
+e2255 - Lilith kills Sahori, mentions Lahmu, Lilith in spread out text
+e2260 - Dazai/Yuzuru argument before area 2
+e2270 - Arriving in area 2 vengeance, mentions Hayataro
+e2275 - Dazai/Abdiel talk in area 2 vengeance, mentions Baal
+e2288 - Yoko/Tao speculate on Eisheth's identity, mentions Naamah, Lilith
+e2290 - Eisheth pre-fight dialogue
+e2295 - Eisheth post-fight dialogue
+e2296 - Marking Fionn on the map vengeance
+e2298 - Fionn 1 post-fight dialogue vengeance, mentions Yuzuru, Eisheth
+e2300 - Dazai tells you to go to village vengeance, mentions Yuzuru
+e2301 - Aogami talk about Dazai in area 2
+e2305 - Arriving in fairy village vengeance, mentions Fionn, Yuzuru, Eisheth
+e2310 - Dazai loses to Eisheth, mentions Yuzuru in spread out text
+e2320 - Yuzuru pre-fight dialogue
+e2325 - Yuzuru post-fight dialogue, mentions Dazai, Eisheth, Naamah, includes spread out text
+e2400 - Aogami talk about Agra post area 2 mentions Hayataro
+e2410 - Koshimizu meeting post area 2 vengeance, mentions Yuzuru
+e2435 - Koshimizu meeting after salt investigation, mentions Hayataro
+e2445 - Koshimizu discovers area 3 vengeance, mentions Hayataro, Yuzuru, Dazai
+e2450 - Dazai goes to Chiyoda instead of Shinjuku, mentions Abdiel
+e2500 - Arriving in Shinjuku (Power hint here), mentions Hayataro
+e2520 - First Nuwa/Yakumo scene in Shinjuku, mentions Cherub
+e2525 - Aogami picks up angel gauntlet readings, hint here if we want to add one
+e2531 - Cherubim are called in after power gauntlet
+e2535 - Tao/Yoko talk where Cherub used to be, mentions Yakumo
+e2562 - Nuwa/Yakumo talk after distracting Cherub
+e2575 - Dazai talk when Miyazu goes to Khonsu, mentions Abdiel, Yuzuru
+e2600 - Koshimizu meeting regarding Khonsu, mentions Yuzuru, Dazai, Yakumo
+e2603 - Dazai/Yuzuru in dorm room
+e2605 - Dazai and Yuzuru become friends
+e2608 - Aogami comments on Yuzuru's distress
+e2610 - Isis fight related text, hint message here, mentions Yuzuru, Dazai
+e2615 - Isis post-fight dialogue, mentions Khonsu
+e2620 - Khonsu pre-fight dialogue vengeance
+e2623 - Khonsu pre-fight dialogue vengeance part 2, mentions Yuzuru
+e2625 - Khonsu post-fight dialogue vengeance, mentions Yuzuru, Khonsu, Abdiel, Mastema in spread out text
+e2630 - Yuzuru talk after Khonsu incident
+e2631 - Aogami discusses Khonsu incident, mentions Yuzuru, Khonsu. Includes spread out text
+e2633 - Yoko discusses Khonsu incident, mentions Khonsu
+e2638 - Dazai joins to see Mastema, mentions Yuzuru
+e2640 - Arriving at Mastema's hill, mentions Khonsu
+e2642 - Meeting Mastema, mentions Khonsu
+e2643 - Dazai turns to salt
+e2645 - Mastema brainwashes Dazai
+e2650 - Nuwa/Yakumo talk after seeing Naamah, mentions Mastema
+e2660 - Koshimizu meeting before Yakumo fight, mentions Mastema
+e2670 - Yuzuru wants to be a Nahobino, mentions Tsukuyomi
+e2685 - Nuwa/Yakumo post-fight dialogue
+e2688 - Koshimizu meeting after Yakumo fight, mentions Yuzuru in spread out text
+e2700 - Meeting Agrat, mentions Yakumo, Eisheth, Naamah
+e2708 - Aogami warning about Lilith fight
+e2713 - Lilith pre-fight dialogue
+e2717 - Lilith post-fight dialogue, mentions Tiamat
+e2718 - Lilith lectures Yoko, mentions Tiamat
+e2740 - Dazai hat cutscene vengeance, mentions Yuzuru, Abdiel
+e2760 - Koshimizu mourns Yuzuru, mentions Abdiel
+e2770 - Koshimizu reveals he's Tsukuyomi, includes spread out text
+e2795 - Qadistu talisman text, mentions Lilith
+e2900 - Mastema sends you to Shakan, mentions Yuzuru, Dazai, Abdiel, Tiamat
+e2902 - Tsukuyomi agrees to go to Shakan, mentions Mastema, Dazai, Tiamat
+e2912 - Dark block bros gossiping, mentions Abdiel, Dazai, Tiamat
+e2915 - Shakan angel gossip, mentions Tiamat, Lilith, Eisheth, Yuzuru
+e2920 - Abdiel in Shakan pre-fight dialogue, mentions Yuzuru
+e2930 - Abdiel in Shakan post-fight dialogue, mentions Tiamat, Mastema
+e2950 - Mastema dialogue after Shakan, mentions Abdiel
+e2955 - Tsukuyomi meeting before area 4 vengeance, mentions Baal, Lucifer
+e2970 - Meeting Goddess Tao vengeance, mentions Tsukuyomi
+e3010 - Yakumo in area 4 vengeance part 1, mentions Tiamat
+e3020 - Yakumo in area 4 vengeance part 2, mentions Nuwa
+e3021 - Yakumo background check, includes spread out text
+e3022 - Tsukuyomi comments on Yakumo's past
+e3030 - Yakumo saves a student, mentions Tsukuyomi
+e3040 - Yakumo in Jojozi, mentions Nuwa, Agrat, Tsukuyomi
+e3100 - Beelzebub pre-fight dialogue, mentions Shiva, Lucifer
+e3120 - Zeus + Odin pre-fight dialogue
+e3300 - Dazai pre-fight dialogue, mentions Abdiel
+e3310 - Dazai post-fight dialogue, mentions Yuzuru, Abdiel
+e3330 - Yoko shows up in Empyrean, mentions Tiamat, Yuzuru, Yakumo, Dazai
+e3350 - Yoko uses Tiamat on you
+e3352 - Tiamat post-fight dialogue law, Tehom hint here
+e3355 - Tehom pre-fight dialogue
+e3400 - Siding with Yoko, mentions Mastema, Tiamat
+e3415 - Tiamat post-fight dialogue chaos, mentions mastema
+em0013 - Contains preta quest tutorial, can be hint message
+em0025 - Hydra warning
+es609_m062_01 - Yuzuru dialogue in fairy village, mentions Lahmu
+es611_m063_01 - Dazai dialogue in Chiyoda, mentions Abdiel
+es611_m085_01 - Dazai dialogue pre-Chiyoda, mentions Abdiel
+es617_m085b_01 - Koshimizu dialogue throughout Shinjuku, mentions Yuzuru, Dazai, includes spread text
+es618_es418 - Misc Nuwa/Yakumo dialogue creation
+es632_m062_01 - Goko? Area 2 dialogue, mentions Lahmu
+es632_m087_01 - Unusued researcher dialogue?, mentions Lahmu, Baal, Arioch
+npc_m016 - npc text in Empyrean, mentions Abdiel(Both routes), Tsukuyomi, Mastema
+npc_m030 - npc text in Diet Building, mentions Arioch
+npc_m036 - npc text in DKC, mentions Abdiel, Arioch
+npc_m038 - npc text in Shakan, mentions Mastema, Abdiel, Arioch
+npc_m060 - npc text in Area 4, mentions Amon, Khonsu, Arioch, Tiamat
+npc_m061 - npc text in Area 1 creation, mentions Lucifer, Hydra, Khonsu, Seth
+npc_m061_b - npc text in Area 1 vengeance, mentions Lucifer, Hydra, Khonsu, Seth
+npc_m061_navi - nagivator text in Area 1, mentions Pazuzu
+npc_m062 - npc text in Area 2 creation, mentions Lahmu, Fionn
+npc_m062_b - npc text in Area 2 vengeance, mentions Lahmu, Fionn, Gary
+npc_m063 - npc text in Chiyoda, mentions Surt, Ishtar, Abdiel
+npc_m064 - npc text in Shinjuku, mentions Arioch, Abdiel, Dionysus, Orochi, Mastema, Okuninushi, kuDLaK
+npc_m085 - npc text in research lab, mentions Dazai, Michael, Arioch, Yakumo, Abdiel but it's both routes
+npc_TokyoMap - npc text in overworld creation, mentions Yakumo
+npc_TokyoMap_b - npc text in overworld vengeance, mentions Yuzuru, Yakumo

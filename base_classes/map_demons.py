@@ -4,3 +4,4 @@ class Map_Demon(object):
         self.demonID = None
         self.walkSpeed = None
         self.scaleFactor = None
+        self.encountCollision = None

@@ -35,7 +35,7 @@ rando/Project/Content/Blueprints/Gamedata/BinTable/Facility/Table/ShopTable.uexp
 rando/Project/Content/Blueprints/Gamedata/BinTable/Item/ItemTable.uexp
 rando/Project/Content/Blueprints/Gamedata/BinTable/Common/PlayerGrow.uexp
 rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EncountData.uexp
-rando/Project/Content/Blueprints/Gamedata/BinTable/Unite/UniteTable.uexp
+rando/Project/Content/Blueprints
 rando/Project/Content/Blueprints/Gamedata/BinTable/Unite/UniteCombineTable.uexp
 rando/Project/Content/Blueprints/Gamedata/BinTable/Battle/Skill/SkillData.uexp
 rando/Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uexp
@@ -47,8 +47,13 @@ rando/Project/Content/Blueprints/Gamedata/BinTable/Map/EventEncountData.uasset
 rando/Project/Content/Blueprints/Gamedata/BinTable/Map/UniqueSymbolData.uexp
 rando/Project/Content/Blueprints/Event/
 rando/Project/Content/Blueprints/Gamedata/BinTable/Map/TakaraData.uexp
-rando/Project/Content/Blueprints/Map/Encount/Mover/ParamTable/MapSymbolParamTable.uexp
+rando/Project/Content/Blueprints/Map/Encount/Mover/ParamTable
+rando/Project/Content/L10N
+rando/Project/Content/Level
+rando/Project/Content/Blueprints/Gamedata/BinTable/Map
+rando/Project/Content/Design/Event/
 debug/bossSpoilerLog.txt
+debug/skillsets.txt
 debug/encounterResults.txt
 debug/fusionResults.txt
 debug/currentSeed.txt

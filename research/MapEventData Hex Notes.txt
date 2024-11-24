@@ -1,0 +1,15 @@
+Note: Changes in this file seem to only take effect on a fresh file
+
+entries: 701
+start: 0x45
+size: 148
+
+0 ID 
+4 Activation Flag
+14 Some Kind of Flag (at least one of these is completion related)
+18 Always the same as 14
+1C Map ID
+24 UMap String
+
+
+

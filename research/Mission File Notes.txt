@@ -1,0 +1,112 @@
+The Angels' Request (Eligor) - 0021
+Mostly Angels' Request Dialogue but Nuwa warning is here too - 0020 (message 0x19 is "the angels guarding the path are gone for vengeance nuwa hint)
+Loup Garou - 0041, 0043 contains the warning dialogue
+Saving the students - 0044 mentions lahmu and is where fionn warning goes
+Golden Apple quest - 0050-0052, mentions Loki, Eisheth in vengeance (0050_b)
+Hellfire Highway (Surt and Yakumo) - 0060, there are extra messages mentioning surt by name besides the warnings
+Ishtar - 0070, Surt's name is mentioned, as is Ishtar's multiple times.
+Zeus mentioned in 0145, Shiva/Vasuki mentioned in 0143, Odin in 0147 (Amanozako dialogue)
+A Preta Predicament - 0150 one dialogue says "us pretas", 0151 mentions apsaras multiple times, 0152 also mentions preta
+Moving on up (Oni) - 0170, 0171 mentioned, 0173 has aogami warning and other mentions
+The Ultimate Omelet (Jatayu) - 1020, mentions hydra (enemy 114)
+The Cursed Mermaids (Pazuzu) - 1031, he mentions his name with the wrong enemy tag
+Anahita quest - 1040 and 1041, mentioned with normal enemy version tag multiple times
+Talisman Hunt (Shiki Ouji) - 1050, mentioned with normal enemy version tag
+Kumbhanda quest - 1140, mentioned with normal enemy version tag multiple times
+A goddess stolen (Loki) - 1150, mentioned with normal enemy version tag multiple times and 1151 mentioned by name
+The Tyrant of Tennozu (Belphegor) - 1160/1161, warning in 1161 (also uses normal enemy version tag)
+King Frost quest - 1180
+Oyamatsumi quest - 1210 (Surt mentioned too)
+Kunitsukami fight quest - 1250 (Mentions Oyamatsumi, need hint for Okuninushi)
+Chimera quest - 1260
+Hecaton quest - 1270
+The Archangel of Destruction (Camael) - 1280
+Roar of Hatred (Moloch) - 1290 (Belphegor mentioned too)
+Horus Quest - 1300 (Arioch and Lahmu mentioned)
+Gary Quest - 1320
+Lord's Sword Quest - 1330 (Mentions Arahabaki and all 4 kings)
+Zouchouten Event Battle - 1340
+Koumokuten Event Battle - 1350
+Jikokuten Event Battle - 1360
+Bishamonten Event Battle - 1370
+Khonsu CoC Quest - 1380, mentions Arioch
+The Winged Sun Crest (Amon/Mithras/Asura) - 1390, mentions Amon, Khonsu and Arioch. Mithras and Asura are both mentioned by name
+Khonsu Ra CoC Quest - 1401, mentions Horus, Isis
+Abaddon's Assault - 1410
+Fionn 2 Quest - 1420
+3 Archangels Quest - 1430, mentions Michael
+Baal Quest - 1440, mentions Belphegor, Moloch, Beelzebub, and Lucifer
+A Plot Unveiled (Zeus 2) - 1450, include playable demeter
+The Gold Dragon's Arrival - 1460 and 1470, but 1470 only mentions him in fusion unlock message
+Siding with Michael - 1480, Mentions Arioch
+Siding with Belial - 1490, Mentions Arioch
+Maria/Danu/Innana - 1500
+A Universe in Peril (Shiva) - 1530, Mentions Vasuki
+Sarasvati Collection Quest - 1570 but mentions Shiva
+Berserk Amanozako Quest - 1590-1593, mentions Lahmu, Amanozako named in 1590-1592
+Final Amanozako Quest - 1600-1603, 1600 mentions Surt, Zaou-Gongen in 1602-1603 (Warning in 1602)
+Bully Breaker (Daemon) - 1610, theoretically should be auto as it uses the mission condition
+Pollution Panic (Azumi) - 1620, same deal as Bully Breaker
+Siding With Leanan - 1630, mentions Ippon Datara
+Siding with Apsaras - 1640
+Apsaras' Followers Dialogue - 1641-1642, 1641 mentions preta
+Siding with Lilim - 1650
+Siding with Principality - 1660
+Siding with Black Frost - 1670
+Siding with Dionysus - 1680
+Siding with Adramelech - 1690
+Siding with Futsunushi - 1700
+Diet Building Researcher - 1769, mentions Mephisto, Cleopatra, Artemis, Dagda, Yuzuru, Tsukuyomi, Yoko
+Mephisto Quest - 1770
+Cleopatra Quest - 1780
+Artemis Quest - 1790, mentions Zeus, Hydra, Quetzalcoatl
+Matador - 1802-1803
+Daisoujou - 1804-1805, only named in 1805
+Hell Biker - 1806-1807, only named in 1807
+White Rider - 1810-1811
+Red Rider - 1812-1813
+Black Rider - 1814-1815
+Pale Rider - 1816-1817, only named in 1817
+Mother Harlot - 1819-1820, only named in 1820
+Trumpeter - 1821-1822, demi fiend mentioned in 1822
+Demi Fiend - 1823-1825
+Nozuchi Quest - 2020, mentions normal enemy Kodama
+Brawny Ambitions (Hare 1) - 2030
+Pisaca Quest - 2040, mentions Anahita
+Prince of Her Dreams - 2080, but appears in both routes which have different Khonsus
+Vouivre Quest - 2111
+Basilisk Hunt Quest - 2130, mentions Anansi and Onyakopon
+Masakado Quest - 2170
+VR Trainer - 2180, mentions Yuzuru, Dazai, Fionn, Yakumo
+Halphas Quest - 2190, mentions Labolas, Oni
+CoV Khonsu Ra Quest - 2240, mentions Khonsu, Yuzuru, Dazai, Abdiel, Horus
+VR Kunitsukami Quest - 2250
+Siding with Kresnik - 2270
+Siding with Kudlak - 2280
+Gogmagog Quest - 2290
+Siding with Onyankopon - 2310
+Siding with Anansi - 2320
+Fionn Haunt Quest - 2330
+Idun Haunt Quest - 2350, mentions Loki
+Siegfried Quest (Garuda) - 2370, mentions Odin
+Mo Shuvuu Quest (Andras) - 2380
+Cironnup Quest - 2390, mentions Atavaka, Masakado
+Samael Quest - 2400, mentions Lucifer
+Satan Quest - 2420, mentions Lucifer, Samael, Mastema
+Detective Pixie Quest - 2430
+Yaksini Quest - 2440
+Mara Quest - 2460
+Turbo Granny Quest - 2470
+Nahobeeho Quest - 2480
+Hare of Inaba 2 Quest (Xiezhai with Puncture Punch) - 2490
+Hare of Inaba 3 Quest (Okuninushi) - 2500, mentions Xiezhai, Sukona-Hikona
+Dormarth Quest - 2530
+Gurulu Quest - 2540
+Part Time Gasser (Zhen) - 2550
+Moirae Haunt Quest (Norn) - 2570, mentions Zeus
+Yoshitsune Haunt Quest (Atavaka) - 2580
+Konohana Sakuya Quest - 2600, mentions Oyamatsumi
+Dagda Quest - 2610, mentions Danu
+Orochi Quest - 2620, mentions Tsukuyomi
+Saturnus Quest - 2630, mentions Zeus, Baal
+Package Delivery Quest - 2640, mentions Lilith, Yoko, Abdiel

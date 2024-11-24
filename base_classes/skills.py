@@ -133,3 +133,11 @@ class Skill_Owner:
         self.ind = ind
         self.ogName = name
         self.original = ind
+
+class Fusion_Requirements:
+    def __init__(self):
+        self.offset = None
+        self.ind = None
+        self.itemID = None
+        self.demons = []
+        self.alignments = []

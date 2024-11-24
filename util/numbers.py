@@ -1,3 +1,5 @@
+from base_classes.demon_assets import Position 
+
 PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,110,1111,1112,1113,1114,1115,1116,1117,1118]
 
 #Demons that overlap in Event Encounters and in which ones they do
@@ -15,11 +17,15 @@ DUPLICATE_SOURCES = {442 : [61 ,65], #School Aitvaras
 #Selection of dummy demons to be overwritten with overlapping demons
 DUMMY_DEMONS= [487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511]
 
-NORMAL_ENEMY_COUNT = 395
+NORMAL_ENEMY_COUNT = 396
 
 BAD_IDS = [71, 365, 364, 366] #Old Lilith, Tao x2, Yoko
 
 TOTAL_DEMON_COUNT = 1201
+
+SPECIAL_FUSION_COUNT = 62
+#Races that cannot be downfused with an element
+NO_DOWNFUSE_RACES = ["Enigma","Fiend","UMA","Qadistu","Devil","Primal",""]
 
 #Obtained by creating a linear trend function for the potential of compendium demons
 POTENTIAL_SCALING_FACTOR = 0.167
@@ -185,7 +191,11 @@ MISSION_DUPLICATES = {
   28: [173], #Clash with the Kunitsukami, Special Training: Kunitsukami (Both normally give Kunitsu Talisman)
   -18: [-19], #Duplicates for the fake missions handling the Heavenly Kings Periapt
   72: [-20], #Falcon's Head and Isis Story Even in CoV both reward Lady Talisman
+  218: [219], #Guardian of Light CoC And CoV
 }
+
+#Missions that cannot receive macca as a reward
+MACCALESS_MISSIONS = [72] #Falcon's Head cannot get macca as reward due to being synced with Additional reward in CoV Rescue Miyazu Atsuta
 
 #List of exclusive key item rewards from both canons
 CREATION_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
@@ -243,7 +253,78 @@ SETH_DEMON_ID = 870
 #Event Encounter ID of Seth
 SETH_EVENT_ENCOUNTER_ID = 108
 #List of demons with overly large symbol scaling (>2)
-LARGE_SYMBOL_DEMONS = [77,80,94,127,212,283] #Mara, Surt, Huang Long, Chimera, Oyamatsumi, Thunderbird
+LARGE_SYMBOL_NORMAL_DEMONS = [77,80,94,127,212,283] #Mara, Surt, Huang Long, Chimera, Oyamatsumi, Thunderbird
+#List of demons with huge models with normal scaling, that should use smaller scaling instead
+LARGE_MODEL_NORMAL_DEMONS = {
+    87: 0.7, #King Frost
+    115: 0.5, #Hydra (Currently has no symbol param data)
+    565: 0.3, #Tiamat
+    525: 0.4, #Abdiel Nahobino
+    520: 0.4, #Nuwa Nahobino
+    435: 0.5, #Hydra (boss)
+}
+#List of demons that should be added to the MapSymbolParamTable for the sake of collision calculation and which demons encount collision they should use
+ADD_LARGE_MODEL_DEMONS = {
+    #TODO: Check implications for punishing replacements/ normal enemies like Hydra
+    565: 832, #Tiamat (Abaddon)
+    525: 832, #Abdiel Nahobino  (Abaddon)
+    520: 826, #Nuwa Nahobino  (Oyamatsumi)
+    435: 812, #Hydra (boss) (Chimera)
+    115: 812, #Hydra (Normal) (Chimera)
+    441: 855 ,# Lahmu Mask (Zhuque Collision)
+
+    -617: 20, #Koshimizu (Anahita Collision)
+    561: 20, #Yuzuru (Anahita Collision)
+    240: 8, #Abdiel (Zeus Collision)
+    264: 8, #Abdiel Fallen(Zeus Collision)
+    7: 20, #Khonsu (Anahita Collision)
+    15: 8, #Khonsu Ra (Zeus Collision)
+    31: 27, #Artemis (Parvati Collision)
+    934: 20, #Demi-fiend (Anahita Collision)
+    41: 20, #Anansi (Anahita Collision)
+    386: 27, #Onyankopon (Parvati Collision)
+    250: 20, #Mastema (Anahita Collision)
+    118: 16, #Samael (Vishnu Collision)
+    38: 27, #Amanozako (Parvati Collision)
+    237: 8, #Saturnus (Zeus Collision)
+    75: 20, #Nuwa (Anahita Collision)
+    465: 20, #Yakumo (Anahita Collision)
+    227: 16, #Masakado (Vishnu Collision)
+    876: 27, #Amanozako Rage(Parvati Collision)
+    40: 20, #Kresnik (Anahita Collision)
+    394: 576, #Eisheth (Agrat Copy Collision)
+    393: 576, #Naamah (Agrat Copy Collision)
+    392: 576, #Agrat (Agrat Copy Collision)
+    391: 576, #Lilith (Agrat Copy Collision)
+    529: 855, #Lucifer (Phase 1) (Zhuque Collision)
+    236: 855, #Lahmu (Zhuque Collision))
+    197: 16, #Snake Nuwa (Vishnu Collision)
+    32: 576, #Konohana Sakuya (Agrat Copy Collision)
+    597: 812, #Tehom (Chimera)
+    1: 8, #Satan (Demon) (Zeus Collision)
+    2: 8, #Lucifer (Demon) (Zeus Collision)
+    175: 27, #Turbo Granny (Parvati Collision)
+    99: 16, #Vritra (Vishnu Collision)
+    4: 8, #Dagda (Zeus Collision)
+    142: 352, #Glasya-Labolas (Black Rider Collision)
+    528 : 8, #Tsukuyomi (Zeus Collision)
+    454 : 80, #Surt Boss (Surt)
+    385: 576, #Kinmamon (Agrat Copy Collision)
+    207:16, #Marici (Vishnu Collision)
+    387: 59, #Amabie (pixie collision)
+    381: 345, #Hare of Inaba (Preta Collision)
+    60: 58, #Nahobeeho (Jack Frost)
+    100: 59, #Nyami Nyami (pixie collision)
+    122: 20, #Xiezhai (Anahita Collision)
+    226: 27, #Nezha Taishi (Parvati Collision)
+    251 :254, #Armaiti (Throne Collision)
+    275 :16, #Azazel (Vishnu Collision)
+
+}
+#List of demons that should be removed to the MapSymbolParamTable after collision calculation is done
+REMOVE_TEMP_MODEL_DEMONS = [-617,561,240,7,15,31,934,41,386,250,118,38,237,75,465,227,876,40,394,393,392,391,529,236,197,32,597,1,175,99,4,142,
+                            528,454,385,207,387,381,60,100,122,226,2,251,275,264]
+
 #Map of punishing foe ID - walkspeed for birds that have large flight cycles
 PUNISHING_FOE_BIRD_SPEEDS = {802: 1400, #Jatayu
                              808: 1200, #Thunderbird
@@ -321,7 +402,7 @@ REWARD_AREA_MISSIONS = {
   35: [81,95],
   36: [212,114,174],
   38: [212,114,174],
-  60: [33,35,36,37,38,39,40,42,43,44,45,46,49,63,64,65,66,67,74,79,80,82,87,94,165,172,181,183,185,193,196,198,205,209,211,41],
+  60: [33,35,36,37,38,39,40,42,43,44,45,46,49,63,64,65,66,67,74,79,80,82,87,94,165,172,181,183,185,193,196,198,205,209,211,41,218],
   61: [6,7,8,9,13,56,57,58,61,68,69,70,71,86,150,151,166,167,170,201],
   62: [12,92,14,15,16,17,18,19,20,21,75,76,83,91,152,155,156,157,160,161,162,189,191,192,197],
   63: [73,34,139,59,22,24,25,26,27,28,138,30,48,32,72,62,77,78,93,31,159,164,186,187,204,206,208,29],
@@ -392,6 +473,12 @@ TRUE_ISHTAR_ENCOUNTER = 75
 #Demon ID of the Ishtar that is kept in the pool
 TRUE_ISHTAR_DEMON = 455
 
+#Demon and EventEncounter IDs of the Maras both punishing and virtual trainer
+PUNISHING_MARA_DEMON = 892
+PUNISHING_MARA_ENCOUNTER = 240
+VIRTUAL_MARA_DEMON = 893
+VIRTUAL_MARA_ENCOUNTER = 45
+
 #Event Encounter Ids of bosses that appear up until and including Hydra
 EARLY_STORY_EVENT_ENCOUNTERS = [87, 134, 33] #Glasya-Labolas, 3 Pretas, Hydra
 
@@ -407,6 +494,119 @@ ENEMY_HEALING_SKILL_IDS = [103, 104, 105, 106, 352, 353, 354, 355, 381, 382, 383
 
 #Skill ID of Lunation Flux which should be restricted more than other unique skills
 LUNATION_FLUX_ID = 927
+
+#Mission ID of Brawny Ambitions II for skill condition
+BRAWNY_AMBITIONS_ID = 197
+BRAWNY_AMBITIONS2_SKILL = "Puncture Punch"
+
+#List of which demon join is in which script
+SCRIPT_JOIN_DEMONS = {
+    'MM_M061_EM1630': 305, # Leanan Sidhe
+    'MM_M061_EM1640': 43, # Apsaras
+    'MM_M062_EM1660': 257, # Principality
+    'MM_M062_EM1650': 67, # Lilim
+    'MM_M060_EM1690': 265, # Adramelech
+    'MM_M060_EM1700': 201, # Futsunushi
+    'MM_M063_EM1670': 72, # Black Frost
+    'MM_M063_EM1680': 183, # Dionysus
+    'MM_M064_EM2310': 41, # Anansi
+    'MM_M064_EM2320': 386, # Onyankopon
+    'MM_M064_EM2270': 40, # Kresnik
+    'MM_M064_EM2280': 346, # Kudlak
+    'MM_M060_EM1420': 35, # Fionn
+    'MM_M060_EM1602': 38, # Amanozako (Amanazako Could't Join Initially)
+    'MM_M060_EM1601': 38, # Amanozako
+    'MM_M016_E0885': 152, #Hayataro CoC Chaos 
+    'MM_M016_E0885_Direct': 152, #Hayataro CoC Chaos 
+    'MM_M016_EM1450': 19, # Demeter
+    'MM_M035_EM1480': 242, # Michael
+    'MM_M036_EM1490': 83, # Belial
+    'MM_M061_EM1781': 295, # Cleopatra
+    'MM_M061_EM2613_HitAction': 4, # Dagda
+    'MM_M030_EM1769': 78, # Mephisto (Can only join this way)
+    'MM_M061_EM1791': 31, # Artemis
+    'MM_M061_EM2601': 32, # Konohana Sakuya
+    'MM_M063_EM2170': 227, # Masakado
+    'MM_M061_EM2705': 207, # Marici
+}
+
+#List of Magatsuhi Skills tied to race (and Critical)
+MAGATSUHI_SKILLS = [60,76,78,87,109,110,111,112,113,114,#Omagatoki: Critical, Big Bang, Freikugel EX, Soul Drain, Twilight Wave, Eternal Prayer, Sea of Stars, Waters of Youth, Accursed Poison, Rasetsu Feast
+                    120,121,130,131,138,145,146,147,177,#Fairy Banquet, Expand:Criical Aura, Expand: Piercing Aura, Shield of God, Impaler's Glory, Dekajaon, Omagatoki: Pierce, Omagatoki: Hit, Omgatoki: Adversity
+                    187,193,201,215,249,274,309,345,928,#Omagatoki: Free, Omagatoki: Doubler, Omagatoki:Dance, Omagatoki: Sincerity, Omagatoki: Savage, Omagatoki: Luck, Omagatoki: Potential, Omagatoki: Charge, Omagtoki: Succession
+                    801,802,803,804,805,806,807,808,809,#Feline Fury, Immolating Breath, Frost Storm, Calamitious Thunder, Raging Whirlwind, Holy Wrath, Diabolical Deluge, Harvest Festival, Omagatoki: Exploit
+                    810,811,812,813,814,815,816,817,818,#Oni Formation, Four Heavenly Edicts, Fairies' Game, Bouncy Body, Guardian Angels, Omagatoki:Bounty, Dana's Wisdom, Waves of Order, Rains of Order
+                    819,820,821,822,823,824,825,826,857 #Wellspring of Order, Tides of Chaos, Torrent of Chaos, Fountain of Chaos, Omagatoki:Momentum, Omagatoki: Conserve, Omagatoki: Strategize, Qadistu Entropy, Blossoming Sakura
+                    ]
+
+#Enemy Versions of Magatsuhi Skills
+MAGATSUHI_ENEMY_VARIANTS = {131:842,138:843,76:934,78:935,87:936,109:937,110:938, #Shield of God, Impaler's Glory, Big Bang, Freikugel EX, Sould Drain, Twilight Wave, Eternal Prayer
+                            112:939,113:940,114:941,120:942,121:943,138:944,145:945} #Waters of Youth, Accursed Poison, Rasetsu Feast, Fairy Banquet, Shield of God, Impaler's Glory, Dekajaon
+
+#Lists level ranges for magatsuhi skills that are not the standard 1 to 99
+MAGATSUHI_SKILLS_LEVEL_RESTRICTIONS = {
+    76: [16,99], #Big Bang (Drake Talisman is gotten via The Ultimate Omelete which has Recommended Level 16)
+    78: [6,99], #Freikugel EX (Wargod Talisman via No Stone Unturned with Recommended level 6)
+    87: [32,99], #Soul Drain (Night Talisman via Kumbhanda's Bottle with Recommended Level 32)
+    109: [3,99], #Twilight Wave (Haunt Talisman via A Preate Predicament with Recommended Level 3)
+    110: [50,99], #Eternal Prayer (Megami Talisman via The Horn of Plenty with Recommended Level 50)
+    111: [28,99], #Sea of Stars (Divine Talisman from Angel after Loup-garou/Eisheth which are level 28)
+    112: [30,99], #Waters of Youth (Enigma Talisman via Song of Nostalgia with Recommended Level 30)
+    113: [16,99], #Accursed Poison (Raptor Talisman via Movin' on Up with Recommended Level 16)
+    114: [20,99], #Rasetsu Feast (Jaki Talisman from Rakshasa on Diet Building after Eligor who is level 20)
+    120: [34,99], #Fairy Banquet (Fairy Talisman via The Root of the Problem with Recommended Level 34)
+    121: [18,99], #Expand:Critical Aura (Brute Talisman via Talisman Hunt with Recommended Level 18)
+    130: [73,99], #Expand: Piercing Aura (Fury Talisman via The Destined Leader with Recommended Level 73)
+    131: [73,99], #Shield of God (Herald Talisman via The Holy Ring with Recommended Level 73)
+    138: [25,99], #Impaler's Glory (Vile Talisman via Magic from the East with Recommended Level 25)
+    145: [50,99], #Dekajaon (Kunitsu Talisman via Kunitsu Quest with Recommended Level 50)
+    146: [32,99], #Omgatoki: Pierce (Kishin Talisman via 90 Miman which requires at least beating Fionn who is level 32)
+    147: [20,99], #Omagtoki: Hit (Avatar Talisman via 45 Miman which requires at least beating Eligor who is level 20)
+    177: [26,99], #Omagatoki: Adversity (Beast Talisman via A Wish for a Fish with Recommended Level 26)
+    187: [17,99], #Omagatoki: Free (Femme Talisman via The Demon of the Spring with Recommended Level 17)
+    193: [16,99], #Omagtoki: Doubler (Fallen Talisman via To Cure a Curse with Recommended Level 16)
+    201: [46,99], #Omagatoki: Dance (Snake Talisman via Yurlungur who can only be accessed in Chiyoda after beating Yakumo who is level 46)
+    215: [17,99], #Omagatoki: Sincerity (Jirae Talisman via Chakra Drop Chomp with Recommended Level 17)
+    249: [71,99], #Omagatoki: Savage (Tyrant Talisman via The Winged Sun with Recommeded Level 71)
+    274: [9,99], #Omagatoki: Luck (Level of lowest level Element demon)
+    309: [11,99], #Omagatoki: Potential (Yoma Talisman via Pollution Panic with Recommended Level 11)
+    345: [69,99], #Omagatoki: Charge (Deity Talisman via The Bull God's Lineage with Recommended Level 69)
+    801: [34,99], #Feline Fury (Nekomata is highest level demon required, 34)
+    802: [64,99], #Immolating Breath (Cerberus is highest level demon required, 64)
+    803: [44,99], #Frost Storm (Black Frost is highest level demon required)
+    804: [61,99], #Calamitious Thunder (Periapt via Rascal of the Norse with Recommended Level 61)
+    805: [55,99], #Raging Whirlwind (Scathach is highest level demon required)
+    806: [80,99], #Holy Wrath (Periapt via The Seraph's Return with Recommended level 80)
+    807: [80,99], #Diaobolical Deluge (Periapt via The Red Dragon's Invitation with Recommended level 80)
+    808: [82,99], #Harvest Festival (Periapt via A Plot Revealed with Recommended level 82)
+    809: [38,99], #Omagatoki: Exploit (Periapt via The Golden Dragon's Arrival with Recommded level 48)
+    810: [75,99], #Oni Formation (Ongyo-Ki is highest level demon required
+    811: [64,99], #Four Heavenly Edicts (Additional Reward of Keeper of the North with Recommended level 64)
+    812: [18,99], #Faerie's Game (High Pixie is highest level demon required)
+    813: [33,99], #Bouncy Body (Black Ooze is highest level demon required)
+    814: [29,99], #Guardian Angels (after Eligor who is level 20)
+    815: [95,99], #Omagatoki: Bounty (Metatron is highest level demon required)
+    816: [75,99], #Dana's Wisdom (Periapt via Holy Will and Profane Dissent with recommended level 75)
+    817: [31,99], #Waves of Order (Periapt via Tough Love with recommended level 31)
+    818: [16,99], #Rains of Order (Periapt via In Pursuit of Knowledge with recommended level 16)
+    819: [9,99], #Wellspring of Order (Periapt via Brawny Ambitions with recommended level 9)
+    820: [21,99], #Tides of Chaos (Periapt via Training:Minato with recommeded level 21)
+    821: [11,99], #Torrent of Chaos (Periapt via Knocking on Death's Door with recommended level 11)
+    822: [17,99], #Fountain of Chaos (Periapt via Home Sweet Home with recommeded level 17)
+    823: [17,99], #Omagatoki: Momentum (Periapt via Beastly Battle of Wits with recommeded level 17)
+    824: [21,99], #Omgatoki: Conserve (Periapt via Essential Research with recommended level 21)
+    825: [17,99], #Omagatoki: Strategize (Periapt via Pixie on the Case with recommended level 17)
+    826: [52,99], #Qadistu Entropy (52 is level of Lilith Boss in CoV, you get Periapt after)
+    857: [47,99], #Blossoming Sakura (Periapt via Sakura Cinders of the East with recommended level 47
+    928: [52,99] #Omnipotent Succession (52 is level of Lilith Boss in CoV, you get Talisman after)
+}
+
+SKILL_STAT_PENALTY_WEIGHT = 2 #Penalty applied to weight in skill rando if stat used to attack is lower than other attacking stat
+POTENTIAL_WEIGHT_MULITPLIER = 1.7 #Multiplier applied to potential to update weight of skill rando
+MAGATSUHI_SKILL_WEIGHT = 6 #Base weight of magatsuhi skills if included in skill rando
+SKILL_WEIGHT = 10 #Base weight for all skills in skill rando
+SKILL_PENALTY_WEIGHT = 4 #Weight penalty for skills if the skill has already been assigned in process in an attempt to diversify skill sets
+UNIQUE_SKILL_MULTIPLIER = 6 #Multiplier to ensure unique skills are assigned to at least one enemy
 
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
@@ -435,6 +635,82 @@ def getMaccaValues ():
 def getExpValues():
     return [0,24,26,29,32,37,42,47,57,74,87,98,123,151,182,217,257,300,347,398,453,512,575,642,713,788,867,949,1035,1124,1216,1312,1427,1548,1675,1807,1946,2090,2241,2397,2559,2727,2901,3081,3267,3459,3657,3861,4071,4281,4500,4728,4856,4927,4997,5165,5334,5372,5410,5460,5509,5597,5672,5773,5821,5860,5933,6000,6058,6132,6172,6280,6326,6447,6568,6665,6762,6858,6954,7050,7146,7242,7338,7434,7530,7626,7722,7818,7914,8010,8106,8202,8298,8394,8490,8586,8682,8778,8874,8970]
 
+def getEnemyOnlySkills():
+    return [["Impaler's Revenge",510,90,90],
+            [ 'Moonlight Frost',255,83,83],
+            [ 'Frenzy',283,15,15],
+            [ 'Galvanic Slash',284,46,49],
+            [ 'Red Capote',295,25,25], #+1 so it does not roll on the same demon as often when skills are scaled
+            [ 'Dreadful Gleam',312,52,52],
+            [ 'Purgatorium',320,83,83],
+            [ 'Impetus',321,83,83],
+            [ 'Inferno of God',329,95,99],
+            [ 'Hailstorm of God',330,95,99],
+            [ 'Lightning of God',331,95,99],
+            [ 'Tornado of God',332,95,99],
+            [ 'Cold Dark Matter',333,90,99],
+            [ 'Hot Dark Matter',334,95,99],
+            [ 'Freikugel',335,95,99],
+            [ 'Gaea Rage',336,95,99],
+            [ 'Magma Axis',337,95,99],
+            [ 'Javelin Rain',338,90,99],
+            [ 'Xeros Beat',339,95,99],
+            [ 'Deadly Fury',340,90,99],
+            [ 'Wild Dance',341,95,99],
+            [ 'Contempt of God',342,95,99],
+            [ 'Freikugel',370,95,99],
+            [ 'Sonic Boom',392,35,35],
+            [ 'Evil Gleam',390,95,99],
+            [ 'Abyssal Beckoning',861,84,84],
+            [ 'Seething Mansemat',863,84,84],
+            [ 'Untainted Wind',864,84,84],
+            [ 'Boundless Sea',865,83,83],
+            [ 'Holy Crucifixion',343,95,99],
+            ]
 
 def getBonusSkills():
-    return [["Impaler's Revenge",510,90,90],['Intercalation',452,69,69],['Elusive Eclipse',451,52,52],['Rooted Soul',450,12,12],[ 'Moonlight Frost',255,83,83],[ 'Frenzy',283,15,15],[ 'Galvanic Slash',284,46,49],[ 'Sakanagi',292,25,25],[ 'Divine Arrowfall',293,41,41],[ 'Murakumo',294,67,67],[ 'Red Capote',295,24,24],[ 'Aramasa',298,8,8],[ 'Wrath Tempest',299,44,44],[ 'Ruinous Thunder',300,31,31],[ 'Thalassic Calamity',301,54,54],[ 'Kannabi Veil',306,36,36],[ 'Profaned Land',307,48,48],[ 'Miracle Water',310,17,17],[ 'Dreadful Gleam',312,52,52],[ 'Purgatorium',320,83,83],[ 'Impetus',321,83,83],[ 'Inferno of God',329,95,99],[ 'Hailstorm of God',330,95,99],[ 'Lightning of God',331,95,99],[ 'Tornado of God',332,95,99],[ 'Cold Dark Matter',333,90,99],[ 'Hot Dark Matter',334,95,99],[ 'Freikugel',335,95,99],[ 'Gaea Rage',336,95,99],[ 'Magma Axis',337,95,99],[ 'Javelin Rain',338,90,99],[ 'Xeros Beat',339,95,99],[ 'Deadly Fury',340,90,99],[ 'Wild Dance',341,95,99],[ 'Contempt of God',342,95,99],[ 'Freikugel',370,95,99],[ 'Javelin Rain',372,95,99],[ 'Deadly Fury',373,95,99],[ 'Evil Gleam',390,95,99],[ 'Sonic Boom',392,35,35],[ 'Gaea Rage',394,95,99],[ 'Chaotic Will',395,95,99],[ 'Javelin Rain',397,95,99],[ 'Deadly Fury',398,95,99],[ 'Abyssal Beckoning',861,84,84],[ 'Seething Mansemat',863,84,84],[ 'Untainted Wind',864,84,84],[ 'Boundless Sea',865,83,83],[ 'Bufu',902,8,8],[ 'Rakunda',903,8,8],[ 'Gram Slice',904,8,8],[ 'Charge',905,44,47],[ 'Bufula',906,44,47],[ 'Carnage Fang',908,44,47],[ "Sun's Radiance",909,44,47],[ 'Witness Me',910,44,47],[ 'Hama',911,8,8],[ 'Mahamaon',912,44,44],[ 'Mirage Shot',913,44,44],[ 'Zanma',914,44,44],[ 'Trafuri',915,44,44],[ 'Cautious Cheer',916,44,44],[ 'Toxic Cloud',917,44,44],[ 'Paraselene Blur',918,80,80],[ 'Evergreen Dance',921,51,51],[ 'Inflaming Divinity',922,28,28],[ 'Heavenly Ikuyumi',923,72,72],[ 'Moonlight Frost',924,52,52],[ 'Lunar Hurricane',925,69,69],[ 'Luminescent Mirage',926,80,80],[ 'Lunation Flux',927,69,69]]
+    return [
+            [ 'Intercalation',452,69,69],
+            [ 'Elusive Eclipse',451,52,52],
+            [ 'Rooted Soul',450,12,12],
+            [ 'Sakanagi',292,25,25],
+            [ 'Divine Arrowfall',293,41,41],
+            [ 'Murakumo',294,67,67],
+            [ 'Aramasa',298,8,8],
+            [ 'Wrath Tempest',299,44,44],
+            [ 'Ruinous Thunder',300,31,31],
+            [ 'Thalassic Calamity',301,54,54],
+            [ 'Kannabi Veil',306,36,36],
+            [ 'Profaned Land',307,48,48],
+            [ 'Miracle Water',310,17,17],
+            [ 'Javelin Rain',372,95,99],
+            [ 'Deadly Fury',373,95,99],
+            [ 'Gaea Rage',394,95,99],
+            [ 'Chaotic Will',395,95,99],    
+            [ 'Bufu',902,8,8],
+            [ 'Rakunda',903,8,8],
+            [ 'Gram Slice',904,8,8],
+            [ 'Charge',905,44,47],
+            [ 'Bufula',906,44,47],
+            [ 'Carnage Fang',908,44,47],
+            [ "Sun's Radiance",909,44,47],
+            [ 'Witness Me',910,44,47],
+            [ 'Hama',911,8,8],
+            [ 'Mahamaon',912,44,44],
+            [ 'Mirage Shot',913,44,44],
+            [ 'Zanma',914,44,44],
+            [ 'Trafuri',915,44,44],
+            [ 'Cautious Cheer',916,44,44],
+            [ 'Toxic Cloud',917,44,44],
+            [ 'Paraselene Blur',918,80,80],
+            [ 'Evergreen Dance',921,51,51],
+            [ 'Inflaming Divinity',922,28,28],
+            [ 'Heavenly Ikuyumi',923,72,72],
+            [ 'Moonlight Frost',924,52,52],
+            [ 'Lunar Hurricane',925,69,69],
+            [ 'Luminescent Mirage',926,80,80],
+            [ 'Lunation Flux',927,69,69],
+            [ 'Gaea Rage',830,95,99]
+        ]
+
+#TODO: 311 Revival Chant is not in pool, test with different animation

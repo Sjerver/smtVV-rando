@@ -17,6 +17,7 @@ class Miman_Reward:
         self.items = []
         self.miman = None
         self.offset = None
+        self.setMsgID = None
 
 class Reward_Item:
     def __init__(self, ind, amount):

@@ -6,9 +6,7 @@ import random
 #Encounter IDs that should not be randomized
 BANNED_BOSSES = [0, 7, 32, #Dummy Abbadon, Tutorial Pixie, Tutorial Daemon
                  #33, #Hydra (game hangs when supposed to lose limbs)
-                 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, #Normal Cleopatra, Dummy Pretas x 5, Normal Andras, Dummy Mandrake, Attis, Shiva, King Frost, then all 4,
                  #57, 58, 59, 60, 63, 64, 65, #School dungeon fights with overlapping demons(Temp)
-                 89, #Dummy Demi-Fiend
                  #129, 159, 160, #Mananangal/Incubus overlap with school(Temp), Zhens in gasser sidequest that overlap with each other(Temp)
                  141, #Dummy Eisheth
                  #232, 233, 234, 235, 236, 237 #Area 3 Powers that overlap with each other(Temp)
@@ -30,9 +28,10 @@ BOSS_SUMMONS = {
     463: [464], #Arioch - Decarabia
     924: [935], #White Rider - Dominion
     925: [936], #Red Rider - Power
-    926: [937], #Black Rider - Legion
+    926: [937,939], #Black Rider - Legion (Seems to use 2 different legions with the same stats/skills but different AIs)
     927: [938], #Pale Rider - Loa
     843: [885], #Danu - Mandrake
+    783: [784,785,786], #Marici - Conquering Mirage, Stitching Mirage, Warding Mirage
 }
 
 #Boss IDs (first in the encounter) with multiple enemies of equal strength
@@ -71,13 +70,13 @@ GROUP_HP_MODIFIER = 0.85
 #Event Encounter IDs that contain Lucifer (normal and true version), excluding VR battle duplicates
 LUCIFER_ENCOUNTERS = [6, 12]
 
-#Event Encounter IDs that contain superbosses (Shiva, Demi-Fiend, Satan, Masakado x2)
-SUPERBOSS_ENCOUNTERS = [88, 121, 157, 168, 169]
+#Event Encounter IDs that contain superbosses (Shiva x2, Demi-Fiend x2, Satan x2, Masakado x3)
+SUPERBOSS_ENCOUNTERS = [46, 88, 89,121, 48, 157, 168, 169, 53]
 
 #Event Encounter IDs that contain minibosses, including some weaker quest bosses
 MINIBOSS_ENCOUNTERS = [13, 14, 15, #Empyrean angels
                        29, 30, 36, 54, 55,    #Belial, Michael, Pazuzu, Initial Lahmu and demons before him
-                       56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, #School fights
+                       56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66,129, #School fights
                        84, 97, 98, 102, 103, 104, 105, #Shiki-Ouji, Leanan, Apsaras, Principality, Lilim, Dionysus, BFrost
                        106, 107, 132, 133, 134, 144, 145, #Futsunushi, Adramelech, 6 Pretas, Oni, 3 Pretas, Dormarth, Nozuchi
                        147, 158, 159, 160, 170, 172, 173, 174, 175, #Pisaca, Zhen*3, Yakshini, Onyakopon, Anansi, Kudlak, Kresnik
@@ -92,12 +91,12 @@ BOSS_HP_MODIFIERS = {
 EVENT_ONLY_BOSSES = [6, 39, 69, 138]
 
 #Event Encounter IDs that have DUMMY fights and can be replaced with probelematic demons like True Lucifer
-DUMMY_EVENT_ENCOUNTERS = [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 89, 141]
+DUMMY_EVENT_ENCOUNTERS = [141]
 
 # Map of bosses who summon a set number of minions at a time, used to calculate total press turns
 PRESS_TURN_MAX_SUMMONS = {
     934: 3, # Demi-Fiend
-    #681: 2, # Satan
+    681: 3, # Satan
     760: 2, # Samael
     845: 3, # Shiva
     828: 1, # Arahabaki
@@ -107,9 +106,8 @@ PRESS_TURN_MAX_SUMMONS = {
 # Map of boss summons that are summoned in groups of more than one, like Arioch's 2 decarabias
 SUMMONED_DEMON_COUNTS = {
     464: 2, # Decarabia
-    935: 2, # Rider summons
+    935: 2, # Rider summons (Except Legions from Black Rider)
     936: 2,
-    937: 2,
     938: 2,
     885: 2, # Mandrake
 }
@@ -211,8 +209,8 @@ def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr,
     #Halve HP of Snake Nuwa and Tehom Check
     if oldEncounterID in [35, 163]:
         oldEncounterData.totalHP = oldEncounterData.totalHP // 2
-    #Double HP if Snake Nuwa or Tehom is Replacement
-    if newEncounterID in [35, 163]:
+    #Double HP if  Tehom is Replacement
+    if newEncounterID in [163]:
         oldEncounterData.totalHP = oldEncounterData.totalHP * 2
         
     #Times 7 HP of Tentacle Lahmu checks due to tentacles being the majority of his health
@@ -400,6 +398,8 @@ def patchSpecialBossDemons(bossArr, configSettings):
         luciferPhase3.money = luciferPhase1.money
         luciferPhase1.experience = 0
         luciferPhase1.money = 0
+        luciferPhase2.damageMultiplier = luciferPhase1.damageMultiplier
+        luciferPhase3.damageMultiplier = luciferPhase1.damageMultiplier
     
 
 '''
@@ -441,7 +441,7 @@ def createBossEncounterPools(eventEncountArr, encountArr, uniqueSymbolArr, absce
                     and index not in LUCIFER_ENCOUNTERS and index not in SUPERBOSS_ENCOUNTERS and index not in MINIBOSS_ENCOUNTERS and index not in foundEventEncounters]
     if configSettings.randomizeLucifer:
         normalPool = normalPool + [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in LUCIFER_ENCOUNTERS]
-    superbossPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in SUPERBOSS_ENCOUNTERS]
+    superbossPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in SUPERBOSS_ENCOUNTERS and index not in bossDuplicateMap.keys()]
     minibossPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in MINIBOSS_ENCOUNTERS]
     if configSettings.mixedRandomizeNormalBosses:
         mixedPool = mixedPool + normalPool

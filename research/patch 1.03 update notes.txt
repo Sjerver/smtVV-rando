@@ -1,0 +1,34 @@
+UPDATE TEXT FILES IN base/Text and whatever other files we use that aren't game files
+
+Modified files:
+ - BossFlag.uexp                    #File Update DONE (recheck entry size)
+ - DevilAssetTable.uexp             #File Update DONE
+ - DevilUIGraphicsTable.uexp        #File Update DONE
+ - EncountData.uexp                 #File Update + recheck entry sizes DONE
+ - EventEncountData.uasset          #File Update + UPDATE DONE BUT POTENTIAL PROBLEMS updates in at least boss logic + has 1 more entry
+ - EventEncountData.uexp            #File Update + UPDATE DONE BUT POTENTIAL PROBLEMS updates in at least boss logic
+ - EventEncountPostDataTable.uasset #File Update DONE
+ - EventEncountPostDataTable.uexp   #File Update DONE
+ - ItemTable.uexp                   #File Update DONE
+ - MissionTable.uexp                #File Update + DONE Mission needs stuff in mission logic
+ - NKMBaseTable.uexp                #File Update + DONE Needs updates
+ - SkillData.uexp                   #File Update DONE
+ - TalkCameraOffsetTable.uexp       #File Update DONE
+ - UniteCombineTable.uexp           #File Update +  DONE ? maybe stuff in fusion logic due to fusion number
+ - UniteTable.uexp                  #File Update DONE
+ - LV_EventMission_M061.uexp        #File Update DONE
+ - LV_EventMission_M061.umap        #File Update DONE
+ - MM_M060_EM2351.uasset            #File Update + hopefully just that, most likely added checks for Idun navigator
+ - MM_M060_EM2351.uexp              #File Update + hopefully just that, (earliest change in here is a different fade in)
+ - MM_M063_EM2170.uasset            #File Update + No clue what exactly changed here (looks like they added a tutorial window?)
+ - MM_M063_EM2170.uexp              #File Update + No clue what exactly changed here (looks like they added a tutorial window?)
+ - ItemHelpMess.uasset              #File Update DONE
+ - ItemHelpMess.uexp                #File Update DONE
+ - ItemName.uasset                  #File Update DONE
+ - ItemName.uexp                    #File Update DONE
+ - MissionInfo.uasset               #File Update +DONE message logic update
+ - MissionInfo.uexp                 #File Update +DONE message logic update
+ - SkillHelpMess.uasset             #File Update DONE
+ - SkillHelpMess.uexp               #File Update DONE
+ - npc_m061_navi.uasset             #File Update not sure if more is necessary
+ - npc_m061_navi.uexp               #File Update not sure if more is necessary

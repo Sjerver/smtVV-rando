@@ -1,5 +1,8 @@
 This is a randomizer for the Steam version of Shin Megami Tensei V Vengeance.
 
+Installation Requirements:
+- [.NET 8.0](https://dotnet.microsoft.com/en-us/download) is necessary to run the randomizer. Earlier versions of .NET are not compatible.
+
 This randomizer randomizes the following things:
 - Demons
 - Encounters
@@ -47,12 +50,7 @@ Basic gameplay changes:
 - In the vengeance route, Yuzuru will be level 99 for the Glasya-Labolas check to avoid getting hard-walled
 - In order to allow for more flexible assignment of random races and level, additional fusion combinations for previously unfusable races have been added to the fusion chart.
 
-These things are planned for future updates:
-- Randomizing Magatsuhi
-- Removing unlock conditions for fusing demons
-- Updating more text to reflect randomized bosses/demons
-- Randomizing NPC models
-- Improvements to overworld encounters for demons who are not normally in the overworld
+For detailed explanations of settings and gameplay changes, you can refer to the [wiki](https://github.com/Sjerver/smtVV-rando/wiki)
 
 To run the randomizer, windows users can download a release and run randomizer.exe
 Otherwise you can run the randomizer from source if you have python installed on your computer.
@@ -67,5 +65,7 @@ Here create a folder named "~mods" and put the .pak file in it.
 The mod should now work when loading the game.
 
 Since the randomizer makes edits to a plethora of files it is incompatible with most mods. For a concrete list of files the randomizer modifies check the base folder.
+
+One final note: using the 'Randomize Cutscene Models' setting is experimental and will cause the randomizer to take a long time to run (30-60 minutes). This is normal and it may even take several minutes to complete a single cutscene at times.
 
 If you have any questions or technical difficulties, join the SMT Randomizer discord: https://discord.gg/d25ZAha

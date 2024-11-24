@@ -1,3 +1,33 @@
+Version 1.03
+Features:
+* Full support for the demon navigator update, including the Marici Boss
+* New experimental setting to swap models in cutscenes according to randomization results
+* New setting to include enemy only skills and magatsuhi skills in demon skill pool, and force all unique skills to show up
+* New setting to randomize the requirements for using magatsuhi skills, with toggles for Omagatoki:Critical and Omnipotent Succesion
+* New settings to unlock all fusions from the start and to set the chance that a basic enemy gains an additional press turn
+* You can now add inheritance violation to the early miracle list
+* Bosses now have hint messages, excluding abscesses and some minibosses
+
+Bugfixes:
+* The model of Adramelech's replacement in Temple of Eternity is scaled down to prevent potential softlocks
+* Hitboxes for scaled down demons now reflect their new size
+* Special fusions can no longer require multiple the same demon to fuse
+
+Balance:
+* Press Turns of basic enemies now are based on what they replace (i.e. Tsuchigumos replacement has 2 press turns as an enemy)
+* Snake Nuwa Boss will no longer end on 50% HP when she is randomized, and her HP is no longer higher than the check she replaces
+* Randomized miracle costs will be slightly cheaper on average
+* Skill randomization has been adjusted to lead to more variety in skill sets
+
+Misc:
+* Gaea Rage from Demifiend's Guest skill list has been added to the skill pool
+* Skill descriptions of skills who have multiple versions have been updated to make it easier to identify the exact skill
+* Skill descriptions of unique skills are updated to reflect unique skill inheritance settings
+* Additional rewards of quests are added to the descriptions of quests
+* Quest Descriptions, Dialogue and Item Names and Descriptions have been updated to reflect the results of the randomization
+* Non-alignment periapts now always list the demons required to use their skills
+* The title screen now shows if the randomizer is installed
+
 Version 1.02
 Features:
 * New boss randomizer settings - Scale boss damage, scale boss press turns to check, scale boss instakill susceptibility to check, prevent ambush bosses until after Hydra, boss dependent ambushes, nerf boss healing and set Ishtar's press turns

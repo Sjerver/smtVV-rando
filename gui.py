@@ -99,6 +99,15 @@ def createGUI(configSettings):
         presetConfigur.read(paths.PRESET_SETTINGS_FOLDER + "/" + dropdownPresetText.get() + ".ini")
         ApplySettings(presetConfigur)
 
+    def reuseLastSeed():
+        seedEntry.delete(0,len(seedEntry.get()))
+        try:
+            with open(paths.SEED_FILE, 'r') as file:
+                fileContents = file.read()
+                seedEntry.insert(0,fileContents)
+        except FileNotFoundError:
+            seedEntry.insert(0,"")
+
     randomizeButton = tk.Button( #Button to start the randomizer
         persistentFrameLeft,
         text="Randomize!",
@@ -108,7 +117,11 @@ def createGUI(configSettings):
         fg="black",
         command=randomizeClick,
     )
+
+    swapCutsceneModels= tk.BooleanVar()
+    swapCutsceneModelCheckbox = tk.Checkbutton(persistentFrameLeft, text="(Experimental) Swap Cutscene Models", variable=swapCutsceneModels, onvalue=True, offvalue=False)
     randomizeButton.pack()
+    swapCutsceneModelCheckbox.pack()
         
     leftButton = tk.Button( #Button to go to the previous page
         buttonControlsFrame,
@@ -187,6 +200,15 @@ def createGUI(configSettings):
         state=tk.DISABLED,
         command=apply_preset_settings
     )
+
+    reuseLastSeedButton = tk.Button( persistentFrameRight,
+        text="Last Seed",
+        width=10,
+        height=1,
+        bg=NAHOBINO_BLUE,
+        fg="black",
+        command=reuseLastSeed
+    )
     
     def EnableApplySettingsButton(event):
         apply_preset_button.config(state=tk.NORMAL)
@@ -197,6 +219,7 @@ def createGUI(configSettings):
     dropdownPresets.config(fg="black",bg=NAHOBINO_BLUE,activebackground=NAHOBINO_BRIGHT_BLUE)
     dropdownPresets.pack()
     apply_preset_button.pack()
+    reuseLastSeedButton.pack()
 
     demonLabel = tk.Label(page1FrameTop, text="Demon Randomizer")
     demonLabel.grid(row=0, column=0, sticky='nsew', columnspan= 2, padx = [10,0])
@@ -212,10 +235,13 @@ def createGUI(configSettings):
     listDemon.insert(7, "Unique Skills can show up more than once")
     listDemon.insert(8, "Randomize Races")
     listDemon.insert(9, "Randomize Alignment")
-    listDemon.insert(10, "Same Level for Quest Join Demons")
+    listDemon.insert(10, "Randomize Quest Demon Joins")
     listDemon.insert(11, "Randomize Stat Modifiers")
     listDemon.insert(12, "Reduce Compendium Cost Drastically")
     listDemon.insert(13, "Restrict Lunation Flux to one demon")
+    listDemon.insert(14, "Include Enemy Only Skills in Skill Pool")
+    listDemon.insert(15, "Include Magatsuhi Skills in Skill Pool")
+    listDemon.insert(16, "Ensure all Unique Skills are Available")
 
     demonScrollbar = tk.Scrollbar(page1FrameTop, orient='vertical')
     demonScrollbar.config(command=listDemon.yview)
@@ -228,12 +254,22 @@ def createGUI(configSettings):
     inheritanceLabel = tk.Label(page1FrameTopRight, text="Unique Skill Inheritance")
     inheritanceLabel.pack()
 
-    listInheritance = tk.Listbox(page1FrameTopRight,selectmode= "single",exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listInheritance = tk.Listbox(page1FrameTopRight,selectmode= "single",height=3,exportselection=False, selectbackground = NAHOBINO_BLUE)
     listInheritance.insert(0, "Vanilla")
     listInheritance.insert(1, "Random")
     listInheritance.insert(2, "Free")
     listInheritance.selection_set(0)
     listInheritance.pack()
+
+    magatsuhiLabel = tk.Label(page1FrameTopRight, text="Magatsuhi Skills")
+    magatsuhiLabel.pack()
+
+    listMagatsuhi = tk.Listbox(page1FrameTopRight,selectmode= "multiple",height=4,width=50,exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listMagatsuhi.insert(0, "Randomize Requirements to Use Magatsuhi Skills")
+    listMagatsuhi.insert(1, "Include Omagatoki:Critical Requirement")
+    listMagatsuhi.insert(2, "Include Omnipotent Succession Requirement")
+    listMagatsuhi.selection_set(0)
+    listMagatsuhi.pack()
 
     musicLabel = tk.Label(page1FrameLeft, text="Boss Music Setting")
     musicLabel.pack()
@@ -364,14 +400,15 @@ def createGUI(configSettings):
     earlyMiracleLabel = tk.Label(page3FrameTopRight, text="Miracles to guarantee early")
     earlyMiracleLabel.pack()
 
-    listEarlyMiracle = tk.Listbox(page3FrameTopRight, selectmode = "multiple", width = 50, height=7, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listEarlyMiracle = tk.Listbox(page3FrameTopRight, selectmode = "multiple", width = 50, height=8, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listEarlyMiracle.insert(0, "First Divine Garrison")
     listEarlyMiracle.insert(1, "Forestall")
     listEarlyMiracle.insert(2, "Empowering Cheer 1")
     listEarlyMiracle.insert(3, "Art of Essences 1")
     listEarlyMiracle.insert(4, "Demon Proficiency 1")
     listEarlyMiracle.insert(5, "Divine Proficiency 1")
-    listEarlyMiracle.insert(6, "Divine Amalgamation")                   
+    listEarlyMiracle.insert(6, "Divine Amalgamation")
+    listEarlyMiracle.insert(7, "Inheritence Violation")
     listEarlyMiracle.pack()
     
     def toggleMiracleListboxes(event):
@@ -391,9 +428,10 @@ def createGUI(configSettings):
     patchesLabel = tk.Label(page3FrameBottom, text="Patches")
     patchesLabel.pack()
 
-    listPatches = tk.Listbox(page3FrameBottom, selectmode = "multiple", width=50, height=2, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listPatches = tk.Listbox(page3FrameBottom, selectmode = "multiple", width=50, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listPatches.insert(0, "Fix unique skill animations")
     listPatches.insert(1, "Buff guest Yuzuru to make first Labolas check easier")
+    listPatches.insert(2, "Unlock all fusions from the start")
     listPatches.pack()
     
     expLabel = tk.Label(page3FrameBottom, text="EXP Multiplier")
@@ -402,10 +440,21 @@ def createGUI(configSettings):
     expScale = tk.Scale(page3FrameBottom, from_=1, to=2, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
     expScale.set(1)
     expScale.pack()
+
+    expLabel = tk.Label(page3FrameBottom, text="Chance for basic enemies to receive additional press turns")
+    expLabel.pack()
+
+    pressTurnScale = tk.Scale(page3FrameBottom, from_=0, to=1, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
+    pressTurnScale.set(0.1)
+    pressTurnScale.pack()
         
     page1Frame.tkraise()
     
     def ApplySettings(configur):
+        if configur.get('Patches', 'swapCutsceneModels') == 'true':
+            swapCutsceneModelCheckbox.select()
+        else:
+            swapCutsceneModelCheckbox.deselect()
         if configur.get('Demon', 'RandomLevels') == 'true':
             listDemon.selection_set(0)
         else:
@@ -462,6 +511,18 @@ def createGUI(configSettings):
             listDemon.selection_set(13)
         else:
             listDemon.selection_clear(13)
+        if configur.get('Demon', 'EnemyOnlySkills') == 'true':
+            listDemon.selection_set(14)
+        else:
+            listDemon.selection_clear(14)
+        if configur.get('Demon', 'MagatsuhiSkills') == 'true':
+            listDemon.selection_set(15)
+        else:
+            listDemon.selection_clear(15)
+        if configur.get('Demon', 'ForceUniqueSkills') == 'true':
+            listDemon.selection_set(16)
+        else:
+            listDemon.selection_clear(16)
         listInheritance.selection_set(0)
         if configur.get('Inheritance', 'RandomInheritance') == 'true':
             listInheritance.selection_clear(0)
@@ -473,6 +534,18 @@ def createGUI(configSettings):
             listInheritance.selection_set(2)
         else:
             listInheritance.selection_clear(2)
+        if configur.get('Magatsuhi', 'RandomRequirements') == 'true':
+            listMagatsuhi.selection_set(0)
+        else:
+            listMagatsuhi.selection_clear(0)
+        if configur.get('Magatsuhi', 'IncludeCritical') == 'true':
+            listMagatsuhi.selection_set(1)
+        else:
+            listMagatsuhi.selection_clear(1)
+        if configur.get('Magatsuhi', 'IncludeSuccession') == 'true':
+            listMagatsuhi.selection_set(2)
+        else:
+            listMagatsuhi.selection_clear(2)
         listMusic.selection_set(0)
         if configur.get('Music', 'RandomMusic') == 'true':
             listMusic.selection_clear(0)
@@ -669,6 +742,10 @@ def createGUI(configSettings):
             listEarlyMiracle.selection_set(6)
         else:
             listEarlyMiracle.selection_clear(6)
+        if configur.get('Miracle', 'EarlyInheritenceViolation') == 'true':
+            listEarlyMiracle.selection_set(7)
+        else:
+            listEarlyMiracle.selection_clear(7)
         if configur.get('Patches', 'FixUniqueSkillAnimations') == 'true':
             listPatches.selection_set(0)
         else:
@@ -677,7 +754,12 @@ def createGUI(configSettings):
             listPatches.selection_set(1)
         else:
             listPatches.selection_clear(1)
+        if configur.get('Patches', 'UnlockFusions') == 'true':
+            listPatches.selection_set(2)
+        else:
+            listPatches.selection_clear(2)
         expScale.set(configur.get('Patches', 'EXPMultiplier'))
+        pressTurnScale.set(configur.get('Patches','PressTurnChance'))
         
     #Set starting GUI values based on saved user settings
     configur = ConfigParser()
@@ -697,10 +779,14 @@ def createGUI(configSettings):
     try:
         #Store all GUI selections into variables before closing the GUI
         textSeed = seedEntry.get()
+        cutsceneChoice = swapCutsceneModels.get()
         demonFlags = [False for i in range(listDemon.size())]
         for i in listDemon.curselection():
             demonFlags[i] = True
         inheritanceChoice = listInheritance.curselection()
+        magatsuhiFlags = [False for i in range(listMagatsuhi.size())]
+        for i in listMagatsuhi.curselection():
+            magatsuhiFlags[i] = True
         musicChoice = listMusic.curselection()
         itemFlags = [False for i in range(listItem.size())]
         for i in listItem.curselection():
@@ -726,12 +812,18 @@ def createGUI(configSettings):
         for i in listPatches.curselection():
             patchFlags[i] = True
         expChoice = expScale.get()
+        pressTurnChoice = pressTurnScale.get()
         
         window.destroy()
     except tk.TclError:
         raise(RuntimeError)        
 
     #Set the config settings
+    configSettings.swapCutsceneModels = cutsceneChoice
+    if cutsceneChoice:
+        configur.set('Patches', 'swapCutsceneModels', 'true')
+    else:
+        configur.set('Patches', 'swapCutsceneModels', 'false')
     if demonFlags[0]:
         configSettings.randomDemonLevels = True
         configur.set('Demon', 'RandomLevels', 'true')
@@ -815,6 +907,24 @@ def createGUI(configSettings):
         configur.set('Demon', 'RestrictLunationFlux', 'true')
     else:
         configur.set('Demon', 'RestrictLunationFlux', 'false')
+    
+    if demonFlags[14]:
+        configSettings.includeEnemyOnlySkills = True
+        configur.set('Demon', 'EnemyOnlySkills', 'true')
+    else:
+        configur.set('Demon', 'EnemyOnlySkills', 'false')
+    
+    if demonFlags[15]:
+        configSettings.includeMagatsuhiSkills = True
+        configur.set('Demon', 'MagatsuhiSkills', 'true')
+    else:
+        configur.set('Demon', 'MagatsuhiSkills', 'false')
+    
+    if demonFlags[16]:
+        configSettings.forceUniqueSkills = True
+        configur.set('Demon', 'ForceUniqueSkills', 'true')
+    else:
+        configur.set('Demon', 'ForceUniqueSkills', 'false')
 
     if len(inheritanceChoice) > 0 and inheritanceChoice[0] == 1:
         configSettings.randomInheritance = True
@@ -827,6 +937,24 @@ def createGUI(configSettings):
         configur.set('Inheritance', 'FreeInheritance', 'true')
     else:
         configur.set('Inheritance', 'FreeInheritance', 'false')
+    
+    if magatsuhiFlags[0]:
+        configSettings.randomizeMagatsuhiSkillReq = True
+        configur.set('Magatsuhi', 'RandomRequirements', 'true')
+    else:
+        configur.set('Magatsuhi', 'RandomRequirements', 'false')
+    
+    if magatsuhiFlags[1]:
+        configSettings.includeOmagatokiCritical = True
+        configur.set('Magatsuhi', 'IncludeCritical', 'true')
+    else:
+        configur.set('Magatsuhi', 'IncludeCritical', 'false')
+    
+    if magatsuhiFlags[2]:
+        configSettings.includeOmnipotentSuccession = True
+        configur.set('Magatsuhi', 'IncludeSuccession', 'true')
+    else:
+        configur.set('Magatsuhi', 'IncludeSuccession', 'false')
             
     if len(musicChoice) > 0 and musicChoice[0] == 2:
         configSettings.randomMusic = True
@@ -1082,6 +1210,12 @@ def createGUI(configSettings):
     else:
         configur.set('Miracle', 'EarlyDivineAmalgamation', 'false')
         
+    if earlyMiracleFlags[7]:
+        configSettings.forcedEarlyMiracles.append(30)
+        configur.set('Miracle', 'EarlyInheritenceViolation', 'true')
+    else:
+        configur.set('Miracle', 'EarlyInheritenceViolation', 'false')
+        
     if patchFlags[0]:
         configSettings.fixUniqueSkillAnimations = True
         configur.set('Patches', 'FixUniqueSkillAnimations', 'true')
@@ -1093,9 +1227,18 @@ def createGUI(configSettings):
         configur.set('Patches', 'BuffGuestYuzuru', 'true')
     else:
         configur.set('Patches', 'BuffGuestYuzuru', 'false')
+    
+    if patchFlags[2]:
+        configSettings.unlockFusions = True
+        configur.set('Patches', 'UnlockFusions', 'true')
+    else:
+        configur.set('Patches', 'UnlockFusions', 'false')
         
     configSettings.expMultiplier = expChoice
     configur.set('Patches', 'EXPMultiplier', str(expChoice))
+
+    configSettings.pressTurnChance = pressTurnChoice
+    configur.set('Patches', 'PressTurnChance', str(pressTurnChoice))
 
     with open('config.ini', 'w') as configfile:
         configur.write(configfile)
@@ -1107,20 +1250,22 @@ def createConfigFile(configur):
     configur.read('config.ini')
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
-                                'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False}
+                                'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False, 
+                                'EnemyOnlySkills':False, 'MagatsuhiSkills': False, 'ForceUniqueSkills': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
                         'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False,
                         'RandomizeGiftItems': False, 'CombineKeyItemPools': False, 'IncludeTsukuyomiTalisman': False
                         }
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
+    configur['Magatsuhi'] = {'RandomRequirements': False,'IncludeCritical': False,'IncludeSuccession': False}
     configur['Music'] = {'CheckBasedMusic': False, 'RandomMusic': False}
     configur['Boss'] = {'NormalBossesSelf': False, 'NormalBossesMixed': False, 'RandomizeLucifer': False, 'AbscessBossesSelf': False, 'AbscessBossesMixed': False,
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False,
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
                                  'ScaleInstakillRates': False}
-    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1}
+    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.1, 'UnlockFusions': False, 'swapCutsceneModels': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
-                        'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False}
+                        'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False, 'EarlyInheritenceViolation': False}
    

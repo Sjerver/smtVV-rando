@@ -1,6 +1,6 @@
-from util.binary_table import Table
+from util.binary_table import Table, writeBinaryTable, writeFolder, copyFile, readBinaryTable
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate, Encounter_Spawn
-from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner
+from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner, Fusion_Requirements
 from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Node
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter, Ambush_Type
 from base_classes.base import Translated_Value, Weight_List
@@ -11,8 +11,12 @@ from base_classes.settings import Settings
 from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
 from base_classes.map_demons import Map_Demon
-import base_classes.script_logic as scriptLogic
-import base_classes.message_logic as message_logic
+from base_classes.map_event import Map_Event
+from base_classes.file_lists import Script_File_List, General_UAsset
+from util.jsonExports import BASE_MAPSYMBOLPARAMS
+import script_logic as scriptLogic
+import message_logic as message_logic
+import model_swap
 import util.numbers as numbers
 import util.paths as paths
 import util.translation as translation
@@ -75,10 +79,20 @@ class Randomizer:
         self.updatedNormalEncounters = []
         self.chestArr = []
         self.mapSymbolArr = []
+        self.mapSymbolFile = General_UAsset("MapSymbolParamTable","rando/Project/Content/Blueprints/Map/Encount/Mover/ParamTable/")
         self.bossSymbolReplacementMap = {}
         self.validBossDemons = set()
         self.essenceBannedBosses = set()
         self.updatedMissionConditionIDs = []
+        self.encounterReplacements = {}
+        self.bossReplacements = {}
+        self.pressTurnChance = 0
+        self.brawnyAmbitions2SkillName = "Puncture Punch"
+        self.fusionSkillIDs = []
+        self.fusionSkillReqs = []
+        self.alreadyAssignedSkills = set()
+        self.scriptFiles = Script_File_List()
+        self.mapEventArr = []
 
         self.nahobino = Nahobino()
         
@@ -88,18 +102,6 @@ class Randomizer:
         self.elementals = [155,156,157,158]
         
         self.dummyEventIndex = 0
-        
-        
-    '''
-    Reads a file containing game data into a Table with a bytearray
-        Parameters:
-            filePath (string): The path to the file to read.
-        Returns: 
-            The buffer containing file data as a Table
-    '''
-    def readBinaryTable(self, filePath):
-        fileContents = Table(filePath)
-        return fileContents
     
     '''
     Reads the text file containing Character Names and filters out just the names and saves all names in array compendiumNames.
@@ -156,39 +158,6 @@ class Randomizer:
     def readDataminedEnemyNames(self):
         df = pd.read_csv(paths.NKM_CSV_IN, skiprows=4)
         self.enemyNames = df['Name'].values.tolist()
-            
-    '''
-    Writes the given Buffer to the file specified by filePath
-        Parameters:
-            result (Buffer): The data to write
-            filePath (string): The path to write the file at
-            folderPath (string): The path the folder where the file is, used to check if the folder exists
-    '''
-    def writeBinaryTable(self, result, filePath, folderPath):
-        if not os.path.exists(folderPath):
-            os.makedirs(folderPath)
-        with open(filePath, 'wb') as file:
-            file.write(result)
-    '''
-    Creates the folder at the given path if it does not exist.
-        Parameters:
-            folderPath (string): The path of the folder
-    '''
-    def writeFolder(self, folderPath):
-        if not os.path.exists(folderPath):
-            os.makedirs(folderPath)
-    '''
-    Copies a specified file to another location.
-        Parameters:
-            toCopy (string): The path for the file to copy
-            pasteTo (string): The path to write the file at
-            folderPath (string): The path the folder where the file is, used to check if the folder exists
-    '''
-    def copyFile(self, toCopy, pasteTo, folderPath):
-        if not os.path.exists(folderPath):
-            os.mkdir(folderPath)
-        if not os.path.exists(pasteTo):
-            shutil.copy(toCopy,pasteTo)
             
     '''
     Fills the array compendiumArr with data extracted from the Buffer NKMBaseTable.
@@ -512,9 +481,9 @@ class Randomizer:
                 toPush.hpDrain = skillData.readByte(locations['hpDrain']),
                 toPush.mpDrain = skillData.readByte(locations['hpDrain'] + 1)
                 toPush.magatsuhi.enable = skillData.readByte(locations['magatsuhiFlag'])
-                toPush.magatsuhi.race1 = Translated_Value(skillData.readByte(locations['magatsuhiFlag'] + 1),
+                toPush.magatsuhi.race1 = Translated_Value(skillData.readWord(locations['magatsuhiFlag'] + 1),
                         RACE_ARRAY[skillData.readByte(locations['magatsuhiFlag'] + 1)])
-                toPush.magatsuhi.race2 = Translated_Value(skillData.readByte(locations['magatsuhiFlag'] + 3),
+                toPush.magatsuhi.race2 = Translated_Value(skillData.readWord(locations['magatsuhiFlag'] + 5),
                         RACE_ARRAY[skillData.readByte(locations['magatsuhiFlag'] + 3)])
                 toPush.modifiers.modifier1 = Translated_Value(skillData.readByte(locations['modifier1']),
                         translation.translateModifier(skillData.readByte(locations['modifier1'])))
@@ -550,7 +519,7 @@ class Randomizer:
         fusionOffset = 0x7C
 
         #For every fusion (37401 = ((n-1)*(n))/2 with n being the number of fusable(excludes Tao/Yoko for example) registerable demons)
-        for index in range(37401):
+        for index in range(38226):
             offset = startValue + index * fusionOffset
             locations = {
                 'firstDemon': offset,
@@ -762,7 +731,7 @@ class Randomizer:
         size = 0x64
 
         #The tables standard size for symbols is 2081
-        for index in range(2081):
+        for index in range(2082):
             offset = start + size * index
 
             locations = {
@@ -794,7 +763,7 @@ class Randomizer:
     '''
     def fillEncountArr(self, encounters):
 
-        start = 0x32D55
+        start = 0x32DB5
         size = 0x1C
 
         #Table in EncountData is of this size
@@ -905,6 +874,7 @@ class Randomizer:
             entry = Miman_Reward()
             entry.offset = offset
             entry.miman = shopData.readWord(offset)
+            entry.setMsgID = 0#To remove Set Names (to get set names: shopData.readWord(offset +4)
             for i in range(16):
                 item = Reward_Item(shopData.readHalfword(offset + 8 + 4*i),shopData.readHalfword(offset + 10+4*i))
                 entry.items.append(item)
@@ -920,10 +890,11 @@ class Randomizer:
         size = 0x60
         #encounterDebugData = []
         demonDict = {}
-        for index in range(252):
+        for index in range(253):
             offset = start + size * index
             encounter = Event_Encounter()
-            encounter.ind = data.readByte(offset + 0x20) 
+            encounter.ind = data.readByte(offset + 0x20)
+            encounter.nextEnc =  data.readByte(offset + 0x21)
             encounter.levelpath = data.read32chars(offset)
             encounter.offsets = {
                 'demons': offset + 0x48,
@@ -950,9 +921,11 @@ class Randomizer:
             originalIndex = next((x for x, val in enumerate(self.eventEncountArr) if val.compareDemons(encounter)), -1)
             if originalIndex > -1:
                 self.bossDuplicateMap[index] = originalIndex
+                #print("Duplicate " + str(index) +" to " +str(originalIndex))
 
             self.eventEncountArr.append(encounter)
             self.staticEventEncountArr.append(copy.deepcopy(encounter))
+            #print(str(index) + ": (" + str(demons[0].value) + ") " + self.enemyNames[demons[0].value] + " " + str(encounter.track) + " NEXT: " + str(encounter.nextEnc))
         
     '''
     Fills the array bossFlagArr with data on boss flags.
@@ -963,7 +936,7 @@ class Randomizer:
         start = 0x45
         size = 0x24
         
-        for index in range(130):
+        for index in range(134):
             offset = start + size * index
             bossFlags = Boss_Flags()
             bossFlags.offset = offset
@@ -1201,17 +1174,23 @@ class Randomizer:
             locations = {
                 'demonID': offset,
                 'walkSpeed': offset + 0x1d,
-                'scaleFactor': offset + 0x74
+                'scaleFactor': offset + 0x74,
+                'encountCollisionX': offset + 0x91,
+                'encountCollisionY': offset + 0xAE,
+                'encountCollisionZ': offset + 0xCB,
+
             }
             demonID = data.readWord(offset)
             walkSpeed = data.readFloat(locations['walkSpeed'])
             scaleFactor = data.readFloat(locations['scaleFactor'])
+            encountCollision = Position( data.readFloat(locations['encountCollisionX']),data.readFloat(locations['encountCollisionY']),data.readFloat(locations['encountCollisionZ']))
             
             mapDemon = Map_Demon()
             mapDemon.offsetNumbers = locations
             mapDemon.demonID = demonID
             mapDemon.walkSpeed = walkSpeed
             mapDemon.scaleFactor = scaleFactor
+            mapDemon.encountCollision = encountCollision
             self.mapSymbolArr.append(mapDemon)
             
     '''
@@ -1352,6 +1331,45 @@ class Randomizer:
             item.name = self.itemNames[index +1]
             item.buyPrice = items.readWord(item.offset + 0x5C)
             self.consumableArr.append(item)
+    
+    '''
+    Fills a list with the requirements to use fusion skills.
+        Parameters:
+            binTable (Table): buffer containing skill data
+    '''
+    def fillFusionSkillReqs(self, binTable):
+        start = 0x255D5
+        size = 32
+
+        for index in range(30):
+            offset = start + size * index
+            skill = Fusion_Requirements()
+            skill.offset = offset
+            skill.ind = binTable.readWord(offset)
+            skill.itemID = binTable.readWord(offset +4)
+            for i in range(5):
+                skill.demons.append(binTable.readWord(offset + 8 + 4*i))
+            for i in range(2):
+                skill.alignments.append([binTable.readByte(offset + 28 + i * 2),binTable.readByte(offset + 28 + i * 2 +1)])
+            self.fusionSkillReqs.append(skill)
+    
+    def fillMapEventArr(self, binTable: Table):
+        start = 0x45
+        size = 148
+
+        for index in range(701):
+            offset = start + size * index
+            event = Map_Event()
+            event.offset = offset
+            event.ind = binTable.readWord(offset)
+            event.activationFlag = binTable.readWord(offset +4)
+            event.compFlag1 = binTable.readWord(offset + 0x14)
+            event.compFlag2 = binTable.readWord(offset + 0x18)
+            event.mapID = binTable.readWord(offset + 0x1C)
+            event.levelUMap = binTable.readWord(offset + 0x24)
+
+            self.mapEventArr.append(event)
+
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
         Parameters:
@@ -1382,6 +1400,22 @@ class Randomizer:
         for i in range(len(self.skillNames)):
             skillLevels.append(Skill_Level(self.skillNames[i], i, level=[]))
         bonusSkills = numbers.getBonusSkills()
+        if self.configSettings.includeEnemyOnlySkills:
+            bonusSkills = bonusSkills + numbers.getEnemyOnlySkills()
+        if self.configSettings.includeMagatsuhiSkills:
+            magatsuhiSkills = []
+            for skillID in numbers.MAGATSUHI_SKILLS: #add magatsuhi skills available at all levels
+                if skillID in self.fusionSkillIDs: #do not add fusion skills, since they are demon dependent
+                    continue
+                try: #if the skill has a special level requirement use it
+                    levels = numbers.MAGATSUHI_SKILLS_LEVEL_RESTRICTIONS[skillID]
+                    minLevel = levels[0]
+                    maxLevel = levels[1]
+                except KeyError: #else do from 1 to 99
+                    minLevel = 1
+                    maxLevel = 99
+                magatsuhiSkills.append([translation.translateSkillID(skillID, self.skillNames),skillID,minLevel,maxLevel])
+            bonusSkills = bonusSkills + magatsuhiSkills
         def findBonusSkill(ind):
             goal = []
             for skill in bonusSkills:
@@ -1458,6 +1492,121 @@ class Randomizer:
         return levelList
 
     '''
+    Randomizes the requirements to use magatsuhi skills, either due to race, demon combination or alignment combination.
+    Note: When Critical is randomized, fusion and race skills are not mixed with each other, since the first magatsuhi skill in skill table
+    without races assigned to it, serves as criticals replacement.
+    This also means that Omnipotent Succession can never be the replacement for critical.
+    '''
+    def randomizeMagatsuhiSkillReqs(self):
+        magatsuhiSkillResults = []
+        requiredFusionNumber = len(self.fusionSkillIDs)
+        newFusionSkills = []
+        availableRaces = []
+        
+        while len(newFusionSkills) < requiredFusionNumber: #get new fusion skills
+            skill = random.choice(numbers.MAGATSUHI_SKILLS)
+            if self.configSettings.includeOmagatokiCritical: #Due to how the universal magatsuhi skill is chosen, fusion skills and race skills cannot be mixed if this is randomized
+                newFusionSkills = sorted(self.fusionSkillIDs,key=lambda x: random.random())
+                break
+            if skill in newFusionSkills or (skill == 60) or (skill == 928 and not self.configSettings.includeOmnipotentSuccession):
+                #dont add skills that are already there or critical has to be tied to race and succession depends on setting
+                continue
+            newFusionSkills.append(skill)
+            skill = self.obtainSkillFromID(skill)
+            if skill.magatsuhi.race1.value > 0:
+                availableRaces.append(skill.magatsuhi.race1.value) # gather races
+                skill.magatsuhi.race1.value = 0 #set races to 0
+            if skill.magatsuhi.race2.value > 0: #gather second race if it is there
+                availableRaces.append(skill.magatsuhi.race2.value)
+                skill.magatsuhi.race2.value = 0
+
+        
+        magaSkills = []
+        for skillID in numbers.MAGATSUHI_SKILLS:
+            if skillID in newFusionSkills: #if skill is already decided to be a fusion skill
+                continue
+            skill = self.obtainSkillFromID(skillID)
+            if (skill.ind == 60 and not self.configSettings.includeOmagatokiCritical) or (skill.ind == 928 and not self.configSettings.includeOmnipotentSuccession) :
+                #only add race and skill for omagatoki critical and succession when setting is set
+                continue
+            if skill.magatsuhi.race1.value > 0 or skill.ind == 60:
+                availableRaces.append(skill.magatsuhi.race1.value) # gather races
+                skill.magatsuhi.race1.value = 0 #set races to 0
+            if skill.magatsuhi.race2.value > 0: #gather second race if it is there
+                availableRaces.append(skill.magatsuhi.race2.value)
+                skill.magatsuhi.race2.value = 0
+            magaSkills.append(skill)
+        if self.configSettings.includeOmagatokiCritical: #manual choosing of omagatoki criticals replacement
+            success = True
+            while success: #Since Succession can not replace critical repeat until chosen skill is not succession
+                skill = random.choice(magaSkills)
+                if skill != 928:
+                    success = False
+            availableRaces.remove(0)
+            magatsuhiSkillResults.append(skill)
+            magaSkills.remove(skill)
+        while len(availableRaces) > 0: #while there is a race to assign
+            race = random.choice(availableRaces)
+            skill = random.choice(magaSkills)
+            availableRaces.remove(race)
+            if skill.magatsuhi.race1.value == 0: #if first race has not been assigned yet
+                if len(availableRaces) < len(magaSkills): #less races than skills means we need to remove skill to ensure each skill has at least one race assigned to it
+                    magatsuhiSkillResults.append(skill)
+                    magaSkills.remove(skill)
+                skill.magatsuhi.race1.value = race
+            else: #assign second race and remove skill since no races can be assigned to it
+                magatsuhiSkillResults.append(skill)
+                magaSkills.remove(skill)
+                skill.magatsuhi.race2.value = race
+            
+        # for skillID in numbers.MAGATSUHI_SKILLS:
+        #     if skillID in newFusionSkills:
+        #         #print(str(skillID) + "FUSION")
+        #         pass
+        #     else:
+        #         skill = self.obtainSkillFromID(skillID)
+        #         print(str(skillID) + " " + RACE_ARRAY[skill.magatsuhi.race1.value]+ " " + RACE_ARRAY[skill.magatsuhi.race2.value])
+        
+        self.fusionSkillReqs = self.updateFusionSkillRequirements(newFusionSkills)
+        self.fusionSkillIDs = newFusionSkills
+        return magatsuhiSkillResults
+
+    '''
+    Updates the requirements for fusion skills by taking the a list of skill ids and replacing the ids of fusion skills with them.
+    Also randomizes which demons are required to use fusion skills.
+        Parameters:
+            newFusionSkills (Int): list of skill ids to replace current fusion skill ids
+    '''
+    def updateFusionSkillRequirements(self,newFusionSkills):
+        newFusionSkillReqs = []
+        currentIndex = 0
+        for skill in self.fusionSkillReqs:
+            if skill.ind not in self.fusionSkillIDs: #skip empty entry and enemy only fusion skills (Annihilation Ray and another Qadistu Entropy)
+                newFusionSkillReqs.append(skill)
+                continue
+            skill.ind = newFusionSkills[currentIndex]
+            currentIndex += 1
+
+            validDemonChoices = list(filter(lambda demon: 'NOT USED' not in demon.name and 'Mitama' not in demon.name and demon.ind not in numbers.BAD_IDS , self.compendiumArr))
+            if skill.demons[0] != 0: #if fusion req slot has demons tied to it
+                demonsNames = ""
+                newDemons = []
+                for demon in skill.demons:
+                    if demon > 0: #if the demon slot is not empty, get a new demon
+                        newDemon = random.choice(validDemonChoices)
+                        demonID = newDemon.ind
+                        validDemonChoices.remove(newDemon)
+                    else: #else set demon to no demon
+                        demonID = 0
+                    newDemons.append(demonID)
+                    demonsNames = demonsNames + self.enemyNames[demonID]
+                #print(str(skill.ind) + demonsNames)
+                skill.demons = newDemons
+            #print(str(skill.ind) + " " + str(skill.alignments[0][0])+ " " + str(skill.alignments[0][1])+ " " + str(skill.alignments[1][0])+ " " + str(skill.alignments[1][1]))
+            newFusionSkillReqs.append(skill)
+        return newFusionSkillReqs
+
+    '''
     Assigns every demon new skills randomized using weights based on the passed settings.
     The range of skills available can either be all or level ranges around the demons level.
     Additionally, the weights are either the same for every skill or adjusted based on level range or potential and stat of demon.
@@ -1484,10 +1633,13 @@ class Randomizer:
             allSkills = []
             for ind in uniqueSkills:
                     allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
-        
+        if not mask:
+            sortedComp = sorted(comp, key=lambda demon: demon.level.value)
+        else:
+            sortedComp = comp
 
         #For every demon...
-        for demon in comp:
+        for demon in sortedComp:
             if mask and demon.ind not in mask:
                 continue
             possibleSkills = []
@@ -1565,11 +1717,16 @@ class Randomizer:
                             #Check if skill passes additional conditions or skip that check if skills are not supposed to be weighted by stats and potentials
                             if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon)):
                                 if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),demon,comp,settings):
+                                    if rng in numbers.MAGATSUHI_SKILLS: #only 1 magatsuhi skill assigned to skill set
+                                        for weightIndex,checkSkill in enumerate(weightedSkills.values):
+                                            if checkSkill in numbers.MAGATSUHI_SKILLS:
+                                                weightedSkills.weights[weightIndex] = 0
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
                     totalSkills.append(skillAddition)
+                    self.alreadyAssignedSkills.add(rng)
                     demon.skills[index] = skillAddition
                 #Randomly assign learnable skills; same justifications as starting skills
                 for index in range(len(demon.learnedSkills)):
@@ -1585,11 +1742,16 @@ class Randomizer:
                         if not any(e.ind == rng for e in totalSkills):
                             if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon)):
                                 if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),demon,comp,settings):
+                                    if rng in numbers.MAGATSUHI_SKILLS: #only 1 magatsuhi skill assigned to skill set
+                                        for weightIndex,checkSkill in enumerate(weightedSkills.values):
+                                            if checkSkill in numbers.MAGATSUHI_SKILLS:
+                                                weightedSkills.weights[weightIndex] = 0
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
                     totalSkills.append(skillAddition)
+                    self.alreadyAssignedSkills.add(rng)
                     demon.learnedSkills[index] = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames), level=demon.learnedSkills[index].level)
         return comp
     
@@ -1678,6 +1840,9 @@ class Randomizer:
         skill = self.obtainSkillFromID(random.choice(possibleSkills).ind)
         while not validity:
             skill = self.obtainSkillFromID(random.choice(possibleSkills).ind)
+            if skill.ind in numbers.MAGATSUHI_SKILLS and random.random() > 0.5:
+                #Reduce chance that the protagonist starts with magatsuhi skill
+                continue
             if settings.multipleUniques:
             # Unique skill can appear twice
                 # check if skill is unique skill
@@ -1796,6 +1961,10 @@ class Randomizer:
                             #Check if skill passes additional conditions or skip that check if skills are not supposed to be weighted by stats and potentials
                             if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, protofiend)):
                                 if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),protofiend,self.compendiumArr,settings):
+                                    if rng in numbers.MAGATSUHI_SKILLS: #only 1 magatsuhi skill assigned to skill set
+                                        for weightIndex,checkSkill in enumerate(weightedSkills.values):
+                                            if checkSkill in numbers.MAGATSUHI_SKILLS:
+                                                weightedSkills.weights[weightIndex] = 0
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
@@ -1813,8 +1982,9 @@ class Randomizer:
             false if adding this skill would leave the demon without an active starting skill and true otherwise
     '''
     def ensureAtLeastOneActive(self,totalSkills, demon, skillIndex):
-        nonEmpty = [d for d in demon.skills if d.ind != 0]
-        if (len(totalSkills) + 1 == len(nonEmpty)) and ((self.determineSkillStructureByID(skillIndex) != "Active") and not any(self.determineSkillStructureByID(e.ind) == "Active" for e in totalSkills)):
+        nonEmpty = [d for d in demon.skills if d.ind != 0] 
+        #Magatsuhi Skills do not count for the active skill requirement
+        if  (len(totalSkills) + 1 == len(nonEmpty)) and ( skillIndex in numbers.MAGATSUHI_SKILLS or ((self.determineSkillStructureByID(skillIndex) != "Active") and not any(self.determineSkillStructureByID(e.ind) == "Active" for e in totalSkills))):
             #Check if we are at last initial skill and we have at least one active or current one is active
             return False
         return True
@@ -1960,16 +2130,22 @@ class Randomizer:
             skill = self.obtainSkillFromID(element)
             if skill.name == 'Filler':
                 continue #Exclude filler skill because it has Null values
+            if skill.ind in numbers.MAGATSUHI_SKILLS:
+                newWeights.append(newWeight)
+                continue  #Magatsuhi skills are not effected by potential and keep their weight
             skillStructure = self.determineSkillStructureByID(skill.ind)
             #Passive skills do not have a corresponding potential by default so we need to handle them seperately
             if skillStructure == "Active":
                 potentialType = skill.potentialType.translation
                 potentialValue = self.obtainPotentialByName(potentialType, potentials)
-                additionalWeight = 2 * potentialValue
+                if potentialType == "Phys":
+                    additionalWeight = potentialValue
+                else:
+                    additionalWeight =  math.ceil(numbers.POTENTIAL_WEIGHT_MULITPLIER * potentialValue)
                 if skill.skillType.value == 0 and demon.stats.str.start < demon.stats.mag.start:
-                    additionalWeight = additionalWeight - 2
+                    additionalWeight = additionalWeight - numbers.SKILL_STAT_PENALTY_WEIGHT
                 elif skill.skillType.value == 1 and demon.stats.str.start > demon.stats.mag.start:
-                    additionalWeight = additionalWeight - 2
+                    additionalWeight = additionalWeight - numbers.SKILL_STAT_PENALTY_WEIGHT
                 
                 if additionalWeight < 0:
                     newWeight = 0
@@ -2063,8 +2239,8 @@ class Randomizer:
             demon.potential.dark = math.ceil(max(-7,min(7,newAbsPotSum * percentages[6])))
             demon.potential.almighty = math.ceil(max(-7,min(7,newAbsPotSum * percentages[7])))
             demon.potential.ailment = math.ceil(max(-7,min(7,newAbsPotSum * percentages[8])))
-            demon.potential.support = math.ceil(max(-5,min(5,newAbsPotSum * percentages[9])))
-            demon.potential.recover = math.ceil(max(-5,min(5,newAbsPotSum * percentages[10])))
+            demon.potential.support = math.ceil(max(-4,min(4,newAbsPotSum * percentages[9])))
+            demon.potential.recover = math.ceil(max(-4,min(4,newAbsPotSum * percentages[10])))
 
     '''
     Randomizes the potentials of demons. First defines how many potentials the demon should have and then assigns a percentage weight to them.
@@ -2105,7 +2281,7 @@ class Randomizer:
                 # 7 is the base game max and min that occurs
                 maxV = 7
                 if(index > 8):
-                    maxV = 5
+                    maxV = 4
                 newPotentials.append(math.ceil(max(-1 * maxV,min(maxV,absPotAmount * percentage))))
             demon.potential.physical = newPotentials[0]
             demon.potential.fire = newPotentials[1]
@@ -2121,25 +2297,41 @@ class Randomizer:
                          
     '''
     Based on array of skills creates two arrays where each skill is only included once.
-    Skills that were originally present more than once have increased weight.
+    Weight depends of if skill has already been assigned in the randomization process and if they are a magatsuhi skill.
         Parameters:
             possiblSkills (Array): Array of skills
         Returns:
             An object with an array of values and an array of weights and an array of names for the skills
     '''
     def createWeightedList(self, possibleSkills):
+        random.shuffle(possibleSkills) 
         ids = []
         prob = []
         names = []
         #for every skill...
         for skill in possibleSkills:
-            if skill.ind in ids:
-                prob[ids.index(skill.ind)] += 1
-            else:
+            if skill.ind not in ids:
                 #else push value and base weight 
                 ids.append(skill.ind)
-                prob.append(1)
+                if skill.ind in numbers.MAGATSUHI_SKILLS:
+                    probability = numbers.MAGATSUHI_SKILL_WEIGHT
+                else:
+                    probability = numbers.SKILL_WEIGHT
+                if skill.ind in self.alreadyAssignedSkills:
+                    probability = probability - numbers.SKILL_PENALTY_WEIGHT
+                if skill.ind not in self.alreadyAssignedSkills and self.configSettings.forceUniqueSkills and self.obtainSkillFromID(skill.ind).owner.ind !=0:
+                    #increase weight if skill is unique and uniques need to be forced
+                    probability = probability * numbers.UNIQUE_SKILL_MULTIPLIER
+                prob.append(probability)
                 names.append(skill.name)
+        # for skill in possibleSkills:
+        #     if skill.ind in ids and skill.ind not in numbers.MAGATSUHI_SKILLS: #Magatsuhi Skills should always have weight of 1
+        #         prob[ids.index(skill.ind)] += 1
+        #     elif skill.ind not in ids:
+        #         #else push value and base weight 
+        #         ids.append(skill.ind)
+        #         prob.append(1)
+        #         names.append(skill.name)
         return Weight_List(ids, prob, names)
     
     '''
@@ -2262,14 +2454,33 @@ class Randomizer:
             The updated buffer
     '''
     def updateOtherFusionBuffer(self, buffer, fusions):
-        for fusion in fusions:
+        for index,fusion in enumerate(fusions):
+            buffer.writeHalfword(index, fusion.baseOffset)
             buffer.writeHalfword(fusion.demon1.value, fusion.baseOffset + 2)
             buffer.writeHalfword(fusion.demon2.value, fusion.baseOffset + 4)
             buffer.writeHalfword(fusion.demon3.value, fusion.baseOffset + 6)
             buffer.writeHalfword(fusion.demon4.value, fusion.baseOffset + 8)
             buffer.writeHalfword(fusion.result.value, fusion.baseOffset + 10)
         return buffer
-    
+    '''
+    Write the values in mapSymbolArr to the respective locations in the buffer
+        Parameters:
+            buffer (Table): Buffer of the other mapSymbolParam table
+        Returns:
+            The updated buffer
+    '''
+    def updateMapSymbolBuffer(self,buffer):
+        for mapDemon in self.mapSymbolArr:
+            offsets = mapDemon.offsetNumbers
+            buffer.writeWord(mapDemon.demonID, offsets['demonID'])
+            buffer.writeFloat(mapDemon.walkSpeed, offsets['walkSpeed'])
+            buffer.writeFloat(mapDemon.scaleFactor, offsets['scaleFactor'])
+
+            buffer.writeFloat(mapDemon.encountCollision.x, offsets['encountCollisionX'])
+            buffer.writeFloat(mapDemon.encountCollision.y, offsets['encountCollisionY'])
+            buffer.writeFloat(mapDemon.encountCollision.z, offsets['encountCollisionZ'])
+        return buffer
+
     '''
     Write the values in foes to the respective locations in the buffer
         Parameters:
@@ -2289,7 +2500,7 @@ class Randomizer:
             buffer.writeWord(foe.stats.mag,offsets['HP'] + 4 * 4)
             buffer.writeWord(foe.stats.agi,offsets['HP'] + 4 * 5)
             buffer.writeWord(foe.stats.luk,offsets['HP'] + 4 * 6)
-            buffer.writeWord(foe.analyze, offsets['HP'] + 28)
+            buffer.writeByte(foe.analyze, offsets['HP'] + 28)
 
             buffer.writeWord(foe.level, offsets['level'])
             buffer.writeByte(foe.pressTurns, offsets['pressTurns'])
@@ -2415,6 +2626,7 @@ class Randomizer:
             buffer.writeDblword(entry.unlock.value, entry.offset + 4)
         for reward in mimans:
             buffer.writeWord(reward.miman,reward.offset)
+            buffer.writeWord(reward.setMsgID, reward.offset +4)
             for index, item in enumerate(reward.items):
                 buffer.writeHalfword(item.ind, reward.offset + 8 + 4*index)
                 buffer.writeHalfword(item.amount, reward.offset + 10 + 4*index)
@@ -2431,7 +2643,8 @@ class Randomizer:
         totalSize = buffer.readWord(0x39)
         
         for ind, enc in enumerate(evEncount):
-            if ind >= 252:
+            #print(str(ind) + ": (" + str(enc.demons[0].value) + ") " + self.enemyNames[enc.demons[0].value] + " " + str(enc.track) + " NEXT: " + str(enc.nextEnc))
+            if ind >= 253:
                 for i in range (0,96,4):
                     buffer.buffer.insert(-16,0)
                     buffer.buffer.insert(-16,0)
@@ -2585,7 +2798,7 @@ class Randomizer:
             activeSkills (Array(Active_Skill))
             passiveSkills (Array(Passive_Skill))
     '''
-    def updateSkillBuffer(self, buffer, activeSkills, passiveSkills, innates):
+    def updateSkillBuffer(self, buffer, activeSkills, passiveSkills, innates, fusionSkillReqs):
         for index,skill in enumerate(activeSkills):
             if index == 0:
                 # skip filler entry
@@ -2594,6 +2807,8 @@ class Randomizer:
             buffer.write32chars(skill.animation, skill.offsetNumber['animation'])
             buffer.writeWord(skill.healing.flag, skill.offsetNumber['resistEnable'] + 8)
             buffer.writeByte(skill.healing.percent, skill.offsetNumber['resistEnable'] + 12)
+            buffer.writeWord(skill.magatsuhi.race1.value, skill.offsetNumber['magatsuhiFlag'] + 1)
+            buffer.writeWord(skill.magatsuhi.race2.value, skill.offsetNumber['magatsuhiFlag'] + 5)
 
 
         for skill in passiveSkills:
@@ -2602,6 +2817,14 @@ class Randomizer:
 
         for skill in innates:
             pass
+
+        for skill in fusionSkillReqs:
+            buffer.writeWord(skill.ind, skill.offset)
+            for index,demonID in enumerate(skill.demons):
+                buffer.writeWord(demonID, skill.offset + 8 + 4*index)
+            for i,alignments in enumerate(skill.alignments):
+                buffer.writeByte(alignments[0],skill.offset + 28 + i * 2)
+                buffer.writeByte(alignments[1],skill.offset + 28 + i * 2 +1)
         
         return buffer
 
@@ -2684,6 +2907,14 @@ class Randomizer:
             buffer.writeHalfword(chest.item.value, chest.offsetNumber['item'])
             buffer.writeByte(chest.amount, chest.offsetNumber['amount'])
             buffer.writeWord(chest.macca, chest.offsetNumber['macca'])
+        return buffer
+    
+    def updateMapEventBuffer(self, buffer):
+        for event in self.mapEventArr:
+            offset = event.offset
+            buffer.writeWord(event.activationFlag, offset + 4)
+            buffer.writeWord(event.compFlag1, offset + 0x14)
+            buffer.writeWord(event.compFlag2, offset + 0x18)
         return buffer
 
     '''
@@ -2912,8 +3143,22 @@ class Randomizer:
         Parameters:
             fusions (Array) Array containing data on the new special fusions
             comp (Array) Array containing data on all playable demons
+            expBuffer(Table): table for the special fusion buffer
     '''
-    def adjustSpecialFusionTable(self,fusions,comp):
+    def adjustSpecialFusionTable(self,fusions,comp,expBuffer):
+        if len(fusions) > len(self.specialFusionArr):
+            newEntries = len(fusions) - len(self.specialFusionArr)
+            expBuffer = self.extendSpecialFusionTable(newEntries,expBuffer)
+
+            startValue = 0xCC5
+            fusionOffset = 0xC
+            for index in range(newEntries): #add new special fusion dummies to array to replace with actual randomized data
+                offset = startValue + (numbers.SPECIAL_FUSION_COUNT + index) * fusionOffset
+                fusion = copy.deepcopy(self.specialFusionArr[0])
+                fusion.ind = index + numbers.SPECIAL_FUSION_COUNT
+                fusion.baseOffset = offset
+                self.specialFusionArr.append(fusion)
+
         for index, fusion in enumerate(fusions):
             #Set original demons fusability to 0
             # seperate in case an og special fusion is still a special version
@@ -2931,6 +3176,35 @@ class Randomizer:
             replaced.demon3 = fusion.demon3
             replaced.demon4 = fusion.demon4
             replaced.result = fusion.result
+        return expBuffer
+
+    '''
+    Extend the special fusion table and write the corresponding uasset file
+        Parameters:
+            newEntries(Integer): how many entries should be added to the table
+            expBuffer(Table): table for the special fusion buffer
+    '''
+    def extendSpecialFusionTable(self, newEntries, expBuffer):
+        uassetBuffer = readBinaryTable(paths.UNITE_TABLE_UASSET_IN)
+        additionalSize = 0xC * newEntries
+
+        toUpdateInEXP = [0xCB9,0x45,0x49,0x4D,0x51,0x55,0x59,0x5D,0x21,0x10]
+
+        for offset in toUpdateInEXP:
+            old = expBuffer.readWord(offset)
+            expBuffer.writeWord(old + additionalSize, offset)
+
+        for j in range(additionalSize):
+            expBuffer.buffer.insert(0xCC5 +numbers.SPECIAL_FUSION_COUNT * 0xC,0)
+
+        toUpdateInUasset = [0x247,0xA9]
+        for offset in toUpdateInUasset:
+            old = uassetBuffer.readWord(offset)
+            uassetBuffer.writeWord(old + additionalSize, offset)
+        
+        writeBinaryTable(uassetBuffer.buffer, paths.UNITE_TABLE_UASSET_OUT,paths.UNITE_FOLDER_OUT)
+
+        return expBuffer
     
     '''
     Randomizes the races for all relevant demons in comp. Each race has at least 1 demon and makes sure all demons should still be fusable after level shuffling.
@@ -2989,6 +3263,8 @@ class Randomizer:
         while len(relevantDemons) > 0:
             #Grab random race, that is valid to assign
             raceIndex = self.weightedRando(raceIndeces, raceWeights)
+            if raceIndex == 0:
+                continue
             if newRatios[raceIndex] == 0:
                 #first assigned demon of race
                 demon = random.choice(relevantDemons)
@@ -3011,6 +3287,7 @@ class Randomizer:
                 demonInds.append(demon.ind)
                 newRatios[raceIndex] = raceResults[raceIndex] / raceAssignments[raceIndex]
                 comp[demon.ind] = demon
+            #print(str(demon.race.value) + "/" + demon.race.translation + " " +  demon.name)
 
         return elementals
     '''
@@ -3020,9 +3297,10 @@ class Randomizer:
     The distribution of races roughly follows the amount of times they appear as an result in the fusion chart.
     Parameters:
         comp List(Compendium_Demon): list of all compendium demons
+        buffer(Table): table for the special fusion buffer
     Returns: the ids of the 4 new demons of the Element race
     '''
-    def randomizeRacesFixedLevels(self, comp):
+    def randomizeRacesFixedLevels(self, comp,buffer):
 
         for demonInd in self.elementals:
             #Reset compendium costs for original elements
@@ -3137,11 +3415,13 @@ class Randomizer:
                     raceWeights[ratioIndex] = raceResults[ratioIndex]
                 elif raceResults[ratioIndex] / (raceAssignments[ratioIndex] + 1) < 2.5:
                     raceWeights[ratioIndex] = 0
-        #Check if fusions of the base 10 demons can result in each other, and note the fusions as such
+        fusableDemonS = []
+        #Check if demons in the base 10 can fuse into each other
         for b in base:
             possibleFusions = [f for f in fusions if f[2].race.translation == b.race.translation and f[2].ind == -1 and f[2].level.value <= b.level.value]
             for p in possibleFusions:
                 p[2] = b
+                fusableDemonS.append(b)
 
         attempts = 0
         #until no relevant demon left or no valid race assignment can be created
@@ -3186,6 +3466,7 @@ class Randomizer:
                         fusions.append([demon,b,dummy])
                 #add demon to base
                 base.append(demon)
+                fusableDemonS.append(demon)
                 # add level to the appropriate race level list
                 raceLevels[demon.race.value].append(demon.level.value)
             else:
@@ -3223,6 +3504,7 @@ class Randomizer:
                         fusions.append([demon,b,dummy])
                 #add demon to base
                 base.append(demon)
+                fusableDemonS.append(demon)
                 # add level to the appropriate race level list
                 raceLevels[demon.race.value].append(demon.level.value)
             #At end of while, check ratio eligibility for races and set their weights accordingly
@@ -3235,7 +3517,24 @@ class Randomizer:
         if attempts >= 300:
             print("Could not assign all races properly")
             return False
-        return elementals      
+        
+        notFusableCurrently = [demon for demon in base if demon not in fusableDemonS]
+        #check if there isn't a fusion for current unfusable that was somehow missed
+        for demon in notFusableCurrently:
+            possibleFusions = [f for f in fusions if f[2].race.translation == demon.race.translation and f[2].ind == -1 and f[2].level.value <= demon.level.value]
+            for p in possibleFusions:
+                p[2] = demon
+                fusableDemonS.append(demon)
+        
+        notFusableCurrently = [demon for demon in base if demon not in fusableDemonS and demon.race.translation in numbers.NO_DOWNFUSE_RACES]
+        #for all other unfusables that also are not available via element fusion, add an extra special fusion
+        for demon in notFusableCurrently:
+            #print(demon.name + " " + str(demon.level.value))
+            specialFusions.append(self.generateSpecialFusion(demon, [b for b in base if b.level.value < demon.level.value + 5 and b.level.value != demon.level.value]))
+        
+        buffer = self.adjustSpecialFusionTable(specialFusions,comp,buffer)
+
+        return [elementals, buffer] 
         
     '''
     Randomize the tone of each playable demon that does not have a tone with talk data assigned.
@@ -3267,6 +3566,8 @@ class Randomizer:
             The array of basic enemies based on the data of playable demons
     '''
     def adjustBasicEnemyArr(self, enemies, comp):
+        self.pressTurnChance = self.configSettings.pressTurnChance
+
         foes = []
         for index, enemy in enumerate(enemies):
             if 'Mitama' in enemy.name or index in numbers.BAD_IDS:
@@ -3302,9 +3603,16 @@ class Randomizer:
                     newID = 382 #Diarama
                 elif newID == 97:
                     newID = 381 #Dia
+                if skill.ind in numbers.MAGATSUHI_SKILLS:
+                    try: #try to use enemy version of magatsuhi skill if possible
+                        newID = numbers.MAGATSUHI_ENEMY_VARIANTS[skill.ind]
+                    except KeyError:
+                        pass
                 newSkills.append(Translated_Value(newID, translation.translateSkillID(newID, self.skillNames)))
-        
-            newPressTurns = math.ceil(random.random() + (0.10 * enemy.pressTurns))
+
+            newPressTurns = enemy.pressTurns
+            if self.pressTurnChance != 0:
+                newPressTurns = math.ceil(random.random() + (self.pressTurnChance * enemy.pressTurns))
             newExperience = self.expMod[newLevel]
             newMacca = self.maccaMod[newLevel]
             #In original data enemies with two press turns like Oni have multiplied EXP and Macca values
@@ -3327,6 +3635,7 @@ class Randomizer:
             newFoe.AI = 55                       #AI for random encounters
             newFoe.recruitable = 1               #Also required to be able to recruit the demon
             newFoe.pressTurns = newPressTurns
+            newFoe.oldPressTurns = newPressTurns
             newFoe.damageMultiplier = 100
             newFoe.experience = newExperience
             newFoe.money = newMacca
@@ -3351,7 +3660,7 @@ class Randomizer:
     '''
     def adjustEncountersToSameLevel(self, symbolArr, comp, enemyArr):
 
-        #will be in form [OG ID, NEW ID]
+        #will be in form [OG ID, NEW ID] #TODO: Rewrite this so it uses a dictionary in the first place
         replacements = []
         #Excluding unused, Old Lilith , Tao , Yoko, Mitama
         foes = list(filter(lambda e: e.ind not in numbers.BAD_IDS and 'Mitama' not in e.name and not e.name.startswith('NOT USED'), enemyArr))
@@ -3459,20 +3768,32 @@ class Randomizer:
 
             newSymbolArr.append(replaceEnc)
 
+        
         replacementDict = {}
+        for pair in replacements:
+            replacementDict[pair[0]] = pair[1]
+
+        #These need to be done before the we add the remaining demons so we know which demons cannot be encountered on the field
+        self.adjustBasicEnemyDrops(replacementDict, enemyArr)
+        self.adjustListedLocations(replacementDict, comp)
+
+        for foe in foes:
+            if foe.ind not in replacementDict.keys():#All demons that do not have a replacment yet
+                currentLV = getFoeWithID(foe.ind, foes).originalLevel
+                possibilities = [p for p in getEnemiesAtLevel(currentLV) if p.ind not in replacementDict.values()]
+                enemy = random.choice(possibilities)
+                replacementDict.update({foe.ind: enemy.ind})
+         
         with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
-            for pair in replacements:
-                spoilerLog.write(self.enemyNames[pair[0]] + " replaced by " + self.enemyNames[pair[1]] + "\n")
-                replacementDict[pair[0]] = pair[1]
+            for replaced, replacement in replacementDict.items():
+                spoilerLog.write(self.enemyNames[replaced] + " replaced by " + self.enemyNames[replacement] + "\n")
+                  
+        self.encounterReplacements = replacementDict
 
-        self.adjustBasicEnemyStats(replacements, enemyArr)
-        self.adjustBasicEnemyDrops(replacements, enemyArr)
-        self.adjustListedLocations(replacements, comp)
-        self.missionArr = self.adjustMissionsRequiringNormalDemons(replacements,enemyArr, self.missionArr)
 
-        #Currently does not work yet
-        #scriptLogic.replaceTutorialPixieModel(replacementDict[59])
-        #scriptLogic.replaceTutorialPixieModel(82)
+        self.adjustBasicEnemyStats(replacementDict, enemyArr)
+        
+        self.missionArr = self.adjustMissionsRequiringNormalDemons(replacementDict,enemyArr, self.missionArr)
         
         return newSymbolArr
     
@@ -3484,10 +3805,10 @@ class Randomizer:
             foes(Array) containing all enemies
     '''
     def adjustBasicEnemyDrops(self, replacements, foes):
-        for pair in replacements:
+        for replacedID, replacementID in replacements.items():
+            replaced = foes[replacedID]
+            replacement = foes[replacementID]
             # for every pair of replacements copy item drops from replaced to replacement
-            replaced = foes[pair[0]]
-            replacement = foes[pair[1]]
             replacement.drops = Item_Drops(replaced.oldDrops.item1,replaced.oldDrops.item2,replaced.oldDrops.item3)
             #print(pair)
             #print("Replacement: " + replacement.name + " Replaced: " + replaced.name)
@@ -3503,8 +3824,9 @@ class Randomizer:
 
                 replacement.drops.item3.value = item.ind
                 replacement.drops.item3.translation = item.name
-
-        replacedList = [r[1] for r in replacements]
+        
+        #TODO: Does this still work with Dictionary to delete overworld? Maybe rethink this in general
+        replacedList = replacements.values()
         nonEncounter = [f for f in foes if f.ind not in replacedList and 'Mitama' not in f.name]
         # Delete item drops for demon who cannot be encountered on overworld
         for n in nonEncounter:
@@ -3520,9 +3842,11 @@ class Randomizer:
             foes (Array): List of basic enemies
     '''
     def adjustBasicEnemyStats(self, replacements, foes):
-        for pair in replacements:
-            replaced = foes[pair[0]]
-            replacement = foes[pair[1]]
+        for replacedID, replacementID in replacements.items():
+            replaced = foes[replacedID]
+            replacement = foes[replacementID]
+
+            replacement.pressTurns = replaced.oldPressTurns
 
             statMods = replaced.statMods
             newStats = Stats(math.floor(replacement.stats.HP * statMods.HP), math.floor(replacement.stats.MP * statMods.MP), math.floor(replacement.stats.str * statMods.str),
@@ -3538,17 +3862,18 @@ class Randomizer:
     '''
     def adjustListedLocations(self, replacements, comp):
         ogSpawns = []
-        for pair in replacements:
-            replaced = comp[pair[0]]
+        for replacedID in replacements.keys():
+            replaced = comp[replacedID]
             ogSpawns.append([copy.deepcopy(replaced.creationSpawn),copy.deepcopy(replaced.vengeanceSpawn)])
 
-        for index, pair in enumerate(replacements):
-            replacement = comp[pair[1]]
+        for index, replacementID in enumerate(replacements.values()):
+            replacement = comp[replacementID]
             
             replacement.creationSpawn = ogSpawns[index][0]
             replacement.vengeanceSpawn = ogSpawns[index][1]
         
-        replacedList = [r[1] for r in replacements]
+        #TODO: Does this still work with Dictionary to delete overworld? Maybe rethink this in general
+        replacedList = replacements.values()
         nonEncounter = [f for f in comp if f.ind not in replacedList and 'Mitama' not in f.name]
         # Delete location data for demon who cannot be encountered on overworld
         for demon in nonEncounter:
@@ -3562,16 +3887,32 @@ class Randomizer:
     '''
     def randomizeBosses(self):
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
-        
         encounterPools = bossLogic.createBossEncounterPools(self.eventEncountArr, self.encountArr, self.uniqueSymbolArr, self.abscessArr, self.bossDuplicateMap, self.configSettings)
         if not encounterPools:
             return
         with open(paths.BOSS_SPOILER, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
             for filteredEncounters in encounterPools:
-                shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
+                validForcedEventEncounter = False
+                shuffledEncounters = []
+                while not validForcedEventEncounter: #until solution is found where event only bosses are replaced by event encounters
+                    shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
+                    forcedEventEncounterIndeces = [i for i, e in enumerate(shuffledEncounters) if e.ind in bossLogic.EVENT_ONLY_BOSSES]
+                    if all(filteredEncounters[i].isEvent for i in forcedEventEncounterIndeces):
+                          validForcedEventEncounter = True
                 shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
                 for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
-                    spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
+                    spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + "(" + str(encounter.demons[0]) + ") "+ self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
+                    self.bossReplacements[encounter.demons[0]] = shuffledEncounters[index].demons[0]
+                    if encounter.demons[1] > 0 and encounter.demons[1] != encounter.demons[0]: #Add up to 2 additional boss demons for mission text purposes. TODO: maybe support summons not present in the demons array?
+                        if shuffledEncounters[index].demons[1] > 0:
+                            self.bossReplacements[encounter.demons[1]] = shuffledEncounters[index].demons[1]
+                        else:
+                            self.bossReplacements[encounter.demons[1]] = shuffledEncounters[index].demons[0]
+                    if encounter.demons[2] > 0 and encounter.demons[2] != encounter.demons[1]:
+                        if shuffledEncounters[index].demons[2] > 0:
+                            self.bossReplacements[encounter.demons[2]] = shuffledEncounters[index].demons[2]
+                        else:
+                            self.bossReplacements[encounter.demons[2]] = self.bossReplacements[encounter.demons[1]]
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     
                     bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings.scaleBossPressTurnsToCheck, self.configSettings.scaleBossInstakillRates)
@@ -3595,6 +3936,7 @@ class Randomizer:
                             eventInds = [jIndex for jIndex, e in enumerate(encountersWithBattleEvents) if e == shuffledEncounters[index].ind]
                             for ind in eventInds:
                                 self.battleEventArr[ind].encounterID = bossLogic.DUMMY_EVENT_ENCOUNTERS[-1]
+                    
 
         encountersWithBattleEvents = [x.encounterID for x in self.battleEventArr]
         for index, encounter in enumerate(self.eventEncountArr): #Set duplicate encounters to use the same demons as their new counterparts
@@ -3682,13 +4024,19 @@ class Randomizer:
             
     '''
     Fixes certain boss flags so that they work outside of their normal location
-    Currently only snake Nuwa (ID 435) is patched to add flag 0x18
+    Currently only snake Nuwa (ID 435) is patched to add flag 0x18.
+    Also removes the Battle Events from the Nuwa (ID 435) Fights
     '''
     def patchBossFlags(self):
+        #Set Encounter ID for battle events of snake nuwa fight(and simulator version) to no encounter
+        self.battleEventArr[21].encounterID = 255
+        self.battleEventArr[23].encounterID = 255
+
         nuwaFlags = next(r for  r in self.bossFlagArr if r.demonID == 435)
         for i, flag in enumerate(nuwaFlags.flags):
             if flag == 0:
                 nuwaFlags.flags[i] = 0x18
+                nuwaFlags.flags[i +1] = 0x1D
                 break
 
     '''
@@ -3850,8 +4198,10 @@ class Randomizer:
                 if miracleIndex > 0:
                     if miracleIndex in numbers.DIVINE_GARRISON_IDS:
                         self.miracleArr[miracleIndex].cost = random.randint(minimumCost, maximumCost // 2) * 5 #Make divine garrisons cheaper
-                    else:
+                    elif random.random() > 0.5: #Make miracles a little cheaper on average
                         self.miracleArr[miracleIndex].cost = random.randint(minimumCost, maximumCost) * 5 #Update abscess reward miracle costs
+                    else:
+                        self.miracleArr[miracleIndex].cost = min(random.randint(minimumCost, maximumCost), random.randint(minimumCost, maximumCost)) * 5 
                         
         for dependentMiracles in numbers.MIRACLE_DEPENDENCIES: #For progressive miracles put their costs in order
             costs = []
@@ -3935,6 +4285,8 @@ class Randomizer:
                     pair[0].conditions[0].type = 1
                     pair[0].conditions[0].ind = keyDemon
                     pair[0].conditions[0].amount = amounts
+                    if pair[0].conditions[0].ind == bossLogic.LUCIFER_PHASES[0]: #Use last phase of lucifer for mission condition
+                        pair[0].conditions[0].ind = bossLogic.LUCIFER_PHASES[2]
                     self.updatedMissionConditionIDs.append(pair[0].ind)
 
             if encounter.ind in fourHolyBeastEncounters:
@@ -3951,6 +4303,15 @@ class Randomizer:
         for demon in comp:
             demon.tendency = random.choice(tendencies)
             demon.alignment = random.choice(alignments)
+
+    '''
+    Removes all fusion unlock flags from all demons.
+    '''
+    def removeFusionFlags(self):
+        for demon in self.compendiumArr:
+            if demon.unlockFlags[0] > 0:
+                demon.unlockFlags[0] = 0
+                demon.unlockFlags[1] = 0
 
     '''
     Adjust the clear conditions of all missions who usually require a punishing foe to be defeated to instead require the shuffled results demon.
@@ -3982,12 +4343,18 @@ class Randomizer:
                     #print(symbol.symbol.translation + " replaced " + staticArr[index].symbol.translation)
                     pair[0].conditions[0].type = 1
                     pair[0].conditions[0].ind = symbol.symbol.value
+                    if pair[0].conditions[0].ind == bossLogic.LUCIFER_PHASES[0]: #Use last phase of lucifer for mission condition
+                        pair[0].conditions[0].ind = bossLogic.LUCIFER_PHASES[2]
                     pair[0].conditions[0].amount = 1
             if staticArr[index].symbol.value == artemisQuestQuetz: #Artemis quest has Quetz as the second mission condition, not the first
                 artemisQuest.conditions[1].ind = symbol.symbol.value
+                if artemisQuest.conditions[1].ind == bossLogic.LUCIFER_PHASES[0]: #Use last phase of lucifer for mission condition
+                         artemisQuest.conditions[1].ind = bossLogic.LUCIFER_PHASES[2]
             if staticArr[index].symbol.value in fourHolyBeastDemons:
                 hBIndex = fourHolyBeastDemons.index(staticArr[index].symbol.value)
                 fourHolyBeastMission.conditions[hBIndex].ind = symbol.symbol.value
+                if fourHolyBeastMission.conditions[hBIndex].ind == bossLogic.LUCIFER_PHASES[0]: #Use last phase of lucifer for mission condition
+                        fourHolyBeastMission.conditions[hBIndex].ind = bossLogic.LUCIFER_PHASES[2]
     '''
     Adds the data containing the positions of demon slots in event encounters to the respective Event_Encounter.
     Parameters:
@@ -4336,7 +4703,7 @@ class Randomizer:
         for mission in rewardingMissions:
             if scaling: #Set area if reward should scale
                 rewardArea = missionRewardAreas[mission.ind]
-            if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind >= 0: #repeat missions should not have macca
+            if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind >= 0 and mission.ind not in numbers.MACCALESS_MISSIONS: #repeat missions should not have macca
                 if scaling: #Scaled macca ranges depend on area
                     macca = random.randint(numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][0] // 100, numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][1] // 100) *100
                 else:
@@ -4491,7 +4858,8 @@ class Randomizer:
                 else:
                     itemID = random.choice(validItems)
                 gift.item.ind = itemID
-        scriptLogic.updateGiftScripts(pool.allGifts)
+            #print(gift.script + str(gift.item.ind))
+        scriptLogic.updateGiftScripts(pool.allGifts,self.scriptFiles)
 
     '''
     Initializes the pools of all gifts and unique rewards from gifts.
@@ -4501,7 +4869,7 @@ class Randomizer:
         for script,item in scriptLogic.BASE_GIFT_ITEMS.items():
             if not self.configSettings.includeTsukuyomiTalisman and script == scriptLogic.TSUKUYOMI_TALISMAN_SCRIPT:
                 #Do not include Tsukuyomi Talisman or it's check in pool if setting isn't set
-                break
+                continue
             gift = Gift_Item()
             gift.script = script
             reward = Reward_Item(item, 1)
@@ -4517,7 +4885,7 @@ class Randomizer:
     Randomizes the miman and mission rewards, with a combined pool depending on the settings.
     '''
     def randomizeItemRewards(self):
-        self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards()
+        self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards(self.scriptFiles)
         missionPool = self.initializeMissionPools()
         giftPool = self.initializeGiftPools()
         if not self.configSettings.combineKeyItemPools:
@@ -4545,8 +4913,10 @@ class Randomizer:
                     combinedItemPool.remove(itemID)
             
             if self.configSettings.randomizeGiftItems: #Gift pool has fixed size#TODO:Vary Size?
-                #Assign 
-                itemIDs = random.sample(combinedItemPool, len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS))
+                tsukuyomiCorrection = 0 
+                if not self.configSettings.includeTsukuyomiTalisman:
+                    tsukuyomiCorrection = 1 #Increase unique item count by 1 to account for tsukuyomi talisman not being in pool
+                itemIDs = random.sample(combinedItemPool, tsukuyomiCorrection + len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS))
                 giftPool.uniqueRewards = []
                 for itemID in itemIDs:
                     giftPool.uniqueRewards.append(Reward_Item(itemID, 1))
@@ -4560,14 +4930,14 @@ class Randomizer:
         if(self.configSettings.randomizeMimanRewards):
             self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea, mimanPool)
         
-        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.compendiumArr, self.itemNames)   
+        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.itemNames, self.encounterReplacements, self.essenceArr, self.scriptFiles)   
 
         if self.configSettings.randomizeGiftItems:
             self.randomizeGiftItems(giftPool)
 
         if self.configSettings.randomizeMissionRewards:
             self.randomizeMissionRewards(self.configSettings.scaleItemsToArea, missionPool)
-        self.missionArr = scriptLogic.updateAndRemoveFakeMissions(self.missionArr)
+        return scriptLogic.updateAndRemoveFakeMissions(self.missionArr, self.scriptFiles)
     
     '''
     Randomizes the drops of basic enemies, excluding key items and essences.
@@ -5044,10 +5414,11 @@ class Randomizer:
     The shuffling process takes the fusions of demons into account by assembling the fusion tree from the bottom.
         Parameters:
             comp (Array(Compendium_Demon)): The array of playable demons
+            buffer(Table): table for the special fusion buffer
         Returns:
             The array of playable demons with shuffled levels
     '''
-    def shuffleLevel(self, comp, config):
+    def shuffleLevel(self, comp, config,buffer):
         
 
         #Array that defines for each index=Level how many demons can have this level
@@ -5158,12 +5529,13 @@ class Randomizer:
                 # add demon to base and remove from valid demons
                 base.append(demon)
                 validDemons.pop(validDemons.index(demon))
-        
+        fusableDemonS = []
         #Check if demons in the base 10 can fuse into each other
         for b in base:
             possibleFusions = [f for f in fusions if f[2].race.translation == b.race.translation and f[2].ind == -1 and f[2].level.value <= b.level.value]
             for p in possibleFusions:
                 p[2] = b
+                fusableDemonS.append(b)
 
         attempts = 0
         #attempts usually average around 40 by my tests
@@ -5200,6 +5572,7 @@ class Randomizer:
                         fusions.append([demon,b,dummy])
                 
                 base.append(demon)
+                fusableDemonS.append(demon)
                 validDemons.pop(validDemons.index(demon))
             else:
                 #if no special fusion at this level available
@@ -5227,58 +5600,32 @@ class Randomizer:
                         dummy.level = Demon_Level(math.ceil((demon.level.value + b.level.value) / 2) +1, curLevel)
                         fusions.append([demon,b,dummy])
                 base.append(demon)
+                fusableDemonS.append(demon)
                 validDemons.pop(validDemons.index(demon))
 
         #do not continue if attempts elapse 300
         if attempts >= 300:
             print("Could not assign all levels properly")
             return False
-            
 
-        # #For all flagged demons...
-        # for e in flaggedDemons:
-        #     validLevel = False
-        #     somethingWrong = False 
-        #     attempts = 100 #Band-aid fix to stop infinite loop
-        #     #assign new level based on highest free level as max and the minimum level unlock level based on flag
-        #     while not validLevel:
-        #         if getHighestFreeLevel() < e.minUnlock or somethingWrong:
-        #             newLevel = self.getRandomLevel(slots, getHighestFreeLevel(), getLowestFreeLevel()) #Something went wrong, no levels are free above minUnlock
-        #         else:
-        #             newLevel = self.getRandomLevel(slots, getHighestFreeLevel(), e.minUnlock)
-        #         if slots[newLevel] > 0 and newLevel not in raceLevels[RACE_ARRAY.index(e.race.translation)]:
-        #             #make sure slot is available and no demon of the same race has the same level
-        #             validLevel = True
-        #         attempts -= 1
-        #         if attempts < 0:
-        #             somethingWrong = True
-        #     slots[newLevel] = slots[newLevel] - 1
-        #     comp[e.ind].level.value = newLevel
-        #     raceLevels[RACE_ARRAY.index(e.race.translation)].append(newLevel)
-
-        # for index, e in enumerate(validDemons):
-        #     validLevel = False
-        #     attempts = 100 #Band-aid fix to stop infinite loop
-        #     while not validLevel:
-        #         newLevel = self.getRandomLevel(slots, getHighestFreeLevel(), getLowestFreeLevel())
-        #         if slots[newLevel] > 0 and newLevel not in raceLevels[RACE_ARRAY.index(e.race.translation)]:
-        #             #make sure slot is available and no demon of the same race has the same level
-        #             validLevel = True
-        #         else:
-        #             attempts -= 1
-        #             if attempts <= 0:
-        #                 validLevel = True
-        #     slots[newLevel] = slots[newLevel] - 1
-        #     comp[e.ind].level.value = newLevel
-        #     raceLevels[RACE_ARRAY.index(e.race.translation)].append(newLevel)
-
-
+        notFusableCurrently = [demon for demon in base if demon not in fusableDemonS]
+        for demon in notFusableCurrently:
+            possibleFusions = [f for f in fusions if f[2].race.translation == demon.race.translation and f[2].ind == -1 and f[2].level.value <= demon.level.value]
+            for p in possibleFusions:
+                p[2] = demon
+                fusableDemonS.append(demon)
+        
+        notFusableCurrently = [demon for demon in base if demon not in fusableDemonS and demon.race.translation in numbers.NO_DOWNFUSE_RACES]
+        for demon in notFusableCurrently:
+            #print(demon.name + " " + str(demon.level.value))
+            specialFusions.append(self.generateSpecialFusion(demon, [b for b in base if b.level.value < demon.level.value + 5 and b.level.value != demon.level.value]))
+        
         #slots = self.defineLevelSlots(comp)
         #print(slots)
         self.adjustLearnedSkillLevels(comp)
         comp = self.adjustStatsToLevel(comp)
         self.adjustFusionFlagsToLevel(comp)
-        self.adjustSpecialFusionTable(specialFusions,comp)
+        self.adjustSpecialFusionTable(specialFusions,comp,buffer)
         
         return comp
     
@@ -5331,6 +5678,7 @@ class Randomizer:
             The newly assembled special fusion
     '''
     def generateSpecialFusion(self, demon, base):
+        availableDemons = copy.deepcopy(base)
 
         ingNumber = random.randint(2,4)
         ingredients = []
@@ -5340,8 +5688,9 @@ class Randomizer:
         fusion.result = Translated_Value(demon.ind, demon.name)
 
         for index in range(ingNumber):
-            ing = random.choice(base)
+            ing = random.choice(availableDemons)
             ingredients.append(Translated_Value(ing.ind, ing.name))
+            availableDemons.remove(ing)
         
         fusion.demon1 = ingredients[0]
         fusion.demon2 = ingredients[1]
@@ -5575,7 +5924,7 @@ class Randomizer:
         Returns the adjusted mission list
     '''
     def adjustMissionsRequiringNormalDemons(self, replacements, foes, missionArr):
-        replacementSources = [r[0] for r in replacements]
+        replacementSources = list(replacements.keys())
         for mission in missionArr:
         #for every mission...    
             for condition in mission.conditions:
@@ -5584,12 +5933,21 @@ class Randomizer:
                 #Condition requires demoon to kill or in party and that demon is a normal enemy
                     if condition.ind in replacementSources:
                         #use replacement if existent 
-                        condition.ind = replacements[replacementSources.index(condition.ind)][1]
+                        condition.ind = replacements[replacementSources[replacementSources.index(condition.ind)]]
                     else:
                         #else find demon of the same level as original demon
                         level = next(demon.level.original for demon in self.compendiumArr if demon.ind == condition.ind)
                         sameLevel = next(demon.ind for demon in self.compendiumArr if demon.level.value == level)
                         condition.ind = sameLevel
+                if mission.ind == numbers.BRAWNY_AMBITIONS_ID and condition.type == 7 : #skill condition for Brawny Ambition II
+                    #print("Mission:" + str(mission.ind) + " D: " + self.enemyNames[mission.conditions[0].ind] + " C: " + translation.translateSkillID(self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value, self.skillNames))
+                    #print(str(self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value))
+                    if(len(self.compendiumArr[mission.conditions[0].ind].learnedSkills) >= 2):
+                       condition.ind = self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value
+                    else:
+                        condition.ind = self.compendiumArr[mission.conditions[0].ind].skills[1].value
+                    self.brawnyAmbitions2SkillName = self.obtainSkillFromID(condition.ind).name
+
         return missionArr
 
     '''
@@ -5650,7 +6008,6 @@ class Randomizer:
     
     '''
     Sets the drops of bosses which are quest relevant to their replacements and in cases where a quest drop boss replaces a quest drop boss makes sure that the drops of all bosses are not lost in conversion.
-    TODO: There is most likely a much simpler solution that I am simply not seeing right now
     '''
     def patchQuestBossDrops(self):
         replacementDemons = []
@@ -5706,8 +6063,10 @@ class Randomizer:
         doubleOccurences = list(doubleOccurenceSet)
         for occ in doubleOccurences:
             index = questBossIDs.index(occ)
+            questBossIDs.pop(index)
             questBossEncounters.pop(index)
             index = replacementDemonIDs.index(occ)
+            replacementDemonIDs.pop(index)
             replacementDemons.pop(index)
             replacementEncounters.pop(index)
 
@@ -5785,47 +6144,183 @@ class Randomizer:
             self.staticBossArr[numbers.TRUE_ISHTAR_DEMON].pressTurns = self.configSettings.ishtarPressTurns
     
     '''
+    Make Punishing Foe Mara use the AI of the Virtual Trainer one, and replace the mara in the virtual trainer encounter with punishing mara.
+    '''
+    def syncMaras(self):
+        self.bossArr[numbers.PUNISHING_MARA_DEMON].AI = self.bossArr[numbers.VIRTUAL_MARA_DEMON].AI
+        self.staticBossArr[numbers.PUNISHING_MARA_DEMON].AI = self.staticBossArr[numbers.VIRTUAL_MARA_DEMON].AI
+        self.eventEncountArr[numbers.VIRTUAL_MARA_ENCOUNTER].demons[0] = self.eventEncountArr[numbers.PUNISHING_MARA_ENCOUNTER].demons[0]
+        self.staticEventEncountArr[numbers.VIRTUAL_MARA_ENCOUNTER].demons[0] = self.staticEventEncountArr[numbers.PUNISHING_MARA_ENCOUNTER].demons[0]
+        self.eventEncountArr[numbers.VIRTUAL_MARA_ENCOUNTER].unknownDemon = self.eventEncountArr[numbers.PUNISHING_MARA_ENCOUNTER].unknownDemon
+        self.staticEventEncountArr[numbers.VIRTUAL_MARA_ENCOUNTER].unknownDemon = self.staticEventEncountArr[numbers.PUNISHING_MARA_ENCOUNTER].unknownDemon
+        self.bossDuplicateMap[numbers.VIRTUAL_MARA_ENCOUNTER] = numbers.PUNISHING_MARA_ENCOUNTER
+
+    '''
+    Adds entries to the MapSymbolScaleTable.
+    '''
+    def addEntriesToMapSymbolScaleTable(self):
+        json = self.mapSymbolFile.json
+
+        table = json["Exports"][0]["Table"]["Data"]
+
+        for demonID in numbers.ADD_LARGE_MODEL_DEMONS.keys():
+            entry = copy.deepcopy(BASE_MAPSYMBOLPARAMS)
+
+            referenceEntry = next(entry for entry in table if entry["Value"][0]["Value"] == numbers.ADD_LARGE_MODEL_DEMONS[demonID])
+
+            entry["Value"][4]["Value"] = 1.2
+            entry["Value"][0]["Value"] = demonID
+            entry["Value"][5]["Value"] = referenceEntry["Value"][5]["Value"]
+            entry["Value"][6]["Value"] = referenceEntry["Value"][6]["Value"]
+            entry["Value"][7]["Value"] = referenceEntry["Value"][7]["Value"]
+
+            table.append(entry)
+
+        originalJson = self.mapSymbolFile.originalJson
+        table = originalJson["Exports"][0]["Table"]["Data"]
+
+        for demonID in numbers.ADD_LARGE_MODEL_DEMONS.keys():
+            entry = copy.deepcopy(BASE_MAPSYMBOLPARAMS)
+
+            referenceEntry = next(entry for entry in table if entry["Value"][0]["Value"] == numbers.ADD_LARGE_MODEL_DEMONS[demonID])
+
+            entry["Value"][4]["Value"] = 1.2
+            entry["Value"][0]["Value"] = demonID
+            entry["Value"][5]["Value"] = referenceEntry["Value"][5]["Value"]
+            entry["Value"][6]["Value"] = referenceEntry["Value"][6]["Value"]
+            entry["Value"][7]["Value"] = referenceEntry["Value"][7]["Value"]
+
+            table.append(entry)
+    '''
+    Removes entries in the map symbol scale table that were added to aid in collision calculation in model swapping.
+    '''
+    def removeCalcOnlyMapSymbolScales(self):
+        json = self.mapSymbolFile.json
+
+        table = json["Exports"][0]["Table"]["Data"]
+        tableCopy = copy.deepcopy(table)
+
+        for entry in tableCopy:
+            demonID = entry["Value"][0]["Value"]
+            if demonID in numbers.REMOVE_TEMP_MODEL_DEMONS:
+                table.remove(entry)
+        
+
+    '''
     Changes the scaling of normal demon symbols with overly large scaling factors to the normal 1.2 factor.
     Parameters:
         buffer (Table): contains the bytearray of the MapSymbolParamTable
     Returns the changed buffer
     '''
-    def scaleLargeSymbolDemonsDown(self, buffer):
-        last = 0
-        startingBytes = bytearray(bytes.fromhex('17000000000000003100000000000000'))
-        while buffer.buffer.find(startingBytes,last) != -1:
-            offset = buffer.buffer.find(startingBytes,last) +25
-            last = buffer.buffer.find(startingBytes,last) +100
+    def scaleLargeSymbolDemonsDown(self):
+        json = self.mapSymbolFile.json
 
-            demonID = buffer.readWord(offset)
-            if demonID in numbers.LARGE_SYMBOL_DEMONS:
-                buffer.writeFloat(1.2,offset + 116)
-        return buffer
-    
+        table = json["Exports"][0]["Table"]["Data"]
+
+        for entry in table:
+            demonID = entry["Value"][0]["Value"]
+            if demonID in numbers.LARGE_SYMBOL_NORMAL_DEMONS:
+                scaleGoal = 1.2
+                downscaleFactor = scaleGoal / entry["Value"][4]["Value"]
+
+                entry["Value"][4]["Value"] = scaleGoal
+                baseCollision = Position(entry["Value"][5]["Value"],entry["Value"][6]["Value"],entry["Value"][7]["Value"])
+                baseCollision.scale(downscaleFactor)
+                entry["Value"][5]["Value"] = baseCollision.x
+                entry["Value"][6]["Value"] = baseCollision.y
+                entry["Value"][7]["Value"] = baseCollision.z
+            if demonID in numbers.LARGE_MODEL_NORMAL_DEMONS.keys():
+                scaleGoal = numbers.LARGE_MODEL_NORMAL_DEMONS[demonID]
+                downscaleFactor = scaleGoal / entry["Value"][4]["Value"]
+                entry["Value"][4]["Value"] = scaleGoal
+                baseCollision = Position(entry["Value"][5]["Value"],entry["Value"][6]["Value"],entry["Value"][7]["Value"])
+                baseCollision.scale(downscaleFactor)
+                entry["Value"][5]["Value"] = baseCollision.x
+                entry["Value"][6]["Value"] = baseCollision.y
+                entry["Value"][7]["Value"] = baseCollision.z
+        
+        # for symbol in self.mapSymbolArr:
+        #     if symbol.demonID in numbers.LARGE_SYMBOL_NORMAL_DEMONS:
+        #         scaleGoal = 1.2
+                
+        #         downscaleFactor = scaleGoal / symbol.scaleFactor
+                
+        #         symbol.scaleFactor = scaleGoal
+        #         symbol.encountCollision.scale(downscaleFactor)
+                
+        #     if symbol.demonID in numbers.LARGE_MODEL_NORMAL_DEMONS.keys():
+        #         scaleGoal = numbers.LARGE_MODEL_NORMAL_DEMONS[symbol.demonID]
+                
+        #         downscaleFactor = scaleGoal / symbol.scaleFactor
+                
+        #         symbol.scaleFactor = scaleGoal
+        #         symbol.encountCollision.scale(downscaleFactor)
+
+    '''
+    Scale replacement of adramelech so that it is not larger to prevent potential softlocks in Temple of Eternity.
+    '''
+    def patchAdramelechReplacementSize(self):
+        json = self.mapSymbolFile.json
+
+        table = json["Exports"][0]["Table"]["Data"]
+        adramelech = next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == 265)
+        #adramelech = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == 265)
+        replacementID = self.encounterReplacements[265]
+        try:
+            replacement =  next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == replacementID)
+            #replacement =  next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == replacementID)
+            adraColl = Position(adramelech["Value"][5]["Value"],adramelech["Value"][6]["Value"],adramelech["Value"][7]["Value"])
+            replaceCollision = Position(replacement["Value"][5]["Value"],replacement["Value"][6]["Value"],replacement["Value"][7]["Value"])
+            scalingFactor = adraColl.fitIntoBox(replaceCollision)
+            #scalingFactor = adramelech.encountCollision.fitIntoBox(replacement.encountCollision)
+            if scalingFactor != 0:
+                replacement["Value"][4]["Value"] = replacement["Value"][4]["Value"]* scalingFactor
+                #replacement.scaleFactor = replacement.scaleFactor * scalingFactor
+                baseCollision = Position(replacement["Value"][5]["Value"],replacement["Value"][6]["Value"],replacement["Value"][7]["Value"])
+                baseCollision.scale(scalingFactor)
+                replacement["Value"][5]["Value"] = baseCollision.x
+                replacement["Value"][6]["Value"] = baseCollision.y
+                replacement["Value"][7]["Value"] = baseCollision.z
+                #replacement.encountCollision.scale(scalingFactor)
+        except StopIteration:
+            pass
     '''
     Speeds up demons on the overworld that replace punishing foe birds with large movement cycles
-    Parameters:
-        buffer (Table): contains the bytearray of the MapSymbolParamTable
-    Returns the changed buffer
     '''
-    def adjustPunishingFoeSpeeds(self, buffer):
+    def adjustPunishingFoeSpeeds(self):
+        json = self.mapSymbolFile.json
+
+        table = json["Exports"][0]["Table"]["Data"]
         
         for birdID, walkSpeed in numbers.PUNISHING_FOE_BIRD_SPEEDS.items():
             replacementID = self.bossSymbolReplacementMap[birdID]
             try:
-                replacementSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == replacementID)
-                buffer.writeFloat(walkSpeed,replacementSymbol.offsetNumbers['walkSpeed'])
+                replacementSymbol = next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == replacementID)
+                #replacementSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == replacementID)
+                replacementSymbol["Value"][1]["Value"] = walkSpeed
+                #buffer.writeFloat(walkSpeed,replacementSymbol.offsetNumbers['walkSpeed'])
                     
             except StopIteration:
-                birdSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == birdID)
-                buffer.writeWord(replacementID, birdSymbol.offsetNumbers['demonID'])
+                try: 
+                    normalDemonEquivalent = model_swap.MODEL_SYNC[replacementID]
+                    copiedSymbol = copy.deepcopy(next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == normalDemonEquivalent))
+                    copiedSymbol["Value"][0]["Value"] = replacementID
+                    copiedSymbol["Value"][1]["Value"] = walkSpeed
+                    table.append(copiedSymbol)
 
-        return buffer
+                except (KeyError,StopIteration) as e:
+                    birdSymbol = next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == birdID)
+                    #birdSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == birdID)
+                    birdSymbol["Value"][0]["Value"] = replacementID
+                    #buffer.writeWord(replacementID, birdSymbol.offsetNumbers['demonID'])
+
+        #return buffer
 
     '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
     '''
     def nullBossTones(self):
+        #TODO: Do not do this for punishing foes so you can they can trigger ambush flee money event
         for index,demon in enumerate(self.playerBossArr):
             if index < numbers.NORMAL_ENEMY_COUNT:
                 continue
@@ -6017,37 +6512,40 @@ class Randomizer:
             config (Settings) 
     '''
     def fullRando(self, config):
+        if os.path.exists("rando"):
+            shutil.rmtree("rando")
 
-        self.writeFolder(paths.DEBUG_FOLDER)
+        writeFolder(paths.DEBUG_FOLDER)
         with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
                 file.write(self.textSeed)
 
-        compendiumBuffer = self.readBinaryTable(paths.NKM_BASE_TABLE_IN)
-        skillBuffer = self.readBinaryTable(paths.SKILL_DATA_IN)
-        normalFusionBuffer = self.readBinaryTable(paths.UNITE_COMBINE_TABLE_IN)
-        otherFusionBuffer = self.readBinaryTable(paths.UNITE_TABLE_IN)
-        encountBuffer = self.readBinaryTable(paths.ENCOUNT_DATA_IN)
-        playGrowBuffer = self.readBinaryTable(paths.MAIN_CHAR_DATA_IN)
-        itemBuffer = self.readBinaryTable(paths.ITEM_DATA_IN)
-        shopBuffer = self.readBinaryTable(paths.SHOP_DATA_IN)
-        eventEncountBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_IN)
-        missionBuffer = self.readBinaryTable(paths.MISSION_DATA_IN)
-        bossFlagBuffer = self.readBinaryTable(paths.BOSS_FLAG_DATA_IN)
-        battleEventsBuffer = self.readBinaryTable(paths.BATTLE_EVENTS_IN)
-        battleEventUassetBuffer = self.readBinaryTable(paths.BATTLE_EVENT_UASSET_IN)
-        devilAssetTableBuffer = self.readBinaryTable(paths.DEVIL_ASSET_TABLE_IN)
-        abscessBuffer = self.readBinaryTable(paths.ABSCESS_TABLE_IN)
-        devilUIBuffer = self.readBinaryTable(paths.DEVIL_UI_IN)
-        talkCameraBuffer = self.readBinaryTable(paths.TALK_CAMERA_OFFSETS_IN)
-        eventEncountPostBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_IN)
-        miracleBuffer = self.readBinaryTable(paths.MIRACLE_TABLE_IN)
-        eventEncountUassetBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_UASSET_IN)
-        uniqueSymbolBuffer = self.readBinaryTable(paths.UNIQUE_SYMBOL_DATA_IN)
-        encountPostBuffer = self.readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_IN)
-        encountPostUassetBuffer = self.readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_UASSET_IN)
-        chestBuffer = self.readBinaryTable(paths.CHEST_TABLE_IN)
-        mapSymbolParamBuffer = self.readBinaryTable(paths.MAP_SYMBOL_PARAM_IN)
-        eventEncountPostUassetBuffer = self.readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN)
+        compendiumBuffer = readBinaryTable(paths.NKM_BASE_TABLE_IN)
+        skillBuffer = readBinaryTable(paths.SKILL_DATA_IN)
+        normalFusionBuffer = readBinaryTable(paths.UNITE_COMBINE_TABLE_IN)
+        otherFusionBuffer = readBinaryTable(paths.UNITE_TABLE_IN)
+        encountBuffer = readBinaryTable(paths.ENCOUNT_DATA_IN)
+        playGrowBuffer = readBinaryTable(paths.MAIN_CHAR_DATA_IN)
+        itemBuffer = readBinaryTable(paths.ITEM_DATA_IN)
+        shopBuffer = readBinaryTable(paths.SHOP_DATA_IN)
+        eventEncountBuffer = readBinaryTable(paths.EVENT_ENCOUNT_IN)
+        missionBuffer = readBinaryTable(paths.MISSION_DATA_IN)
+        bossFlagBuffer = readBinaryTable(paths.BOSS_FLAG_DATA_IN)
+        battleEventsBuffer = readBinaryTable(paths.BATTLE_EVENTS_IN)
+        battleEventUassetBuffer = readBinaryTable(paths.BATTLE_EVENT_UASSET_IN)
+        devilAssetTableBuffer = readBinaryTable(paths.DEVIL_ASSET_TABLE_IN)
+        abscessBuffer = readBinaryTable(paths.ABSCESS_TABLE_IN)
+        devilUIBuffer = readBinaryTable(paths.DEVIL_UI_IN)
+        talkCameraBuffer = readBinaryTable(paths.TALK_CAMERA_OFFSETS_IN)
+        eventEncountPostBuffer = readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_IN)
+        miracleBuffer = readBinaryTable(paths.MIRACLE_TABLE_IN)
+        eventEncountUassetBuffer = readBinaryTable(paths.EVENT_ENCOUNT_UASSET_IN)
+        uniqueSymbolBuffer = readBinaryTable(paths.UNIQUE_SYMBOL_DATA_IN)
+        encountPostBuffer = readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_IN)
+        encountPostUassetBuffer = readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_UASSET_IN)
+        chestBuffer = readBinaryTable(paths.CHEST_TABLE_IN)
+        mapSymbolParamBuffer = readBinaryTable(paths.MAP_SYMBOL_PARAM_IN)
+        eventEncountPostUassetBuffer = readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN)
+        mapEventBuffer = readBinaryTable(paths.MAP_EVENT_DATA_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -6088,6 +6586,8 @@ class Randomizer:
         self.fillMimanRewardArr(shopBuffer)
         self.fillMapSymbolArr(mapSymbolParamBuffer)
         self.fillConsumableArr(itemBuffer)
+        self.fillFusionSkillReqs(skillBuffer)
+        self.fillMapEventArr(mapEventBuffer)
         
         #self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
         self.eventEncountArr = self.addPositionsToNormalEncountArr(eventEncountPostBuffer, self.eventEncountArr, eventEncountPostUassetBuffer)
@@ -6098,6 +6598,12 @@ class Randomizer:
         
         if config.fixUniqueSkillAnimations:
             self.removeUniqueSkillAnimations()
+        
+        self.fusionSkillIDs = list(filter(lambda skill: 800 < skill and skill < 900,numbers.MAGATSUHI_SKILLS))
+        magatsuhiSkillsRaces = [self.obtainSkillFromID(skill) for skill in filter(lambda skill: 800 > skill or skill > 900, numbers.MAGATSUHI_SKILLS)]
+        if self.configSettings.randomizeMagatsuhiSkillReq:
+            magatsuhiSkillsRaces = self.randomizeMagatsuhiSkillReqs()
+            
 
         skillLevels = self.generateSkillLevelList()
         levelSkillList = self.generateLevelSkillList(skillLevels)
@@ -6118,13 +6624,15 @@ class Randomizer:
         if config.randomRaces and config.randomDemonLevels:
             self.elementals = self.randomizeRaces(self.compendiumArr)
         elif config.randomRaces:
-            self.elementals = self.randomizeRacesFixedLevels(self.compendiumArr)
+            result = self.randomizeRacesFixedLevels(self.compendiumArr,otherFusionBuffer)
+            self.elementals= result[0]
+            otherFusionBuffer = result[1]
 
         if config.randomDemonLevels:
             newComp = False
             attempts = 0
             while not newComp and attempts < 10:
-                newComp = self.shuffleLevel(self.compendiumArr, config)
+                newComp = self.shuffleLevel(self.compendiumArr, config,otherFusionBuffer)
                 if not newComp:
                     self.resetLevelToOriginal(self.compendiumArr)
                     attempts += 1
@@ -6148,8 +6656,7 @@ class Randomizer:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
             else:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
-            
-            
+        self.outputSkillSets() 
 
         if config.randomInnates:
             self.assignRandomInnates(newComp)
@@ -6163,6 +6670,9 @@ class Randomizer:
             self.assignTalkableTones(newComp)
         else:
             newSymbolArr = self.encountSymbolArr
+            for demon in self.compendiumArr:
+                if demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name and 'NOT_USED' not in demon.name:
+                    self.encounterReplacements[demon.ind] = demon.ind
         
         if config.randomDemonLevels or config.randomRaces:
             self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
@@ -6173,6 +6683,7 @@ class Randomizer:
         if (config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses) and not (config.randomMusic or config.checkBasedMusic):
             self.patchMissingBossMusic()
         self.removeIshtarCopies()
+        self.syncMaras()
         self.randomizeBosses()
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
@@ -6198,8 +6709,11 @@ class Randomizer:
 
         if config.randomAlignment:
             self.randomizeDemonAlignment(self.compendiumArr)
+        
+        if config.unlockFusions:
+            self.removeFusionFlags()
 
-        scriptLogic.randomizeDemonJoins(self.compendiumArr,config.ensureDemonJoinLevel)
+        scriptLogic.randomizeDemonJoins(self.encounterReplacements,config.ensureDemonJoinLevel,self.scriptFiles)
             
         if config.randomChests:
             self.randomizeChests(self.configSettings.scaleItemsToArea)
@@ -6209,7 +6723,7 @@ class Randomizer:
         self.replaceSpyglassInShop()
         self.adjustItemPrices()
 
-        self.randomizeItemRewards()
+        fakeMissions = self.randomizeItemRewards()
         
         if self.configSettings.selfRandomizeNormalBosses or self.configSettings.mixedRandomizeNormalBosses or self.configSettings.selfRandomizeOverworldBosses or self.configSettings.mixedRandomizeOverworldBosses:
             self.patchQuestBossDrops()
@@ -6235,24 +6749,36 @@ class Randomizer:
         self.capDiarahanDemonHP()
         self.nullBossTones()
         
+        #mapSymbolUasset = UAsset(readBinaryTable(paths.MAP_SYMBOL_PARAM_UASSET_IN))
 
-        mapSymbolParamBuffer = self.scaleLargeSymbolDemonsDown(mapSymbolParamBuffer)
-        self.adjustPunishingFoeSpeeds(mapSymbolParamBuffer)
+        self.addEntriesToMapSymbolScaleTable()
+        self.scaleLargeSymbolDemonsDown()
             
         if DEV_CHEATS:
             self.applyCheats()
-        
 
-        #self.addEventEncounter()
-        
 
+        message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings)
+        message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
+        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel)
+        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName)
+        #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
+
+        if self.configSettings.swapCutsceneModels:
+            model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings)
+
+        self.removeCalcOnlyMapSymbolScales()
+        self.patchAdramelechReplacementSize()
+        self.adjustPunishingFoeSpeeds()
+
+        mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, newComp)
         compendiumBuffer = self.updateCompendiumBuffer(compendiumBuffer, self.playerBossArr[numbers.NORMAL_ENEMY_COUNT:])
         if self.configSettings.buffGuestYuzuru:
             self.patchYuzuruGLStats(compendiumBuffer)
-        skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr)
+        skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr, self.fusionSkillReqs)
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
         normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
         encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
@@ -6274,53 +6800,62 @@ class Randomizer:
         encountPostBuffer = self.updateEventEncountPostBuffer(encountPostBuffer, self.encountArr)
         chestBuffer = self.updateChestBuffer(chestBuffer)
         itemBuffer = self.updateConsumableData(itemBuffer, self.consumableArr)        
-
+        mapEventBuffer = self.updateMapEventBuffer(mapEventBuffer)
 
         #self.printOutEncounters(newSymbolArr)
         self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
 
-        self.writeFolder(paths.BLUEPRINTS_FOLDER_OUT)
-        self.writeFolder(paths.GAMEDATA_FOLDER_OUT)
-        self.writeFolder(paths.BINTABLE_FOLDER_OUT)
-        self.writeFolder(paths.FACILITY_FOLDER_OUT)
-        self.writeFolder(paths.BATTLE_FOLDER_OUT)
-        self.writeFolder(paths.CAMP_FOLDER_OUT)
-        self.writeFolder(paths.MIRACLE_TOP_FOLDER_OUT)
-        self.writeFolder(paths.COMMON_TOP_FOLDER_OUT)
-        self.writeFolder(paths.BLUEPRINTS_MAP_FOLDER_OUT)
-        self.writeFolder(paths.MAP_ENCOUNT_FOLDER_OUT)
-        self.writeFolder(paths.ENCOUNT_MOVER_FOLDER_OUT)
-        self.writeFolder(paths.MOVER_PARAMTABLE_FOLDER_OUT)
+        writeFolder(paths.BLUEPRINTS_FOLDER_OUT)
+        writeFolder(paths.GAMEDATA_FOLDER_OUT)
+        writeFolder(paths.BINTABLE_FOLDER_OUT)
+        writeFolder(paths.FACILITY_FOLDER_OUT)
+        writeFolder(paths.BATTLE_FOLDER_OUT)
+        writeFolder(paths.CAMP_FOLDER_OUT)
+        writeFolder(paths.MIRACLE_TOP_FOLDER_OUT)
+        writeFolder(paths.COMMON_TOP_FOLDER_OUT)
+        writeFolder(paths.BLUEPRINTS_MAP_FOLDER_OUT)
+        writeFolder(paths.MAP_ENCOUNT_FOLDER_OUT)
+        writeFolder(paths.ENCOUNT_MOVER_FOLDER_OUT)
+        writeFolder(paths.MOVER_PARAMTABLE_FOLDER_OUT)
+        writeFolder(paths.TITLE_TEXTURE_FOLDER_OUT)
 
-        self.writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
-        self.writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
-        self.writeBinaryTable(skillBuffer.buffer, paths.SKILL_DATA_OUT, paths.SKILL_FOLDER_OUT)
-        self.writeBinaryTable(otherFusionBuffer.buffer, paths.UNITE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
-        self.writeBinaryTable(encountBuffer.buffer, paths.ENCOUNT_DATA_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(playGrowBuffer.buffer, paths.MAIN_CHAR_DATA_OUT, paths.COMMON_FOLDER_OUT)
-        self.writeBinaryTable(itemBuffer.buffer, paths.ITEM_DATA_OUT, paths.ITEM_FOLDER_OUT)
-        self.writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_TABLE_FOLDER_OUT)
-        self.writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(missionBuffer.buffer,paths.MISSION_DATA_OUT,paths.MISSION_FOLDER_OUT)
-        self.writeBinaryTable(bossFlagBuffer.buffer, paths.BOSS_FLAG_DATA_OUT, paths.BOSS_FOLDER_OUT)
-        self.writeBinaryTable(battleEventsBuffer.buffer, paths.BATTLE_EVENTS_OUT, paths.BATTLE_EVENT_FOLDER_OUT)
-        self.writeBinaryTable(battleEventUassetBuffer.buffer,paths.BATTLE_EVENT_UASSET_OUT,paths.BATTLE_EVENTS_OUT)
-        self.writeBinaryTable(devilAssetTableBuffer.buffer, paths.DEVIL_ASSET_TABLE_OUT, paths.ASSET_TABLE_FOLDER_OUT)
-        self.writeBinaryTable(devilUIBuffer.buffer, paths.DEVIL_UI_OUT, paths.UI_GRAPHCIS_FOLDER_OUT)
-        self.writeBinaryTable(talkCameraBuffer.buffer,paths.TALK_CAMERA_OFFSETS_OUT,paths.CAMP_STATUS_FOLDER_OUT)
-        self.writeBinaryTable(abscessBuffer.buffer, paths.ABSCESS_TABLE_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        self.writeBinaryTable(miracleBuffer.buffer, paths.MIRACLE_TABLE_OUT, paths.MIRACLE_FOLDER_OUT)
-        #self.writeBinaryTable(eventEncountUassetBuffer.buffer, paths.EVENT_ENCOUNT_UASSET_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(uniqueSymbolBuffer.buffer, paths.UNIQUE_SYMBOL_DATA_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        self.writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        self.writeBinaryTable(chestBuffer.buffer, paths.CHEST_TABLE_OUT, paths.MAP_FOLDER_OUT)
-        self.writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
-        self.writeBinaryTable(eventEncountPostUassetBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        #self.copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
+        writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
+        writeBinaryTable(skillBuffer.buffer, paths.SKILL_DATA_OUT, paths.SKILL_FOLDER_OUT)
+        writeBinaryTable(otherFusionBuffer.buffer, paths.UNITE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
+        writeBinaryTable(encountBuffer.buffer, paths.ENCOUNT_DATA_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(playGrowBuffer.buffer, paths.MAIN_CHAR_DATA_OUT, paths.COMMON_FOLDER_OUT)
+        writeBinaryTable(itemBuffer.buffer, paths.ITEM_DATA_OUT, paths.ITEM_FOLDER_OUT)
+        writeBinaryTable(shopBuffer.buffer, paths.SHOP_DATA_OUT, paths.FACILITY_TABLE_FOLDER_OUT)
+        writeBinaryTable(eventEncountBuffer.buffer, paths.EVENT_ENCOUNT_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(missionBuffer.buffer,paths.MISSION_DATA_OUT,paths.MISSION_FOLDER_OUT)
+        writeBinaryTable(bossFlagBuffer.buffer, paths.BOSS_FLAG_DATA_OUT, paths.BOSS_FOLDER_OUT)
+        writeBinaryTable(battleEventsBuffer.buffer, paths.BATTLE_EVENTS_OUT, paths.BATTLE_EVENT_FOLDER_OUT)
+        writeBinaryTable(battleEventUassetBuffer.buffer,paths.BATTLE_EVENT_UASSET_OUT,paths.BATTLE_EVENTS_OUT)
+        writeBinaryTable(devilAssetTableBuffer.buffer, paths.DEVIL_ASSET_TABLE_OUT, paths.ASSET_TABLE_FOLDER_OUT)
+        writeBinaryTable(devilUIBuffer.buffer, paths.DEVIL_UI_OUT, paths.UI_GRAPHCIS_FOLDER_OUT)
+        writeBinaryTable(talkCameraBuffer.buffer,paths.TALK_CAMERA_OFFSETS_OUT,paths.CAMP_STATUS_FOLDER_OUT)
+        writeBinaryTable(abscessBuffer.buffer, paths.ABSCESS_TABLE_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        writeBinaryTable(miracleBuffer.buffer, paths.MIRACLE_TABLE_OUT, paths.MIRACLE_FOLDER_OUT)
+        #writeBinaryTable(eventEncountUassetBuffer.buffer, paths.EVENT_ENCOUNT_UASSET_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(uniqueSymbolBuffer.buffer, paths.UNIQUE_SYMBOL_DATA_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        writeBinaryTable(chestBuffer.buffer, paths.CHEST_TABLE_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
+        writeBinaryTable(eventEncountPostUassetBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        writeBinaryTable(mapEventBuffer.buffer, paths.MAP_EVENT_DATA_OUT, paths.MAP_FOLDER_OUT)
+        #copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
+        copyFile(paths.TITLE_TEXTURE_IN, paths.TITLE_TEXTURE_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
+        copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         
+        self.mapSymbolFile.write()
+
+        self.scriptFiles.writeFiles()
+        del self.scriptFiles
+
         self.applyUnrealPak()
 
     '''
@@ -6364,13 +6899,33 @@ class Randomizer:
             finalString = finalString + fusion.firstDemon.translation + " + " + fusion.secondDemon.translation + " = " + fusion.result.translation + '\n'
         with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
             file.write(finalString)
+    
+    def outputSkillSets(self):
+        sortedDemons = sorted(self.compendiumArr, key=lambda demon: demon.level.value)
+        with open(paths.SKILL_SET_DEBUG, 'w', encoding="utf-8") as file:
+            for demon in sortedDemons:
+                if "NOT USED" in demon.name:
+                    continue
+                skillString = "[" + str(demon.ind) + "](" + str(demon.level.value) +") " + demon.name + ": "
+                for skill in demon.skills:
+                    if skill.ind == 0:
+                        continue
+                    skillString = skillString + translation.translateSkillID(skill.value, self.skillNames) + "/"
+                for skill in demon.learnedSkills:
+                    if skill.ind == 0:
+                        continue
+                    skillString = skillString + translation.translateSkillID(skill.value, self.skillNames)+ "(" + str(skill.level) + ")" + "/"
+                file.write(skillString + "\n")
+
                     
 if __name__ == '__main__':
     rando = Randomizer()
     print('Warning: This is an early build of the randomizer and some things may not work as intended. Performance will be somewhat worse than vanilla SMTVV')
-    print('Welcome to the SMTVV Rando v1.02. This version was created with game version 1.02 and will likely not work with other versions of SMTVV')
+    print('Welcome to the SMTVV Rando v1.03. This version was created with game version 1.03 and will likely not work with other versions of SMTVV')
     try:
         rando.configSettings, rando.textSeed = gui.createGUI(rando.configSettings)
+        if rando.configSettings.swapCutsceneModels:
+            print('Cutscene Model Swaps on. This may take up to an hour to finish running. Please wait...')
         rando.createSeed()
         
         rando.fullRando(rando.configSettings)
