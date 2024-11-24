@@ -293,6 +293,3 @@ class UAsset_Custom:
             if index +1 < len(self.exports) and exportEntry.serialOffset <= totalOffset and self.exports[index +1].serialOffset >= totalOffset:
                 exportEntry.serialSize += byteDifference
         self.bulkDataOffset += byteDifference
-
-
-        
