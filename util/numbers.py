@@ -606,7 +606,7 @@ POTENTIAL_WEIGHT_MULITPLIER = 1.7 #Multiplier applied to potential to update wei
 MAGATSUHI_SKILL_WEIGHT = 6 #Base weight of magatsuhi skills if included in skill rando
 SKILL_WEIGHT = 10 #Base weight for all skills in skill rando
 SKILL_PENALTY_WEIGHT = 4 #Weight penalty for skills if the skill has already been assigned in process in an attempt to diversify skill sets
-UNIQUE_SKILL_MULTIPLIER = 6 #Multiplier to ensure unique skills are assigned to at least one enemy
+FORCE_SKILL_MULTIPLIER = 20 #Multiplier to ensure all skills are assigned to at least one enemy
 
 '''
 Returns dictionary lining out to which reward are each shop slot belongs

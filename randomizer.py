@@ -1633,8 +1633,10 @@ class Randomizer:
             allSkills = []
             for ind in uniqueSkills:
                     allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
-        if not mask:
+        if not mask and settings.scaledSkills:
             sortedComp = sorted(comp, key=lambda demon: demon.level.value)
+        elif not mask:
+            sortedComp = sorted(comp,key=lambda x: random.random())
         else:
             sortedComp = comp
 
@@ -2319,9 +2321,9 @@ class Randomizer:
                     probability = numbers.SKILL_WEIGHT
                 if skill.ind in self.alreadyAssignedSkills:
                     probability = probability - numbers.SKILL_PENALTY_WEIGHT
-                if skill.ind not in self.alreadyAssignedSkills and self.configSettings.forceUniqueSkills and self.obtainSkillFromID(skill.ind).owner.ind !=0:
-                    #increase weight if skill is unique and uniques need to be forced
-                    probability = probability * numbers.UNIQUE_SKILL_MULTIPLIER
+                if skill.ind not in self.alreadyAssignedSkills and self.configSettings.forceAllSkills:
+                    #increase weight if skill are forced and skill not already assigned
+                    probability = probability * numbers.FORCE_SKILL_MULTIPLIER
                 prob.append(probability)
                 names.append(skill.name)
         # for skill in possibleSkills:
@@ -4799,7 +4801,7 @@ class Randomizer:
         if not self.configSettings.combineKeyItemPools:#No combined pools means that exclusive items stay normal due to otherwise having not enough gift slots
             unchangedGifts = list(filter(lambda gift: gift.script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS or gift.script  in scriptLogic.NEWGAMEPLUS_GIFTS, pool.allGifts))
             for gift in unchangedGifts:
-                pool.uniqueRewards.remove(gift.reward)
+                pool.uniqueRewards.remove(gift.item)
                 randomizedGifts.append(gift)
         #Filter out exclusive gifts that should not contain a unique item
         possibleGifts = list(filter(lambda gift: gift.script not in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS and gift.script not in scriptLogic.NEWGAMEPLUS_GIFTS, pool.allGifts))

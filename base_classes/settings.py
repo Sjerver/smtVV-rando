@@ -63,4 +63,4 @@ class Settings(object):
         self.includeMagatsuhiSkills = False         # Allows magatsuhi skills to be assigned to demons skill sets
         self.randomizeMagatsuhiSkillReq = False     # Randomize which race, demon alignments, or demons are required to use magatsuhi skills
         self.swapCutsceneModels = False             #Whether demon models in cutscenes & events should be swapped
-        self.forceUniqueSkills = False              #Forces all unique skills to be available in demon skill sets
+        self.forceAllSkills = False              #Forces all skills to be available in demon skill sets

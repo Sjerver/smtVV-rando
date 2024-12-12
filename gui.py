@@ -241,7 +241,7 @@ def createGUI(configSettings):
     listDemon.insert(13, "Restrict Lunation Flux to one demon")
     listDemon.insert(14, "Include Enemy Only Skills in Skill Pool")
     listDemon.insert(15, "Include Magatsuhi Skills in Skill Pool")
-    listDemon.insert(16, "Ensure all Unique Skills are Available")
+    listDemon.insert(16, "Force All Skills to be in available in learnsets")
 
     demonScrollbar = tk.Scrollbar(page1FrameTop, orient='vertical')
     demonScrollbar.config(command=listDemon.yview)
