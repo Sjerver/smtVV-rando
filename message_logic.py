@@ -826,6 +826,7 @@ SPECIAL_SPEAKER_IDS = {
     601: 25, #Abcess Jack Frost (Jack Frost is also Dummy Name)
     25: 25, # Normal Jack Frost
     526: 511, #Depraved Arm (or Wing) use Abdiel Name
+    537: 404, #Tehom
 }
 
 '''
@@ -988,6 +989,9 @@ def addSkillOwnershipToDesc(file: Message_File, skillData):
                     skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Nahobino) ','')
                 elif owner.ind == -1: #skill is nahobino skill
                     skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Unique) ','(Nahobino) ')
+                elif owner.ind == -2: #skill is Demon only skill:
+                    #Do not change description if skill is demon only
+                    pass
                 elif owner.ind == -3: #skill is enemy only skill
                     skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Unique) ','(Enemy) ')
                     skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Nahobino) ','(Enemy) ')

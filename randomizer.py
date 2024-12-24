@@ -343,8 +343,12 @@ class Randomizer:
                 toPush.offsetNumber = locations
                 
                 ownerID = skillData.readWord(locations['owner'])
-                if ownerID < 0:
+                if ownerID == -1:
                     ownerName = "Nahobino"
+                elif ownerID == -2:
+                    ownerName = "Demon Only"
+                elif ownerID == -3:
+                    ownerName = "Enemy"
                 else:
                     ownerName = self.compendiumNames[ownerID]
                 toPush.owner = Skill_Owner(ownerID, ownerName)
@@ -421,8 +425,12 @@ class Randomizer:
                 toPush.offsetNumber = locations
 
                 ownerID = skillData.readWord(locations['owner'])
-                if ownerID < 0:
+                if ownerID == -1:
                     ownerName = "Nahobino"
+                elif ownerID == -2:
+                    ownerName = "Demon Only"
+                elif ownerID == -3:
+                    ownerName = "Enemy"
                 else:
                     ownerName = self.compendiumNames[ownerID]
                 toPush.owner = Skill_Owner(ownerID, ownerName)
@@ -857,7 +865,7 @@ class Randomizer:
             entry = Shop_Entry()
             entry.offset = offset
             entry.item = Translated_Value(shopData.readHalfword(offset),translation.translateItem(shopData.readHalfword(offset),self.itemNames))
-            entry.unlock = Translated_Value(shopData.readDblword(offset +4), translation.translateFlag(shopData.readDblword(offset+4)))
+            entry.unlock = Translated_Value(shopData.readDblword(offset +4), translation.translateShopFlag(shopData.readDblword(offset+4)))
 
             self.shopArr.append(entry)
     '''
@@ -1620,19 +1628,20 @@ class Randomizer:
             The edited compendium
     '''
     def assignRandomSkills(self, comp, levelList, settings, mask=None):
+        totalSkillAmount = 0
         #If the skills aren't supposed to be scaled based on level, assemble list where each valid skill appears exactly once
-        if not settings.scaledSkills:
-            levelAggregrate = []
-            for index, level in enumerate(levelList):
-                if index == 0:
-                    #Prevents Magatsuhi skills from being in demons skill pools
-                    continue
-                for skill in level:
-                    levelAggregrate.append(skill)
-            uniqueSkills = {skill.ind for skill in levelAggregrate}
-            allSkills = []
-            for ind in uniqueSkills:
-                    allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
+        
+        levelAggregrate = []
+        for index, level in enumerate(levelList):
+            if index == 0:
+                #Prevents Magatsuhi skills from being in demons skill pools
+                continue
+            for skill in level:
+                levelAggregrate.append(skill)
+        uniqueSkills = {skill.ind for skill in levelAggregrate}
+        allSkills = []
+        for ind in uniqueSkills:
+                allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
         if not mask and settings.scaledSkills:
             sortedComp = sorted(comp, key=lambda demon: demon.level.value)
         elif not mask:
@@ -1642,7 +1651,7 @@ class Randomizer:
 
         #For every demon...
         for demon in sortedComp:
-            if mask and demon.ind not in mask:
+            if (mask and demon.ind not in mask) or demon.ind in numbers.INACCESSIBLE_DEMONS or demon.name.startswith("NOT USED") :
                 continue
             possibleSkills = []
             if settings.scaledSkills:
@@ -1680,7 +1689,7 @@ class Randomizer:
                 possibleSkills = allSkills.copy()
         
             #Create the weighted list of skills and update it with potentials if necessary
-            weightedSkills = self.createWeightedList(possibleSkills)
+            weightedSkills = self.createWeightedList(possibleSkills, allSkills)
             if settings.potentialWeightedSkills:
                 weightedSkills = self.updateWeightsWithPotential(weightedSkills, demon.potential, demon)
 
@@ -1694,7 +1703,7 @@ class Randomizer:
             if validSkills < 8: #Tao/Yoko need at least 8 skills in pool, most other at least 7
                 for weight in weightedSkills.weights:
                     weight += 1
-
+            
             #If there are skills to be learned
             if len(weightedSkills.values) > 0:
 
@@ -1730,6 +1739,7 @@ class Randomizer:
                     totalSkills.append(skillAddition)
                     self.alreadyAssignedSkills.add(rng)
                     demon.skills[index] = skillAddition
+                    totalSkillAmount += 1
                 #Randomly assign learnable skills; same justifications as starting skills
                 for index in range(len(demon.learnedSkills)):
                     foundSkill = False
@@ -1755,6 +1765,8 @@ class Randomizer:
                     totalSkills.append(skillAddition)
                     self.alreadyAssignedSkills.add(rng)
                     demon.learnedSkills[index] = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames), level=demon.learnedSkills[index].level)
+                    totalSkillAmount += 1
+        #print("TOTAL SKILL SLOTS USED " + str(totalSkillAmount))
         return comp
     
     '''
@@ -1845,6 +1857,9 @@ class Randomizer:
             if skill.ind in numbers.MAGATSUHI_SKILLS and random.random() > 0.5:
                 #Reduce chance that the protagonist starts with magatsuhi skill
                 continue
+            if skill.owner.ind == -2:
+                #next skill if skill is Demon Only (Inspiring Leader)
+                continue
             if settings.multipleUniques:
             # Unique skill can appear twice
                 # check if skill is unique skill
@@ -1872,6 +1887,7 @@ class Randomizer:
                     validity = True
 
         naho.startingSkill = skill.ind
+        self.alreadyAssignedSkills.add(skill.ind)
 
     '''
     Assigns every protofiend new skills randomized using weights based on the passed settings.
@@ -1887,18 +1903,18 @@ class Randomizer:
     '''
     def assignRandomSkillsToProtofiend(self, protofiends, levelList, settings):
          #If the skills aren't supposed to be scaled based on level, assemble list where each valid skill appears exactly once
-        if not settings.scaledSkills:
-            levelAggregrate = []
-            for index, level in enumerate(levelList):
-                if index == 0:
-                    #Prevents Magatsuhi skills from being in demons skill pools
-                    continue
-                for skill in level:
-                    levelAggregrate.append(skill)
-            uniqueSkills = {skill.ind for skill in levelAggregrate}
-            allSkills = []
-            for ind in uniqueSkills:
-                    allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
+        
+        levelAggregrate = []
+        for index, level in enumerate(levelList):
+            if index == 0:
+                #Prevents Magatsuhi skills from being in demons skill pools
+                continue
+            for skill in level:
+                levelAggregrate.append(skill)
+        uniqueSkills = {skill.ind for skill in levelAggregrate}
+        allSkills = []
+        for ind in uniqueSkills:
+                allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
         
         for protofiend in protofiends:
             possibleSkills = []
@@ -1937,7 +1953,7 @@ class Randomizer:
                 possibleSkills = allSkills.copy()
 
              #Create the weighted list of skills and update it with potentials if necessary
-            weightedSkills = self.createWeightedList(possibleSkills)
+            weightedSkills = self.createWeightedList(possibleSkills, allSkills)
             totalSkills = []
             #If there are skills to be learned
             if len(weightedSkills.values) > 0:
@@ -1973,6 +1989,7 @@ class Randomizer:
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
                     totalSkills.append(skillAddition)
                     protofiend.skills[index] = skillAddition
+                    self.alreadyAssignedSkills.add(rng)
     
     '''
     Check to see if adding the skill with index skillIndex to the demons skill list would leave him with at least one active starting skill.
@@ -2004,6 +2021,9 @@ class Randomizer:
     '''
     def checkUniqueSkillConditions(self, skill, demon, comp, settings):
         lunationCondition = (skill.ind == numbers.LUNATION_FLUX_ID) and settings.restrictLunationFlux
+        if skill.owner.ind == -2:
+            # Demon Only skills should stay Demon only (Inspiring Leader)
+            return True
         if settings.multipleUniques and not lunationCondition:
         # Unique skill can appear twice
             # check if skill is unique skill
@@ -2149,10 +2169,8 @@ class Randomizer:
                 elif skill.skillType.value == 1 and demon.stats.str.start > demon.stats.mag.start:
                     additionalWeight = additionalWeight - numbers.SKILL_STAT_PENALTY_WEIGHT
                 
-                if additionalWeight < 0:
-                    newWeight = 0
-                else:
-                    newWeight = newWeight + additionalWeight
+
+                newWeight = max(0,newWeight + additionalWeight)
             else:
                 #Placeholder in case I want to modify weights for passive skills
                 pass
@@ -2302,10 +2320,13 @@ class Randomizer:
     Weight depends of if skill has already been assigned in the randomization process and if they are a magatsuhi skill.
         Parameters:
             possiblSkills (Array): Array of skills
+            allSkills (List): List of all skills that can be assigned
         Returns:
             An object with an array of values and an array of weights and an array of names for the skills
     '''
-    def createWeightedList(self, possibleSkills):
+    def createWeightedList(self, possibleSkills, allSkills):
+        if len(self.alreadyAssignedSkills) == len(allSkills):
+            self.alreadyAssignedSkills = set()
         random.shuffle(possibleSkills) 
         ids = []
         prob = []
@@ -2402,6 +2423,9 @@ class Randomizer:
             for index, skill in enumerate(demon.learnedSkills):
                 buffer.writeWord(skill.ind, demon.offsetNumbers['firstLearnedLevel'] + 8 * index + 4)
                 buffer.writeWord(skill.level, demon.offsetNumbers['firstLearnedLevel'] + 8 * index)
+            for index in range(len(demon.learnedSkills),12 - len(demon.learnedSkills)):
+                buffer.writeWord(0, demon.offsetNumbers['firstLearnedLevel'] + 8 * index + 4)
+                buffer.writeWord(0, demon.offsetNumbers['firstLearnedLevel'] + 8 * index)
             #Write various attributes of the demon to the buffer
             buffer.writeWord(demon.level.value, demon.offsetNumbers['level'])
             buffer.writeByte(demon.race.value, demon.offsetNumbers['race'])
@@ -5016,7 +5040,7 @@ class Randomizer:
                 numDrops = random.choices(list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.keys()), list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.values()))[0]
                 if demonID not in self.essenceBannedBosses and random.random() < numbers.BOSS_ESSENCE_ODDS: #Boss will drop its own essence
                     try:
-                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation)
+                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.BANNED_ESSENCES)
                         drop.item1 = Item_Drop(essence.ind, essence.name, 100, 0)
                     except StopIteration:
                         item = random.choice(validItems[rewardArea])
@@ -5038,7 +5062,7 @@ class Randomizer:
                 numDrops = random.choices(list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.keys()), list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.values()))[0]
                 if demonID not in self.essenceBannedBosses and random.random() < numbers.BOSS_ESSENCE_ODDS: #Boss will drop its own essence
                     try:
-                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation)
+                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.BANNED_ESSENCES)
                         drop.item1 = Item_Drop(essence.ind, essence.name, 100, 0)
                     except StopIteration:
                         item = random.choice(validItems)
@@ -5798,6 +5822,7 @@ class Randomizer:
             if demon.level.original != demon.level.value:
                 if len(demon.learnedSkills) > 0 and demon.level.value == 99:
                     demon.skills = demon.skills + demon.learnedSkills
+                    demon.learnedSkills = []
                 else:
                     for skill in demon.learnedSkills:
                         skillLevel = min(99, skill.level - demon.level.original + demon.level.value)
@@ -6658,6 +6683,7 @@ class Randomizer:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
             else:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
+        self.debugPrintUnassignedSkills(levelSkillList)
         self.outputSkillSets() 
 
         if config.randomInnates:
@@ -6903,11 +6929,55 @@ class Randomizer:
         with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
             file.write(finalString)
     
+    def debugPrintUnassignedSkills(self, levelList):
+        sortedDemons = sorted(self.compendiumArr, key=lambda demon: demon.level.value)
+        levelAggregrate = []
+        for index, level in enumerate(levelList):
+            if index == 0:
+                #Prevents Magatsuhi skills from being in demons skill pools
+                continue
+            for skill in level:
+                levelAggregrate.append(skill)
+        allSkillIDs = {skill.ind for skill in levelAggregrate}
+        allSkills = []
+        for ind in allSkillIDs:
+                allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
+        
+        for demon in sortedDemons:
+            if "NOT USED" in demon.name or demon.ind in numbers.INACCESSIBLE_DEMONS:
+                continue
+            for skill in demon.skills:
+                if skill.ind in allSkillIDs:
+                    allSkillIDs.remove(skill.ind)
+            for skill in demon.learnedSkills:
+                if skill.ind in allSkillIDs:
+                    allSkillIDs.remove(skill.ind)
+        
+        skillID = self.nahobino.startingSkill
+        if skillID in allSkillIDs:
+                allSkillIDs.remove(skillID)
+        for protoFiend in self.protofiendArr:
+            for skill in protoFiend.skills:
+                if skill.ind in allSkillIDs:
+                    allSkillIDs.remove(skill.ind)
+        for guest in self.playerBossArr:
+            if guest.ind in numbers.GUEST_IDS:
+                for skill in guest.skills:
+                    if skill.ind in allSkillIDs:
+                        allSkillIDs.remove(skill.ind)
+                for skill in guest.learnedSkills:
+                    if skill.ind in allSkillIDs:
+                        allSkillIDs.remove(skill.ind)
+
+
+        for skillID in allSkillIDs:
+            print(translation.translateSkillID(skillID,self.skillNames))
+
     def outputSkillSets(self):
         sortedDemons = sorted(self.compendiumArr, key=lambda demon: demon.level.value)
         with open(paths.SKILL_SET_DEBUG, 'w', encoding="utf-8") as file:
             for demon in sortedDemons:
-                if "NOT USED" in demon.name:
+                if "NOT USED" in demon.name or demon.ind in numbers.INACCESSIBLE_DEMONS:
                     continue
                 skillString = "[" + str(demon.ind) + "](" + str(demon.level.value) +") " + demon.name + ": "
                 for skill in demon.skills:

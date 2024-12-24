@@ -17,6 +17,9 @@ DUPLICATE_SOURCES = {442 : [61 ,65], #School Aitvaras
 #Selection of dummy demons to be overwritten with overlapping demons
 DUMMY_DEMONS= [487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511]
 
+#List of demons with a name that cannot be accessed by the player
+INACCESSIBLE_DEMONS = [71,364] #Old Lilith, Tao
+
 NORMAL_ENEMY_COUNT = 396
 
 BAD_IDS = [71, 365, 364, 366] #Old Lilith, Tao x2, Yoko
@@ -606,7 +609,7 @@ POTENTIAL_WEIGHT_MULITPLIER = 1.7 #Multiplier applied to potential to update wei
 MAGATSUHI_SKILL_WEIGHT = 6 #Base weight of magatsuhi skills if included in skill rando
 SKILL_WEIGHT = 10 #Base weight for all skills in skill rando
 SKILL_PENALTY_WEIGHT = 4 #Weight penalty for skills if the skill has already been assigned in process in an attempt to diversify skill sets
-FORCE_SKILL_MULTIPLIER = 20 #Multiplier to ensure all skills are assigned to at least one enemy
+FORCE_SKILL_MULTIPLIER = 200 #Multiplier to ensure all skills are assigned to at least one enemy
 
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
