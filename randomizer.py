@@ -1734,6 +1734,8 @@ class Randomizer:
                                                 weightedSkills.weights[weightIndex] = 0
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
+                                elif not (settings.freeInheritance or settings.randomInheritance):
+                                    weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
                     totalSkills.append(skillAddition)
@@ -1759,6 +1761,8 @@ class Randomizer:
                                             if checkSkill in numbers.MAGATSUHI_SKILLS:
                                                 weightedSkills.weights[weightIndex] = 0
                                     foundSkill = True
+                                    weightedSkills.weights[weightedSkills.values.index(rng)] = 0
+                                elif not (settings.freeInheritance or settings.randomInheritance):
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
@@ -3333,7 +3337,7 @@ class Randomizer:
             comp[demonInd].compCostModifier = 100
 
         relevantDemons = [demon for demon in comp if demon.ind not in numbers.BAD_IDS and "Mitama" not in demon.name and not demon.name.startswith('NOT') ]
-        specialFusions = [demon.ind for demon in comp if demon.fusability > 256] #List of demon ids that are fused as a special fusion
+        specialFusions = [demon.ind for demon in comp if demon.fusability > 256 and demon.tone.value != 0] #List of demon ids that are fused as a special fusion
 
         raceAmounts = [ 0 for _ in range(len(RACE_ARRAY)) ] #Number of demons per Race
         raceResults = [ 0 for _ in range(len(RACE_ARRAY)) ] #How many fusion combinations result in this race
@@ -3552,6 +3556,12 @@ class Randomizer:
                 p[2] = demon
                 fusableDemonS.append(demon)
         
+        
+        specialFusionDemonIDS = [comp[demon] for demon in specialFusions]
+        specialFusions = []
+        for demon in specialFusionDemonIDS:
+            specialFusions.append(self.generateSpecialFusion(demon, [b for b in base if b.level.value < demon.level.value]))
+
         notFusableCurrently = [demon for demon in base if demon not in fusableDemonS and demon.race.translation in numbers.NO_DOWNFUSE_RACES]
         #for all other unfusables that also are not available via element fusion, add an extra special fusion
         for demon in notFusableCurrently:

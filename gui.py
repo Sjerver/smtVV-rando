@@ -451,315 +451,139 @@ def createGUI(configSettings):
     page1Frame.tkraise()
     
     def ApplySettings(configur):
-        if configur.get('Patches', 'swapCutsceneModels') == 'true':
-            swapCutsceneModelCheckbox.select()
-        else:
-            swapCutsceneModelCheckbox.deselect()
-        if configur.get('Demon', 'RandomLevels') == 'true':
-            listDemon.selection_set(0)
-        else:
-            listDemon.selection_clear(0)
-        if configur.get('Demon', 'RandomSkills') == 'true':
-            listDemon.selection_set(1)
-        else:
-            listDemon.selection_clear(1)
-        if configur.get('Demon', 'ScaledSkills') == 'true':
-            listDemon.selection_set(2)
-        else:
-            listDemon.selection_clear(2)
-        if configur.get('Demon', 'RandomInnates') == 'true':
-            listDemon.selection_set(3)
-        else:
-            listDemon.selection_clear(3)
-        if configur.get('Demon', 'WeightSkillsToPotentials') == 'true':
-            listDemon.selection_set(4)
-        else:
-            listDemon.selection_clear(4)
-        if configur.get('Demon', 'RandomPotentials') == 'true':
-            listDemon.selection_set(5)
-        else:
-            listDemon.selection_clear(5)
-        if configur.get('Demon', 'ScaledPotentials') == 'true':
-            listDemon.selection_set(6)
-        else:
-            listDemon.selection_clear(6)
-        if configur.get('Demon', 'multipleUniques') == 'true':
-            listDemon.selection_set(7)
-        else:
-            listDemon.selection_clear(7)
-        if configur.get('Demon', 'randomRaces') == 'true':
-            listDemon.selection_set(8)
-        else:
-            listDemon.selection_clear(8)
-        if configur.get('Demon', 'randomAlignment') == 'true':
-            listDemon.selection_set(9)
-        else:
-            listDemon.selection_clear(9)
-        if configur.get('Demon', 'ensureDemonJoinLevel') == 'true':
-            listDemon.selection_set(10)
-        else:
-            listDemon.selection_clear(10)
-        if configur.get('Demon', 'RandomDemonStats') == 'true':
-            listDemon.selection_set(11)
-        else:
-            listDemon.selection_clear(11)
-        if configur.get('Demon', 'ReduceCompendiumCost') == 'true':
-            listDemon.selection_set(12)
-        else:
-            listDemon.selection_clear(12)
-        if configur.get('Demon', 'RestrictLunationFlux') == 'true':
-            listDemon.selection_set(13)
-        else:
-            listDemon.selection_clear(13)
-        if configur.get('Demon', 'EnemyOnlySkills') == 'true':
-            listDemon.selection_set(14)
-        else:
-            listDemon.selection_clear(14)
-        if configur.get('Demon', 'MagatsuhiSkills') == 'true':
-            listDemon.selection_set(15)
-        else:
-            listDemon.selection_clear(15)
-        if configur.get('Demon', 'ForceUniqueSkills') == 'true':
-            listDemon.selection_set(16)
-        else:
-            listDemon.selection_clear(16)
+        UI_MAP = {
+            'Patches': {
+                'swapCutsceneModels': ('Checkbutton',swapCutsceneModelCheckbox),
+                'FixUniqueSkillAnimations': ('Listbox', listPatches, 0),
+                'BuffGuestYuzuru': ('Listbox', listPatches, 1),
+                'UnlockFusions': ('Listbox', listPatches, 2),
+            },
+            'Demon': {
+                'RandomLevels': ('Listbox', listDemon, 0),
+                'RandomSkills': ('Listbox', listDemon, 1),
+                'ScaledSkills': ('Listbox', listDemon, 2),
+                'RandomInnates': ('Listbox', listDemon, 3),
+                'WeightSkillsToPotentials': ('Listbox', listDemon, 4),
+                'RandomPotentials': ('Listbox', listDemon, 5),
+                'ScaledPotentials': ('Listbox', listDemon, 6),
+                'multipleUniques': ('Listbox', listDemon, 7),
+                'randomRaces': ('Listbox', listDemon, 8),
+                'randomAlignment': ('Listbox', listDemon, 9),
+                'ensureDemonJoinLevel': ('Listbox', listDemon, 10),
+                'RandomDemonStats': ('Listbox', listDemon, 11),
+                'ReduceCompendiumCost': ('Listbox', listDemon, 12),
+                'RestrictLunationFlux': ('Listbox', listDemon, 13),
+                'EnemyOnlySkills': ('Listbox', listDemon, 14),
+                'MagatsuhiSkills': ('Listbox', listDemon, 15),
+                'ForceUniqueSkills': ('Listbox', listDemon, 16),
+                #'': ('Listbox', listDemon, 17),
+                #'': ('Listbox', listDemon, 18),
+            },
+            'Inheritance': {
+                'RandomInheritance': ('Listbox_single', listInheritance, 1),
+                'FreeInheritance': ('Listbox_single', listInheritance, 2),
+            },
+            'Magatsuhi': {
+                'RandomRequirements': ('Listbox', listMagatsuhi, 0),
+                'IncludeCritical': ('Listbox', listMagatsuhi, 1),
+                'IncludeSuccession': ('Listbox', listMagatsuhi, 2),
+            },
+            'Music': {
+                'RandomMusic': ('Listbox_single', listMusic, 2),
+                'CheckBasedMusic': ('Listbox_single', listMusic, 1),
+            },
+            'Item': {
+                'RandomShopItems': ('Listbox', listItem, 0),
+                'RandomShopEssences': ('Listbox', listItem, 1),
+                'RandomEnemyDrops': ('Listbox', listItem, 2),
+                'RandomChests': ('Listbox', listItem, 3),
+                'ScaleItemsToArea': ('Listbox', listItem, 4),
+                'RandomizeMimanRewards': ('Listbox', listItem, 5),
+                'RandomizeMissionRewards': ('Listbox', listItem, 6),
+                'RandomizeGiftItems': ('Listbox', listItem, 7),
+                'CombineKeyItemPools': ('Listbox', listItem, 8),
+                'IncludeTsukuyomiTalisman': ('Listbox', listItem, 9),
+            },
+            'Boss': {
+                'NormalBossesSelf': ('Listbox_single', listBoss, 1),
+                'NormalBossesMixed': ('Listbox_single', listBoss, 2),
+                'AbscessBossesSelf': ('Listbox_single', listAbscess, 1),
+                'AbscessBossesMixed': ('Listbox_single', listAbscess, 2),
+                'OverworldBossesSelf': ('Listbox_single', listPunishing, 1),
+                'OverworldBossesMixed': ('Listbox_single', listPunishing, 2),
+                'SuperbossesSelf': ('Listbox_single', listSuperboss, 1),
+                'SuperbossesMixed': ('Listbox_single', listSuperboss, 2),
+                'MinibossesSelf': ('Listbox_single', listMiniboss, 1),
+                'MinibossesMixed': ('Listbox_single', listMiniboss, 2),
+
+               'ScaleBossDamage': ('Listbox', listBossSettings, 0), 
+               'ScalePressTurns': ('Listbox', listBossSettings, 1), 
+               'RandomizeLucifer': ('Listbox', listBossSettings, 2), 
+               'PreventEarlyAmbush': ('Listbox', listBossSettings, 3), 
+               'BossDependentAmbush': ('Listbox', listBossSettings, 4), 
+               'NerfBossHealing': ('Listbox', listBossSettings, 5), 
+               'ScaleInstakillRates': ('Listbox', listBossSettings, 6), 
+
+               'RandomizeIshtarPressTurns': ('Checkbutton',ishtarRandomizeCheckbox),
+            },
+            'Miracle': {
+                'RandomMiracleUnlocks': ('Listbox', listMiracle, 0),
+                'RandomMiracleCosts': ('Listbox', listMiracle, 1),
+                'ReverseDivineGarrisons': ('Listbox', listMiracle, 2),
+
+                'VanillaRankViolation': ('Listbox_single', listRankViolation, 1),
+                'EarlyRankViolation': ('Listbox_single', listRankViolation, 2),
+
+                'EarlyDivineGarrison': ('Listbox', listEarlyMiracle, 0),
+                'EarlyForestall': ('Listbox', listEarlyMiracle, 1),
+                'EarlyEmpoweringCheer': ('Listbox', listEarlyMiracle, 2),
+                'EarlyArtOfEssences': ('Listbox', listEarlyMiracle, 3),
+                'EarlyDemonProficiency': ('Listbox', listEarlyMiracle, 4),
+                'EarlyDivineProficiency': ('Listbox', listEarlyMiracle, 5),
+                'EarlyDivineAmalgamation': ('Listbox', listEarlyMiracle, 6),
+                'EarlyInheritenceViolation': ('Listbox', listEarlyMiracle, 7),
+            },
+        }
         listInheritance.selection_set(0)
-        if configur.get('Inheritance', 'RandomInheritance') == 'true':
-            listInheritance.selection_clear(0)
-            listInheritance.selection_set(1)
-        else:
-            listInheritance.selection_clear(1)
-        if configur.get('Inheritance', 'FreeInheritance') == 'true':
-            listInheritance.selection_clear(0)
-            listInheritance.selection_set(2)
-        else:
-            listInheritance.selection_clear(2)
-        if configur.get('Magatsuhi', 'RandomRequirements') == 'true':
-            listMagatsuhi.selection_set(0)
-        else:
-            listMagatsuhi.selection_clear(0)
-        if configur.get('Magatsuhi', 'IncludeCritical') == 'true':
-            listMagatsuhi.selection_set(1)
-        else:
-            listMagatsuhi.selection_clear(1)
-        if configur.get('Magatsuhi', 'IncludeSuccession') == 'true':
-            listMagatsuhi.selection_set(2)
-        else:
-            listMagatsuhi.selection_clear(2)
         listMusic.selection_set(0)
-        if configur.get('Music', 'RandomMusic') == 'true':
-            listMusic.selection_clear(0)
-            listMusic.selection_set(2)
-        else:
-            listMusic.selection_clear(2)
-        if configur.get('Music', 'CheckBasedMusic') == 'true':
-            listMusic.selection_clear(0)
-            listMusic.selection_set(1)
-        else:
-            listMusic.selection_clear(1)
-        if configur.get('Item', 'RandomShopItems') == 'true':
-            listItem.selection_set(0)
-        else:
-            listItem.selection_clear(0)
-        if configur.get('Item', 'RandomShopEssences') == 'true':
-            listItem.selection_set(1)
-        else:
-            listItem.selection_clear(1)
-        if configur.get('Item', 'RandomEnemyDrops') == 'true':
-            listItem.selection_set(2)
-        else:
-            listItem.selection_clear(2)
-        if configur.get('Item', 'RandomChests') == 'true':
-            listItem.selection_set(3)
-        else:
-            listItem.selection_clear(3)
-        if configur.get('Item', 'ScaleItemsToArea') == 'true':
-            listItem.selection_set(4)
-        else:
-            listItem.selection_clear(4)
-        if configur.get('Item', 'RandomizeMimanRewards') == 'true':
-            listItem.selection_set(5)
-        else:
-            listItem.selection_clear(5)
-        if configur.get('Item', 'RandomizeMissionRewards') == 'true':
-            listItem.selection_set(6)
-        else:
-            listItem.selection_clear(6)
-
-        if configur.get('Item', 'RandomizeGiftItems') == 'true':
-            listItem.selection_set(7)
-        else:
-            listItem.selection_clear(7)
-
-        if configur.get('Item', 'CombineKeyItemPools') == 'true':
-            listItem.selection_set(8)
-        else:
-            listItem.selection_clear(8)
-        
-        if configur.get('Item', 'IncludeTsukuyomiTalisman') == 'true':
-            listItem.selection_set(9)
-        else:
-            listItem.selection_clear(9)
-
         listBoss.selection_set(0)
-        if configur.get('Boss', 'NormalBossesSelf') == 'true':
-            listBoss.selection_clear(0)
-            listBoss.selection_set(1)
-        else:
-            listBoss.selection_clear(1)
-        if configur.get('Boss', 'NormalBossesMixed') == 'true':
-            listBoss.selection_clear(0)
-            listBoss.selection_set(2)
-        else:
-            listBoss.selection_clear(2)
         listAbscess.selection_set(0)
-        if configur.get('Boss', 'AbscessBossesSelf') == 'true':
-            listAbscess.selection_clear(0)
-            listAbscess.selection_set(1)
-        else:
-            listAbscess.selection_clear(1)
-        if configur.get('Boss', 'AbscessBossesMixed') == 'true':
-            listAbscess.selection_clear(0)
-            listAbscess.selection_set(2)
-        else:
-            listAbscess.selection_clear(2)
         listPunishing.selection_set(0)
-        if configur.get('Boss', 'OverworldBossesSelf') == 'true':
-            listPunishing.selection_clear(0)
-            listPunishing.selection_set(1)
-        else:
-            listPunishing.selection_clear(1)
-        if configur.get('Boss', 'OverworldBossesMixed') == 'true':
-            listPunishing.selection_clear(0)
-            listPunishing.selection_set(2)
-        else:
-            listPunishing.selection_clear(2)
         listSuperboss.selection_set(0)
-        if configur.get('Boss', 'SuperbossesSelf') == 'true':
-            listSuperboss.selection_clear(0)
-            listSuperboss.selection_set(1)
-        else:
-            listSuperboss.selection_clear(1)
-        if configur.get('Boss', 'SuperbossesMixed') == 'true':
-            listSuperboss.selection_clear(0)
-            listSuperboss.selection_set(2)
-        else:
-            listSuperboss.selection_clear(2)
         listMiniboss.selection_set(0)
-        if configur.get('Boss', 'MinibossesSelf') == 'true':
-            listMiniboss.selection_clear(0)
-            listMiniboss.selection_set(1)
-        else:
-            listMiniboss.selection_clear(1)
-        if configur.get('Boss', 'MinibossesMixed') == 'true':
-            listMiniboss.selection_clear(0)
-            listMiniboss.selection_set(2)
-        else:
-            listMiniboss.selection_clear(2)
-        if configur.get('Boss', 'ScaleBossDamage') == 'true':
-            listBossSettings.selection_set(0)
-        else:
-            listBossSettings.selection_clear(0)
-        if configur.get('Boss', 'ScalePressTurns') == 'true':
-            listBossSettings.selection_set(1)
-        else:
-            listBossSettings.selection_clear(1)
-        if configur.get('Boss', 'RandomizeLucifer') == 'true':
-            listBossSettings.selection_set(2)
-        else:
-            listBossSettings.selection_clear(2)
-        if configur.get('Boss', 'PreventEarlyAmbush') == 'true':
-            listBossSettings.selection_set(3)
-        else:
-            listBossSettings.selection_clear(3)
-        if configur.get('Boss', 'BossDependentAmbush') == 'true':
-            listBossSettings.selection_set(4)
-        else:
-            listBossSettings.selection_clear(4)
-        if configur.get('Boss', 'NerfBossHealing') == 'true':
-            listBossSettings.selection_set(5)
-        else:
-            listBossSettings.selection_clear(5)
-        if configur.get('Boss', 'ScaleInstakillRates') == 'true':
-            listBossSettings.selection_set(6)
-        else:
-            listBossSettings.selection_clear(6)
-        if configur.get('Boss', 'RandomizeIshtarPressTurns') == 'true':
-            ishtarRandomizeCheckbox.select()
-        else:
-            ishtarRandomizeCheckbox.deselect()
+        listRankViolation.selection_set(0)
+        
+
+        def applyUISetting(config, section, key, element, elementType, index=None):
+            value = config.get(section, key) == 'true'
+            if elementType == 'Checkbutton':
+                if value:
+                    element.select()
+                else:
+                    element.deselect()
+            elif elementType == 'Listbox':
+                if value:
+                    element.selection_set(index)
+                else:
+                    element.selection_clear(index)
+            elif elementType == 'Listbox_single':
+                if value:
+                    element.selection_clear(0)
+                    element.selection_set(index)
+                else:
+                    element.selection_clear(index)
+
+        for section, keys in UI_MAP.items():
+            for key, (elementType, element, *index) in keys.items():
+                applyUISetting(configur, section, key, element, elementType, index[0] if index else None)
+        
         toggleIshtarCheckbox()
         ishtarScale.set(configur.get('Boss', 'IshtarPressTurns'))
-        if configur.get('Miracle', 'RandomMiracleUnlocks') == 'true':
-            listMiracle.selection_set(0)
-        else:
-            listMiracle.selection_clear(0)
-        if configur.get('Miracle', 'RandomMiracleCosts') == 'true':
-            listMiracle.selection_set(1)
-        else:
-            listMiracle.selection_clear(1)
-        if configur.get('Miracle', 'ReverseDivineGarrisons') == 'true':
-            listMiracle.selection_set(2)
-        else:
-            listMiracle.selection_clear(2)
         toggleMiracleListboxes(None)
-        listRankViolation.selection_set(0)
-        if configur.get('Miracle', 'VanillaRankViolation') == 'true':
-            listRankViolation.selection_clear(0)
-            listRankViolation.selection_set(1)
-        else:
-            listRankViolation.selection_clear(1)
-        if configur.get('Miracle', 'EarlyRankViolation') == 'true':
-            listRankViolation.selection_clear(0)
-            listRankViolation.selection_set(2)
-        else:
-            listRankViolation.selection_clear(2)
-        if configur.get('Miracle', 'EarlyDivineGarrison') == 'true':
-            listEarlyMiracle.selection_set(0)
-        else:
-            listEarlyMiracle.selection_clear(0)
-        if configur.get('Miracle', 'EarlyForestall') == 'true':
-            listEarlyMiracle.selection_set(1)
-        else:
-            listEarlyMiracle.selection_clear(1)
-        if configur.get('Miracle', 'EarlyEmpoweringCheer') == 'true':
-            listEarlyMiracle.selection_set(2)
-        else:
-            listEarlyMiracle.selection_clear(2)
-        if configur.get('Miracle', 'EarlyArtOfEssences') == 'true':
-            listEarlyMiracle.selection_set(3)
-        else:
-            listEarlyMiracle.selection_clear(3)
-        if configur.get('Miracle', 'EarlyDemonProficiency') == 'true':
-            listEarlyMiracle.selection_set(4)
-        else:
-            listEarlyMiracle.selection_clear(4)
-        if configur.get('Miracle', 'EarlyDivineProficiency') == 'true':
-            listEarlyMiracle.selection_set(5)
-        else:
-            listEarlyMiracle.selection_clear(5)
-        if configur.get('Miracle', 'EarlyDivineAmalgamation') == 'true':
-            listEarlyMiracle.selection_set(6)
-        else:
-            listEarlyMiracle.selection_clear(6)
-        if configur.get('Miracle', 'EarlyInheritenceViolation') == 'true':
-            listEarlyMiracle.selection_set(7)
-        else:
-            listEarlyMiracle.selection_clear(7)
-        if configur.get('Patches', 'FixUniqueSkillAnimations') == 'true':
-            listPatches.selection_set(0)
-        else:
-            listPatches.selection_clear(0)
-        if configur.get('Patches', 'BuffGuestYuzuru') == 'true':
-            listPatches.selection_set(1)
-        else:
-            listPatches.selection_clear(1)
-        if configur.get('Patches', 'UnlockFusions') == 'true':
-            listPatches.selection_set(2)
-        else:
-            listPatches.selection_clear(2)
+        
         expScale.set(configur.get('Patches', 'EXPMultiplier'))
         pressTurnScale.set(configur.get('Patches','PressTurnChance'))
+        
         
     #Set starting GUI values based on saved user settings
     configur = ConfigParser()
@@ -820,347 +644,137 @@ def createGUI(configSettings):
 
     #Set the config settings
     configSettings.swapCutsceneModels = cutsceneChoice
-    if cutsceneChoice:
-        configur.set('Patches', 'swapCutsceneModels', 'true')
-    else:
-        configur.set('Patches', 'swapCutsceneModels', 'false')
-    if demonFlags[0]:
-        configSettings.randomDemonLevels = True
-        configur.set('Demon', 'RandomLevels', 'true')
-    else:
-        configur.set('Demon', 'RandomLevels', 'false')
+    configur.set('Patches', 'swapCutsceneModels', str(cutsceneChoice).lower())
 
-    if demonFlags[1]:
-        configSettings.randomSkills = True
-        configur.set('Demon', 'RandomSkills', 'true')
-    else:
-        configur.set('Demon', 'RandomSkills', 'false')
+    configSettings.randomDemonLevels = demonFlags[0]
+    configur.set('Demon', 'RandomLevels', str(demonFlags[0]).lower())
+    configSettings.randomSkills = demonFlags[1]
+    configur.set('Demon', 'RandomSkills', str(demonFlags[1]).lower())
+    configSettings.scaledSkills = demonFlags[2]
+    configur.set('Demon', 'ScaledSkills', str(demonFlags[2]).lower())
+    configSettings.randomInnates = demonFlags[3]
+    configur.set('Demon', 'RandomInnates', str(demonFlags[3]).lower())
+    configSettings.potentialWeightedSkills = demonFlags[4]
+    configur.set('Demon', 'WeightSkillsToPotentials', str(demonFlags[4]).lower())
+    configSettings.randomPotentials = demonFlags[5]
+    configur.set('Demon', 'RandomPotentials', str(demonFlags[5]).lower())
+    configSettings.scaledPotentials = demonFlags[6]
+    configur.set('Demon', 'ScaledPotentials', str(demonFlags[6]).lower())
+    configSettings.multipleUniques = demonFlags[7]
+    configur.set('Demon', 'multipleUniques', str(demonFlags[7]).lower())
+    configSettings.randomRaces = demonFlags[8]
+    configur.set('Demon', 'randomRaces', str(demonFlags[8]).lower())
+    configSettings.randomAlignment = demonFlags[9]
+    configur.set('Demon', 'randomAlignment', str(demonFlags[9]).lower())
+    configSettings.ensureDemonJoinLevel = demonFlags[10]
+    configur.set('Demon', 'ensureDemonJoinLevel', str(demonFlags[10]).lower())
+    configSettings.randomDemonStats = demonFlags[11]
+    configur.set('Demon', 'RandomDemonStats', str(demonFlags[11]).lower())
+    configSettings.reduceCompendiumCosts = demonFlags[12]
+    configur.set('Demon', 'ReduceCompendiumCost', str(demonFlags[12]).lower())
+    configSettings.restrictLunationFlux = demonFlags[13]
+    configur.set('Demon', 'RestrictLunationFlux', str(demonFlags[13]).lower())
+    configSettings.includeEnemyOnlySkills = demonFlags[14]
+    configur.set('Demon', 'EnemyOnlySkills', str(demonFlags[14]).lower())
+    configSettings.includeMagatsuhiSkills = demonFlags[15]
+    configur.set('Demon', 'MagatsuhiSkills', str(demonFlags[15]).lower())
+    configSettings.forceAllSkills = demonFlags[16]
+    configur.set('Demon', 'ForceUniqueSkills', str(demonFlags[16]).lower())
+    
+    configSettings.randomInheritance = bool(inheritanceChoice and inheritanceChoice[0] == 1)
+    configur.set('Inheritance', 'RandomInheritance', str(configSettings.randomInheritance).lower())
+    configSettings.freeInheritance = bool(inheritanceChoice and inheritanceChoice[0] == 2)
+    configur.set('Inheritance', 'FreeInheritance', str(configSettings.freeInheritance).lower())
 
-    if demonFlags[2]:
-        configSettings.scaledSkills = True
-        configur.set('Demon', 'ScaledSkills', 'true')
-    else:
-        configur.set('Demon', 'ScaledSkills', 'false')
+    configSettings.randomizeMagatsuhiSkillReq = magatsuhiFlags[0]
+    configur.set('Magatsuhi', 'RandomRequirements', str(magatsuhiFlags[0]).lower())
+    configSettings.includeOmagatokiCritical = magatsuhiFlags[1]
+    configur.set('Magatsuhi', 'IncludeCritical', str(magatsuhiFlags[1]).lower())
+    configSettings.includeOmnipotentSuccession = magatsuhiFlags[2]
+    configur.set('Magatsuhi', 'IncludeSuccession', str(magatsuhiFlags[2]).lower())
+    
+    configSettings.randomMusic = bool(musicChoice and musicChoice[0] == 2)
+    configur.set('Music', 'RandomMusic', str(configSettings.randomMusic).lower())
+    configSettings.checkBasedMusic = bool(musicChoice and musicChoice[0] == 1)
+    configur.set('Music', 'CheckBasedMusic', str(configSettings.checkBasedMusic).lower())        
 
-    if demonFlags[3]:
-        configSettings.randomInnates = True
-        configur.set('Demon', 'RandomInnates', 'true')
-    else:
-        configur.set('Demon', 'RandomInnates', 'false')
+    configSettings.randomShopItems = itemFlags[0]
+    configur.set('Item', 'RandomShopItems', str(itemFlags[0]).lower())
+    configSettings.randomShopEssences = itemFlags[1]
+    configur.set('Item', 'RandomShopEssences', str(itemFlags[1]).lower())    
+    configSettings.randomEnemyDrops = itemFlags[2]
+    configur.set('Item', 'RandomEnemyDrops', str(itemFlags[2]).lower())
+    configSettings.randomChests = itemFlags[3]
+    configur.set('Item', 'RandomChests', str(itemFlags[3]).lower())
+    configSettings.scaleItemsToArea = itemFlags[4]
+    configur.set('Item', 'ScaleItemsToArea',str(itemFlags[4]).lower())    
+    configSettings.randomizeMimanRewards = itemFlags[5]
+    configur.set('Item', 'RandomizeMimanRewards', str(itemFlags[5]).lower())
+    configSettings.randomizeMissionRewards = itemFlags[6]
+    configur.set('Item', 'RandomizeMissionRewards', str(itemFlags[6]).lower())
+    configSettings.randomizeGiftItems = itemFlags[7]
+    configur.set('Item', 'RandomizeGiftItems', str(itemFlags[7]).lower())
+    configSettings.combineKeyItemPools = itemFlags[8]
+    configur.set('Item', 'CombineKeyItemPools', str(itemFlags[8]).lower())
+    configSettings.includeTsukuyomiTalisman = itemFlags[9]
+    configur.set('Item', 'IncludeTsukuyomiTalisman',str(itemFlags[9]).lower() )
+    
+    configSettings.scaleBossDamage = bossFlags[0]
+    configur.set('Boss', 'ScaleBossDamage', str(bossFlags[0]).lower())
+    configSettings.scaleBossPressTurnsToCheck = bossFlags[1]
+    configur.set('Boss', 'ScalePressTurns', str(bossFlags[1]).lower())
+    configSettings.randomizeLucifer = bossFlags[2]
+    configur.set('Boss', 'RandomizeLucifer', str(bossFlags[2]).lower())
+    configSettings.preventEarlyAmbush = bossFlags[3]
+    configur.set('Boss', 'PreventEarlyAmbush', str(bossFlags[3]).lower())
+    configSettings.bossDependentAmbush = bossFlags[4]
+    configur.set('Boss', 'BossDependentAmbush', str(bossFlags[4]).lower())
+    configSettings.nerfBossHealing = bossFlags[5]
+    configur.set('Boss', 'NerfBossHealing', str(bossFlags[5]).lower())
+    configSettings.scaleBossInstakillRates = bossFlags[6]
+    configur.set('Boss', 'ScaleInstakillRates', str(bossFlags[6]).lower())
 
-    if demonFlags[4]:
-        configSettings.potentialWeightedSkills = True
-        configur.set('Demon', 'WeightSkillsToPotentials', 'true')
-    else:
-        configur.set('Demon', 'WeightSkillsToPotentials', 'false')
-
-    if demonFlags[5]:
-        configSettings.randomPotentials = True
-        configur.set('Demon', 'RandomPotentials', 'true')
-    else:
-        configur.set('Demon', 'RandomPotentials', 'false')
-
-    if demonFlags[6]:
-        configSettings.scaledPotentials = True
-        configur.set('Demon', 'ScaledPotentials', 'true')
-    else:
-        configur.set('Demon', 'ScaledPotentials', 'false')
-
-    if demonFlags[7]:
-        configSettings.multipleUniques = True
-        configur.set('Demon', 'multipleUniques', 'true')
-    else:
-        configur.set('Demon', 'multipleUniques', 'false')
+    configSettings.selfRandomizeNormalBosses = bool(normalBossChoice and normalBossChoice[0] == 1)
+    configur.set('Boss', 'NormalBossesSelf', str(configSettings.selfRandomizeNormalBosses).lower())
+    configSettings.mixedRandomizeNormalBosses = bool(normalBossChoice and normalBossChoice[0] == 2)
+    configur.set('Boss', 'NormalBossesMixed', str(configSettings.mixedRandomizeNormalBosses).lower())   
     
-    if demonFlags[8]:
-        configSettings.randomRaces = True
-        configur.set('Demon', 'randomRaces', 'true')
-    else:
-        configur.set('Demon', 'randomRaces', 'false')
+    configSettings.selfRandomizeAbscessBosses = bool(abscessChoice and abscessChoice[0] == 1)
+    configur.set('Boss', 'AbscessBossesSelf', str(configSettings.selfRandomizeAbscessBosses).lower())
+    configSettings.mixedRandomizeAbscessBosses = bool(abscessChoice and abscessChoice[0] == 2)
+    configur.set('Boss', 'AbscessBossesMixed', str(configSettings.mixedRandomizeAbscessBosses).lower())       
     
-    if demonFlags[9]:
-        configSettings.randomAlignment = True
-        configur.set('Demon', 'randomAlignment', 'true')
-    else:
-        configur.set('Demon', 'randomAlignment', 'false')
-    
-    if demonFlags[10]:
-        configSettings.ensureDemonJoinLevel = True
-        configur.set('Demon', 'ensureDemonJoinLevel', 'true')
-    else:
-        configur.set('Demon', 'ensureDemonJoinLevel', 'false')
-    
-    if demonFlags[11]:
-        configSettings.randomDemonStats = True
-        configur.set('Demon', 'RandomDemonStats', 'true')
-    else:
-        configur.set('Demon', 'RandomDemonStats', 'false')
-    
-    if demonFlags[12]:
-        configSettings.reduceCompendiumCosts = True
-        configur.set('Demon', 'ReduceCompendiumCost', 'true')
-    else:
-        configur.set('Demon', 'ReduceCompendiumCost', 'false')
-        
-    if demonFlags[13]:
-        configSettings.restrictLunationFlux = True
-        configur.set('Demon', 'RestrictLunationFlux', 'true')
-    else:
-        configur.set('Demon', 'RestrictLunationFlux', 'false')
-    
-    if demonFlags[14]:
-        configSettings.includeEnemyOnlySkills = True
-        configur.set('Demon', 'EnemyOnlySkills', 'true')
-    else:
-        configur.set('Demon', 'EnemyOnlySkills', 'false')
-    
-    if demonFlags[15]:
-        configSettings.includeMagatsuhiSkills = True
-        configur.set('Demon', 'MagatsuhiSkills', 'true')
-    else:
-        configur.set('Demon', 'MagatsuhiSkills', 'false')
-    
-    if demonFlags[16]:
-        configSettings.forceAllSkills = True
-        configur.set('Demon', 'ForceUniqueSkills', 'true')
-    else:
-        configur.set('Demon', 'ForceUniqueSkills', 'false')
-
-    if len(inheritanceChoice) > 0 and inheritanceChoice[0] == 1:
-        configSettings.randomInheritance = True
-        configur.set('Inheritance', 'RandomInheritance', 'true')
-    else:
-        configur.set('Inheritance', 'RandomInheritance', 'false')
-    
-    if len(inheritanceChoice) > 0 and inheritanceChoice[0] == 2:
-        configSettings.freeInheritance = True
-        configur.set('Inheritance', 'FreeInheritance', 'true')
-    else:
-        configur.set('Inheritance', 'FreeInheritance', 'false')
-    
-    if magatsuhiFlags[0]:
-        configSettings.randomizeMagatsuhiSkillReq = True
-        configur.set('Magatsuhi', 'RandomRequirements', 'true')
-    else:
-        configur.set('Magatsuhi', 'RandomRequirements', 'false')
-    
-    if magatsuhiFlags[1]:
-        configSettings.includeOmagatokiCritical = True
-        configur.set('Magatsuhi', 'IncludeCritical', 'true')
-    else:
-        configur.set('Magatsuhi', 'IncludeCritical', 'false')
-    
-    if magatsuhiFlags[2]:
-        configSettings.includeOmnipotentSuccession = True
-        configur.set('Magatsuhi', 'IncludeSuccession', 'true')
-    else:
-        configur.set('Magatsuhi', 'IncludeSuccession', 'false')
+    configSettings.selfRandomizeOverworldBosses = bool(punishingChoice and punishingChoice[0] == 1)
+    configur.set('Boss', 'OverworldBossesSelf', str(configSettings.selfRandomizeOverworldBosses).lower())
+    configSettings.mixedRandomizeOverworldBosses = bool(punishingChoice and punishingChoice[0] == 2)
+    configur.set('Boss', 'OverworldBossesMixed', str(configSettings.mixedRandomizeOverworldBosses).lower())       
             
-    if len(musicChoice) > 0 and musicChoice[0] == 2:
-        configSettings.randomMusic = True
-        configur.set('Music', 'RandomMusic', 'true')
-    else:
-        configur.set('Music', 'RandomMusic', 'false')
-
-    if len(musicChoice) > 0 and musicChoice[0] == 1:
-        configSettings.checkBasedMusic = True
-        configur.set('Music', 'CheckBasedMusic', 'true')
-    else:
-        configur.set('Music', 'CheckBasedMusic', 'false')
+    configSettings.selfRandomizeSuperbosses = bool(superbossChoice and superbossChoice[0] == 1)
+    configur.set('Boss', 'SuperbossesSelf', str(configSettings.selfRandomizeSuperbosses).lower())
+    configSettings.mixedRandomizeSuperbosses = bool(superbossChoice and superbossChoice[0] == 2)
+    configur.set('Boss', 'SuperbossesMixed', str(configSettings.mixedRandomizeSuperbosses).lower()) 
         
-    if itemFlags[0]:
-        configSettings.randomShopItems = True
-        configur.set('Item', 'RandomShopItems', 'true')
-    else:
-        configur.set('Item', 'RandomShopItems', 'false')
+    configSettings.selfRandomizeMinibosses = bool(minibossChoice and minibossChoice[0] == 1)
+    configur.set('Boss', 'MinibossesSelf', str(configSettings.selfRandomizeMinibosses).lower())
+    configSettings.mixedRandomizeMinibosses = bool(minibossChoice and minibossChoice[0] == 2)
+    configur.set('Boss', 'MinibossesMixed', str(configSettings.mixedRandomizeMinibosses).lower()) 
         
-    if itemFlags[1]:
-        configSettings.randomShopEssences = True
-        configur.set('Item', 'RandomShopEssences', 'true')
-    else:
-        configur.set('Item', 'RandomShopEssences', 'false')
-        
-    if itemFlags[2]:
-        configSettings.randomEnemyDrops = True
-        configur.set('Item', 'RandomEnemyDrops', 'true')
-    else:
-        configur.set('Item', 'RandomEnemyDrops', 'false')
-        
-    if itemFlags[3]:
-        configSettings.randomChests = True
-        configur.set('Item', 'RandomChests', 'true')
-    else:
-        configur.set('Item', 'RandomChests', 'false')
-    
-    if itemFlags[4]:
-        configSettings.scaleItemsToArea = True
-        configur.set('Item', 'ScaleItemsToArea', ' true')
-    else:
-        configur.set('Item', 'ScaleItemsToArea', ' false')
-
-    if itemFlags[5]:
-        configSettings.randomizeMimanRewards = True
-        configur.set('Item', 'RandomizeMimanRewards', ' true')
-    else:
-        configur.set('Item', 'RandomizeMimanRewards', ' false')
-    
-    if itemFlags[6]:
-        configSettings.randomizeMissionRewards = True
-        configur.set('Item', 'RandomizeMissionRewards', ' true')
-    else:
-        configur.set('Item', 'RandomizeMissionRewards', ' false')
-    
-    if itemFlags[7]:
-        configSettings.randomizeGiftItems = True
-        configur.set('Item', 'RandomizeGiftItems', ' true')
-    else:
-        configur.set('Item', 'RandomizeGiftItems', ' false')
-    
-    if itemFlags[8]:
-        configSettings.combineKeyItemPools = True
-        configur.set('Item', 'CombineKeyItemPools', ' true')
-    else:
-        configur.set('Item', 'CombineKeyItemPools', ' false')
-    
-    if itemFlags[9]:
-        configSettings.includeTsukuyomiTalisman = True
-        configur.set('Item', 'IncludeTsukuyomiTalisman', ' true')
-    else:
-        configur.set('Item', 'IncludeTsukuyomiTalisman', ' false')
-            
-    if bossFlags[0]:
-        configSettings.scaleBossDamage = True
-        configur.set('Boss', 'ScaleBossDamage', 'true')
-    else:
-        configur.set('Boss', 'ScaleBossDamage', 'false')
-
-    if bossFlags[1]:
-        configSettings.scaleBossPressTurnsToCheck = True
-        configur.set('Boss', 'ScalePressTurns', 'true')
-    else:
-        configur.set('Boss', 'ScalePressTurns', 'false')
-        
-    if bossFlags[2]:
-        configSettings.randomizeLucifer = True
-        configur.set('Boss', 'RandomizeLucifer', 'true')
-    else:
-        configur.set('Boss', 'RandomizeLucifer', 'false')
-    
-    if bossFlags[3]:
-        configSettings.preventEarlyAmbush = True
-        configur.set('Boss', 'PreventEarlyAmbush', 'true')
-    else:
-        configur.set('Boss', 'PreventEarlyAmbush', 'false')
-    
-    if bossFlags[4]:
-        configSettings.bossDependentAmbush = True
-        configur.set('Boss', 'BossDependentAmbush', 'true')
-    else:
-        configur.set('Boss', 'BossDependentAmbush', 'false')
-        
-    if bossFlags[5]:
-        configSettings.nerfBossHealing = True
-        configur.set('Boss', 'NerfBossHealing', 'true')
-    else:
-        configur.set('Boss', 'NerfBossHealing', 'false')
-        
-    if bossFlags[6]:
-        configSettings.scaleBossInstakillRates = True
-        configur.set('Boss', 'ScaleInstakillRates', 'true')
-    else:
-        configur.set('Boss', 'ScaleInstakillRates', 'false')
-        
-    if len(normalBossChoice) > 0 and normalBossChoice[0] == 1:
-        configSettings.selfRandomizeNormalBosses = True
-        configur.set('Boss', 'NormalBossesSelf', 'true')
-    else:
-        configur.set('Boss', 'NormalBossesSelf', 'false')
-        
-    if len(normalBossChoice) > 0 and normalBossChoice[0] == 2:
-        configSettings.mixedRandomizeNormalBosses = True
-        configur.set('Boss', 'NormalBossesMixed', 'true')
-    else:
-        configur.set('Boss', 'NormalBossesMixed', 'false')
-            
-    if len(abscessChoice) > 0 and abscessChoice[0] == 1:
-        configSettings.selfRandomizeAbscessBosses = True
-        configur.set('Boss', 'AbscessBossesSelf', 'true')
-    else:
-        configur.set('Boss', 'AbscessBossesSelf', 'false')
-
-    if len(abscessChoice) > 0 and abscessChoice[0] == 2:
-        configSettings.mixedRandomizeAbscessBosses = True
-        configur.set('Boss', 'AbscessBossesMixed', 'true')
-    else:
-        configur.set('Boss', 'AbscessBossesMixed', 'false')
-            
-    if len(punishingChoice) > 0 and punishingChoice[0] == 1:
-        configSettings.selfRandomizeOverworldBosses = True
-        configur.set('Boss', 'OverworldBossesSelf', 'true')
-    else:
-        configur.set('Boss', 'OverworldBossesSelf', 'false')
-
-    if len(punishingChoice) > 0 and punishingChoice[0] == 2:
-        configSettings.mixedRandomizeOverworldBosses = True
-        configur.set('Boss', 'OverworldBossesMixed', 'true')
-    else:
-        configur.set('Boss', 'OverworldBossesMixed', 'false')
-        
-    if len(superbossChoice) > 0 and superbossChoice[0] == 1:
-        configSettings.selfRandomizeSuperbosses = True
-        configur.set('Boss', 'SuperbossesSelf', 'true')
-    else:
-        configur.set('Boss', 'SuperbossesSelf', 'false')
-
-    if len(superbossChoice) > 0 and superbossChoice[0] == 2:
-        configSettings.mixedRandomizeSuperbosses = True
-        configur.set('Boss', 'SuperbossesMixed', 'true')
-    else:
-        configur.set('Boss', 'SuperbossesMixed', 'false')
-        
-    if len(minibossChoice) > 0 and minibossChoice[0] == 1:
-        configSettings.selfRandomizeMinibosses = True
-        configur.set('Boss', 'MinibossesSelf', 'true')
-    else:
-        configur.set('Boss', 'MinibossesSelf', 'false')
-
-    if len(minibossChoice) > 0 and minibossChoice[0] == 2:
-        configSettings.mixedRandomizeMinibosses = True
-        configur.set('Boss', 'MinibossesMixed', 'true')
-    else:
-        configur.set('Boss', 'MinibossesMixed', 'false')
         
     configSettings.ishtarPressTurns = ishtarChoice
     configur.set('Boss', 'IshtarPressTurns', str(ishtarChoice))
     configSettings.randomizeIshtarPressTurns = ishtarRandomizeChoice
-    if ishtarRandomizeChoice:
-        configur.set('Boss', 'RandomizeIshtarPressTurns', 'true')
-    else:
-        configur.set('Boss', 'RandomizeIshtarPressTurns', 'false')
-        
-    if miracleFlags[0]:
-        configSettings.randomMiracleUnlocks = True
-        configur.set('Miracle', 'RandomMiracleUnlocks', 'true')
-    else:
-        configur.set('Miracle', 'RandomMiracleUnlocks', 'false')
-        
-    if miracleFlags[1]:
-        configSettings.randomMiracleCosts = True
-        configur.set('Miracle', 'RandomMiracleCosts', 'true')
-    else:
-        configur.set('Miracle', 'RandomMiracleCosts', 'false')
-        
-    if miracleFlags[2]:
-        configSettings.reverseDivineGarrisons = True
-        configur.set('Miracle', 'ReverseDivineGarrisons', 'true')
-    else:
-        configur.set('Miracle', 'ReverseDivineGarrisons', 'false')
-        
-    if len(rankViolationChoice) > 0 and rankViolationChoice[0] == 1:
-        configSettings.vanillaRankViolation = True
-        configur.set('Miracle', 'VanillaRankViolation', 'true')
-    else:
-        configur.set('Miracle', 'VanillaRankViolation', 'false')
+    configur.set('Boss', 'RandomizeIshtarPressTurns', str(ishtarRandomizeChoice).lower())
+
+    configSettings.randomMiracleUnlocks = miracleFlags[0]
+    configur.set('Miracle', 'RandomMiracleUnlocks', str(miracleFlags[0]).lower())
+    configSettings.randomMiracleCosts = miracleFlags[1]
+    configur.set('Miracle', 'RandomMiracleCosts', str(miracleFlags[1]).lower())
+    configSettings.reverseDivineGarrisons = miracleFlags[2]
+    configur.set('Miracle', 'ReverseDivineGarrisons', str(miracleFlags[2]).lower())
+
+    configSettings.vanillaRankViolation = bool(rankViolationChoice and rankViolationChoice[0] == 1)
+    configur.set('Miracle', 'VanillaRankViolation', str(configSettings.vanillaRankViolation).lower())  
+
         
     if len(rankViolationChoice) > 0 and rankViolationChoice[0] == 2:
         configSettings.forcedEarlyMiracles.append(31)
@@ -1215,24 +829,14 @@ def createGUI(configSettings):
         configur.set('Miracle', 'EarlyInheritenceViolation', 'true')
     else:
         configur.set('Miracle', 'EarlyInheritenceViolation', 'false')
-        
-    if patchFlags[0]:
-        configSettings.fixUniqueSkillAnimations = True
-        configur.set('Patches', 'FixUniqueSkillAnimations', 'true')
-    else:
-        configur.set('Patches', 'FixUniqueSkillAnimations', 'false')
-        
-    if patchFlags[1]:
-        configSettings.buffGuestYuzuru = True
-        configur.set('Patches', 'BuffGuestYuzuru', 'true')
-    else:
-        configur.set('Patches', 'BuffGuestYuzuru', 'false')
-    
-    if patchFlags[2]:
-        configSettings.unlockFusions = True
-        configur.set('Patches', 'UnlockFusions', 'true')
-    else:
-        configur.set('Patches', 'UnlockFusions', 'false')
+
+
+    configSettings.fixUniqueSkillAnimations = patchFlags[0]
+    configur.set('Patches', 'FixUniqueSkillAnimations', str(patchFlags[0]).lower()) 
+    configSettings.buffGuestYuzuru = patchFlags[1]
+    configur.set('Patches', 'BuffGuestYuzuru', str(patchFlags[1]).lower())
+    configSettings.unlockFusions = patchFlags[2]
+    configur.set('Patches', 'UnlockFusions', str(patchFlags[2]).lower())
         
     configSettings.expMultiplier = expChoice
     configur.set('Patches', 'EXPMultiplier', str(expChoice))
