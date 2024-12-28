@@ -37,15 +37,15 @@ def createGUI(configSettings):
     persistentFrameRight = tk.Frame(persistentFrame, width=500, height=170)
     persistentFrameRight.grid(row=1, column=1)
     persistentFrameRight.pack_propagate(False)
-    page1FrameTop = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
-    page1FrameTop.grid(row=0, column=0, columnspan = 1, sticky = tk.W+tk.E)
+    page1FrameTop = tk.Frame(page1Frame, width=500, height=500, background="#cccccc")
+    page1FrameTop.grid(row=0, column=0, rowspan = 2, columnspan = 1, sticky = tk.W+tk.E)
     page1FrameTop.pack_propagate(False)
     page1FrameTopRight = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
     page1FrameTopRight.grid(row=0, column=1, columnspan = 1, sticky = tk.W+tk.E)
     page1FrameTopRight.pack_propagate(False)
-    page1FrameLeft = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
-    page1FrameLeft.grid(row=1, column=0)
-    page1FrameLeft.pack_propagate(False)
+    # page1FrameLeft = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
+    # page1FrameLeft.grid(row=1, column=0)
+    # page1FrameLeft.pack_propagate(False)
     page1FrameRight = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
     page1FrameRight.grid(row=1, column=1)
     page1FrameRight.pack_propagate(False)
@@ -224,7 +224,7 @@ def createGUI(configSettings):
     demonLabel = tk.Label(page1FrameTop, text="Demon Randomizer")
     demonLabel.grid(row=0, column=0, sticky='nsew', columnspan= 2, padx = [10,0])
 
-    listDemon = tk.Listbox(page1FrameTop, selectmode = "multiple", width=75, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listDemon = tk.Listbox(page1FrameTop, selectmode = "multiple", width=75, height = 20, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listDemon.insert(0, "Randomize Levels")
     listDemon.insert(1, "Randomize Skills")
     listDemon.insert(2, "Scale Skills to Level")
@@ -271,15 +271,7 @@ def createGUI(configSettings):
     listMagatsuhi.selection_set(0)
     listMagatsuhi.pack()
 
-    musicLabel = tk.Label(page1FrameLeft, text="Boss Music Setting")
-    musicLabel.pack()
-
-    listMusic = tk.Listbox(page1FrameLeft, selectmode = "single", exportselection=False, selectbackground = NAHOBINO_BLUE)
-    listMusic.insert(0, "Boss-based")
-    listMusic.insert(1, "Check-based")
-    listMusic.insert(2, "Random")
-    listMusic.selection_set(0)
-    listMusic.pack()
+    
         
     itemLabel = tk.Label(page1FrameRight, text="Item Randomizer")
     itemLabel.pack()
@@ -378,6 +370,16 @@ def createGUI(configSettings):
     ishtarRandomizeCheckbox.pack()
     ishtarScale.pack()
     
+    musicLabel = tk.Label(page2FrameRight, text="Boss Music Setting")
+    musicLabel.pack()
+
+    listMusic = tk.Listbox(page2FrameRight, selectmode = "single", height=3,exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listMusic.insert(0, "Boss-based")
+    listMusic.insert(1, "Check-based")
+    listMusic.insert(2, "Random")
+    listMusic.selection_set(0)
+    listMusic.pack()
+
     miracleLabel = tk.Label(page3FrameTopLeft, text="Miracle Randomizer")
     miracleLabel.pack()
 
@@ -552,10 +554,12 @@ def createGUI(configSettings):
         listSuperboss.selection_set(0)
         listMiniboss.selection_set(0)
         listRankViolation.selection_set(0)
-        
+        toggleMiracleListboxes(None)
 
         def applyUISetting(config, section, key, element, elementType, index=None):
             value = config.get(section, key) == 'true'
+            if section == "Miracle":
+                toggleMiracleListboxes(None)
             if elementType == 'Checkbutton':
                 if value:
                     element.select()

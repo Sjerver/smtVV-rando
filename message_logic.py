@@ -3,7 +3,7 @@ import util.numbers as numbers
 import copy
 import re
 from base_classes.message import Message_File, Demon_Sync
-from randomizer import RACE_ARRAY
+from util.numbers import RACE_ARRAY
 
 MAX_LINE_LENGTH = 48 #Arbitray Number ( at least correct for missionInfo Text)
 BRAWNY_AMBITIONS_2 = 'mm_em2490'

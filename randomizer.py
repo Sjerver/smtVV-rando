@@ -18,6 +18,7 @@ import script_logic as scriptLogic
 import message_logic as message_logic
 import model_swap
 import util.numbers as numbers
+from util.numbers import RACE_ARRAY
 import util.paths as paths
 import util.translation as translation
 import boss_logic as bossLogic
@@ -31,7 +32,6 @@ import copy
 import shutil
 import traceback
 
-RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 DEV_CHEATS = False
 
 class Randomizer:
@@ -6548,7 +6548,7 @@ class Randomizer:
         Parameters:
             config (Settings) 
     '''
-    def fullRando(self, config):
+    def fullRando(self, config: Settings, testing= False):
         if os.path.exists("rando"):
             shutil.rmtree("rando")
 
@@ -6676,7 +6676,6 @@ class Randomizer:
             if attempts >= 10:
                 print('Major issue with generating demon levels and fusions')
                 return False
-            self.adjustSkillSlotsToLevel(newComp)
         else: newComp = self.compendiumArr
 
         
@@ -6686,6 +6685,7 @@ class Randomizer:
         #TODO: Consider case for potential weight or level dependency without random skills
 
         if config.randomSkills:
+            self.adjustSkillSlotsToLevel(newComp)
             self.assignRandomStartingSkill(self.nahobino, levelSkillList, config)
             self.assignRandomSkillsToProtofiend(self.protofiendArr, levelSkillList, config)
             newComp = self.assignRandomSkills(newComp,levelSkillList, config)
@@ -6693,7 +6693,8 @@ class Randomizer:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
             else:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
-        self.debugPrintUnassignedSkills(levelSkillList)
+        if self.configSettings.forceAllSkills:
+            self.debugPrintUnassignedSkills(levelSkillList)
         self.outputSkillSets() 
 
         if config.randomInnates:
@@ -6894,8 +6895,8 @@ class Randomizer:
         copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         
         self.mapSymbolFile.write()
-
-        self.applyUnrealPak()
+        if not testing:
+            self.applyUnrealPak()
 
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.
@@ -6981,7 +6982,7 @@ class Randomizer:
 
 
         for skillID in allSkillIDs:
-            print(translation.translateSkillID(skillID,self.skillNames))
+            print(translation.translateSkillID(skillID,self.skillNames) + " " + str(skillID))
 
     def outputSkillSets(self):
         sortedDemons = sorted(self.compendiumArr, key=lambda demon: demon.level.value)
@@ -6999,6 +7000,31 @@ class Randomizer:
                         continue
                     skillString = skillString + translation.translateSkillID(skill.value, self.skillNames)+ "(" + str(skill.level) + ")" + "/"
                 file.write(skillString + "\n")
+            for demon in self.playerBossArr:
+                if demon.ind in numbers.GUEST_IDS:
+                    skillString = "[" + str(demon.ind) + "](" + str(demon.level.value) +") " + demon.name + ": "
+                    for skill in demon.skills:
+                        if skill.ind == 0:
+                            continue
+                        skillString = skillString + translation.translateSkillID(skill.value, self.skillNames) + "/"
+                    for skill in demon.learnedSkills:
+                        if skill.ind == 0:
+                            continue
+                        skillString = skillString + translation.translateSkillID(skill.value, self.skillNames)+ "(" + str(skill.level) + ")" + "/"
+                    file.write(skillString + "\n")
+            for demon in self.protofiendArr:
+                skillString = "[" + str(demon.ind) + "](" + str(demon.level.value) +") " + "Aogami/Tsukuyomi Essence" + ": "
+                for skill in demon.skills:
+                    if skill.ind == 0:
+                        continue
+                    skillString = skillString + translation.translateSkillID(skill.value, self.skillNames) + "/"
+                for skill in demon.learnedSkills:
+                    if skill.ind == 0:
+                        continue
+                    skillString = skillString + translation.translateSkillID(skill.value, self.skillNames)+ "(" + str(skill.level) + ")" + "/"
+                file.write(skillString + "\n")
+
+
 
                     
 if __name__ == '__main__':
