@@ -6199,7 +6199,22 @@ class Randomizer:
         json = self.mapSymbolFile.json
 
         table = json["Exports"][0]["Table"]["Data"]
+        extraSymbolDF = pd.read_csv(paths.EXTRA_SYMBOLS, sep='\t')
+        '''
+        for _ , row in extraSymbolDF.iterrows():
+            entry = copy.deepcopy(BASE_MAPSYMBOLPARAMS)
+            referenceEntry = next(entry for entry in table if entry["Value"][0]["Value"] == row['CollisionCopyID'])
 
+            entry["Value"][4]["Value"] = 1.2
+            entry["Value"][0]["Value"] = row['DemonID']
+            entry["Value"][1]["Value"] = float(row['WalkSpeed'])
+            entry["Value"][2]["Value"] = float(row['AssaultSpeed'])
+            entry["Value"][5]["Value"] = referenceEntry["Value"][5]["Value"]
+            entry["Value"][6]["Value"] = referenceEntry["Value"][6]["Value"]
+            entry["Value"][7]["Value"] = referenceEntry["Value"][7]["Value"]
+            table.append(entry)
+
+        '''
         for demonID in numbers.ADD_LARGE_MODEL_DEMONS.keys():
             entry = copy.deepcopy(BASE_MAPSYMBOLPARAMS)
 
@@ -6215,7 +6230,21 @@ class Randomizer:
 
         originalJson = self.mapSymbolFile.originalJson
         table = originalJson["Exports"][0]["Table"]["Data"]
+        '''
+        for _ , row in extraSymbolDF.iterrows():
+            entry = copy.deepcopy(BASE_MAPSYMBOLPARAMS)
+            referenceEntry = next(entry for entry in table if entry["Value"][0]["Value"] == row['CollisionCopyID'])
 
+            entry["Value"][4]["Value"] = 1.2
+            entry["Value"][0]["Value"] = row['DemonID']
+            entry["Value"][1]["Value"] = float(row['WalkSpeed'])
+            entry["Value"][2]["Value"] = float(row['AssaultSpeed'])
+            entry["Value"][5]["Value"] = referenceEntry["Value"][5]["Value"]
+            entry["Value"][6]["Value"] = referenceEntry["Value"][6]["Value"]
+            entry["Value"][7]["Value"] = referenceEntry["Value"][7]["Value"]
+            table.append(entry)
+
+        '''
         for demonID in numbers.ADD_LARGE_MODEL_DEMONS.keys():
             entry = copy.deepcopy(BASE_MAPSYMBOLPARAMS)
 
@@ -6228,6 +6257,7 @@ class Randomizer:
             entry["Value"][7]["Value"] = referenceEntry["Value"][7]["Value"]
 
             table.append(entry)
+        
     '''
     Removes entries in the map symbol scale table that were added to aid in collision calculation in model swapping.
     '''
@@ -6241,7 +6271,6 @@ class Randomizer:
             demonID = entry["Value"][0]["Value"]
             if demonID in numbers.REMOVE_TEMP_MODEL_DEMONS:
                 table.remove(entry)
-        
 
     '''
     Changes the scaling of normal demon symbols with overly large scaling factors to the normal 1.2 factor.
