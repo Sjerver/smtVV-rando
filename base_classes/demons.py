@@ -51,7 +51,7 @@ class Affinities:
         self.physical = None
         self.fire = None
         self.ice = None
-        self.electric = None
+        self.elec = None
         self.force = None
         self.light = None
         self.dark = None

@@ -14,6 +14,7 @@ from base_classes.map_demons import Map_Demon
 from base_classes.map_event import Map_Event
 from base_classes.file_lists import Script_File_List, General_UAsset
 from util.jsonExports import BASE_MAPSYMBOLPARAMS
+from pprint import pprint
 import script_logic as scriptLogic
 import message_logic as message_logic
 import model_swap
@@ -100,7 +101,8 @@ class Randomizer:
         self.textSeed = ""
 
         self.elementals = [155,156,157,158]
-        
+        self.specialFusionDemonIDs = []
+
         self.dummyEventIndex = 0
     
     '''
@@ -244,7 +246,7 @@ class Randomizer:
                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 2)))
         demon.resist.ice = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 3),
                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 3)))
-        demon.resist.electric = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 4),
+        demon.resist.elec = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 4),
                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 4)))
         demon.resist.force = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 5),
                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 5)))
@@ -582,6 +584,7 @@ class Randomizer:
             fusion.demon3 = Translated_Value(fusionData.readHalfword(offset + 6), self.compendiumArr[fusionData.readHalfword(offset + 6)].name)
             fusion.demon4 = Translated_Value(fusionData.readHalfword(offset + 8), self.compendiumArr[fusionData.readHalfword(offset + 8)].name)
             fusion.result = Translated_Value(fusionData.readHalfword(offset + 10), self.compendiumArr[fusionData.readHalfword(offset + 10)].name)
+            self.specialFusionDemonIDs.append(fusion.result.value)
             self.specialFusionArr.append(fusion)
             
     '''
@@ -663,7 +666,7 @@ class Randomizer:
                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 2)))
         demon.resist.ice = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 3),
                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 3)))
-        demon.resist.electric = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 4),
+        demon.resist.elec = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 4),
                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 4)))
         demon.resist.force = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 5),
                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 5)))
@@ -816,7 +819,7 @@ class Randomizer:
         self.nahobino.resist.physical = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 0),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 * 0)))
         self.nahobino.resist.fire = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 1),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *1)))
         self.nahobino.resist.ice = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 2),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *2)))
-        self.nahobino.resist.electric = Translated_Value(playGrow.readWord(locations['affStart'] + 4 *3),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *3)))
+        self.nahobino.resist.elec = Translated_Value(playGrow.readWord(locations['affStart'] + 4 *3),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *3)))
         self.nahobino.resist.force = Translated_Value(playGrow.readWord(locations['affStart'] + 4 *4),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *4)))
         self.nahobino.resist.light = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 5),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *5)))
         self.nahobino.resist.dark = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 6),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *6)))
@@ -2274,23 +2277,27 @@ class Randomizer:
             mask (List(Number)): Optional list of demon IDs to filter comp by, only randomizing potentials of those demons
     '''
     def randomizePotentials(self, comp, mask=None):
+        
 
         for demon in comp:
             if mask and demon.ind not in mask:
                 continue
+            totalPercentage = 100
+            if self.configSettings.betterSpecialFusions and demon.ind in self.specialFusionDemonIDs:
+                totalPercentage = 200
             percentages = []
             for i in range(random.randint(3,9)):
-                percentages.append(random.randint(0,50))
+                percentages.append(random.randint(0,int(totalPercentage/2)))
 
-            while sum(percentages) != 100:
+            while sum(percentages) != totalPercentage:
                 randomN = random.randint(0,len(percentages)-1)
-                if sum(percentages) < 100:
+                if sum(percentages) < totalPercentage:
                     percentages[randomN] += 1
                 else:
                     percentages[randomN] -= 1
             negatives = 1
             for index,percentage in enumerate(percentages):
-                if random.randrange(0,100) < (100 / negatives) and negatives < (len(percentages)/2):
+                if random.randrange(0,totalPercentage) < (totalPercentage / negatives) and negatives < (len(percentages)/2):
                     percentages[index] = percentage * -1
                     negatives += 1
 
@@ -2301,7 +2308,7 @@ class Randomizer:
             #follows rough trends of potentials in base demons
             absPotAmount = round(numbers.POTENTIAL_SCALING_FACTOR * demon.level.value + numbers.BASE_POTENTIAL_VALUE)
             for index,percentage in enumerate(percentages):
-                percentage = percentage / 100
+                percentage = percentage / totalPercentage
                 # 7 is the base game max and min that occurs
                 maxV = 7
                 if(index > 8):
@@ -2318,7 +2325,389 @@ class Randomizer:
             demon.potential.ailment = newPotentials[8]
             demon.potential.support = newPotentials[9]
             demon.potential.recover = newPotentials[10]
-                         
+
+    '''
+    Assigns every protofiend new skills randomized using weights based on the passed settings.
+    The range of skills available can either be all or level ranges around the protofiends level.
+    Additionally, the weights are either the same for every skill or adjusted based on level range or potential and stat of demon.
+    Furthermore the process ensures that each demon starts with at least one active skill.
+        Parameters: 
+            comp (List(Compendium_Demon)): List of demons
+            mask (List(Number)): Optional list of demon IDs to filter comp by, only randomizing resitances of those demons
+        #TODO: Not entirely happy with this, so consider completely rethinking this. Maybe taking base resist profiles and then shuffling
+        either profiles or shuffle resists in profiles and then assign those randomly?
+    '''
+    def randomizeResistances(self, comp, mask = None):
+        diverseResistsFactor = 2 #Factor that decides which version of 
+        
+        '''
+        Adjust weights for the resistance level based on the potential of an element for a demon.
+            Parameters:
+                element(String): the potential to use for the element
+                resistWeights(List): list of weights to modify
+                demon(Compendium_Demon): demon to use potentials of
+            Returns the modified list of weights
+        '''
+        def adjustResistWeightForPotential(element,resistWeights,demon):
+            potential = demon.potential.__getattribute__(element)
+            if potential == 0:
+                #increase neutral chance
+                resistWeights[4] = math.ceil(1.1 * resistWeights[4])
+                return resistWeights
+            elif potential < 0:
+                #reduce resist chance, increase weakness chance
+                multiplier = 1 - (potential / -10) 
+                for i in range(4):
+                    resistWeights[i] = math.ceil(resistWeights[i] * multiplier)
+                #resistWeights[4] = math.ceil(multiplier  * resistWeights[4])
+                multiplier = 1 - (potential / 10)
+                resistWeights[5] = math.ceil(resistWeights[5] * multiplier)
+            else:
+                #reduce resist chance, increase weakness chance
+                multiplier = 1 + potential / 10
+                for i in range(4):
+                    resistWeights[i] = math.ceil(resistWeights[i] * multiplier)
+                #resistWeights[4] = math.ceil(multiplier  * resistWeights[4])
+                multiplier = 1 + potential / -10
+                resistWeights[5] = math.ceil(resistWeights[5] * multiplier)
+            return resistWeights
+        
+        '''
+        Adjust weights for the element based on the potential of that element for a demon.
+            Parameters:
+                element(String): the potential to use for the element
+                elementWeights(List): list of weights to modify
+                demon(Compendium_Demon): demon to use potentials of
+                ailmentIndex(Number): optional index for ailments, which all use the same potential and thefore the same element name
+            Returns the modified list of weights
+        '''
+        def adjustElementWeightForPotential(element,elementWeights,demon, ailmentIndex=None):
+            potential = demon.potential.__getattribute__(element)
+            if potential == 0:
+                return elementWeights
+            elif potential < 0:
+                multiplier = 1 - potential / -10
+            else:
+                multiplier = 1 + potential / 10
+            if ailmentIndex is not None:
+                elementWeights[ailmentIndex] *= multiplier
+            else:
+                elementWeights[numbers.ELEMENT_RESIST_NAMES.index(element)] *= multiplier
+            return elementWeights
+
+        demonCount = 0
+        totalResistMap = {} #stores all assigned resistances for each element #TODO: save globally for further calls of this function?
+        for attr in vars(comp[0].resist):
+            totalResistMap[attr] = {
+                -1.5: 0,
+                -1: 0,
+                0: 0,
+                0.5: 0,
+                1: 0,
+                1.5: 0
+            }  
+        resistProfiles = [] # will store the resistances of every demon, mostly for debug purposes
+
+        #filter out all unused demons (unnamed and Old Lilith, Other Tao), mitamas
+        if mask:
+            filteredComp = [demon for demon in comp if demon.ind in mask]
+        else:
+            filteredComp = [demon for demon in comp if demon.ind not in numbers.INACCESSIBLE_DEMONS and not demon.name.startswith("NOT") and "Mitama" not in demon.name]
+        filteredComp = sorted(filteredComp, key=lambda demon: demon.level.value)
+
+        for demon in filteredComp:
+            demon: Compendium_Demon
+    
+            
+            demonCount += 1
+
+            #calculate phys first
+            if self.configSettings.scaledPhysResists:
+                physWeights = copy.deepcopy(numbers.PHYS_RESIST_DISTRIBUTION[math.ceil(demon.level.value / 10)])
+            else:
+                physWeights = copy.deepcopy(numbers.PHYS_RESIST_DISTRIBUTION[0])
+            
+            if self.configSettings.potentialWeightedResists:
+                #physical uses slightly differnt multipliers for potential weighting than other elements due to distribution
+                if demon.potential.physical == 0:
+                    physWeights[4] = math.ceil(1.1 * physWeights[4])
+                elif demon.potential.physical < 0:
+                    multiplier = 1 - demon.potential.physical / -20
+                    for i in range(4):
+                        physWeights[i] = math.ceil(physWeights[i] * multiplier)
+                    multiplier = 1 - demon.potential.physical / 20
+                    physWeights[5] = math.ceil(physWeights[5] * multiplier)
+                else:
+                    multiplier = 1 + demon.potential.physical / 20
+                    for i in range(4):
+                        physWeights[i] = math.ceil(physWeights[i] * multiplier)
+                    multiplier = 1 + demon.potential.physical / -20
+                    physWeights[5] = math.ceil(physWeights[5] * multiplier)
+            
+            
+            validPhysResist = False
+            while not validPhysResist: #reroll phys resist to be valid with diverseResists if enabled
+                physResist = random.choices(numbers.SIMPLE_RESIST_VALUES,physWeights)[0]
+                if self.configSettings.diverseResists and physResist != 1 and totalResistMap["physical"].get(physResist) > demonCount / diverseResistsFactor:
+                    validPhysResist =False
+                else:
+                    validPhysResist = True
+                    
+            chosenResists = [1,1,1,1,1,1] #the element resist results will be saved here
+            alreadyChosen = set() #will contain elements that have already been assigned
+            
+            allowedRange = 1.5 #this is the used to define the sum range in which the total resist sum is allowed to be
+
+            if self.configSettings.scaledElementalResists:
+                baselineSum=  round(numbers.calculateResistBase(demon.level.value) * 2) / 2 
+            else:
+                #base game sum is between roughly 1 and 11 here, so with 1.5 added ranges those end up the min/max values
+                #sum is flat number or ends in .5
+                baselineSum = round(random.uniform(3,10) * 2) / 2 
+           
+            if self.configSettings.betterSpecialFusions and demon.ind in self.specialFusionDemonIDs:
+                #special fusions use lower allowed sum here
+                baselineSum -= allowedRange
+            
+            #Phys is 1.5 because phys weakness/resists should have stronger impact than elemental ones
+            currentSum = sum(chosenResists) + physResist * 1.5
+            
+            minRuns = 3 #minimum amount of elements for which a random resistance is generated
+
+            #Stop choosing resistance values for elements if all elements are chosen or sum is breaking range limits
+            while len(alreadyChosen) < len(numbers.ELEMENT_RESIST_NAMES) and (len(alreadyChosen) <= minRuns or baselineSum - allowedRange < currentSum < baselineSum + allowedRange):
+                elementResistWeights = [] #these weights will be used to calculate which resist value is used
+                
+                #these weights are used to decide the elements based on the not already chosen ones
+                elementWeights = [1 if numbers.ELEMENT_RESIST_NAMES[index] not in alreadyChosen else 0 for index,v in enumerate(chosenResists) ]
+                element = random.choices(numbers.ELEMENT_RESIST_NAMES,elementWeights)[0]
+                alreadyChosen.add(element)
+                
+                if self.configSettings.scaledElementalResists:
+                    if element == "dark" or "light":
+                        elementResistWeights = copy.deepcopy(numbers.LD_RESIST_DISTRIBUTION[math.ceil(demon.level.value / 10)])
+                    else:
+                        elementResistWeights = copy.deepcopy(numbers.FIEF_RESIST_DISTRIBUTION[math.ceil(demon.level.value / 10)])
+                else:
+                    if element == "dark" or "light":
+                        elementResistWeights = copy.deepcopy(numbers.LD_RESIST_DISTRIBUTION[0])
+                    else:
+                        elementResistWeights = copy.deepcopy(numbers.FIEF_RESIST_DISTRIBUTION[0])
+                
+                if self.configSettings.potentialWeightedResists:
+                    elementResistWeights = adjustResistWeightForPotential(element,elementResistWeights,demon)
+                
+                if self.configSettings.diverseResists:
+                    for index, value in enumerate(totalResistMap[element].values()):
+                        if 1 +value > demonCount / diverseResistsFactor and index != 4:# neutral resists are not subject to diverseResist setting
+                            elementResistWeights[index] /= 2
+                
+                elementResist = random.choices(numbers.SIMPLE_RESIST_VALUES,elementResistWeights)[0]
+                chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = elementResist
+                currentSum = sum(chosenResists) + physResist * 1.5
+                
+            
+            ailmentResists = [] #the ailment resist results will be saved here
+            for _ in numbers.AILMENT_NAMES:
+                ailmentResists.append(1)
+            alreadyChosen = set()
+
+            #ailments count half because they are should be worth less than elemental ones
+            currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists)/2
+            
+            if self.configSettings.scaledElementalResists:
+                baselineSum = round(numbers.calculateTotalResistBase(demon.level.value) * 2) / 2
+                if self.configSettings.betterSpecialFusions and demon.ind in self.specialFusionDemonIDs:
+                    baselineSum -= allowedRange #since this is calculated again, needs to be applied again
+            else:
+                baselineSum += round(random.uniform(2,3) * 2) / 2 
+            
+
+            while len(alreadyChosen) < len(numbers.AILMENT_NAMES) and (len(alreadyChosen) <= minRuns or baselineSum - allowedRange < currentSum < baselineSum + allowedRange):
+                ailmentResistWeights = []
+                ailmentWeights = [1 if numbers.AILMENT_NAMES[index] not in alreadyChosen else 0 for index,v in enumerate(ailmentResists) ]
+                ailment = random.choices(numbers.AILMENT_NAMES,ailmentWeights)[0]
+                alreadyChosen.add(ailment)
+
+                if self.configSettings.scaledElementalResists:
+                    ailmentResistWeights = copy.deepcopy(numbers.AILMENT_RESIST_DISTRIBUTION[math.ceil(demon.level.value / 10)])
+                else:
+                    ailmentResistWeights = copy.deepcopy(numbers.AILMENT_RESIST_DISTRIBUTION[0])
+
+                if self.configSettings.potentialWeightedResists:
+                    ailmentResistWeights = adjustResistWeightForPotential("ailment",ailmentResistWeights,demon)
+                
+                if self.configSettings.diverseResists:
+                    for index, value in enumerate(totalResistMap[ailment].values()):
+                        if 1 +value > demonCount / diverseResistsFactor and index != 4:
+                            ailmentResistWeights[index] /= 2
+
+                ailmentResist = random.choices(numbers.SIMPLE_RESIST_VALUES,ailmentResistWeights)[0]
+                ailmentResists[numbers.AILMENT_NAMES.index(ailment)] = ailmentResist
+                currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists)/2
+
+            attempts = 100
+            #try to make sum fit into range limits, to achieve somewhat balanced resist profiles
+            while currentSum < baselineSum - allowedRange or currentSum > baselineSum + allowedRange:
+                attempts -= 1
+                if attempts <= 0:
+                    print("Something went wrong in resist rando at level " + str(demon.level.value) + "for demon " + str(demon.name))
+                    break
+    
+                if currentSum < baselineSum - allowedRange:
+                    #add weaknesses/ make resist worse, Increase value
+                    
+                    randomTypes = {}
+                    # types that only have weaknesses cannot be added, since no value to increase
+                    if chosenResists.count(1.5) != len(chosenResists):
+                        randomTypes.update({"Elements" : (numbers.FIEF_RESIST_DISTRIBUTION[0][5] + numbers.LD_RESIST_DISTRIBUTION[0][5])/2})
+                    if ailmentResists.count(1.5) != len(ailmentResists):
+                        randomTypes.update({"Ailments" : numbers.AILMENT_RESIST_DISTRIBUTION[0][5]})
+                    if len(randomTypes) == 0: #not checking for phys weakness here, since physWeak would make it highly likely for this occur anyway
+                        randomTypes.update({"Physical": numbers.PHYS_RESIST_DISTRIBUTION[0][5]})
+                    if physResist == -1.5 and ailmentResists.count(1.5) != len(ailmentResists): #if phys is a drain add ailments with higher weights to reduce cases where most elements are weaknesses
+                        randomTypes.update({"Ailments" : numbers.AILMENT_RESIST_DISTRIBUTION[0][5]* 2} )
+                    changeType = random.choices(list(randomTypes.keys()), list(randomTypes.values()))[0]                  
+                    
+                    if changeType == "Ailments":
+                        #weaks cannot be increased further
+                        chooseAilmentWeights = [0 if r == 1.5 else 10 for r in ailmentResists]
+                        if self.configSettings.potentialWeightedResists:
+                            for ailmentIndex,_ in enumerate(numbers.AILMENT_NAMES):
+                                chooseAilmentWeights = adjustElementWeightForPotential("ailment",chooseAilmentWeights,demon,ailmentIndex)
+                        ailment = random.choices(numbers.AILMENT_NAMES,chooseAilmentWeights)[0]
+                        ailmentResist = ailmentResists[numbers.AILMENT_NAMES.index(ailment)]
+                        resistIndex = min(len(numbers.SIMPLE_RESIST_VALUES)-1,numbers.SIMPLE_RESIST_VALUES.index(ailmentResist)  +1)
+                        ailmentResists[numbers.AILMENT_NAMES.index(ailment)] = numbers.SIMPLE_RESIST_VALUES[resistIndex]
+                    elif changeType == "Physical":
+                        element = "physical"
+                        resistIndex = min(len(numbers.SIMPLE_RESIST_VALUES)-1,numbers.SIMPLE_RESIST_VALUES.index(physResist)  +1)
+                        if self.configSettings.diverseResists:
+                            
+                            while resistIndex +1 < len(numbers.SIMPLE_RESIST_VALUES):
+                                if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                                    if totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / diverseResistsFactor:
+                                        resistIndex += 1
+                                    else:
+                                        break
+                                else:
+                                    break
+                        physResist = numbers.SIMPLE_RESIST_VALUES[resistIndex]
+                    else:
+                        chooseElementWeights = [0 if r == 1.5 else 10 for r in chosenResists]
+                        if self.configSettings.potentialWeightedResists:
+                            for element in numbers.ELEMENT_RESIST_NAMES:
+                                chooseElementWeights = adjustElementWeightForPotential(element,chooseElementWeights,demon)
+
+                        element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                        elementResist = chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)]
+                        resistIndex = min(len(numbers.SIMPLE_RESIST_VALUES)-1,numbers.SIMPLE_RESIST_VALUES.index(elementResist)  +1)
+                        # Avoid overpopulating resistances if diverseResists is enabled
+                        if self.configSettings.diverseResists:
+                            
+                            while resistIndex +1 < len(numbers.SIMPLE_RESIST_VALUES):
+                                if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                                    if totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / diverseResistsFactor:
+                                        resistIndex += 1
+                                    else:
+                                        break
+                                else:
+                                    break
+                        chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = numbers.SIMPLE_RESIST_VALUES[resistIndex]
+
+
+                elif currentSum > baselineSum + allowedRange:
+                    #add resists/make weakness worse, decrease value
+
+                    randomTypes = {}
+                    if chosenResists.count(-1.5) != len(chosenResists):
+                        randomTypes.update({"Elements" : (numbers.FIEF_RESIST_DISTRIBUTION[0][5] + numbers.LD_RESIST_DISTRIBUTION[0][5])/2})
+                    if ailmentResists.count(0) != len(ailmentResists): #ailments cannot have repel/drain
+                        randomTypes.update({"Ailments" : numbers.AILMENT_RESIST_DISTRIBUTION[0][5]})
+                    if len(randomTypes) == 0:
+                        randomTypes.update({"Physical": numbers.PHYS_RESIST_DISTRIBUTION[0][5]})
+                    changeType = random.choices(list(randomTypes.keys()), list(randomTypes.values()))[0]
+                    
+                    if changeType == "Ailments":
+                        chooseAilmentWeights = [0 if r == 0 else 10  for r in ailmentResists]
+                        if self.configSettings.potentialWeightedResists:
+                            for ailmentIndex,_ in enumerate(numbers.AILMENT_NAMES):
+                                chooseAilmentWeights = adjustElementWeightForPotential("ailment",chooseAilmentWeights,demon,ailmentIndex)
+                        ailment = random.choices(numbers.AILMENT_NAMES,chooseAilmentWeights)[0]
+                        ailmentResist = ailmentResists[numbers.AILMENT_NAMES.index(ailment)]
+                        #ailments cannot have repel/drain
+                        resistIndex = max(2,numbers.SIMPLE_RESIST_VALUES.index(ailmentResist) -1)
+                        #TODO: Diversity?
+                        ailmentResists[numbers.AILMENT_NAMES.index(ailment)] = numbers.SIMPLE_RESIST_VALUES[resistIndex]
+                    elif changeType == "Physical":
+                        element = "physical"
+                        resistIndex = max(0,numbers.SIMPLE_RESIST_VALUES.index(physResist) -1)
+                        if self.configSettings.diverseResists:
+                            while resistIndex -1 > 0:
+                                if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                                    if totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / diverseResistsFactor:
+                                        resistIndex -= 1
+                                    else:
+                                        break
+                                else:
+                                    break
+
+                        physResist = numbers.SIMPLE_RESIST_VALUES[resistIndex ]
+                    else:
+                        chooseElementWeights = [0 if r == -1.5 else 10  for r in chosenResists]
+                        if self.configSettings.potentialWeightedResists:
+                            for element in numbers.ELEMENT_RESIST_NAMES:
+                                chooseElementWeights = adjustElementWeightForPotential(element,chooseElementWeights,demon)
+
+                        element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                        elementResist = chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)]
+                        resistIndex = max(0,numbers.SIMPLE_RESIST_VALUES.index(elementResist) -1)
+                        if self.configSettings.diverseResists:
+                            while resistIndex -1 > 0:
+                                if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                                    if totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / diverseResistsFactor:
+                                        resistIndex -= 1
+                                    else:
+                                        break
+                                else:
+                                    break
+
+                        chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = numbers.SIMPLE_RESIST_VALUES[resistIndex ]
+                currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists) / 2
+                
+            allChosenResists = [physResist] + chosenResists
+            if self.configSettings.alwaysOneWeak:
+                weakAdded = False
+                if not any(1.5 == r for r in allChosenResists): #Add random weakness
+                    chooseElementWeights = [r + 3 for r in chosenResists] #neutrals have highest chance to become weak, drains the lowest
+                    element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                    chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 1.5
+                    allChosenResists = [physResist] + chosenResists
+                    weakAdded = True
+                if not any(r < 1 for r in allChosenResists): #Add random resistance for element that is not random weakness if it was added
+                    weaknessCount = allChosenResists.count(1.5)
+                    #null out weaknesses if there is only one, and prevent overwriting the potentially previously added one
+                    chooseElementWeights = [ 0 if (weaknessCount < 2 and r==1.5 ) or (weakAdded and index == numbers.ELEMENT_RESIST_NAMES.index(element))else -(r - 3) for index,r in enumerate(chosenResists)]
+                    element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                    chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 0.5
+                    allChosenResists = [physResist] + chosenResists
+
+            #Apply resist to demon and increase values in totalResistMap
+            demon.resist.physical = Translated_Value(numbers.SIMPLE_RESIST_RESULTS[physResist],translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[physResist]))
+            totalResistMap["physical"][physResist] += +1
+
+            for index, element in enumerate(numbers.ELEMENT_RESIST_NAMES):
+                totalResistMap[element][chosenResists[index]] += 1
+                demon.resist.__setattr__(element,Translated_Value(numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]],translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]])))
+            resistProfiles.append([physResist] + chosenResists + ailmentResists)
+            for index, ailment in enumerate(numbers.AILMENT_NAMES):
+                totalResistMap[ailment][ailmentResists[index]] += 1
+                demon.resist.__setattr__(ailment,Translated_Value(numbers.SIMPLE_RESIST_RESULTS[ailmentResists[index]],translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[ailmentResists[index]])))
+            #print(demon.name + " " + str(currentSum) + " ( " + str(baselineSum) + ")")
+        #print(demonCount)
+        #pprint(totalResistMap)
+        #return totalResistMap, resistProfiles #Uncomment for debug printing potentially
+
     '''
     Based on array of skills creates two arrays where each skill is only included once.
     Weight depends of if skill has already been assigned in the randomization process and if they are a magatsuhi skill.
@@ -2458,6 +2847,20 @@ class Randomizer:
             buffer.writeWord(demon.potential.ailment, demon.offsetNumbers['potential'] + 4 * 8)
             buffer.writeWord(demon.potential.support, demon.offsetNumbers['potential'] + 4 * 9)
             buffer.writeWord(demon.potential.recover, demon.offsetNumbers['potential'] + 4 * 10)
+            #write resists
+            buffer.writeWord(demon.resist.physical.value, demon.offsetNumbers['innate']+ 4 * 1)
+            buffer.writeWord(demon.resist.fire.value, demon.offsetNumbers['innate']+ 4 * 2)
+            buffer.writeWord(demon.resist.ice.value, demon.offsetNumbers['innate']+ 4 * 3)
+            buffer.writeWord(demon.resist.elec.value, demon.offsetNumbers['innate']+ 4 * 4)
+            buffer.writeWord(demon.resist.force.value, demon.offsetNumbers['innate']+ 4 * 5)
+            buffer.writeWord(demon.resist.light.value, demon.offsetNumbers['innate']+ 4 * 6)
+            buffer.writeWord(demon.resist.dark.value, demon.offsetNumbers['innate']+ 4 * 7)
+            buffer.writeWord(demon.resist.poison.value, demon.offsetNumbers['innate']+ 4 * 9)
+            buffer.writeWord(demon.resist.confusion.value, demon.offsetNumbers['innate']+ 4 * 11)
+            buffer.writeWord(demon.resist.charm.value, demon.offsetNumbers['innate']+ 4 * 12)
+            buffer.writeWord(demon.resist.sleep.value, demon.offsetNumbers['innate']+ 4 * 13)
+            buffer.writeWord(demon.resist.seal.value, demon.offsetNumbers['innate']+ 4 * 14)
+            buffer.writeWord(demon.resist.mirage.value, demon.offsetNumbers['innate']+ 4 * 21)
         return buffer
     
     '''
@@ -2567,6 +2970,20 @@ class Randomizer:
             buffer.writeWord(foe.potential.ailment,offsets['potential'] + 4 * 8)
             buffer.writeWord(foe.potential.recover,offsets['potential'] + 4 * 10)
             buffer.writeWord(foe.potential.support,offsets['potential'] + 4 * 9)
+
+            buffer.writeWord(foe.resist.physical.value, offsets['innate']+ 4 * 1)
+            buffer.writeWord(foe.resist.fire.value, offsets['innate']+ 4 * 2)
+            buffer.writeWord(foe.resist.ice.value, offsets['innate']+ 4 * 3)
+            buffer.writeWord(foe.resist.elec.value, offsets['innate']+ 4 * 4)
+            buffer.writeWord(foe.resist.force.value, offsets['innate']+ 4 * 5)
+            buffer.writeWord(foe.resist.light.value, offsets['innate']+ 4 * 6)
+            buffer.writeWord(foe.resist.dark.value, offsets['innate']+ 4 * 7)
+            buffer.writeWord(foe.resist.poison.value, offsets['innate']+ 4 * 9)
+            buffer.writeWord(foe.resist.confusion.value, offsets['innate']+ 4 * 11)
+            buffer.writeWord(foe.resist.charm.value, offsets['innate']+ 4 * 12)
+            buffer.writeWord(foe.resist.sleep.value, offsets['innate']+ 4 * 13)
+            buffer.writeWord(foe.resist.seal.value, offsets['innate']+ 4 * 14)
+            buffer.writeWord(foe.resist.mirage.value, offsets['innate']+ 4 * 21)
         return buffer
     
     '''
@@ -3176,6 +3593,7 @@ class Randomizer:
             expBuffer(Table): table for the special fusion buffer
     '''
     def adjustSpecialFusionTable(self,fusions,comp,expBuffer):
+        self.specialFusionDemonIDs = []
         if len(fusions) > len(self.specialFusionArr):
             newEntries = len(fusions) - len(self.specialFusionArr)
             expBuffer = self.extendSpecialFusionTable(newEntries,expBuffer)
@@ -3199,7 +3617,7 @@ class Randomizer:
             replaced = self.specialFusionArr[index]
             #Set new result demons fusability to 0
             comp[fusion.result.value].fusability = 257
-
+            self.specialFusionDemonIDs.append(fusion.result.value)
             replaced.resultLevel = fusion.resultLevel
             replaced.demon1 = fusion.demon1
             replaced.demon2 = fusion.demon2
@@ -3680,8 +4098,8 @@ class Randomizer:
             newFoe.drops = newDrops
             newFoe.oldDrops = enemy.drops
             newFoe.innate = playableEqu.innate   #copy innate from player version
-            newFoe.resist = enemy.resist
-            newFoe.potential = playableEqu.potential
+            newFoe.resist = copy.deepcopy(playableEqu.resist)
+            newFoe.potential = copy.deepcopy(playableEqu.potential)
             foes.append(newFoe)
         return foes
     
@@ -5174,7 +5592,7 @@ class Randomizer:
             nahoLevel = self.nahobino.stats[demon.level.value]
             avgMin = 0.96 #Girimekhalas Stat Mod Average, lowest of normal demons
             avgMax = 1.35 #Pixies Stat Mod Average, highest of normal demons
-            
+
             def averageCalc():
                 sum = 0
                 for n in randomNumbers: sum += n
@@ -5183,6 +5601,10 @@ class Randomizer:
             ogRanges = [numbers.DEMON_HP_MOD_RANGE,numbers.DEMON_MP_MOD_RANGE, numbers.DEMON_STAT_MOD_RANGE, copy.deepcopy(numbers.DEMON_STAT_MOD_RANGE),copy.deepcopy(numbers.DEMON_STAT_MOD_RANGE),copy.deepcopy(numbers.DEMON_STAT_MOD_RANGE),copy.deepcopy(numbers.DEMON_STAT_MOD_RANGE)]
             ranges = copy.deepcopy(ogRanges)
             
+            if self.configSettings.betterSpecialFusions and demon.ind in self.specialFusionDemonIDs:
+                avgMin += 0.15 
+                avgMax += 0.15
+
             #initialize random numbers
             randomNumbers = [
                 random.randrange(ranges[0][0],ranges[0][1]) / 1000, #HP 
@@ -5224,6 +5646,9 @@ class Randomizer:
                     foe.stats.agi / demon.stats.agi.og,
                     foe.stats.luk / demon.stats.luk.og
                 )
+            if self.configSettings.betterSpecialFusions and demon.ind in self.specialFusionDemonIDs:
+                for randomNumber in randomNumbers:
+                    randomNumber += 0.15
             #Apply these multipliers to the nahobinos stats at new level to gain new level
             demon.stats.HP.og = math.floor(nahoLevel.HP * randomNumbers[0])
             demon.stats.MP.og = math.floor(nahoLevel.MP * randomNumbers[1])
@@ -5254,6 +5679,13 @@ class Randomizer:
             ]
 
             sumRange = [138,148]#growth total sums obtained from vanilla data
+
+            if self.configSettings.betterSpecialFusions and demon.ind in self.specialFusionDemonIDs:
+                for value in sumRange:
+                    value = int(value * 1.15)
+                for growthRange in growthRanges:
+                    growthRange[0] += 5
+                    growthRange[1] += 5
 
             randomGrowths = []
             for index in range(7):
@@ -6682,7 +7114,49 @@ class Randomizer:
         if config.scaledPotentials:
             self.scalePotentials(newComp)
 
-        #TODO: Consider case for potential weight or level dependency without random skills
+        if config.randomResists:
+            self.randomizeResistances(newComp)
+            self.randomizeResistances(self.playerBossArr, mask=numbers.GUEST_IDS)
+            self.randomizeResistances(self.playerBossArr, mask=numbers.PROTOFIEND_IDS)
+            #TODO: Nahobino
+            #testing = True
+            # stuff = []
+            # stuff2 = []
+            # for i in range(100):
+            #     totalResistMap, resistProfiles = self.randomizeResistances(newComp)
+            #     stuff.append(totalResistMap)
+            #     stuff2.append(resistProfiles)
+            
+            # newDict = {}
+            # for dictionary in stuff:
+            #     for element, resists in dictionary.items():
+            #         if element not in newDict.keys():
+            #             newDict.update({element:resists})
+            #         else:
+            #             subDict = newDict[element]
+            #             for resist,value in resists.items():
+            #                 subDict[resist] += value
+            # for element, resists in newDict.items():
+            #     for resist, value in resists.items():
+            #         resists[resist] = value / len(stuff)
+            # pprint(newDict)
+            # demonSums = []
+            # for dlist in stuff2:
+            #     for d in dlist:
+            #         sumD = 0
+            #         for index,value in enumerate(d):
+            #             if index == 0:
+            #                 sumD += 1.5* value
+            #             elif index > 7:
+            #                 sumD += value/2
+            #             else:
+            #                 sumD += value
+            #         demonSums.append(sumD)
+            # avgDSums = sum(demonSums) / len(demonSums)
+            # print(avgDSums)
+
+
+            
 
         if config.randomSkills:
             self.adjustSkillSlotsToLevel(newComp)

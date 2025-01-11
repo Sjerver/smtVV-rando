@@ -62,5 +62,12 @@ class Settings(object):
         self.includeOmnipotentSuccession = False    # Randomizes the skill belonging to the Nahobino Race
         self.includeMagatsuhiSkills = False         # Allows magatsuhi skills to be assigned to demons skill sets
         self.randomizeMagatsuhiSkillReq = False     # Randomize which race, demon alignments, or demons are required to use magatsuhi skills
-        self.swapCutsceneModels = False             #Whether demon models in cutscenes & events should be swapped
-        self.forceAllSkills = False              #Forces all skills to be available in demon skill sets
+        self.swapCutsceneModels = False             # Whether demon models in cutscenes & events should be swapped
+        self.forceAllSkills = False                 # Forces all skills to be available in demon skill sets
+        self.randomResists = False                  # Randomizes Resistances of playable demons
+        self.alwaysOneWeak = False                  # Ensure each demon has at least one weakness/resistance
+        self.scaledElementalResists = False         # Scale elemental resistances to level
+        self.scaledPhysResists = False              # Scale physical resistance to level
+        self.potentialWeightedResists = False       # Weight resitances by potential
+        self.diverseResists = False                 # Diversify resitance profiles to prevent all demons having the same weaknesses
+        self.betterSpecialFusions = False           # Gives special fusion slightly better randomization results (stats/potentials/resists)

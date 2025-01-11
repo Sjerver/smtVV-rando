@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.messagebox
+import webbrowser
 from configparser import ConfigParser, NoOptionError, NoSectionError
 import os
 import util.paths as paths
@@ -37,15 +38,15 @@ def createGUI(configSettings):
     persistentFrameRight = tk.Frame(persistentFrame, width=500, height=170)
     persistentFrameRight.grid(row=1, column=1)
     persistentFrameRight.pack_propagate(False)
-    page1FrameTop = tk.Frame(page1Frame, width=500, height=500, background="#cccccc")
-    page1FrameTop.grid(row=0, column=0, rowspan = 2, columnspan = 1, sticky = tk.W+tk.E)
-    page1FrameTop.pack_propagate(False)
+    page1FrameTopLeft = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
+    page1FrameTopLeft.grid(row=0, column=0)#, rowspan = 2, columnspan = 1, sticky = tk.W+tk.E)
+    page1FrameTopLeft.pack_propagate(False)
     page1FrameTopRight = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
     page1FrameTopRight.grid(row=0, column=1, columnspan = 1, sticky = tk.W+tk.E)
     page1FrameTopRight.pack_propagate(False)
-    # page1FrameLeft = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
-    # page1FrameLeft.grid(row=1, column=0)
-    # page1FrameLeft.pack_propagate(False)
+    page1FrameLeft = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
+    page1FrameLeft.grid(row=1, column=0)
+    page1FrameLeft.pack_propagate(False)
     page1FrameRight = tk.Frame(page1Frame, width=500, height=250, background="#cccccc")
     page1FrameRight.grid(row=1, column=1)
     page1FrameRight.pack_propagate(False)
@@ -55,15 +56,18 @@ def createGUI(configSettings):
     page2FrameRight = tk.Frame(page2Frame, width=500, height=500, background="#cccccc")
     page2FrameRight.grid(row=0, column=1)
     page2FrameRight.pack_propagate(False)
-    page3FrameTopLeft = tk.Frame(page3Frame, width=500, height=250, background="#cccccc")
+    page3FrameTopLeft = tk.Frame(page3Frame, width=500, height=200, background="#cccccc")
     page3FrameTopLeft.grid(row=0, column=0)
     page3FrameTopLeft.pack_propagate(False)
-    page3FrameTopRight = tk.Frame(page3Frame, width=500, height=250, background="#cccccc")
+    page3FrameTopRight = tk.Frame(page3Frame, width=500, height=200, background="#cccccc")
     page3FrameTopRight.grid(row=0, column=1)
     page3FrameTopRight.pack_propagate(False)
-    page3FrameBottom = tk.Frame(page3Frame, width=1000, height=250, background="#cccccc")
-    page3FrameBottom.grid(row=1, column=0, columnspan = 2, sticky = tk.W+tk.E)
-    page3FrameBottom.pack_propagate(False)
+    page3FrameBottomLeft = tk.Frame(page3Frame, width=500, height=300, background="#cccccc")
+    page3FrameBottomLeft.grid(row=1, column=0)
+    page3FrameBottomLeft.pack_propagate(False)
+    page3FrameBottomRight = tk.Frame(page3Frame, width=500, height=300, background="#cccccc")
+    page3FrameBottomRight.grid(row=1, column=1)
+    page3FrameBottomRight.pack_propagate(False)
         
     def randomizeClick():
         window.quit()
@@ -117,11 +121,18 @@ def createGUI(configSettings):
         fg="black",
         command=randomizeClick,
     )
+    randomizeButton.pack()
 
     swapCutsceneModels= tk.BooleanVar()
     swapCutsceneModelCheckbox = tk.Checkbutton(persistentFrameLeft, text="(Experimental) Swap Cutscene Models", variable=swapCutsceneModels, onvalue=True, offvalue=False)
-    randomizeButton.pack()
     swapCutsceneModelCheckbox.pack()
+
+    def wikiCallback(url):
+        webbrowser.open_new(url)
+    
+    wikiLabel = tk.Label(persistentFrameLeft, text="For more information on what settings do, please refer to the wiki!",font='TkDefaultFont 12 bold',fg=NAHOBINO_BLUE, cursor="hand2")
+    wikiLabel.pack()
+    wikiLabel.bind("<Button-1>", lambda e: wikiCallback("https://github.com/Sjerver/smtVV-rando/wiki"))
         
     leftButton = tk.Button( #Button to go to the previous page
         buttonControlsFrame,
@@ -148,7 +159,7 @@ def createGUI(configSettings):
         
     page1Button = tk.Button( #Button to go to page 1
         buttonControlsFrame,
-        text="Page 1",
+        text="Demons",
         width=10,
         height=3,
         bg=NAHOBINO_BLUE,
@@ -160,7 +171,7 @@ def createGUI(configSettings):
     
     page3Button = tk.Button( #Button to go to page 2
         buttonControlsFrame,
-        text="Page 3",
+        text="Other",
         width=10,
         height=3,
         bg=NAHOBINO_BLUE,
@@ -171,7 +182,7 @@ def createGUI(configSettings):
     
     page2Button = tk.Button( #Button to go to page 2
         buttonControlsFrame,
-        text="Page 2",
+        text="Bosses",
         width=10,
         height=3,
         bg=NAHOBINO_BLUE,
@@ -221,73 +232,76 @@ def createGUI(configSettings):
     apply_preset_button.pack()
     reuseLastSeedButton.pack()
 
-    demonLabel = tk.Label(page1FrameTop, text="Demon Randomizer")
-    demonLabel.grid(row=0, column=0, sticky='nsew', columnspan= 2, padx = [10,0])
+    demonLabel = tk.Label(page1FrameTopLeft, text="Demon Randomizer")
+    demonLabel.pack()
+    #demonLabel.grid(row=0, column=0, sticky='nsew', columnspan= 2, padx = [10,0])
 
-    listDemon = tk.Listbox(page1FrameTop, selectmode = "multiple", width=75, height = 20, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listDemon = tk.Listbox(page1FrameTopLeft, selectmode = "multiple", width=75, height = 8, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listDemon.insert(0, "Randomize Levels")
-    listDemon.insert(1, "Randomize Skills")
-    listDemon.insert(2, "Scale Skills to Level")
-    listDemon.insert(3, "Randomize Innate Skills")
-    listDemon.insert(4, "Weight Skills by Potentials")
-    listDemon.insert(5, "Randomize Potentials")
-    listDemon.insert(6, "Scale Potentials to Level")
-    listDemon.insert(7, "Unique Skills can show up more than once")
-    listDemon.insert(8, "Randomize Races")
-    listDemon.insert(9, "Randomize Alignment")
-    listDemon.insert(10, "Randomize Quest Demon Joins")
-    listDemon.insert(11, "Randomize Stat Modifiers")
-    listDemon.insert(12, "Reduce Compendium Cost Drastically")
-    listDemon.insert(13, "Restrict Lunation Flux to one demon")
-    listDemon.insert(14, "Include Enemy Only Skills in Skill Pool")
-    listDemon.insert(15, "Include Magatsuhi Skills in Skill Pool")
-    listDemon.insert(16, "Force & Minimize Appearance of Skills in Learnsets")
+    listDemon.insert(1, "Randomize Potentials")
+    listDemon.insert(2, "Scale Potentials to Level")
+    listDemon.insert(3, "Randomize Races")
+    listDemon.insert(4, "Randomize Alignment")
+    listDemon.insert(5, "Randomize Quest Demon Joins")
+    listDemon.insert(6, "Randomize Stat Modifiers")
+    listDemon.insert(7, "Reduce Compendium Cost Drastically")
+    listDemon.insert(8, "Improved Special Fusions")
+    listDemon.pack()
 
-    demonScrollbar = tk.Scrollbar(page1FrameTop, orient='vertical')
-    demonScrollbar.config(command=listDemon.yview)
-    listDemon.config(yscrollcommand=demonScrollbar.set)
-    listDemon.grid(row=1, column=0, sticky="nsew", padx = [10,0])
-    demonScrollbar.grid(row=1, column=1, sticky="ns")
-    page1FrameTop.grid_rowconfigure(0, weight=1)
-    page1FrameTop.grid_columnconfigure(0, weight=1)
+    #demonScrollbar = tk.Scrollbar(page1FrameTop, orient='vertical')
+    #demonScrollbar.config(command=listDemon.yview)
+    #listDemon.config(yscrollcommand=demonScrollbar.set)
+    #listDemon.grid(row=1, column=0, sticky="nsew", padx = [10,0])
+    #demonScrollbar.grid(row=1, column=1, sticky="ns")
+    #page1FrameTop.grid_rowconfigure(0, weight=1)
+    #page1FrameTop.grid_columnconfigure(0, weight=1)
 
-    inheritanceLabel = tk.Label(page1FrameTopRight, text="Unique Skill Inheritance")
+    demonResLabel = tk.Label(page1FrameLeft, text="Demon Resistances")
+    demonResLabel.pack()
+
+    listDemonResistances = tk.Listbox(page1FrameLeft, selectmode = "multiple", width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listDemonResistances.insert(0, "Randomize Resistances")
+    listDemonResistances.insert(1, "Always at least one Weakness/Resistance")
+    listDemonResistances.insert(2, "Scale Elemental Resistances To Level")
+    listDemonResistances.insert(3, "Scale Phys Resistance To Level")
+    listDemonResistances.insert(4, "Weight Resistance by Potential")
+    listDemonResistances.insert(5, "Diversify Resistances")
+    listDemonResistances.pack()
+
+    inheritanceLabel = tk.Label(page1FrameRight, text="Unique Skill Inheritance")
     inheritanceLabel.pack()
 
-    listInheritance = tk.Listbox(page1FrameTopRight,selectmode= "single",height=3,exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listInheritance = tk.Listbox(page1FrameRight,selectmode= "single",height=3,exportselection=False, selectbackground = NAHOBINO_BLUE)
     listInheritance.insert(0, "Vanilla")
     listInheritance.insert(1, "Random")
     listInheritance.insert(2, "Free")
     listInheritance.selection_set(0)
     listInheritance.pack()
 
-    magatsuhiLabel = tk.Label(page1FrameTopRight, text="Magatsuhi Skills")
+    magatsuhiLabel = tk.Label(page1FrameRight, text="Magatsuhi Skills")
     magatsuhiLabel.pack()
 
-    listMagatsuhi = tk.Listbox(page1FrameTopRight,selectmode= "multiple",height=4,width=50,exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listMagatsuhi = tk.Listbox(page1FrameRight,selectmode= "multiple",height=4,width=50,exportselection=False, selectbackground = NAHOBINO_BLUE)
     listMagatsuhi.insert(0, "Randomize Requirements to Use Magatsuhi Skills")
     listMagatsuhi.insert(1, "Include Omagatoki:Critical Requirement")
     listMagatsuhi.insert(2, "Include Omnipotent Succession Requirement")
     listMagatsuhi.selection_set(0)
     listMagatsuhi.pack()
 
-    
-        
-    itemLabel = tk.Label(page1FrameRight, text="Item Randomizer")
-    itemLabel.pack()
+    skillsLabel = tk.Label(page1FrameTopRight, text="Demon Skill Settings")
+    skillsLabel.pack()
 
-    listItem = tk.Listbox(page1FrameRight, selectmode = "multiple", width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
-    listItem.insert(0, "Randomize Shop Items")
-    listItem.insert(1, "Randomize Shop Essences")
-    listItem.insert(2, "Randomize Enemy Drops")
-    listItem.insert(3, "Randomize Chests")
-    listItem.insert(4, "Scale Items To Area")
-    listItem.insert(5, "Randomize Miman Rewards ")
-    listItem.insert(6, "Randomize Mission Rewards ")
-    listItem.insert(7, "Randomize NPC/Story Item Gifts")
-    listItem.insert(8, "Combine Unique Item Pools")
-    listItem.insert(9, "Include Tsukuyomi Talisman as Item Gift")
-    listItem.pack()
+    listSkills = tk.Listbox(page1FrameTopRight, selectmode = "multiple", width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listSkills.insert(0, "Randomize Innate Skills")
+    listSkills.insert(1, "Randomize Skills")
+    listSkills.insert(2, "Scale Skills to Level")
+    listSkills.insert(3, "Weight Skills by Potentials")
+    listSkills.insert(4, "Unique Skills can show up more than once")
+    listSkills.insert(5, "Restrict Lunation Flux to one demon")
+    listSkills.insert(6, "Include Enemy Only Skills in Skill Pool")
+    listSkills.insert(7, "Include Magatsuhi Skills in Skill Pool")
+    listSkills.insert(8, "Force & Minimize Appearance of Skills in Learnsets")
+    listSkills.pack()
         
     bossLabel = tk.Label(page2FrameLeft, text="Boss Randomizer")
     bossLabel.pack()
@@ -351,6 +365,17 @@ def createGUI(configSettings):
     listBossSettings.insert(5, "Nerf bosses' healing skills")
     listBossSettings.insert(6, "Bosses' instakill susceptibility matches check")
     listBossSettings.pack()
+
+    bossResLabel = tk.Label(page2FrameRight, text="Boss Resistances")
+    bossResLabel.pack()
+
+    listBossResistances = tk.Listbox(page2FrameRight, selectmode = "multiple", width=50, height = 5, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listBossResistances.insert(0, "Randomize Resistances (N)")
+    listBossResistances.insert(1, "Always at least one Weakness/Resistance (N)")
+    listBossResistances.insert(2, "Scale Resistances to Check (N)")
+    listBossResistances.insert(4, "Sync to Player Version if Possible (N)")
+    listBossResistances.insert(5, "Diversify Resistances (N)")
+    listBossResistances.pack()
 
     ishtarLabel = tk.Label(page2FrameRight, text="Ishtar's press turns")
     ishtarLabel.pack()
@@ -423,32 +448,48 @@ def createGUI(configSettings):
             
     listMiracle.bind("<<ListboxSelect>>", toggleMiracleListboxes)
     
-    uniqueSkillAnimationsNote = tk.Label(page3FrameBottom, text="If the wrong demon uses a unique skill, the game will hang until the skip animations button is pressed.\n"
-                                         + "The 'Fix unique skill animations' patch replaces unique skill anims with normal skill anims to get around this.")
+    uniqueSkillAnimationsNote = tk.Label(page3FrameBottomLeft, text="If the wrong demon uses a unique skill, \nthe game will hang until the skip animations button is pressed.\n"
+                                         + "The 'Fix unique skill animations' patch replaces \nunique skill anims with normal skill anims to get around this.")
     uniqueSkillAnimationsNote.pack()
 
-    patchesLabel = tk.Label(page3FrameBottom, text="Patches")
+    patchesLabel = tk.Label(page3FrameBottomLeft, text="Patches")
     patchesLabel.pack()
 
-    listPatches = tk.Listbox(page3FrameBottom, selectmode = "multiple", width=50, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listPatches = tk.Listbox(page3FrameBottomLeft, selectmode = "multiple", width=50, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listPatches.insert(0, "Fix unique skill animations")
     listPatches.insert(1, "Buff guest Yuzuru to make first Labolas check easier")
     listPatches.insert(2, "Unlock all fusions from the start")
     listPatches.pack()
     
-    expLabel = tk.Label(page3FrameBottom, text="EXP Multiplier")
+    expLabel = tk.Label(page3FrameBottomLeft, text="EXP Multiplier")
     expLabel.pack()
     
-    expScale = tk.Scale(page3FrameBottom, from_=1, to=2, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
+    expScale = tk.Scale(page3FrameBottomLeft, from_=1, to=2, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
     expScale.set(1)
     expScale.pack()
 
-    expLabel = tk.Label(page3FrameBottom, text="Chance for basic enemies to receive additional press turns")
+    expLabel = tk.Label(page3FrameBottomLeft, text="Chance for basic enemies to receive additional press turns")
     expLabel.pack()
 
-    pressTurnScale = tk.Scale(page3FrameBottom, from_=0, to=1, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
+    pressTurnScale = tk.Scale(page3FrameBottomLeft, from_=0, to=1, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
     pressTurnScale.set(0.1)
     pressTurnScale.pack()
+
+    itemLabel = tk.Label(page3FrameBottomRight, text="Item Randomizer")
+    itemLabel.pack()
+
+    listItem = tk.Listbox(page3FrameBottomRight, selectmode = "multiple", width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listItem.insert(0, "Randomize Shop Items")
+    listItem.insert(1, "Randomize Shop Essences")
+    listItem.insert(2, "Randomize Enemy Drops")
+    listItem.insert(3, "Randomize Chests")
+    listItem.insert(4, "Scale Items To Area")
+    listItem.insert(5, "Randomize Miman Rewards ")
+    listItem.insert(6, "Randomize Mission Rewards ")
+    listItem.insert(7, "Randomize NPC/Story Item Gifts")
+    listItem.insert(8, "Combine Unique Item Pools")
+    listItem.insert(9, "Include Tsukuyomi Talisman as Item Gift")
+    listItem.pack()
         
     page1Frame.tkraise()
     
@@ -462,24 +503,32 @@ def createGUI(configSettings):
             },
             'Demon': {
                 'RandomLevels': ('Listbox', listDemon, 0),
-                'RandomSkills': ('Listbox', listDemon, 1),
-                'ScaledSkills': ('Listbox', listDemon, 2),
-                'RandomInnates': ('Listbox', listDemon, 3),
-                'WeightSkillsToPotentials': ('Listbox', listDemon, 4),
-                'RandomPotentials': ('Listbox', listDemon, 5),
-                'ScaledPotentials': ('Listbox', listDemon, 6),
-                'multipleUniques': ('Listbox', listDemon, 7),
-                'randomRaces': ('Listbox', listDemon, 8),
-                'randomAlignment': ('Listbox', listDemon, 9),
-                'ensureDemonJoinLevel': ('Listbox', listDemon, 10),
-                'RandomDemonStats': ('Listbox', listDemon, 11),
-                'ReduceCompendiumCost': ('Listbox', listDemon, 12),
-                'RestrictLunationFlux': ('Listbox', listDemon, 13),
-                'EnemyOnlySkills': ('Listbox', listDemon, 14),
-                'MagatsuhiSkills': ('Listbox', listDemon, 15),
-                'ForceUniqueSkills': ('Listbox', listDemon, 16),
-                #'': ('Listbox', listDemon, 17),
-                #'': ('Listbox', listDemon, 18),
+                'RandomPotentials': ('Listbox', listDemon, 1),
+                'ScaledPotentials': ('Listbox', listDemon, 2),
+                'randomRaces': ('Listbox', listDemon, 3),
+                'randomAlignment': ('Listbox', listDemon, 4),
+                'ensureDemonJoinLevel': ('Listbox', listDemon, 5),
+                'RandomDemonStats': ('Listbox', listDemon, 6),
+                'ReduceCompendiumCost': ('Listbox', listDemon, 7),
+                'BetterSpecialFusions': ('Listbox', listDemon, 8),
+
+                'RandomSkills': ('Listbox', listSkills, 1),
+                'ScaledSkills': ('Listbox', listSkills, 2),
+                'RandomInnates': ('Listbox', listSkills, 0),
+                'WeightSkillsToPotentials': ('Listbox', listSkills, 3),
+                'multipleUniques': ('Listbox', listSkills, 4),
+                'RestrictLunationFlux': ('Listbox', listSkills, 5),
+                'EnemyOnlySkills': ('Listbox', listSkills, 6),
+                'MagatsuhiSkills': ('Listbox', listSkills, 7),
+                'ForceUniqueSkills': ('Listbox', listSkills, 8),
+            },
+            'Resistances': {
+                'RandomResists': ('Listbox', listDemonResistances, 0),
+                'AlwaysOneWeak': ('Listbox', listDemonResistances, 1),
+                'ScaleElementalResist': ('Listbox', listDemonResistances, 2),
+                'ScalePhysResist': ('Listbox', listDemonResistances, 3),
+                'WeightResistByPotentials': ('Listbox', listDemonResistances, 4),
+                'DiverseResists': ('Listbox', listDemonResistances, 5),
             },
             'Inheritance': {
                 'RandomInheritance': ('Listbox_single', listInheritance, 1),
@@ -611,6 +660,12 @@ def createGUI(configSettings):
         demonFlags = [False for i in range(listDemon.size())]
         for i in listDemon.curselection():
             demonFlags[i] = True
+        demonResistFlags = [False for i in range(listDemonResistances.size())]
+        for i in listDemonResistances.curselection():
+            demonResistFlags[i] = True
+        skillFlags = [False for i in range(listSkills.size())]
+        for i in listSkills.curselection():
+            skillFlags[i] = True
         inheritanceChoice = listInheritance.curselection()
         magatsuhiFlags = [False for i in range(listMagatsuhi.size())]
         for i in listMagatsuhi.curselection():
@@ -649,42 +704,57 @@ def createGUI(configSettings):
     #Set the config settings
     configSettings.swapCutsceneModels = cutsceneChoice
     configur.set('Patches', 'swapCutsceneModels', str(cutsceneChoice).lower())
-
     configSettings.randomDemonLevels = demonFlags[0]
     configur.set('Demon', 'RandomLevels', str(demonFlags[0]).lower())
-    configSettings.randomSkills = demonFlags[1]
-    configur.set('Demon', 'RandomSkills', str(demonFlags[1]).lower())
-    configSettings.scaledSkills = demonFlags[2]
-    configur.set('Demon', 'ScaledSkills', str(demonFlags[2]).lower())
-    configSettings.randomInnates = demonFlags[3]
-    configur.set('Demon', 'RandomInnates', str(demonFlags[3]).lower())
-    configSettings.potentialWeightedSkills = demonFlags[4]
-    configur.set('Demon', 'WeightSkillsToPotentials', str(demonFlags[4]).lower())
-    configSettings.randomPotentials = demonFlags[5]
-    configur.set('Demon', 'RandomPotentials', str(demonFlags[5]).lower())
-    configSettings.scaledPotentials = demonFlags[6]
-    configur.set('Demon', 'ScaledPotentials', str(demonFlags[6]).lower())
-    configSettings.multipleUniques = demonFlags[7]
-    configur.set('Demon', 'multipleUniques', str(demonFlags[7]).lower())
-    configSettings.randomRaces = demonFlags[8]
-    configur.set('Demon', 'randomRaces', str(demonFlags[8]).lower())
-    configSettings.randomAlignment = demonFlags[9]
-    configur.set('Demon', 'randomAlignment', str(demonFlags[9]).lower())
-    configSettings.ensureDemonJoinLevel = demonFlags[10]
-    configur.set('Demon', 'ensureDemonJoinLevel', str(demonFlags[10]).lower())
-    configSettings.randomDemonStats = demonFlags[11]
-    configur.set('Demon', 'RandomDemonStats', str(demonFlags[11]).lower())
-    configSettings.reduceCompendiumCosts = demonFlags[12]
-    configur.set('Demon', 'ReduceCompendiumCost', str(demonFlags[12]).lower())
-    configSettings.restrictLunationFlux = demonFlags[13]
-    configur.set('Demon', 'RestrictLunationFlux', str(demonFlags[13]).lower())
-    configSettings.includeEnemyOnlySkills = demonFlags[14]
-    configur.set('Demon', 'EnemyOnlySkills', str(demonFlags[14]).lower())
-    configSettings.includeMagatsuhiSkills = demonFlags[15]
-    configur.set('Demon', 'MagatsuhiSkills', str(demonFlags[15]).lower())
-    configSettings.forceAllSkills = demonFlags[16]
-    configur.set('Demon', 'ForceUniqueSkills', str(demonFlags[16]).lower())
+    configSettings.randomPotentials = demonFlags[1]
+    configur.set('Demon', 'RandomPotentials', str(demonFlags[1]).lower())
+    configSettings.scaledPotentials = demonFlags[2]
+    configur.set('Demon', 'ScaledPotentials', str(demonFlags[2]).lower())
+    configSettings.randomRaces = demonFlags[3]
+    configur.set('Demon', 'randomRaces', str(demonFlags[3]).lower())
+    configSettings.randomAlignment = demonFlags[4]
+    configur.set('Demon', 'randomAlignment', str(demonFlags[4]).lower())
+    configSettings.ensureDemonJoinLevel = demonFlags[5]
+    configur.set('Demon', 'ensureDemonJoinLevel', str(demonFlags[5]).lower())
+    configSettings.randomDemonStats = demonFlags[6]
+    configur.set('Demon', 'RandomDemonStats', str(demonFlags[6]).lower())
+    configSettings.reduceCompendiumCosts = demonFlags[7]
+    configur.set('Demon', 'ReduceCompendiumCost', str(demonFlags[7]).lower())
+    configSettings.betterSpecialFusions = demonFlags[8]
+    configur.set('Demon', 'BetterSpecialFusions', str(demonFlags[8]).lower())
     
+    configSettings.randomInnates = skillFlags[0]
+    configur.set('Demon', 'RandomInnates', str(skillFlags[0]).lower())
+    configSettings.randomSkills = skillFlags[1]
+    configur.set('Demon', 'RandomSkills', str(skillFlags[1]).lower())
+    configSettings.scaledSkills = skillFlags[2]
+    configur.set('Demon', 'ScaledSkills', str(skillFlags[2]).lower())
+    configSettings.potentialWeightedSkills = skillFlags[3]
+    configur.set('Demon', 'WeightSkillsToPotentials', str(skillFlags[3]).lower())
+    configSettings.multipleUniques = skillFlags[4]
+    configur.set('Demon', 'multipleUniques', str(skillFlags[4]).lower())
+    configSettings.restrictLunationFlux = skillFlags[5]
+    configur.set('Demon', 'RestrictLunationFlux', str(skillFlags[5]).lower())
+    configSettings.includeEnemyOnlySkills = skillFlags[6]
+    configur.set('Demon', 'EnemyOnlySkills', str(skillFlags[6]).lower())
+    configSettings.includeMagatsuhiSkills = skillFlags[7]
+    configur.set('Demon', 'MagatsuhiSkills', str(skillFlags[7]).lower())
+    configSettings.forceAllSkills = skillFlags[8]
+    configur.set('Demon', 'ForceUniqueSkills', str(skillFlags[8]).lower())
+    
+    configSettings.randomResists = demonResistFlags[0]
+    configur.set('Resistances', 'RandomResists', str(demonResistFlags[0]).lower())
+    configSettings.alwaysOneWeak = demonResistFlags[1]
+    configur.set('Resistances', 'AlwaysOneWeak', str(demonResistFlags[1]).lower())
+    configSettings.scaledElementalResists = demonResistFlags[2]
+    configur.set('Resistances', 'ScaleElementalResist', str(demonResistFlags[2]).lower())
+    configSettings.scaledPhysResists = demonResistFlags[3]
+    configur.set('Resistances', 'ScalePhysResist', str(demonResistFlags[3]).lower())
+    configSettings.potentialWeightedResists = demonResistFlags[4]
+    configur.set('Resistances', 'WeightResistByPotentials', str(demonResistFlags[4]).lower())
+    configSettings.diverseResists = demonResistFlags[5]
+    configur.set('Resistances', 'DiverseResists', str(demonResistFlags[5]).lower())
+
     configSettings.randomInheritance = bool(inheritanceChoice and inheritanceChoice[0] == 1)
     configur.set('Inheritance', 'RandomInheritance', str(configSettings.randomInheritance).lower())
     configSettings.freeInheritance = bool(inheritanceChoice and inheritanceChoice[0] == 2)
@@ -859,7 +929,7 @@ def createConfigFile(configur):
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
                                 'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False, 
-                                'EnemyOnlySkills':False, 'MagatsuhiSkills': False, 'ForceUniqueSkills': False}
+                                'EnemyOnlySkills':False, 'MagatsuhiSkills': False, 'ForceUniqueSkills': False, 'BetterSpecialFusions': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
                         'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False,
                         'RandomizeGiftItems': False, 'CombineKeyItemPools': False, 'IncludeTsukuyomiTalisman': False
@@ -876,4 +946,5 @@ def createConfigFile(configur):
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
                         'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False, 'EarlyInheritenceViolation': False}
-   
+    configur['Resistances'] = {'RandomResists': False, 'AlwaysOneWeak': False,'ScaleElementalResist': False,'ScalePhysResist': False,'WeightResistByPotentials': False,
+                             'DiverseResists': False,}

@@ -1,4 +1,5 @@
 from base_classes.demon_assets import Position 
+import math
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 
@@ -527,6 +528,7 @@ SCRIPT_JOIN_DEMONS = {
     'MM_M035_EM1480': 242, # Michael
     'MM_M036_EM1490': 83, # Belial
     'MM_M061_EM1781': 295, # Cleopatra
+    'MM_M061_EM1782': 295, # Cleopatra
     'MM_M061_EM2613_HitAction': 4, # Dagda
     'MM_M030_EM1769': 78, # Mephisto (Can only join this way)
     'MM_M061_EM1791': 31, # Artemis
@@ -613,6 +615,75 @@ SKILL_WEIGHT = 10 #Base weight for all skills in skill rando
 SKILL_PENALTY_WEIGHT = 4 #Weight penalty for skills if the skill has already been assigned in process in an attempt to diversify skill sets
 FORCE_SKILL_MULTIPLIER = 200 #Multiplier to ensure all skills are assigned to at least one enemy
 
+ELEMENT_RESIST_NAMES = ["fire","ice","elec","force","light","dark"]
+AILMENT_NAMES = ["poison","confusion","charm","sleep","seal","mirage"]
+SIMPLE_RESIST_VALUES = [-1.5,-1,0,0.5,1,1.5] #1.5 is here despite weaknesses only having a 1.25 damage multiplier, but this way it exactly counteroffsets a resistance. Drain=-1.5, Repel=-1
+#What the simple resist values correspond to as actual values in gamedata
+SIMPLE_RESIST_RESULTS = {
+    -1.5: 1000,
+    -1: 999,
+    0 : 0,
+    0.5 : 50,
+    1 : 100,
+    1.5: 125 
+}
+
+#These distributions are calculated for ranges of level with CEIL(LEVEL / 10)
+PHYS_RESIST_DISTRIBUTION = [
+    [1,3,5,20,246,4], #TOTAL Distribution
+    [0,0,0,0,16,0],
+    [0,0,0,1,29,0],
+    [0,0,0,2,29,0],
+    [0,0,0,2,34,1],
+    [0,0,0,3,35,1],
+    [0,0,0,4,32,0],
+    [1,3,2,1,27,1],
+    [0,0,1,3,23,0],
+    [0,0,2,1,15,1],
+    [0,0,0,3,6,0], 
+]
+# Fire, Ice, Elec, Force
+FIEF_RESIST_DISTRIBUTION = [
+    [7,5,32,31,141,65], #TOTAL Distribution
+    [0,0,1,3,7,6],
+    [0,0,2,4,17,9],
+    [1,0,4,3,19,7],
+    [1,0,5,4,19,9],
+    [1,1,7,4,21,8],
+    [1,1,5,2,21,9],
+    [2,1,3,5,16,10],
+    [1,2,4,5,12,5], 
+    [1,1,3,2,9,4],
+    [1,1,1,3,3,1],
+]
+# Light, Dark
+LD_RESIST_DISTRIBUTION = [
+    [5,6,54,47,124,45], #TOTAL Distribution
+    [0,0,1,2,10,4],
+    [0,0,3,4,20,4],
+    [0,0,5,5,15,7],
+    [1,0,6,7,18,7],
+    [0,1,7,6,20,7],
+    [1,0,9,6,16,5],
+    [1,1,7,9,12,6],
+    [2,2,7,5,9,4],
+    [0,2,8,4,4,2],
+    [1,1,4,2,2,1], 
+]
+AILMENT_RESIST_DISTRIBUTION = [
+    [0,0,12.33333333,21,229.8333333,15.83333333], #TOTAL Distributio
+    [0,0,0.3333333333,0.6666666667,14.5,0.5],
+    [0,0,0.3333333333,2.666666667,25.33333333,1.666666667],
+    [0,0,0.8333333333,3.166666667,24.16666667,2.833333333],
+    [0,0,1,2.166666667,32,1.833333333],
+    [0,0,2.166666667,2.5,31,3.333333333],
+    [0,0,1.166666667,5,28.33333333,1.5],
+    [0,0,1.333333333,2.5,29.16666667,2],
+    [0,0,2.5,1.166666667,21.5,1.833333333],
+    [0,0,1.5,1,16.5,0],
+    [0,0,1.166666667,0.1666666667,7.333333333,0.3333333333],
+    ]
+
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''
@@ -639,6 +710,14 @@ def getMaccaValues ():
 
 def getExpValues():
     return [0,24,26,29,32,37,42,47,57,74,87,98,123,151,182,217,257,300,347,398,453,512,575,642,713,788,867,949,1035,1124,1216,1312,1427,1548,1675,1807,1946,2090,2241,2397,2559,2727,2901,3081,3267,3459,3657,3861,4071,4281,4500,4728,4856,4927,4997,5165,5334,5372,5410,5460,5509,5597,5672,5773,5821,5860,5933,6000,6058,6132,6172,6280,6326,6447,6568,6665,6762,6858,6954,7050,7146,7242,7338,7434,7530,7626,7722,7818,7914,8010,8106,8202,8298,8394,8490,8586,8682,8778,8874,8970]
+
+def calculateResistBase(x):
+    #trendline for average resist/weak sum with phys counting 1.5 times
+    return -0.0414*x + 9.21
+
+def calculateTotalResistBase(x):
+    #trendline for average resist/weak sum with phys counting 1.5 times and ailments counting half
+    return -0.0449*x + 12.2
 
 def getEnemyOnlySkills():
     return [["Impaler's Revenge",510,90,90],

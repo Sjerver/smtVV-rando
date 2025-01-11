@@ -258,7 +258,7 @@ SCRIPT_FOLDERS = {
     'MM_M060_EM1821': M030_FOLDER, # Trumpeter Fiend Fight
     'MM_M060_EM1821_NewRoute': M030_FOLDER,# Trumpeter Fiend Fight
     'MM_M061_EM1771': M030_FOLDER,#Mephisto Quest
-    'MM_M061_EM1782': M030_FOLDER,#Cleopatra Quest (Cleopatra) Couldn't join due to full party#TODO: Check script join
+    'MM_M061_EM1782': M030_FOLDER,#Cleopatra Quest (Cleopatra) Couldn't join due to full party
     'MM_M061_EM1791': M030_FOLDER, #Artemis Quest
     'MM_M061_EM1802': M030_FOLDER, # Matador Fiend Fight
     'MM_M061_EM1802_NewRoute': M030_FOLDER, # Matador Fiend Fight
