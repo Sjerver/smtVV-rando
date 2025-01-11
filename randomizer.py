@@ -6660,6 +6660,7 @@ class Randomizer:
             entry["Value"][7]["Value"] = referenceEntry["Value"][7]["Value"]
 
             table.append(entry)
+        
     '''
     Removes entries in the map symbol scale table that were added to aid in collision calculation in model swapping.
     '''
@@ -6668,12 +6669,11 @@ class Randomizer:
 
         table = json["Exports"][0]["Table"]["Data"]
         #tableCopy = copy.deepcopy(table)
-
+        
         for entry in table:
             demonID = entry["Value"][0]["Value"]
             if demonID in numbers.REMOVE_TEMP_MODEL_DEMONS:
                 table.remove(entry)
-        
 
     '''
     Changes the scaling of normal demon symbols with overly large scaling factors to the normal 1.2 factor.
@@ -6753,6 +6753,7 @@ class Randomizer:
                 #replacement.encountCollision.scale(scalingFactor)
         except StopIteration:
             pass
+
     '''
     Speeds up demons on the overworld that replace punishing foe birds with large movement cycles
     '''
@@ -6776,6 +6777,7 @@ class Randomizer:
                     copiedSymbol["Value"][0]["Value"] = replacementID
                     copiedSymbol["Value"][1]["Value"] = walkSpeed
                     table.append(copiedSymbol)
+                    print("This should never happen")
 
                 except (KeyError,StopIteration) as e:
                     birdSymbol = next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == birdID)
@@ -6784,6 +6786,28 @@ class Randomizer:
                     #buffer.writeWord(replacementID, birdSymbol.offsetNumbers['demonID'])
 
         #return buffer
+
+    '''
+    Adds unused overworld demons with speed and hitbox data to the map symbol file
+    '''
+    def addAdditionalMapSymbols(self):
+        json = self.mapSymbolFile.json
+
+        table = json["Exports"][0]["Table"]["Data"]
+        nameMap = json["NameMap"]
+
+        extraSymbolDF = pd.read_csv(paths.EXTRA_SYMBOLS, sep='\t')
+        
+        for _ , row in extraSymbolDF.iterrows():
+            entry = copy.deepcopy(next(entry for entry in table if entry["Value"][0]["Value"] == row['CollisionCopyID']))
+            uniqueName = translation.getUniqueMapSymbolName(row['DemonID'])
+            nameMap.append(uniqueName)
+            entry["Name"] = uniqueName
+            entry["Value"][4]["Value"] = 1.2
+            entry["Value"][0]["Value"] = row['DemonID']
+            entry["Value"][1]["Value"] = float(row['WalkSpeed'])
+            entry["Value"][2]["Value"] = float(row['AssaultSpeed'])
+            table.append(entry)
 
     '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
@@ -7280,6 +7304,7 @@ class Randomizer:
             model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings)
 
         self.removeCalcOnlyMapSymbolScales()
+        self.addAdditionalMapSymbols()
         self.patchAdramelechReplacementSize()
         self.adjustPunishingFoeSpeeds()
 

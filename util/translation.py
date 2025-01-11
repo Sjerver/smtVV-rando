@@ -1,4 +1,4 @@
-SKILL_MODIFIERS = ["None", "Charge", "Concentrate"]
+﻿SKILL_MODIFIERS = ["None", "Charge", "Concentrate"]
 SKILL_TYPES = ["StrBased", "MagBased", "Ailment", "Heal", "Support", "", "RevivalChant", "", "", "", "", "", "", "LevelBased", "", ""] #Index 14+ unknown
 SKILL_ELEMENTS = ["Physical", "Fire", "Ice", "Elec", "Force", "Light", "Dark", "Almighty", "", "", "", "", "Ailment", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Heal"]
 PASSIVE_RESISTS = ["None", "Resist", "Null", "Repel", "Drain"]
@@ -166,3 +166,6 @@ def translateShopFlag(value):
     if value in SHOP_FLAG_MAP:
         return SHOP_FLAG_MAP[value]
     return ""
+
+def getUniqueMapSymbolName(demonID):
+    return "Demon" + str(demonID)

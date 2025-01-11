@@ -1,0 +1,203 @@
+DemonID	DemonName	WalkSpeed	AssaultSpeed	CollisionCopyID	CollisonCopyName
+1	Satan	400	700	8	Zeus
+2	Lucifer	400	700	8	Zeus
+4	Dagda	700	700	8	Zeus
+7	Khonsu	600	800	20	Anahita
+15	Khonsu-Ra	600	800	8	Zeus
+31	Artemis	900	900	27	Parvati
+32	Konohana Sakuya	500	700	576	Agrat
+38	Amanozako	1100	1400	27	Parvati
+40	Kresnik	700	900	20	Anahita
+41	Anansi	400	800	20	Anahita
+60	Nahobeeho	500	700	58	Jack Frost
+75	Nuwa	300	700	20	Anahita
+99	Vritra	600	800	16	Vishnu
+100	Nyami Nyami	300	700	59	Pixie
+115	Hydra	700	1100	812	Chimera
+118	Samael	250	700	16	Vishnu
+122	Xiezhai	900	1400	20	Anahita
+142	Glasya-Labolas	800	700	352	Black Rider
+175	Turbo Granny	3000	700	27	Parvati
+197	Nuwa	300	900	16	Vishnu
+207	Marici	400	700	16	Vishnu
+226	Nezha Taishi	800	800	27	Parvati
+227	Masakado	200	1200	16	Vishnu
+236	Lahmu	400	700	855	Zhuque
+237	Saturnus	500	700	8	Zeus
+240	Abdiel	700	700	8	Zeus
+250	Mastema	900	1400	20	Anahita
+251	Armaiti	300	700	254	Throne
+264	Abdiel	700	700	8	Zeus
+275	Azazel	400	700	16	Vishnu
+381	Hare of Inaba	1200	700	345	Preta
+385	Kinmamon	200	700	576	Agrat
+386	Onyankopon	200	700	27	Parvati
+387	Amabie	350	700	59	Pixie
+391	Lilith	400	900	576	Agrat
+392	Agrat	600	900	576	Agrat
+393	Naamah	500	900	576	Agrat
+394	Eisheth	700	900	576	Agrat
+465	Shohei Yakumo	700	900	20	Anahita
+466	Chernobog	200	700	182	Chernobog
+822	Okuninushi	500	700	215	Okuninushi
+814	Camael	400	700	248	Camael
+467	Abdiel	700	700	8	Zeus
+468	Vasuki	300	700	111	Vasuki
+469	Zeus	400	700	8	Zeus
+470	Odin	500	700	9	Odin
+516	Khonsu	600	800	20	Anahita
+833	Fionn mac Cumhaill	500	700	35	Fionn mac Cumhaill
+846	Gabriel	400	700	243	Gabriel
+838	Zeus	400	700	8	Zeus
+842	Maria	200	700	30	Maria
+432	Hydra	700	1100	812	Chimera
+433	Eligor	900	1000	270	Eligor
+435	Nuwa	300	900	16	Vishnu
+803	Anahita	700	700	20	Anahita
+519	Khnosu-Ra	600	800	8	Zeus
+525	Abdiel	1300	800	832	Abbadon
+520	Nuwa	500	700	826	Oyamatsumi
+528	Tsukuyomi	900	700	8	Zeus
+921	Matador	500	700	359	Matador
+928	Mother Harlot	200	700	351	Mother Harlot
+929	Trumpeter	300	700	350	Trumpeter
+760	Samael	250	750	16	Vishnu
+844	Inanna	300	700	189	Inanna
+843	Danu	400	700	188	Danu
+450	Loup-Garou	700	700	136	Loup-Garou
+451	Fionn mac Cumhaill	500	700	35	Fionn mac Cumhaill
+452	Lahmu	400	700	855	Zhuque
+453	Lahmu	400	700	855	Zhuque
+810	Loki	300	700	89	Loki
+454	Surt	500	700	80	Surt
+455	Ishtar	300	700	25	Ishtar
+463	Arioch	80	700	82	Arioch
+821	King Frost	500	700	87	King Frost
+876	Amanozako	1100	1400	27	Parvati
+877	Zaou-Gongen	500	700	180	Zaou-Gongen
+922	Daisoujou	200	700	357	Daisoujou
+923	Hell Biker	3000	700	356	Hell Biker
+924	White Rider	800	700	354	White Rider
+925	Red Rider	800	700	353	Red Rider
+926	Black Rider	800	700	352	Black Rider
+927	Pale Rider	800	700	358	Pale Rider
+930	Artemis	900	900	27	Parvati
+931	Cleopatra	400	700	295	Cleopatra
+932	Mephisto	400	700	78	Mephisto
+477	Metatron	300	700	241	Metatron
+552	Glasya-Labolas	800	700	352	Black Rider
+553	Naamah	500	900	576	Agrat
+554	Naamah	500	900	576	Agrat
+556	Lahmu	400	700	855	Zhuque
+557	Lahmu	400	700	855	Zhuque
+559	Eisheth	700	900	576	Agrat
+561	Yuzuru Atsuta	500	700	20	Anahita
+565	Tiamat	400	700	832	Abbadon
+754	Turbo Granny	3000	700	27	Parvati
+564	Abdiel	700	700	8	Zeus
+566	Khonsu	600	800	20	Anahita
+567	Shohei Yakumo	700	900	20	Anahita
+568	Agrat	600	900	576	Agrat
+569	Lilith	400	900	576	Agrat
+577	Abdiel	700	700	8	Zeus
+481	Zeus	400	700	8	Zeus
+483	Beelzebub	300	700	81	Beelzebub
+597	Tehom	80	700	812	Chimera
+596	Mastema	900	1400	20	Anahita
+948	Konohana Sakuya	500	700	576	Agrat
+947	Dagda	700	700	8	Zeus
+769	Vouivre	600	700	108	Vouivre
+775	Yamata-no-Orochi	500	700	103	Yamata-no-Orochi
+776	Atavaka	500	700	12	Atavaka
+778	Thor	1200	700	200	Thor
+779	Norn	200	700	22	Norn
+781	Andras	400	700	272	Andras
+782	Saturnus	500	700	8	Zeus
+486	Cherub	400	0	260	Cherub
+783	Marici	400	700	16	Vishnu
+529	Lucifer	400	700	8	Zeus
+537	Lucifer	400	700	8	Zeus
+845	Shiva	200	700	178	Shiva
+681	Satan	400	700	8	Zeus
+758	Masakado	200	1200	16	Vishnu
+934	Demi-Fiend	1500	2000	20	Anahita
+757	Masakado	200	1200	16	Vishnu
+705	Mandrake	400	700	45	Mandrake
+610	Mermaid	600	0	304	Mermaid
+718	Sudama	500	700	335	Sudama
+710	Leanan Sidhe	300	700	305	Leanan Sidhe
+720	Ippon-Datara	400	550	316	Ippon-Datara
+750	Shiisaa	500	700	129	Shiisaa
+601	Jack Frost	500	700	58	Jack Frost
+602	Makami	400	700	121	Makami
+738	Basilisk	400	700	113	Basilisk
+746	Baphomet	400	700	235	Baphomet
+734	Thoth	300	700	14	Thoth
+604	Naga Raja	300	700	104	Naga Raja
+605	Mishaguji	600	300	234	Mishaguji
+607	Kaiwan	300	700	66	Kaiwan
+608	Hanuman	300	700	34	Hanuman
+612	Cu Chulainn	500	700	36	Cu Chulainn
+614	Silky	300	700	53	Silky
+617	Yurlungur	300	700	105	Yurlungur
+618	Scathach	300	700	26	Scathach
+627	Skadi	300	700	192	Skadi
+621	Slime	2000	4000	173	Slime
+623	Yatagarasu	500	700	280	Yatagarasu
+626	Rangda	300	700	296	Rangda
+620	Yamata-no-Orochi	500	700	103	Yamata-no-Orochi
+721	Succubus	300	700	65	Succubus
+724	Senri	400	700	130	Senri
+726	Orthrus	1000	1000	135	Orthrus
+728	Anzu	700	1500	287	Anzu
+729	Mad Gasser	600	0	174	Mad Gasser
+730	Efreet	400	700	47	Efreet
+733	Vritra	600	800	16	Vishnu
+471	Melchizedek	600	700	249	Melchizedek
+472	Sraosha	600	700	244	Sraosha
+473	Alilat	400	700	198	Alilat
+841	Michael	400	700	242	Michael
+801	Pazuzu	800	700	233	Pazuzu
+439	Anzu	700	1500	287	Anzu
+441	Lahmu	400	700	855	Zhuque
+488	Andras	400	700	272	Andras
+492	Rakshasa	300	700	324	Rakshasa
+496	Incubus	500	700	68	Incubus
+493	Rakshasa	300	700	324	Rakshasa
+443	Andras	400	700	272	Andras
+487	Aitvaras	700	700	114	Aitvaras
+449	Tsuchigumo	400	700	331	Tsuchigumo
+446	Oni	300	300	318	Oni
+500	Manananggal	250	700	302	Manananggal
+502	Shiki-Ouji	400	0	311	Shiki-Ouji
+501	Manananggal	250	700	302	Manananggal
+820	Shiki-Ouji	400	0	311	Shiki-Ouji
+866	Leanan Sidhe	300	700	305	Leanan Sidhe
+868	Apsaras	300	700	43	Apsaras
+879	Principality	300	700	257	Principality
+880	Lilim	400	700	67	Lilim
+881	Dionysus	300	700	183	Dionysus
+882	Black Frost	700	700	72	Black Frost
+883	Futsunushi	400	700	201	Futsunushi
+884	Adramelech	400	900	265	Adramelech
+447	Manananggal	250	700	302	Manananggal
+889	Preta	300	0	345	Preta
+888	Oni	300	300	318	Oni
+431	Preta	300	0	345	Preta
+751	Dormarth	800	700	141	Dormarth
+752	Nozuchi	200	700	107	Nozuchi
+755	Pisaca	400	700	341	Pisaca
+509	Zhen	700	700	288	Zhen
+510	Zhen	700	700	288	Zhen
+756	Zhen	700	700	288	Zhen
+768	Yakshini	500	700	299	Yakshini
+770	Onyankopon	200	700	27	Parvati
+771	Anansi	400	800	20	Anahita
+772	Kudlak	600	1000	346	Kudlak
+773	Kresnik	700	900	20	Anahita
+503	Power	300	700	256	Power
+504	Power	300	700	256	Power
+505	Power	300	700	256	Power
+506	Power	300	700	256	Power
+579	Isis	200	700	193	Isis
+485	Dominion	300	700	255	Dominion
