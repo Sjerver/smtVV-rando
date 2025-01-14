@@ -13,7 +13,7 @@ from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Came
 from base_classes.map_demons import Map_Demon
 from base_classes.map_event import Map_Event
 from base_classes.file_lists import Script_File_List, General_UAsset
-from util.jsonExports import BASE_MAPSYMBOLPARAMS
+from util.jsonExports import BASE_MAPSYMBOLPARAMS, VOICEMAP_ESCAPE, VOICEMAP_FIND
 from pprint import pprint
 import script_logic as scriptLogic
 import message_logic as message_logic
@@ -94,7 +94,7 @@ class Randomizer:
         self.alreadyAssignedSkills = set()
         self.scriptFiles = Script_File_List()
         self.mapEventArr = []
-
+        self.voiceMapFile = General_UAsset("BP_DevilVoiceAssetMap","rando/Project/Content/Sound/DevilVoice/")
         self.nahobino = Nahobino()
         
         self.configSettings = Settings()
@@ -6810,6 +6810,41 @@ class Randomizer:
             table.append(entry)
 
     '''
+    Adds aggro and escape voice clips for unused overworld demons
+    TODO: Add lines from the demon, not just Lamia over and over
+    '''
+    def addEscapeFindLines(self):
+        json = self.voiceMapFile.json
+        table = json["Exports"][1]["Data"][0]["Value"]
+        for entry in table:
+            demonID = entry[0]["Value"]
+            #print(demonID)
+            voiceEnums = entry[1]["Value"][0]["Value"]
+            #print(voiceEnums[0][0]["Value"])
+            foundEscape = False
+            foundFind = False
+            attackIndex = -1
+            for index, voiceEnum in enumerate(voiceEnums):
+                enumType = voiceEnum[0]["Value"]
+                if enumType == "EDevilVoiceType::Escape":
+                    foundEscape = True
+                if enumType == "EDevilVoiceType::Find":
+                    foundFind = True
+                if enumType == "EDevilVoiceType::Attack":
+                    attackIndex = index
+            if not foundEscape:
+                voiceEnums = voiceEnums[:attackIndex + 1] + VOICEMAP_ESCAPE + voiceEnums[attackIndex + 1:]
+            if not foundFind:
+                voiceEnums = voiceEnums[:attackIndex + 2] + VOICEMAP_FIND + voiceEnums[attackIndex + 2:]
+            #if foundEscape != foundFind:
+            #    print("Strange Happenings")
+            #if not foundEscape or not foundFind:
+            #    print(demonID)
+            entry[1]["Value"][0]["Value"] = voiceEnums
+            #if demonID == 224:
+            #    print(voiceEnums)
+
+    '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
     '''
     def nullBossTones(self):
@@ -7307,6 +7342,7 @@ class Randomizer:
         self.addAdditionalMapSymbols()
         self.patchAdramelechReplacementSize()
         self.adjustPunishingFoeSpeeds()
+        self.addEscapeFindLines()
 
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
@@ -7394,6 +7430,7 @@ class Randomizer:
         copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         
         self.mapSymbolFile.write()
+        self.voiceMapFile.write()
         if not testing:
             self.applyUnrealPak()
 
