@@ -66,7 +66,6 @@ class Randomizer:
         self.bossFlagArr = []
         self.bossDuplicateMap = {}
         self.mimanRewardsArr = []
-        self.protofiendArr = []
         self.battleEventArr = []
         self.devilAssetArr = []
         self.overlapCopies = []
@@ -959,64 +958,6 @@ class Randomizer:
             self.bossFlagArr.append(bossFlags)
 
     '''
-    Fills the array protofiendArr with data on all protofiends that serve as the source for their essence data.
-        Parameters:
-            NKMBaseTable (Buffer) the buffer containing all playable demon data
-    '''
-    def fillProtofiendArr(self, NKMBaseTable):
-        relevantIDs = numbers.PROTOFIEND_IDS
-
-        
-        demonOffset = 0x1D0
-        startValue = 0x69 + relevantIDs[0] * demonOffset
-
-        for index, demonID in enumerate(relevantIDs):
-            offset = startValue + demonOffset * index
-            locations = {
-                'level': offset,
-                'nameID': offset - 4,
-                'firstSkill': offset + 0x70,
-                'potential': offset + 0X174,
-                'HP': offset + 0x1C
-            }
-
-            #Then read the list of initial skills learned
-            listOfSkills = []
-            for i in range(8):
-                skillID = NKMBaseTable.readWord(locations['firstSkill'] + 4 * i)
-                if skillID != 0:
-                    listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))
-            
-            demon = Compendium_Demon()
-            demon.ind = demonID
-            demon.nameID = NKMBaseTable.readWord(locations['nameID'])
-            demon.name = self.compendiumNames[demon.nameID]
-            demon.offsetNumbers = locations
-            demon.level = Demon_Level(NKMBaseTable.readWord(locations['level']), NKMBaseTable.readWord(locations['level']))
-            demon.skills = listOfSkills
-            demon.potential.physical = NKMBaseTable.readWord(locations['potential'])
-            demon.potential.fire = NKMBaseTable.readWord(locations['potential'] + 4 * 1)
-            demon.potential.ice = NKMBaseTable.readWord(locations['potential'] + 4 * 2)
-            demon.potential.elec = NKMBaseTable.readWord(locations['potential'] + 4 * 3)
-            demon.potential.force = NKMBaseTable.readWord(locations['potential'] + 4 * 4)
-            demon.potential.light = NKMBaseTable.readWord(locations['potential'] + 4 * 5)
-            demon.potential.dark = NKMBaseTable.readWord(locations['potential'] + 4 * 6)
-            demon.potential.almighty = NKMBaseTable.readWord(locations['potential'] + 4 * 7)
-            demon.potential.ailment = NKMBaseTable.readWord(locations['potential'] + 4 * 8)
-            demon.potential.recover = NKMBaseTable.readWord(locations['potential'] + 4 * 10)
-            demon.potential.support = NKMBaseTable.readWord(locations['potential'] + 4 * 9)
-            demonHP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 0), NKMBaseTable.readWord(locations['HP'] + 4 * 2), NKMBaseTable.readWord(locations['HP'] + 4 * 0))
-            demonMP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 1), NKMBaseTable.readWord(locations['HP'] + 4 * 3),  NKMBaseTable.readWord(locations['HP'] + 4 * 1))
-            demonStr = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 4), NKMBaseTable.readWord(locations['HP'] + 4 * 9),  NKMBaseTable.readWord(locations['HP'] + 4 * 4))
-            demonVit = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 5), NKMBaseTable.readWord(locations['HP'] + 4 * 10),  NKMBaseTable.readWord(locations['HP'] + 4 * 5))
-            demonMag = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 6), NKMBaseTable.readWord(locations['HP'] + 4 * 11),  NKMBaseTable.readWord(locations['HP'] + 4 * 6))
-            demonAgi = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 7), NKMBaseTable.readWord(locations['HP'] + 4 * 12),  NKMBaseTable.readWord(locations['HP'] + 4 * 7))
-            demonLuk = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 8), NKMBaseTable.readWord(locations['HP'] + 4 * 13),  NKMBaseTable.readWord(locations['HP'] + 4 * 8))
-            demon.stats = Stats(demonHP, demonMP, demonStr, demonVit, demonMag, demonAgi, demonLuk)
-            
-
-            self.protofiendArr.append(demon)
-    '''
     Fills the array missionArr with data on all missions.
         Parameters:
             data (Buffer) the buffer containing all mission data
@@ -1895,108 +1836,6 @@ class Randomizer:
 
         naho.startingSkill = skill.ind
         self.alreadyAssignedSkills.add(skill.ind)
-
-    '''
-    Assigns every protofiend new skills randomized using weights based on the passed settings.
-    The range of skills available can either be all or level ranges around the protofiends level.
-    Additionally, the weights are either the same for every skill or adjusted based on level range or potential and stat of demon.
-    Furthermore the process ensures that each demon starts with at least one active skill.
-        Parameters: 
-            comp (Array): The array of demons
-            levelList (Array(Skill_Level)): The list of levels and their learnable skills
-            settings (Settings): settings set in gui
-        Returns:
-            The edited compendium
-    '''
-    def assignRandomSkillsToProtofiend(self, protofiends, levelList, settings):
-         #If the skills aren't supposed to be scaled based on level, assemble list where each valid skill appears exactly once
-        
-        levelAggregrate = []
-        for index, level in enumerate(levelList):
-            if index == 0:
-                #Prevents Magatsuhi skills from being in demons skill pools
-                continue
-            for skill in level:
-                levelAggregrate.append(skill)
-        uniqueSkills = {skill.ind for skill in levelAggregrate}
-        allSkills = []
-        for ind in uniqueSkills:
-                allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
-        
-        for protofiend in protofiends:
-            possibleSkills = []
-            if settings.scaledSkills:
-                #get all skills that can be learned at the demons level
-                if protofiend.level.value > 0:
-                    possibleSkills = levelList[protofiend.level.value]
-                #And add the skills learnable at up to 3 level below and above the demons level
-                if protofiend.level.value < 99:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 1]
-                if protofiend.level.value > 1:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 1]
-                if protofiend.level.value > 2:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 2]
-                if protofiend.level.value > 3:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 3]
-                if protofiend.level.value < 98:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 2]
-                if protofiend.level.value < 97:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 3]
-                #Increase skill pool for demons above level 70 due to diminishing demon numbers
-                if protofiend.level.value > 70:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 4]
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 5]
-                #Increase skill pool for demons above level 90 due to diminishing demon numbers
-                if protofiend.level.value > 90:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 6]
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 7]
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 8]
-                #Increase skill pool for demons at level 1 due to low number of available skills
-                if protofiend.level.value == 1:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 4]
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 5]
-            else:
-                #No level scaling so copy list of all skilsl
-                possibleSkills = allSkills.copy()
-
-             #Create the weighted list of skills and update it with potentials if necessary
-            weightedSkills = self.createWeightedList(possibleSkills, allSkills)
-            totalSkills = []
-            #If there are skills to be learned
-            if len(weightedSkills.values) > 0:
-
-                #For every skill...
-                for index in range(len(protofiend.skills)):
-                    foundSkill = False
-                    if protofiend.skills[index].value == 0:
-                        # Don't set empty skill slots 
-                        continue
-                    rng = 0
-                    attempts = 100
-                    while not foundSkill:
-                        # until valid skill is found
-                        rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
-                        if attempts <= 0:
-                            print("Something went wrong in skill rando at level " + str(protofiend.level.value))
-                            weightedSkills.weights[weightedSkills.values.index(rng)] = 0
-                            foundSkill = True
-                            break
-                        # Ensure Demon has at least one active skill and no skill appears twice
-                        if not any(e.ind == rng for e in totalSkills) and self.ensureAtLeastOneActive(totalSkills, protofiend, rng):
-                            #Check if skill passes additional conditions or skip that check if skills are not supposed to be weighted by stats and potentials
-                            if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, protofiend)):
-                                if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),protofiend,self.compendiumArr,settings):
-                                    if rng in numbers.MAGATSUHI_SKILLS: #only 1 magatsuhi skill assigned to skill set
-                                        for weightIndex,checkSkill in enumerate(weightedSkills.values):
-                                            if checkSkill in numbers.MAGATSUHI_SKILLS:
-                                                weightedSkills.weights[weightIndex] = 0
-                                    foundSkill = True
-                                    weightedSkills.weights[weightedSkills.values.index(rng)] = 0
-                        attempts -= 1
-                    skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
-                    totalSkills.append(skillAddition)
-                    protofiend.skills[index] = skillAddition
-                    self.alreadyAssignedSkills.add(rng)
     
     '''
     Check to see if adding the skill with index skillIndex to the demons skill list would leave him with at least one active starting skill.
@@ -2327,10 +2166,8 @@ class Randomizer:
             demon.potential.recover = newPotentials[10]
 
     '''
-    Assigns every protofiend new skills randomized using weights based on the passed settings.
-    The range of skills available can either be all or level ranges around the protofiends level.
-    Additionally, the weights are either the same for every skill or adjusted based on level range or potential and stat of demon.
-    Furthermore the process ensures that each demon starts with at least one active skill.
+    Randomizes the resitance profiles of demons. The process attempts to follow base game distribution of resistances and elemnents.
+    The outcome is changed depending on what resistance settings are chosen.
         Parameters: 
             comp (List(Compendium_Demon)): List of demons
             mask (List(Number)): Optional list of demon IDs to filter comp by, only randomizing resitances of those demons
@@ -3144,19 +2981,6 @@ class Randomizer:
             buffer.writeHalfword(bossFlags.demonID, bossFlags.offset)
             for index in range(6):
                 buffer.writeByte(bossFlags.flags[index], bossFlags.offset + 4 * (index + 1))
-        return buffer
-    
-    '''
-    Writes the values from the protofiend array to their respective locations in the table buffer
-        Parameters:        
-            buffer (Table)
-            protofiends (Array)
-    '''
-    def updateProtofiendBuffer(self, buffer, protofiends):
-        for demon in protofiends:
-            #Write the id of the demons skills to the buffer
-            for index, skill in enumerate(demon.skills):
-                buffer.writeWord(skill.ind, demon.offsetNumbers['firstSkill'] + 4 * index)
         return buffer
     
     '''
@@ -7107,7 +6931,6 @@ class Randomizer:
         self.fillNahobino(playGrowBuffer)
         self.fillEssenceArr(itemBuffer)
         self.fillShopArr(shopBuffer)
-        self.fillProtofiendArr(compendiumBuffer)
         self.fillMissionArr(missionBuffer)
         self.fillUniqueSymbolArr(uniqueSymbolBuffer)
         self.fillChestArr(chestBuffer)
@@ -7220,7 +7043,7 @@ class Randomizer:
         if config.randomSkills:
             self.adjustSkillSlotsToLevel(newComp)
             self.assignRandomStartingSkill(self.nahobino, levelSkillList, config)
-            self.assignRandomSkillsToProtofiend(self.protofiendArr, levelSkillList, config)
+            self.assignRandomSkills(self.playerBossArr,levelSkillList, config, mask=numbers.PROTOFIEND_IDS)
             newComp = self.assignRandomSkills(newComp,levelSkillList, config)
             if config.fixUniqueSkillAnimations:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
@@ -7361,7 +7184,6 @@ class Randomizer:
         eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr, eventEncountUassetBuffer)
         eventEncountPostBuffer = self.updateEventEncountPostBuffer(eventEncountPostBuffer, self.eventEncountArr)
         bossFlagBuffer = self.updateBossFlagBuffer(bossFlagBuffer)
-        compendiumBuffer = self.updateProtofiendBuffer(compendiumBuffer, self.protofiendArr)
         battleEventsBuffer = self.updateBattleEventsBuffer(battleEventsBuffer, self.battleEventArr, battleEventUassetBuffer)
         devilAssetTableBuffer = self.updateDevilAssetBuffer(devilAssetTableBuffer, self.devilAssetArr)
         missionBuffer = self.updateMissionBuffer(missionBuffer, self.missionArr)
@@ -7503,10 +7325,11 @@ class Randomizer:
         skillID = self.nahobino.startingSkill
         if skillID in allSkillIDs:
                 allSkillIDs.remove(skillID)
-        for protoFiend in self.protofiendArr:
-            for skill in protoFiend.skills:
-                if skill.ind in allSkillIDs:
-                    allSkillIDs.remove(skill.ind)
+        for protoFiend in self.playerBossArr:
+            if protoFiend.ind in numbers.PROTOFIEND_IDS:
+                for skill in protoFiend.skills:
+                    if skill.ind in allSkillIDs:
+                        allSkillIDs.remove(skill.ind)
         for guest in self.playerBossArr:
             if guest.ind in numbers.GUEST_IDS:
                 for skill in guest.skills:
@@ -7548,17 +7371,17 @@ class Randomizer:
                             continue
                         skillString = skillString + translation.translateSkillID(skill.value, self.skillNames)+ "(" + str(skill.level) + ")" + "/"
                     file.write(skillString + "\n")
-            for demon in self.protofiendArr:
-                skillString = "[" + str(demon.ind) + "](" + str(demon.level.value) +") " + "Aogami/Tsukuyomi Essence" + ": "
-                for skill in demon.skills:
-                    if skill.ind == 0:
-                        continue
-                    skillString = skillString + translation.translateSkillID(skill.value, self.skillNames) + "/"
-                for skill in demon.learnedSkills:
-                    if skill.ind == 0:
-                        continue
-                    skillString = skillString + translation.translateSkillID(skill.value, self.skillNames)+ "(" + str(skill.level) + ")" + "/"
-                file.write(skillString + "\n")
+                if demon.ind in numbers.PROTOFIEND_IDS:
+                    skillString = "[" + str(demon.ind) + "](" + str(demon.level.value) +") " + "Aogami/Tsukuyomi Essence" + ": "
+                    for skill in demon.skills:
+                        if skill.ind == 0:
+                            continue
+                        skillString = skillString + translation.translateSkillID(skill.value, self.skillNames) + "/"
+                    for skill in demon.learnedSkills:
+                        if skill.ind == 0:
+                            continue
+                        skillString = skillString + translation.translateSkillID(skill.value, self.skillNames)+ "(" + str(skill.level) + ")" + "/"
+                    file.write(skillString + "\n")
 
 
 
