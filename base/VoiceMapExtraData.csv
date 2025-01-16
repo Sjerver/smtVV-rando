@@ -1,0 +1,179 @@
+DemonID,DemonName,Escape,Find
+1,Satan,/Game/Sound/CueSheet/Devil/Devil_vo/dev001_vo_satan/dev001_vo_52.dev001_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev001_vo_satan/dev001_vo_22.dev001_vo_22
+2,Lucifer,/Game/Sound/CueSheet/Devil/Devil_vo/dev002_vo_lucifer/dev002_vo_56.dev002_vo_56,/Game/Sound/CueSheet/Devil/Devil_vo/dev002_vo_lucifer/dev002_vo_23.dev002_vo_23
+4,Dagda,/Game/Sound/CueSheet/Devil/Devil_vo/dev004_vo_dagda/dev004_vo_23.dev004_vo_23,/Game/Sound/CueSheet/Devil/Devil_vo/dev004_vo_dagda/dev004_vo_55.dev004_vo_55
+8,Zeus,/Game/Sound/CueSheet/Devil/Devil_vo/dev008_vo_zeus/dev008_vo_52.dev008_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev008_vo_zeus/dev008_vo_54.dev008_vo_54
+9,Odin,/Game/Sound/CueSheet/Devil/Devil_vo/dev009_vo_odin/dev009_vo_58.dev009_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev009_vo_odin/dev009_vo_31.dev009_vo_31
+11,Mitra,/Game/Sound/CueSheet/Devil/Devil_vo/dev011_vo_mitra/dev011_vo_04.dev011_vo_04,/Game/Sound/CueSheet/Devil/Devil_vo/dev011_vo_mitra/dev011_vo_51.dev011_vo_51
+12,Atavaka,/Game/Sound/CueSheet/Devil/Devil_vo/dev012_vo_atavaka/dev012_vo_58.dev012_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev012_vo_atavaka/dev012_vo_51.dev012_vo_51
+14,Thoth,/Game/Sound/CueSheet/Devil/Devil_vo/dev014_vo_tooto/dev014_vo_04.dev014_vo_04,
+16,Vishnu,/Game/Sound/CueSheet/Devil/Devil_vo/dev016_vo_vishnu/dev016_vo_04.dev016_vo_04,/Game/Sound/CueSheet/Devil/Devil_vo/dev016_vo_vishnu/dev016_vo_53.dev016_vo_53
+17,Baal,/Game/Sound/CueSheet/Devil/Devil_vo/dev017_vo_baal/dev017_vo_53.dev017_vo_53,/Game/Sound/CueSheet/Devil/Devil_vo/dev017_vo_baal/dev017_vo_22.dev017_vo_22
+19,Demeter,/Game/Sound/CueSheet/Devil/Devil_vo/dev019_vo_demter/dev019_vo_58.dev019_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev019_vo_demter/dev019_vo_22.dev019_vo_22
+20,Anahita,/Game/Sound/CueSheet/Devil/Devil_vo/dev020_vo_anahita/dev020_vo_53.dev020_vo_53,/Game/Sound/CueSheet/Devil/Devil_vo/dev020_vo_anahita/dev020_vo_22.dev020_vo_22
+21,Lakshmi,/Game/Sound/CueSheet/Devil/Devil_vo/dev021_vo_lakshmi/dev021_vo_52.dev021_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev021_vo_lakshmi/dev021_vo_53.dev021_vo_53
+22,Norn,/Game/Sound/CueSheet/Devil/Devil_vo/dev022_vo_norn/dev022_vo_55.dev022_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev022_vo_norn/dev022_vo_22.dev022_vo_22
+23,Idun,/Game/Sound/CueSheet/Devil/Devil_vo/dev023_vo_iduna/dev023_vo_55.dev023_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev023_vo_iduna/dev023_vo_61.dev023_vo_61
+24,Sarasvati,/Game/Sound/CueSheet/Devil/Devil_vo/dev024_vo_sarasvati/dev024_vo_58.dev024_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev024_vo_sarasvati/dev024_vo_22.dev024_vo_22
+25,Ishtar,/Game/Sound/CueSheet/Devil/Devil_vo/dev025_vo_isthar/dev025_vo_04.dev025_vo_04,/Game/Sound/CueSheet/Devil/Devil_vo/dev025_vo_isthar/dev025_vo_22.dev025_vo_22
+26,Scathach,/Game/Sound/CueSheet/Devil/Devil_vo/dev026_vo_scathach/dev026_vo_55.dev026_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev026_vo_scathach/dev026_vo_52.dev026_vo_52
+27,Parvati,/Game/Sound/CueSheet/Devil/Devil_vo/dev027_vo_parlvati/dev027_vo_52.dev027_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev027_vo_parlvati/dev027_vo_53.dev027_vo_53
+28,Ame-no-Uzume,/Game/Sound/CueSheet/Devil/Devil_vo/dev028_vo_amenouzume/dev028_vo_58.dev028_vo_58,
+29,Fortuna,/Game/Sound/CueSheet/Devil/Devil_vo/dev029_vo_fortuna/dev029_vo_52.dev029_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev029_vo_fortuna/dev029_vo_22.dev029_vo_22
+30,Maria,/Game/Sound/CueSheet/Devil/Devil_vo/dev030_vo_maria/dev030_vo_58.dev030_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev030_vo_maria/dev030_vo_51.dev030_vo_51
+32,Konohana Sakuya,/Game/Sound/CueSheet/Devil/Devil_vo/dev032_vo_konohanasakuya/dev032_vo_52.dev032_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev032_vo_konohanasakuya/dev032_vo_22.dev032_vo_22
+35,Fionn mac Cumhaill,/Game/Sound/CueSheet/Devil/Devil_vo/dev035_vo_fionn/dev035_vo_55.dev035_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev035_vo_fionn/dev035_vo_22.dev035_vo_22
+36,Cu Chulainn,/Game/Sound/CueSheet/Devil/Devil_vo/dev036_vo_cuchulainn/dev036_vo_58.dev036_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev036_vo_cuchulainn/dev036_vo_31.dev036_vo_31
+38,Amanozako,/Game/Sound/CueSheet/Devil/Devil_vo/dev038_vo_amanozako/dev038_vo_55.dev038_vo_55,
+39,Amanozako Berserk,/Game/Sound/CueSheet/Devil/Devil_vo/dev039_vo_amanozako_runaway/dev039_vo_76.dev039_vo_76,/Game/Sound/CueSheet/Devil/Devil_vo/dev039_vo_amanozako_runaway/dev039_vo_22.dev039_vo_22
+40,Kresnik,/Game/Sound/CueSheet/Devil/Devil_vo/dev040_vo_kresnik/dev040_vo_55.dev040_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev040_vo_kresnik/dev040_vo_22.dev040_vo_22
+41,Anansi,/Game/Sound/CueSheet/Devil/Devil_vo/dev041_vo_anansi/dev041_vo_52.dev041_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev041_vo_anansi/dev041_vo_56.dev041_vo_56
+43,Apsaras,/Game/Sound/CueSheet/Devil/Devil_vo/dev043_vo_apsaras/dev043_vo_58.dev043_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev043_vo_apsaras/dev043_vo_23.dev043_vo_23
+47,Efreet,/Game/Sound/CueSheet/Devil/Devil_vo/dev047_vo_ifrit/dev047_vo_58.dev047_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev047_vo_ifrit/dev047_vo_51.dev047_vo_51
+60,Nahobeeho,/Game/Sound/CueSheet/Devil/Devil_vo/dev060_vo_nahobiho/dev060_vo_52.dev060_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev060_vo_nahobiho/dev060_vo_22.dev060_vo_22
+72,Black Frost,/Game/Sound/CueSheet/Devil/Devil_vo/dev072_vo_jaakufrost/dev072_vo_55.dev072_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev072_vo_jaakufrost/dev072_vo_57.dev072_vo_57
+76,Amon,/Game/Sound/CueSheet/Devil/Devil_vo/dev076_vo_amon/dev076_vo_52.dev076_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev076_vo_amon/dev076_vo_54.dev076_vo_54
+77,Mara,/Game/Sound/CueSheet/Devil/Devil_vo/dev077_vo_maare/dev077_vo_55.dev077_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev077_vo_maare/dev077_vo_57.dev077_vo_57
+78,Mephisto,/Game/Sound/CueSheet/Devil/Devil_vo/dev078_vo_mephisto/dev078_vo_58.dev078_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev078_vo_mephisto/dev078_vo_56.dev078_vo_56
+80,Surt,/Game/Sound/CueSheet/Devil/Devil_vo/dev080_vo_surtr/dev080_vo_55.dev080_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev080_vo_surtr/dev080_vo_53.dev080_vo_53
+81,Beelzebub,/Game/Sound/CueSheet/Devil/Devil_vo/dev081_vo_beerzebub/dev081_vo_58.dev081_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev081_vo_beerzebub/dev081_vo_31.dev081_vo_31
+82,Arioch,/Game/Sound/CueSheet/Devil/Devil_vo/dev082_vo_arioch/dev082_vo_58.dev082_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev082_vo_arioch/dev082_vo_22.dev082_vo_22
+83,Belial,/Game/Sound/CueSheet/Devil/Devil_vo/dev083_vo_belial/dev083_vo_58.dev083_vo_58,
+84,Abaddon,/Game/Sound/CueSheet/Devil/Devil_vo/dev084_vo_abaddon/dev084_vo_54.dev084_vo_54,
+85,Moloch,/Game/Sound/CueSheet/Devil/Devil_vo/dev085_vo_moloch/dev085_vo_52.dev085_vo_52,
+86,Belphegor,/Game/Sound/CueSheet/Devil/Devil_vo/dev086_vo_belphegor/dev086_vo_53.dev086_vo_53,
+87,King Frost,/Game/Sound/CueSheet/Devil/Devil_vo/dev087_vo_kingfrost/dev087_vo_52.dev087_vo_52,
+88,Mithras,/Game/Sound/CueSheet/Devil/Devil_vo/dev088_vo_mithras/dev088_vo_55.dev088_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev088_vo_mithras/dev088_vo_56.dev088_vo_56
+89,Loki,/Game/Sound/CueSheet/Devil/Devil_vo/dev089_vo_loki/dev089_vo_04.dev089_vo_04,
+94,Huang Long,/Game/Sound/CueSheet/Devil/Devil_vo/dev094_vo_koryu/dev094_vo_55.dev094_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev094_vo_koryu/dev094_vo_56.dev094_vo_56
+98,Ananta,/Game/Sound/CueSheet/Devil/Devil_vo/dev098_vo_ananta/dev098_vo_55.dev098_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev098_vo_ananta/dev098_vo_51.dev098_vo_51
+99,Vritra,/Game/Sound/CueSheet/Devil/Devil_vo/dev099_vo_vrtra/dev099_vo_55.dev099_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev099_vo_vrtra/dev099_vo_61.dev099_vo_61
+100,Nyami Nyami,/Game/Sound/CueSheet/Devil/Devil_vo/dev100_vo_nyaminyami/dev100_vo_58.dev100_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev100_vo_nyaminyami/dev100_vo_54.dev100_vo_54
+108,Vouivre,/Game/Sound/CueSheet/Devil/Devil_vo/dev108_vo_vouivre/dev108_vo_53.dev108_vo_53,
+111,Vasuki,/Game/Sound/CueSheet/Devil/Devil_vo/dev111_vo_vasuki/dev111_vo_58.dev111_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev111_vo_vasuki/dev111_vo_56.dev111_vo_56
+112,Seth,/Game/Sound/CueSheet/Devil/Devil_vo/dev112_vo_set/dev112_vo_52.dev112_vo_52,
+118,Samael,/Game/Sound/CueSheet/Devil/Devil_vo/dev118_vo_samael/dev118_vo_04.dev118_vo_04,/Game/Sound/CueSheet/Devil/Devil_vo/dev118_vo_samael/dev118_vo_52.dev118_vo_52
+119,Barong,/Game/Sound/CueSheet/Devil/Devil_vo/dev119_vo_barong/dev119_vo_52.dev119_vo_52,
+120,Anubis,/Game/Sound/CueSheet/Devil/Devil_vo/dev120_vo_anubis/dev120_vo_55.dev120_vo_55,
+122,Xiezhai,/Game/Sound/CueSheet/Devil/Devil_vo/dev122_vo_kaichi/dev122_vo_55.dev122_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev122_vo_kaichi/dev122_vo_52.dev122_vo_52
+129,Shiisaa,/Game/Sound/CueSheet/Devil/Devil_vo/dev129_vo_sisa/dev129_vo_52.dev129_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev129_vo_sisa/dev129_vo_57.dev129_vo_57
+131,Unicorn,/Game/Sound/CueSheet/Devil/Devil_vo/dev131_vo_unicorn/dev131_vo_52.dev131_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev131_vo_unicorn/dev131_vo_56.dev131_vo_56
+142,Glasya Labolas,/Game/Sound/CueSheet/Devil/Devil_vo/dev142_vo_glasyalabolas/dev142_vo_55.dev142_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev142_vo_glasyalabolas/dev142_vo_56.dev142_vo_56
+148,Fenrir,/Game/Sound/CueSheet/Devil/Devil_vo/dev148_vo_fenrir/dev148_vo_55.dev148_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev148_vo_fenrir/dev148_vo_51.dev148_vo_51
+152,Hayataro,/Game/Sound/CueSheet/Devil/Devil_vo/dev152_vo_hayataro/dev152_vo_56.dev152_vo_56,/Game/Sound/CueSheet/Devil/Devil_vo/dev152_vo_hayataro/dev152_vo_53.dev152_vo_53
+155,Flaemis,/Game/Sound/CueSheet/Devil/Devil_vo/dev155_vo_framez/dev155_vo_55.dev155_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev155_vo_framez/dev155_vo_61.dev155_vo_61
+156,Aquans,/Game/Sound/CueSheet/Devil/Devil_vo/dev156_vo_aquanz/dev156_vo_55.dev156_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev156_vo_aquanz/dev156_vo_53.dev156_vo_53
+157,Aeros,/Game/Sound/CueSheet/Devil/Devil_vo/dev157_vo_aeros/dev157_vo_54.dev157_vo_54,/Game/Sound/CueSheet/Devil/Devil_vo/dev157_vo_aeros/dev157_vo_22.dev157_vo_22
+158,Erthys,/Game/Sound/CueSheet/Devil/Devil_vo/dev158_vo_arshez/dev158_vo_56.dev158_vo_56,/Game/Sound/CueSheet/Devil/Devil_vo/dev158_vo_arshez/dev158_vo_51.dev158_vo_51
+175,Turbo Granny,/Game/Sound/CueSheet/Devil/Devil_vo/dev175_vo_turbobachan/dev175_vo_54.dev175_vo_54,/Game/Sound/CueSheet/Devil/Devil_vo/dev175_vo_turbobachan/dev175_vo_22.dev175_vo_22
+178,Shiva,/Game/Sound/CueSheet/Devil/Devil_vo/dev178_vo_siva/dev178_vo_03.dev178_vo_03,/Game/Sound/CueSheet/Devil/Devil_vo/dev178_vo_siva/dev178_vo_53.dev178_vo_53
+179,Mot,/Game/Sound/CueSheet/Devil/Devil_vo/dev179_vo_moto/dev179_vo_55.dev179_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev179_vo_moto/dev179_vo_57.dev179_vo_57
+180,Zaou-Gongen,/Game/Sound/CueSheet/Devil/Devil_vo/dev180_vo_zaougongen/dev180_vo_52.dev180_vo_52,
+181,Asura,/Game/Sound/CueSheet/Devil/Devil_vo/dev181_vo_asura/dev181_vo_58.dev181_vo_58,
+182,Chernobog,/Game/Sound/CueSheet/Devil/Devil_vo/dev182_vo_chernobog/dev182_vo_52.dev182_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev182_vo_chernobog/dev182_vo_54.dev182_vo_54
+183,Dionysus,/Game/Sound/CueSheet/Devil/Devil_vo/dev183_vo_dionysos/dev183_vo_58.dev183_vo_58,
+188,Danu,/Game/Sound/CueSheet/Devil/Devil_vo/dev188_vo_danu/dev188_vo_52.dev188_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev188_vo_danu/dev188_vo_51.dev188_vo_51
+189,Inanna,/Game/Sound/CueSheet/Devil/Devil_vo/dev189_vo_inanna/dev189_vo_54.dev189_vo_54,/Game/Sound/CueSheet/Devil/Devil_vo/dev189_vo_inanna/dev189_vo_51.dev189_vo_51
+191,Cybele,/Game/Sound/CueSheet/Devil/Devil_vo/dev191_vo_cybele/dev191_vo_55.dev191_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev191_vo_cybele/dev191_vo_56.dev191_vo_56
+192,Skadi,/Game/Sound/CueSheet/Devil/Devil_vo/dev192_vo_skadi/dev192_vo_54.dev192_vo_54,/Game/Sound/CueSheet/Devil/Devil_vo/dev192_vo_skadi/dev192_vo_57.dev192_vo_57
+193,Isis,/Game/Sound/CueSheet/Devil/Devil_vo/dev193_vo_isis/dev193_vo_55.dev193_vo_55,
+194,Kikuri-Hime,/Game/Sound/CueSheet/Devil/Devil_vo/dev194_vo_kikurihime/dev194_vo_58.dev194_vo_58,
+195,Hariti,/Game/Sound/CueSheet/Devil/Devil_vo/dev195_vo_hariti/dev195_vo_52.dev195_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev195_vo_hariti/dev195_vo_22.dev195_vo_22
+198,Alilat,/Game/Sound/CueSheet/Devil/Devil_vo/dev198_vo_alilato/dev198_vo_58.dev198_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev198_vo_alilato/dev198_vo_52.dev198_vo_52
+200,Thor,/Game/Sound/CueSheet/Devil/Devil_vo/dev200_vo_thor/dev200_vo_56.dev200_vo_56,
+201,Futsunushi,/Game/Sound/CueSheet/Devil/Devil_vo/dev201_vo_futunusi/dev201_vo_55.dev201_vo_55,
+202,Attis,/Game/Sound/CueSheet/Devil/Devil_vo/dev202_vo_attis/dev202_vo_54.dev202_vo_54,
+207,Marici,/Game/Sound/CueSheet/Devil/Devil_vo/dev207_vo_marishiten/dev207_vo_56.dev207_vo_56,/Game/Sound/CueSheet/Devil/Devil_vo/dev207_vo_marishiten/dev207_vo_57.dev207_vo_57
+211,Arahabaki,/Game/Sound/CueSheet/Devil/Devil_vo/dev211_vo_arahabaki/dev211_vo_54.dev211_vo_54,/Game/Sound/CueSheet/Devil/Devil_vo/dev211_vo_arahabaki/dev211_vo_53.dev211_vo_53
+212,Oyamatsumi,/Game/Sound/CueSheet/Devil/Devil_vo/dev212_vo_ooyamatumi/dev212_vo_54.dev212_vo_54,/Game/Sound/CueSheet/Devil/Devil_vo/dev212_vo_ooyamatumi/dev212_vo_56.dev212_vo_56
+213,Kushinada-Hime,/Game/Sound/CueSheet/Devil/Devil_vo/dev213_vo_kushinadahime/dev213_vo_52.dev213_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev213_vo_kushinadahime/dev213_vo_53.dev213_vo_53
+214,Sukuna-Hikona,/Game/Sound/CueSheet/Devil/Devil_vo/dev214_vo_sukunahikona/dev214_vo_04.dev214_vo_04,
+215,Okuninushi,/Game/Sound/CueSheet/Devil/Devil_vo/dev215_vo_ookuninushi/dev215_vo_55.dev215_vo_55,
+216,Take-Minakata,/Game/Sound/CueSheet/Devil/Devil_vo/dev216_vo_takeminakata/dev216_vo_04.dev216_vo_04,
+221,Ganesha,/Game/Sound/CueSheet/Devil/Devil_vo/dev221_vo_ganesha/dev221_vo_55.dev221_vo_55,
+222,Siegfried,/Game/Sound/CueSheet/Devil/Devil_vo/dev222_vo_siegfried/dev222_vo_58.dev222_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev222_vo_siegfried/dev222_vo_56.dev222_vo_56
+224,Yoshitsune,/Game/Sound/CueSheet/Devil/Devil_vo/dev224_vo_yoshitune/dev224_vo_55.dev224_vo_55,
+225,Neko Shogun,/Game/Sound/CueSheet/Devil/Devil_vo/dev225_vo_nekoshogun/dev225_vo_52.dev225_vo_52,
+226,Nezha Taizi,/Game/Sound/CueSheet/Devil/Devil_vo/dev226_vo_natataishi/dev226_vo_58.dev226_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev226_vo_natataishi/dev226_vo_51.dev226_vo_51
+227,Masakado,/Game/Sound/CueSheet/Devil/Devil_vo/dev227_vo_masakado/dev227_vo_52.dev227_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev227_vo_masakado/dev227_vo_22.dev227_vo_22
+231,Mada,/Game/Sound/CueSheet/Devil/Devil_vo/dev231_vo_mada/dev231_vo_55.dev231_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev231_vo_mada/dev231_vo_54.dev231_vo_54
+237,Saturnus,/Game/Sound/CueSheet/Devil/Devil_vo/dev237_vo_saturnus/dev237_vo_58.dev237_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev237_vo_saturnus/dev237_vo_56.dev237_vo_56
+238,Tzitzimitl,/Game/Sound/CueSheet/Devil/Devil_vo/dev238_vo_tzitzimitl/dev238_vo_55.dev238_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev238_vo_tzitzimitl/dev238_vo_53.dev238_vo_53
+241,Metatron,/Game/Sound/CueSheet/Devil/Devil_vo/dev241_vo_metathron/dev241_vo_52.dev241_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev241_vo_metathron/dev241_vo_53.dev241_vo_53
+242,Michael,/Game/Sound/CueSheet/Devil/Devil_vo/dev242_vo_michael/dev242_vo_55.dev242_vo_55,
+243,Gabriel,/Game/Sound/CueSheet/Devil/Devil_vo/dev243_vo_gabriel/dev243_vo_55.dev243_vo_55,
+244,Sraosha,/Game/Sound/CueSheet/Devil/Devil_vo/dev244_vo_sraosha/dev244_vo_52.dev244_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev244_vo_sraosha/dev244_vo_57.dev244_vo_57
+245,Raphael,/Game/Sound/CueSheet/Devil/Devil_vo/dev245_vo_raphael/dev245_vo_55.dev245_vo_55,
+246,Sandalphon,/Game/Sound/CueSheet/Devil/Devil_vo/dev246_vo_sandalphon/dev246_vo_58.dev246_vo_58,
+247,Uriel,/Game/Sound/CueSheet/Devil/Devil_vo/dev247_vo_uriel/dev247_vo_55.dev247_vo_55,
+248,Camael,/Game/Sound/CueSheet/Devil/Devil_vo/dev248_vo_kamael/dev248_vo_55.dev248_vo_55,
+249,Melchizedek,/Game/Sound/CueSheet/Devil/Devil_vo/dev249_vo_melkisedec/dev249_vo_56.dev249_vo_56,
+250,Mastema,/Game/Sound/CueSheet/Devil/Devil_vo/dev250_vo_mansemat/dev250_vo_04.dev250_vo_04,/Game/Sound/CueSheet/Devil/Devil_vo/dev250_vo_mansemat/dev250_vo_31.dev250_vo_31
+251,Armaiti,/Game/Sound/CueSheet/Devil/Devil_vo/dev251_vo_armaiti/dev251_vo_04.dev251_vo_04,/Game/Sound/CueSheet/Devil/Devil_vo/dev251_vo_armaiti/dev251_vo_53.dev251_vo_53
+255,Dominion,/Game/Sound/CueSheet/Devil/Devil_vo/dev255_vo_dominion/dev255_vo_57.dev255_vo_57,
+256,Power,/Game/Sound/CueSheet/Devil/Devil_vo/dev256_vo_power/dev256_vo_55.dev256_vo_55,
+257,Principality,/Game/Sound/CueSheet/Devil/Devil_vo/dev257_vo_principality/dev257_vo_52.dev257_vo_52,
+258,Archangel,/Game/Sound/CueSheet/Devil/Devil_vo/dev258_vo_archangel/dev258_vo_53.dev258_vo_53,
+259,Angel,/Game/Sound/CueSheet/Devil/Devil_vo/dev259_vo_angel/dev259_vo_53.dev259_vo_53,
+260,Cherub,/Game/Sound/CueSheet/Devil/Devil_vo/dev260_vo_cherub/dev260_vo_52.dev260_vo_52,
+275,Azazel,/Game/Sound/CueSheet/Devil/Devil_vo/dev275_vo_azazel/dev275_vo_52.dev275_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev275_vo_azazel/dev275_vo_51.dev275_vo_51
+278,Garuda,/Game/Sound/CueSheet/Devil/Devil_vo/dev278_vo_garuda/dev278_vo_52.dev278_vo_52,
+280,Yatagarasu,/Game/Sound/CueSheet/Devil/Devil_vo/dev280_vo_yatagarasu/dev280_vo_57.dev280_vo_57,
+281,Jatayu,/Game/Sound/CueSheet/Devil/Devil_vo/dev281_vo_jatayu/dev281_vo_55.dev281_vo_55,
+283,Thunderbird,/Game/Sound/CueSheet/Devil/Devil_vo/dev283_vo_thunderbird/dev283_vo_56.dev283_vo_56,/Game/Sound/CueSheet/Devil/Devil_vo/dev283_vo_thunderbird/dev283_vo_54.dev283_vo_54
+295,Cleopatra,/Game/Sound/CueSheet/Devil/Devil_vo/dev295_vo_cleopatra/dev295_vo_58.dev295_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev295_vo_cleopatra/dev295_vo_53.dev295_vo_53
+305,Leanan Sidhe,/Game/Sound/CueSheet/Devil/Devil_vo/dev305_vo_leanan_sidhe/dev305_vo_52.dev305_vo_52,
+319,Karasu Tengu,/Game/Sound/CueSheet/Devil/Devil_vo/dev319_vo_karasutengu/dev319_vo_55.dev319_vo_55,
+350,Trumpeter,/Game/Sound/CueSheet/Devil/Devil_vo/dev350_vo_trumpeter/dev350_vo_55.dev350_vo_55,
+351,Mother Harlot,/Game/Sound/CueSheet/Devil/Devil_vo/dev351_vo_motherharlot/dev351_vo_04.dev351_vo_04,
+352,Black Rider,/Game/Sound/CueSheet/Devil/Devil_vo/dev352_vo_blackrider/dev352_vo_55.dev352_vo_55,
+353,Red Rider,/Game/Sound/CueSheet/Devil/Devil_vo/dev353_vo_redrider/dev353_vo_52.dev353_vo_52,
+354,White Rider,/Game/Sound/CueSheet/Devil/Devil_vo/dev354_vo_whiterider/dev354_vo_55.dev354_vo_55,
+355,Alice,/Game/Sound/CueSheet/Devil/Devil_vo/dev355_vo_alice/dev355_vo_57.dev355_vo_57,
+356,Hell Biker,/Game/Sound/CueSheet/Devil/Devil_vo/dev356_vo_hells_angel/dev356_vo_52.dev356_vo_52,
+357,Daisoujou,/Game/Sound/CueSheet/Devil/Devil_vo/dev357_vo_daisoujou/dev357_vo_55.dev357_vo_55,
+358,Pale Rider,/Game/Sound/CueSheet/Devil/Devil_vo/dev358_vo_palerider/dev358_vo_58.dev358_vo_58,
+359,Matador,/Game/Sound/CueSheet/Devil/Devil_vo/dev359_vo_matador/dev359_vo_56.dev359_vo_56,
+381,Hare of Inaba,/Game/Sound/CueSheet/Devil/Devil_vo/dev381_vo_inabasirousagi/dev381_vo_04.dev381_vo_04,/Game/Sound/CueSheet/Devil/Devil_vo/dev381_vo_inabasirousagi/dev381_vo_51.dev381_vo_51
+385,Kinmamon,/Game/Sound/CueSheet/Devil/Devil_vo/dev385_vo_kinmamon/dev385_vo_52.dev385_vo_52,
+386,Onyankopon,/Game/Sound/CueSheet/Devil/Devil_vo/dev386_vo_onyankopon/dev386_vo_58.dev386_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev386_vo_onyankopon/dev386_vo_52.dev386_vo_52
+387,Amabie,/Game/Sound/CueSheet/Devil/Devil_vo/dev387_vo_amabie/dev387_vo_58.dev387_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev387_vo_amabie/dev387_vo_61.dev387_vo_61
+391,Lilith,/Game/Sound/CueSheet/Devil/Devil_vo/dev391_vo_lilith/dev391_vo_52.dev391_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev391_vo_lilith/dev391_vo_78.dev391_vo_78
+392,Agrat,/Game/Sound/CueSheet/Devil/Devil_vo/dev392_vo_agrat/dev392_vo_56.dev392_vo_56,
+393,Naamah,/Game/Sound/CueSheet/Devil/Devil_vo/dev393_vo_naamah/dev393_vo_58.dev393_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev393_vo_naamah/dev393_vo_22.dev393_vo_22
+394,Eisheth,/Game/Sound/CueSheet/Devil/Devil_vo/dev394_vo_eisheth/dev394_vo_58.dev394_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev394_vo_eisheth/dev394_vo_22.dev394_vo_22
+401,Lahmu Phase 1,/Game/Sound/CueSheet/Devil/Devil_vo/dev401_vo_lahmu_mask/dev401_vo_58.dev401_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev401_vo_lahmu_mask/dev401_vo_53.dev401_vo_53
+409,Lahmu Phase 2,/Game/Sound/CueSheet/Devil/Devil_vo/dev409_vo_lahmu_all/dev409_vo_55.dev409_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev409_vo_lahmu_all/dev409_vo_52.dev409_vo_52
+416,Snake Nuwa,/Game/Sound/CueSheet/Devil/Devil_vo/dev416_vo_joka_1st/dev416_vo_58.dev416_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev416_vo_joka_1st/dev416_vo_32.dev416_vo_32
+417,Human Nuwa,/Game/Sound/CueSheet/Devil/Devil_vo/dev417_vo_joka_2nd/dev417_vo_57.dev417_vo_57,/Game/Sound/CueSheet/Devil/Devil_vo/dev417_vo_joka_2nd/dev417_vo_22.dev417_vo_22
+421,Herald Abdiel,/Game/Sound/CueSheet/Devil/Devil_vo/dev421_vo_abdiel_1st/dev421_vo_58.dev421_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev421_vo_abdiel_1st/dev421_vo_22.dev421_vo_22
+422,Fallen Abdiel,/Game/Sound/CueSheet/Devil/Devil_vo/dev422_vo_abdiel_2nd/dev422_vo_58.dev422_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev422_vo_abdiel_2nd/dev422_vo_22.dev422_vo_22
+426,Khonsu,/Game/Sound/CueSheet/Devil/Devil_vo/dev426_vo_khons_1st/dev426_vo_55.dev426_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev426_vo_khons_1st/dev426_vo_53.dev426_vo_53
+427,Khonsu-Ra,/Game/Sound/CueSheet/Devil/Devil_vo/dev427_vo_khons_2nd/dev427_vo_58.dev427_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev427_vo_khons_2nd/dev427_vo_33.dev427_vo_33
+431,Hydra,/Game/Sound/CueSheet/Devil/Devil_vo/dev431_vo_hydra/dev431_vo_58.dev431_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev431_vo_hydra/dev431_vo_51.dev431_vo_51
+432,Big Hydra,/Game/Sound/CueSheet/Devil/Devil_vo/dev432_vo_hydra_big/dev432_vo_04.dev432_vo_04,/Game/Sound/CueSheet/Devil/Devil_vo/dev432_vo_hydra_big/dev432_vo_22.dev432_vo_22
+451,Transcendent Lucifer,/Game/Sound/CueSheet/Devil/Devil_vo/dev451_vo_lucifer2/dev451_vo_73.dev451_vo_73,/Game/Sound/CueSheet/Devil/Devil_vo/dev451_vo_lucifer2/dev451_vo_23.dev451_vo_23
+455,Tiamat,/Game/Sound/CueSheet/Devil/Devil_vo/dev455_vo_tiamat/dev455_vo_23.dev455_vo_23,/Game/Sound/CueSheet/Devil/Devil_vo/dev455_vo_tiamat/dev455_vo_31.dev455_vo_31
+460,Tehom,/Game/Sound/CueSheet/Devil/Devil_vo/dev460_vo_tehom/dev460_vo_23.dev460_vo_23,/Game/Sound/CueSheet/Devil/Devil_vo/dev460_vo_tehom/dev460_vo_31.dev460_vo_31
+501,Artemis,/Game/Sound/CueSheet/Devil/Devil_vo/dev501_vo_artemis/dev501_vo_55.dev501_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev501_vo_artemis/dev501_vo_61.dev501_vo_61
+502,Surt Boss,/Game/Sound/CueSheet/Devil/Devil_vo/dev502_surtr1_big/dev502_vo_03.dev502_vo_03,/Game/Sound/CueSheet/Devil/Devil_vo/dev502_surtr1_big/dev502_vo_22.dev502_vo_22
+505,Moloch Boss,,/Game/Sound/CueSheet/Devil/Devil_vo/dev505_moloch_big/dev505_vo_22.dev505_vo_22
+506,Belphegor Boss,,/Game/Sound/CueSheet/Devil/Devil_vo/dev506_belphegor_big/dev506_vo_22.dev506_vo_22
+507,Huang Long Boss,,/Game/Sound/CueSheet/Devil/Devil_vo/dev507_koryu_big/dev507_vo_22.dev507_vo_22
+509,Arahabaki Boss,,/Game/Sound/CueSheet/Devil/Devil_vo/dev509_arahabaki_big/dev509_vo_22.dev509_vo_22
+513,Hecatoncheires Boss,,/Game/Sound/CueSheet/Devil/Devil_vo/dev513_hekatoncheir_big/dev513_vo_22.dev513_vo_22
+514,King Frost Boss,,/Game/Sound/CueSheet/Devil/Devil_vo/dev514_kingfrost_big/dev514_vo_22.dev514_vo_22
+515,Black Frost Boss,,/Game/Sound/CueSheet/Devil/Devil_vo/dev515_jaakufrost_big/dev515_vo_23.dev515_vo_23
+519,Glasya Labolas Boss,,/Game/Sound/CueSheet/Devil/Devil_vo/dev519_vo_glasyalabolas_big/dev519_vo_22.dev519_vo_22
+605,Tao,/Game/Sound/CueSheet/Devil/Devil_vo/dev605_vo_lawko/dev605_vo_53.dev605_vo_53,/Game/Sound/CueSheet/Devil/Devil_vo/dev605_vo_lawko/dev605_vo_56.dev605_vo_56
+607,Yoko,/Game/Sound/CueSheet/Devil/Devil_vo/dev607_vo_chaoko/dev607_vo_55.dev607_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev607_vo_chaoko/dev607_vo_53.dev607_vo_53
+609,Yuzuru Atsuta,/Game/Sound/CueSheet/Devil/Devil_vo/dev609_vo_tomoo/dev609_vo_55.dev609_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev609_vo_tomoo/dev609_vo_31.dev609_vo_31
+611,Ichiro Dazai,/Game/Sound/CueSheet/Devil/Devil_vo/dev611_vo_karuo/dev611_vo_52.dev611_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev611_vo_karuo/dev611_vo_51.dev611_vo_51
+618,Shohei Yakumo,/Game/Sound/CueSheet/Devil/Devil_vo/dev618_vo_kichio/dev618_vo_58.dev618_vo_58,/Game/Sound/CueSheet/Devil/Devil_vo/dev618_vo_kichio/dev618_vo_31.dev618_vo_31
+622,Panagia Tao,/Game/Sound/CueSheet/Devil/Devil_vo/dev622_vo_lawko_megami_2nd/dev622_vo_55.dev622_vo_55,/Game/Sound/CueSheet/Devil/Devil_vo/dev622_vo_lawko_megami_2nd/dev622_vo_31.dev622_vo_31
+624,Panagia Yoko,/Game/Sound/CueSheet/Devil/Devil_vo/dev624_vo_chaoko_megami_2nd/dev624_vo_52.dev624_vo_52,/Game/Sound/CueSheet/Devil/Devil_vo/dev624_vo_chaoko_megami_2nd/dev624_vo_22.dev624_vo_22
+625,Tsukuyomi,,/Game/Sound/CueSheet/Devil/Devil_vo/dev625_vo_tomoo_union/dev625_vo_23.dev625_vo_23
+626,Nahobino Abdiel,,/Game/Sound/CueSheet/Devil/Devil_vo/dev626_vo_karuo_union/dev626_vo_31.dev626_vo_31
+627,Nahobino Nuwa,,/Game/Sound/CueSheet/Devil/Devil_vo/dev627_vo_kichio_union/dev627_vo_53.dev627_vo_53
+629,Edgy Dazai,,/Game/Sound/CueSheet/Devil/Devil_vo/dev629_vo_karuo_hairdiff/dev629_vo_53.dev629_vo_53
+651,Demi-Fiend,,/Game/Sound/CueSheet/Devil/Devil_vo/dev651_vo_demi_fiend/dev651_vo_57.dev651_vo_57

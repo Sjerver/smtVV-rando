@@ -6635,38 +6635,40 @@ class Randomizer:
 
     '''
     Adds aggro and escape voice clips for unused overworld demons
-    TODO: Add lines from the demon, not just Lamia over and over
     '''
     def addEscapeFindLines(self):
         json = self.voiceMapFile.json
         table = json["Exports"][1]["Data"][0]["Value"]
-        for entry in table:
-            demonID = entry[0]["Value"]
-            #print(demonID)
+        extraDataDF = pd.read_csv(paths.EXTRA_VOICE_DATA)
+        for _ , row in extraDataDF.iterrows():
+            entry = next(e for e in table if e[0]["Value"] == row["DemonID"])
             voiceEnums = entry[1]["Value"][0]["Value"]
-            #print(voiceEnums[0][0]["Value"])
-            foundEscape = False
-            foundFind = False
+            findIndex = -1
+            escapeIndex = -1
             attackIndex = -1
             for index, voiceEnum in enumerate(voiceEnums):
                 enumType = voiceEnum[0]["Value"]
                 if enumType == "EDevilVoiceType::Escape":
-                    foundEscape = True
+                    escapeIndex = index
                 if enumType == "EDevilVoiceType::Find":
-                    foundFind = True
+                    findIndex = index
                 if enumType == "EDevilVoiceType::Attack":
                     attackIndex = index
-            if not foundEscape:
-                voiceEnums = voiceEnums[:attackIndex + 1] + VOICEMAP_ESCAPE + voiceEnums[attackIndex + 1:]
-            if not foundFind:
-                voiceEnums = voiceEnums[:attackIndex + 2] + VOICEMAP_FIND + voiceEnums[attackIndex + 2:]
-            #if foundEscape != foundFind:
-            #    print("Strange Happenings")
-            #if not foundEscape or not foundFind:
-            #    print(demonID)
+            if isinstance(row["Escape"], str):
+                if escapeIndex == -1:
+                    voiceEnums = voiceEnums[:attackIndex + 1] + copy.deepcopy(VOICEMAP_ESCAPE) + voiceEnums[attackIndex + 1:]
+                    escapeIndex = attackIndex + 1
+                    if findIndex >= 0:
+                        findIndex += 1;
+                voiceEnums[escapeIndex][1]["Value"]["AssetPath"]["AssetName"] = row["Escape"]
+            if isinstance(row["Find"], str):
+                if findIndex == -1:
+                    findIndex = attackIndex + 2
+                    if escapeIndex == -1:
+                        findIndex -= 1
+                    voiceEnums = voiceEnums[:findIndex] + copy.deepcopy(VOICEMAP_FIND) + voiceEnums[findIndex:]
+                voiceEnums[findIndex][1]["Value"]["AssetPath"]["AssetName"] = row["Find"]
             entry[1]["Value"][0]["Value"] = voiceEnums
-            #if demonID == 224:
-            #    print(voiceEnums)
 
     '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
