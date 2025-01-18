@@ -3,6 +3,7 @@ class Settings(object):
         self.randomDemonLevels = False              # Randomize demon levels (enables encounter randomizer)
         self.randomSkills = False                   # Randomize demon starting and learned skills
         self.scaledSkills = False                   # Ensure demons have appropriately strong skills for their level
+        self.levelWeightedSkills = False            # Weights skills by level as an alternative to scaled skills
         self.randomInnates = False                  # Randomize demon innate skills
         self.potentialWeightedSkills = False        # Weight demon skills based on their skill potentials and stats
         self.randomPotentials = False               # Randomize demon skill potentials

@@ -1586,7 +1586,7 @@ class Randomizer:
         allSkills = []
         for ind in uniqueSkills:
                 allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
-        if not mask and settings.scaledSkills:
+        if not mask and (settings.scaledSkills or settings.levelWeightedSkills):
             sortedComp = sorted(comp, key=lambda demon: demon.level.value)
         elif not mask:
             sortedComp = sorted(comp,key=lambda x: random.random())
@@ -1594,11 +1594,11 @@ class Randomizer:
             sortedComp = comp
 
         #For every demon...
-        for demon in sortedComp:
+        for demon in sortedComp:     
             if (mask and demon.ind not in mask) or demon.ind in numbers.INACCESSIBLE_DEMONS or demon.name.startswith("NOT USED") :
                 continue
             possibleSkills = []
-            if settings.scaledSkills:
+            if settings.scaledSkills or settings.levelWeightedSkills:
                 #get all skills that can be learned at the demons level
                 if demon.level.value > 0:
                     possibleSkills = levelList[demon.level.value]
@@ -1631,11 +1631,16 @@ class Randomizer:
             else:
                 #No level scaling so copy list of all skilsl
                 possibleSkills = allSkills.copy()
-        
-            #Create the weighted list of skills and update it with potentials if necessary
-            weightedSkills = self.createWeightedList(possibleSkills, allSkills)
-            if settings.potentialWeightedSkills:
-                weightedSkills = self.updateWeightsWithPotential(weightedSkills, demon.potential, demon)
+                print(len(allSkills))
+            if settings.levelWeightedSkills:
+                #use both skills around current level and all skills
+                levelWeightedSkills = copy.deepcopy(possibleSkills)
+                possibleSkills = possibleSkills + allSkills.copy()
+                weightedSkills = self.createWeightedSkillList(possibleSkills, allSkills,demon, levelWeightedSkills)
+            else:
+                #use just possible skills
+                weightedSkills = self.createWeightedSkillList(possibleSkills, allSkills, demon)
+
 
             totalSkills = []
 
@@ -1661,7 +1666,7 @@ class Randomizer:
                     attempts = 100
                     while not foundSkill:
                         # until valid skill is found
-                        rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
+                        rng = random.choices(weightedSkills.values, weightedSkills.weights)[0]
                         if attempts <= 0:
                             print("Something went wrong in skill rando at level " + str(demon.level.value))
                             weightedSkills.weights[weightedSkills.values.index(rng)] = 0
@@ -1692,7 +1697,7 @@ class Randomizer:
                     rng = 0
                     attempts = 100
                     while not foundSkill:
-                        rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
+                        rng = random.choices(weightedSkills.values, weightedSkills.weights)[0]
                         if attempts <= 0:
                             print("Something went wrong in leanred skill rando at level " + str(demon.level.value) + "for demon " + str(demon.name))
                             weightedSkills.weights[weightedSkills.values.index(rng)] = 0
@@ -1981,48 +1986,6 @@ class Randomizer:
         else:
             #Skill fullfills no additional skill conditions
             return False
-        
-    '''
-    Update the weights in the weightList by applying the given skill potentials to the skills
-        Parameters:
-            weightList (Array): Array with sub-arrays weights and values
-            potentials (Potentials): Object containing the data of skill potentials of a demon
-        Returns:
-            weightList updated with the potentials
-    '''
-    def updateWeightsWithPotential(self, weightList, potentials, demon):
-        #For every skill in weight list
-        newWeights = []
-        for index, element in enumerate(weightList.values):
-            newWeight = weightList.weights[index]
-            skill = self.obtainSkillFromID(element)
-            if skill.name == 'Filler':
-                continue #Exclude filler skill because it has Null values
-            if skill.ind in numbers.MAGATSUHI_SKILLS:
-                newWeights.append(newWeight)
-                continue  #Magatsuhi skills are not effected by potential and keep their weight
-            skillStructure = self.determineSkillStructureByID(skill.ind)
-            #Passive skills do not have a corresponding potential by default so we need to handle them seperately
-            if skillStructure == "Active":
-                potentialType = skill.potentialType.translation
-                potentialValue = self.obtainPotentialByName(potentialType, potentials)
-                if potentialType == "Phys":
-                    additionalWeight = potentialValue
-                else:
-                    additionalWeight =  math.ceil(numbers.POTENTIAL_WEIGHT_MULITPLIER * potentialValue)
-                if skill.skillType.value == 0 and demon.stats.str.start < demon.stats.mag.start:
-                    additionalWeight = additionalWeight - numbers.SKILL_STAT_PENALTY_WEIGHT
-                elif skill.skillType.value == 1 and demon.stats.str.start > demon.stats.mag.start:
-                    additionalWeight = additionalWeight - numbers.SKILL_STAT_PENALTY_WEIGHT
-                
-
-                newWeight = max(0,newWeight + additionalWeight)
-            else:
-                #Placeholder in case I want to modify weights for passive skills
-                pass
-            newWeights.append(newWeight)
-
-        return Weight_List(weightList.values, newWeights, weightList.names)
 
     '''
     Returns the skill potential value based on the potential type indicated by a string.
@@ -2546,15 +2509,22 @@ class Randomizer:
         #return totalResistMap, resistProfiles #Uncomment for debug printing potentially
 
     '''
-    Based on array of skills creates two arrays where each skill is only included once.
-    Weight depends of if skill has already been assigned in the randomization process and if they are a magatsuhi skill.
+    Based on array of skills creates a Weighted_List object where each skill is only included once.
+    Weight depends of if skill has already been assigned in the randomization process and if they are a magatsuhi skill, as well as potentials, stat preferenrentials.
+    Weight is also modified by seperate settings, to ensure all skills are weighted by level or minimizind duplicate skill assignments.
         Parameters:
             possiblSkills (Array): Array of skills
             allSkills (List): List of all skills that can be assigned
+            demon (Compendium_Demon): the demon for whom the list is generated
+            levelWeightedSkills(List): a list of skills that marks skills as level appropriate
         Returns:
             An object with an array of values and an array of weights and an array of names for the skills
     '''
-    def createWeightedList(self, possibleSkills, allSkills):
+    def createWeightedSkillList(self, possibleSkills, allSkills,demon, levelWeightedSkills=None):
+        potentials = demon.potential
+        
+        if levelWeightedSkills:
+            levelWeightedSkills = [s.ind for s in levelWeightedSkills]
         if len(self.alreadyAssignedSkills) == len(allSkills):
             self.alreadyAssignedSkills = set()
         random.shuffle(possibleSkills) 
@@ -2563,28 +2533,42 @@ class Randomizer:
         names = []
         #for every skill...
         for skill in possibleSkills:
+            if skill.name == 'Filler':
+                continue #Exclude filler skill because it has Null values
             if skill.ind not in ids:
                 #else push value and base weight 
                 ids.append(skill.ind)
                 if skill.ind in numbers.MAGATSUHI_SKILLS:
                     probability = numbers.MAGATSUHI_SKILL_WEIGHT
+                    #Magatsuhi skills are not effected by potential and keep their weight
                 else:
                     probability = numbers.SKILL_WEIGHT
+                    realSkill = self.obtainSkillFromID(skill.ind)
+                    skillStructure = self.determineSkillStructureByID(skill.ind)
+                    #Passive skills do not have a corresponding potential by default so we need to handle them seperately
+                    if self.configSettings.potentialWeightedSkills and skillStructure == "Active":
+                        potentialType = realSkill.potentialType.translation
+                        potentialValue = self.obtainPotentialByName(potentialType, potentials)
+                        if potentialType == "Phys":
+                            probability *= (1 + math.ceil(potentialValue / (numbers.POTENTIAL_WEIGHT_MULITPLIER * 2)))
+                        else:
+                            probability *= (1 + math.ceil(potentialValue / numbers.POTENTIAL_WEIGHT_MULITPLIER ))
+                        if realSkill.skillType.value == 0 and demon.stats.str.start < demon.stats.mag.start:
+                            probability = probability * numbers.SKILL_STAT_PENALTY_MULTIPLIER
+                        elif realSkill.skillType.value == 1 and demon.stats.str.start > demon.stats.mag.start:
+                            probability = probability * numbers.SKILL_STAT_PENALTY_MULTIPLIER
                 if skill.ind in self.alreadyAssignedSkills:
-                    probability = probability - numbers.SKILL_PENALTY_WEIGHT
+                    probability = probability * numbers.SKILL_APPEARANCE_PENALTY_MULTIPLIER
+                if levelWeightedSkills and skill.ind in levelWeightedSkills:
+                    probability *= numbers.LEVEL_SKILL_WEIGHT_MULTIPLIER
                 if skill.ind not in self.alreadyAssignedSkills and self.configSettings.forceAllSkills:
                     #increase weight if skill are forced and skill not already assigned
-                    probability = probability * numbers.FORCE_SKILL_MULTIPLIER
+                    #weight increase is higher the more skills have already been assigned
+                    probability = probability * (1 + max(1,(len(self.alreadyAssignedSkills)/ 2))/10)
+                    #probability = probability * numbers.FORCE_SKILL_MULTIPLIER
+
                 prob.append(probability)
                 names.append(skill.name)
-        # for skill in possibleSkills:
-        #     if skill.ind in ids and skill.ind not in numbers.MAGATSUHI_SKILLS: #Magatsuhi Skills should always have weight of 1
-        #         prob[ids.index(skill.ind)] += 1
-        #     elif skill.ind not in ids:
-        #         #else push value and base weight 
-        #         ids.append(skill.ind)
-        #         prob.append(1)
-        #         names.append(skill.name)
         return Weight_List(ids, prob, names)
     
     '''
@@ -3213,26 +3197,6 @@ class Randomizer:
                 break
             
     '''
-    For a list of values and weights, outputs a random value taking the weight of values into account
-        Parameters:
-            values (Array): Array of numbers
-            weights (Array) Array of numbers, weights belonging to values with the same index
-        Returns:
-            The randomly chosen value
-    '''
-    def weightedRando(self, values, weights):
-        total = sum(weights)
-        #Generate random number with max being the total weight
-        rng = random.randint(0, total)
-
-        cursor = 0
-        #Add weights together until we reach random number and then apply that value
-        for i in range(len(weights)):
-            cursor += weights[i]
-            if cursor >= rng:
-                return values[i]
-            
-    '''
     Assign every demon a completely random level between 1 and 98.
     Also updates to the levels of the learnable skills to have the same difference as the in the original data when possible.
         Parameters:
@@ -3534,7 +3498,7 @@ class Randomizer:
         
         while len(relevantDemons) > 0:
             #Grab random race, that is valid to assign
-            raceIndex = self.weightedRando(raceIndeces, raceWeights)
+            raceIndex = random.choices(raceIndeces, raceWeights)[0]
             if raceIndex == 0:
                 continue
             if newRatios[raceIndex] == 0:
@@ -3633,7 +3597,7 @@ class Randomizer:
         while len(base) < 10:
             demon = relevantDemons[index]
             #get random race based on weight
-            raceIndex = self.weightedRando(raceIndeces, raceWeights)
+            raceIndex = random.choices(raceIndeces, raceWeights)[0]
             if len(base) == 0 :
                 #Remove chosen demon from future rounds
                 relevantDemons.remove(demon)
@@ -3703,7 +3667,7 @@ class Randomizer:
             #Check which races can be assigned to the demon
             validRaces = list({fusion[2].race.value for fusion in fusions if fusion[2].ind == -1 and raceWeights[fusion[2].race.value] > 0 and fusion[2].level.value <= demon.level.value })
             validWeights = [weight for index, weight in enumerate(raceWeights) if index in validRaces]
-            raceIndex = self.weightedRando(validRaces,validWeights) #random weighted race
+            raceIndex = random.choices(validRaces,validWeights)[0] #random weighted race
             
             #Check if a demon of the same lavel is already assigned to race
             if demon.level.value in raceLevels[raceIndex]:
@@ -3711,7 +3675,7 @@ class Randomizer:
                 continue
             #Check if demon is special fusion
             if demon.ind in specialFusions:
-                raceIndex = self.weightedRando(raceIndeces, raceWeights)
+                raceIndex = random.choices(raceIndeces, raceWeights)[0]
                 #Remove chosen demon from future rounds
                 relevantDemons.remove(demon)
                 #set demons race to new race
@@ -6601,12 +6565,13 @@ class Randomizer:
                     copiedSymbol["Value"][0]["Value"] = replacementID
                     copiedSymbol["Value"][1]["Value"] = walkSpeed
                     table.append(copiedSymbol)
-                    print("This should never happen")
+                    print("This should never happen, is that really so?")
 
                 except (KeyError,StopIteration) as e:
                     birdSymbol = next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == birdID)
                     #birdSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == birdID)
                     birdSymbol["Value"][0]["Value"] = replacementID
+                    print("This should never happen essentially!")
                     #buffer.writeWord(replacementID, birdSymbol.offsetNumbers['demonID'])
 
         #return buffer
@@ -7043,8 +7008,8 @@ class Randomizer:
         if config.randomSkills:
             self.adjustSkillSlotsToLevel(newComp)
             self.assignRandomStartingSkill(self.nahobino, levelSkillList, config)
-            self.assignRandomSkills(self.playerBossArr,levelSkillList, config, mask=numbers.PROTOFIEND_IDS)
             newComp = self.assignRandomSkills(newComp,levelSkillList, config)
+            self.assignRandomSkills(self.playerBossArr,levelSkillList, config, mask=numbers.PROTOFIEND_IDS)
             if config.fixUniqueSkillAnimations:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
             else:

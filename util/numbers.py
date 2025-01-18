@@ -608,12 +608,13 @@ MAGATSUHI_SKILLS_LEVEL_RESTRICTIONS = {
     928: [52,99] #Omnipotent Succession (52 is level of Lilith Boss in CoV, you get Talisman after)
 }
 
-SKILL_STAT_PENALTY_WEIGHT = 2 #Penalty applied to weight in skill rando if stat used to attack is lower than other attacking stat
-POTENTIAL_WEIGHT_MULITPLIER = 1.7 #Multiplier applied to potential to update weight of skill rando
-MAGATSUHI_SKILL_WEIGHT = 6 #Base weight of magatsuhi skills if included in skill rando
-SKILL_WEIGHT = 10 #Base weight for all skills in skill rando
-SKILL_PENALTY_WEIGHT = 4 #Weight penalty for skills if the skill has already been assigned in process in an attempt to diversify skill sets
-FORCE_SKILL_MULTIPLIER = 200 #Multiplier to ensure all skills are assigned to at least one enemy
+SKILL_STAT_PENALTY_MULTIPLIER = 0.8 #Penalty applied to weight in skill rando if stat used to attack is lower than other attacking stat
+POTENTIAL_WEIGHT_MULITPLIER = 10 #Multiplier applied to potential to update weight of skill rando
+MAGATSUHI_SKILL_WEIGHT = 60 #Base weight of magatsuhi skills if included in skill rando
+SKILL_WEIGHT = 100 #Base weight for all skills in skill rando
+SKILL_APPEARANCE_PENALTY_MULTIPLIER = 0.5 #Weight penalty for skills if the skill has already been assigned in process in an attempt to diversify skill sets
+#FORCE_SKILL_MULTIPLIER = 100 #Multiplier to ensure all skills are assigned to at least one enemy
+LEVEL_SKILL_WEIGHT_MULTIPLIER = 175 #Multiplier for a skill that is in the level range
 
 ELEMENT_RESIST_NAMES = ["fire","ice","elec","force","light","dark"]
 AILMENT_NAMES = ["poison","confusion","charm","sleep","seal","mirage"]
