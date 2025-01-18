@@ -801,7 +801,7 @@ class Randomizer:
         locations = {
             'startingSkill': 0x2C69,
             'statStart': start,
-            'affStart': 0x2B10,
+            'affStart': 0x2B15,
             'innate': 0x2D05
         }
 
@@ -1631,7 +1631,6 @@ class Randomizer:
             else:
                 #No level scaling so copy list of all skilsl
                 possibleSkills = allSkills.copy()
-                print(len(allSkills))
             if settings.levelWeightedSkills:
                 #use both skills around current level and all skills
                 levelWeightedSkills = copy.deepcopy(possibleSkills)
@@ -2520,7 +2519,7 @@ class Randomizer:
         Returns:
             An object with an array of values and an array of weights and an array of names for the skills
     '''
-    def createWeightedSkillList(self, possibleSkills, allSkills,demon, levelWeightedSkills=None):
+    def createWeightedSkillList(self, possibleSkills, allSkills,demon: Compendium_Demon, levelWeightedSkills=None):
         potentials = demon.potential
         
         if levelWeightedSkills:
@@ -2535,7 +2534,7 @@ class Randomizer:
         for skill in possibleSkills:
             if skill.name == 'Filler':
                 continue #Exclude filler skill because it has Null values
-            if skill.ind not in ids:
+            if skill.ind not in ids:               
                 #else push value and base weight 
                 ids.append(skill.ind)
                 if skill.ind in numbers.MAGATSUHI_SKILLS:
@@ -2557,6 +2556,18 @@ class Randomizer:
                             probability = probability * numbers.SKILL_STAT_PENALTY_MULTIPLIER
                         elif realSkill.skillType.value == 1 and demon.stats.str.start > demon.stats.mag.start:
                             probability = probability * numbers.SKILL_STAT_PENALTY_MULTIPLIER
+                    if self.configSettings.limitSkillMPCost and skillStructure == "Active":
+                        potentialType = realSkill.potentialType.translation
+                        potentialValue = self.obtainPotentialByName(potentialType, potentials)
+                        baseCost = realSkill.cost
+                        if potentialType in ["Recovery","Ailment","Support"]:
+                            baseCost *= numbers.NON_OFFENSIVE_POTENTIAL_COST_MULTIPLIERS[min(5,max(-5,potentialValue))]
+                        else:
+                            baseCost *= numbers.OFFENSIVE_POTENTIAL_COST_MULTIPLIERS[potentialValue]
+                        if baseCost > demon.stats.MP.start:
+                            probability = 0
+
+                
                 if skill.ind in self.alreadyAssignedSkills:
                     probability = probability * numbers.SKILL_APPEARANCE_PENALTY_MULTIPLIER
                 if levelWeightedSkills and skill.ind in levelWeightedSkills:
@@ -2854,6 +2865,21 @@ class Randomizer:
             buffer.writeWord(level.mag, 0x1685 + 0x1C * index + 4 * 4)
             buffer.writeWord(level.agi, 0x1685 + 0x1C * index + 4 * 5)
             buffer.writeWord(level.luk, 0x1685 + 0x1C * index + 4 * 6)
+        
+        buffer.writeWord(naho.resist.physical.value,offsets['affStart'] + 4 * 0 )
+        buffer.writeWord(naho.resist.fire.value,offsets['affStart'] + 4 * 1 )
+        buffer.writeWord(naho.resist.ice.value,offsets['affStart'] + 4 * 2 )
+        buffer.writeWord(naho.resist.elec.value,offsets['affStart'] + 4 * 3 )
+        buffer.writeWord(naho.resist.force.value,offsets['affStart'] + 4 * 4 )
+        buffer.writeWord(naho.resist.light.value,offsets['affStart'] + 4 * 5 )
+        buffer.writeWord(naho.resist.dark.value,offsets['affStart'] + 4 * 6 )
+        buffer.writeWord(naho.resist.almighty.value,offsets['affStart'] + 4 * 7 )
+        buffer.writeWord(naho.resist.poison.value,offsets['affStart'] + 4 * 8 )
+        buffer.writeWord(naho.resist.confusion.value,offsets['affStart'] + 4 * 10 )
+        buffer.writeWord(naho.resist.charm.value,offsets['affStart'] + 4 * 11)
+        buffer.writeWord(naho.resist.sleep.value,offsets['affStart'] + 4 * 12 )
+        buffer.writeWord(naho.resist.seal.value,offsets['affStart'] + 4 * 13 )
+        buffer.writeWord(naho.resist.mirage.value,offsets['affStart'] + 4 * 20 )
         
         return buffer
 
@@ -6967,7 +6993,8 @@ class Randomizer:
             self.randomizeResistances(newComp)
             self.randomizeResistances(self.playerBossArr, mask=numbers.GUEST_IDS)
             self.randomizeResistances(self.playerBossArr, mask=numbers.PROTOFIEND_IDS)
-            #TODO: Nahobino
+            #Nahobino shares resistances with first aogami essence
+            self.nahobino.resist = self.playerBossArr[numbers.PROTOFIEND_IDS[0]].resist
             #testing = True
             # stuff = []
             # stuff2 = []

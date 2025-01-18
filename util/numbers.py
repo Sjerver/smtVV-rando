@@ -685,6 +685,18 @@ AILMENT_RESIST_DISTRIBUTION = [
     [0,0,1.166666667,0.1666666667,7.333333333,0.3333333333],
     ]
 
+#Source Wiki, some values made up
+OFFENSIVE_POTENTIAL_COST_MULTIPLIERS = {
+    -9: 1.6,-8: 1.5,-7: 1.46,-6: 1.4,
+    -5: 1.34,-4: 1.25,-3: 1.16,-2: 1.13,-1: 1.1,
+    0: 1,1: 0.9,2: 0.87,3: 0.84, 4: 0.81,5: 0.75,
+    6: 0.72,7: 0.69, 8: 0.66,9: 0.6,
+}
+NON_OFFENSIVE_POTENTIAL_COST_MULTIPLIERS = {
+    -5: 1.6,-4: 1.5,-3: 1.4,-2: 1.3,-1: 1.15,
+    0: 1,1: 0.85,2: 0.8,3: 0.75, 4: 0.7,5: 0.6,
+}
+
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''

@@ -300,6 +300,7 @@ def createGUI(configSettings):
     listSkills.insert(5, "Include Enemy Only Skills in Skill Pool")
     listSkills.insert(6, "Include Magatsuhi Skills in Skill Pool")
     listSkills.insert(7, "Force & Minimize Appearance of Skills in Learnsets")
+    listSkills.insert(8, "Skills are limited by Max MP of demon")
     listSkills.pack()
 
     skillScalingLabel = tk.Label(page1FrameTopRight, text="Skill Level Scaling")
@@ -538,9 +539,11 @@ def createGUI(configSettings):
                 'EnemyOnlySkills': ('Listbox', listSkills, 5),
                 'MagatsuhiSkills': ('Listbox', listSkills, 6),
                 'ForceUniqueSkills': ('Listbox', listSkills, 7),
+                'LimitSkillMPCost': ('Listbox', listSkills, 8),
 
                 'ScaledSkills': ('Listbox_single', listSkillScaling, 2),
                 'WeightSkillsToLevels': ('Listbox_single', listSkillScaling, 1)
+                
             },
             'Resistances': {
                 'RandomResists': ('Listbox', listDemonResistances, 0),
@@ -765,6 +768,8 @@ def createGUI(configSettings):
     configur.set('Demon', 'MagatsuhiSkills', str(skillFlags[6]).lower())
     configSettings.forceAllSkills = skillFlags[7]
     configur.set('Demon', 'ForceUniqueSkills', str(skillFlags[7]).lower())
+    configSettings.limitSkillMPCost = skillFlags[7]
+    configur.set('Demon', 'LimitSkillMPCost', str(skillFlags[7]).lower())
 
     configSettings.levelWeightedSkills = bool(skillScaleChoice and skillScaleChoice[0] == 1)
     configur.set('Demon', 'WeightSkillsToLevels', str(configSettings.levelWeightedSkills).lower())
@@ -958,7 +963,8 @@ def createConfigFile(configur):
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
                                 'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False, 
-                                'EnemyOnlySkills':False, 'MagatsuhiSkills': False, 'ForceUniqueSkills': False, 'BetterSpecialFusions': False, 'WeightSkillsToLevels': False}
+                                'EnemyOnlySkills':False, 'MagatsuhiSkills': False, 'ForceUniqueSkills': False, 'BetterSpecialFusions': False, 'WeightSkillsToLevels': False,
+                                'LimitSkillMPCost': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
                         'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False,
                         'RandomizeGiftItems': False, 'CombineKeyItemPools': False, 'IncludeTsukuyomiTalisman': False
