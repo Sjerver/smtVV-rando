@@ -248,6 +248,16 @@ def createGUI(configSettings):
     listDemon.insert(8, "Improved Special Fusions")
     listDemon.pack()
 
+    voiceLabel = tk.Label(page1FrameTopLeft, text="Demon Voice Randomizer")
+    voiceLabel.pack()
+
+    listVoice = tk.Listbox(page1FrameTopLeft, selectmode = "single", width=50, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listVoice.insert(0, "Disabled")
+    listVoice.insert(1, "Shuffle Demons' Voices")
+    listVoice.insert(2, "Shuffle Voice Lines Individually (Chaotic)")
+    listVoice.selection_set(0)
+    listVoice.pack()
+
     #demonScrollbar = tk.Scrollbar(page1FrameTop, orient='vertical')
     #demonScrollbar.config(command=listDemon.yview)
     #listDemon.config(yscrollcommand=demonScrollbar.set)
@@ -545,6 +555,10 @@ def createGUI(configSettings):
                 'WeightSkillsToLevels': ('Listbox_single', listSkillScaling, 1)
                 
             },
+            'Voice': {
+                'RandomVoicesNormal': ('Listbox_single', listVoice, 1),
+                'RandomVoicesChaos': ('Listbox_single', listVoice, 2),
+            },
             'Resistances': {
                 'RandomResists': ('Listbox', listDemonResistances, 0),
                 'AlwaysOneWeak': ('Listbox', listDemonResistances, 1),
@@ -618,6 +632,7 @@ def createGUI(configSettings):
                 'EarlyInheritenceViolation': ('Listbox', listEarlyMiracle, 7),
             },
         }
+        listVoice.selection_set(0)
         listSkillScaling.selection_set(0)
         listInheritance.selection_set(0)
         listMusic.selection_set(0)
@@ -688,6 +703,7 @@ def createGUI(configSettings):
         demonFlags = [False for i in range(listDemon.size())]
         for i in listDemon.curselection():
             demonFlags[i] = True
+        voiceChoice = listVoice.curselection()
         demonResistFlags = [False for i in range(listDemonResistances.size())]
         for i in listDemonResistances.curselection():
             demonResistFlags[i] = True
@@ -775,6 +791,11 @@ def createGUI(configSettings):
     configur.set('Demon', 'WeightSkillsToLevels', str(configSettings.levelWeightedSkills).lower())
     configSettings.scaledSkills = bool(skillScaleChoice and skillScaleChoice[0] == 2)
     configur.set('Demon', 'ScaledSkills', str(configSettings.scaledSkills).lower())
+
+    configSettings.randomizeVoicesNormal = bool(voiceChoice and voiceChoice[0] == 1)
+    configur.set('Voice', 'RandomVoicesNormal', str(configSettings.randomizeVoicesNormal).lower())
+    configSettings.randomizeVoicesChaos = bool(voiceChoice and voiceChoice[0] == 2)
+    configur.set('Voice', 'RandomVoicesChaos', str(configSettings.randomizeVoicesChaos).lower())
     
     configSettings.randomResists = demonResistFlags[0]
     configur.set('Resistances', 'RandomResists', str(demonResistFlags[0]).lower())
@@ -983,3 +1004,4 @@ def createConfigFile(configur):
                         'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False, 'EarlyInheritenceViolation': False}
     configur['Resistances'] = {'RandomResists': False, 'AlwaysOneWeak': False,'ScaleElementalResist': False,'ScalePhysResist': False,'WeightResistByPotentials': False,
                              'DiverseResists': False,}
+    configur['Voice'] = {'RandomVoicesNormal': False, 'RandomVoicesChaos': False}

@@ -697,6 +697,31 @@ NON_OFFENSIVE_POTENTIAL_COST_MULTIPLIERS = {
     0: 1,1: 0.85,2: 0.8,3: 0.75, 4: 0.7,5: 0.6,
 }
 
+#Maps boss versions of demons with few voice lines to their normal counterparts so missing lines can be filled in for the voice randomizer
+VOICE_MAP_DEMON_ALTS = {
+    39: 38, #Amanozako
+    432: 431, #Hydra
+    455: 98, #Tiamat -> Ananta
+    460: 607, #Tehom -> Yoko
+    502: 80, #Surt
+    504: 84, #Abaddon
+    505: 85, #Moloch
+    506: 86, #Belphegor
+    507: 94, #Huang Long
+    508: 127, #Chimera
+    509: 211, #Arahabaki
+    510: 212, #Oyamatsumi
+    511: 237, #Girimekhala
+    512: 283, #Thunderbird
+    513: 322, #Hecatoncheires
+    514: 87, #King Frost
+    515: 72, #Black Frost
+    516: 77, #Mara
+    517: 291, #Gurulu
+    518: 337, #Gogmagog
+    519: 142, #Glasya Labolas
+}
+
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''

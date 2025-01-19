@@ -6661,6 +6661,64 @@ class Randomizer:
                 voiceEnums[findIndex][1]["Value"]["AssetPath"]["AssetName"] = row["Find"]
             entry[1]["Value"][0]["Value"] = voiceEnums
 
+
+    '''
+    Shuffles demon voices around while preserving individual voice sets
+    '''
+    def randomizeVoiceSets(self):
+        self.addDevilTalkLines()
+        json = self.voiceMapFile.json
+        table = json["Exports"][1]["Data"][0]["Value"]
+        demonIDs = []
+        for entry in table:
+            demonIDs.append(entry[0]["Value"])
+        random.shuffle(demonIDs)
+        for entry in table:
+            entry[0]["Value"] = demonIDs.pop()
+
+    '''
+    Adds negotiation/haunt lines to boss-only versions of demons for use in the voice randomizer
+    '''
+    def addDevilTalkLines(self):
+        json = self.voiceMapFile.json
+        table = json["Exports"][1]["Data"][0]["Value"]
+        for bossDemon, normalDemon in numbers.VOICE_MAP_DEMON_ALTS.items():
+            bossEntry = next(e for e in table if e[0]["Value"] == bossDemon)
+            normalEntry = next(e for e in table if e[0]["Value"] == normalDemon)
+            bossVoiceEnums = bossEntry[1]["Value"][0]["Value"]
+            normalVoiceEnums = normalEntry[1]["Value"][0]["Value"]
+            reachedTalks = False
+            for voiceEnum in normalVoiceEnums:
+                enumType = voiceEnum[0]["Value"]
+                if enumType == "EDevilVoiceType::DevilTalk_Positive":
+                    reachedTalks = True
+                if reachedTalks:
+                    bossVoiceEnums.append(copy.deepcopy(voiceEnum))
+
+    '''
+    Randomizes each individual demon voice line, allowing one demon to have lines from multiple demons
+    '''
+    def randomizeVoiceLines(self):
+        json = self.voiceMapFile.json
+        table = json["Exports"][1]["Data"][0]["Value"]
+        voiceBank = {}
+        for entry in table:
+            voiceEnums = entry[1]["Value"][0]["Value"]
+            for voiceEnum in voiceEnums:
+                enumType = voiceEnum[0]["Value"]
+                assetPath = voiceEnum[1]["Value"]["AssetPath"]["AssetName"]
+                if enumType not in voiceBank.keys():
+                    voiceBank[enumType] = []
+                voiceBank[enumType].append(assetPath)
+        for voiceType in voiceBank.values():
+            random.shuffle(voiceType)
+        for entry in table:
+            voiceEnums = entry[1]["Value"][0]["Value"]
+            for voiceEnum in voiceEnums:
+                enumType = voiceEnum[0]["Value"]
+                voiceEnum[1]["Value"]["AssetPath"]["AssetName"] = voiceBank[enumType].pop()
+
+
     '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
     '''
@@ -7160,6 +7218,10 @@ class Randomizer:
         self.patchAdramelechReplacementSize()
         self.adjustPunishingFoeSpeeds()
         self.addEscapeFindLines()
+        if self.configSettings.randomizeVoicesNormal:
+            self.randomizeVoiceSets()
+        elif self.configSettings.randomizeVoicesChaos:
+            self.randomizeVoiceLines()
 
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)

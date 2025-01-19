@@ -73,3 +73,5 @@ class Settings(object):
         self.diverseResists = False                 # Diversify resitance profiles to prevent all demons having the same weaknesses
         self.betterSpecialFusions = False           # Gives special fusion slightly better randomization results (stats/potentials/resists)
         self.limitSkillMPCost = False               # Limits costs of assigned skills to maximum of demons mp
+        self.randomizeVoicesNormal = True          # Randomly swaps demon voice sets with each other
+        self.randomizeVoicesChaos = False           # Randomizes individual voice lines, letting one demon have voice lines from several different demons

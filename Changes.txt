@@ -1,3 +1,9 @@
+Version 1.04
+Features:
+* New settings to randomize demon voices in battle, haunts, and for overworld enemies
+* Added chase/escape lines to unused overworld enemies
+* Added speed values to unused overworld enemies
+
 Version 1.03
 Features:
 * Full support for the demon navigator update, including the Marici Boss
