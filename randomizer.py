@@ -12,6 +12,7 @@ from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
 from base_classes.map_demons import Map_Demon
 from base_classes.map_event import Map_Event
+from base_classes.navigators import Navigator
 from base_classes.file_lists import Script_File_List, General_UAsset
 from util.jsonExports import BASE_MAPSYMBOLPARAMS, VOICEMAP_ESCAPE, VOICEMAP_FIND
 from pprint import pprint
@@ -93,6 +94,7 @@ class Randomizer:
         self.alreadyAssignedSkills = set()
         self.scriptFiles = Script_File_List()
         self.mapEventArr = []
+        self.navigatorArr = []
         self.voiceMapFile = General_UAsset("BP_DevilVoiceAssetMap","rando/Project/Content/Sound/DevilVoice/")
         self.nahobino = Nahobino()
         
@@ -1321,6 +1323,25 @@ class Randomizer:
             event.levelUMap = binTable.readWord(offset + 0x24)
 
             self.mapEventArr.append(event)
+
+    '''
+    Fills the array navigatorArr with data on demon navigaors.
+        Parameters:
+            data (Buffer) the buffer containing all navigator data
+    '''
+    def fillNavigatorArr(self, data):
+        start = 0x2AD41
+        size = 0xC
+        
+        for index in range(25):
+            offset = start + size * index
+            navi = Navigator()
+            navi.offset = offset
+            navi.demonID = data.readHalfword(offset)
+            navi.itemBonus = data.readHalfword(offset + 2)
+            navi.itemType = data.readByte(offset + 4)
+            navi.openFlag = data.readHalfword(offset + 8)
+            self.navigatorArr.append(navi)
 
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
@@ -3196,6 +3217,19 @@ class Randomizer:
             buffer.writeWord(event.activationFlag, offset + 4)
             buffer.writeWord(event.compFlag1, offset + 0x14)
             buffer.writeWord(event.compFlag2, offset + 0x18)
+        return buffer
+
+    '''
+    Writes updated demon navigator data to it's respective location in the table buffer
+        Parameters:
+            buffer (Table): buffer
+    '''
+    def updateNavigatorBuffer(self, buffer):
+        for navi in self.navigatorArr:
+            buffer.writeHalfword(navi.demonID, navi.offset)
+            buffer.writeHalfword(navi.itemBonus, navi.offset + 2)
+            buffer.writeByte(navi.itemType, navi.offset + 4)
+            buffer.writeHalfword(navi.openFlag, navi.offset + 8)
         return buffer
 
     '''
@@ -6718,6 +6752,38 @@ class Randomizer:
                 enumType = voiceEnum[0]["Value"]
                 voiceEnum[1]["Value"]["AssetPath"]["AssetName"] = voiceBank[enumType].pop()
 
+    '''
+    Randomizes demon navigator chances to find items and type of items
+    Guarantees at least one navigator can find each type of item, as well as the minimum and maximum chance of items vs demons
+    '''
+    def randomizeNavigatorAbilities(self):
+        guaranteedTypeSample = random.sample(self.navigatorArr, k=5)
+        guaranteedBonusSample = random.sample(self.navigatorArr, k=2)
+        minBonus = -10
+        maxBonus = 15
+        for navi in self.navigatorArr:
+            navi.itemType = random.randrange(1, 6)
+            if random.randrange(0, 10) == 0: #Small chance to get any number between -10 and 15, otherwise limit to multiples of 5
+                navi.itemBonus = random.randrange(minBonus, maxBonus + 1)
+            else:
+                navi.itemBonus = random.randrange(int(minBonus / 5), int(maxBonus / 5) + 1) * 5
+        for index, navi in enumerate(guaranteedTypeSample):
+            navi.itemType = index + 1
+        guaranteedBonusSample[0].itemBonus = minBonus
+        guaranteedBonusSample[1].itemBonus = maxBonus
+
+    '''
+    Changes the demon navigators to reflect what their respective enemy/boss replacements are
+    TODO: Update text and voice
+    '''
+    def changeNavigatorDemons(self):
+        for navi in self.navigatorArr:
+            if navi.demonID in numbers.NAVIGATOR_BOSS_MAP.keys():
+                replacementID = self.bossReplacements[numbers.NAVIGATOR_BOSS_MAP[navi.demonID]]
+            else:
+                replacementID = self.encounterReplacements[navi.demonID]
+            #print("Changing navi " + str(navi.demonID) + " to " + str(replacementID))
+            navi.demonID = replacementID
 
     '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
@@ -6949,6 +7015,7 @@ class Randomizer:
         mapSymbolParamBuffer = readBinaryTable(paths.MAP_SYMBOL_PARAM_IN)
         eventEncountPostUassetBuffer = readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN)
         mapEventBuffer = readBinaryTable(paths.MAP_EVENT_DATA_IN)
+        navigatorBuffer = readBinaryTable(paths.NAVIGATOR_DATA_IN)
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -6990,6 +7057,7 @@ class Randomizer:
         self.fillConsumableArr(itemBuffer)
         self.fillFusionSkillReqs(skillBuffer)
         self.fillMapEventArr(mapEventBuffer)
+        self.fillNavigatorArr(navigatorBuffer)
         
         #self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
         self.eventEncountArr = self.addPositionsToNormalEncountArr(eventEncountPostBuffer, self.eventEncountArr, eventEncountPostUassetBuffer)
@@ -7222,6 +7290,10 @@ class Randomizer:
             self.randomizeVoiceSets()
         elif self.configSettings.randomizeVoicesChaos:
             self.randomizeVoiceLines()
+        if self.configSettings.randomizeNavigatorStats:
+            self.randomizeNavigatorAbilities()
+        if self.configSettings.navigatorModelSwap:
+            self.changeNavigatorDemons()
 
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
@@ -7252,6 +7324,7 @@ class Randomizer:
         chestBuffer = self.updateChestBuffer(chestBuffer)
         itemBuffer = self.updateConsumableData(itemBuffer, self.consumableArr)        
         mapEventBuffer = self.updateMapEventBuffer(mapEventBuffer)
+        navigatorBuffer = self.updateNavigatorBuffer(navigatorBuffer)
 
         #self.printOutEncounters(newSymbolArr)
         self.printOutFusions(self.normalFusionArr)
@@ -7303,6 +7376,7 @@ class Randomizer:
         writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
         writeBinaryTable(eventEncountPostUassetBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         writeBinaryTable(mapEventBuffer.buffer, paths.MAP_EVENT_DATA_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(navigatorBuffer.buffer, paths.NAVIGATOR_DATA_OUT, paths.MAP_FOLDER_OUT)
         #copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         copyFile(paths.TITLE_TEXTURE_IN, paths.TITLE_TEXTURE_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)

@@ -722,6 +722,13 @@ VOICE_MAP_DEMON_ALTS = {
     519: 142, #Glasya Labolas
 }
 
+#Key: Normal navigator demon ID, Value: Boss demon ID to find the replacement for when changing the navigator demons
+NAVIGATOR_BOSS_MAP = {
+    77: 892, #Mara
+    356: 923, #Hell Biker
+    295: 931 #Cleopatra
+}
+
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''

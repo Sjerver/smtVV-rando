@@ -1,6 +1,7 @@
 Version 1.04
 Features:
 * New settings to randomize demon voices in battle, haunts, and for overworld enemies
+* New settings to randomize and model swap demon navigators
 * Added chase/escape lines to unused overworld enemies
 * Added speed values to unused overworld enemies
 

@@ -1,0 +1,7 @@
+0x2AD41 is first entry of table 2: demon navigator data
+Entries are size 0xC
+
+0x00 halfword is demonID
+0x02 halfword is item chance bonus, between -10 and 15 (higher number is less likely to find demons)
+0x04 byte is item find type, 1-5 (5 is ailment items, etc)
+0x08 halfword is open flag, does ???, from 549-591

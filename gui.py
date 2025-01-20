@@ -519,6 +519,14 @@ def createGUI(configSettings):
     listItem.insert(8, "Combine Unique Item Pools")
     listItem.insert(9, "Include Tsukuyomi Talisman as Item Gift")
     listItem.pack()
+
+    naviLabel = tk.Label(page3FrameBottomRight, text="Demon Navigators")
+    naviLabel.pack()
+
+    listNavi = tk.Listbox(page3FrameBottomRight, selectmode = "multiple", width = 75, height = 2, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listNavi.insert(0, "Randomize Navigator Stats")
+    listNavi.insert(1, "Navigator Model Swaps")
+    listNavi.pack()
         
     page1Frame.tkraise()
     
@@ -631,6 +639,10 @@ def createGUI(configSettings):
                 'EarlyDivineAmalgamation': ('Listbox', listEarlyMiracle, 6),
                 'EarlyInheritenceViolation': ('Listbox', listEarlyMiracle, 7),
             },
+            'Navigators': {
+                'RandomNavigatorStats': ('Listbox', listNavi, 0),
+                'NavigatorModelSwap': ('Listbox', listNavi, 1),
+            },
         }
         listVoice.selection_set(0)
         listSkillScaling.selection_set(0)
@@ -739,6 +751,9 @@ def createGUI(configSettings):
         patchFlags = [False for i in range(listPatches.size())]
         for i in listPatches.curselection():
             patchFlags[i] = True
+        naviFlags = [False for i in range(listNavi.size())]
+        for i in listNavi.curselection():
+            naviFlags[i] = True
         expChoice = expScale.get()
         pressTurnChoice = pressTurnScale.get()
         
@@ -847,6 +862,11 @@ def createGUI(configSettings):
     configur.set('Item', 'CombineKeyItemPools', str(itemFlags[8]).lower())
     configSettings.includeTsukuyomiTalisman = itemFlags[9]
     configur.set('Item', 'IncludeTsukuyomiTalisman',str(itemFlags[9]).lower() )
+
+    configSettings.randomizeNavigatorStats = naviFlags[0]
+    configur.set('Navigators', 'RandomNavigatorStats', str(naviFlags[0]).lower())
+    configSettings.navigatorModelSwap = naviFlags[1]
+    configur.set('Navigators', 'NavigatorModelSwap', str(naviFlags[1]).lower()) 
     
     configSettings.scaleBossDamage = bossFlags[0]
     configur.set('Boss', 'ScaleBossDamage', str(bossFlags[0]).lower())
@@ -902,8 +922,7 @@ def createGUI(configSettings):
     configur.set('Miracle', 'ReverseDivineGarrisons', str(miracleFlags[2]).lower())
 
     configSettings.vanillaRankViolation = bool(rankViolationChoice and rankViolationChoice[0] == 1)
-    configur.set('Miracle', 'VanillaRankViolation', str(configSettings.vanillaRankViolation).lower())  
-
+    configur.set('Miracle', 'VanillaRankViolation', str(configSettings.vanillaRankViolation).lower())
         
     if len(rankViolationChoice) > 0 and rankViolationChoice[0] == 2:
         configSettings.forcedEarlyMiracles.append(31)
@@ -1005,3 +1024,4 @@ def createConfigFile(configur):
     configur['Resistances'] = {'RandomResists': False, 'AlwaysOneWeak': False,'ScaleElementalResist': False,'ScalePhysResist': False,'WeightResistByPotentials': False,
                              'DiverseResists': False,}
     configur['Voice'] = {'RandomVoicesNormal': False, 'RandomVoicesChaos': False}
+    configur['Navigators'] = {'RandomNavigatorStats': False, 'NavigatorModelSwap': False}
