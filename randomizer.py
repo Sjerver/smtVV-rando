@@ -6777,13 +6777,16 @@ class Randomizer:
     TODO: Update text and voice
     '''
     def changeNavigatorDemons(self):
+        naviReplacementMap = {}
         for navi in self.navigatorArr:
             if navi.demonID in numbers.NAVIGATOR_BOSS_MAP.keys():
                 replacementID = self.bossReplacements[numbers.NAVIGATOR_BOSS_MAP[navi.demonID]]
             else:
                 replacementID = self.encounterReplacements[navi.demonID]
             #print("Changing navi " + str(navi.demonID) + " to " + str(replacementID))
+            naviReplacementMap[navi.demonID] = replacementID
             navi.demonID = replacementID
+        message_logic.updateNavigatorVoiceAndText(naviReplacementMap, self.enemyNames)
 
     '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.

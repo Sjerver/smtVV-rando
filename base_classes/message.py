@@ -155,7 +155,7 @@ class Message_File:
 
                 currentOffset = currentOffset + 4 + 25#voice Size
                 voiceSize = uexpBinary.readWord(currentOffset + additionalBytes)
-                pageData.voice = uexpBinary.readXChars(nameSize,currentOffset + additionalBytes + 4)
+                pageData.voice = uexpBinary.readXChars(voiceSize,currentOffset + additionalBytes + 4)
                 additionalBytes = additionalBytes + voiceSize
 
                 currentOffset = currentOffset + 4 + 21 + 4#value 2 of cue
@@ -193,6 +193,16 @@ class Message_File:
         return array
 
     '''
+    Returns a list of this files voices.
+    '''
+    def getVoices(self):
+        array = []
+        for message in self.messages:
+            for pageData in message.pageDataArray:
+                array.append(pageData.voice)
+        return array
+
+    '''
     Sets this files message strings to the ones in the passed list.
         Parameters:
             newMessages(List(String)): a list of strings that the message with the same index should be set to
@@ -207,7 +217,7 @@ class Message_File:
     '''
     Sets this files speaker names to the ones in the passed list.
         Parameters:
-            newNames(List(String)): a list of strings that the speaker name with the same index should be set to
+            newNames(List(Bytes)): a list of byte strings that the speaker name with the same index should be set to
     '''
     def setSpeakerNames(self, newNames):
         currentIndex = 0
@@ -223,7 +233,22 @@ class Message_File:
                 pageData.name = newNames[currentIndex]
                 currentIndex += 1
             
-                
+    '''
+    Sets this files voices to the ones in the passed list.
+        Parameters:
+            newVoices(List(Bytes)): a list of byte strings that the voice with the same index should be set to
+    '''
+    def setVoices(self, newVoices):
+        currentIndex = 0
+        for message in self.messages:
+            if len(message.pageDataArray) > 0:
+                oldVoiceSize = len(message.pageDataArray[0].voice) 
+                newVoiceSize = len(newVoices[currentIndex])
+                voiceSizeDiff = newVoiceSize - oldVoiceSize
+                message.metadataSize += voiceSizeDiff * len(message.pageDataArray)
+            for pageData in message.pageDataArray:
+                pageData.voice = newVoices[currentIndex]
+                currentIndex += 1   
     
     '''
     Writes the data of this message file to both the uexp and uasset, and outputs it to the appropriate rando subfolders.
@@ -293,7 +318,6 @@ class Message_File:
                 uexpBinary.writeDblword(messageSizeDiff + message.pageDataSize, currentOffset + additionalBytes - messageAddBytes - 26)
             sizeDifference = sizeDifference + messageSizeDiff
 
-            #TODO: Add code for writing if voice is changed later, currently only read for offset calc
             currentOffset =currentOffset + 8 * 3 + 17*message.pageCount + 4 + 78#name Size
             uexpBinary.writeWord(message.metadataSize, currentOffset + additionalBytes - 78 - 17)
             uexpBinary.writeWord(message.metadataSize-53, currentOffset + additionalBytes - 78 - 17 + 37) #Magic number 53 less than the metadata size
@@ -315,8 +339,21 @@ class Message_File:
                 additionalBytes = additionalBytes + newNameSize
 
                 currentOffset = currentOffset + 4 + 25#voice Size
-                voiceSize = uexpBinary.readWord(currentOffset + additionalBytes)
-                additionalBytes = additionalBytes + voiceSize
+                oldVoiceSize = uexpBinary.readWord(currentOffset + additionalBytes)
+                newVoiceSize = len(page.voice)
+                uexpBinary.writeWord(newVoiceSize, currentOffset + additionalBytes)
+                uexpBinary.writeByte(newVoiceSize + 4, currentOffset + additionalBytes - 9) #The byte 9 before the name size word is equal to the voice size + 4, I think, probably
+                voiceSizeDiff = newVoiceSize - oldVoiceSize
+                if voiceSizeDiff > 0: #New string is larger than old one
+                    sizeDifference = sizeDifference + voiceSizeDiff
+                    for j in range(voiceSizeDiff):
+                        uexpBinary.buffer.insert(currentOffset + additionalBytes + 4 ,0)
+                elif voiceSizeDiff < 0: #New string is smaller than old one
+                    sizeDifference = sizeDifference + voiceSizeDiff
+                    for j in range(-voiceSizeDiff):
+                        uexpBinary.buffer.pop(currentOffset + additionalBytes + 4)
+                uexpBinary.writeXChars(page.voice, newVoiceSize,currentOffset + additionalBytes + 4) #Update voice
+                additionalBytes = additionalBytes + newVoiceSize
 
                 currentOffset = currentOffset + 4 + 21 + 4 + 8 + 21 + 4 + 4
                 if message.pageDataCount -1 > i:

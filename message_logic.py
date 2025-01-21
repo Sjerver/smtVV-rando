@@ -15,7 +15,8 @@ OUTPUT_FOLDERS = {
     'ItemHelpMess' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Item/',
     'MissionInfo' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission/',
     'EventMessage' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Event/EventMessage/',
-    'Garden': 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Garden/'
+    'Garden': 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Garden/',
+    'NaviDevilMessage' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Map/NaviDevilMessage/'
 }
 
 #List of folders that have to be created in the output folder in order of creation
@@ -30,6 +31,7 @@ FOLDERS_TO_CREATE = ['rando',
         'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Battle',
         'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission',
         'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Event',
+        'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Map'
 ]    
 
 #Dict for items with demon names in them and which demon they should be synced with
@@ -829,6 +831,12 @@ SPECIAL_SPEAKER_IDS = {
     537: 404, #Tehom
 }
 
+NAVIDEVILMESSAGE_FILENAME_PREFIX = 'NaviDevil_Dev';
+NAVIDEVILMESSAGE_FOLDER = 'NaviDevilMessage/';
+NAVI_NAME_ALIAS_MAP = {
+    147: ['moTHmAN', ' moThMAn']  
+}
+
 '''
 Changes the names and descriptions of items with demon names in them to that of their replacement if there is any.
 Also adjust the descriptions of talismans and periapts.
@@ -1452,3 +1460,50 @@ def updateSkillNameInFile(missionText, skillName):
         if numbers.BRAWNY_AMBITIONS2_SKILL in box:
             box = box.replace(numbers.BRAWNY_AMBITIONS2_SKILL, skillName)
         missionText[index] = box
+
+'''
+Updates the names of Navigators in their text boxes and the voice lines to match the new demons
+TODO: Update Uasset files to properly change voices
+    Parameters:
+        naviMap (Dict<Int, Int>): keys are the original navigator IDs, values are the replacement demon IDs
+'''
+def updateNavigatorVoiceAndText(naviMap, demonNames):
+    for originalID, replacementID in naviMap.items():
+        filename = NAVIDEVILMESSAGE_FILENAME_PREFIX + str(originalID).zfill(3)
+        file = Message_File(filename,NAVIDEVILMESSAGE_FOLDER,OUTPUT_FOLDERS['NaviDevilMessage'])
+        fileText = file.getMessageStrings();
+        speakerNames = file.getSpeakerNames();
+        voices = file.getVoices();
+        #debugger = str(speakerNames[0]) + " to "
+        updatedReplacementID = normalEnemyIDForBoss(replacementID, demonNames)
+        for index, name in enumerate(speakerNames): #for every text box name
+            if bytes(str(originalID), 'utf-8') + b'\x00' == bytes(name):
+                speakerNames[index] = bytes(str(updatedReplacementID), 'utf-8') + b'\x00' #Add null byte to end of demon ID
+        file.setSpeakerNames(speakerNames)
+        for index, voiceID in enumerate(voices):
+            if 'dev' + str(originalID).zfill(3) + '_vo' in str(voiceID, 'utf-8'):
+                voiceID = bytes(str(voiceID, 'utf-8').replace('dev' + str(originalID).zfill(3) + '_vo', 'dev' + str(updatedReplacementID).zfill(3) + '_vo'), 'utf-8')
+                voices[index] = voiceID
+        file.setVoices(voices)
+        originalName = demonNames[originalID]
+        replacementName = demonNames[replacementID]
+        for index, box in enumerate(fileText): #for every dialogue box
+            if originalName in box: #Name is plain text
+                box = box.replace(originalName, replacementName)
+            if 'enemy ' + str(originalID).zfill(3) in box: #name is talked about via ID
+                box = box.replace('enemy ' + str(originalID).zfill(3), 'enemy ' + str(updatedReplacementID).zfill(3))
+            if originalID in NAVI_NAME_ALIAS_MAP.keys():
+                for alias in NAVI_NAME_ALIAS_MAP[originalID]:
+                    if alias in box:
+                        box = box.replace(alias, replacementName)
+            if 'chara ' + str(originalID) + '>' in box: #Replace 'speaker' name
+                box = box.replace('chara ' + str(originalID) + '>', 'chara ' + str(updatedReplacementID) + '>')
+            if 'voice dev' + str(originalID).zfill(3) + '_vo' in box: #Replace 'voice'
+                box = box.replace('voice dev' + str(originalID).zfill(3) + '_vo', 'voice dev' + str(updatedReplacementID).zfill(3) + '_vo')
+
+            fileText[index] = box
+        file.setMessageStrings(fileText)
+        
+        #print(voices)
+        #print(debugger + str(speakerNames[0]))
+        file.writeToFiles()
