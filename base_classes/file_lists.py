@@ -652,8 +652,8 @@ class Script_File:
         return newStatementIndex[1]
             
 class General_UAsset:
-    def __init__(self,name, writePath):
-        self.uasset =  UAsset('base/' +  name+ '.uasset', EngineVersion.VER_UE4_27)
+    def __init__(self,name, writePath, readPath = 'base/'):
+        self.uasset =  UAsset(readPath +  name+ '.uasset', EngineVersion.VER_UE4_27)
         self.name = name
         self.writePath = writePath
         jsonstring = self.uasset.SerializeJson()

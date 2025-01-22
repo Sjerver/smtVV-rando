@@ -1219,8 +1219,8 @@ def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, enc
 
         #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
         for index, name in enumerate(speakerNames): #for every text box name
-            if bytes(str(originalDemonID), 'utf-8') + b'\x00' == bytes(originalSpeakerNames[index]):
-                speakerNames[index] = bytes(str(replacementID), 'utf-8') + b'\x00' #Add null byte to end of demon ID
+            if str(originalDemonID) == originalSpeakerNames[index]:
+                speakerNames[index] = str(replacementID)
 
 '''
 Adds hint messages for checks related to mission events
@@ -1356,6 +1356,8 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
 
             for index in range(missionTextCount):
                 messageComponent = missionText[commonEntries + index + 7 * (missionIndex)]
+                if messageComponent == None:
+                    continue
                 #print(str(missionIndex) + "/" + str(index) + " " + messageComponent)
                 if originalName in messageComponent: #Name is plain text
                     messageComponent = messageComponent.replace(originalName, replacementName)
@@ -1477,12 +1479,12 @@ def updateNavigatorVoiceAndText(naviMap, demonNames):
         #debugger = str(speakerNames[0]) + " to "
         updatedReplacementID = normalEnemyIDForBoss(replacementID, demonNames)
         for index, name in enumerate(speakerNames): #for every text box name
-            if bytes(str(originalID), 'utf-8') + b'\x00' == bytes(name):
-                speakerNames[index] = bytes(str(updatedReplacementID), 'utf-8') + b'\x00' #Add null byte to end of demon ID
+            if str(originalID) == name:
+                speakerNames[index] = str(updatedReplacementID)
         file.setSpeakerNames(speakerNames)
         for index, voiceID in enumerate(voices):
-            if 'dev' + str(originalID).zfill(3) + '_vo' in str(voiceID, 'utf-8'):
-                voiceID = bytes(str(voiceID, 'utf-8').replace('dev' + str(originalID).zfill(3) + '_vo', 'dev' + str(updatedReplacementID).zfill(3) + '_vo'), 'utf-8')
+            if voiceID != None and 'dev' + str(originalID).zfill(3) + '_vo' in voiceID:
+                voiceID = voiceID.replace('dev' + str(originalID).zfill(3) + '_vo', 'dev' + str(updatedReplacementID).zfill(3) + '_vo')
                 voices[index] = voiceID
         file.setVoices(voices)
         originalName = demonNames[originalID]
