@@ -1,4 +1,5 @@
-
+import pandas as pd
+import util.paths as paths
 import util.numbers as numbers
 import copy
 import re
@@ -828,14 +829,42 @@ SPECIAL_SPEAKER_IDS = {
     601: 25, #Abcess Jack Frost (Jack Frost is also Dummy Name)
     25: 25, # Normal Jack Frost
     526: 511, #Depraved Arm (or Wing) use Abdiel Name
-    537: 404, #Tehom
+    597: 404, #Tehom
+    391: 391, #Lilith otherwise defaults to old lilith
+    569: 391
 }
+
+#Map of demon ID to voice ID for characters without normal enemy demon counterparts
+SPECIAL_VOICE_IDS = {
+    467: 240, # Abdiels
+    525: 525,
+    564: 240,
+    577: 264,
+    578: 578, # Dazai
+    601: 25, #Abcess Jack Frost (Jack Frost is also Dummy Name)
+    25: 25, # Normal Jack Frost
+    526: 240, #Depraved Arm (or Wing) use Abdiel Name
+    391: 391, #Lilith otherwise defaults to old lilith
+    569: 391,
+    934: 934, #Demi-Fiend has an incorrect earlier version
+    465: 465, # Yakumos
+    567: 465,
+    435: 197, #Nuwas
+    520: 520,
+    550: 75,
+    529: 529, #Trancendent Lucifers
+    537: 529
+}
+
 
 NAVIDEVILMESSAGE_FILENAME_PREFIX = 'NaviDevil_Dev';
 NAVIDEVILMESSAGE_FOLDER = 'NaviDevilMessage/';
 NAVI_NAME_ALIAS_MAP = {
     147: ['moTHmAN', ' moThMAn']  
 }
+
+DEMON_FILENAMES = {}
+DEMON_ID_FILE_ID = {}
 
 '''
 Changes the names and descriptions of items with demon names in them to that of their replacement if there is any.
@@ -1219,8 +1248,8 @@ def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, enc
 
         #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
         for index, name in enumerate(speakerNames): #for every text box name
-            if bytes(str(originalDemonID), 'utf-8') + b'\x00' == bytes(originalSpeakerNames[index]):
-                speakerNames[index] = bytes(str(replacementID), 'utf-8') + b'\x00' #Add null byte to end of demon ID
+            if str(originalDemonID) == originalSpeakerNames[index]:
+                speakerNames[index] = str(replacementID)
 
 '''
 Adds hint messages for checks related to mission events
@@ -1356,6 +1385,8 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
 
             for index in range(missionTextCount):
                 messageComponent = missionText[commonEntries + index + 7 * (missionIndex)]
+                if messageComponent == None:
+                    continue
                 #print(str(missionIndex) + "/" + str(index) + " " + messageComponent)
                 if originalName in messageComponent: #Name is plain text
                     messageComponent = messageComponent.replace(originalName, replacementName)
@@ -1453,6 +1484,21 @@ def normalEnemyIDForBoss(bossID, demonNames):
     return earliestID
 
 '''
+Finds the proper filename ID of a demon's name that is used for voice cue files
+If the demon uses a specific name ID instead of their normal enemy version, the specific one is returned instead
+    Parameters:
+        bossID (number): The boss ID to find an earlier version of
+        demonNames (List(String)): List of enemy demon names
+'''
+def normalVoiceIDForBoss(bossID, demonNames):
+    if bossID in SPECIAL_VOICE_IDS.keys():
+        return DEMON_ID_FILE_ID[SPECIAL_VOICE_IDS[bossID]]
+    earliestID = demonNames.index(demonNames[bossID])
+    #if earliestID > 394:
+    #    print(demonNames[earliestID] + " " + str(earliestID))
+    return DEMON_ID_FILE_ID[earliestID]
+
+'''
 Updates occurences of Puncture Punch with the new skill name.
 '''
 def updateSkillNameInFile(missionText, skillName):
@@ -1476,15 +1522,16 @@ def updateNavigatorVoiceAndText(naviMap, demonNames):
         voices = file.getVoices();
         #debugger = str(speakerNames[0]) + " to "
         updatedReplacementID = normalEnemyIDForBoss(replacementID, demonNames)
+        voiceReplacementID = normalVoiceIDForBoss(replacementID, demonNames)
         for index, name in enumerate(speakerNames): #for every text box name
-            if bytes(str(originalID), 'utf-8') + b'\x00' == bytes(name):
-                speakerNames[index] = bytes(str(updatedReplacementID), 'utf-8') + b'\x00' #Add null byte to end of demon ID
+            if str(originalID) == name:
+                speakerNames[index] = str(updatedReplacementID)
         file.setSpeakerNames(speakerNames)
         for index, voiceID in enumerate(voices):
-            if 'dev' + str(originalID).zfill(3) + '_vo' in str(voiceID, 'utf-8'):
-                voiceID = bytes(str(voiceID, 'utf-8').replace('dev' + str(originalID).zfill(3) + '_vo', 'dev' + str(updatedReplacementID).zfill(3) + '_vo'), 'utf-8')
+            if voiceID != None and 'dev' + str(originalID).zfill(3) + '_vo' in voiceID:
+                voiceID = voiceID.replace('dev' + str(originalID).zfill(3) + '_vo', 'dev' + str(voiceReplacementID).zfill(3) + '_vo')
                 voices[index] = voiceID
-        file.setVoices(voices)
+        file.setVoices(voices, DEMON_FILENAMES)
         originalName = demonNames[originalID]
         replacementName = demonNames[replacementID]
         for index, box in enumerate(fileText): #for every dialogue box
@@ -1507,3 +1554,13 @@ def updateNavigatorVoiceAndText(naviMap, demonNames):
         #print(voices)
         #print(debugger + str(speakerNames[0]))
         file.writeToFiles()
+
+'''
+Reads data about cue file names from the model names csv and fills dictionaries.
+'''
+def initDemonModelData():
+    fileNameMap = pd.read_csv(paths.MODEL_NAMES, dtype=str)
+    for index, row in fileNameMap.iterrows():
+        if type(row['MainDemonID']) is str:
+             DEMON_FILENAMES[row['Number']] = row['folderName']
+             DEMON_ID_FILE_ID[int(row['MainDemonID'])] = row['Number']
