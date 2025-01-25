@@ -97,6 +97,7 @@ class Randomizer:
         self.navigatorArr = []
         self.voiceMapFile = General_UAsset("BP_DevilVoiceAssetMap","rando/Project/Content/Sound/DevilVoice/")
         self.nahobino = Nahobino()
+        self.totalResistMap = {} #stores all assigned resistances for each element 
         
         self.configSettings = Settings()
         self.textSeed = ""
@@ -2149,7 +2150,7 @@ class Randomizer:
             demon.potential.recover = newPotentials[10]
 
     '''
-    Randomizes the resitance profiles of demons. The process attempts to follow base game distribution of resistances and elemnents.
+    Randomizes the resistance profiles of demons. The process attempts to follow base game distribution of resistances and elemnents.
     The outcome is changed depending on what resistance settings are chosen.
         Parameters: 
             comp (List(Compendium_Demon)): List of demons
@@ -2158,8 +2159,6 @@ class Randomizer:
         either profiles or shuffle resists in profiles and then assign those randomly?
     '''
     def randomizeResistances(self, comp, mask = None):
-        diverseResistsFactor = 2 #Factor that decides which version of 
-        
         '''
         Adjust weights for the resistance level based on the potential of an element for a demon.
             Parameters:
@@ -2216,16 +2215,17 @@ class Randomizer:
             return elementWeights
 
         demonCount = 0
-        totalResistMap = {} #stores all assigned resistances for each element #TODO: save globally for further calls of this function?
-        for attr in vars(comp[0].resist):
-            totalResistMap[attr] = {
-                -1.5: 0,
-                -1: 0,
-                0: 0,
-                0.5: 0,
-                1: 0,
-                1.5: 0
-            }  
+        
+        if len(self.totalResistMap) == 0:
+            for attr in vars(comp[0].resist):
+                self.totalResistMap[attr] = {
+                    -1.5: 0,
+                    -1: 0,
+                    0: 0,
+                    0.5: 0,
+                    1: 0,
+                    1.5: 0
+                }  
         resistProfiles = [] # will store the resistances of every demon, mostly for debug purposes
 
         #filter out all unused demons (unnamed and Old Lilith, Other Tao), mitamas
@@ -2268,7 +2268,7 @@ class Randomizer:
             validPhysResist = False
             while not validPhysResist: #reroll phys resist to be valid with diverseResists if enabled
                 physResist = random.choices(numbers.SIMPLE_RESIST_VALUES,physWeights)[0]
-                if self.configSettings.diverseResists and physResist != 1 and totalResistMap["physical"].get(physResist) > demonCount / diverseResistsFactor:
+                if self.configSettings.diverseResists and physResist != 1 and self.totalResistMap["physical"].get(physResist) > demonCount / numbers.DIVERSE_RESIST_FACTOR:
                     validPhysResist =False
                 else:
                     validPhysResist = True
@@ -2318,8 +2318,8 @@ class Randomizer:
                     elementResistWeights = adjustResistWeightForPotential(element,elementResistWeights,demon)
                 
                 if self.configSettings.diverseResists:
-                    for index, value in enumerate(totalResistMap[element].values()):
-                        if 1 +value > demonCount / diverseResistsFactor and index != 4:# neutral resists are not subject to diverseResist setting
+                    for index, value in enumerate(self.totalResistMap[element].values()):
+                        if 1 +value > demonCount / numbers.DIVERSE_RESIST_FACTOR and index != 4:# neutral resists are not subject to diverseResist setting
                             elementResistWeights[index] /= 2
                 
                 elementResist = random.choices(numbers.SIMPLE_RESIST_VALUES,elementResistWeights)[0]
@@ -2358,8 +2358,8 @@ class Randomizer:
                     ailmentResistWeights = adjustResistWeightForPotential("ailment",ailmentResistWeights,demon)
                 
                 if self.configSettings.diverseResists:
-                    for index, value in enumerate(totalResistMap[ailment].values()):
-                        if 1 +value > demonCount / diverseResistsFactor and index != 4:
+                    for index, value in enumerate(self.totalResistMap[ailment].values()):
+                        if 1 +value > demonCount / numbers.DIVERSE_RESIST_FACTOR and index != 4:
                             ailmentResistWeights[index] /= 2
 
                 ailmentResist = random.choices(numbers.SIMPLE_RESIST_VALUES,ailmentResistWeights)[0]
@@ -2406,7 +2406,7 @@ class Randomizer:
                             
                             while resistIndex +1 < len(numbers.SIMPLE_RESIST_VALUES):
                                 if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
-                                    if totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / diverseResistsFactor:
+                                    if self.totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / numbers.DIVERSE_RESIST_FACTOR:
                                         resistIndex += 1
                                     else:
                                         break
@@ -2427,7 +2427,7 @@ class Randomizer:
                             
                             while resistIndex +1 < len(numbers.SIMPLE_RESIST_VALUES):
                                 if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
-                                    if totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / diverseResistsFactor:
+                                    if self.totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / numbers.DIVERSE_RESIST_FACTOR:
                                         resistIndex += 1
                                     else:
                                         break
@@ -2465,7 +2465,7 @@ class Randomizer:
                         if self.configSettings.diverseResists:
                             while resistIndex -1 > 0:
                                 if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
-                                    if totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / diverseResistsFactor:
+                                    if self.totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / numbers.DIVERSE_RESIST_FACTOR:
                                         resistIndex -= 1
                                     else:
                                         break
@@ -2485,7 +2485,7 @@ class Randomizer:
                         if self.configSettings.diverseResists:
                             while resistIndex -1 > 0:
                                 if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
-                                    if totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / diverseResistsFactor:
+                                    if self.totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / numbers.DIVERSE_RESIST_FACTOR:
                                         resistIndex -= 1
                                     else:
                                         break
@@ -2514,14 +2514,14 @@ class Randomizer:
 
             #Apply resist to demon and increase values in totalResistMap
             demon.resist.physical = Translated_Value(numbers.SIMPLE_RESIST_RESULTS[physResist],translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[physResist]))
-            totalResistMap["physical"][physResist] += +1
+            self.totalResistMap["physical"][physResist] += +1
 
             for index, element in enumerate(numbers.ELEMENT_RESIST_NAMES):
-                totalResistMap[element][chosenResists[index]] += 1
+                self.totalResistMap[element][chosenResists[index]] += 1
                 demon.resist.__setattr__(element,Translated_Value(numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]],translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]])))
             resistProfiles.append([physResist] + chosenResists + ailmentResists)
             for index, ailment in enumerate(numbers.AILMENT_NAMES):
-                totalResistMap[ailment][ailmentResists[index]] += 1
+                self.totalResistMap[ailment][ailmentResists[index]] += 1
                 demon.resist.__setattr__(ailment,Translated_Value(numbers.SIMPLE_RESIST_RESULTS[ailmentResists[index]],translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[ailmentResists[index]])))
             #print(demon.name + " " + str(currentSum) + " ( " + str(baselineSum) + ")")
         #print(demonCount)
@@ -3924,10 +3924,10 @@ class Randomizer:
             #later overwritten for replacements
             newDrops = Item_Drops(enemy.drops.item1,enemy.drops.item2,enemy.drops.item3)
             
-            newFoe = Enemy_Demon()
-            newFoe.ind = enemy.ind
-            newFoe.name = enemy.name
-            newFoe.offsetNumbers = enemy.offsetNumbers
+            newFoe = copy.deepcopy(enemy)
+            #newFoe.ind = enemy.ind
+            #newFoe.name = enemy.name
+            #newFoe.offsetNumbers = enemy.offsetNumbers
             newFoe.level = newLevel
             newFoe.originalLevel = enemy.level
             newFoe.stats = newStats
@@ -3942,7 +3942,7 @@ class Randomizer:
             newFoe.experience = newExperience
             newFoe.money = newMacca
             newFoe.skills = newSkills
-            newFoe.instakillRate = enemy.instakillRate
+            #newFoe.instakillRate = enemy.instakillRate
             newFoe.drops = newDrops
             newFoe.oldDrops = enemy.drops
             newFoe.innate = playableEqu.innate   #copy innate from player version
@@ -4193,14 +4193,17 @@ class Randomizer:
         if not encounterPools:
             return
         with open(paths.BOSS_SPOILER, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
-            for filteredEncounters in encounterPools:
+            for poolName, filteredEncounters in encounterPools.items():
                 validForcedEventEncounter = False
                 shuffledEncounters = []
-                while not validForcedEventEncounter: #until solution is found where event only bosses are replaced by event encounters
-                    shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
-                    forcedEventEncounterIndeces = [i for i, e in enumerate(shuffledEncounters) if e.ind in bossLogic.EVENT_ONLY_BOSSES]
-                    if all(filteredEncounters[i].isEvent for i in forcedEventEncounterIndeces):
-                          validForcedEventEncounter = True
+                if "Vanilla" in poolName:
+                    shuffledEncounters = filteredEncounters
+                else:
+                    while not validForcedEventEncounter: #until solution is found where event only bosses are replaced by event encounters
+                        shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
+                        forcedEventEncounterIndeces = [i for i, e in enumerate(shuffledEncounters) if e.ind in bossLogic.EVENT_ONLY_BOSSES]
+                        if all(filteredEncounters[i].isEvent for i in forcedEventEncounterIndeces):
+                            validForcedEventEncounter = True
                 shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
                 for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
                     spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + "(" + str(encounter.demons[0]) + ") "+ self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
@@ -4217,7 +4220,7 @@ class Randomizer:
                             self.bossReplacements[encounter.demons[2]] = self.bossReplacements[encounter.demons[1]]
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     
-                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings.scaleBossPressTurnsToCheck, self.configSettings.scaleBossInstakillRates)
+                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings, self.compendiumArr, self.playerBossArr)
                     #print("Old hp " + str(self.staticBossArr[encounter.demons[0]].stats.HP) + " of " + self.enemyNames[encounter.demons[0]] + " now is "  +
                     #      self.enemyNames[shuffledEncounters[index].demons[0]] + " with " + str(self.bossArr[shuffledEncounters[index].demons[0]].stats.HP) + " HP")
                     self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
@@ -7203,9 +7206,14 @@ class Randomizer:
         self.removeIshtarCopies()
         self.syncMaras()
         self.randomizeBosses()
+
+        #pprint(bossLogic.resistProfiles)
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
-            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings)
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr)
+        elif config.randomizeBossResistances:
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr)
+        
         self.updateUniqueSymbolDemons()
         if config.scaleBossDamage:
             self.scaleBossDamage()

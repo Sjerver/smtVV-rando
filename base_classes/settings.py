@@ -77,3 +77,9 @@ class Settings(object):
         self.randomizeVoicesChaos = False           # Randomizes individual voice lines, letting one demon have voice lines from several different demons
         self.randomizeNavigatorStats = False        # Randomizes the chance of finding demons and type of items demon navigators find
         self.navigatorModelSwap = False             # Changes demon navigators to reflect their respective demon/boss replacements
+        self.randomizeBossResistances = False       # Randomizes resistances of bosses
+        self.consistentWeakCount = False             # Ensures weakness count is consistent for boss (to check if resistance are scaled)
+        self.scaleResistToCheck = False              # Scales resistance profile to be similiar to check instead of boss
+        self.playerResistSync = False                # Uses resistance of compendium demon instead
+        self.diverseBossResists = False              # Diversify resitance profiles to prevent all bosses having the same weaknesses/resists
+        

@@ -4,6 +4,7 @@ import webbrowser
 from configparser import ConfigParser, NoOptionError, NoSectionError
 import os
 import util.paths as paths
+from base_classes.settings import Settings
 
 NAHOBINO_BLUE = "#5b87d5"
 NAHOBINO_BRIGHT_BLUE = "#6b97f5"
@@ -13,7 +14,7 @@ PRESS_TURN_BRIGHT_RED = "#ab1d33"
 DISABLED_GRAY = "#333333"
 
 #Creates page system with important information like randomize button always visible
-def createGUI(configSettings):
+def createGUI(configSettings: Settings):
     window = tk.Tk()
     window.geometry('1000x700+50+50')
     persistentFrame = tk.Frame(window, width=1000, height=170)
@@ -398,12 +399,12 @@ def createGUI(configSettings):
     bossResLabel = tk.Label(page2FrameRight, text="Boss Resistances")
     bossResLabel.pack()
 
-    listBossResistances = tk.Listbox(page2FrameRight, selectmode = "multiple", width=50, height = 5, exportselection=False, selectbackground = NAHOBINO_BLUE)
-    listBossResistances.insert(0, "Randomize Resistances (N)")
-    listBossResistances.insert(1, "Always at least one Weakness/Resistance (N)")
-    listBossResistances.insert(2, "Scale Resistances to Check (N)")
-    listBossResistances.insert(4, "Sync to Player Version if Possible (N)")
-    listBossResistances.insert(5, "Diversify Resistances (N)")
+    listBossResistances = tk.Listbox(page2FrameRight, selectmode = "multiple", width=50, height = 5, exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listBossResistances.insert(0, "Randomize Resistances")
+    listBossResistances.insert(1, "Scale Resistances to Check")
+    listBossResistances.insert(2, "Consistent Weakness Count for Boss (or Check)")
+    listBossResistances.insert(4, "Sync to Player Version if Possible")
+    listBossResistances.insert(5, "Diversify Resistances")
     listBossResistances.pack()
 
     ishtarLabel = tk.Label(page2FrameRight, text="Ishtar's press turns")
@@ -427,7 +428,7 @@ def createGUI(configSettings):
     musicLabel = tk.Label(page2FrameRight, text="Boss Music Setting")
     musicLabel.pack()
 
-    listMusic = tk.Listbox(page2FrameRight, selectmode = "single", height=3,exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listMusic = tk.Listbox(page2FrameRight, selectmode = "single", height=3,exportselection=False, selectbackground = VENGEANCE_PURPLE)
     listMusic.insert(0, "Boss-based")
     listMusic.insert(1, "Check-based")
     listMusic.insert(2, "Random")
@@ -574,6 +575,12 @@ def createGUI(configSettings):
                 'ScalePhysResist': ('Listbox', listDemonResistances, 3),
                 'WeightResistByPotentials': ('Listbox', listDemonResistances, 4),
                 'DiverseResists': ('Listbox', listDemonResistances, 5),
+
+                'RandomBossResists': ('Listbox', listBossResistances, 0),
+                'ConsistenBossWeakCount': ('Listbox', listBossResistances, 2),
+                'ScaleResistToCheck': ('Listbox', listBossResistances, 1),
+                'PlayerResistSync': ('Listbox', listBossResistances, 3),
+                'DiverseBossResist': ('Listbox', listBossResistances, 4),
             },
             'Inheritance': {
                 'RandomInheritance': ('Listbox_single', listInheritance, 1),
@@ -734,6 +741,9 @@ def createGUI(configSettings):
         bossFlags = [False for i in range(listBossSettings.size())]
         for i in listBossSettings.curselection():
             bossFlags[i] = True
+        bossResistFlags = [False for i in range(listBossResistances.size())]
+        for i in listBossResistances.curselection():
+            bossResistFlags[i] = True
         normalBossChoice = listBoss.curselection()
         abscessChoice = listAbscess.curselection()
         punishingChoice = listPunishing.curselection()
@@ -907,7 +917,17 @@ def createGUI(configSettings):
     configur.set('Boss', 'MinibossesSelf', str(configSettings.selfRandomizeMinibosses).lower())
     configSettings.mixedRandomizeMinibosses = bool(minibossChoice and minibossChoice[0] == 2)
     configur.set('Boss', 'MinibossesMixed', str(configSettings.mixedRandomizeMinibosses).lower()) 
-        
+
+    configSettings.randomizeBossResistances = bossResistFlags[0]
+    configur.set('Resistances', 'RandomBossResists', str(bossResistFlags[0]).lower())
+    configSettings.scaleResistToCheck = bossResistFlags[1]
+    configur.set('Resistances', 'ScaleResistToCheck', str(bossResistFlags[1]).lower()) 
+    configSettings.consistentWeakCount = bossResistFlags[2]
+    configur.set('Resistances', 'ConsistenBossWeakCount', str(bossResistFlags[2]).lower()) 
+    configSettings.playerResistSync = bossResistFlags[3]
+    configur.set('Resistances', 'PlayerResistSync', str(bossResistFlags[3]).lower()) 
+    configSettings.diverseBossResists = bossResistFlags[4]
+    configur.set('Resistances', 'DiverseBossResist', str(bossResistFlags[4]).lower())  
         
     configSettings.ishtarPressTurns = ishtarChoice
     configur.set('Boss', 'IshtarPressTurns', str(ishtarChoice))
@@ -1022,6 +1042,6 @@ def createConfigFile(configur):
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
                         'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False, 'EarlyInheritenceViolation': False}
     configur['Resistances'] = {'RandomResists': False, 'AlwaysOneWeak': False,'ScaleElementalResist': False,'ScalePhysResist': False,'WeightResistByPotentials': False,
-                             'DiverseResists': False,}
+                             'DiverseResists': False, 'RandomBossResists': False, 'ConsistenBossWeakCount': False, 'ScaleResistToCheck':False, 'PlayerResistSync': False, 'DiverseBossResist': False}
     configur['Voice'] = {'RandomVoicesNormal': False, 'RandomVoicesChaos': False}
     configur['Navigators'] = {'RandomNavigatorStats': False, 'NavigatorModelSwap': False}

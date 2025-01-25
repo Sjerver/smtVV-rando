@@ -1,8 +1,18 @@
 from base_classes.encounters import Encounter, Event_Encounter, Mixed_Boss_Encounter
-from util import numbers
+from util import numbers, translation, paths
+from base_classes.settings import Settings
+from base_classes.base import Translated_Value
+import math
 import copy
 import random
+import pandas as pd
 
+#Stores the distribution of resist in the boss resistance process
+TOTAL_BOSS_RESIST_MAP = {}
+#Stores resist profiles of all bosses
+resistProfiles = []
+#Filled with ids of bosses and which comp demon they represent
+BOSS_PLAYER_MAP = {}
 #Encounter IDs that should not be randomized
 BANNED_BOSSES = [0, 7, 32, #Dummy Abbadon, Tutorial Pixie, Tutorial Daemon
                  #33, #Hydra (game hangs when supposed to lose limbs)
@@ -112,13 +122,22 @@ SUMMONED_DEMON_COUNTS = {
     885: 2, # Mandrake
 }
 
+#Bosses whose resistances are not randomized and who need non special sum for checkSum calc
+STANDARD_RESIST_BOSSES = [758,757,597] #Masakado (Both), Tehom
+#Bosses who have stronger weaknesses than normal
+STRONG_WEAKNESS_BOSSES = [940,941,942,943,944,945]#Demifiend Summons (Cerberus946,Jack Frost, Pixie,Girimekhala,Thor,Parvati)
+#Resistances for Lucifer phase 2 since lucifer phase handling does not calculate this, so do it once by hand
+LUCIFER_PHASE_2_RESIST_TOTALS = [5.5, 0]
+
 
 class Boss_Metadata(object):
-    def __init__(self, demons):
+    def __init__(self, demons, id):
+        self.ind = id
         self.summons = [] #List(number)
         self.totalHP = 0
         self.totalEXP = 0
         self.totalMacca = 0
+        self.resistTotals = {} #Holds the resistance sums of demons in the encounter
         self.hpShares = {} #Holds the relative amount of the total HP each demon has 
         self.demons = demons #List(number)
         if demons[0] in BOSS_SUMMONS.keys():
@@ -143,12 +162,16 @@ class Boss_Metadata(object):
         self.totalHP = 0
         self.totalEXP = 0
         self.totalMacca = 0
+        self.resistTotals = {}
         for demon, count in self.countPerDemon.items():
             if demon == 0:
                 continue
             self.totalHP += demonReferenceArr[demon].stats.HP * count
             self.totalEXP += demonReferenceArr[demon].experience * count
             self.totalMacca += demonReferenceArr[demon].money * count
+
+            resistTotalSubDict = calculateResistTotals(demon,demonReferenceArr[demon])
+            self.resistTotals.update(resistTotalSubDict)
         if self.minionType:
             self.totalHP = demonReferenceArr[self.demons[0]].stats.HP * self.countPerDemon[self.demons[0]]
         self.hpPercents = {}
@@ -198,11 +221,16 @@ Balances the stats of boss demons, including summoned adds to their new location
         newEncounter (List(number)): The demons replacing the old encounter
         demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
         bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
-        balancePressTurns (Bool): Whether the press turns of the new encounter should match the old encounter's press turns
+        configSettings (Settings): settings of the current rando run
+        compendium (List(Compendium_Demon)): list of compendium demons
+        playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
 '''
-def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr, oldEncounterID, newEncounterID, balancePressTurns, balanceInstakillRates):
-    oldEncounterData = Boss_Metadata(oldEncounter)
-    newEncounterData = Boss_Metadata(newEncounter)
+def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr, oldEncounterID, newEncounterID, configSettings, compendium, playerBossArr):
+    balancePressTurns = configSettings.scaleBossPressTurnsToCheck
+    balanceInstakillRates = configSettings.scaleBossInstakillRates
+    
+    oldEncounterData = Boss_Metadata(oldEncounter,oldEncounterID)
+    newEncounterData = Boss_Metadata(newEncounter,newEncounterID)
     oldEncounterData.calculateTotals(demonReferenceArr)
     newEncounterData.calculateTotals(demonReferenceArr)
 
@@ -231,12 +259,12 @@ def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr,
         adjustInstakillRatesToCheck(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
     
     if oldEncounterData.minionType and newEncounterData.minionType:
-        balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
+        balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr)
     elif oldEncounterData.partnerType and newEncounterData.partnerType:
-        balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
+        balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr)
     else:
-        balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
-        
+        balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr)
+
 '''
 Balances two boss encoutners that don't meet any special cases like both having minions
 The first demon will give the entirity of the old encounter's exp and macca
@@ -248,14 +276,18 @@ If the old encounter has multiple 'strong' demons, stats for new demons will be 
             newEncounter (List(Boss_Metadata)): The demons replacing the old encounter
             demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
             bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
+            configSettings (Settings): settings of the current rando run
+            compendium (List(Compendium_Demon)): list of compendium demons
+            playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
 '''
-def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
+def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings , compendium, playerBossArr):
     oldHPPool = calculateHPPool(oldEncounterData, newEncounterData)
     newDemons = newEncounterData.getAllUniqueDemonsInEncounter()
     oldDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
     for index, ind in enumerate(newDemons):
         replacementDemon = bossArr[ind]
-        referenceDemon = demonReferenceArr[oldDemons[0]]
+        referenceIndex = oldDemons[0]
+        referenceDemon = demonReferenceArr[referenceIndex]
         if oldEncounterData.partnerType:
             referenceDemon = demonReferenceArr[random.choice(oldDemons)]
         replacementDemon.stats = copy.deepcopy(referenceDemon.stats)
@@ -268,7 +300,13 @@ def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonRefe
             replacementDemon.money = 0
         replacementDemon.level = referenceDemon.level
         replacementDemon.damageMultiplier = referenceDemon.damageMultiplier
+        #TODO: Consider Resist Sum penalty if more demons in new encounter (or bonus if less?)
+        if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
+            replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
+        elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
+            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr) 
         
+
 
 '''
 Balances two boss encounters that feature minions. The main new demon will get its stats from the old main demon
@@ -279,26 +317,38 @@ Minion HP and stats will be taken from random old minions
             newEncounter (List(Boss_Metadata)): The demons replacing the old encounter
             demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
             bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
+            configSettings (Settings): settings of the current rando run
+            compendium (List(Compendium_Demon)): list of compendium demons
+            playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
 '''
-def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
+def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings: Settings, compendium, playerBossArr):
     newDemons = newEncounterData.getAllUniqueDemonsInEncounter()
     oldDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
-    shuffledMinions = [0] + sorted(oldDemons[1:], key=lambda x: random.random())
-    while len(shuffledMinions) < len(newDemons):
-        shuffledMinions = shuffledMinions + sorted(oldDemons[1:], key=lambda x: random.random())
+    if oldEncounterData.ind != newEncounterData.ind:
+        shuffledMinions = [0] + sorted(oldDemons[1:], key=lambda x: random.random())
+        while len(shuffledMinions) < len(newDemons):
+            shuffledMinions = shuffledMinions + sorted(oldDemons[1:], key=lambda x: random.random())
+    else:
+        shuffledMinions = [0] + copy.deepcopy(oldDemons[1:])
     for index, ind in enumerate(newDemons):
         replacementDemon = bossArr[ind]
         if index == 0:
-            referenceDemon = demonReferenceArr[oldDemons[0]]
+            referenceIndex = oldDemons[0]
+            referenceDemon = demonReferenceArr[referenceIndex]
             replacementDemon.experience = oldEncounterData.totalEXP // newEncounterData.countPerDemon[ind]
             replacementDemon.money = oldEncounterData.totalMacca // newEncounterData.countPerDemon[ind]
         else:
-            referenceDemon = demonReferenceArr[shuffledMinions[index]]
+            referenceIndex = shuffledMinions[index]
+            referenceDemon = demonReferenceArr[referenceIndex]
             replacementDemon.experience = 0
             replacementDemon.money = 0
         replacementDemon.stats = copy.deepcopy(referenceDemon.stats)
         replacementDemon.level = referenceDemon.level
         replacementDemon.damageMultiplier = referenceDemon.damageMultiplier
+        if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
+            replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
+        elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
+            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr) 
         
 
 '''
@@ -310,19 +360,26 @@ If the number of demons is equal between the two encounters, HP will be transfer
             newEncounter (List(Boss_Metadata)): The demons replacing the old encounter
             demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
             bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
+            configSettings (Settings): settings of the current rando run
+            compendium (List(Compendium_Demon)): list of compendium demons
+            playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
 '''
-def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
+def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr):
     oldHPPool = calculateHPPool(oldEncounterData, newEncounterData)
     newDemons = newEncounterData.getAllUniqueDemonsInEncounter()
     oldDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
     if len(newDemons) != len(oldDemons):
         oldHPPool = oldHPPool // len(newDemons)
-    shuffledOldDemons = sorted(oldDemons[1:], key=lambda x: random.random())
-    while len(shuffledOldDemons) < len(newDemons):
-        shuffledOldDemons = shuffledOldDemons + sorted(oldDemons[1:], key=lambda x: random.random())
+    if oldEncounterData.ind != newEncounterData.ind:
+        shuffledOldDemons = sorted(oldDemons[0:], key=lambda x: random.random())
+        while len(shuffledOldDemons) < len(newDemons):
+            shuffledOldDemons = shuffledOldDemons + sorted(oldDemons[1:], key=lambda x: random.random())
+    else:
+        shuffledOldDemons = copy.deepcopy(oldDemons)
     for index, ind in enumerate(newDemons):
         replacementDemon = bossArr[ind]
-        referenceDemon = demonReferenceArr[shuffledOldDemons[index]]
+        referenceIndex = shuffledOldDemons[index]
+        referenceDemon = demonReferenceArr[referenceIndex]
         if index == 0:
             replacementDemon.experience = oldEncounterData.totalEXP // newEncounterData.countPerDemon[ind]
             replacementDemon.money = oldEncounterData.totalMacca // newEncounterData.countPerDemon[ind]
@@ -336,6 +393,10 @@ def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceAr
             replacementDemon.stats.HP = round(oldHPPool * newEncounterData.hpPercents[ind] / newEncounterData.countPerDemon[ind])
         replacementDemon.level = referenceDemon.level
         replacementDemon.damageMultiplier = referenceDemon.damageMultiplier
+        if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
+            replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
+        elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
+            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr) 
         
 '''
 Calculates a modified HP Pool for a replacement boss encounter to use based on the total HP of the old encounter's demons and the number of demons in each encounter
@@ -374,8 +435,10 @@ True Lucifer's phase 2 and phase 3 versions need to be synced as well, and their
     Parameters:
         bossArr (List(Enemy_Demon)): The list of boss demons to patch
         configSettings (Settings): Settings determining what types of bosses were randomized
+        compendium (List(Compendium_Demon)): list of compendium demons
+        playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
 '''
-def patchSpecialBossDemons(bossArr, configSettings):
+def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr):
     for base, duplicates in REVIVED_DEMON_DUPLICATE_MAP.items():
         referenceDemon = bossArr[base]
         for duplicate in duplicates:
@@ -383,6 +446,7 @@ def patchSpecialBossDemons(bossArr, configSettings):
             demonToPatch.stats = copy.deepcopy(referenceDemon.stats)
             demonToPatch.pressTurns = referenceDemon.pressTurns
             demonToPatch.instakillRate = referenceDemon.instakillRate
+            demonToPatch.resist = referenceDemon.resist
     if configSettings.randomizeLucifer:
         luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
         luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
@@ -402,6 +466,13 @@ def patchSpecialBossDemons(bossArr, configSettings):
         luciferPhase3.damageMultiplier = luciferPhase1.damageMultiplier
         luciferPhase2.level = luciferPhase1.level
         luciferPhase3.level = luciferPhase1.level
+        luciferPhase3.resist = luciferPhase1.resist
+        
+        if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
+            luciferPhase2.resist = randomizeBossResistances(luciferPhase2, copy.deepcopy(luciferPhase1),LUCIFER_PHASE_2_RESIST_TOTALS,configSettings, compendium, playerBossArr)
+        elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
+            resistTotalSubDict = calculateResistTotals(LUCIFER_PHASES[2],luciferPhase2)
+            luciferPhase2.resist = randomizeBossResistances(luciferPhase2,copy.deepcopy(luciferPhase1),resistTotalSubDict[LUCIFER_PHASES[2]],configSettings, compendium, playerBossArr)       
     
 
 '''
@@ -417,7 +488,7 @@ TODO: Handle duplicate Abscesses
         A List of lists containing deep copied Mixed Boss Encounters to randomize
 '''
 def createBossEncounterPools(eventEncountArr, encountArr, uniqueSymbolArr, abscessArr, bossDuplicateMap, configSettings):
-    bossPools = []
+    bossPools = {}
     mixedPool = []
     abscessPool = []
     punishingPool = []
@@ -448,25 +519,35 @@ def createBossEncounterPools(eventEncountArr, encountArr, uniqueSymbolArr, absce
     if configSettings.mixedRandomizeNormalBosses:
         mixedPool = mixedPool + normalPool
     elif configSettings.selfRandomizeNormalBosses:
-        bossPools.append(normalPool)
+        bossPools.update({"Random Normal":normalPool})
+    else:
+        bossPools.update({"Vanilla Normal":normalPool})
     if configSettings.mixedRandomizeSuperbosses:
         mixedPool = mixedPool + superbossPool
     elif configSettings.selfRandomizeSuperbosses:
-        bossPools.append(superbossPool)
+        bossPools.update({"Random Superboss":superbossPool})
+    else:
+        bossPools.update({"Vanilla Superboss":superbossPool})
     if configSettings.mixedRandomizeAbscessBosses:
         mixedPool = mixedPool + abscessPool
     elif configSettings.selfRandomizeAbscessBosses:
-        bossPools.append(abscessPool)   
+        bossPools.update({"Random Abcess":abscessPool})
+    else:
+        bossPools.update({"Vanilla Abcess":abscessPool})   
     if configSettings.mixedRandomizeOverworldBosses:
         mixedPool = mixedPool + punishingPool
     elif configSettings.selfRandomizeOverworldBosses:
-        bossPools.append(punishingPool)
+        bossPools.update({"Random Punishing":punishingPool})
+    else:
+        bossPools.update({"Vanilla Punishing":punishingPool})
     if configSettings.mixedRandomizeMinibosses:
         mixedPool = mixedPool + minibossPool
     elif configSettings.selfRandomizeMinibosses:
-        bossPools.append(minibossPool)
+        bossPools.update({"Random Mini":minibossPool})
+    else:
+        bossPools.update({"Vanilla Mini":minibossPool})
     if mixedPool:
-        bossPools.append(mixedPool)
+        bossPools.update({"Mixed": mixedPool})
     return formatBossPools(bossPools)
 
 
@@ -478,12 +559,12 @@ Converts the mixed normal and event encounter boss pools to a single format of M
        The formatted List of List of Mixed_Boss_Encounter
 '''
 def formatBossPools(bossPools):
-    formattedBossPools = []
-    for pool in bossPools:
+    formattedBossPools = {}
+    for name,pool in bossPools.items():
         formattedPool = []
         for boss in pool:
             formattedPool.append(formatBossEncounter(boss))
-        formattedBossPools.append(formattedPool)
+        formattedBossPools.update({name:formattedPool})
     return formattedBossPools
 
 '''
@@ -648,3 +729,341 @@ def adjustInstakillRatesToCheck(oldEncounterData, newEncounterData, demonReferen
             newRate = max(min(bossArr[newEncounterData.demons[0]].instakillRate + diff, 100), 0)
             bossArr[demonID].instakillRate = newRate
         #print("Instakill rate went from " + str(demonReferenceArr[demonID].instakillRate) + " to " + str(bossArr[demonID].instakillRate))
+'''
+Randomizes the resistance profiles of a boss. The process attempts to follow base game distribution of resistances and elemnents.
+A resistance profile of a boss either tries to match the actual boss or the check it replaces in their sum of resistances.
+The outcome is changed depending on what resistance settings are chosen. 
+    Parameters: 
+        replacementDemon(Enemy_Demon): the demon the resistances are chosen for
+        referenceDemon(Enemy_Demon): The demon that is being replaced
+        checkSums(List(Number)): list of two numbers, first being the sum for elemental resists, second for ailment resists
+        configSettings(Settings): settings to use to modify how resistances are randomized
+        compendium (List(Compendium_Demon)): list of compendium demons, used to reference player version of boss
+        playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons, used to reference player version of boss
+    Returns: a resistance profile for the replacement demon to use
+'''
+def randomizeBossResistances(replacementDemon, referenceDemon, checkSums, configSettings: Settings, compendium, playerBossArr):
+    if replacementDemon.ind in STANDARD_RESIST_BOSSES:
+        return replacementDemon.resist
+    if configSettings.playerResistSync:
+        if len(BOSS_PLAYER_MAP) == 0:
+            #initialize boss player map if needed
+            df = pd.read_csv(paths.BOSS_PLAYER_NAMES)
+        
+            for _ , row in df.iterrows():
+                boss_id = row['BossID']
+                comp_id = row['CompID']
+                BOSS_PLAYER_MAP[boss_id] = comp_id
+        if replacementDemon.ind in BOSS_PLAYER_MAP.keys():
+            if BOSS_PLAYER_MAP[replacementDemon.ind] > len(compendium):
+                return playerBossArr[BOSS_PLAYER_MAP[replacementDemon.ind]].resist
+            return compendium[BOSS_PLAYER_MAP[replacementDemon.ind]].resist
+    
+    if len(TOTAL_BOSS_RESIST_MAP) == 0:
+        #initialize TOTAL_BOSS_RESIST_MAP if needed
+        TOTAL_BOSS_RESIST_MAP["count"] = 0
+        for element in ["physical"] + numbers.ELEMENT_RESIST_NAMES:
+            valueDict = {}
+            for simpleValue in numbers.SIMPLE_RESIST_VALUES:
+                valueDict.update({simpleValue: 0})
+            TOTAL_BOSS_RESIST_MAP.update({element: valueDict})
+        for ailment in numbers.AILMENT_NAMES:
+            valueDict = {}
+            for simpleValue in numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys():
+                valueDict.update({simpleValue: 0})
+            TOTAL_BOSS_RESIST_MAP.update({ailment: valueDict})
+                
+
+
+    
+
+    if not configSettings.scaleResistToCheck:
+        physWeights = copy.deepcopy(numbers.BOSS_PHYS_RESIST_DISTRIBUTION[0])
+    else:
+        physWeights = copy.deepcopy(numbers.BOSS_PHYS_RESIST_DISTRIBUTION[math.ceil(replacementDemon.level / 10)])
+
+    
+    validPhysResist = False
+    while not validPhysResist: #reroll phys resist to be valid with diverseResists if enabled
+        physResist = random.choices(numbers.SIMPLE_RESIST_VALUES,physWeights)[0]
+        if configSettings.diverseBossResists and physResist != 1 and TOTAL_BOSS_RESIST_MAP["physical"].get(physResist) > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
+            validPhysResist =False
+        else:
+            validPhysResist = True
+    chosenResists = [1,1,1,1,1,1] #the element resist results will be saved here
+    alreadyChosen = set() #will contain elements that have already been assigned
+    
+    allowedRange = 1.5
+
+    baselineSum = checkSums[0]
+    currentSum = sum(chosenResists) + physResist * 1.5
+    minRuns = 3
+    while len(alreadyChosen) < len(numbers.ELEMENT_RESIST_NAMES) and (len(alreadyChosen) <= minRuns or baselineSum - allowedRange < currentSum < baselineSum + allowedRange):
+        elementResistWeights = [] #these weights will be used to calculate which resist value is used
+        
+        #these weights are used to decide the elements based on the not already chosen ones
+        elementWeights = [1 if numbers.ELEMENT_RESIST_NAMES[index] not in alreadyChosen else 0 for index,v in enumerate(chosenResists) ]
+        element = random.choices(numbers.ELEMENT_RESIST_NAMES,elementWeights)[0]
+        alreadyChosen.add(element)
+        
+        if configSettings.scaleResistToCheck:
+            if element == "dark" or "light":
+                elementResistWeights = copy.deepcopy(numbers.BOSS_LD_RESIST_DISTRIBUTION[math.ceil(replacementDemon.level / 10)])
+            else:
+                elementResistWeights = copy.deepcopy(numbers.BOSS_FIEF_RESIST_DISTRIBUTION[math.ceil(replacementDemon.level / 10)])
+        else:
+            if element == "dark" or "light":
+                elementResistWeights = copy.deepcopy(numbers.BOSS_LD_RESIST_DISTRIBUTION[0])
+            else:
+                elementResistWeights = copy.deepcopy(numbers.BOSS_FIEF_RESIST_DISTRIBUTION[0])
+        
+        
+        if configSettings.diverseBossResists:
+            for index, value in enumerate(TOTAL_BOSS_RESIST_MAP[element].values()):
+                if 1 +value > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR and index != 4:# neutral resists are not subject to diverseResist setting
+                    elementResistWeights[index] /= 2
+        
+        elementResist = random.choices(numbers.SIMPLE_RESIST_VALUES,elementResistWeights)[0]
+        chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = elementResist
+        currentSum = sum(chosenResists) + physResist * 1.5
+        
+    ailmentResists = [] #the ailment resist results will be saved here
+    for _ in numbers.AILMENT_NAMES:
+        ailmentResists.append(1)
+    alreadyChosen = set()
+
+    #ailments count half because they are should be worth less than elemental ones
+    currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists)/2
+    minRuns = 3
+    baselineSum += checkSums[1]
+    while len(alreadyChosen) < len(numbers.AILMENT_NAMES) and (len(alreadyChosen) <= minRuns or baselineSum - allowedRange < currentSum < baselineSum + allowedRange):
+        ailmentResistWeights = []
+        ailmentWeights = [1 if numbers.AILMENT_NAMES[index] not in alreadyChosen else 0 for index,v in enumerate(ailmentResists) ]
+        ailment = random.choices(numbers.AILMENT_NAMES,ailmentWeights)[0]
+        alreadyChosen.add(ailment)
+
+        if configSettings.scaleResistToCheck:
+            ailmentResistWeights = copy.deepcopy(numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[math.ceil(replacementDemon.level / 10)])
+        else:
+            ailmentResistWeights = copy.deepcopy(numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[0])
+        
+        if configSettings.diverseBossResists:
+            for index, value in enumerate(TOTAL_BOSS_RESIST_MAP[ailment].values()):
+                if 1 +value > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR and index != 4:
+                    ailmentResistWeights[index] /= 2
+
+        ailmentResist = random.choices(list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys()),ailmentResistWeights)[0]
+        ailmentResists[numbers.AILMENT_NAMES.index(ailment)] = ailmentResist
+        currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists)/2
+    
+    attempts = 100
+    #try to make sum fit into range limits, to achieve somewhat balanced resist profiles
+    while currentSum < baselineSum - allowedRange or currentSum > baselineSum + allowedRange:
+        attempts -= 1
+        if attempts <= 0:
+            print("Something went wrong in resist rando at level " + str(replacementDemon.level) + "for demon " + str(replacementDemon.name))
+            break
+        if currentSum < baselineSum - allowedRange:
+            #add weaknesses/ make resist worse, Increase value
+            
+            randomTypes = {}
+            # types that only have weaknesses cannot be added, since no value to increase
+            if chosenResists.count(1.5) != len(chosenResists):
+                randomTypes.update({"Elements" : (numbers.BOSS_FIEF_RESIST_DISTRIBUTION[0][5] + numbers.BOSS_LD_RESIST_DISTRIBUTION[0][5])/2})
+            if ailmentResists.count(1.5) != len(ailmentResists):
+                randomTypes.update({"Ailments" : numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[0][-1]})
+            if len(randomTypes) == 0: #not checking for phys weakness here, since physWeak would make it highly likely for this occur anyway
+                randomTypes.update({"Physical": numbers.BOSS_PHYS_RESIST_DISTRIBUTION[0][5]})
+            if physResist == -1.5 and ailmentResists.count(1.5) != len(ailmentResists): #if phys is a drain add ailments with higher weights to reduce cases where most elements are weaknesses
+                randomTypes.update({"Ailments" : numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[0][-1]* 2} )
+            changeType = random.choices(list(randomTypes.keys()), list(randomTypes.values()))[0]
+
+            if changeType == "Ailments":
+                #weaks cannot be increased further
+                chooseAilmentWeights = [0 if r == 1.5 else 10 for r in ailmentResists]
+                ailment = random.choices(numbers.AILMENT_NAMES,chooseAilmentWeights)[0]
+                ailmentResist = ailmentResists[numbers.AILMENT_NAMES.index(ailment)]
+                resistIndex = min(len(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys())-1,list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys()).index(ailmentResist)  +1)
+                ailmentResists[numbers.AILMENT_NAMES.index(ailment)] = list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys())[resistIndex]
+            elif changeType == "Physical":
+                element = "physical"
+                resistIndex = min(len(numbers.SIMPLE_RESIST_VALUES)-1,numbers.SIMPLE_RESIST_VALUES.index(physResist)  +1)
+                if configSettings.diverseBossResists:
+                    
+                    while resistIndex +1 < len(numbers.SIMPLE_RESIST_VALUES):
+                        if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                            if TOTAL_BOSS_RESIST_MAP[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
+                                resistIndex += 1
+                            else:
+                                break
+                        else:
+                            break
+                physResist = numbers.SIMPLE_RESIST_VALUES[resistIndex]        
+            else:
+                chooseElementWeights = [0 if r == 1.5 else 10 for r in chosenResists]
+                element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                elementResist = chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)]
+                resistIndex = min(len(numbers.SIMPLE_RESIST_VALUES)-1,numbers.SIMPLE_RESIST_VALUES.index(elementResist)  +1)
+                # Avoid overpopulating resistances if diverseResists is enabled
+                if configSettings.diverseBossResists:
+                    
+                    while resistIndex +1 < len(numbers.SIMPLE_RESIST_VALUES):
+                        if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                            if TOTAL_BOSS_RESIST_MAP[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
+                                resistIndex += 1
+                            else:
+                                break
+                        else:
+                            break
+                chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = numbers.SIMPLE_RESIST_VALUES[resistIndex]          
+        elif currentSum > baselineSum + allowedRange:
+            #add resists/make weakness worse, decrease value
+            randomTypes = {}
+            if chosenResists.count(-1.5) != len(chosenResists):
+                randomTypes.update({"Elements" : (numbers.BOSS_FIEF_RESIST_DISTRIBUTION[0][5] + numbers.BOSS_LD_RESIST_DISTRIBUTION[0][5])/2})
+            if ailmentResists.count(0) != len(ailmentResists): #ailments cannot have repel/drain
+                randomTypes.update({"Ailments" : numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[0][-1]})
+            if len(randomTypes) == 0:
+                randomTypes.update({"Physical": numbers.BOSS_PHYS_RESIST_DISTRIBUTION[0][5]})
+            changeType = random.choices(list(randomTypes.keys()), list(randomTypes.values()))[0]
+
+            if changeType == "Ailments":
+                chooseAilmentWeights = [0 if r == 0 else 10  for r in ailmentResists]
+                ailment = random.choices(numbers.AILMENT_NAMES,chooseAilmentWeights)[0]
+                ailmentResist = ailmentResists[numbers.AILMENT_NAMES.index(ailment)]
+                #ailments cannot have repel/drain
+                resistIndex = max(0,list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys()).index(ailmentResist) -1)
+                #TODO: Diversity?
+                ailmentResists[numbers.AILMENT_NAMES.index(ailment)] =list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys())[resistIndex]
+            elif changeType == "Physical":
+                element = "physical"
+                resistIndex = max(0,numbers.SIMPLE_RESIST_VALUES.index(physResist) -1)
+                if configSettings.diverseBossResists:
+                    while resistIndex -1 > 0:
+                        if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                            if TOTAL_BOSS_RESIST_MAP[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
+                                resistIndex -= 1
+                            else:
+                                break
+                        else:
+                            break
+
+                physResist = numbers.SIMPLE_RESIST_VALUES[resistIndex ]
+            else:
+                chooseElementWeights = [0 if r == -1.5 else 10  for r in chosenResists]
+                element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                elementResist = chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)]
+                resistIndex = max(0,numbers.SIMPLE_RESIST_VALUES.index(elementResist) -1)
+                if configSettings.diverseBossResists:
+                    while resistIndex -1 > 0:
+                        if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                            if TOTAL_BOSS_RESIST_MAP[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
+                                resistIndex -= 1
+                            else:
+                                break
+                        else:
+                            break
+
+                chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = numbers.SIMPLE_RESIST_VALUES[resistIndex ]
+        currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists) / 2 
+
+    allChosenResists = [physResist] + chosenResists
+    
+    if configSettings.consistentWeakCount:
+        ogWeakCount = 0
+        
+        for attr in vars(countDemon.resist):
+            if attr not in numbers.AILMENT_NAMES and 100 < getattr(countDemon.resist, attr, None).value < 900:
+                ogWeakCount += 1
+        if configSettings.scaleResistToCheck:
+            countDemon = referenceDemon
+        else:
+            countDemon = replacementDemon
+        
+        if countDemon.ind in STANDARD_RESIST_BOSSES:
+            ogWeakCount /= 2
+        
+        oldChosenResists = copy.deepcopy(chosenResists)
+        
+        while(allChosenResists.count(1.5) < ogWeakCount):
+            chooseElementWeights = [0 if r == 1.5 else r + 3 for r in chosenResists]
+            if sum(chooseElementWeights) == 0: #Essentially should only happen for Masakado
+                ogWeakCount /= 2
+                chosenResists = oldChosenResists
+            else:
+                element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 1.5
+            allChosenResists = [physResist] + chosenResists
+
+
+
+        # weakAdded = False
+        # if not any(1.5 == r for r in allChosenResists): #Add random weakness
+        #     chooseElementWeights = [r + 3 for r in chosenResists] #neutrals have highest chance to become weak, drains the lowest
+        #     element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+        #     chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 1.5
+        #     allChosenResists = [physResist] + chosenResists
+        #     weakAdded = True
+        # if not any(r < 1 for r in allChosenResists): #Add random resistance for element that is not random weakness if it was added
+        #     weaknessCount = allChosenResists.count(1.5)
+        #     #null out weaknesses if there is only one, and prevent overwriting the potentially previously added one
+        #     chooseElementWeights = [ 0 if (weaknessCount < 2 and r==1.5 ) or (weakAdded and index == numbers.ELEMENT_RESIST_NAMES.index(element))else -(r - 3) for index,r in enumerate(chosenResists)]
+        #     element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+        #     chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 0.5
+        #     allChosenResists = [physResist] + chosenResists
+
+
+
+    #Apply resist to demon and increase values in totalResistMap
+    referenceDemon.resist.physical = Translated_Value(numbers.SIMPLE_RESIST_RESULTS[physResist],translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[physResist]))
+    TOTAL_BOSS_RESIST_MAP["physical"][physResist] += +1
+
+    for index, element in enumerate(numbers.ELEMENT_RESIST_NAMES):
+        TOTAL_BOSS_RESIST_MAP[element][chosenResists[index]] += 1
+        value = numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]]
+        if replacementDemon.ind in STRONG_WEAKNESS_BOSSES and value == 1.5:
+            value *= 2
+        referenceDemon.resist.__setattr__(element,Translated_Value(value,translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]])))
+    resistProfiles.append([physResist] + chosenResists + ailmentResists)
+    for index, ailment in enumerate(numbers.AILMENT_NAMES):
+        TOTAL_BOSS_RESIST_MAP[ailment][ailmentResists[index]] += 1
+        referenceDemon.resist.__setattr__(ailment,Translated_Value(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS[ailmentResists[index]],translation.translateResist(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS[ailmentResists[index]])))    
+    #print(replacementDemon.name +" "+ str(replacementDemon.level) + ": " + str(checkSums) + "-> " + str(currentSum) + " from " + str(referenceDemon.name))
+    return referenceDemon.resist   
+
+'''
+Calculates the resistance total values for elemental and ailment resists for a boss.
+    Parameters:
+        demonID(Number): id of the demon
+        demon(Enemy_Demon): the boss in question
+    Returns a dictionary with demonID: [elementalSum, ailementSum]
+'''
+def calculateResistTotals(demonID, demon):
+    elements = 0
+    resistValue = demon.resist.physical.value
+    if resistValue not in list(numbers.SIMPLE_RESIST_RESULTS.values()):
+        elements += resistValue / 100
+    else:
+        elements += list(numbers.SIMPLE_RESIST_RESULTS.keys())[list(numbers.SIMPLE_RESIST_RESULTS.values()).index(resistValue)]
+    elements = elements* 1.5
+    ailments = 0
+    for element in numbers.ELEMENT_RESIST_NAMES:
+        resistValue = demon.resist.__getattribute__(element).value
+        if resistValue not in list(numbers.SIMPLE_RESIST_RESULTS.values()):
+            if(demonID in STANDARD_RESIST_BOSSES or demonID in STRONG_WEAKNESS_BOSSES) and resistValue == 300:
+                simple =  resistValue / 300
+            else:
+                simple = resistValue / 100
+        else:
+            simple = list(numbers.SIMPLE_RESIST_RESULTS.keys())[list(numbers.SIMPLE_RESIST_RESULTS.values()).index(resistValue)]
+        elements += simple
+    for ailment in numbers.AILMENT_NAMES:
+        resistValue = demon.resist.__getattribute__(ailment).value
+        if resistValue not in list(numbers.SIMPLE_RESIST_RESULTS.values()):
+            simple = resistValue / 100
+        else:
+            simple = list(numbers.SIMPLE_RESIST_RESULTS.keys())[list(numbers.SIMPLE_RESIST_RESULTS.values()).index(resistValue)]
+        ailments += simple
+    ailments /= 2
+    return {demonID: [elements,ailments]}
+                    
