@@ -2,6 +2,11 @@ from base_classes.uasset_custom import UAsset_Custom
 from util.binary_table import Table
 from script_logic import readBinaryTable, writeBinaryTable, writeFolder
 from .file_lists import General_UAsset
+import re
+import pandas as pd
+
+CUE_BASE_PATH = '/Game/Sound/CueSheet/Devil/Devil_vo/'
+DEMON_ID_OF_CUE_REGEX = '(?<=dev)(.*)(?=_vo)'
 
 class Demon_Sync:
     def __init__(self,ind, sync=None, nameVariant=None):
@@ -27,6 +32,24 @@ class Message():
         self.pageDataCount = None
         self.pageCount = None
 
+'''
+Constructs a filepath to a cue using a demon filename ID. Path differs based on where in the uasset json the file path should go
+    Parameters:
+        demonID (string): the ID to find the folder from in 3-digit string form
+        demonFilenames (dict): keys(string) - numerical filename IDs. values(string) - demon name in the files
+        voice (string): The specific voice file to pull. If none, returns the demonID folder path instead
+        isNameMap (boolean): If false, appends the full voice after the period instead of just the demon ID
+'''
+def getCuePath(demonID, demonFilenames, voice=None, isNameMap = False):
+    folderName = 'dev' + demonID + '_vo_' + demonFilenames[demonID] + '/'
+    path = CUE_BASE_PATH + folderName
+    if voice == None:
+        path = path + 'dev' + demonID + '_vo'
+    elif isNameMap:
+        path = path + voice + '.dev' + demonID + '_vo'
+    else:
+        path = path + voice + '.' + voice
+    return path
 
 class Message_File:
     def __init__(self, fileName, baseFolder, outputFolder):
@@ -109,7 +132,7 @@ class Message_File:
     '''
     Sets this files speaker names to the ones in the passed list.
         Parameters:
-            newNames(List(Bytes)): a list of byte strings that the speaker name with the same index should be set to
+            newNames(List(string)): a list of strings that the speaker name with the same index should be set to
     '''
     def setSpeakerNames(self, newNames):
         currentIndex = 0
@@ -119,16 +142,34 @@ class Message_File:
                 currentIndex += 1
             
     '''
-    Sets this files voices to the ones in the passed list.
+    Sets this files voices and cues to the ones in the passed list.
         Parameters:
-            newVoices(List(Bytes)): a list of byte strings that the voice with the same index should be set to
+            newVoices(List(string)): a list of strings that the voice with the same index should be set to
+            demonFilenames
     '''
-    def setVoices(self, newVoices):
+    def setVoices(self, newVoices, demonFilenames):
         currentIndex = 0
+        demonSet = set()
+        voiceSet = set()
         for message in self.messages:
             for pageData in message.pageDataArray:
-                pageData.voice = newVoices[currentIndex]
-                currentIndex += 1   
+                currentVoice = newVoices[currentIndex]
+                pageData.voice = currentVoice
+                if currentVoice is not None:
+                    voiceSet.add(currentVoice)
+                    demonID = re.search(DEMON_ID_OF_CUE_REGEX, currentVoice).group()
+                    demonSet.add(demonID)
+                    pageData.cue = getCuePath(demonID, demonFilenames, voice=currentVoice)
+                currentIndex += 1
+        json = self.apiUasset.json
+        nameMap = json["NameMap"]
+        nameMap[:] = [x for x in nameMap if not CUE_BASE_PATH in x] #Remove old cues
+        for demonID in demonSet:
+            nameMap.append(getCuePath(demonID, demonFilenames, isNameMap=True))
+        for voiceID in voiceSet:
+            demonID = re.search(DEMON_ID_OF_CUE_REGEX, voiceID).group()
+            nameMap.append(getCuePath(demonID, demonFilenames, voice=voiceID, isNameMap=True))
+
     
     '''
     Writes the data of this message file to both the uexp and uasset, and outputs it to the appropriate rando subfolders.
@@ -148,4 +189,4 @@ class Message_File:
                 table[index]["Value"][2]["Value"][pageIndex]["CultureInvariantString"] = page
                 table[index]["Value"][3]["Value"][pageIndex]["Value"][0]["Value"] = str(message.pageDataArray[pageIndex].name)
                 table[index]["Value"][3]["Value"][pageIndex]["Value"][1]["Value"] = str(message.pageDataArray[pageIndex].voice)
-                #table[index]["Value"][3]["Value"][pageIndex]["Value"][2]["Value"]["AssetPath"]["AssetName"] = message.pageDataArray[pageIndex].cue
+                table[index]["Value"][3]["Value"][pageIndex]["Value"][2]["Value"]["AssetPath"]["AssetName"] = message.pageDataArray[pageIndex].cue
