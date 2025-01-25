@@ -304,7 +304,7 @@ def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonRefe
         if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
-            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr) 
+            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
         
 
 
@@ -348,7 +348,7 @@ def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr,
         if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
-            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr) 
+            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
         
 
 '''
@@ -396,7 +396,7 @@ def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceAr
         if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
-            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr) 
+            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
         
 '''
 Calculates a modified HP Pool for a replacement boss encounter to use based on the total HP of the old encounter's demons and the number of demons in each encounter

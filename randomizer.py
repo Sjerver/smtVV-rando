@@ -6778,6 +6778,7 @@ class Randomizer:
     '''
     Changes the demon navigators to reflect what their respective enemy/boss replacements are
     TODO: Update text and voice
+    TODO: Not related to this function specifically, but Amanozako's model is not updated when you first get her I think, save reload did it though
     '''
     def changeNavigatorDemons(self):
         naviReplacementMap = {}

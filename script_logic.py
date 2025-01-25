@@ -322,20 +322,22 @@ def adjustFirstMimanEventReward(config, itemNames, replacements, essenceArr, scr
     file = scriptFiles.getFile('BP_ShopEvent')
 
     ogEssenceID = 496 #Id for Onmoraki's Essence
-    essenceID = 496 #Start with Onmoraki's Essence and change value later
-    if config.randomizeMimanRewards and not config.scaleItemsToArea:
-        #Grab random essence if item rewards not scaling
-        validEssences = []
-        for itemID, itemName in enumerate(itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-            if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES:
-                validEssences.append(itemID)
-        essenceID = random.choice(validEssences)
-    elif (config.randomDemonLevels or config.randomizeMimanRewards) and config.scaleItemsToArea:
-        #Grab essence for Onmoraki's Replacement
-        demonID = replacements[290]
-        for essence in essenceArr:
-            if essence.demon.value == demonID:
-                essenceID = essence.ind
+    # essenceID = 496 #Start with Onmoraki's Essence and change value later
+    # if config.randomizeMimanRewards and not config.scaleItemsToArea:
+    #     #Grab random essence if item rewards not scaling
+    #     validEssences = []
+    #     for itemID, itemName in enumerate(itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+    #         if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES:
+    #             validEssences.append(itemID)
+    #     essenceID = random.choice(validEssences)
+    # elif (config.randomDemonLevels or config.randomizeMimanRewards) and config.scaleItemsToArea:
+    #     #Grab essence for Onmoraki's Replacement
+    #     demonID = replacements[290]
+    #     for essence in essenceArr:
+    #         if essence.demon.value == demonID:
+    #             essenceID = essence.ind
+    #TODO: What are we doing with actual return pillar spawn?
+    essenceID = 70 #Return Pillar
 
     updateItemRewardInScript(file, ogEssenceID, essenceID, 'BP_ShopEvent')
     scriptFiles.setFile('BP_ShopEvent',file)
