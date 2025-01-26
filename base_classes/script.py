@@ -147,8 +147,8 @@ class Bytecode:
                 
                 if foundExp:
                     break
-
-
+            if not foundExp:
+                index = None
             #Also occurs if lines are already moved around or replaced
             #print("Nested in another expression")
             #return None
@@ -181,3 +181,11 @@ class Bytecode:
                     self.json.insert(index +1,exp)
         except ValueError:
             print("Nested in another expression")
+
+class Serialized_Bytecode_Expression:
+    def __init__(self,exp, currentSI, nextSI, imp):
+        self.exp = exp
+        self.currentStatementIndex = 0
+        self.nextStatementIndex = 0
+        self.statementLength = nextSI - currentSI
+        self.imp = imp
