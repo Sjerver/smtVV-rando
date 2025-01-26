@@ -215,7 +215,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2420': [Demon_Sync(1, 681), Demon_Sync(760), Demon_Sync(537), Demon_Sync(250, 596)], #Satan Quest (Satan, Samael, Lucifer, Mastema)
     'mm_em2460': [Demon_Sync(77, 892)], #Mara Quest (Mara)
     'mm_em2470': [Demon_Sync(175, 754, nameVariant='TURBO GRANNY')], #Turbo Granny Quest (Turbo Granny)
-    'mm_em2490': [Demon_Sync(122)], #Hare of Inaba 2 Quest (Xiezhai) TODO: Replace Puncture Punch with updated skill
+    'mm_em2490': [Demon_Sync(122)], #Hare of Inaba 2 Quest (Xiezhai)
     'mm_em2500': [Demon_Sync(215), Demon_Sync(122), Demon_Sync(214)], #Hare of Inaba 3 Quest (Okuninushi, Xiezhai, Sukona Hikona for fun)
     'mm_em2530': [Demon_Sync(141, 751, nameVariant='DORMARTH')], #Dormarth Quest (Dormarth)
     'mm_em2540': [Demon_Sync(291, 891)], #Gurulu Quest (Gurulu)
@@ -826,8 +826,8 @@ SPECIAL_SPEAKER_IDS = {
     465: 512, # Yakumos
     567: 512,
     578: 506, # Dazai
-    601: 25, #Abcess Jack Frost (Jack Frost is also Dummy Name)
-    25: 25, # Normal Jack Frost
+    601: 58, #Abcess Jack Frost (Jack Frost is also Dummy Name)
+    58: 58, # Normal Jack Frost
     526: 511, #Depraved Arm (or Wing) use Abdiel Name
     597: 404, #Tehom
     391: 391, #Lilith otherwise defaults to old lilith
@@ -841,9 +841,10 @@ SPECIAL_VOICE_IDS = {
     564: 240,
     577: 264,
     578: 578, # Dazai
-    601: 25, #Abcess Jack Frost (Jack Frost is also Dummy Name)
-    25: 25, # Normal Jack Frost
-    526: 240, #Depraved Arm (or Wing) use Abdiel Name
+    601: 58, #Abcess Jack Frost (Jack Frost is also Dummy Name)
+    58: 58, # Normal Jack Frost
+    526: 525, #Depraved Arm (or Wing) use Abdiel Voice
+    527: 525,
     391: 391, #Lilith otherwise defaults to old lilith
     569: 391,
     934: 934, #Demi-Fiend has an incorrect earlier version
@@ -852,8 +853,17 @@ SPECIAL_VOICE_IDS = {
     435: 197, #Nuwas
     520: 520,
     550: 75,
+    521: 520, #Thunder bits should use Nuwa voice
+    522: 520,
+    523: 520,
+    524: 520,
     529: 529, #Trancendent Lucifers
-    537: 529
+    537: 529,
+    593: 565, #Tiamat heads should use Tiamat voice
+    594: 565,
+    595: 565,
+    424: 236, #Lahmu's tentacle should use Lahmu voice
+    558: 236,
 }
 
 
@@ -1065,7 +1075,9 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, ran
             speakerNames = file.getSpeakerNames();
             originalSpeakerNames = copy.deepcopy(speakerNames)
             updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
-            
+            voices = file.getVoices()
+            originalVoices = copy.deepcopy(voices)
+            updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
             if missionEvent in MISSION_CHECKS_ORIGINAL_IDS.keys():
                 hints = MISSION_CHECKS_ORIGINAL_IDS[missionEvent]
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
@@ -1073,6 +1085,7 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, ran
                 updateSkillNameInFile(missionText, brawnyAmbitions2SkillName)
             file.setMessageStrings(missionText)
             file.setSpeakerNames(speakerNames)
+            file.setVoices(voices, DEMON_FILENAMES)
             file.writeToFiles()
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
@@ -1106,12 +1119,16 @@ def updateEventMessages(encounterReplacements, bossReplacements, demonNames, ran
             speakerNames = file.getSpeakerNames();
             originalSpeakerNames = copy.deepcopy(speakerNames)
             updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
+            voices = file.getVoices()
+            originalVoices = copy.deepcopy(voices)
+            updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
             if missionEvent in EVENT_CHECKS_ORIGINAL_IDS.keys():
                 hints = EVENT_CHECKS_ORIGINAL_IDS[missionEvent]
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
             
             file.setMessageStrings(missionText)
             file.setSpeakerNames(speakerNames)
+            file.setVoices(voices, DEMON_FILENAMES)
             file.writeToFiles()
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
@@ -1250,6 +1267,38 @@ def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, enc
         for index, name in enumerate(speakerNames): #for every text box name
             if str(originalDemonID) == originalSpeakerNames[index]:
                 speakerNames[index] = str(replacementID)
+
+'''
+Update the mention of text box speaker names in a single event message file
+    Parameters:
+        voices(List(String)): List of all voices in the file to update
+        originalVoices(List(String)): Unchanging version of the voices to find original demon ids to replace
+        syncDemons(List(Demon_Sync)): List of all demons that need to be updated to their replacements
+        encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
+        bossReplacements(Dict): map for which boss replaces which boss
+        demonNames(list(String)): list of demon names
+        randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
+'''
+def updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+    for syncDemon in syncDemons:
+        originalDemonID = syncDemon.ind #id of demon mentioned in text
+        syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
+        if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
+            continue
+        if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
+            try:
+                replacementID = bossReplacements[syncDemonID]
+            except KeyError:
+                continue
+        else: #else it is a boss
+            try:
+                replacementID = encounterReplacements[syncDemonID]
+            except KeyError:
+                continue
+        replacementID = normalVoiceIDForBoss(replacementID, demonNames)
+        for index, voiceID in enumerate(voices): #for every voice
+            if originalVoices[index] != None and 'dev' + str(originalDemonID).zfill(3) + '_vo' in originalVoices[index]:
+                voices[index] = originalVoices[index].replace('dev' + str(originalDemonID).zfill(3) + '_vo', 'dev' + str(replacementID).zfill(3) + '_vo')
 
 '''
 Adds hint messages for checks related to mission events
@@ -1494,8 +1543,7 @@ def normalVoiceIDForBoss(bossID, demonNames):
     if bossID in SPECIAL_VOICE_IDS.keys():
         return DEMON_ID_FILE_ID[SPECIAL_VOICE_IDS[bossID]]
     earliestID = demonNames.index(demonNames[bossID])
-    #if earliestID > 394:
-    #    print(demonNames[earliestID] + " " + str(earliestID))
+    #print("Earliest id of " + str(bossID) + " is " + str(earliestID))
     return DEMON_ID_FILE_ID[earliestID]
 
 '''
@@ -1509,7 +1557,7 @@ def updateSkillNameInFile(missionText, skillName):
 
 '''
 Updates the names of Navigators in their text boxes and the voice lines to match the new demons
-TODO: Update Uasset files to properly change voices
+TODO: Update other navigator related files
     Parameters:
         naviMap (Dict<Int, Int>): keys are the original navigator IDs, values are the replacement demon IDs
 '''
@@ -1559,7 +1607,7 @@ def updateNavigatorVoiceAndText(naviMap, demonNames):
 Reads data about cue file names from the model names csv and fills dictionaries.
 '''
 def initDemonModelData():
-    fileNameMap = pd.read_csv(paths.MODEL_NAMES, dtype=str)
+    fileNameMap = pd.read_csv(paths.VOICE_FILE_NAMES, dtype=str)
     for index, row in fileNameMap.iterrows():
         if type(row['MainDemonID']) is str:
              DEMON_FILENAMES[row['Number']] = row['folderName']
