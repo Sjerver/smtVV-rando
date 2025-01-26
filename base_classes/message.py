@@ -3,10 +3,10 @@ from util.binary_table import Table
 from script_logic import readBinaryTable, writeBinaryTable, writeFolder
 from .file_lists import General_UAsset
 import re
-import pandas as pd
 
 CUE_BASE_PATH = '/Game/Sound/CueSheet/Devil/Devil_vo/'
 DEMON_ID_OF_CUE_REGEX = '(?<=dev)(.*)(?=_vo)'
+SPECIAL_VOICE_TYPES = ['04'] #Voice type numbers that require additional name map data
 
 class Demon_Sync:
     def __init__(self,ind, sync=None, nameVariant=None):
@@ -33,7 +33,7 @@ class Message():
         self.pageCount = None
 
 '''
-Constructs a filepath to a cue using a demon filename ID. Path differs based on where in the uasset json the file path should go
+Constructs one or more filepaths to a cue using a demon filename ID. Path differs based on where in the uasset json the file path should go
     Parameters:
         demonID (string): the ID to find the folder from in 3-digit string form
         demonFilenames (dict): keys(string) - numerical filename IDs. values(string) - demon name in the files
@@ -41,15 +41,21 @@ Constructs a filepath to a cue using a demon filename ID. Path differs based on 
         isNameMap (boolean): If false, appends the full voice after the period instead of just the demon ID
 '''
 def getCuePath(demonID, demonFilenames, voice=None, isNameMap = False):
+    paths = []
     folderName = 'dev' + demonID + '_vo_' + demonFilenames[demonID] + '/'
     path = CUE_BASE_PATH + folderName
     if voice == None:
-        path = path + 'dev' + demonID + '_vo'
+        paths.append(path + 'dev' + demonID + '_vo')
     elif isNameMap:
-        path = path + voice + '.dev' + demonID + '_vo'
+        voiceType = voice[10:]
+        if voiceType in SPECIAL_VOICE_TYPES:
+            paths.append(path + voice)
+            paths.append(path + voice + '.' + voice)
+        else:
+            paths.append(path + voice + '.dev' + demonID + '_vo')
     else:
-        path = path + voice + '.' + voice
-    return path
+        paths.append(path + voice + '.' + voice)
+    return paths
 
 class Message_File:
     def __init__(self, fileName, baseFolder, outputFolder):
@@ -156,19 +162,25 @@ class Message_File:
                 currentVoice = newVoices[currentIndex]
                 pageData.voice = currentVoice
                 if currentVoice is not None:
-                    voiceSet.add(currentVoice)
-                    demonID = re.search(DEMON_ID_OF_CUE_REGEX, currentVoice).group()
-                    demonSet.add(demonID)
-                    pageData.cue = getCuePath(demonID, demonFilenames, voice=currentVoice)
+                    match = re.search(DEMON_ID_OF_CUE_REGEX, currentVoice) #Only update cues and files of demon voices, not event voices
+                    if match:
+                        voiceSet.add(currentVoice)
+                        demonID = match.group()
+                        demonSet.add(demonID)
+                        pageData.cue = getCuePath(demonID, demonFilenames, voice=currentVoice)[0]
                 currentIndex += 1
         json = self.apiUasset.json
         nameMap = json["NameMap"]
-        nameMap[:] = [x for x in nameMap if not CUE_BASE_PATH in x] #Remove old cues
+        nameMap[:] = [x for x in nameMap if not (CUE_BASE_PATH in x and x.endswith("_vo"))] #Remove old cues
+        #print(voiceSet)
         for demonID in demonSet:
-            nameMap.append(getCuePath(demonID, demonFilenames, isNameMap=True))
+            nameMap.append(getCuePath(demonID, demonFilenames, isNameMap=True)[0])
         for voiceID in voiceSet:
             demonID = re.search(DEMON_ID_OF_CUE_REGEX, voiceID).group()
-            nameMap.append(getCuePath(demonID, demonFilenames, voice=voiceID, isNameMap=True))
+            cuePaths = getCuePath(demonID, demonFilenames, voice=voiceID, isNameMap=True)
+            for cuePath in cuePaths:
+                nameMap.append(cuePath)
+        #print(nameMap)
 
     
     '''
