@@ -4229,6 +4229,9 @@ class Randomizer:
                     else:
                         self.encountArr[encounter.ind] = encounter.normalEncounter
                         self.updatedNormalEncounters.append(encounter.ind)
+                        if encounter.ind == bossLogic.ILLUSION_AGRAT_ENCOUNTER: #Illusion Agrat needs the symbol updated so the correct demon spawns on overworld and prevents hard camera issues in battle
+                            mainDemon = encounter.demons[0]
+                            self.encountSymbolArr[bossLogic.ILLUSION_AGRAT_SYMBOL].symbol = Translated_Value(mainDemon, self.playerBossArr[mainDemon].name)
 
                     if shuffledEncounters[index].ind in encountersWithBattleEvents and shuffledEncounters[index].isEvent:
                         if encounter.isEvent:

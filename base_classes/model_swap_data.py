@@ -776,6 +776,7 @@ MODEL_SYNC = {
     524: 520, # Thunder Bit (use Nahobino Nuwa)
     526: 525, # Depraved Arm (use Nahobino Abdiel)
     527: 525, # Depraved Wing (use Nahobino Abdiel)
+    576: 392, # Agrat Illusion
 
 }
 

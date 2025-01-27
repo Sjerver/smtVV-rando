@@ -129,6 +129,11 @@ STRONG_WEAKNESS_BOSSES = [940,941,942,943,944,945]#Demifiend Summons (Cerberus94
 #Resistances for Lucifer phase 2 since lucifer phase handling does not calculate this, so do it once by hand
 LUCIFER_PHASE_2_RESIST_TOTALS = [5.5, 0]
 
+#Symbol Id in the Encounter Table for Illusion Agrat
+ILLUSION_AGRAT_SYMBOL = 1862
+#Encounter ID for Illusion Agrat
+ILLUSION_AGRAT_ENCOUNTER = 2629
+
 
 class Boss_Metadata(object):
     def __init__(self, demons, id):
@@ -516,6 +521,7 @@ def createBossEncounterPools(eventEncountArr, encountArr, uniqueSymbolArr, absce
         normalPool = normalPool + [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in LUCIFER_ENCOUNTERS]
     superbossPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in SUPERBOSS_ENCOUNTERS and index not in bossDuplicateMap.keys()]
     minibossPool = [copy.deepcopy(e) for index, e in enumerate(eventEncountArr) if index in MINIBOSS_ENCOUNTERS]
+    minibossPool = minibossPool + [copy.deepcopy(encountArr[ILLUSION_AGRAT_ENCOUNTER])] #Add shadow agrat encounter to miniboss pool
     if configSettings.mixedRandomizeNormalBosses:
         mixedPool = mixedPool + normalPool
     elif configSettings.selfRandomizeNormalBosses:
