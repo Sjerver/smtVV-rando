@@ -449,8 +449,10 @@ def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr):
         referenceDemon = bossArr[base]
         for duplicate in duplicates:
             demonToPatch = bossArr[duplicate]
+            demonToPatch.level = referenceDemon.level
             demonToPatch.stats = copy.deepcopy(referenceDemon.stats)
             demonToPatch.pressTurns = referenceDemon.pressTurns
+            demonToPatch.damageMultiplier = referenceDemon.damageMultiplier
             demonToPatch.instakillRate = referenceDemon.instakillRate
             demonToPatch.resist = referenceDemon.resist
     if configSettings.randomizeLucifer:
