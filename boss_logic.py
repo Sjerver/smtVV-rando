@@ -18,6 +18,7 @@ BANNED_BOSSES = [0, 7, 32, #Dummy Abbadon, Tutorial Pixie, Tutorial Daemon
                  #33, #Hydra (game hangs when supposed to lose limbs)
                  #57, 58, 59, 60, 63, 64, 65, #School dungeon fights with overlapping demons(Temp)
                  #129, 159, 160, #Mananangal/Incubus overlap with school(Temp), Zhens in gasser sidequest that overlap with each other(Temp)
+                 139,#Unused Lahmu II (presumably planned as Vengeance phase 2)
                  141, #Dummy Eisheth
                  #232, 233, 234, 235, 236, 237 #Area 3 Powers that overlap with each other(Temp)
                  ] 
@@ -101,7 +102,7 @@ BOSS_HP_MODIFIERS = {
 EVENT_ONLY_BOSSES = [6, 39, 69, 138]
 
 #Event Encounter IDs that have DUMMY fights and can be replaced with probelematic demons like True Lucifer
-DUMMY_EVENT_ENCOUNTERS = [141]
+DUMMY_EVENT_ENCOUNTERS = [0,139,141]
 
 # Map of bosses who summon a set number of minions at a time, used to calculate total press turns
 PRESS_TURN_MAX_SUMMONS = {

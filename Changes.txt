@@ -10,12 +10,17 @@ Features:
 * Changed skill scaling to choice between none, level-weights, and level-based
 * Changed setting to force unique skills to force all skills and minimize duplicate assignments
 
+Misc:
+* Return Pillar is now first obtained as the reward for the first miman
+* Added illusion Agrat to miniboss pool
+
 Bugfixes:
 * Lucifer Phase 2/3 level and damage now is updated properly
 * Various Textbox Fixes
 * Fixed Rando Crash that occured if Demon Levels were not randomized but Races were
 * Fixed Rando Crash that occured if item pools were not combinded but gifts were randomized
 * Inspiring Leader is no longer treated as a unique skill
+* Removed unused Lahmu II fight from boss pool
 
 Version 1.03
 Features:
