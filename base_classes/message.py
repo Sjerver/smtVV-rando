@@ -9,12 +9,13 @@ DEMON_ID_OF_CUE_REGEX = '(?<=dev)(.*)(?=_vo)'
 SPECIAL_VOICE_TYPES = ['04'] #Voice type numbers that require additional name map data
 
 class Demon_Sync:
-    def __init__(self,ind, sync=None, nameVariant=None):
+    def __init__(self,ind, sync=None, nameVariant=None, isNavi=False):
         self.ind = ind
         self.sync = ind
         if sync:
             self.sync = sync
         self.nameVariant = nameVariant
+        self.isNavi = isNavi
 
 class Page_Data():
     def __init__(self):

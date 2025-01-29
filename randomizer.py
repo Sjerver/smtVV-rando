@@ -95,6 +95,7 @@ class Randomizer:
         self.scriptFiles = Script_File_List()
         self.mapEventArr = []
         self.navigatorArr = []
+        self.naviReplacementMap = {}
         self.voiceMapFile = General_UAsset("BP_DevilVoiceAssetMap","rando/Project/Content/Sound/DevilVoice/")
         self.nahobino = Nahobino()
         self.totalResistMap = {} #stores all assigned resistances for each element 
@@ -6784,16 +6785,15 @@ class Randomizer:
     TODO: Not related to this function specifically, but Amanozako's model is not updated when you first get her I think, save reload did it though
     '''
     def changeNavigatorDemons(self):
-        naviReplacementMap = {}
         for navi in self.navigatorArr:
             if navi.demonID in numbers.NAVIGATOR_BOSS_MAP.keys():
                 replacementID = self.bossReplacements[numbers.NAVIGATOR_BOSS_MAP[navi.demonID]]
             else:
                 replacementID = self.encounterReplacements[navi.demonID]
             #print("Changing navi " + str(navi.demonID) + " to " + str(replacementID))
-            naviReplacementMap[navi.demonID] = replacementID
+            self.naviReplacementMap[navi.demonID] = replacementID
             navi.demonID = replacementID
-        message_logic.updateNavigatorVoiceAndText(naviReplacementMap, self.enemyNames)
+        message_logic.updateNavigatorVoiceAndText(self.naviReplacementMap, self.enemyNames)
 
     '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
@@ -7287,10 +7287,14 @@ class Randomizer:
             self.applyCheats()
 
         message_logic.initDemonModelData()
+        if self.configSettings.randomizeNavigatorStats:
+            self.randomizeNavigatorAbilities()
+        if self.configSettings.navigatorModelSwap: #Create naviReplacementMap before updating event and mission text
+            self.changeNavigatorDemons()
         message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
-        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel)
-        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName)
+        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap)
+        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
 
         if self.configSettings.swapCutsceneModels:
@@ -7305,10 +7309,7 @@ class Randomizer:
             self.randomizeVoiceSets()
         elif self.configSettings.randomizeVoicesChaos:
             self.randomizeVoiceLines()
-        if self.configSettings.randomizeNavigatorStats:
-            self.randomizeNavigatorAbilities()
-        if self.configSettings.navigatorModelSwap:
-            self.changeNavigatorDemons()
+        
 
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
