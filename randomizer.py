@@ -24,6 +24,7 @@ from util.numbers import RACE_ARRAY
 import util.paths as paths
 import util.translation as translation
 import boss_logic as bossLogic
+import base_classes.message as message
 import math
 import os
 import random
@@ -95,7 +96,9 @@ class Randomizer:
         self.scriptFiles = Script_File_List()
         self.mapEventArr = []
         self.navigatorArr = []
+        self.navigatorVoiceIDs = [] #IDs of demon voices in 3-digit string form that have 13 (navi find) and 14 (navi go) voice lines
         self.naviReplacementMap = {}
+        self.naviParamFile = General_UAsset("NaviDevilParamTable", "rando/Project/Content/Blueprints/Map/Gimic/Daath/")
         self.voiceMapFile = General_UAsset("BP_DevilVoiceAssetMap","rando/Project/Content/Sound/DevilVoice/")
         self.nahobino = Nahobino()
         self.totalResistMap = {} #stores all assigned resistances for each element 
@@ -1344,6 +1347,7 @@ class Randomizer:
             navi.itemType = data.readByte(offset + 4)
             navi.openFlag = data.readHalfword(offset + 8)
             self.navigatorArr.append(navi)
+            self.navigatorVoiceIDs.append(message_logic.normalVoiceIDForBoss(navi.demonID, self.enemyNames).zfill(3))
 
     '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
@@ -6781,18 +6785,58 @@ class Randomizer:
 
     '''
     Changes the demon navigators to reflect what their respective enemy/boss replacements are
-    TODO: Update text and voice
     TODO: Not related to this function specifically, but Amanozako's model is not updated when you first get her I think, save reload did it though
     '''
     def changeNavigatorDemons(self):
+        json = self.naviParamFile.json
+        table = json["Exports"][0]["Table"]["Data"]
+        nameMap = json["NameMap"]
+        mapJson = self.mapSymbolFile.json
+
+        mapTable = mapJson["Exports"][0]["Table"]["Data"]
+        tableIndex = 1 #First navigator entry is dummy data
         for navi in self.navigatorArr:
+            entry = table[tableIndex]
             if navi.demonID in numbers.NAVIGATOR_BOSS_MAP.keys():
                 replacementID = self.bossReplacements[numbers.NAVIGATOR_BOSS_MAP[navi.demonID]]
             else:
                 replacementID = self.encounterReplacements[navi.demonID]
-            #print("Changing navi " + str(navi.demonID) + " to " + str(replacementID))
+            #replacementID = 116 #Fafnir
+            try:
+                mapEntry = copy.deepcopy(next(e for e in mapTable if e["Value"][0]["Value"] == replacementID))
+            except StopIteration:
+                replacementID = self.enemyNames.index(self.enemyNames[replacementID])
+                try:
+                    mapEntry = copy.deepcopy(next(e for e in mapTable if e["Value"][0]["Value"] == replacementID))
+                except StopIteration:
+                    print("WARNING: No valid map table entry for demon ID " + str(replacementID))
+            xCollision = mapEntry["Value"][5]["Value"] #Resize model within a random range of navigator sizes
+            yCollision = mapEntry["Value"][6]["Value"] #Encounter collision isn't a great correlation to model collision but it seems to work well enough
+            zCollision = mapEntry["Value"][7]["Value"]
+            maxCollision = max(xCollision, yCollision, zCollision) #Only consider the largest collision dimension for calculating new model size
+            maxCollision = maxCollision * numbers.BASE_NAVI_MODEL_SCALE_FACTOR / mapEntry["Value"][4]["Value"]
+            targetSize = random.randrange(numbers.MIN_NAVI_SIZE, numbers.MAX_NAVI_SIZE)
+            scaleFactor = targetSize / maxCollision
+            if replacementID in numbers.GIANT_DEMON_MODELS:
+                scaleFactor = scaleFactor / numbers.GIANT_MODEL_SCALE_FACTOR
+            entry["Value"][1]["Value"] = scaleFactor
+            entry["Value"][13]["Value"] = False #Fix issue with small models moving to navi spots on certain navi IDs
+            entry["Value"][14]["Value"] = True
+            entry["Value"][15]["Value"] = 30 
+            entry["Value"][16]["Value"] = 50
+            entry["Value"][17]["Value"] = 100
+            #print(str(scaleFactor) + " for " + str(replacementID) + " to hit target size " + str(targetSize))
+            replacementVoiceID = message_logic.normalVoiceIDForBoss(replacementID, self.enemyNames).zfill(3) #Replace voices
+            nameMap.append(message.getCuePath(replacementVoiceID, message_logic.DEMON_FILENAMES, isNameMap=True)[0])
+            if replacementVoiceID in self.navigatorVoiceIDs:
+                goVoice = "dev" + replacementVoiceID + "_vo_14" #There is also a find voice but that is a common sound effect to all navigators
+            else:
+                goVoice = "dev" + replacementVoiceID + "_vo_23" #Use support skill voice when there is no navigator go voice
+            nameMap.append(message.getCuePath(replacementVoiceID, message_logic.DEMON_FILENAMES, voice=goVoice, isNameMap=True)[0])
+            entry["Value"][3]["Value"]["AssetPath"]["AssetName"] = message.getCuePath(replacementVoiceID, message_logic.DEMON_FILENAMES, voice=goVoice)[0]
             self.naviReplacementMap[navi.demonID] = replacementID
             navi.demonID = replacementID
+            tableIndex += 1
         message_logic.updateNavigatorVoiceAndText(self.naviReplacementMap, self.enemyNames)
 
     '''
@@ -7026,6 +7070,7 @@ class Randomizer:
         eventEncountPostUassetBuffer = readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN)
         mapEventBuffer = readBinaryTable(paths.MAP_EVENT_DATA_IN)
         navigatorBuffer = readBinaryTable(paths.NAVIGATOR_DATA_IN)
+        message_logic.initDemonModelData()
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -7286,7 +7331,8 @@ class Randomizer:
         if DEV_CHEATS:
             self.applyCheats()
 
-        message_logic.initDemonModelData()
+        self.addAdditionalMapSymbols()
+        
         if self.configSettings.randomizeNavigatorStats:
             self.randomizeNavigatorAbilities()
         if self.configSettings.navigatorModelSwap: #Create naviReplacementMap before updating event and mission text
@@ -7301,7 +7347,7 @@ class Randomizer:
             model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings)
 
         self.removeCalcOnlyMapSymbolScales()
-        self.addAdditionalMapSymbols()
+        
         self.patchAdramelechReplacementSize()
         self.adjustPunishingFoeSpeeds()
         self.addEscapeFindLines()
@@ -7399,6 +7445,7 @@ class Randomizer:
         
         self.mapSymbolFile.write()
         self.voiceMapFile.write()
+        self.naviParamFile.write()
         if not testing:
             self.applyUnrealPak()
 

@@ -799,6 +799,13 @@ NAVIGATOR_BOSS_MAP = {
     295: 931 #Cleopatra
 }
 
+MIN_NAVI_SIZE = 60 #Sets the bounds on navigator hitboxes
+MAX_NAVI_SIZE = 175
+
+GIANT_DEMON_MODELS = [565] #List of demon models that need to be shrunk extra as navigators
+GIANT_MODEL_SCALE_FACTOR = 2.5
+BASE_NAVI_MODEL_SCALE_FACTOR = 1.2 #Model size to normalize to before calculating hitboxes
+
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
 '''

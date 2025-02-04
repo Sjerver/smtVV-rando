@@ -856,7 +856,8 @@ SPECIAL_SPEAKER_IDS = {
     526: 511, #Depraved Arm (or Wing) use Abdiel Name
     597: 404, #Tehom
     391: 391, #Lilith otherwise defaults to old lilith
-    569: 391
+    569: 391,
+    565: 496 #Tiamat
 }
 
 #Map of demon ID to voice ID for characters without normal enemy demon counterparts
