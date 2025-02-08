@@ -752,293 +752,302 @@ The outcome is changed depending on what resistance settings are chosen.
     Returns: a resistance profile for the replacement demon to use
 '''
 def randomizeBossResistances(replacementDemon, referenceDemon, checkSums, configSettings: Settings, compendium, playerBossArr):
-    if replacementDemon.ind in STANDARD_RESIST_BOSSES:
-        return replacementDemon.resist
     if configSettings.playerResistSync:
         if len(BOSS_PLAYER_MAP) == 0:
             #initialize boss player map if needed
-            df = pd.read_csv(paths.BOSS_PLAYER_NAMES)
+            df = pd.read_csv(paths.BOSS_PLAYER_MAP)
         
             for _ , row in df.iterrows():
                 boss_id = row['BossID']
                 comp_id = row['CompID']
                 BOSS_PLAYER_MAP[boss_id] = comp_id
-        if replacementDemon.ind in BOSS_PLAYER_MAP.keys():
-            if BOSS_PLAYER_MAP[replacementDemon.ind] > len(compendium):
-                return playerBossArr[BOSS_PLAYER_MAP[replacementDemon.ind]].resist
-            return compendium[BOSS_PLAYER_MAP[replacementDemon.ind]].resist
     
-    if len(TOTAL_BOSS_RESIST_MAP) == 0:
-        #initialize TOTAL_BOSS_RESIST_MAP if needed
-        TOTAL_BOSS_RESIST_MAP["count"] = 0
-        for element in ["physical"] + numbers.ELEMENT_RESIST_NAMES:
-            valueDict = {}
-            for simpleValue in numbers.SIMPLE_RESIST_VALUES:
-                valueDict.update({simpleValue: 0})
-            TOTAL_BOSS_RESIST_MAP.update({element: valueDict})
-        for ailment in numbers.AILMENT_NAMES:
-            valueDict = {}
-            for simpleValue in numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys():
-                valueDict.update({simpleValue: 0})
-            TOTAL_BOSS_RESIST_MAP.update({ailment: valueDict})
-                
-
-
-    
-
-    if not configSettings.scaleResistToCheck:
-        physWeights = copy.deepcopy(numbers.BOSS_PHYS_RESIST_DISTRIBUTION[0])
+    endResist = None
+    if replacementDemon.ind in STANDARD_RESIST_BOSSES:
+        endResist = replacementDemon.resist
+    elif configSettings.playerResistSync and replacementDemon.ind in BOSS_PLAYER_MAP.keys():
+        if BOSS_PLAYER_MAP[replacementDemon.ind] > len(compendium):
+            endResist = playerBossArr[BOSS_PLAYER_MAP[replacementDemon.ind]].resist
+        else:
+            endResist = compendium[BOSS_PLAYER_MAP[replacementDemon.ind]].resist
     else:
-        physWeights = copy.deepcopy(numbers.BOSS_PHYS_RESIST_DISTRIBUTION[math.ceil(replacementDemon.level / 10)])
-
     
-    validPhysResist = False
-    while not validPhysResist: #reroll phys resist to be valid with diverseResists if enabled
-        physResist = random.choices(numbers.SIMPLE_RESIST_VALUES,physWeights)[0]
-        if configSettings.diverseBossResists and physResist != 1 and TOTAL_BOSS_RESIST_MAP["physical"].get(physResist) > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
-            validPhysResist =False
-        else:
-            validPhysResist = True
-    chosenResists = [1,1,1,1,1,1] #the element resist results will be saved here
-    alreadyChosen = set() #will contain elements that have already been assigned
-    
-    allowedRange = 1.5
+        if len(TOTAL_BOSS_RESIST_MAP) == 0:
+            #initialize TOTAL_BOSS_RESIST_MAP if needed
+            TOTAL_BOSS_RESIST_MAP["count"] = 0
+            for element in ["physical"] + numbers.ELEMENT_RESIST_NAMES:
+                valueDict = {}
+                for simpleValue in numbers.SIMPLE_RESIST_VALUES:
+                    valueDict.update({simpleValue: 0})
+                TOTAL_BOSS_RESIST_MAP.update({element: valueDict})
+            for ailment in numbers.AILMENT_NAMES:
+                valueDict = {}
+                for simpleValue in numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys():
+                    valueDict.update({simpleValue: 0})
+                TOTAL_BOSS_RESIST_MAP.update({ailment: valueDict})
+                    
 
-    baselineSum = checkSums[0]
-    currentSum = sum(chosenResists) + physResist * 1.5
-    minRuns = 3
-    while len(alreadyChosen) < len(numbers.ELEMENT_RESIST_NAMES) and (len(alreadyChosen) <= minRuns or baselineSum - allowedRange < currentSum < baselineSum + allowedRange):
-        elementResistWeights = [] #these weights will be used to calculate which resist value is used
+
         
-        #these weights are used to decide the elements based on the not already chosen ones
-        elementWeights = [1 if numbers.ELEMENT_RESIST_NAMES[index] not in alreadyChosen else 0 for index,v in enumerate(chosenResists) ]
-        element = random.choices(numbers.ELEMENT_RESIST_NAMES,elementWeights)[0]
-        alreadyChosen.add(element)
-        
-        if configSettings.scaleResistToCheck:
-            if element == "dark" or "light":
-                elementResistWeights = copy.deepcopy(numbers.BOSS_LD_RESIST_DISTRIBUTION[math.ceil(replacementDemon.level / 10)])
-            else:
-                elementResistWeights = copy.deepcopy(numbers.BOSS_FIEF_RESIST_DISTRIBUTION[math.ceil(replacementDemon.level / 10)])
+
+        if not configSettings.scaleResistToCheck:
+            physWeights = copy.deepcopy(numbers.BOSS_PHYS_RESIST_DISTRIBUTION[0])
         else:
-            if element == "dark" or "light":
-                elementResistWeights = copy.deepcopy(numbers.BOSS_LD_RESIST_DISTRIBUTION[0])
+            physWeights = copy.deepcopy(numbers.BOSS_PHYS_RESIST_DISTRIBUTION[math.ceil(replacementDemon.level / 10)])
+
+        
+        validPhysResist = False
+        while not validPhysResist: #reroll phys resist to be valid with diverseResists if enabled
+            physResist = random.choices(numbers.SIMPLE_RESIST_VALUES,physWeights)[0]
+            if configSettings.diverseBossResists and physResist != 1 and TOTAL_BOSS_RESIST_MAP["physical"].get(physResist) > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
+                validPhysResist =False
             else:
-                elementResistWeights = copy.deepcopy(numbers.BOSS_FIEF_RESIST_DISTRIBUTION[0])
+                validPhysResist = True
+        chosenResists = [1,1,1,1,1,1] #the element resist results will be saved here
+        alreadyChosen = set() #will contain elements that have already been assigned
         
-        
-        if configSettings.diverseBossResists:
-            for index, value in enumerate(TOTAL_BOSS_RESIST_MAP[element].values()):
-                if 1 +value > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR and index != 4:# neutral resists are not subject to diverseResist setting
-                    elementResistWeights[index] /= 2
-        
-        elementResist = random.choices(numbers.SIMPLE_RESIST_VALUES,elementResistWeights)[0]
-        chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = elementResist
+        allowedRange = 1.5
+
+        baselineSum = checkSums[0]
         currentSum = sum(chosenResists) + physResist * 1.5
-        
-    ailmentResists = [] #the ailment resist results will be saved here
-    for _ in numbers.AILMENT_NAMES:
-        ailmentResists.append(1)
-    alreadyChosen = set()
-
-    #ailments count half because they are should be worth less than elemental ones
-    currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists)/2
-    minRuns = 3
-    baselineSum += checkSums[1]
-    while len(alreadyChosen) < len(numbers.AILMENT_NAMES) and (len(alreadyChosen) <= minRuns or baselineSum - allowedRange < currentSum < baselineSum + allowedRange):
-        ailmentResistWeights = []
-        ailmentWeights = [1 if numbers.AILMENT_NAMES[index] not in alreadyChosen else 0 for index,v in enumerate(ailmentResists) ]
-        ailment = random.choices(numbers.AILMENT_NAMES,ailmentWeights)[0]
-        alreadyChosen.add(ailment)
-
-        if configSettings.scaleResistToCheck:
-            ailmentResistWeights = copy.deepcopy(numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[math.ceil(replacementDemon.level / 10)])
-        else:
-            ailmentResistWeights = copy.deepcopy(numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[0])
-        
-        if configSettings.diverseBossResists:
-            for index, value in enumerate(TOTAL_BOSS_RESIST_MAP[ailment].values()):
-                if 1 +value > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR and index != 4:
-                    ailmentResistWeights[index] /= 2
-
-        ailmentResist = random.choices(list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys()),ailmentResistWeights)[0]
-        ailmentResists[numbers.AILMENT_NAMES.index(ailment)] = ailmentResist
-        currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists)/2
-    
-    attempts = 100
-    #try to make sum fit into range limits, to achieve somewhat balanced resist profiles
-    while currentSum < baselineSum - allowedRange or currentSum > baselineSum + allowedRange:
-        attempts -= 1
-        if attempts <= 0:
-            print("Something went wrong in resist rando at level " + str(replacementDemon.level) + "for demon " + str(replacementDemon.name))
-            break
-        if currentSum < baselineSum - allowedRange:
-            #add weaknesses/ make resist worse, Increase value
+        minRuns = 3
+        while len(alreadyChosen) < len(numbers.ELEMENT_RESIST_NAMES) and (len(alreadyChosen) <= minRuns or baselineSum - allowedRange < currentSum < baselineSum + allowedRange):
+            elementResistWeights = [] #these weights will be used to calculate which resist value is used
             
-            randomTypes = {}
-            # types that only have weaknesses cannot be added, since no value to increase
-            if chosenResists.count(1.5) != len(chosenResists):
-                randomTypes.update({"Elements" : (numbers.BOSS_FIEF_RESIST_DISTRIBUTION[0][5] + numbers.BOSS_LD_RESIST_DISTRIBUTION[0][5])/2})
-            if ailmentResists.count(1.5) != len(ailmentResists):
-                randomTypes.update({"Ailments" : numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[0][-1]})
-            if len(randomTypes) == 0: #not checking for phys weakness here, since physWeak would make it highly likely for this occur anyway
-                randomTypes.update({"Physical": numbers.BOSS_PHYS_RESIST_DISTRIBUTION[0][5]})
-            if physResist == -1.5 and ailmentResists.count(1.5) != len(ailmentResists): #if phys is a drain add ailments with higher weights to reduce cases where most elements are weaknesses
-                randomTypes.update({"Ailments" : numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[0][-1]* 2} )
-            changeType = random.choices(list(randomTypes.keys()), list(randomTypes.values()))[0]
-
-            if changeType == "Ailments":
-                #weaks cannot be increased further
-                chooseAilmentWeights = [0 if r == 1.5 else 10 for r in ailmentResists]
-                ailment = random.choices(numbers.AILMENT_NAMES,chooseAilmentWeights)[0]
-                ailmentResist = ailmentResists[numbers.AILMENT_NAMES.index(ailment)]
-                resistIndex = min(len(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys())-1,list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys()).index(ailmentResist)  +1)
-                ailmentResists[numbers.AILMENT_NAMES.index(ailment)] = list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys())[resistIndex]
-            elif changeType == "Physical":
-                element = "physical"
-                resistIndex = min(len(numbers.SIMPLE_RESIST_VALUES)-1,numbers.SIMPLE_RESIST_VALUES.index(physResist)  +1)
-                if configSettings.diverseBossResists:
-                    
-                    while resistIndex +1 < len(numbers.SIMPLE_RESIST_VALUES):
-                        if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
-                            if TOTAL_BOSS_RESIST_MAP[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
-                                resistIndex += 1
-                            else:
-                                break
-                        else:
-                            break
-                physResist = numbers.SIMPLE_RESIST_VALUES[resistIndex]        
+            #these weights are used to decide the elements based on the not already chosen ones
+            elementWeights = [1 if numbers.ELEMENT_RESIST_NAMES[index] not in alreadyChosen else 0 for index,v in enumerate(chosenResists) ]
+            element = random.choices(numbers.ELEMENT_RESIST_NAMES,elementWeights)[0]
+            alreadyChosen.add(element)
+            
+            if configSettings.scaleResistToCheck:
+                if element == "dark" or "light":
+                    elementResistWeights = copy.deepcopy(numbers.BOSS_LD_RESIST_DISTRIBUTION[math.ceil(replacementDemon.level / 10)])
+                else:
+                    elementResistWeights = copy.deepcopy(numbers.BOSS_FIEF_RESIST_DISTRIBUTION[math.ceil(replacementDemon.level / 10)])
             else:
-                chooseElementWeights = [0 if r == 1.5 else 10 for r in chosenResists]
-                element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
-                elementResist = chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)]
-                resistIndex = min(len(numbers.SIMPLE_RESIST_VALUES)-1,numbers.SIMPLE_RESIST_VALUES.index(elementResist)  +1)
-                # Avoid overpopulating resistances if diverseResists is enabled
-                if configSettings.diverseBossResists:
-                    
-                    while resistIndex +1 < len(numbers.SIMPLE_RESIST_VALUES):
-                        if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
-                            if TOTAL_BOSS_RESIST_MAP[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
-                                resistIndex += 1
-                            else:
-                                break
-                        else:
-                            break
-                chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = numbers.SIMPLE_RESIST_VALUES[resistIndex]          
-        elif currentSum > baselineSum + allowedRange:
-            #add resists/make weakness worse, decrease value
-            randomTypes = {}
-            if chosenResists.count(-1.5) != len(chosenResists):
-                randomTypes.update({"Elements" : (numbers.BOSS_FIEF_RESIST_DISTRIBUTION[0][5] + numbers.BOSS_LD_RESIST_DISTRIBUTION[0][5])/2})
-            if ailmentResists.count(0) != len(ailmentResists): #ailments cannot have repel/drain
-                randomTypes.update({"Ailments" : numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[0][-1]})
-            if len(randomTypes) == 0:
-                randomTypes.update({"Physical": numbers.BOSS_PHYS_RESIST_DISTRIBUTION[0][5]})
-            changeType = random.choices(list(randomTypes.keys()), list(randomTypes.values()))[0]
+                if element == "dark" or "light":
+                    elementResistWeights = copy.deepcopy(numbers.BOSS_LD_RESIST_DISTRIBUTION[0])
+                else:
+                    elementResistWeights = copy.deepcopy(numbers.BOSS_FIEF_RESIST_DISTRIBUTION[0])
+            
+            
+            if configSettings.diverseBossResists:
+                for index, value in enumerate(TOTAL_BOSS_RESIST_MAP[element].values()):
+                    if 1 +value > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR and index != 4:# neutral resists are not subject to diverseResist setting
+                        elementResistWeights[index] /= 2
+            
+            elementResist = random.choices(numbers.SIMPLE_RESIST_VALUES,elementResistWeights)[0]
+            chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = elementResist
+            currentSum = sum(chosenResists) + physResist * 1.5
+            
+        ailmentResists = [] #the ailment resist results will be saved here
+        for _ in numbers.AILMENT_NAMES:
+            ailmentResists.append(1)
+        alreadyChosen = set()
 
-            if changeType == "Ailments":
-                chooseAilmentWeights = [0 if r == 0 else 10  for r in ailmentResists]
-                ailment = random.choices(numbers.AILMENT_NAMES,chooseAilmentWeights)[0]
-                ailmentResist = ailmentResists[numbers.AILMENT_NAMES.index(ailment)]
-                #ailments cannot have repel/drain
-                resistIndex = max(0,list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys()).index(ailmentResist) -1)
-                #TODO: Diversity?
-                ailmentResists[numbers.AILMENT_NAMES.index(ailment)] =list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys())[resistIndex]
-            elif changeType == "Physical":
-                element = "physical"
-                resistIndex = max(0,numbers.SIMPLE_RESIST_VALUES.index(physResist) -1)
-                if configSettings.diverseBossResists:
-                    while resistIndex -1 > 0:
-                        if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
-                            if TOTAL_BOSS_RESIST_MAP[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
-                                resistIndex -= 1
-                            else:
-                                break
-                        else:
-                            break
+        #ailments count half because they are should be worth less than elemental ones
+        currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists)/2
+        minRuns = 3
+        baselineSum += checkSums[1]
+        while len(alreadyChosen) < len(numbers.AILMENT_NAMES) and (len(alreadyChosen) <= minRuns or baselineSum - allowedRange < currentSum < baselineSum + allowedRange):
+            ailmentResistWeights = []
+            ailmentWeights = [1 if numbers.AILMENT_NAMES[index] not in alreadyChosen else 0 for index,v in enumerate(ailmentResists) ]
+            ailment = random.choices(numbers.AILMENT_NAMES,ailmentWeights)[0]
+            alreadyChosen.add(ailment)
 
-                physResist = numbers.SIMPLE_RESIST_VALUES[resistIndex ]
+            if configSettings.scaleResistToCheck:
+                ailmentResistWeights = copy.deepcopy(numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[math.ceil(replacementDemon.level / 10)])
             else:
-                chooseElementWeights = [0 if r == -1.5 else 10  for r in chosenResists]
-                element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
-                elementResist = chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)]
-                resistIndex = max(0,numbers.SIMPLE_RESIST_VALUES.index(elementResist) -1)
-                if configSettings.diverseBossResists:
-                    while resistIndex -1 > 0:
-                        if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
-                            if TOTAL_BOSS_RESIST_MAP[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
-                                resistIndex -= 1
+                ailmentResistWeights = copy.deepcopy(numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[0])
+            
+            if configSettings.diverseBossResists:
+                for index, value in enumerate(TOTAL_BOSS_RESIST_MAP[ailment].values()):
+                    if 1 +value > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR and index != 4:
+                        ailmentResistWeights[index] /= 2
+
+            ailmentResist = random.choices(list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys()),ailmentResistWeights)[0]
+            ailmentResists[numbers.AILMENT_NAMES.index(ailment)] = ailmentResist
+            currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists)/2
+        
+        attempts = 100
+        #try to make sum fit into range limits, to achieve somewhat balanced resist profiles
+        while currentSum < baselineSum - allowedRange or currentSum > baselineSum + allowedRange:
+            attempts -= 1
+            if attempts <= 0:
+                print("Something went wrong in resist rando at level " + str(replacementDemon.level) + "for demon " + str(replacementDemon.name))
+                break
+            if currentSum < baselineSum - allowedRange:
+                #add weaknesses/ make resist worse, Increase value
+                
+                randomTypes = {}
+                # types that only have weaknesses cannot be added, since no value to increase
+                if chosenResists.count(1.5) != len(chosenResists):
+                    randomTypes.update({"Elements" : (numbers.BOSS_FIEF_RESIST_DISTRIBUTION[0][5] + numbers.BOSS_LD_RESIST_DISTRIBUTION[0][5])/2})
+                if ailmentResists.count(1.5) != len(ailmentResists):
+                    randomTypes.update({"Ailments" : numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[0][-1]})
+                if len(randomTypes) == 0: #not checking for phys weakness here, since physWeak would make it highly likely for this occur anyway
+                    randomTypes.update({"Physical": numbers.BOSS_PHYS_RESIST_DISTRIBUTION[0][5]})
+                if physResist == -1.5 and ailmentResists.count(1.5) != len(ailmentResists): #if phys is a drain add ailments with higher weights to reduce cases where most elements are weaknesses
+                    randomTypes.update({"Ailments" : numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[0][-1]* 2} )
+                changeType = random.choices(list(randomTypes.keys()), list(randomTypes.values()))[0]
+
+                if changeType == "Ailments":
+                    #weaks cannot be increased further
+                    chooseAilmentWeights = [0 if r == 1.5 else 10 for r in ailmentResists]
+                    ailment = random.choices(numbers.AILMENT_NAMES,chooseAilmentWeights)[0]
+                    ailmentResist = ailmentResists[numbers.AILMENT_NAMES.index(ailment)]
+                    resistIndex = min(len(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys())-1,list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys()).index(ailmentResist)  +1)
+                    ailmentResists[numbers.AILMENT_NAMES.index(ailment)] = list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys())[resistIndex]
+                elif changeType == "Physical":
+                    element = "physical"
+                    resistIndex = min(len(numbers.SIMPLE_RESIST_VALUES)-1,numbers.SIMPLE_RESIST_VALUES.index(physResist)  +1)
+                    if configSettings.diverseBossResists:
+                        
+                        while resistIndex +1 < len(numbers.SIMPLE_RESIST_VALUES):
+                            if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                                if TOTAL_BOSS_RESIST_MAP[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
+                                    resistIndex += 1
+                                else:
+                                    break
                             else:
                                 break
-                        else:
-                            break
+                    physResist = numbers.SIMPLE_RESIST_VALUES[resistIndex]        
+                else:
+                    chooseElementWeights = [0 if r == 1.5 else 10 for r in chosenResists]
+                    element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                    elementResist = chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)]
+                    resistIndex = min(len(numbers.SIMPLE_RESIST_VALUES)-1,numbers.SIMPLE_RESIST_VALUES.index(elementResist)  +1)
+                    # Avoid overpopulating resistances if diverseResists is enabled
+                    if configSettings.diverseBossResists:
+                        
+                        while resistIndex +1 < len(numbers.SIMPLE_RESIST_VALUES):
+                            if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                                if TOTAL_BOSS_RESIST_MAP[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
+                                    resistIndex += 1
+                                else:
+                                    break
+                            else:
+                                break
+                    chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = numbers.SIMPLE_RESIST_VALUES[resistIndex]          
+            elif currentSum > baselineSum + allowedRange:
+                #add resists/make weakness worse, decrease value
+                randomTypes = {}
+                if chosenResists.count(-1.5) != len(chosenResists):
+                    randomTypes.update({"Elements" : (numbers.BOSS_FIEF_RESIST_DISTRIBUTION[0][5] + numbers.BOSS_LD_RESIST_DISTRIBUTION[0][5])/2})
+                if ailmentResists.count(0) != len(ailmentResists): #ailments cannot have repel/drain
+                    randomTypes.update({"Ailments" : numbers.BOSS_AILMENT_RESIST_DISTRIBUTION[0][-1]})
+                if len(randomTypes) == 0:
+                    randomTypes.update({"Physical": numbers.BOSS_PHYS_RESIST_DISTRIBUTION[0][5]})
+                changeType = random.choices(list(randomTypes.keys()), list(randomTypes.values()))[0]
 
-                chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = numbers.SIMPLE_RESIST_VALUES[resistIndex ]
-        currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists) / 2 
+                if changeType == "Ailments":
+                    chooseAilmentWeights = [0 if r == 0 else 10  for r in ailmentResists]
+                    ailment = random.choices(numbers.AILMENT_NAMES,chooseAilmentWeights)[0]
+                    ailmentResist = ailmentResists[numbers.AILMENT_NAMES.index(ailment)]
+                    #ailments cannot have repel/drain
+                    resistIndex = max(0,list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys()).index(ailmentResist) -1)
+                    #TODO: Diversity?
+                    ailmentResists[numbers.AILMENT_NAMES.index(ailment)] =list(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS.keys())[resistIndex]
+                elif changeType == "Physical":
+                    element = "physical"
+                    resistIndex = max(0,numbers.SIMPLE_RESIST_VALUES.index(physResist) -1)
+                    if configSettings.diverseBossResists:
+                        while resistIndex -1 > 0:
+                            if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                                if TOTAL_BOSS_RESIST_MAP[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
+                                    resistIndex -= 1
+                                else:
+                                    break
+                            else:
+                                break
 
-    allChosenResists = [physResist] + chosenResists
-    
-    if configSettings.consistentWeakCount:
-        ogWeakCount = 0
+                    physResist = numbers.SIMPLE_RESIST_VALUES[resistIndex ]
+                else:
+                    chooseElementWeights = [0 if r == -1.5 else 10  for r in chosenResists]
+                    element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                    elementResist = chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)]
+                    resistIndex = max(0,numbers.SIMPLE_RESIST_VALUES.index(elementResist) -1)
+                    if configSettings.diverseBossResists:
+                        while resistIndex -1 > 0:
+                            if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                                if TOTAL_BOSS_RESIST_MAP[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > TOTAL_BOSS_RESIST_MAP["count"] / numbers.DIVERSE_RESIST_FACTOR:
+                                    resistIndex -= 1
+                                else:
+                                    break
+                            else:
+                                break
+
+                    chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = numbers.SIMPLE_RESIST_VALUES[resistIndex ]
+            currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists) / 2 
+
+        allChosenResists = [physResist] + chosenResists
         
-        for attr in vars(countDemon.resist):
-            if attr not in numbers.AILMENT_NAMES and 100 < getattr(countDemon.resist, attr, None).value < 900:
-                ogWeakCount += 1
-        if configSettings.scaleResistToCheck:
-            countDemon = referenceDemon
-        else:
-            countDemon = replacementDemon
-        
-        if countDemon.ind in STANDARD_RESIST_BOSSES:
-            ogWeakCount /= 2
-        
-        oldChosenResists = copy.deepcopy(chosenResists)
-        
-        while(allChosenResists.count(1.5) < ogWeakCount):
-            chooseElementWeights = [0 if r == 1.5 else r + 3 for r in chosenResists]
-            if sum(chooseElementWeights) == 0: #Essentially should only happen for Masakado
+        if configSettings.consistentWeakCount:
+            ogWeakCount = 0
+
+            if configSettings.scaleResistToCheck:
+                countDemon = referenceDemon
+            else:
+                countDemon = replacementDemon
+            
+            for attr in vars(countDemon.resist):
+                if attr not in numbers.AILMENT_NAMES and 100 < getattr(countDemon.resist, attr, None).value < 900:
+                    ogWeakCount += 1
+            
+            
+            if countDemon.ind in STANDARD_RESIST_BOSSES:
                 ogWeakCount /= 2
-                chosenResists = oldChosenResists
-            else:
-                element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
-                chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 1.5
-            allChosenResists = [physResist] + chosenResists
+            
+            oldChosenResists = copy.deepcopy(chosenResists)
+            
+            while(allChosenResists.count(1.5) < ogWeakCount):
+                chooseElementWeights = [0 if r == 1.5 else r + 3 for r in chosenResists]
+                if sum(chooseElementWeights) == 0: #Essentially should only happen for Masakado
+                    ogWeakCount /= 2
+                    chosenResists = oldChosenResists
+                else:
+                    element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                    chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 1.5
+                allChosenResists = [physResist] + chosenResists
 
 
 
-        # weakAdded = False
-        # if not any(1.5 == r for r in allChosenResists): #Add random weakness
-        #     chooseElementWeights = [r + 3 for r in chosenResists] #neutrals have highest chance to become weak, drains the lowest
-        #     element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
-        #     chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 1.5
-        #     allChosenResists = [physResist] + chosenResists
-        #     weakAdded = True
-        # if not any(r < 1 for r in allChosenResists): #Add random resistance for element that is not random weakness if it was added
-        #     weaknessCount = allChosenResists.count(1.5)
-        #     #null out weaknesses if there is only one, and prevent overwriting the potentially previously added one
-        #     chooseElementWeights = [ 0 if (weaknessCount < 2 and r==1.5 ) or (weakAdded and index == numbers.ELEMENT_RESIST_NAMES.index(element))else -(r - 3) for index,r in enumerate(chosenResists)]
-        #     element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
-        #     chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 0.5
-        #     allChosenResists = [physResist] + chosenResists
+            # weakAdded = False
+            # if not any(1.5 == r for r in allChosenResists): #Add random weakness
+            #     chooseElementWeights = [r + 3 for r in chosenResists] #neutrals have highest chance to become weak, drains the lowest
+            #     element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+            #     chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 1.5
+            #     allChosenResists = [physResist] + chosenResists
+            #     weakAdded = True
+            # if not any(r < 1 for r in allChosenResists): #Add random resistance for element that is not random weakness if it was added
+            #     weaknessCount = allChosenResists.count(1.5)
+            #     #null out weaknesses if there is only one, and prevent overwriting the potentially previously added one
+            #     chooseElementWeights = [ 0 if (weaknessCount < 2 and r==1.5 ) or (weakAdded and index == numbers.ELEMENT_RESIST_NAMES.index(element))else -(r - 3) for index,r in enumerate(chosenResists)]
+            #     element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+            #     chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 0.5
+            #     allChosenResists = [physResist] + chosenResists
 
 
 
-    #Apply resist to demon and increase values in totalResistMap
-    referenceDemon.resist.physical = Translated_Value(numbers.SIMPLE_RESIST_RESULTS[physResist],translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[physResist]))
-    TOTAL_BOSS_RESIST_MAP["physical"][physResist] += +1
+        #Apply resist to demon and increase values in totalResistMap
+        referenceDemon.resist.physical = Translated_Value(numbers.SIMPLE_RESIST_RESULTS[physResist],translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[physResist]))
+        TOTAL_BOSS_RESIST_MAP["physical"][physResist] += +1
 
-    for index, element in enumerate(numbers.ELEMENT_RESIST_NAMES):
-        TOTAL_BOSS_RESIST_MAP[element][chosenResists[index]] += 1
-        value = numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]]
-        if replacementDemon.ind in STRONG_WEAKNESS_BOSSES and value == 1.5:
-            value *= 2
-        referenceDemon.resist.__setattr__(element,Translated_Value(value,translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]])))
-    resistProfiles.append([physResist] + chosenResists + ailmentResists)
-    for index, ailment in enumerate(numbers.AILMENT_NAMES):
-        TOTAL_BOSS_RESIST_MAP[ailment][ailmentResists[index]] += 1
-        referenceDemon.resist.__setattr__(ailment,Translated_Value(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS[ailmentResists[index]],translation.translateResist(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS[ailmentResists[index]])))    
-    #print(replacementDemon.name +" "+ str(replacementDemon.level) + ": " + str(checkSums) + "-> " + str(currentSum) + " from " + str(referenceDemon.name))
-    return referenceDemon.resist   
+        for index, element in enumerate(numbers.ELEMENT_RESIST_NAMES):
+            TOTAL_BOSS_RESIST_MAP[element][chosenResists[index]] += 1
+            value = numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]]
+            if replacementDemon.ind in STRONG_WEAKNESS_BOSSES and value == 1.5:
+                value *= 2
+            referenceDemon.resist.__setattr__(element,Translated_Value(value,translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]])))
+        resistProfiles.append([physResist] + chosenResists + ailmentResists)
+        for index, ailment in enumerate(numbers.AILMENT_NAMES):
+            TOTAL_BOSS_RESIST_MAP[ailment][ailmentResists[index]] += 1
+            referenceDemon.resist.__setattr__(ailment,Translated_Value(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS[ailmentResists[index]],translation.translateResist(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS[ailmentResists[index]])))    
+        #print(replacementDemon.name +" "+ str(replacementDemon.level) + ": " + str(checkSums) + "-> " + str(currentSum) + " from " + str(referenceDemon.name))
+        endResist = referenceDemon.resist
+    if configSettings.bossNoEarlyPhysImmunity and referenceDemon.level < numbers.EARLY_BOSS_LEVEL_LIMIT and not 0< endResist.physical.value < 150:
+        endResist.physical.value = 100
+    return endResist   
 
 '''
 Calculates the resistance total values for elemental and ailment resists for a boss.

@@ -20,22 +20,38 @@ def setConfigSettings(configur):
     configSettings = Settings()
     configSettings.swapCutsceneModels = obtainBooleanValue(configur.get('Patches', 'swapCutsceneModels'))
     configSettings.randomDemonLevels = obtainBooleanValue(configur.get('Demon', 'RandomLevels'))
-    configSettings.randomSkills = obtainBooleanValue(configur.get('Demon', 'RandomSkills'))
-    configSettings.scaledSkills = obtainBooleanValue(configur.get('Demon', 'ScaledSkills'))
-    configSettings.randomInnates = obtainBooleanValue(configur.get('Demon', 'RandomInnates'))
-    configSettings.potentialWeightedSkills = obtainBooleanValue(configur.get('Demon', 'WeightSkillsToPotentials'))
     configSettings.randomPotentials = obtainBooleanValue(configur.get('Demon', 'RandomPotentials'))
     configSettings.scaledPotentials = obtainBooleanValue(configur.get('Demon', 'ScaledPotentials'))
-    configSettings.multipleUniques = obtainBooleanValue(configur.get('Demon', 'multipleUniques'))
     configSettings.randomRaces = obtainBooleanValue(configur.get('Demon', 'randomRaces'))
     configSettings.randomAlignment = obtainBooleanValue(configur.get('Demon', 'randomAlignment'))
     configSettings.ensureDemonJoinLevel = obtainBooleanValue(configur.get('Demon', 'ensureDemonJoinLevel'))
     configSettings.randomDemonStats = obtainBooleanValue(configur.get('Demon', 'RandomDemonStats'))
     configSettings.reduceCompendiumCosts = obtainBooleanValue(configur.get('Demon', 'ReduceCompendiumCost'))
+    configSettings.betterSpecialFusions = obtainBooleanValue(configur.get('Demon', 'BetterSpecialFusions'))
+
+    configSettings.randomInnates = obtainBooleanValue(configur.get('Demon', 'RandomInnates'))
+    configSettings.randomSkills = obtainBooleanValue(configur.get('Demon', 'RandomSkills'))
+    configSettings.potentialWeightedSkills = obtainBooleanValue(configur.get('Demon', 'WeightSkillsToPotentials'))
+    configSettings.multipleUniques = obtainBooleanValue(configur.get('Demon', 'multipleUniques'))
     configSettings.restrictLunationFlux = obtainBooleanValue(configur.get('Demon', 'RestrictLunationFlux'))
     configSettings.includeEnemyOnlySkills = obtainBooleanValue(configur.get('Demon', 'EnemyOnlySkills'))
     configSettings.includeMagatsuhiSkills = obtainBooleanValue(configur.get('Demon', 'MagatsuhiSkills'))
     configSettings.forceAllSkills = obtainBooleanValue(configur.get('Demon', 'ForceUniqueSkills'))
+    configSettings.limitSkillMPCost =obtainBooleanValue(configur.get('Demon', 'LimitSkillMPCost'))
+
+    configSettings.levelWeightedSkills = obtainBooleanValue(configur.get('Demon', 'WeightSkillsToLevels'))
+    configSettings.scaledSkills = obtainBooleanValue(configur.get('Demon', 'ScaledSkills'))
+    
+    
+    configSettings.randomizeVoicesNormal = obtainBooleanValue(configur.get('Voice', 'RandomVoicesNormal'))
+    configSettings.randomizeVoicesChaos = obtainBooleanValue(configur.get('Voice', 'RandomVoicesChaos'))
+    
+    configSettings.randomResists = obtainBooleanValue(configur.get('Resistances', 'RandomResists'))
+    configSettings.alwaysOneWeak = obtainBooleanValue(configur.get('Resistances', 'AlwaysOneWeak'))
+    configSettings.scaledElementalResists = obtainBooleanValue(configur.get('Resistances', 'ScaleElementalResist'))
+    configSettings.scaledPhysResists = obtainBooleanValue(configur.get('Resistances', 'ScalePhysResist'))
+    configSettings.potentialWeightedResists = obtainBooleanValue(configur.get('Resistances', 'WeightResistByPotentials'))
+    configSettings.diverseResists = obtainBooleanValue(configur.get('Resistances', 'DiverseResists'))
 
     configSettings.randomInheritance = obtainBooleanValue(configur.get('Inheritance', 'RandomInheritance'))
     configSettings.freeInheritance = obtainBooleanValue(configur.get('Inheritance', 'FreeInheritance'))
@@ -58,6 +74,9 @@ def setConfigSettings(configur):
     configSettings.combineKeyItemPools = obtainBooleanValue(configur.get('Item', 'CombineKeyItemPools'))
     configSettings.includeTsukuyomiTalisman = obtainBooleanValue(configur.get('Item', 'IncludeTsukuyomiTalisman'))
 
+    configSettings.randomizeNavigatorStats = obtainBooleanValue(configur.get('Navigators', 'RandomNavigatorStats'))
+    configSettings.navigatorModelSwap = obtainBooleanValue(configur.get('Navigators', 'NavigatorModelSwap'))
+
     configSettings.scaleBossDamage = obtainBooleanValue(configur.get('Boss', 'ScaleBossDamage'))
     configSettings.scaleBossPressTurnsToCheck = obtainBooleanValue(configur.get('Boss', 'ScalePressTurns'))
     configSettings.randomizeLucifer = obtainBooleanValue(configur.get('Boss', 'RandomizeLucifer'))
@@ -65,6 +84,7 @@ def setConfigSettings(configur):
     configSettings.bossDependentAmbush = obtainBooleanValue(configur.get('Boss', 'BossDependentAmbush'))
     configSettings.nerfBossHealing = obtainBooleanValue(configur.get('Boss', 'NerfBossHealing'))
     configSettings.scaleBossInstakillRates = obtainBooleanValue(configur.get('Boss', 'ScaleInstakillRates'))
+    configSettings.bossNoEarlyPhysImmunity = obtainBooleanValue(configur.get('Boss', 'bossNoEarlyPhysImmunity'))
 
     configSettings.selfRandomizeNormalBosses = obtainBooleanValue(configur.get('Boss', 'NormalBossesSelf'))
     configSettings.mixedRandomizeNormalBosses = obtainBooleanValue(configur.get('Boss', 'NormalBossesMixed'))
@@ -76,6 +96,12 @@ def setConfigSettings(configur):
     configSettings.mixedRandomizeSuperbosses = obtainBooleanValue(configur.get('Boss', 'SuperbossesMixed'))
     configSettings.selfRandomizeMinibosses = obtainBooleanValue(configur.get('Boss', 'MinibossesSelf'))
     configSettings.mixedRandomizeMinibosses = obtainBooleanValue(configur.get('Boss', 'MinibossesMixed'))
+
+    configSettings.randomizeBossResistances = obtainBooleanValue(configur.get('Resistances', 'RandomBossResists'))
+    configSettings.scaleResistToCheck = obtainBooleanValue(configur.get('Resistances', 'ScaleResistToCheck'))
+    configSettings.consistentWeakCount = obtainBooleanValue(configur.get('Resistances', 'ConsistenBossWeakCount'))
+    configSettings.playerResistSync = obtainBooleanValue(configur.get('Resistances', 'PlayerResistSync'))
+    configSettings.diverseBossResists = obtainBooleanValue(configur.get('Resistances', 'DiverseBossResist'))
 
     configSettings.ishtarPressTurns = int(configur.get('Boss', 'IshtarPressTurns'))
     configSettings.randomizeIshtarPressTurns = obtainBooleanValue(configur.get('Boss', 'RandomizeIshtarPressTurns'))
@@ -114,7 +140,7 @@ def test_presets():
         presetTest(preset)
 
 def presetTest(preset):
-    print(preset)
+    print(preset + '\n')
     presetConfigur = ConfigParser()
     presetConfigur.read(paths.PRESET_SETTINGS_FOLDER + "/" +preset+ ".ini")
     presetSettings = setConfigSettings(presetConfigur)

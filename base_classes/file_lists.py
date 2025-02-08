@@ -665,3 +665,4 @@ class General_UAsset:
         stringy = json.dumps(self.json)
         self.uasset = self.uasset.DeserializeJson(stringy)
         self.uasset.Write(self.writePath + self.name +'.uasset')
+        self.uasset = None

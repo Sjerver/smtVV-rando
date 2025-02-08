@@ -394,6 +394,7 @@ def createGUI(configSettings: Settings):
     listBossSettings.insert(4, "Ambushes are dependent on boss where possible")
     listBossSettings.insert(5, "Nerf bosses' healing skills")
     listBossSettings.insert(6, "Bosses' instakill susceptibility matches check")
+    listBossSettings.insert(7, "No early phys immunity")
     listBossSettings.pack()
 
     bossResLabel = tk.Label(page2FrameRight, text="Boss Resistances")
@@ -626,6 +627,7 @@ def createGUI(configSettings: Settings):
                'BossDependentAmbush': ('Listbox', listBossSettings, 4), 
                'NerfBossHealing': ('Listbox', listBossSettings, 5), 
                'ScaleInstakillRates': ('Listbox', listBossSettings, 6), 
+               'bossNoEarlyPhysImmunity': ('Listbox', listBossSettings, 7), 
 
                'RandomizeIshtarPressTurns': ('Checkbutton',ishtarRandomizeCheckbox),
             },
@@ -892,6 +894,8 @@ def createGUI(configSettings: Settings):
     configur.set('Boss', 'NerfBossHealing', str(bossFlags[5]).lower())
     configSettings.scaleBossInstakillRates = bossFlags[6]
     configur.set('Boss', 'ScaleInstakillRates', str(bossFlags[6]).lower())
+    configSettings.bossNoEarlyPhysImmunity = bossFlags[7]
+    configur.set('Boss', 'bossNoEarlyPhysImmunity', str(bossFlags[7]).lower())
 
     configSettings.selfRandomizeNormalBosses = bool(normalBossChoice and normalBossChoice[0] == 1)
     configur.set('Boss', 'NormalBossesSelf', str(configSettings.selfRandomizeNormalBosses).lower())
@@ -1036,7 +1040,7 @@ def createConfigFile(configur):
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False,
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
-                                 'ScaleInstakillRates': False}
+                                 'ScaleInstakillRates': False, 'bossNoEarlyPhysImmunity': False}
     configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.1, 'UnlockFusions': False, 'swapCutsceneModels': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,

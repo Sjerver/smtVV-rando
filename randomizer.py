@@ -1709,7 +1709,8 @@ class Randomizer:
                                                 weightedSkills.weights[weightIndex] = 0
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
-                                elif not (settings.freeInheritance or settings.randomInheritance):
+                                else:
+                                #elif not (settings.freeInheritance or settings.randomInheritance):
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
@@ -1737,7 +1738,8 @@ class Randomizer:
                                                 weightedSkills.weights[weightIndex] = 0
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
-                                elif not (settings.freeInheritance or settings.randomInheritance):
+                                else:
+                                #elif not (settings.freeInheritance or settings.randomInheritance):
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
@@ -4209,6 +4211,10 @@ class Randomizer:
                         forcedEventEncounterIndeces = [i for i, e in enumerate(shuffledEncounters) if e.ind in bossLogic.EVENT_ONLY_BOSSES]
                         if all(filteredEncounters[i].isEvent for i in forcedEventEncounterIndeces):
                             validForcedEventEncounter = True
+                        if self.configSettings.bossNoEarlyPhysImmunity and not self.configSettings.randomizeBossResistances:
+                            earlyEncounterIndeces = [i for i,e in enumerate(filteredEncounters) if self.staticBossArr[e.demons[0]].level < numbers.EARLY_BOSS_LEVEL_LIMIT]
+                            if any(any(demon in numbers.PHYS_IMMUNE_BOSSES for demon in shuffledEncounters[i].demons) for i in earlyEncounterIndeces):
+                                validForcedEventEncounter = False
                 shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
                 for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
                     spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + "(" + str(encounter.demons[0]) + ") "+ self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
@@ -6636,13 +6642,15 @@ class Randomizer:
                     copiedSymbol["Value"][0]["Value"] = replacementID
                     copiedSymbol["Value"][1]["Value"] = walkSpeed
                     table.append(copiedSymbol)
-                    print("This should never happen, is that really so?")
+                    #example case: Gabriel
+                    print("No boss symbol for bird replacement " +str(replacementID))
 
                 except (KeyError,StopIteration) as e:
                     birdSymbol = next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == birdID)
                     #birdSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == birdID)
                     birdSymbol["Value"][0]["Value"] = replacementID
-                    print("This should never happen essentially!")
+                    #example case: Tsukuyomi
+                    print("No normal symbol for bird replacement " +str(replacementID) +". Might cause slight issues")
                     #buffer.writeWord(replacementID, birdSymbol.offsetNumbers['demonID'])
 
         #return buffer
