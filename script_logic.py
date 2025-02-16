@@ -188,6 +188,9 @@ NEWGAMEPLUS_GIFTS = ['BP_JakyoEvent_Comp_Complete', 'BP_JakyoEvent']
 #Script for the Tsukuyomi Talisman
 TSUKUYOMI_TALISMAN_SCRIPT = 'MM_M064_E2795_Direct'
 
+#Stores original expressions from script calls
+ORIGINAL_SCRIPT_FUNCTION_CALLS = {}
+
 '''
 Returns the original script that is used as the base for a script with equivalent reward.
 '''
@@ -349,9 +352,9 @@ Updates the old item given through the script to the new item.
         oldItemID (Integer): the id of the old item to overwrite
         newItemID (Integer): the id of the new item that overwrites the old one
         scriptName (String): the name of the script file
-        #TODO: Include amount??
+        newItemAmount (Number): amount for the new item
 '''
-def updateItemRewardInScript(file, oldItemID, newItemID,scriptName):
+def updateItemRewardInScript(file, oldItemID, newItemID,scriptName,newItemAmount = 1):
     jsonData = file.json
     bytecode = None
     try: #get bytecode if UAssetAPI can parse it
@@ -363,38 +366,78 @@ def updateItemRewardInScript(file, oldItemID, newItemID,scriptName):
     except KeyError: #otherwise stop and note error
         print("Script Byte Code only in raw form")
         return
+    
+    relevantImportNames = ['ItemGet','ItemGetNum']
+    relevantFunctionNames = ['IItemWindowSetParameter', 'IMsgSetRichTextValueParam']
+
+    #grab original function calls, so that only calls for the original item get replaced to prevent chain replacements
+    if scriptName not in ORIGINAL_SCRIPT_FUNCTION_CALLS.keys():
+        ogFunctionCalls = getOriginalFunctionCalls(jsonData,bytecode, relevantImportNames,relevantFunctionNames)
+        ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName] = ogFunctionCalls
+    else:
+        ogFunctionCalls = ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName]
     importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
     #These Imports are functions where the demon id to join gets passed as parameter
-    relevantImportNames = ['ItemGet','ItemGetNum']
+    
     relevantImports = {}
     for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
         relevantImports[imp] = -1 * importNameList.index(imp) -1
     for imp,stackNode in relevantImports.items():
             expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
-            for exp in expressions:
-                itemValue = exp['Parameters'][0].get('Value')
-                if itemValue == oldItemID:
+            ogExpressions = ogFunctionCalls[imp]
+            for index,exp in enumerate(expressions):
+                ogItemValue = ogExpressions[index]['Parameters'][0].get('Value')
+                if ogItemValue == oldItemID:
                     exp['Parameters'][0]['Value']= newItemID
                     #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
                     if imp == 'ItemGet':
                         #TODO: 2nd Value is amount
-                        pass
+                        exp['Parameters'][1]['Value']= newItemAmount
+                        if newItemAmount > 1:
+                            print(scriptName)
     
-    relevantFunctionNames = ['IItemWindowSetParameter', 'IMsgSetRichTextValueParam']
+    
     for func in relevantFunctionNames:
         expressions = bytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
-        for exp in expressions:
+        ogExpressions = ogFunctionCalls[func]
+        for index,exp in enumerate(expressions):
             if func == 'IItemWindowSetParameter':
+                ogItemValue = ogExpressions[index]['Parameters'][0].get('Value')
                 itemValue = exp['Parameters'][0].get('Value')
-                if itemValue == oldItemID:
+                if ogItemValue == oldItemID:
                     exp['Parameters'][0]['Value']= newItemID
                     #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
             if func == 'IMsgSetRichTextValueParam':
+                ogItemValue = ogExpressions[index]['Parameters'][1].get('Value')
                 itemValue = exp['Parameters'][1].get('Value')
-                if itemValue == oldItemID:
+                if ogItemValue == oldItemID:
                     exp['Parameters'][1]['Value']= newItemID
                     #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
     file.updateFileWithJson(jsonData)
+
+'''
+Returns a copy of function calls in the bytecode.
+Parameters:
+    jsonData (json): jsonData form of the uasset file
+    bytecode (Bytecode): bytecode object of the bytecode instructions
+    relevantImportNames (List(String)): list of imported functions to get calls from
+    relevantFunctionNames (List(String)): list of virtual functions to get calls from
+'''
+def getOriginalFunctionCalls(jsonData,bytecode,relevantImportNames,relevantFunctionNames):
+    functionCalls = {}
+    importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+    relevantImports = {}
+    for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
+        relevantImports[imp] = -1 * importNameList.index(imp) -1
+    for imp,stackNode in relevantImports.items():
+            expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+            functionCalls[imp] = copy.deepcopy(expressions)
+    for func in relevantFunctionNames:
+        expressions = bytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
+        functionCalls[func] = copy.deepcopy(expressions)  
+
+    return functionCalls
+
 
 '''
 Creates fake missions from certain event scripts involving quests, that have more than one reward.
@@ -445,7 +488,7 @@ def updateAndRemoveFakeMissions(missionArr,scriptFiles):
             file = scriptFiles.getFile(mission.script)
 
             #print(str(mission.ind) + ": " + str(mission.originalReward.ind) + " -> " + str(mission.reward.ind) )
-            updateItemRewardInScript(file, mission.originalReward.ind, mission.reward.ind, mission.script)
+            updateItemRewardInScript(file, mission.originalReward.ind, mission.reward.ind, mission.script, mission.reward.amount)
 
             scriptFiles.setFile(mission.script,file)
 
@@ -484,10 +527,10 @@ def updateGiftScripts(gifts, scriptFiles):
             file = scriptFiles.getFile(correctScript)
             if any(gift.script in scripts for scripts in GIFT_EQUIVALENT_SCRIPTS.values()): #if script was copied as equivalent, use original base item
                 equivalentScript = getEquivalentSource(gift.script)
-                updateItemRewardInScript(file,BASE_GIFT_ITEMS[equivalentScript],gift.item.ind, correctScript)
+                updateItemRewardInScript(file,BASE_GIFT_ITEMS[equivalentScript],gift.item.ind, correctScript, gift.item.amount)
             else:
                 #print(gift.script + ": " + str(BASE_GIFT_ITEMS[gift.script]) + " -> " + str(gift.item.ind) )
-                updateItemRewardInScript(file,BASE_GIFT_ITEMS[gift.script],gift.item.ind,correctScript)
+                updateItemRewardInScript(file,BASE_GIFT_ITEMS[gift.script],gift.item.ind,correctScript,gift.item.amount)
 
         scriptFiles.setFile(correctScript,file)
 
