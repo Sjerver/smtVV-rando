@@ -185,7 +185,7 @@ class Bytecode:
 class Serialized_Bytecode_Expression:
     def __init__(self,exp, currentSI, nextSI, imp):
         self.exp = exp
-        self.currentStatementIndex = 0
-        self.nextStatementIndex = 0
+        self.currentStatementIndex = currentSI
+        self.nextStatementIndex = nextSI
         self.statementLength = nextSI - currentSI
         self.imp = imp

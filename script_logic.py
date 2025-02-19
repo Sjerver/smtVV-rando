@@ -393,8 +393,6 @@ def updateItemRewardInScript(file, oldItemID, newItemID,scriptName,newItemAmount
                     if imp == 'ItemGet':
                         #TODO: 2nd Value is amount
                         exp['Parameters'][1]['Value']= newItemAmount
-                        if newItemAmount > 1:
-                            print(scriptName)
     
     
     for func in relevantFunctionNames:
