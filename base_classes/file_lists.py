@@ -69,6 +69,8 @@ M061_EM2380_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M
 M062_EM1650_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM1650'
 M062_EM2110_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2110'
 M062_EM2440_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2440'
+M064_EM2300_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M064/EM2300'
+M064_EM2360_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M064/EM2360'
 M064_EM2620_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M064/EM2620'
 M060_EM2700_FODLER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M060/EM2700'
 GARDEN_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/Garden'
@@ -102,6 +104,7 @@ ES152_M062_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es152_m062'
 ES152_M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es152_m063'
 ES618_M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es618_m063'
 ES618_M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es618_m060'
+PLAYER_355_FOLDER = 'rando/Project/Content/Blueprints/Character/Player/Pla355'
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
@@ -190,6 +193,8 @@ SCRIPT_FOLDERS = {
     'MM_M060_E3110_Direct': MAIN_M060_FOLDER, #CoV Beelzebub
     'MM_M060_E3130_Direct': MAIN_M060_FOLDER, #CoV Zeus + Odin
     'MM_M060_Npc609Talk': MAIN_M060_FOLDER, #CoC Yuzuru Hayataro NPC Event?
+    'MM_M062_EM0050': MAIN_M062_FOLDER, # Golden Apple Quest part 1
+    'MM_M062_EM0051': MAIN_M062_FOLDER, # Idun in Golden Apple Quest
     'MM_M062_E0378': MAIN_M062_FOLDER, #Dazai/Abdiel talk in area 2 creation (Abdiel)
     'MM_M062_E0380': MAIN_M062_FOLDER, #Fionn 1 Post-fight (Fionn)
     'MM_M062_E0492': MAIN_M062_FOLDER,#Final Lahmu (Lahmu Phase 2)
@@ -201,6 +206,7 @@ SCRIPT_FOLDERS = {
     'MM_M062_E2302': M062_PLEIADES_FOLDER, #Arriving in fairy village vengeance
     'MM_M063_E0625': MAIN_M063_FOLDER, #Yakumo post-fight Chiyoda 
     'MM_M063_EM0061': MAIN_M063_FOLDER, #Hellfire Highway Shrine Event
+    'MM_M063_EM0070': MAIN_M063_FOLDER, #Decarabia in Ishtar Quest
     'MM_M063_EM0079': MAIN_M063_FOLDER, #Ishtar Post Fight
     'MM_M063_M0680': MAIN_M063_FOLDER, #Abdiel celebrates Arioch's death
     'MM_M064_E2510_Direct': MAIN_M064_FOLDER, #First Power Fight in Shinjuku
@@ -286,6 +292,7 @@ SCRIPT_FOLDERS = {
     'MM_M035_EM1491': M035_FOLDER, # The Red Dragon's Invitation
     'MM_M201_EM2411': M050_EM2410_FOLDER, # Turbo Granny Quest
     'MM_M061_EM0021': M061_FOLDER, # Eligor and Andras Event
+    'MM_M061_EM1020': M061_FOLDER, # The Ultimate Omelet
     'MM_M061_EM1031': M061_FOLDER,  #Pazuzu Event Mermaid Quest
     'MM_M061_EM1041': M061_FOLDER, #Anahita Event Mermaid Quest 2
     'MM_M061_EM1050_New': M061_FOLDER, #Talisman Hunt (Shiki Ouji)
@@ -309,6 +316,7 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM2245':M061_EM2240_FOLDER, #CoV Khonsu Ra Quest
     'MM_M061_EM2380':M061_EM2380_FOLDER, #Mo Shuvuu Quest (Andras)
     'MM_M062_EM1141': M062_FOLDER, #Kumbhanda Bottle Quest
+    'MM_M062_EM1150': M062_FOLDER, #A Goddess Stolen part 1
     'MM_M062_EM1151_Hit': M062_FOLDER, #A Goddess Stolen
     'MM_M062_EM1160': M062_FOLDER, #The Tyrant of Tennozu (Demeter)
     'MM_M062_EM1161_A': M062_FOLDER, #The Tyrant of Tennozu  (Belphegor)
@@ -329,6 +337,8 @@ SCRIPT_FOLDERS = {
     'MM_M062_EM2440': M062_EM2440_FOLDER, #Amanozako Control Quest(Yakshini)
     'MM_M063_EM1210': M063_FOLDER, #Oyamatsumi Quest (Take-Minakata,Oyamatsumi)
     'MM_M063_EM1211': M063_FOLDER, #Oyamatsumi Quest (Oyamatsumi)
+    'MM_M063_EM1230_HitAAction': M063_FOLDER, #Hua Po Quest
+    'MM_M063_EM1241_Navi': M063_FOLDER, #Chiyoda Gem Quest
     'MM_M063_EM1250': M063_FOLDER,#Kunitsukami Fight Quest (Okuninushi)
     'MM_M063_EM1251': M063_FOLDER,#Kunitsukami Fight Quest (Sukuna Hikona)
     'MM_M063_EM1260': M063_FOLDER, #Demeter Defeat Chimera (Demeter)
@@ -344,6 +354,13 @@ SCRIPT_FOLDERS = {
     'MM_M064_EM1391': M064_FOLDER, #Winged Sun (Mithras, Asura)
     'MM_M064_EM2130': M064_FOLDER, #Basilisk Hunt Quest (Anansi, Onyankopon)
     'MM_M064_EM2131': M064_FOLDER, #Basilisk Hunt Quest (Anansi)
+    'MM_M064_EM2306': M064_EM2300_FOLDER, #Amabie in Macabre 
+    'MM_M064_EM2360': M064_EM2360_FOLDER, #Alice Quest
+    'MM_M064_EM2360_Event': M064_EM2360_FOLDER, #Alice Quest Event
+    'MM_M064_EM2361': M064_EM2360_FOLDER, #Alice Quest part 2
+    'MM_M064_EM2363': M064_EM2360_FOLDER, #Alice Quest part 4
+    'MM_M064_EM2364': M064_EM2360_FOLDER, #Alice Quest part 5
+    'MM_M064_EM2366': M064_EM2360_FOLDER, #Alice Quest part 7
     'MM_M064_EM2400': M064_FOLDER, #Samael Quest (Mastema)
     'MM_M064_EM2402': M064_FOLDER, #Samael Quest (Samael)
     'MM_M064_EM2421_Direct': M064_FOLDER, #Satan Quest (Satan)
@@ -358,6 +375,7 @@ SCRIPT_FOLDERS = {
     'MM_M060_EM1431': M060_FOLDER, #Holy Ring Quest (Uriel, Raphael,Gabriel)
     'MM_M060_EM1440': M060_FOLDER, #Baal Quest (Demeter)
     'MM_M060_EM1441': M060_FOLDER, #Baal Quest (Baal)
+    'MM_M060_EM1580': M060_FOLDER, #On Bended Knees
     'MM_M060_EM1600': M060_FOLDER,  #Final Amanozako Quest (Kurama Tengu)
     'MM_M060_EM2371': M060_FOLDER,  #Garuda Quest (Garuda)
     'MM_M060_EM2570': M060_FOLDER, #Moirae Haunt Quest (Norn)
@@ -378,6 +396,9 @@ SCRIPT_FOLDERS = {
     'LV_E0350': DESIGN_EVENT_FOLDER, #Meeting Abdiel Cutscene
     'LV_E0375': DESIGN_EVENT_FOLDER, #Arioch Hayataro in Beginning of Shinagawa Cutscene
     'LV_E0379': DESIGN_EVENT_FOLDER, #Arioch Fionn 1 Cutscene
+
+    'Pla355': PLAYER_355_FOLDER, #Playable Alice
+    'Pla355_AnimBP': PLAYER_355_FOLDER, #Playable Alice Anims
 }
 
 #List of which folder each umap should be in when writing output
@@ -388,7 +409,7 @@ UMAP_FOLDERS = {
 
 #List of scripts that are in the main mission folder despite submission naming convention
 MAINMISSION_EXCEPTIONS = [
-'MM_M062_EM0041','MM_M063_EM0061','MM_M063_EM0079'
+'MM_M062_EM0041','MM_M062_EM0050','MM_M062_EM0051','MM_M063_EM0061','MM_M063_EM0079','MM_M063_EM0070'
 ]
 
 class UMap_File_List:
@@ -550,6 +571,8 @@ class Script_File_List:
             scriptPath = 'NPC/'
         elif 'ShopEvent' in name or 'JakyoEvent' in name:
             scriptPath = 'ShopEvent/'
+        elif name.startswith('Pla'):
+            scriptPath = 'Player/'
         elif 'EM' in name and not 'DevilTalk' in name and not 'M092' in name:
             scriptPath = 'SubMission/'
         else:

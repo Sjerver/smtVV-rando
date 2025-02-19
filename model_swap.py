@@ -59,8 +59,9 @@ Updates the models used in events.
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
         mapSymbolArr(List): list of map symbol data
         config (Config_Settings): settings set for the randomizer
+        navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator models
 '''
-def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Script_File_List, mapSymbolFile, config):
+def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Script_File_List, mapSymbolFile, config, navigatorMap):
     mapSymbolTable = mapSymbolFile.json["Exports"][0]["Table"]["Data"]
     originalMapSymbolTable = mapSymbolFile.originalJson["Exports"][0]["Table"]["Data"]
     initDemonModelData()
@@ -76,18 +77,24 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
             syncDemonID = syncDemon.sync
             if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not config.ensureDemonJoinLevel: #If demon isn't getting replaced ignore it
                 continue
-            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is boss
-                try:
-                    replacementID = bossReplacements[syncDemonID]
-                except KeyError:
-                    #print("Key Error: " + str(syncDemonID))
+            if syncDemon.isNavi:
+                if not navigatorMap:
                     continue
-            else: #else it is a normal demon
-                try:
-                    replacementID = encounterReplacements[syncDemonID]
-                except KeyError:
-                    #print("Key Error: " + str(syncDemonID))
-                    continue
+                else:
+                    replacementID = navigatorMap[originalDemonID]
+            else:
+                if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is boss
+                    try:
+                        replacementID = bossReplacements[syncDemonID]
+                    except KeyError:
+                        #print("Key Error: " + str(syncDemonID))
+                        continue
+                else: #else it is a normal demon
+                    try:
+                        replacementID = encounterReplacements[syncDemonID]
+                    except KeyError:
+                        #print("Key Error: " + str(syncDemonID))
+                        continue
             if replacementID == originalDemonID: #do not need to swap models if replacement is the same as originalDemonID
                 continue
             try: #Does replacement boss use a different model that has no tie to their id
@@ -168,7 +175,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
     print(endTime - startTime)
     
     umapList.writeFiles()
-    updateCutsceneModels(encounterReplacements, bossReplacements,config)
+    updateCutsceneModels(encounterReplacements, bossReplacements,config, navigatorMap)
 
 '''
 Prepares the given script file by preparing data that gets used in the model swap process.
@@ -295,6 +302,8 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         if script in name:
             #Do not change names for Main File Exports if DemonId or Name is in script
             continue
+        if 'MAP_FLAG_NaviDev' in name:
+            continue #Do not change names of map flags
         if oldIDString in name and ("/Blueprints/Character" in name or "_C" in name): 
             nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
             nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
@@ -397,6 +406,8 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
             if oldIDString not in stringValue and oldName not in stringValue:
                 #if neither oldID or oldName are in the string go to next exp
                 continue
+            if 'MAP_FLAG_NaviDev' in stringValue:
+                continue #Do not change names of map flags
             #print(stringValue)
             originalLength = len(stringValue)
             #create new string here for calculation of lenghtDifference
@@ -598,7 +609,7 @@ def updateEventHitGen(file, scale, script):
     file.updateFileWithJson(file.json)
     return True
 
-def updateCutsceneModels(encounterReplacements, bossReplacements, config):
+def updateCutsceneModels(encounterReplacements, bossReplacements, config, navigatorMap):
     startTime = datetime.datetime.now()
     cutsceneFiles = Script_File_List()
     totalFiles = len(EVENT_CUTSCENES.keys())
@@ -611,18 +622,24 @@ def updateCutsceneModels(encounterReplacements, bossReplacements, config):
             syncDemonID = syncDemon.sync
             if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not config.ensureDemonJoinLevel: #If demon isn't getting replaced ignore it
                 continue
-            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is boss
-                try:
-                    replacementID = bossReplacements[syncDemonID]
-                except KeyError:
-                    #print("Key Error: " + str(syncDemonID))
+            if syncDemon.isNavi:
+                if not navigatorMap:
                     continue
-            else: #else it is a normal demon
-                try:
-                    replacementID = encounterReplacements[syncDemonID]
-                except KeyError:
-                    #print("Key Error: " + str(syncDemonID))
-                    continue
+                else:
+                    replacementID = navigatorMap[originalDemonID]
+            else:
+                if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is boss
+                    try:
+                        replacementID = bossReplacements[syncDemonID]
+                    except KeyError:
+                        #print("Key Error: " + str(syncDemonID))
+                        continue
+                else: #else it is a normal demon
+                    try:
+                        replacementID = encounterReplacements[syncDemonID]
+                    except KeyError:
+                        #print("Key Error: " + str(syncDemonID))
+                        continue
             if replacementID == originalDemonID: #do not need to swap models if replacement is the same as originalDemonID
                 continue
             try: #Does replacement boss use a different model that has no tie to their id

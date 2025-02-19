@@ -191,6 +191,8 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_E3130_Direct': [Demon_Sync(482),Demon_Sync(481)], #CoV Zeus + Odin
     'MM_M060_Npc609Talk': [Demon_Sync(152)], #CoC Yuzuru Hayataro NPC Event? (Hayataro)
     #Mainmission M062 (Shinagawa)
+    'MM_M062_EM0050': [Demon_Sync(57, isNavi=True)], #Golden Apple Quest part 1 (Pyro Jack)
+    'MM_M062_EM0051': [Demon_Sync(23, isNavi=True)], #Idun in Golden Apple Quest (Idun)
     'MM_M062_E0378': [Demon_Sync(467)], #Dazai/Abdiel talk in area 2 creation (Abdiel)
     'MM_M062_E0380': [Demon_Sync(35,451)], #Fionn 1 Post-fight (Fionn)
     'MM_M062_E0492': [Demon_Sync(453)], #Final Lahmu (Lahmu Phase 2)
@@ -203,7 +205,8 @@ EVENT_SCRIPT_MODELS = {
     #Mainmission M063 (Chiyoda)
     'MM_M063_E0625': [Demon_Sync(465),Demon_Sync(75,435)], #Yakumo post-fight Chiyoda (Yakumo, Nuwa)
     'MM_M063_EM0061': [Demon_Sync(822),Demon_Sync(823),Demon_Sync(824)], #Hellfire Highway (Okuninushi, Sukuna Hikona, Minakata)
-    'MM_M063_EM0079': [Demon_Sync(455)], #Ishtar Post Fight
+    'MM_M063_EM0070': [Demon_Sync(273, isNavi=True)], #Decarabia in Ishtar Quest (Decarabia)
+    'MM_M063_EM0079': [Demon_Sync(455), Demon_Sync(273, isNavi=True)], #Ishtar Post Fight
     'MM_M063_M0680': [Demon_Sync(467)],#Abdiel celebrates Arioch's death (Abdiel)
     #Mainmission M064 (Shinjuku)
     'MM_M064_E2510_Direct': [Demon_Sync(503)], #First Power Fight in Shinjuku 
@@ -312,6 +315,7 @@ EVENT_SCRIPT_MODELS = {
 
     #SubMission M061 (Minato)
     'MM_M061_EM0021': [Demon_Sync(433),Demon_Sync(434)], #Eligor and Andras Event
+    'MM_M061_EM1020': [Demon_Sync(114, isNavi=True)], #The Ultimate Omelet (Aitvaras)
     'MM_M061_EM1031': [Demon_Sync(801)], #Pazuzu Event Mermaid Quest
     'MM_M061_EM1041': [Demon_Sync(803)], #Anahita Event Mermaid Quest 2
     'MM_M061_EM1050_New': [Demon_Sync(820)], #Talisman Hunt (Shiki Ouji)
@@ -344,7 +348,8 @@ EVENT_SCRIPT_MODELS = {
 
     #SubMission M062 (Shinagawa)
     'MM_M062_EM1141': [Demon_Sync(809)], #Kumbhanda Bottle Quest (Kumbhanda)
-    'MM_M062_EM1151_Hit': [Demon_Sync(810)], #A Goddess Stolen (Loki)
+    'MM_M062_EM1150': [Demon_Sync(23, isNavi=True)], #A Goddess Stolen part 1 (Idun)
+    'MM_M062_EM1151_Hit': [Demon_Sync(810), Demon_Sync(23, isNavi=True)], #A Goddess Stolen (Loki, Idun)
     'MM_M062_EM1160': [Demon_Sync(19)], #The Tyrant of Tennozu (Demeter)
     'MM_M062_EM1161_A': [Demon_Sync(804)], #The Tyrant of Tennozu  (Belphegor)
     'MM_M062_EM1181': [Demon_Sync(821)], #King Frost Quest (King Frost) 
@@ -369,6 +374,8 @@ EVENT_SCRIPT_MODELS = {
     #SubMission M063 (Chiyoda)
     'MM_M063_EM1210': [Demon_Sync(824),Demon_Sync(826)], #Oyamatsumi Quest (Take-Minakata,Oyamatsumi)
     'MM_M063_EM1211': [Demon_Sync(826)], #Oyamatsumi Quest (Oyamatsumi)
+    'MM_M063_EM1230_HitAAction': [Demon_Sync(333, isNavi=True)], #Hua Po Quest (Hua Po)
+    'MM_M063_EM1241_Navi': [Demon_Sync(273, isNavi=True)], #Chiyoda Gem Quest (Decarabia)
     'MM_M063_EM1250': [Demon_Sync(822)],#Kunitsukami Fight Quest (Okuninushi) 
     'MM_M063_EM1251': [Demon_Sync(823)],#Kunitsukami Fight Quest (Sukuna Hikona)
     'MM_M063_EM1260': [Demon_Sync(19)], #Demeter Defeat Chimera (Demeter) 
@@ -391,6 +398,13 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_EM2131': [Demon_Sync(41)], #Basilisk Hunt Quest (Anansi)
     'MM_M064_EM2270': [Demon_Sync(40)], #Kresnik Kudlak Quest (Kresnik) 
     'MM_M064_EM2280': [Demon_Sync(346)], #Kresnik Kudlak Quest (Kudlak)
+    'MM_M064_EM2306': [Demon_Sync(387, isNavi=True)], #Amabie in Macabre Quest (Amabie)
+    'MM_M064_EM2360': [Demon_Sync(355, isNavi=True)], #Alice Quest (Alice)
+    'MM_M064_EM2360_Event': [Demon_Sync(355, isNavi=True)], #Alice Quest Event (Alice)
+    'MM_M064_EM2361': [Demon_Sync(355, isNavi=True)], #Alice Quest part 2 (Alice)
+    'MM_M064_EM2363': [Demon_Sync(355, isNavi=True)], #Alice Quest part 4 (Alice)
+    'MM_M064_EM2364': [Demon_Sync(355, isNavi=True)], #Alice Quest part 5 (Alice)
+    'MM_M064_EM2366': [Demon_Sync(355, isNavi=True)], #Alice Quest part 7 (Alice)
     'MM_M064_EM2310': [Demon_Sync(386, 770), Demon_Sync(41)], #Onyakopon Anansi Quest (Onyakopon Side)
     'MM_M064_EM2320': [Demon_Sync(41, 771), Demon_Sync(386)], #Onyakopon Anansi Quest (Anansi Side)
     'MM_M064_EM2400': [Demon_Sync(596)], #Samael Quest (Mastema) 
@@ -412,6 +426,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_EM1440': [Demon_Sync(19)], #Baal Quest (Demeter) 
     'MM_M060_EM1441': [Demon_Sync(837)], #Baal Quest (Baal) 
     'MM_M060_EM1460': [Demon_Sync(839)], #The Gold Dragon's Arrival (Huang Long) 
+    'MM_M060_EM1580': [Demon_Sync(280, isNavi=True)], #On Bended Knees (Yatagarasu)
     'MM_M060_EM1600': [Demon_Sync(878)],  #Final Amanozako Quest (Kurama Tengu) 
     'MM_M060_EM1601': [Demon_Sync(878),Demon_Sync(38),Demon_Sync(877)], #Final Amanozako Quest (Kurama Tengu,Amanozako, Zaou Gongen)
     'MM_M060_EM1602': [Demon_Sync(38)],  #Final Amanozako Quest (Amanozako) 
@@ -434,6 +449,9 @@ EVENT_SCRIPT_MODELS = {
     'BP_es418_m063_01': [Demon_Sync(75, 435)],#Nuwa in Area 3 #TODO No clue where they are
     'BP_es618_m063_01': [Demon_Sync(465)],#Yakumo in Area 3 #TODO No clue where they are
 
+    #Playable Demons
+    'Pla355': [Demon_Sync(355, isNavi=True)], #Player Alice
+    'Pla355_AnimBP': [Demon_Sync(355, isNavi=True)], #Player Alice Animations
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -498,6 +516,10 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M062_EM1680': [Anim_Sync('06skill_Composite','06skill')],#Black Frost Dionysus Quest (Dionysus)
     'MM_M064_EM1281': [Anim_Sync('21skillB','06skill')],#The Archangel of Destruction Shinjuku (Camael)
     'MM_M064_EM2130': [Anim_Sync('02idleB','05attack'),Anim_Sync('map/700020_stick','14command'),Anim_Sync('map/700010_laugh','14command')], #Basilisk Hunt Quest (Anansi, Onyankopon)
+    'MM_M064_EM2306': [Anim_Sync('map/700000_dance','51yes')],#Amabie in Macabre Quest
+    'MM_M064_EM2360': [Anim_Sync('map/700000_event_idle_in','51yes'),Anim_Sync('map/700002_event_idle_out','14command'),Anim_Sync('map/700001_event_idle_loop','01idleA'),Anim_Sync('07skill_b','05attack'),Anim_Sync('06skill_a','05attack')],#Alice Quest
+    'MM_M064_EM2360_Event': [Anim_Sync('map/700000_event_idle_in','51yes'),Anim_Sync('map/700001_event_idle_loop','01idleA')],#Alice Quest Event
+    'MM_M064_EM2366': [Anim_Sync('map/700000_event_idle_in','51yes'),Anim_Sync('map/700001_event_idle_loop','01idleA')],#Alice Quest part 7
     'MM_M064_EM2310': [Anim_Sync('02idleB','05attack')],#Onyakopon Anansi Quest (Onyakopon Side)
     'MM_M064_EM2400': [Anim_Sync('13skill_ex2','06skill')], #Samael Quest (Mastema)
     'MM_M064_EM2421_Direct': [Anim_Sync('13skill_ex3_Composite','05attack')], #Satan Quest (Satan)

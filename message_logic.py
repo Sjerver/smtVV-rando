@@ -157,7 +157,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1500': [Demon_Sync(30, 842), Demon_Sync(188, 843), Demon_Sync(189, 844)],#Seed of Life Quest (Maria, Danu, Innana)
     'mm_em1530': [Demon_Sync(178, 845), Demon_Sync(111, 468)],#A Universe in Peril (Shiva, Vasuki)
     'mm_em1570': [Demon_Sync(845)],#Sarasvati Collection Quest (Shiva)
-    'mm_em1580': [Demon_Sync(280, isNavi=True)],#Yatagarasu Quest (Navi Yatagarasu)
+    'mm_em1580': [Demon_Sync(280, isNavi=True)],#On Bended Knees (Navi Yatagarasu)
     'mm_em1590': [Demon_Sync(876), Demon_Sync(453)],#Berserk Amanozako Quest (Amanozako, 3 Quest Files, Final Lahmu)
     'mm_em1591': [Demon_Sync(38, 876)],
     'mm_em1592': [Demon_Sync(38, 876)],

@@ -7352,7 +7352,7 @@ class Randomizer:
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
 
         if self.configSettings.swapCutsceneModels:
-            model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings)
+            model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings, self.naviReplacementMap)
 
         self.removeCalcOnlyMapSymbolScales()
         
