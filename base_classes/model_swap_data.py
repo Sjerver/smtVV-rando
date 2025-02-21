@@ -191,8 +191,8 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_E3130_Direct': [Demon_Sync(482),Demon_Sync(481)], #CoV Zeus + Odin
     'MM_M060_Npc609Talk': [Demon_Sync(152)], #CoC Yuzuru Hayataro NPC Event? (Hayataro)
     #Mainmission M062 (Shinagawa)
-    'MM_M062_EM0050': [Demon_Sync(57, isNavi=True)], #Golden Apple Quest part 1 (Pyro Jack)
-    'MM_M062_EM0051': [Demon_Sync(23, isNavi=True)], #Idun in Golden Apple Quest (Idun)
+    'MM_M062_EM0050': [Demon_Sync(57, isNavi=True)], #Golden Apple Quest part 1 creation (Pyro Jack)
+    'MM_M062_EM0051': [Demon_Sync(23, isNavi=True)], #Idun in Golden Apple Quest creation (Idun)
     'MM_M062_E0378': [Demon_Sync(467)], #Dazai/Abdiel talk in area 2 creation (Abdiel)
     'MM_M062_E0380': [Demon_Sync(35,451)], #Fionn 1 Post-fight (Fionn)
     'MM_M062_E0492': [Demon_Sync(453)], #Final Lahmu (Lahmu Phase 2)
@@ -202,6 +202,8 @@ EVENT_SCRIPT_MODELS = {
     'MM_M062_E2298_Direct': [Demon_Sync(451)], #Fionn post-fight Vengeance
     'MM_M062_E2300': [Demon_Sync(1151,578)], #Dazai Pre-Blocker Vengeance
     'MM_M062_E2302': [Demon_Sync(561),Demon_Sync(1151,578)], #Arriving in fairy village vengeance (Yuzuru,Dazai)
+    'MM_M062_E2305': [Demon_Sync(57, isNavi=True)], #Golden Apple Quest part 1 vengeance (Pyro Jack)
+    'MM_M062_E2305_2': [Demon_Sync(23, isNavi=True)], #Idun in Golden Apple Quest vengeance (Idun)
     #Mainmission M063 (Chiyoda)
     'MM_M063_E0625': [Demon_Sync(465),Demon_Sync(75,435)], #Yakumo post-fight Chiyoda (Yakumo, Nuwa)
     'MM_M063_EM0061': [Demon_Sync(822),Demon_Sync(823),Demon_Sync(824)], #Hellfire Highway (Okuninushi, Sukuna Hikona, Minakata)
@@ -316,6 +318,7 @@ EVENT_SCRIPT_MODELS = {
     #SubMission M061 (Minato)
     'MM_M061_EM0021': [Demon_Sync(433),Demon_Sync(434)], #Eligor and Andras Event
     'MM_M061_EM1020': [Demon_Sync(114, isNavi=True)], #The Ultimate Omelet (Aitvaras)
+    'MM_M061_EM1030': [Demon_Sync(304, isNavi=True)], #The Cursed Mermaids Mermaid Part
     'MM_M061_EM1031': [Demon_Sync(801)], #Pazuzu Event Mermaid Quest
     'MM_M061_EM1041': [Demon_Sync(803)], #Anahita Event Mermaid Quest 2
     'MM_M061_EM1050_New': [Demon_Sync(820)], #Talisman Hunt (Shiki Ouji)
@@ -344,7 +347,9 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_EM2240': [Demon_Sync(519),Demon_Sync(566)], #CoV Khonsu Ra Quest (Khonsu Ra, Khonsu) 
     'MM_M061_EM2242': [Demon_Sync(579)], #CoV Khonsu Ra Quest (Isis)
     'MM_M061_EM2245': [Demon_Sync(566)], #CoV Khonsu Ra Quest (Khonsu)
-    'MM_M061_EM2380': [Demon_Sync(781)], #Mo Shuvuu Quest (Andras)
+    'MM_M061_EM2380': [Demon_Sync(781), Demon_Sync(289, isNavi=True)], #Mo Shuvuu Quest (Andras, Navi Mo Shuvuu)
+    'MM_M061_EM2382': [Demon_Sync(289, isNavi=True)], #Mo Shuvuu Quest part 3 (Mo Shuvuu)
+    'MM_M061_EM2383': [Demon_Sync(781), Demon_Sync(289, isNavi=True)], #Mo Shuvuu Quest part 4 (Mo Shuvuu, Andras)
 
     #SubMission M062 (Shinagawa)
     'MM_M062_EM1141': [Demon_Sync(809)], #Kumbhanda Bottle Quest (Kumbhanda)
@@ -369,12 +374,20 @@ EVENT_SCRIPT_MODELS = {
     'esNPC_em1650_05': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) 
     'esNPC_em1650_06': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim)
     'MM_M062_EM2110_Enemy': [Demon_Sync(769)], #Vouivre Quest (Vouivre) 
-    'MM_M062_EM2440': [Demon_Sync(768)], #Amanozako Control Quest(Yakshini)
+    'MM_M062_EM2430': [Demon_Sync(59, isNavi=True)], #Pixie on the Case (Pixie)
+    'MM_M062_EM2432': [Demon_Sync(59, isNavi=True)], #Pixie on the Case npc Pixies (Pixie)
+    'MM_M062_EM2440': [Demon_Sync(768), Demon_Sync(38, isNavi=True)], #Amanozako Control Quest(Yakshini, Amanozako)
+    'MM_M062_EM2441': [Demon_Sync(38, isNavi=True)], #Amanozako Control Quest part 2 (Amanozako)
+    'MM_M062_EM2442': [Demon_Sync(38, isNavi=True)], #Amanozako Control Quest part 3 (Amanozako)
+    'MM_M062_EM2443': [Demon_Sync(38, isNavi=True)], #Amanozako Control Quest part 4 (Amanozako)
+    'MM_M062_EM2444': [Demon_Sync(38, isNavi=True)], #Amanozako Control Quest part 5 (Amanozako)
+    'MM_M062_EM2446': [Demon_Sync(38, isNavi=True)], #Amanozako Control Quest part 7 (Amanozako)
 
     #SubMission M063 (Chiyoda)
     'MM_M063_EM1210': [Demon_Sync(824),Demon_Sync(826)], #Oyamatsumi Quest (Take-Minakata,Oyamatsumi)
     'MM_M063_EM1211': [Demon_Sync(826)], #Oyamatsumi Quest (Oyamatsumi)
     'MM_M063_EM1230_HitAAction': [Demon_Sync(333, isNavi=True)], #Hua Po Quest (Hua Po)
+    'MM_M063_EM1231': [Demon_Sync(333, isNavi=True)], #Hua Po Quest end
     'MM_M063_EM1241_Navi': [Demon_Sync(273, isNavi=True)], #Chiyoda Gem Quest (Decarabia)
     'MM_M063_EM1250': [Demon_Sync(822)],#Kunitsukami Fight Quest (Okuninushi) 
     'MM_M063_EM1251': [Demon_Sync(823)],#Kunitsukami Fight Quest (Sukuna Hikona)
@@ -385,7 +398,10 @@ EVENT_SCRIPT_MODELS = {
     'MM_M063_EM1592': [Demon_Sync(876)], #Berserk Amanozako Quest (Amanozako Runaway) 
     'MM_M063_EM1670': [Demon_Sync(72)], #Black Frost Dionysus Quest (Black Frost) 
     'MM_M063_EM1680': [Demon_Sync(183)], #Black Frost Dionysus Quest (Dionysus)
-    'MM_M063_EM2170': [Demon_Sync(227)], #Masakado Quest 
+    'MM_M063_EM2170': [Demon_Sync(227)], #Masakado Quest
+    'MM_M063_EM2390': [Demon_Sync(128, isNavi=True)], #Cironnup Quest (Cironnup)
+    'MM_M063_EM2390_Start': [Demon_Sync(128, isNavi=True)], #Cironnup Quest start (Cironnup)
+    'MM_M063_EM2397': [Demon_Sync(128, isNavi=True)], #Cironnup Quest part 8 (Cironnup)
     'MM_M063_EM2580': [Demon_Sync(776)], #Yoshitsune Haunt Quest (Atavaka)
 
     #SubMission M064 (Shinjuku)
@@ -412,6 +428,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_EM2421_Direct': [Demon_Sync(681)], #Satan Quest (Satan) 
     'MM_M064_EM2461': [Demon_Sync(892)], #Mara Quest (Mara) 
     'MM_M064_EM2500': [Demon_Sync(215)], #Brawny Ambitions III (Okuninushi) 
+    'MM_M064_EM2521_Navi': [Demon_Sync(273, isNavi=True)], #Shinjuku Gem Quest (Decarabia)
     'MM_M064_EM2552': [Demon_Sync(509)], #MadGasser Quest (Zhen (3xCopy))
     'MM_M064_EM2621': [Demon_Sync(775)], #Orochi Quest (Orochi) 
 
@@ -433,6 +450,11 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_EM1690': [Demon_Sync(265)],  #Adramelech Futsunushi Quest (Adramalech) 
     'MM_M060_EM1700': [Demon_Sync(201)],  #Adramelech Futsunushi Quest (Futsunushi) 
     'MM_M060_EM2371': [Demon_Sync(865)],  #Garuda Quest (Garuda) 
+    'MM_M060_EM2480': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest (Nahobiho)
+    'MM_M060_EM2481': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 2 (Nahobiho)
+    'MM_M060_EM2482': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 3 (Nahobiho)
+    'MM_M060_EM2483': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 4 (Nahobiho)
+    'MM_M060_EM2484': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 5 (Nahobiho)
     'MM_M060_EM2570': [Demon_Sync(22, 779)], #Moirae Haunt Quest (Norn)
     'MM_M060_EM2630': [Demon_Sync(782)],  #Saturnus Quest(Saturnus) 
     'MM_M061_EM2705': [Demon_Sync(207)], # The Guardian of Light (Marici)
@@ -448,8 +470,29 @@ EVENT_SCRIPT_MODELS = {
     'BP_es618_m060_01': [Demon_Sync(465)],#Yakumo in Area 4 
     'BP_es418_m063_01': [Demon_Sync(75, 435)],#Nuwa in Area 3 #TODO No clue where they are
     'BP_es618_m063_01': [Demon_Sync(465)],#Yakumo in Area 3 #TODO No clue where they are
+    'esNPC_m061_32_Navi': [Demon_Sync(316, isNavi=True)], #Navi Ippon Datara
+    'esNPC_m061_33_Navi': [Demon_Sync(304, isNavi=True)], #Navi Mermaid
+    'esNPC_m061_37_Navi': [Demon_Sync(356, isNavi=True)], #Navi Hell Biker
+    'esNPC_m061_38_Navi': [Demon_Sync(295, isNavi=True)], #Navi Cleopatra
+    'esNPC_m062_NaviDevil_01': [Demon_Sync(44, isNavi=True)], #Navi Agathion
+    'esNPC_m062_NaviDevil_41': [Demon_Sync(147, isNavi=True)], #Navi Mothman
+    'esNPC_m062_NaviDevil_42': [Demon_Sync(23, isNavi=True)], #Navi Idun
+    'esNPC_m064_NaviDevil_01': [Demon_Sync(214, isNavi=True)], #Navi Sukuna Hikona
+    'esNPC_m060_08_Navi': [Demon_Sync(144, isNavi=True)], #Navi Bugs
+    'esNPC_m060_14_Navi': [Demon_Sync(77, isNavi=True)], #Navi Mara
+    'esNPC_m060_15_Navi': [Demon_Sync(35, isNavi=True)], #Navi Fionn
 
     #Playable Demons
+    'Pla038': [Demon_Sync(38, isNavi=True)], #Player Amanozako
+    'Pla038_AnimBP': [Demon_Sync(38, isNavi=True)], #Player Amanozako Animations
+    'Pla059': [Demon_Sync(59, isNavi=True)], #Player Pixie
+    'Pla059_AnimBP': [Demon_Sync(59, isNavi=True)], #Player Pixie Animations
+    'Pla060': [Demon_Sync(60, isNavi=True)], #Player Nahobiho
+    'Pla060_AnimBP': [Demon_Sync(60, isNavi=True)], #Player Nahobiho Animations
+    'Pla128': [Demon_Sync(128, isNavi=True)], #Player Cironnup
+    'Pla128_AnimBP': [Demon_Sync(128, isNavi=True)], #Player Cironnup Animations
+    'Pla289': [Demon_Sync(289, isNavi=True)], #Player Mo Shuvuu
+    'Pla289_AnimBP': [Demon_Sync(289, isNavi=True)], #Player Mo Shuvuu Animations
     'Pla355': [Demon_Sync(355, isNavi=True)], #Player Alice
     'Pla355_AnimBP': [Demon_Sync(355, isNavi=True)], #Player Alice Animations
 }
@@ -483,6 +526,8 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M061_EM1781': [Anim_Sync('02idleB','05attack')], #Cleopatra Quest 
     'MM_M061_EM1791': [Anim_Sync('02idleB','05attack'),Anim_Sync('map/700000_event_idle', '01idleA')], #Artemis Quest 
     'MM_M061_EM2613_HitAction': [Anim_Sync('02idleB','41encount'),Anim_Sync('Sub/Sub_13skill_ex1','06skill')], #Dagda Quest
+    'MM_M061_EM2380': [Anim_Sync('20skillA','06skill')], #Mo Shuvuu Quest
+    'MM_M061_EM2382': [Anim_Sync('20skillA','06skill')], #Mo Shuvuu Quest part 3
     'MM_M062_EM1806': [Anim_Sync('06skill_Composite','06skill')], # Hell Biker Fight
     'MM_M062_EM1806_NewRoute': [Anim_Sync('06skill_Composite','06skill')], # Hell Biker Fight
     'MM_M063_EM1810': [Anim_Sync('06skill_Composite','06skill')], #White Rider Fight Chiyoda
@@ -513,11 +558,19 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'esNPC_em1650_06': [Anim_Sync('map/700000_event_idle','04dying')], # Lilim/Principality Quest NPCs (Lilim) 
     'MM_M063_EM1210': [Anim_Sync('06skill_Composite','06skill')], #Kunitsu Quest (Take-Minakata,Oyamatsumi)
     'MM_M063_EM1281': [Anim_Sync('21skillB','06skill')],#The Archangel of Destruction (Camael)
-    'MM_M062_EM1680': [Anim_Sync('06skill_Composite','06skill')],#Black Frost Dionysus Quest (Dionysus)
+    'MM_M062_EM0050': [Anim_Sync('map/000000_idleA','01idleA')],#Idun in Golden Apple Quest creation
+    'MM_M062_E2305_2': [Anim_Sync('map/000000_idleA','01idleA')],#Idun in Golden Apple Quest vengeance
+    'MM_M062_EM2440': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/001000_run','11run'),Anim_Sync('map/700001_no','03dmg')],#Amanozako Control Quest
+    'MM_M062_EM2440': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/001000_run','11run'),Anim_Sync('map/700001_no','03dmg')],#Amanozako Control Quest
+    'MM_M062_EM2441': [Anim_Sync('map/700001_no','03dmg'),Anim_Sync('Event/EVT_v_run_loop','11run'),Anim_Sync('map/001000_run','11run'),Anim_Sync('Event/EVT_v_idle_loop','01idleA'),Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700000_yes','51yes')],#Amanozako Control Quest part 2
+    'MM_M062_EM2442': [Anim_Sync('map/700002_doya','05attack'),Anim_Sync('map/700000_yes','51yes'),Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700003_homeru','06skill')],#Amanozako Control Quest part 3
+    'MM_M062_EM2443': [Anim_Sync('map/000000_idleA','01idleA')],#Amanozako Control Quest part 4
+    'MM_M062_EM2444': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700001_no','03dmg')],#Amanozako Control Quest part 5
+    'MM_M062_EM2446': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700000_yes','51yes'),Anim_Sync('map/700002_doya','05attack')],#Amanozako Control Quest part 7
     'MM_M064_EM1281': [Anim_Sync('21skillB','06skill')],#The Archangel of Destruction Shinjuku (Camael)
     'MM_M064_EM2130': [Anim_Sync('02idleB','05attack'),Anim_Sync('map/700020_stick','14command'),Anim_Sync('map/700010_laugh','14command')], #Basilisk Hunt Quest (Anansi, Onyankopon)
     'MM_M064_EM2306': [Anim_Sync('map/700000_dance','51yes')],#Amabie in Macabre Quest
-    'MM_M064_EM2360': [Anim_Sync('map/700000_event_idle_in','51yes'),Anim_Sync('map/700002_event_idle_out','14command'),Anim_Sync('map/700001_event_idle_loop','01idleA'),Anim_Sync('07skill_b','05attack'),Anim_Sync('06skill_a','05attack')],#Alice Quest
+    'MM_M064_EM2360': [Anim_Sync('map/700000_event_idle_in','51yes'),Anim_Sync('map/700002_event_idle_out','14command'),Anim_Sync('map/700001_event_idle_loop','01idleA'),Anim_Sync('07skill_b','06skill'),Anim_Sync('06skill_a','06skill')],#Alice Quest
     'MM_M064_EM2360_Event': [Anim_Sync('map/700000_event_idle_in','51yes'),Anim_Sync('map/700001_event_idle_loop','01idleA')],#Alice Quest Event
     'MM_M064_EM2366': [Anim_Sync('map/700000_event_idle_in','51yes'),Anim_Sync('map/700001_event_idle_loop','01idleA')],#Alice Quest part 7
     'MM_M064_EM2310': [Anim_Sync('02idleB','05attack')],#Onyakopon Anansi Quest (Onyakopon Side)
@@ -527,6 +580,14 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M060_EM1381': [Anim_Sync('09skill_d','06skill'),Anim_Sync('09skill_c','06skill'),Anim_Sync('02idleB','14command')], #Winge Sun CoC (Amon,Khonsu)
     'MM_M060_EM1420': [Anim_Sync('Map/700002_event_idle','14command'),Anim_Sync('Map/700000_event_idle','51yes')], #Fionn 2 Quest (Fionn)
     'MM_M060_EM1440': [Anim_Sync('02idleB','14command')], #Baal Quest (Demeter)
+    'MM_M060_EM2480': [Anim_Sync('01idleA_field','01idleA'),Anim_Sync('Map/700001_awawa','03dmg'),Anim_Sync('Map/700000_encount_loop','41encount')], #Nahobiho Quest
+    'MM_M060_EM2481': [Anim_Sync('01idleA_field','01idleA'),Anim_Sync('Map/700001_awawa','03dmg')], #Nahobiho Quest part 2
+    'MM_M060_EM2482': [Anim_Sync('01idleA_field','01idleA')], #Nahobiho Quest part 3
+    'MM_M060_EM2483': [Anim_Sync('Map/700001_awawa','03dmg')], #Nahobiho Quest part 4
+    'MM_M060_EM2483': [Anim_Sync('01idleA_field','01idleA')], #Nahobiho Quest part 5
+    'Pla038_AnimBP': [Anim_Sync('map/000000_idleA','01idleA')], #Player Amanozako Animations
+    'Pla060_AnimBP': [Anim_Sync('01idleA_field','01idleA'),Anim_Sync('81twistPoseAsset','51yes')], #Player Nahobiho Animations
+    'Pla289_AnimBP': [Anim_Sync('11run_EvtRemote','11run'),Anim_Sync('81twist_PoseAsset','51yes')], #Player Mo Shuvuu Animations
 }
 
 #For bosses that do not use their own model, which model they should use instead

@@ -163,23 +163,26 @@ class Message_File:
                 currentVoice = newVoices[currentIndex]
                 pageData.voice = currentVoice
                 if currentVoice is not None:
-                    match = re.search(DEMON_ID_OF_CUE_REGEX, currentVoice) #Only update cues and files of demon voices, not event voices
+                    match = re.search(DEMON_ID_OF_CUE_REGEX, currentVoice.lower()) #Only update cues and files of demon voices, not event voices
                     if match:
-                        voiceSet.add(currentVoice)
+                        pageData.voice = currentVoice.lower() #Atlus made a capitalization error in the Yakshini quest
+                        voiceSet.add(currentVoice.lower())
                         demonID = match.group()
                         demonSet.add(demonID)
-                        pageData.cue = getCuePath(demonID, demonFilenames, voice=currentVoice)[0]
+                        pageData.cue = getCuePath(demonID, demonFilenames, voice=currentVoice.lower())[0]
                 currentIndex += 1
         json = self.apiUasset.json
         nameMap = json["NameMap"]
         nameMap[:] = [x for x in nameMap if not (CUE_BASE_PATH in x and x.endswith("_vo"))] #Remove old cues
         #print(voiceSet)
+        #print(demonSet)
         for demonID in demonSet:
             nameMap.append(getCuePath(demonID, demonFilenames, isNameMap=True)[0])
         for voiceID in voiceSet:
             demonID = re.search(DEMON_ID_OF_CUE_REGEX, voiceID).group()
             cuePaths = getCuePath(demonID, demonFilenames, voice=voiceID, isNameMap=True)
             for cuePath in cuePaths:
+                #print(cuePath)
                 nameMap.append(cuePath)
         #print(nameMap)
 
