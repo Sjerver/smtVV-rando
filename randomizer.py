@@ -6809,7 +6809,7 @@ class Randomizer:
                 replacementID = self.bossReplacements[numbers.NAVIGATOR_BOSS_MAP[navi.demonID]]
             else:
                 replacementID = self.encounterReplacements[navi.demonID]
-            #replacementID = 565 #Tiamat
+            #replacementID = 278 #Garuda
             try:
                 mapEntry = copy.deepcopy(next(e for e in mapTable if e["Value"][0]["Value"] == replacementID))
             except StopIteration:

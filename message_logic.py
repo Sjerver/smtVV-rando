@@ -274,6 +274,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e0379': [Demon_Sync(35, 451)],#Fionn 1 Pre-fight dialogue (Fionn)
     'e0380': [Demon_Sync(35, 451), Demon_Sync(452)],#Fionn 1 Post-fight dialogue (Fionn, Lahmu)
     'e0390': [Demon_Sync(451, nameVariant='Fionn')],#First Miyazu dialogue in fairy village (Fionn)
+    'e0430': [Demon_Sync(432)],#Jojozi Temple Goko dialogue creation (Hydra)
     'e0431': [Demon_Sync(236, 441)],#Lahmu 1 Post-fight dialogue (Lahmu) Note: Lahmu mentions will switch from Lahmu 1 to final Lahmu once you enter area 2
     'e0432': [Demon_Sync(236, 441)],#Lahmu 1 Pre-fight dialogue (Lahmu)
     'e0435': [Demon_Sync(441)],#Arriving at overrun school (Lahmu)

@@ -25,11 +25,11 @@ REQUIRES_HIT_UPDATE = [
     'MM_M088_E0602_Abdiel','MM_M088_E0602_Khons','MM_M088_E0602_Koshimizu','MM_M088_E0602_Vasuki','MM_M088_E0602_Odin','MM_M088_E0602_Zeus',
     'MM_M092_EM101_','MM_M092_EM102_','MM_M092_EM105_1','MM_M092_EM106_','MM_M092_EM110',
     'MM_M016_EM1450','MM_M016_EM1500',
-    'MM_M061_EM1782','MM_M061_EM1791','MM_M061_EM2611','MM_M107_EM1824','MM_M107_EM1825_Dev651','MM_M107_EM1825_Hit',
+    'MM_M061_EM1782','MM_M061_EM1791','MM_M061_EM2611','MM_M107_EM1824','MM_M107_EM1825_Dev651','MM_M107_EM1825_Hit','MM_M061_EM1020','MM_M061_EM1030',
     'MM_M035_EM1480','MM_M035_EM1491','MM_M036_EM1490','MM_M036_EM1481',
     'MM_M061_EM1041','MM_M061_EM1050_New','MM_M061_EM1360','MM_M061_EM1630','MM_M061_EM1640', 'MM_M061_EM2190','MM_M061_EM2531',
     'MM_M061_EM0151','MM_M061_EM0152','MM_M061_EM0154','MM_M061_EM1710','MM_M061_EM2240','MM_M061_EM2245',
-    'MM_M062_EM1160','MM_M062_EM1161_A','MM_M062_EM1181','MM_M062_EM1331','MM_M062_EM1340','MM_M062_EM1401','MM_M062_EM1650','MM_M062_EM1660','MM_M062_EM2090','MM_M062_EM2110_Enemy',
+    'MM_M062_EM1160','MM_M062_EM1161_A','MM_M062_EM1181','MM_M062_EM1331','MM_M062_EM1340','MM_M062_EM1401','MM_M062_EM1650','MM_M062_EM1660','MM_M062_EM2090','MM_M062_EM2110_Enemy','MM_M062_EM0051','MM_M062_E2305_2',
     'MM_M063_EM1210','MM_M063_EM1250','MM_M063_EM1260','MM_M063_EM1291','MM_M063_EM1350','MM_M063_EM1670','MM_M063_EM1680','MM_M063_EM2170',
     'MM_M064_EM1260','MM_M064_EM1261','MM_M064_EM1291','MM_M064_EM2130','MM_M064_EM2270','MM_M064_EM2280','MM_M064_EM2310','MM_M064_EM2320','MM_M064_EM2400','MM_M064_EM2402','MM_M064_EM2552','MM_M064_EM2621',
     'MM_M060_EM1370','MM_M060_EM1381','MM_M060_EM1390','MM_M060_EM1390_NewRoute','MM_M060_EM1420','MM_M060_EM1441','MM_M060_EM1600','MM_M060_EM1601','MM_M060_EM1602','MM_M060_EM1690','MM_M060_EM1700','MM_M060_EM2630',
@@ -42,7 +42,8 @@ OVERLAPPING_SCRIPTS = [
 ]
 
 EVENT_CUTSCENES = {
-    'LV_E0180': [Demon_Sync(431)], #UMAP Triple Preta Cutscene
+    'LV_E0180': [Demon_Sync(431), Demon_Sync(38, isNavi=True)], #UMAP Triple Preta Cutscene
+    'LV_E0181': [Demon_Sync(38, isNavi=True)], #UMAP Post Triple Preta Cutscene
     'LV_E0310': [Demon_Sync(-432,432)], #Hydra Cutscene
     'LV_E0330': [Demon_Sync(75,550),Demon_Sync(435)], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa (CoV w/Yakumo), Snake Nuwa)
     'LV_E0340': [Demon_Sync(465),Demon_Sync(75,550),Demon_Sync(435)], #UMAP Snake Nuwa Post-fight Cutscene (Yakumo, Nuwa (CoV w/Yakumo), Snake Nuwa)
@@ -164,6 +165,10 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_E2610' : [Demon_Sync(193,579),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Isis Event Bethel Egypt (Isis, Yuzuru,Dazai)
     'MM_M061_E2620': [Demon_Sync(561),Demon_Sync(1151,578),Demon_Sync(7,566)], #CoV Khonsu Event Bethel Egypt (Khonsu,Yuzuru,Dazai)
     'MM_M061_E2625_Direct': [Demon_Sync(193,579),Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
+    'MM_M061_EM0181': [Demon_Sync(38, isNavi=True)], #Amanozako gives you a bead
+    'MM_M061_EM0182': [Demon_Sync(38, isNavi=True)], #Amanozako becomes your navigator
+    'EM_M061_Q0019': [Demon_Sync(38, isNavi=True)], #Amanozako leaves in area 1
+    'EM_M061_TutorialNavi02': [Demon_Sync(38, isNavi=True)], #Amanazako first partner spot
     #Mainmission M016 (Empyrean)
     'MM_M016_E0885': [Demon_Sync(152)], #CoC Chaos Route Empyrean Hayataro Joins After Stock is Full (Hayataro)
     'MM_M016_E0885_Direct': [Demon_Sync(152)], #CoC Chaos Route Empyrean Hayataro Joins Stock is Full so wait (Hayataro)
@@ -190,9 +195,15 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_E3110_Direct': [Demon_Sync(81,483)], #CoV Beelzebub
     'MM_M060_E3130_Direct': [Demon_Sync(482),Demon_Sync(481)], #CoV Zeus + Odin
     'MM_M060_Npc609Talk': [Demon_Sync(152)], #CoC Yuzuru Hayataro NPC Event? (Hayataro)
+    'MM_M060_EM0140': [Demon_Sync(38, isNavi=True)], #Amanozako rejoins in area 4 creation
     #Mainmission M062 (Shinagawa)
     'MM_M062_EM0050': [Demon_Sync(57, isNavi=True)], #Golden Apple Quest part 1 creation (Pyro Jack)
     'MM_M062_EM0051': [Demon_Sync(23, isNavi=True)], #Idun in Golden Apple Quest creation (Idun)
+    'MM_M062_EM0120_Direct': [Demon_Sync(38, isNavi=True)], #Amanozako rejoins in area 2
+    'MM_M062_EM0122': [Demon_Sync(38, isNavi=True)], #Amanozako car event
+    'MM_M062_EM0123': [Demon_Sync(38, isNavi=True)], #Amanozako railroad event
+    'MM_M062_EM0124': [Demon_Sync(38, isNavi=True)], #Amanozako container event
+    'MM_M062_EM0125': [Demon_Sync(38, isNavi=True)], #Amanozako leaves in area 2
     'MM_M062_E0378': [Demon_Sync(467)], #Dazai/Abdiel talk in area 2 creation (Abdiel)
     'MM_M062_E0380': [Demon_Sync(35,451)], #Fionn 1 Post-fight (Fionn)
     'MM_M062_E0492': [Demon_Sync(453)], #Final Lahmu (Lahmu Phase 2)
@@ -209,6 +220,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M063_EM0061': [Demon_Sync(822),Demon_Sync(823),Demon_Sync(824)], #Hellfire Highway (Okuninushi, Sukuna Hikona, Minakata)
     'MM_M063_EM0070': [Demon_Sync(273, isNavi=True)], #Decarabia in Ishtar Quest (Decarabia)
     'MM_M063_EM0079': [Demon_Sync(455), Demon_Sync(273, isNavi=True)], #Ishtar Post Fight
+    'MM_M063_EM0130': [Demon_Sync(38, isNavi=True)], #Amanozako in Chiyoda
     'MM_M063_M0680': [Demon_Sync(467)],#Abdiel celebrates Arioch's death (Abdiel)
     #Mainmission M064 (Shinjuku)
     'MM_M064_E2510_Direct': [Demon_Sync(503)], #First Power Fight in Shinjuku 
@@ -222,6 +234,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_E2638': [Demon_Sync(1151,578)], #Dazai joins to see Mastema 2 (?)
     'MM_M064_E2642_Direct': [Demon_Sync(1151,578),Demon_Sync(596)], #Meeting Mastema (Dazai,Mastema)
     'MM_M064_E2644_Direct': [Demon_Sync(596)], #Dazai got salted (Mastema)
+    'MM_M064_E2647': [Demon_Sync(38, isNavi=True)], #Amanozako in Shinjuku
     'MM_M064_E2650_Direct': [Demon_Sync(550),Demon_Sync(567)], #Nuwa/Yakumo talk after seeing Naamah (Nuwa, Yakumo)
     'MM_M064_E2690': [Demon_Sync(486)], #Dead Cherubim
     'MM_M064_E2900': [Demon_Sync(596)],#Mastema sends you to Shakan
@@ -506,15 +519,27 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M061_EM1640': [Anim_Sync('06skill_Composite','06skill')], # The Spirit of Love (Apsaras)
     'MM_M061_EM1640_Hit': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Spirit of Love First Entry (Apsaras)
     'MM_M061_E2625_Direct': [Anim_Sync('map/700000_dying','04dying')], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
+    'MM_M061_EM0181': [Anim_Sync('Event/EVT_v_sit_loop','01idleA'),Anim_Sync('map/700007_sit_idleA','04dying')], #Amanozako gives you a bead
+    'MM_M061_EM0182': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700002_doya','05attack'),Anim_Sync('map/700004_yuudou_in','11run'),Anim_Sync('map/700005_yuudou_loop','04dying'),Anim_Sync('map/001000_run','11run'),Anim_Sync('map/700007_sit_idleA','04dying')], #Amanozako becomes your navigator
+    'EM_M061_Q0019': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700005_yuudou_loop','04dying')], #Amanozako leaves in area 1
+    'EM_M061_TutorialNavi02': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('Event/EVT_v_action_loop','05attack'),Anim_Sync('Event/EVT_v_action_inout','11run'),Anim_Sync('map/700000_yes','51yes')], #Amanozako first partner spot
     'MM_M038_E2930_Direct': [Anim_Sync('Event/EVT_E0604c01m_loop','04dying')], #Shakan Abdiel Post Fight
     'MM_M060_E762': [Anim_Sync('map/700000_event_idle', '01idleA')],#Nuwa in area 4 at the gate
     'MM_M060_E3020': [Anim_Sync('Event/EVT_v_turnwalk_inout','11run')], #Yakumo in area 4 vengeance part 2
+    'MM_M062_EM0120_Direct': [Anim_Sync('map/700002_doya','05attack'),Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/001000_run','11run')], #Amanozako rejoins in area 2
+    'MM_M062_EM0122': [Anim_Sync('Event/EVT_v_idle_loop','01idleA')], #Amanozako car event
+    'MM_M062_EM0123': [Anim_Sync('map/700002_doya','05attack'),Anim_Sync('Event/EVT_v_idle_loop','01idleA')], #Amanozako railroad event
+    'MM_M062_EM0124': [Anim_Sync('map/700000_yes','51yes'),Anim_Sync('Event/EVT_v_idle_loop','01idleA'),Anim_Sync('Event/EVT_v_run_loop','11run')], #Amanozako container event
+    'MM_M062_EM0125': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700005_yuudou_loop','04dying'),Anim_Sync('map/001000_run','11run')], #Amanozako leaves in area 2
     'MM_M062_E0380': [Anim_Sync('Map/700002_event_idle','01idleA')], #Fionn 1 Post-fight (Fionn)
     'MM_M062_E0492': [Anim_Sync('3rd_01idleA','01idleA'),Anim_Sync('3rd_41encount','41encount')], #Final Lahmu (Lahmu Phase 2)
     #'MM_M062_EM0041': [Anim_Sync('Event/EVT_SlowEncount_inout','41encount')], #Loup-garous Event
     'MM_M062_E2295_Direct': [Anim_Sync('02idleB','05attack')],#Eisheth pre-fight
     'MM_M062_E2298_Direct': [Anim_Sync('Map/700002_event_idle','01idleA')], #Fionn 1 Post-fight Vengeance (Fionn)
+    'MM_M063_EM0130': [Anim_Sync('map/700006_yuudou_out','11run'),Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/001000_run','11run')], #Amanozako in Chiyoda
+    'MM_M064_E2647': [Anim_Sync('Event/EVT_v_idle_loop','01idleA'),Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700004_yuudou_in','11run'),Anim_Sync('map/700005_yuudou_loop','04dying'),Anim_Sync('Event/EVT_E0180c03m_loop','06skill'),Anim_Sync('map/001000_run','11run')], #Amanozako in Shinjuku
     'MM_M064_E2690': [Anim_Sync('map/700000_dead01','04dying'),Anim_Sync('map/700001_dead02','04dying')], #Dead Cherubim
+    'MM_M060_EM0140': [Anim_Sync('Event/EVT_E0180c03m_loop','06skill'),Anim_Sync('map/700002_doya','05attack'),Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/001000_run','11run')], #Amanozako rejoins in area 4 Creation
     'MM_M092_EM107_': [Anim_Sync('06skill_a','06skill'),Anim_Sync('06skill_b','06skill'),Anim_Sync('06skill_c','06skill')], #School Rakshasa + Incubus
     'MM_M092_EM109_a': [Anim_Sync('02idleB','05attack')], #School Save Jack Frost (Manananggal)
 
@@ -866,6 +891,7 @@ MODEL_SYNC = {
 
 LV_SEQUENCES = {
     'LV_E0180': ['SEQ_E0180_c01','SEQ_E0180_c02','SEQ_E0180_c03','SEQ_E0180_c04','SEQ_E0180_c05','SEQ_E0180_c06','SEQ_E0180_c07','SEQ_E0180_c08','SEQ_E0180_c09'], #Triple Preta Cutscene
+    'LV_E0181': ['SEQ_E0181_c01','SEQ_E0181_c02','SEQ_E0181_c03','SEQ_E0181_c04','SEQ_E0181_c05','SEQ_E0181_c06','SEQ_E0181_c07'], #Post Triple Preta Cutscene
     'LV_E0310': ['SEQ_E0310_c01', 'SEQ_E0310_c02', 'SEQ_E0310_c03', 'SEQ_E0310_c05', 'SEQ_E0310_c06', 'SEQ_E0310_c07', 'SEQ_E0310_c08', 'SEQ_E0310_c09'],
     'LV_E0330': ['SEQ_E0330_c01','SEQ_E0330_c02','SEQ_E0330_c03','SEQ_E0330_c04','SEQ_E0330_c06','SEQ_E0330_c08','SEQ_E0330_c09','SEQ_E0330_c10','SEQ_E0330_c10B','SEQ_E0330_c11','SEQ_E0330_c13','SEQ_E0330_c14','SEQ_E0330_c15','SEQ_E0330_c16','SEQ_E0330_c17','SEQ_E0330_c20'], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa, Snake Nuwa)
     'LV_E0340': ['SEQ_E0340_c01','SEQ_E0340_c02','SEQ_E0340_c02B','SEQ_E0340_c04','SEQ_E0340_c04B','SEQ_E0340_c05','SEQ_E0340_c06','SEQ_E0340_c07','SEQ_E0340_c08','SEQ_E0340_c09','SEQ_E0340_c11','SEQ_E0340_c12','SEQ_E0340_c13',], #UMAP Snake Nuwa Post-fight Cutscene (Yakumo, Nuwa, Snake Nuwa)

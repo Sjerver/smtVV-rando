@@ -192,6 +192,10 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM1640_Hit': M061_EM1640_FOLDER, # The Spirit of Love First Entry (Apsaras)
     'MM_M061_E2620': MAINMISSION_M061_FOLDER, #CoV Khonsu Event Bethel Egypt
     'MM_M061_E2625_Direct': MAINMISSION_M061_FOLDER, #CoV Khonsu Event Post Fight Bethel Egypt
+    'MM_M061_EM0181': MAINMISSION_M061_FOLDER, #Amanozako gives you a bead
+    'MM_M061_EM0182': MAINMISSION_M061_FOLDER, #Amanozako becomes your navigator
+    'EM_M061_Q0019': MAINMISSION_M061_FOLDER, #Amanozako leaves in area 1
+    'EM_M061_TutorialNavi02': MAINMISSION_M061_FOLDER, #Amanazako first partner spot
     'MM_M016_E0891': MAIN_M016_FOLDER, #Empyrean Melchizedek
     'MM_M016_E0892': MAIN_M016_FOLDER, #Empyrean Sraosha
     'MM_M016_E0893': MAIN_M016_FOLDER, #Empyrean Alilat
@@ -212,12 +216,18 @@ SCRIPT_FOLDERS = {
     'MM_M060_E3110_Direct': MAIN_M060_FOLDER, #CoV Beelzebub
     'MM_M060_E3130_Direct': MAIN_M060_FOLDER, #CoV Zeus + Odin
     'MM_M060_Npc609Talk': MAIN_M060_FOLDER, #CoC Yuzuru Hayataro NPC Event?
+    'MM_M060_EM0140': MAIN_M060_FOLDER, #Amanozako rejoins in area 4 creation
     'MM_M062_EM0050': MAIN_M062_FOLDER, # Golden Apple Quest part 1
     'MM_M062_EM0051': MAIN_M062_FOLDER, # Idun in Golden Apple Quest
     'MM_M062_E0378': MAIN_M062_FOLDER, #Dazai/Abdiel talk in area 2 creation (Abdiel)
     'MM_M062_E0380': MAIN_M062_FOLDER, #Fionn 1 Post-fight (Fionn)
     'MM_M062_E0492': MAIN_M062_FOLDER,#Final Lahmu (Lahmu Phase 2)
     'MM_M062_EM0041': MAIN_M062_FOLDER, #Loup-garous Event
+    'MM_M062_EM0120_Direct': MAIN_M062_FOLDER, #Amanozako rejoins in area 2
+    'MM_M062_EM0122': MAIN_M062_FOLDER, #Amanozako car event
+    'MM_M062_EM0123': MAIN_M062_FOLDER, #Amanozako railroad event
+    'MM_M062_EM0124': MAIN_M062_FOLDER, #Amanozako container event
+    'MM_M062_EM0125': MAIN_M062_FOLDER, #Amanozako leaves in area 2
     'MM_M062_E2275': M062_PLEIADES_FOLDER, #Dazai/Abdiel talk in area 2 vengeance
     'MM_M062_E2295_Direct': M062_PLEIADES_FOLDER, #Eisheth pre-fight
     'MM_M062_E2298_Direct': M062_PLEIADES_FOLDER, #Fionn post-fight Vengeance
@@ -229,6 +239,7 @@ SCRIPT_FOLDERS = {
     'MM_M063_EM0061': MAIN_M063_FOLDER, #Hellfire Highway Shrine Event
     'MM_M063_EM0070': MAIN_M063_FOLDER, #Decarabia in Ishtar Quest
     'MM_M063_EM0079': MAIN_M063_FOLDER, #Ishtar Post Fight
+    'MM_M063_EM0130': MAIN_M063_FOLDER, #Amanozako in Chiyoda
     'MM_M063_M0680': MAIN_M063_FOLDER, #Abdiel celebrates Arioch's death
     'MM_M064_E2510_Direct': MAIN_M064_FOLDER, #First Power Fight in Shinjuku
     'MM_M064_E2512': MAIN_M064_FOLDER, #Second Power Fight in Shinjuku
@@ -241,6 +252,7 @@ SCRIPT_FOLDERS = {
     'MM_M064_E2638': MAIN_M064_FOLDER, #Dazai joins to see Mastema 2 (?)
     'MM_M064_E2642_Direct': MAIN_M064_FOLDER, #Meeting Mastema (Dazai,Mastema)
     'MM_M064_E2644_Direct': MAIN_M064_FOLDER, #Dazai got salted (Dazai,Mastema)
+    'MM_M064_E2647': MAIN_M064_FOLDER, #Amanozako in Shinjuku
     'MM_M064_E2650_Direct': MAIN_M064_FOLDER, #Nuwa/Yakumo talk after seeing Naamah (Nuwa, Yakumo)
     'MM_M064_E2690': MAIN_M064_FOLDER, #Dead Cherubim 
     'MM_M064_E2900': MAIN_M064_FOLDER,#Mastema sends you to Shakan
@@ -431,6 +443,7 @@ SCRIPT_FOLDERS = {
     
     'LV_E0660': DESIGN_EVENT_FOLDER, #Arioch Cutscene Test
     'LV_E0180': DESIGN_EVENT_FOLDER, #Triple Preta Cutscene
+    'LV_E0181': DESIGN_EVENT_FOLDER, #Post Triple Preta Cutscene
     'LV_E0330': DESIGN_EVENT_FOLDER, #Snake Nuwa Pre-fight Cutscene
     'LV_E0340': DESIGN_EVENT_FOLDER, #Snake Nuwa Post-fight Cutscene
     'LV_E0350': DESIGN_EVENT_FOLDER, #Meeting Abdiel Cutscene
@@ -459,7 +472,9 @@ UMAP_FOLDERS = {
 
 #List of scripts that are in the main mission folder despite submission naming convention
 MAINMISSION_EXCEPTIONS = [
-'MM_M062_EM0041','MM_M062_EM0050','MM_M062_EM0051','MM_M063_EM0061','MM_M063_EM0079','MM_M063_EM0070'
+'MM_M062_EM0041','MM_M062_EM0050','MM_M062_EM0051','MM_M063_EM0061','MM_M063_EM0079','MM_M063_EM0070','MM_M061_EM0181',
+'MM_M061_EM0182','EM_M061_Q0019','EM_M061_TutorialNavi02','MM_M062_EM0120_Direct','MM_M062_EM0122','MM_M062_EM0123','MM_M062_EM0124','MM_M062_EM0125',
+'MM_M063_EM0130','MM_M060_EM0140'
 ]
 
 class UMap_File_List:
