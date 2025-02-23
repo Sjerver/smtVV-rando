@@ -391,7 +391,6 @@ def updateItemRewardInScript(file, oldItemID, newItemID,scriptName,newItemAmount
                     exp['Parameters'][0]['Value']= newItemID
                     #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
                     if imp == 'ItemGet':
-                        #TODO: 2nd Value is amount
                         exp['Parameters'][1]['Value']= newItemAmount
     
     
@@ -517,10 +516,10 @@ def updateGiftScripts(gifts, scriptFiles):
             if any(gift.script in scripts for scripts in GIFT_EQUIVALENT_SCRIPTS.values()): #if script was copied as equivalent, use original base item
                 equivalentScript = getEquivalentSource(gift.script)
                 #print(gift.script + " -> EQ " + equivalentScript +" " +  str(gift.item.ind))
-                updateNPCGiftInScript(BASE_GIFT_ITEMS[equivalentScript], gift.item.ind, file, correctScript)
+                updateNPCGiftInScript(BASE_GIFT_ITEMS[equivalentScript], gift.item.ind, file, correctScript,gift.item.amount)
             else:
                 #print(gift.script + " "+ str(gift.item.ind))
-                updateNPCGiftInScript(BASE_GIFT_ITEMS[gift.script], gift.item.ind, file, correctScript)
+                updateNPCGiftInScript(BASE_GIFT_ITEMS[gift.script], gift.item.ind, file, correctScript,gift.item.amount)
         else: #else it is an event script
             file = scriptFiles.getFile(correctScript)
             if any(gift.script in scripts for scripts in GIFT_EQUIVALENT_SCRIPTS.values()): #if script was copied as equivalent, use original base item
@@ -539,9 +538,8 @@ Updates the old item given through the npc script to the new item.
         newItemID (Integer): the id of the new item that overwrites the old one
         file (Script_File): the file for script data
         script (String): the name of the script
-        #TODO: Include amount??
 '''   
-def updateNPCGiftInScript(oldItemID, newItemID, file, script):
+def updateNPCGiftInScript(oldItemID, newItemID, file, script,newItemAmount = 1):
     jsonData = file.json
     #Find export for script name
     export = next(exp for exp in jsonData['Exports'] if exp['ObjectName'] == script)
@@ -552,6 +550,7 @@ def updateNPCGiftInScript(oldItemID, newItemID, file, script):
         if values[0].get('EnumValue') == 'E_EVENT_SCRIPT_TYPE::NewEnumerator52':
             if values[1].get('Value') == oldItemID:
                 values[1]['Value'] = newItemID
+                values[2]['Value'] = newItemAmount
                 #print(script + ": " + str(oldItemID) + " -> " + str(newItemID))
                 #values[2] would then be amount
     file.updateFileWithJson(jsonData)

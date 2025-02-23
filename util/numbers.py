@@ -77,6 +77,11 @@ TUTORIAL_DAEMON_ID = 430
 
 FIRST_GUEST_YUZURU_ID = 1150
 
+#ChestIDs that are banned from containing key items
+CHEST_BANNED_KEY_ITEM = [29, #Very first Chest, cannot be obtained if it is not picked up at the beginning of the game
+    0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 #The vanilla content of theses chests seems dubious, so to be safe
+]
+
 CHEST_MACCA_MIN = 500
 CHEST_MACCA_MAX = 60000
 #Chance of a chest containing macca instead of an item/essence

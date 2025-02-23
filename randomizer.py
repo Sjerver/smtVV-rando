@@ -4751,7 +4751,7 @@ class Randomizer:
         Parameters:
             scaling (Boolean): Whether the rewards scale to the map the chest is in.
     '''
-    def randomizeChests(self, scaling):
+    def randomizeChests(self, scaling, keyitems):
         validItems = []
         validEssences = []
         if scaling: #Valid Rewards are dependent on map
@@ -4771,6 +4771,30 @@ class Randomizer:
                     validEssences.append(itemID)
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
+        
+        validChests = [chest for chest in self.chestArr if not ((chest.item.value == 0 and chest.macca == 0) or chest.item.value >= numbers.KEY_ITEM_CUTOFF) and chest.chestID not in numbers.CHEST_BANNED_KEY_ITEM]
+        for item in keyitems:
+            chosenChest = random.choice(validChests)
+            #print(str(chosenChest.map)+ " " + str(chosenChest.chestID) )
+            if chosenChest.map in [63,64]: #if a key item is put in chest in chiyoda or shinjuku it also needs to be in the other
+                try:
+                    subValidChests = [chest for chest in validChests if chest.map in [63,64] and chest.map != chosenChest.map]
+                    chest2 = random.choice(subValidChests)
+                    chest2.item = Translated_Value(item,self.itemNames[item])
+                    chest2.amount = 1
+                    chest2.macca = 0
+                    validChests.remove(chest2)
+                    #pprint("Also:" + str(chest2.map)+ " " + str(chest2.chestID) )
+                except StopIteration: #no valid chest found in other map, use chest from map that is not chiyoda or shinjuku
+                    subValidChests =  [chest for chest in validChests if chest.map not in [63,64]]
+                    chosenChest = random.choice(subValidChests)
+                    #pprint("Instead : " + str(chosenChest.map)+ " " + str(chosenChest.chestID) )
+            chosenChest.item = Translated_Value(item,self.itemNames[item])
+            chosenChest.amount = 1
+            chosenChest.macca = 0
+            validChests.remove(chosenChest)
+
+
                 
         for chest in self.chestArr:
             if (chest.item.value == 0 and chest.macca == 0) or chest.item.value >= numbers.KEY_ITEM_CUTOFF: #Skip unused chests and key item 'chests'
@@ -5019,6 +5043,7 @@ class Randomizer:
             rewardingMissions.remove(mission)
             mission.macca = 0
             mission.reward = uniqueRewards[index]
+        
         for mission in rewardingMissions:
             if scaling: #Set area if reward should scale
                 rewardArea = missionRewardAreas[mission.ind]
@@ -5171,12 +5196,17 @@ class Randomizer:
                     itemID = random.choice(validEssences)
                     validEssences.remove(itemID) #Limit 1 gift per essence for diversity
                 gift.item.ind = itemID
+                amount = 1
             else:
                 if self.configSettings.scaleItemsToArea: #scaled items depend on area
                     itemID = random.choice(validItems[rewardArea])
                 else:
                     itemID = random.choice(validItems)
                 gift.item.ind = itemID
+                amount = random.choices(list(numbers.CHEST_QUANTITY_WEIGHTS.keys()), list(numbers.CHEST_QUANTITY_WEIGHTS.values()))[0]
+            if gift.item.ind in numbers.ITEM_QUANTITY_LIMITS.keys():
+                amount = min(amount, numbers.ITEM_QUANTITY_LIMITS[gift.item.ind])
+            gift.item.amount = amount
             #print(gift.script + str(gift.item.ind))
         scriptLogic.updateGiftScripts(pool.allGifts,self.scriptFiles)
 
@@ -5201,12 +5231,13 @@ class Randomizer:
         return giftPool
             
     '''
-    Randomizes the miman and mission rewards, with a combined pool depending on the settings.
+    Randomizes the miman, chest, gift and mission rewards, with a combined pool for key items depending on the settings.
     '''
     def randomizeItemRewards(self):
         self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards(self.scriptFiles)
         missionPool = self.initializeMissionPools()
         giftPool = self.initializeGiftPools()
+        chestKeyItemPool = []
         if not self.configSettings.combineKeyItemPools:
             #Mission Pool get initialized regardless so just stays the same
             mimanPool = copy.deepcopy(numbers.MIMAN_BASE_KEY_ITEMS) #Use base pool
@@ -5217,13 +5248,16 @@ class Randomizer:
                 for reward in missionPool.uniqueRewards:
                     missionKeyItemIDs.append(reward.ind)
                 combinedItemPool = combinedItemPool + missionKeyItemIDs
+            
             if self.configSettings.randomizeMimanRewards: #Add miman rewards to the combined pool
                 combinedItemPool = numbers.MIMAN_BASE_KEY_ITEMS + combinedItemPool
+            
             if self.configSettings.randomizeGiftItems: #Add unique gift rewards to the combined pool
                 giftItemIDs = []
                 for reward in giftPool.uniqueRewards:
                     giftItemIDs.append(reward.ind)
                 combinedItemPool = giftItemIDs + combinedItemPool
+            
 
             #Distribute combined pool, starting with sub pools of fixed or lower size
             if self.configSettings.randomizeMimanRewards:#Miman pool has fixed size
@@ -5235,10 +5269,18 @@ class Randomizer:
                 tsukuyomiCorrection = 0 
                 if not self.configSettings.includeTsukuyomiTalisman:
                     tsukuyomiCorrection = 1 #Increase unique item count by 1 to account for tsukuyomi talisman not being in pool
-                itemIDs = random.sample(combinedItemPool, tsukuyomiCorrection + len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS))
+                maxSize = tsukuyomiCorrection + len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS)
+                giftPoolSize = random.randrange(maxSize // 2, maxSize) #Half of size was chosen arbitrarily
+                itemIDs = random.sample(combinedItemPool,giftPoolSize)
                 giftPool.uniqueRewards = []
                 for itemID in itemIDs:
                     giftPool.uniqueRewards.append(Reward_Item(itemID, 1))
+                    combinedItemPool.remove(itemID)
+            
+            if self.configSettings.randomChests:
+                chestPoolSize = random.randrange(0, len(combinedItemPool) // 2) #Half of size was chosen arbitrarily (only 2 pool sizes remaining, mission should be larger)
+                chestKeyItemPool = random.sample(combinedItemPool,chestPoolSize)
+                for itemID in chestKeyItemPool:
                     combinedItemPool.remove(itemID)
             
             if self.configSettings.randomizeMissionRewards:#Largest pool and therefore last
@@ -5253,6 +5295,9 @@ class Randomizer:
 
         if self.configSettings.randomizeGiftItems:
             self.randomizeGiftItems(giftPool)
+
+        if self.configSettings.randomChests:
+            self.randomizeChests(self.configSettings.scaleItemsToArea, chestKeyItemPool)
 
         if self.configSettings.randomizeMissionRewards:
             self.randomizeMissionRewards(self.configSettings.scaleItemsToArea, missionPool)
@@ -7296,8 +7341,6 @@ class Randomizer:
         if config.unlockFusions:
             self.removeFusionFlags()
             
-        if config.randomChests:
-            self.randomizeChests(self.configSettings.scaleItemsToArea)
         
         if self.configSettings.randomShopItems:
             self.randomizeShopItems(self.configSettings.scaleItemsToArea)
@@ -7335,10 +7378,11 @@ class Randomizer:
 
         self.addEntriesToMapSymbolScaleTable()
         self.scaleLargeSymbolDemonsDown()
+        self.patchAdramelechReplacementSize()
             
         if DEV_CHEATS:
             self.applyCheats()
-
+        
         self.addAdditionalMapSymbols()
         
         if self.configSettings.randomizeNavigatorStats:
@@ -7356,7 +7400,7 @@ class Randomizer:
 
         self.removeCalcOnlyMapSymbolScales()
         
-        self.patchAdramelechReplacementSize()
+        
         self.adjustPunishingFoeSpeeds()
         self.addEscapeFindLines()
         if self.configSettings.randomizeVoicesNormal:
