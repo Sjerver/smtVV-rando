@@ -121,9 +121,10 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
         scale = 1
         currentScale = 1
         for originalDemonID, replacementID in replacementMap.items():
-            currentMapSymbolTable = mapSymbolTable
-            if file.relevantFunctionExps[0] == []:
-                currentMapSymbolTable = originalMapSymbolTable
+            #currentMapSymbolTable = mapSymbolTable
+            #if file.relevantFunctionExps[0] == []:
+            #    currentMapSymbolTable = originalMapSymbolTable
+            currentMapSymbolTable = originalMapSymbolTable
             try:
                 og = next(d for x, d in enumerate(currentMapSymbolTable) if d["Value"][0]["Value"] == originalDemonID)
                 replacement = next(d for x, d in enumerate(currentMapSymbolTable) if d["Value"][0]["Value"] == replacementID)

@@ -296,7 +296,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e0600': [Demon_Sync(8, 469), Demon_Sync(9, 470), Demon_Sync(111, 468), Demon_Sync(7, 516), Demon_Sync(845), Demon_Sync(240, 467), Demon_Sync(454), Demon_Sync(455), Demon_Sync(463), Demon_Sync(537)],#First Bethel summit cutscene (Zeus, Odin, Vasuki, Khonsu, Shiva, Abdiel, Surt, Ishtar, Arioch, Lucifer)
     'e0602': [Demon_Sync(8, 469), Demon_Sync(9, 470), Demon_Sync(111, 468), Demon_Sync(7, 516), Demon_Sync(845), Demon_Sync(467)],#Talking to faction leaders at summit (Zeus, Odin, Vasuki, Khonsu, Shiva, Abdiel)
     'e0603': [Demon_Sync(8, 469), Demon_Sync(9, 470), Demon_Sync(111, 468), Demon_Sync(7, 516), Demon_Sync(845), Demon_Sync(240, 467)],#Abdiel pre-fight dialogue at summit (Zeus, Odin, Vasuki, Khonsu, Shiva, Abdiel)
-    'e0604': [Demon_Sync(8, 469), Demon_Sync(9, 470), Demon_Sync(111, 468), Demon_Sync(7, 516), Demon_Sync(845), Demon_Sync(510, 528), Demon_Sync(240, 467)],#Abdiel post-fight dialogue at summit (Zeus, Odin, Vasuki, Khonsu, Shiva, Tsukuyomi, Abdiel)
+    'e0604': [Demon_Sync(8, 469), Demon_Sync(9, 470), Demon_Sync(111, 468), Demon_Sync(7, 516), Demon_Sync(845), Demon_Sync(528), Demon_Sync(240, 467)],#Abdiel post-fight dialogue at summit (Zeus, Odin, Vasuki, Khonsu, Shiva, Tsukuyomi, Abdiel)
     'e0610': [Demon_Sync(467)],#Angels giving directions to DKC (Abdiel)
     'e0620': [Demon_Sync(512, 465), Demon_Sync(75, 435)],#Yakumo pre-fight dialogue (Yakumo, Nuwa)
     'e0625': [Demon_Sync(512, 465), Demon_Sync(75, 435), Demon_Sync(453)],#Yakumo post-fight dialogue (Yakumo, Nuwa, Lahmu)
@@ -312,7 +312,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e0690': [Demon_Sync(467), Demon_Sync(528)],#Koshimitzu meeting after area 3 (Abdiel, Tsukuyomi)
     'e0730': [Demon_Sync(837), Demon_Sync(537), Demon_Sync(510, 528)],#Regarding the war of the gods dialogue (Baal, Lucifer, Tsukuyomi)
     'e0735': [Demon_Sync(467)],#Dazai dialogue after summit (Abdiel)
-    'e0736': [Demon_Sync(511, 467)],#Dazai/Abdiel talk after summit (Abdiel)
+    'e0736': [Demon_Sync(467)],#Dazai/Abdiel talk after summit (Abdiel)
     'e0762': [Demon_Sync(512, 465, nameVariant='Yakumo'), Demon_Sync(75, 520)],#Nuwa in area 4 (Yakumo, Nuwa) Note: I guess start referencing nahobino nuwa/abdiel in area 4?
     'e0765': [Demon_Sync(525)],#Dazai hat scene (Abdiel)
     'e0770': [Demon_Sync(468), Demon_Sync(845)],#Bethel India demon dialogue (Vasuki, Shiva)
