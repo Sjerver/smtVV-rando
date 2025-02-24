@@ -102,6 +102,7 @@ class Randomizer:
         self.voiceMapFile = General_UAsset("BP_DevilVoiceAssetMap","rando/Project/Content/Sound/DevilVoice/")
         self.nahobino = Nahobino()
         self.totalResistMap = {} #stores all assigned resistances for each element 
+        self.itemReplacementMap = {}
         
         self.configSettings = Settings()
         self.textSeed = ""
@@ -1379,6 +1380,8 @@ class Randomizer:
         for i in range(len(self.skillNames)):
             skillLevels.append(Skill_Level(self.skillNames[i], i, level=[]))
         bonusSkills = numbers.getBonusSkills()
+        if self.configSettings.fixUniqueSkillAnimations:
+            bonusSkills = bonusSkills + numbers.getAnimationFixOnlySkills()
         if self.configSettings.includeEnemyOnlySkills:
             bonusSkills = bonusSkills + numbers.getEnemyOnlySkills()
         if self.configSettings.includeMagatsuhiSkills:
@@ -5141,12 +5144,12 @@ class Randomizer:
     def randomizeGiftItems(self, pool):
         randomizedGifts = []
         if not self.configSettings.combineKeyItemPools:#No combined pools means that exclusive items stay normal due to otherwise having not enough gift slots
-            unchangedGifts = list(filter(lambda gift: gift.script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS or gift.script  in scriptLogic.NEWGAMEPLUS_GIFTS, pool.allGifts))
+            unchangedGifts = list(filter(lambda gift: gift.script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS or gift.script  in scriptLogic.NEWGAMEPLUS_GIFTS or gift.script in scriptLogic.MISSABLE_GIFTS, pool.allGifts))
             for gift in unchangedGifts:
                 pool.uniqueRewards.remove(gift.item)
                 randomizedGifts.append(gift)
         #Filter out exclusive gifts that should not contain a unique item
-        possibleGifts = list(filter(lambda gift: gift.script not in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS and gift.script not in scriptLogic.NEWGAMEPLUS_GIFTS, pool.allGifts))
+        possibleGifts = list(filter(lambda gift: gift.script not in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS and gift.script not in scriptLogic.NEWGAMEPLUS_GIFTS or gift.script in scriptLogic.MISSABLE_GIFTS, pool.allGifts))
         uniqueGifts = random.sample(possibleGifts, len(pool.uniqueRewards))
         for gift in uniqueGifts:
             reward = random.choice(pool.uniqueRewards)
@@ -5208,7 +5211,7 @@ class Randomizer:
                 amount = min(amount, numbers.ITEM_QUANTITY_LIMITS[gift.item.ind])
             gift.item.amount = amount
             #print(gift.script + str(gift.item.ind))
-        scriptLogic.updateGiftScripts(pool.allGifts,self.scriptFiles)
+        scriptLogic.updateGiftScripts(pool.allGifts,self.scriptFiles, self.itemReplacementMap)
 
     '''
     Initializes the pools of all gifts and unique rewards from gifts.
@@ -5265,11 +5268,11 @@ class Randomizer:
                 for itemID in mimanPool:
                     combinedItemPool.remove(itemID)
             
-            if self.configSettings.randomizeGiftItems: #Gift pool has fixed size#TODO:Vary Size?
+            if self.configSettings.randomizeGiftItems:                                                                              
                 tsukuyomiCorrection = 0 
                 if not self.configSettings.includeTsukuyomiTalisman:
                     tsukuyomiCorrection = 1 #Increase unique item count by 1 to account for tsukuyomi talisman not being in pool
-                maxSize = tsukuyomiCorrection + len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS)
+                maxSize = tsukuyomiCorrection + len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS) - len(scriptLogic.MISSABLE_GIFTS)
                 giftPoolSize = random.randrange(maxSize // 2, maxSize) #Half of size was chosen arbitrarily
                 itemIDs = random.sample(combinedItemPool,giftPoolSize)
                 giftPool.uniqueRewards = []
@@ -6838,7 +6841,6 @@ class Randomizer:
 
     '''
     Changes the demon navigators to reflect what their respective enemy/boss replacements are
-    TODO: Not related to this function specifically, but Amanozako's model is not updated when you first get her I think, save reload did it though
     '''
     def changeNavigatorDemons(self):
         json = self.naviParamFile.json
@@ -7392,7 +7394,7 @@ class Randomizer:
         message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap)
-        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap)
+        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
 
         if self.configSettings.swapCutsceneModels:

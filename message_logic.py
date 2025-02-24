@@ -473,6 +473,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'em0026': [Demon_Sync(38, isNavi=True)],#Amanozako dialogue post Hydra maybe (Navi Amanozako)
     'em0027': [Demon_Sync(38, isNavi=True)],#Amanozako showing where angels are most likely (Navi Amanozako)
     'em0028': [Demon_Sync(38, isNavi=True)],#Angel dialogue in CoC with maybe Amanozako lines (Navi Amanozako)
+    'em0181': [],#Amanozako gives you a bead
     'em0182': [Demon_Sync(38, isNavi=True)],#Amanozako becomes your navigator (Navi Amanozako)
     'es035_m063_01': [Demon_Sync(35)],#Fionn dialogue in area 3/4 (Fionn)
     'es152_m062_01': [Demon_Sync(152)],#Hayataro dialogue in fairy village (Hayataro)
@@ -501,6 +502,16 @@ EVENT_MESSAGE_DEMON_IDS = {
     'npc_m085': [Demon_Sync(578), Demon_Sync(463), Demon_Sync(841)],#NPC text in research lab (Dazai, Arioch, Michael)
     'npc_TokyoMap': [Demon_Sync(465, nameVariant='Yakumo')],#NPC text in world map creation (Yakumo)
     'npc_TokyoMap_b': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(567, nameVariant='Yakumo')],#NPC text in world map vengeance (Yuzuru, Yakumo)
+}
+
+#Message files for mission events and what items need to be updated in them
+MISSION_EVENTS_ITEM_IDS = {
+
+}
+
+#Message files for events and what items need to be updated in them
+EVENT_MESSAGE_ITEM_IDS = {
+    'em0181': [4],#Amanozako gives you a bead
 }
 
 #Alternative names to use for demons with names longer than 11 characters
@@ -1114,10 +1125,13 @@ Update the mention of demon names in mission events.
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
+        itemReplacements(Dict): Mapping of what items replace what items in events
+        itemNames(list(String)): list of item names
+
 '''
-def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, brawnyAmbitions2SkillName, navigatorMap):
+def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, brawnyAmbitions2SkillName, navigatorMap,itemReplacements,itemNames):
     updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
-    updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+    updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, itemReplacements,itemNames)
     for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
@@ -1135,6 +1149,9 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, ran
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
             if missionEvent == BRAWNY_AMBITIONS_2:
                 updateSkillNameInFile(missionText, brawnyAmbitions2SkillName)
+            if missionEvent in MISSION_EVENTS_ITEM_IDS.keys():
+                syncItems = MISSION_EVENTS_ITEM_IDS[missionEvent]
+                updateItemsInTextFile(missionText,originalMissionText,syncItems,itemReplacements,itemNames,missionEvent)
             file.setMessageStrings(missionText)
             file.setSpeakerNames(speakerNames)
             file.setVoices(voices, DEMON_FILENAMES)
@@ -1161,8 +1178,10 @@ Update the mention of demon names in story event messages.
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
+        itemReplacements(Dict): Mapping of what items replace what items in events
+        itemNames(list(String)): list of item names
 '''
-def updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap):
+def updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,itemReplacements,itemNames):
     for missionEvent,syncDemons in EVENT_MESSAGE_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/EventMessage/',OUTPUT_FOLDERS['EventMessage'])
@@ -1178,6 +1197,9 @@ def updateEventMessages(encounterReplacements, bossReplacements, demonNames, ran
             if missionEvent in EVENT_CHECKS_ORIGINAL_IDS.keys():
                 hints = EVENT_CHECKS_ORIGINAL_IDS[missionEvent]
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+            if missionEvent in EVENT_MESSAGE_ITEM_IDS.keys():
+                syncItems = EVENT_MESSAGE_ITEM_IDS[missionEvent]
+                updateItemsInTextFile(missionText,originalMissionText,syncItems,itemReplacements,itemNames,missionEvent)
             
             file.setMessageStrings(missionText)
             file.setSpeakerNames(speakerNames)
@@ -1694,3 +1716,22 @@ def initDemonModelData():
         if type(row['MainDemonID']) is str:
              DEMON_FILENAMES[row['Number']] = row['folderName']
              DEMON_ID_FILE_ID[int(row['MainDemonID'])] = row['Number']
+
+'''
+Update the mention of items in a single event message file
+    Parameters:
+        missionText(List(String)): List of all text boxes in the file to update
+        originalMissionText(List(String)): Unchanging version of the text boxes to find original demon names to replace
+        syncItems(List(Number)): List of all items that need to be updated to their replacements
+        itemReplacements(Dict): map for which item replaces which item in a event
+        itemNames(list(String)): list of item names
+        missionEvent(String): name of the message file
+'''
+def updateItemsInTextFile(missionText, originalMissionText, syncItems, itemReplacements, itemNames, missionEvent):
+    for item in syncItems:
+        replacementItem = itemReplacements[missionEvent][item]
+        for index, box in enumerate(missionText):
+            if "item " + str(item) in originalMissionText[index]:
+                box = box.replace("item " + str(item),"item " + str(replacementItem))
+            missionText[index] = box
+

@@ -257,7 +257,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M085_E2660': [Demon_Sync(561)], #Koshimizu meeting before Yakumo fight(Yuzuru)
     'MM_M085_E2688': [Demon_Sync(561)], #Koshimizu meeting after Yakumo fight (Yuzuru)
     #Mainmission M087 (Shrine Vengeance (Normal Lightning)) (NOT YET TESTED)
-    'MM_M087_E2450_Direct': [Demon_Sync(1151,578)],#Dazai goes to Chiyoda #TODO: This has a bead that Could be included as event item randomization
+    'MM_M087_E2450_Direct': [Demon_Sync(1151,578)],#Dazai goes to Chiyoda 
     #Mainmission M088 (Summit)
     'MM_M088_E0602_Abdiel': [Demon_Sync(467)], #Summmit (Abdiel)
     'MM_M088_E0602_Khons': [Demon_Sync(516)], #Summmit (Khonsu)

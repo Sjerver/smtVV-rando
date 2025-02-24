@@ -147,6 +147,8 @@ BASE_GIFT_ITEMS = {
     'MM_M064_E2795_Direct': 839, #Tsukuyomi Talisman
     'BP_JakyoEvent': 844, #Devil Talisman
     'BP_JakyoEvent_Comp_Complete': 720, #Twinned Throne Periapt
+    'MM_M087_E2450_Direct': 4, #Bead (Dazai Gift Temple CoV)
+    'MM_M061_EM0181': 4, #Bead (Amanozako Event)
 }
 # Areas the gifts are scaled after if they are not containing a key item
 GIFT_AREAS = {
@@ -155,9 +157,9 @@ GIFT_AREAS = {
   36: ['MM_M064_E2797','MM_M064_E2797_PERIAPT','MM_M064_E2795_Direct'], #Demon Kings Castle / Shakan
   38: [], #Demon Kings Castle / Shakan
   60: ['esNPC_m060_10a','MM_M062_EM1132','MM_M060_E0763'], #Taito
-  61: ['esNPC_m061_31a','esNPC_m061_30a','esNPC_m061_34a'], #Minato
+  61: ['esNPC_m061_31a','esNPC_m061_30a','esNPC_m061_34a','MM_M061_EM0181'], #Minato
   62: ['esNPC_m062_32a','esNPC_m062_33a','esNPC_m062_40a'], #Shinagawa
-  63: ['BP_esNPC_TokyoMap_15b','esNPC_m063_20a','esNPC_m063_21a'], #Chiyoda
+  63: ['BP_esNPC_TokyoMap_15b','esNPC_m063_20a','esNPC_m063_21a','MM_M087_E2450_Direct'], #Chiyoda
   64: [], #Shinjuku
   107: [] #Demi-Fiend Area: same as Empyrean
 } 
@@ -182,11 +184,18 @@ GIFT_EXTRA_SCRIPTS = {
 GIFT_ESSENCE_ODDS = 0.7 #Completely made up, but essence should be more likely for now since amount is fixed currently
 
 #List of gifts only obtainable in canon of vengeance
-VENGEANCE_EXCLUSIVE_GIFTS = ['MM_M064_E2797','MM_M064_E2797_PERIAPT','MM_M064_E2795_Direct']
+VENGEANCE_EXCLUSIVE_GIFTS = ['MM_M064_E2797','MM_M064_E2797_PERIAPT','MM_M064_E2795_Direct','MM_M087_E2450_Direct']
 #List of gifts that require a cleared game file
 NEWGAMEPLUS_GIFTS = ['BP_JakyoEvent_Comp_Complete', 'BP_JakyoEvent']
+#List of gifts that can be missed
+MISSABLE_GIFTS = ['MM_M061_EM0181']
 #Script for the Tsukuyomi Talisman
 TSUKUYOMI_TALISMAN_SCRIPT = 'MM_M064_E2795_Direct'
+
+#Message files for the event in which item names need to be replaced
+ITEM_MESSAGE_REPLACEMENTS = {
+    'MM_M061_EM0181': 'em0181'
+}
 
 #Stores original expressions from script calls
 ORIGINAL_SCRIPT_FUNCTION_CALLS = {}
@@ -499,8 +508,9 @@ Updates all script data regarding item gifts.
     Parameters:
     gifts(List(Gift_Item)): list of all gifts
     scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+    itemReplacementMap(Dict): Mapping of what items replace what items in events
 '''
-def updateGiftScripts(gifts, scriptFiles):
+def updateGiftScripts(gifts, scriptFiles, itemReplacementMap):
     for gift in gifts:
         if gift.script in GIFT_EQUIVALENT_SCRIPTS.keys(): #if script has script with same reward add copy of gift with new script to gift list
             for script in GIFT_EQUIVALENT_SCRIPTS[gift.script]:
@@ -525,9 +535,13 @@ def updateGiftScripts(gifts, scriptFiles):
             if any(gift.script in scripts for scripts in GIFT_EQUIVALENT_SCRIPTS.values()): #if script was copied as equivalent, use original base item
                 equivalentScript = getEquivalentSource(gift.script)
                 updateItemRewardInScript(file,BASE_GIFT_ITEMS[equivalentScript],gift.item.ind, correctScript, gift.item.amount)
+                if equivalentScript in ITEM_MESSAGE_REPLACEMENTS.keys():
+                    itemReplacementMap.update({ITEM_MESSAGE_REPLACEMENTS[equivalentScript] : {BASE_GIFT_ITEMS[equivalentScript] : gift.item.ind}})
             else:
                 #print(gift.script + ": " + str(BASE_GIFT_ITEMS[gift.script]) + " -> " + str(gift.item.ind) )
                 updateItemRewardInScript(file,BASE_GIFT_ITEMS[gift.script],gift.item.ind,correctScript,gift.item.amount)
+                if gift.script in ITEM_MESSAGE_REPLACEMENTS.keys():
+                    itemReplacementMap.update({ITEM_MESSAGE_REPLACEMENTS[gift.script] : {BASE_GIFT_ITEMS[gift.script] : gift.item.ind}})
 
         scriptFiles.setFile(correctScript,file)
 

@@ -926,4 +926,8 @@ def getBonusSkills():
             [ 'Gaea Rage',830,95,99]
         ]
 
-#TODO: 311 Revival Chant is not in pool, test with different animation
+
+def getAnimationFixOnlySkills():
+    return [
+        [ 'Revival Chant',311,61,61] #Revival Chant can only be used by non-nahobino with the animation fix (though then functions as a revive swap for demons/npcs)
+    ]
