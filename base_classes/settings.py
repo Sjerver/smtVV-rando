@@ -83,4 +83,4 @@ class Settings(object):
         self.playerResistSync = False               # Uses resistance of compendium demon instead
         self.diverseBossResists = False             # Diversify resitance profiles to prevent all bosses having the same weaknesses/resists
         self.bossNoEarlyPhysImmunity = False        # Prevents bosses up till Hydra to be immune to physical skills
-        
+        self.bossPressTurnChance = 0.0              # Chance of adding extra press turns to bosses. Values over 1.0 can add multiple turns

@@ -382,6 +382,16 @@ def createGUI(configSettings: Settings):
     listMiniboss.insert(2, "Randomize minibosses with all bosses")
     listMiniboss.selection_set(0)
     listMiniboss.pack()
+
+    musicLabel = tk.Label(page2FrameLeft, text="Boss Music Setting")
+    musicLabel.pack()
+
+    listMusic = tk.Listbox(page2FrameLeft, selectmode = "single", height=3,exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listMusic.insert(0, "Boss-based")
+    listMusic.insert(1, "Check-based")
+    listMusic.insert(2, "Random")
+    listMusic.selection_set(0)
+    listMusic.pack()
     
     bossSettingsLabel = tk.Label(page2FrameRight, text="Boss Settings")
     bossSettingsLabel.pack()
@@ -408,6 +418,13 @@ def createGUI(configSettings: Settings):
     listBossResistances.insert(5, "Diversify Resistances")
     listBossResistances.pack()
 
+    bossTurnLabel = tk.Label(page2FrameRight, text="Chance for bosses to receive additional press turns")
+    bossTurnLabel.pack()
+    
+    bossTurnScale = tk.Scale(page2FrameRight, from_=0.0, to=7.0, resolution=0.1, orient=tk.HORIZONTAL, bg=PRESS_TURN_RED, troughcolor="Black", activebackground=PRESS_TURN_BRIGHT_RED)
+    bossTurnScale.set(0)
+    bossTurnScale.pack()
+
     ishtarLabel = tk.Label(page2FrameRight, text="Ishtar's press turns")
     ishtarLabel.pack()
     
@@ -425,16 +442,6 @@ def createGUI(configSettings: Settings):
     ishtarRandomizeCheckbox = tk.Checkbutton(page2FrameRight, text="Random", variable=randomIshtarPressTurnsVar, onvalue=1, offvalue=0, command=toggleIshtarCheckbox)
     ishtarRandomizeCheckbox.pack()
     ishtarScale.pack()
-    
-    musicLabel = tk.Label(page2FrameRight, text="Boss Music Setting")
-    musicLabel.pack()
-
-    listMusic = tk.Listbox(page2FrameRight, selectmode = "single", height=3,exportselection=False, selectbackground = VENGEANCE_PURPLE)
-    listMusic.insert(0, "Boss-based")
-    listMusic.insert(1, "Check-based")
-    listMusic.insert(2, "Random")
-    listMusic.selection_set(0)
-    listMusic.pack()
 
     miracleLabel = tk.Label(page3FrameTopLeft, text="Miracle Randomizer")
     miracleLabel.pack()
@@ -695,6 +702,7 @@ def createGUI(configSettings: Settings):
         
         toggleIshtarCheckbox()
         ishtarScale.set(configur.get('Boss', 'IshtarPressTurns'))
+        bossTurnScale.set(configur.get('Boss', 'BossPressTurnChance'))
         toggleMiracleListboxes(None)
         toggleSkillScalingListbox(None)
         
@@ -752,6 +760,7 @@ def createGUI(configSettings: Settings):
         superbossChoice = listSuperboss.curselection()
         minibossChoice = listMiniboss.curselection()
         ishtarChoice = ishtarScale.get()
+        bossTurnChoice = bossTurnScale.get()
         ishtarRandomizeChoice = randomIshtarPressTurnsVar.get()
         miracleFlags = [False for i in range(listMiracle.size())]
         for i in listMiracle.curselection():
@@ -937,6 +946,8 @@ def createGUI(configSettings: Settings):
     configur.set('Boss', 'IshtarPressTurns', str(ishtarChoice))
     configSettings.randomizeIshtarPressTurns = ishtarRandomizeChoice
     configur.set('Boss', 'RandomizeIshtarPressTurns', str(ishtarRandomizeChoice).lower())
+    configSettings.bossPressTurnChance = bossTurnChoice
+    configur.set('Boss', 'BossPressTurnChance', str(bossTurnChoice))
 
     configSettings.randomMiracleUnlocks = miracleFlags[0]
     configur.set('Miracle', 'RandomMiracleUnlocks', str(miracleFlags[0]).lower())
@@ -1040,7 +1051,7 @@ def createConfigFile(configur):
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False,
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
-                                 'ScaleInstakillRates': False, 'bossNoEarlyPhysImmunity': False}
+                                 'ScaleInstakillRates': False, 'bossNoEarlyPhysImmunity': False, 'BossPressTurnChance': 0.0}
     configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.1, 'UnlockFusions': False, 'swapCutsceneModels': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,

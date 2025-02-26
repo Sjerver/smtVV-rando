@@ -232,7 +232,6 @@ Balances the stats of boss demons, including summoned adds to their new location
         playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
 '''
 def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr, oldEncounterID, newEncounterID, configSettings, compendium, playerBossArr):
-    balancePressTurns = configSettings.scaleBossPressTurnsToCheck
     balanceInstakillRates = configSettings.scaleBossInstakillRates
     
     oldEncounterData = Boss_Metadata(oldEncounter,oldEncounterID)
@@ -258,8 +257,7 @@ def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr,
     if newEncounterID == 31:
         oldEncounterData.totalHP = oldEncounterData.totalHP // 3
         
-    if balancePressTurns:
-        adjustBossPressTurns(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
+    adjustBossPressTurns(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings.scaleBossPressTurnsToCheck, configSettings.bossPressTurnChance)    
         
     if balanceInstakillRates:
         adjustInstakillRatesToCheck(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
@@ -653,7 +651,7 @@ def calculateEncounterPressTurns(encounter, staticBossArr):
     return totalPressTurns
 
 '''
-Balances the press turns of a boss encounter to match the check it replaces
+Balances the press turns of a boss encounter
 All demons will receive at least one press turn
 If it's impossible to exactly match the check's press turns, the new encounter will get the closest amount of turns that's lower than the old check's turns
     Parameters:
@@ -661,10 +659,19 @@ If it's impossible to exactly match the check's press turns, the new encounter w
             newEncounter (List(Boss_Metadata)): The demons replacing the old encounter
             demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
             bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
+            balanceTurnsToCheck (Bool): If true, press turns should match check instead of boss
+            extraTurnChance (Number): Chance of adding one or more press turns to the boss
 '''
-def adjustBossPressTurns(oldEncounterData, newEncounterData, demonReferenceArr, bossArr):
-    targetTurns = calculateEncounterPressTurns(oldEncounterData, demonReferenceArr)
+def adjustBossPressTurns(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, balanceTurnsToCheck, extraTurnChance):
     currentPressTurns = calculateEncounterPressTurns(newEncounterData, demonReferenceArr)
+    if balanceTurnsToCheck:
+        targetTurns = calculateEncounterPressTurns(oldEncounterData, demonReferenceArr)
+    else:
+        targetTurns = currentPressTurns
+    targetTurns = targetTurns + math.trunc(extraTurnChance)
+    if random.random() < math.modf(extraTurnChance)[0]:
+        targetTurns += 1
+    targetTurns = min(targetTurns, 8)
     #print("Boss " + bossArr[newEncounterData.demons[0]].name + " with " + str(currentPressTurns) + " should have " + str(targetTurns) + " to match " + bossArr[oldEncounterData.demons[0]].name)
     demonsWithPressTurns = [] # Some 'demons' like Lahmu's tentacles have 0 press turns and should stay that way
     demonsWithMultipleTurns = []
