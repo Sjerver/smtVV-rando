@@ -3896,6 +3896,7 @@ class Randomizer:
             newStats = Stats(playableEqu.stats.HP.start, playableEqu.stats.MP.start, playableEqu.stats.str.start,
                 playableEqu.stats.vit.start, playableEqu.stats.mag.start,
                 playableEqu.stats.agi.start, playableEqu.stats.luk.start)
+            newResist = copy.deepcopy(playableEqu.resist)
             newSkills = []
             for skill in playableEqu.skills:
                 newID = skill.ind
@@ -3920,7 +3921,19 @@ class Randomizer:
                         newID = numbers.MAGATSUHI_ENEMY_VARIANTS[skill.ind]
                     except KeyError:
                         pass
-                newSkills.append(Translated_Value(newID, translation.translateSkillID(newID, self.skillNames)))
+                skillName = translation.translateSkillID(newID, self.skillNames)
+                newSkills.append(Translated_Value(newID, skillName))
+
+                #check for resistance skills (those do not work on enemies) and apply resistance accordingly
+                if skill.ind in numbers.RESIST_SKILLS.keys():
+                    resistElement = numbers.RESIST_SKILLS[skill.ind][0]
+                    value = numbers.RESIST_SKILLS[skill.ind][1]
+
+                    oldValue = getattr(newResist, resistElement).value
+                    if numbers.compareResistValues(oldValue,value) == 1: #if new value is smaller, use it
+                        newResist.__setattr__(resistElement, Translated_Value(value,translation.translateResist(value)))
+
+
 
             newPressTurns = enemy.pressTurns
             if self.pressTurnChance != 0:
@@ -3956,7 +3969,7 @@ class Randomizer:
             newFoe.drops = newDrops
             newFoe.oldDrops = enemy.drops
             newFoe.innate = playableEqu.innate   #copy innate from player version
-            newFoe.resist = copy.deepcopy(playableEqu.resist)
+            newFoe.resist = newResist
             newFoe.potential = copy.deepcopy(playableEqu.potential)
             foes.append(newFoe)
         return foes

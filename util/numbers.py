@@ -762,6 +762,38 @@ BOSS_AILMENT_RESIST_DISTRIBUTION = [
 
 ]
 
+#Skills that grant element resistance and their value
+RESIST_SKILLS = {
+    401	: ["physical",50], #	Resist Phys
+    402	: ["physical",0], #	Null Phys
+    403	: ["physical",1000], #	Drain Phys
+    404	: ["physical",999], #	Repel Phys
+    405	: ["fire",50], #	Resist Fire
+    406	: ["fire",0], #	Null Fire
+    407	: ["fire",1000], #	Drain Fire
+    408	: ["fire",999], #	Repel Fire
+    409	: ["ice",50], #	Resist Ice
+    410	: ["ice",0], #	Null Ice
+    411	: ["ice",1000], #	Drain Ice
+    412	: ["ice",999], #	Repel Ice
+    413	: ["elec",50], #	Resist Elec
+    414	: ["elec",0], #	Null Elec
+    415	: ["elec",1000], #	Drain Elec
+    416	: ["elec",999], #	Repel Elec
+    417	: ["force",50], #	Resist Force
+    418	: ["force",0], #	Null Force
+    419	: ["force",1000], #	Drain Force
+    420	: ["force",999], #	Repel Force
+    421	: ["dark",50], #	Resist Dark
+    422	: ["dark",0], #	Null Dark
+    423	: ["dark",1000], #	Drain Dark
+    424	: ["dark",999], #	Repel Dark
+    425	: ["light",50], #	Resist Light
+    426	: ["light",0], #	Null Light
+    427	: ["light",1000], #	Drain Light
+    428	: ["light",999], #	Repel Light
+}
+
 #Source Wiki, some values made up
 OFFENSIVE_POTENTIAL_COST_MULTIPLIERS = {
     -9: 1.6,-8: 1.5,-7: 1.46,-6: 1.4,
@@ -931,3 +963,24 @@ def getAnimationFixOnlySkills():
     return [
         [ 'Revival Chant',311,61,61] #Revival Chant can only be used by non-nahobino with the animation fix (though then functions as a revive swap for demons/npcs)
     ]
+
+'''
+Compares two values of resistances.
+    Parameters:
+        a(Number): first value to compare
+        b (Number): second value to compare
+    Returns 0 if the values are the same, 1 if resistance a is weaker than b, else -1
+'''
+def compareResistValues(a, b):
+    values = list(SIMPLE_RESIST_RESULTS.values())
+
+    aIndex = values.index(a)
+    bIndex = values.index(b)
+
+    if aIndex == bIndex:
+        return 0
+    elif aIndex > bIndex:
+        return 1
+    else:
+        return -1
+    

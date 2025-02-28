@@ -309,7 +309,7 @@ def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonRefe
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
-        
+        adjustForResistSkills(replacementDemon)
 
 
 '''
@@ -353,7 +353,7 @@ def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr,
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
-        
+        adjustForResistSkills(replacementDemon)
 
 '''
 Balances two boss encounters that feature multiple demons. Each new demon will get its stats from one of the old ones randomly
@@ -401,7 +401,7 @@ def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceAr
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
-        
+        adjustForResistSkills(replacementDemon)
 '''
 Calculates a modified HP Pool for a replacement boss encounter to use based on the total HP of the old encounter's demons and the number of demons in each encounter
     Parameters:
@@ -1091,4 +1091,21 @@ def calculateResistTotals(demonID, demon):
         ailments += simple
     ailments /= 2
     return {demonID: [elements,ailments]}
+
+'''
+Adjust the resistance values of the demon to match potential resist skills
+    Parameters:
+        demon(Enemy_Demon): the demon in question
+'''
+def adjustForResistSkills(demon):
+    for skill in demon.skills:
+        #check for resistance skills (those do not work on enemies) and apply resistance accordingly
+        if skill.ind in numbers.RESIST_SKILLS.keys():
+            resistElement = numbers.RESIST_SKILLS[skill.ind][0]
+            value = numbers.RESIST_SKILLS[skill.ind][1]
+
+            oldValue = getattr(demon.resist, resistElement).value
+            if numbers.compareResistValues(oldValue,value) == 1: #if new value is a stronger resist use it
+                print(demon.name)
+                demon.resist.__setattr__(resistElement, Translated_Value(value,translation.translateResist(value)))
                     
