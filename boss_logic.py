@@ -41,7 +41,7 @@ BOSS_SUMMONS = {
     925: [936], #Red Rider - Power
     926: [937,939], #Black Rider - Legion (Seems to use 2 different legions with the same stats/skills but different AIs)
     927: [938], #Pale Rider - Loa
-    843: [885], #Danu - Mandrake
+    843: [885,886,887], #Danu - Mandrake, Jack Frost, Jack O'Lantern
     783: [784,785,786], #Marici - Conquering Mirage, Stitching Mirage, Warding Mirage
 }
 
@@ -112,6 +112,7 @@ PRESS_TURN_MAX_SUMMONS = {
     845: 3, # Shiva
     828: 1, # Arahabaki
     839: 2, # Huang Long
+    843: 2, # Danu
 }
 
 # Map of boss summons that are summoned in groups of more than one, like Arioch's 2 decarabias
