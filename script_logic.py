@@ -8,6 +8,7 @@ from base_classes.quests import Mission_Reward, Fake_Mission
 from base_classes.uasset_custom import UAsset_Custom
 import copy
 import json
+import csv
 
 #Key: EventScriptName, Value: Type for what and where to search for values to be changed
 SCRIPT_JOIN_TYPES = {
@@ -297,6 +298,7 @@ def updateDemonJoinInScript(file, oldDemonID, newDemonID, joinType,scriptName):
         # go through functions and find where expressions call them
         for imp,stackNode in relevantImports.items():
             expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+            expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_FinalFunction', stackNode))
             for exp in expressions:
                 demonValue = exp['Parameters'][0]['Value']
                 if demonValue == oldDemonID: #only replace old demonID with new one
@@ -390,9 +392,11 @@ def updateItemRewardInScript(file, oldItemID, newItemID,scriptName,newItemAmount
     
     relevantImports = {}
     for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
-        relevantImports[imp] = -1 * importNameList.index(imp) -1
+        if imp in importNameList:
+            relevantImports[imp] = -1 * importNameList.index(imp) -1
     for imp,stackNode in relevantImports.items():
             expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+            expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_FinalFunction', stackNode))
             ogExpressions = ogFunctionCalls[imp]
             for index,exp in enumerate(expressions):
                 ogItemValue = ogExpressions[index]['Parameters'][0].get('Value')
@@ -434,9 +438,11 @@ def getOriginalFunctionCalls(jsonData,bytecode,relevantImportNames,relevantFunct
     importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
     relevantImports = {}
     for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
-        relevantImports[imp] = -1 * importNameList.index(imp) -1
+        if imp in importNameList:
+            relevantImports[imp] = -1 * importNameList.index(imp) -1
     for imp,stackNode in relevantImports.items():
             expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+            expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_FinalFunction', stackNode))
             functionCalls[imp] = copy.deepcopy(expressions)
     for func in relevantFunctionNames:
         expressions = bytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
@@ -568,3 +574,419 @@ def updateNPCGiftInScript(oldItemID, newItemID, file, script,newItemAmount = 1):
                 #print(script + ": " + str(oldItemID) + " -> " + str(newItemID))
                 #values[2] would then be amount
     file.updateFileWithJson(jsonData)
+
+'''
+Updates the usage of skills in an ai script file.
+    Parameters:
+        file (Script_File): the file for the script
+        skillReplacements (Dict): map skills and their replacement skills
+        scriptName (String): the name of the script file
+    Returns debug dictionary for script skill results.
+'''
+def updateSkillsInAIScript(file, skillReplacements, scriptName):
+    #print(scriptName)
+    jsonData = file.json
+    bytecode = None
+    exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
+    totalRelevantInstanceVars = set() #saves the total list of all relevant instance variables for the whole script file
+
+    #Debug dictionary that saves information about the replacement process
+    potentiallyUnchangedExps =  {
+        "SkillNotInList" : [],
+        "BI_ActSkill Param": [],
+        'BI_ChkMyUsedSkillIDAct Param': [],
+        'InstanceVar Param': [],
+        'LocalVar Param': [],
+        'MemberStruct Param': [],
+        'Array Param': [],
+        'InstanceVar Initial': [],
+        'SkillInList': [],
+    }
+    #Functions from certain AI scripts that output a skillID in some form
+    localFuncOutParams = [
+            'BtlAI_e064_KsmOrDeath',
+            'BtlAI_e096_SkillList',
+            'BtlAIe098_SelectSkill',
+            'BtlAIe123_SkillList',
+            'GetChangeNormalAtk',
+            'GetSkillRate_LusterCandy',
+            'GetUseSkill_SecondAct',
+            'SelMudoOrLfDrin',
+            'SelBarionSkill',
+            'ChkRakusei',
+            'GetPtnAndSkills',
+            'SelUseSkill',
+            'BtlAIe121_ChkSukukaja',
+            'BtlAIe121_NormalAct',
+            'BtlAI_e064_YoroiOrZetu',
+            'GetSkillRate',
+            'GetUseSkillforTgt' #AI 199
+        ]
+    #Common names of properties in exports that represent skillIDs
+    commonPropertyNames = [
+        'UseSkill','Var_UseSkill','UseSkillID','SkillAID','SkillBID'
+
+    ]
+    for mainIndex, export in enumerate(exportNameList):
+        
+        try: #get bytecode if UAssetAPI can parse it
+            bytecode = Bytecode(jsonData["Exports"][mainIndex]['ScriptBytecode'])
+        except KeyError: #errors seemed to be irrelevant so just kip here
+            #print("Script Byte Code only in raw form")
+            continue
+
+        #storing names of relevant variables that contain skillIDs
+        relevantLocalVars = set()
+        relevantInstanceVars = set() 
+        relevantStructMemberContexts = set()
+
+        relevantStructMemberContexts.add("m_SkillId") #used in structs for quite a lot of things
+        relevantLocalVars.add('Lo_SkillId') #otherwise not found in AI 140 and some others
+        
+        # storing names of variables that contain skillIDs and have been already processed
+        processedInstanceVars  = set()
+        processedLocalVars   = set()
+        processedStructMembers   = set()
+        
+        if export in localFuncOutParams: #check if export outputs skillID   
+            for property in jsonData["Exports"][mainIndex]['LoadedProperties']:
+                if 'CPF_OutParm' in property['PropertyFlags']:
+                    relevantLocalVars.add(property['Name'])
+        
+
+        #Names of imported functions that might contain skill ids in their parameters
+        relevantImportNames = [
+            'Array_Get', #used in at least AI 140
+            'EqualEqual_IntInt',#
+            'NotEqual_IntInt', #
+            'Array_Add', #AI 099, 199
+        ]
+        #Names of virtual functions that might contain skill ids in their first parameters
+        relevantFunctionNames = [ 
+            'BI_ActSkill','BI_ChkMyUsedSkillIDAct',
+            'BI_ChkENUsedSkillIDTurn', #Only Amanozako (AI 119)
+            'BI_ChkMyUsedSkillID', #AI (141, 134)
+            'BI_ChkMyUsedSkillIDTurn',
+            'BI_Chk_ENUsedSkillID',
+            #'BI_Chk_PLUsedSkillID', Checks if player uses certain skills
+            'BI_GetHojoSkillValidTarget',
+            'BI_GetPLNumVaildSkill',
+            'BI_GetPLNumVaildSkill_ENAnalyze',
+            'BI_GetSelUseSkill',
+            'CallActSkill', # AI 140
+            'UseSkillTarRand', #AI 054
+            'BI_GetSkillHaveBst', #AI 007 (Might be problematic if skill does not inflict status?)
+            'MyUseSkill', #AI 021
+            'SelectAction', #AI 165
+            'UseSkillTarRand', #AI 047,111
+            'ActSkill', #AI 122,177
+            'SelUseSkill', #AI 202 First Parameter ChkSkillID
+            'CallActSkill_DevilId', #AI 139
+            'CallActSkill_Random', #AI 139,
+            'CallActSkill_ENAnalyze', #AI 139
+            'Act_FirstAttack', #AI 150,149,148,153,147
+            'Act_ChohatuCure', #AI 149
+            'Act_Chohatsu', #AI 150,152,149,151,153,147
+            "Act Add", #AI 189,190,191
+            "Act Ohmaga0", #AI 189,190,191
+            "Act Ohmaga1", #AI 189,190,191
+            "Act Ohmaga2", #AI 189,190,191
+            'DecideUseSkill', #AI 192
+            'UseSkillTarID', #AI 154
+            'BtlAIe121_NormalAct', #AI 121
+            'GetSkillRate', #AI 140
+            'UpDate_UseSkillData', #AI 137
+        ] 
+        #Virtual functions where the skillID is not (only) in the first parameter
+        specificParameters = {
+            'Act_Chohatsu': [1,2],
+            "Act Add": [0,1],
+            "Act Ohmaga0": [0,1],
+            "Act Ohmaga1": [0,1],
+            "Act Ohmaga2": [0,1],
+            'DecideUseSkill': [1,2],
+            'BtlAIe121_NormalAct': [0,3],
+        }               
+        
+        #Misceallenous notes
+        #AI 024 has check for 386 Diarama (Thoth in Khonsu Ra Fight(No one there has diarama or uses it?))
+        #AI 171 has check for 148 Impaler's Animus (Dazai (Impaler's is only on Abdiel))
+        
+        #Okuninushi(822) 041 has check for 139 (from Oyamatsumi 825)
+        #Orobas(817) 016 has checks for 214/216 (from Moloch 816)
+        #Flauros(818) 023 has checks for 214/216/3 (from Moloch 816) and for 10 from Oroboas 817
+        #Anubis(517) 010 has check for 323 from Khonsu Ra  519
+        #Thoth(518) 024 has check for 323 from Khonsu Ra  519
+        #Amanozako(876) 119 has check for 117 Heavenly Counter Active Part
+        
+        #Demi-fiend(934) 139 uses skillID 372 to check if 397 can hit everything?
+
+        #TODO: NKMBase AI for Demifiend/Satan/Tiamat??
+        #Not yet analyzed AI files?, (Lucifer P2/3, Tsukuyomi Clones)
+
+        #grab original function calls, so that only calls for the original item get replaced to prevent chain replacements
+        if scriptName + export not in ORIGINAL_SCRIPT_FUNCTION_CALLS.keys():
+            ogFunctionCalls = getOriginalFunctionCalls(jsonData,bytecode, relevantImportNames,relevantFunctionNames)
+            ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName+ export] = ogFunctionCalls
+        else:
+            ogFunctionCalls = ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName+export]
+        
+        importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+        relevantImports = {}
+        for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
+            if imp in importNameList:
+                relevantImports[imp] = -1 * importNameList.index(imp) -1
+
+        
+        relevantExportName = scriptName + "_C" #Export name for main object class data
+        relevantExport = next(exp for exp in jsonData["Exports"] if exp['ObjectName'] == relevantExportName)
+        for property in relevantExport['LoadedProperties']:
+            if property['Name'] in commonPropertyNames:
+                relevantInstanceVars.add(property['Name'])
+                
+        
+
+        relevantExportName = "Default__" + scriptName + "_C" #Export name for default main object class data
+        relevantExport = next(exp for exp in jsonData["Exports"] if exp['ObjectName'] == relevantExportName)
+        for data in relevantExport['Data']:
+            if data['$type'] == 'UAssetAPI.PropertyTypes.Objects.IntPropertyData, UAssetAPI':
+                if 'pattern' not in data['Name']: #Exception for Surt 019 and Decarabia 027
+                    relevantInstanceVars.add(data['Name'])
+            elif data['$type'] == 'UAssetAPI.PropertyTypes.Objects.ArrayPropertyData, UAssetAPI':
+                if data['Name'] == 'OhmagaHPArray':
+                    #Exception for Arahabaki AI054 who has both skill 80 and an array with hp threshold
+                    continue
+                if data['Value'][0]['$type'] == 'UAssetAPI.PropertyTypes.Objects.IntPropertyData, UAssetAPI':
+                    relevantInstanceVars.add(data['Name']) 
+        
+        '''
+        Processes Expression to check for skillIds to replace.
+            Parameters:
+                parameter(Expression): the parameter of the given expression to process
+                exp(Expression): the original version of the parameter that should not be changed
+                func(String): the name of the current function
+        '''
+        def processExpression(parameter, exp, func):
+            #print(func + " " + scriptName)
+            if parameter['$type'] == 'UAssetAPI.Kismet.Bytecode.Expressions.EX_IntConst, UAssetAPI':
+                ogSkillValue = parameter.get('Value')
+                if ogSkillValue in skillReplacements:
+                    newSkill = skillReplacements[ogSkillValue]
+                    exp['Value'] = newSkill
+                    potentiallyUnchangedExps["SkillInList"].append(str(ogSkillValue) + " from " + func + " Param")
+                else:
+                    potentiallyUnchangedExps["SkillNotInList"].append(str(ogSkillValue) + " from " + func + " Param")
+            
+            elif parameter['$type'] == 'UAssetAPI.Kismet.Bytecode.Expressions.EX_InstanceVariable, UAssetAPI':
+                pathList = parameter['Variable']['New']['Path']
+                for path in pathList:
+                    relevantInstanceVars.add(path)
+            
+            elif parameter['$type'] == 'UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVariable, UAssetAPI' or parameter['$type'] == 'UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalOutVariable, UAssetAPI':
+                pathList = parameter['Variable']['New']['Path']
+                for path in pathList:
+                    relevantLocalVars.add(path)
+                
+            elif parameter['$type'] == 'UAssetAPI.Kismet.Bytecode.Expressions.EX_SwitchValue, UAssetAPI':
+                cases = parameter['Cases']
+                for caseIndex, case in enumerate(cases):
+                    caseContent = case['CaseTerm']
+                    processExpression(caseContent, exp['Cases'][caseIndex]['CaseTerm'], func)
+
+            elif parameter['$type'] == 'UAssetAPI.Kismet.Bytecode.Expressions.EX_SetArray, UAssetAPI':
+                elementList = parameter['Elements']
+                if all(element['$type'] == 'UAssetAPI.Kismet.Bytecode.Expressions.EX_IntConst, UAssetAPI' for element in elementList) and all(element['Value'] in skillReplacements.keys() or element['Value'] == 0 for element in elementList):
+                    for elementIndex, element in enumerate(elementList):
+                        processExpression(element,exp['Elements'][elementIndex],func + " Elements")
+                else:
+                    for elementIndex, element in enumerate(elementList):
+                        potentiallyUnchangedExps['Array Param'].append(element)
+
+            else:
+                if func + " Param" not in potentiallyUnchangedExps.keys():
+                    potentiallyUnchangedExps[func + " Param"] = []
+                potentiallyUnchangedExps[func + " Param"].append(parameter)
+
+        '''
+        Processes a list of relevant variables of a given type.
+            Parameters:
+                relevantVars(List(String)): list of names of relevant variables
+                type(String): type of the variables
+        '''
+        def processRelevantVars(relevantVars, type):
+            for var in relevantVars:
+                #print(type + " " + var + " " + scriptName)
+                if type == 'LocalVar':
+                    expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_Let,', localVariable=var)
+                    expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_SetArray,', array=var))
+                    expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_Let,', localOutVar=var))
+                elif type == 'InstanceVar':
+                    expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_Let,', instanceVariable=var)
+                    expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_SetArray,', array=var))
+                elif type == 'MemberStruct':
+                    expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_Let,', structMemberContext=var)
+                    expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_SetArray,', array=var))
+
+                if not expressions:
+                    continue
+                ogExpressions = copy.deepcopy(expressions)
+                ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName + export].update({var + export: ogExpressions})
+                for index, exp in enumerate(expressions):
+                    if ogExpressions[index]['$type'] == 'UAssetAPI.Kismet.Bytecode.Expressions.EX_Let, UAssetAPI':
+                        valueExpression = ogExpressions[index]['Expression']
+                        processExpression(valueExpression, exp['Expression'],var + " " +type)
+                    elif ogExpressions[index]['$type'] =='UAssetAPI.Kismet.Bytecode.Expressions.EX_SetArray, UAssetAPI':
+                        valueExpression = ogExpressions[index]
+                        processExpression(valueExpression, exp,var + " " +type)
+                    # else:
+                    #     print(ogExpressions[index]['$type'])
+
+        # go through relevant imported functions
+        for imp,stackNode in relevantImports.items(): 
+                expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+                expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_FinalFunction', stackNode))
+                ogExpressions = ogFunctionCalls[imp]
+                for index,exp in enumerate(expressions):
+                    if imp == 'Array_Get': 
+                        parameters = ogExpressions[index]['Parameters']
+                        for parameterIndex, parameter in enumerate(parameters):
+                            processExpression(parameter,exp['Parameters'][parameterIndex],imp)
+                    elif imp == 'Array_Add': 
+                        parameters = ogExpressions[index]['Parameters']
+                        for parameterIndex, parameter in enumerate(parameters):
+                            processExpression(parameter,exp['Parameters'][parameterIndex],imp)
+        
+         # go through relevant virtual functions
+        for func in relevantFunctionNames:
+            expressions = bytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
+            ogExpressions = ogFunctionCalls[func]
+            for index,exp in enumerate(expressions):
+                if ogExpressions[index].get('Parameters'):
+                    if func in specificParameters.keys():
+                        for paramIndex in specificParameters[func]:
+                            parameter = ogExpressions[index]['Parameters'][paramIndex]
+                            processExpression(parameter,exp['Parameters'][paramIndex],func)
+                    else:
+                        parameter = ogExpressions[index]['Parameters'][0]
+                        processExpression(parameter,exp['Parameters'][0],func)
+
+        breakCondition = True
+        while breakCondition: #process variables until there are no more left to process
+            instanceVars = [var for var in relevantInstanceVars if var not in processedInstanceVars]
+            localVars = [var for var in relevantLocalVars if var not in processedLocalVars]
+            memberStructs = [var for var in relevantStructMemberContexts if var not in processedStructMembers]
+
+            processRelevantVars(instanceVars, 'InstanceVar')
+            processRelevantVars(localVars, 'LocalVar')
+            processRelevantVars(memberStructs, 'MemberStruct')
+
+            processedInstanceVars.update(instanceVars)
+            processedLocalVars.update(localVars)
+            processedStructMembers.update(memberStructs)
+
+            if len(processedInstanceVars) >= len(relevantInstanceVars) and len(processedLocalVars) >= len(relevantLocalVars) and len(processedStructMembers) >= len(relevantStructMemberContexts):
+                breakCondition = False
+        totalRelevantInstanceVars.update(processedInstanceVars)
+
+        # go through relevant imported functions, this time handle comparisons for which we need to know relevant variables
+        for imp,stackNode in relevantImports.items(): 
+            expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+            expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_FinalFunction', stackNode))
+            ogExpressions = ogFunctionCalls[imp]
+            for index,exp in enumerate(expressions):
+                if imp == 'EqualEqual_IntInt' or imp == 'NotEqual_IntInt':
+                    parameters = ogExpressions[index]['Parameters']
+                    if parameters[0].get("Variable"):
+                        varname = parameters[0]["Variable"]["New"]["Path"][0]
+                        if varname in processedInstanceVars or varname in processedLocalVars:
+                            processExpression(parameters[1],exp['Parameters'][1],imp)
+                    elif parameters[1].get("Variable"):
+                        varname = parameters[1]["Variable"]["New"]["Path"][0]
+                        if varname in processedInstanceVars or varname in processedLocalVars:
+                            processExpression(parameters[0],exp['Parameters'][0],imp)
+   
+ 
+        # Some AI files might also relate to others (the ones for Arioch & Decarabia I believe for example)
+        
+    
+    #initial values for instance variables
+    # relevantExportName = "Default__" + scriptName + "_C" #Export name for script data
+    # relevantExport = next(exp for exp in jsonData["Exports"] if exp['ObjectName'] == relevantExportName)
+    for data in relevantExport['Data']:
+        if data['Name'] == 'OhmagaHPArray':
+            #Exception for Arahabaki AI054 who has both skill 80 and an array with hp threshold
+            continue
+        if data['Name'] in totalRelevantInstanceVars:
+            #print(data['Name']) 
+            if data['$type'] == 'UAssetAPI.PropertyTypes.Objects.IntPropertyData, UAssetAPI':
+                ogSkillValue = data['Value']
+                if ogSkillValue in skillReplacements.keys():
+                    newSkill = skillReplacements[ogSkillValue]
+                    data['Value'] = newSkill
+                    potentiallyUnchangedExps["SkillInList"].append(str(ogSkillValue) + " from " + data['Name'] + " Initial ")
+                else:
+                    potentiallyUnchangedExps["SkillNotInList"].append(str(ogSkillValue) + " from " + data['Name'] + " Initial")
+            elif data['$type'] == 'UAssetAPI.PropertyTypes.Objects.ArrayPropertyData, UAssetAPI':
+                for element in data['Value']:
+                    if element['$type'] == 'UAssetAPI.PropertyTypes.Objects.IntPropertyData, UAssetAPI':
+                        ogSkillValue = element['Value']
+                        if ogSkillValue in skillReplacements.keys():
+                            newSkill = skillReplacements[ogSkillValue]
+                            element['Value'] = newSkill
+                            potentiallyUnchangedExps["SkillInList"].append(str(ogSkillValue) + " from " + data['Name'] + " Initial ")
+                        else:
+                            potentiallyUnchangedExps["SkillNotInList"].append(str(ogSkillValue) + " from " + data['Name'] + " Initial")
+
+            
+
+            
+    file.updateFileWithJson(jsonData)
+    return potentiallyUnchangedExps
+
+
+'''
+Updates ai scripts according to the skill replacement map.
+    Parameters:
+        skillReplacements (Dict): map of bosses and their skills and replacement skills
+        bossArr(List(Enemy_Demon)): list of bosses
+        scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+'''
+def aiUpdate(skillReplacementMap, bossArr, scriptFiles):
+    infoDict = {}
+    for demonID in skillReplacementMap.keys():
+        demon = bossArr[demonID]
+        ai = str(demon.AI).zfill(3)
+        if ai in ["000","055"]:
+            #000 is for lahmu tentacles, or nuwa thunder bits
+            #055 is random so no need to modify it at all
+            continue
+
+        #print(demon.name + " " + ai)
+
+        fileName = "BtlAI_e" + ai
+        if fileName in scriptFiles.fileNames:
+            #To prevent chain replacements for bosses that use the same AI (example: Abdiel in CoC/CoV)
+            continue
+        file = scriptFiles.getFile(fileName)
+        infoDict.update({demon.name + "(" + str(demon.ind) + ")" + " " + ai  : updateSkillsInAIScript(file,skillReplacementMap[demonID],fileName)})
+        scriptFiles.setFile(fileName,file)
+        scriptFiles.writeFile(fileName,file)
+
+    with open(paths.SKILL_REPLACEMENT_FAILS, "w") as file:
+        for demon, categories in infoDict.items():
+            file.write(f"### {demon} ###\n")
+            for category, values in categories.items():
+                file.write(f"{category}:\n")
+                if isinstance(values, list):
+                    for item in values:
+                        file.write(f"  - {item}\n")
+                else:
+                    file.write(f"  {values}\n")
+            file.write("\n")
+    with open(paths.SKILL_REPLACEMENTS, "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Demon Name","Script File", "Original Skill ID", "New Skill ID"])  # Header
+
+        for demon, replacements in skillReplacementMap.items():
+            for old_skill, new_skill in replacements.items():
+                writer.writerow([bossArr[demon].name,"BtlAI_e" +str(bossArr[demon].AI).zfill(3), old_skill, new_skill])

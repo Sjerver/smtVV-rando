@@ -103,6 +103,7 @@ class Randomizer:
         self.nahobino = Nahobino()
         self.totalResistMap = {} #stores all assigned resistances for each element 
         self.itemReplacementMap = {}
+        self.skillReplacementMap = {}
         
         self.configSettings = Settings()
         self.textSeed = ""
@@ -4247,7 +4248,7 @@ class Randomizer:
                             self.bossReplacements[encounter.demons[2]] = self.bossReplacements[encounter.demons[1]]
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     
-                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings, self.compendiumArr, self.playerBossArr)
+                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings, self.compendiumArr, self.playerBossArr, self.skillReplacementMap)
                     #print("Old hp " + str(self.staticBossArr[encounter.demons[0]].stats.HP) + " of " + self.enemyNames[encounter.demons[0]] + " now is "  +
                     #      self.enemyNames[shuffledEncounters[index].demons[0]] + " with " + str(self.bossArr[shuffledEncounters[index].demons[0]].stats.HP) + " HP")
                     self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
@@ -7423,7 +7424,8 @@ class Randomizer:
         elif self.configSettings.randomizeVoicesChaos:
             self.randomizeVoiceLines()
         
-
+        scriptLogic.aiUpdate(self.skillReplacementMap, self.bossArr, self.scriptFiles)
+        
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])

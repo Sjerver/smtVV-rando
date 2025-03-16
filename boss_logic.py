@@ -136,6 +136,168 @@ ILLUSION_AGRAT_SYMBOL = 1862
 #Encounter ID for Illusion Agrat
 ILLUSION_AGRAT_ENCOUNTER = 2629
 
+#Map of bosses with healing skills and which one instead shows up in their AI scripts
+HEALING_BOSS_MAP = {
+    822: { #Okuninushi
+       354 : 383, #Media
+    },
+    814: { #Camael
+       353 : 386, #Diarama
+    },
+    876: { #Amanozako
+       104 : 386, #Diarama
+    },
+}
+
+#Map of bosses and which skills are missing in their skill list but they can still use
+MISSING_SKILLS_IN_LIST = {
+    861: [ #Koumokuten (4 Turn)
+        75, #Megidoloan
+        127, #Dekaja
+    ],
+    862: [ #Jikokuten (4 Turn)
+        127, #Dekaja
+    ],
+    863: [ #Bishamonten (4 Turn)
+        137, #Dekunda
+    ],
+    519: [ #Khonsu Ra 
+        323, #Wait for Mesekteths Path??
+    ],
+    520: [ #Nuwa (Nahobino)
+        359,360,361,362, #Rising Storm Dragon (Variants)
+        285 #Electrify (Variant)
+    ],
+    528: [ #Tsukuyomi
+        324, #Wait for Tsukuyomi?
+        136, #Debilitate
+        386, #Diarama Variant
+    ],
+    452: [ #Lahmu (Tentacles CoC?)
+        287, #Attack (AOE?)
+    ],
+    455: [#Ishtar
+        137, #Dekunda
+        313, #Dreadful Gleam (Does Nothing)
+    ],
+    561: [#Yuzuru Atsuta
+        136, #Debilitate (Is an Initial Value (unlikely to be used))
+    ],
+    565: [ #Tiamat
+        866, #Annihilation Ray
+        867, #Annihilation Ray (Not working)
+        933, #Magatsuhi Harvest (Special)
+    ],
+    567: [#Shohei Yakumo (CoV)
+        151, #Do Nothing
+    ],
+    550: [#Nuwa (CoV)
+        151, #Do Nothing
+    ],
+    569: [#Lilith
+        151, #Do Nothing
+        889, #Qadistu Entropy
+        907, #Failed Qadistu Entropy
+        933, #Magatsuhi Harvest (Special)
+    ],
+    570: [#Agrat (lilith)
+        151, #Do Nothing
+        889, #Qadistu Entropy
+        907, #Failed Qadistu Entropy
+    ],
+    572: [#Eisheth
+        151, #Do Nothing
+        889, #Qadistu Entropy
+        907, #Failed Qadistu Entropy
+    ],
+    574: [#Naamah
+        151, #Do Nothing
+        889, #Qadistu Entropy
+        907, #Failed Qadistu Entropy
+    ],
+    577: [#Abdiel (Dazai)
+        151, #Do Nothing
+    ],
+    578: [#Dazai
+        151, #Do Nothing
+    ],
+    597: [#Tehom
+        75, #Megidoloan
+        127, #Dekaja
+        137, #Dekunda
+        859, #Tehom Wait
+        862, #Inception of Chaos
+        933, #Magatsuhi Harvest
+    ],
+    947: [#Dagda
+        77, #Freikugel
+    ],
+    681: [#Satan #TODO: Sync with Minions
+        7, # Agibarion
+        12, # Maragibarion
+        22, # Bufubarion
+        27, # Mabufubarion
+        37, # Ziobarion
+        42, # Maziobarion
+        52, # Zanbarion
+        57, # Mazanbarion
+        63, # Mudobarion
+        66, # Mamudobarion
+        69, # Hamabarion
+        72, # Mahamabarion
+        75, # Megidolaon
+        77, # Freikugel
+        81, # Energy Drain
+        82, # Slumber Vortex
+        89, # Pulinpa
+        91, # Marin Karin
+        93, # Makajama
+        194, # Figment Slash
+        211, # Yabusame Shot
+        250, # Toxic Spray
+        933, # Magatsuhi Harvest (Special)
+    ],
+    826: [#Oyamatsumi (Punishing)
+        153, #Wait and see
+    ],
+    576: [#Agrat (Illusion)
+        143, #Concentrate
+        888, #Diamrita
+    ],
+    596: [#Mastema
+        126, #Luster Candy
+        850, #Diarama
+    ],
+    529: [#Lucifer (True P1)
+        127, #Dekaja
+        137, #Dekunda
+        69, #Hamabarion
+        63, #Mudobarion 
+    ],
+    529: [#Lucifer (False)
+        127, #Dekaja
+        137, #Dekunda
+        69, #Hamabarion
+        63, #Mudobarion 
+    ],
+    932: [#Mephisto
+        127, #Dekaja
+    ],
+    758: [#Masakado
+        244, #Black Dracostrike
+        245, #White Dracostrike
+        179, #Ice Dracostrike
+        180, #Storm Dracostrike
+        181, #Wind Dracostrike
+    ],
+    757: [#Masakado
+        244, #Black Dracostrike
+        245, #White Dracostrike
+        179, #Ice Dracostrike
+        180, #Storm Dracostrike
+        181, #Wind Dracostrike
+    ],
+}
 
 class Boss_Metadata(object):
     def __init__(self, demons, id):
@@ -228,11 +390,14 @@ Balances the stats of boss demons, including summoned adds to their new location
         newEncounter (List(number)): The demons replacing the old encounter
         demonReferenceArr (List(Enemy_Demon)): An immutable list of enemy demons containing information about stats, etc
         bossArr (List(Enemy_Demon)): The list of enemy demons to be modified
+        oldEncounterID(Number): id of the old encounter
+        newEncounterID(Number): id of the new encounter
         configSettings (Settings): settings of the current rando run
         compendium (List(Compendium_Demon)): list of compendium demons
         playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
+        skillReplacementMap (Dict): map of bosses and their skills and replacement skills
 '''
-def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr, oldEncounterID, newEncounterID, configSettings, compendium, playerBossArr):
+def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr, oldEncounterID, newEncounterID, configSettings, compendium, playerBossArr, skillReplacementMap):
     balanceInstakillRates = configSettings.scaleBossInstakillRates
     
     oldEncounterData = Boss_Metadata(oldEncounter,oldEncounterID)
@@ -264,11 +429,11 @@ def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr,
         adjustInstakillRatesToCheck(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
     
     if oldEncounterData.minionType and newEncounterData.minionType:
-        balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr)
+        balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr, skillReplacementMap)
     elif oldEncounterData.partnerType and newEncounterData.partnerType:
-        balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr)
+        balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr, skillReplacementMap)
     else:
-        balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr)
+        balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr, skillReplacementMap)
 
 '''
 Balances two boss encoutners that don't meet any special cases like both having minions
@@ -284,8 +449,9 @@ If the old encounter has multiple 'strong' demons, stats for new demons will be 
             configSettings (Settings): settings of the current rando run
             compendium (List(Compendium_Demon)): list of compendium demons
             playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
+            skillReplacementMap (Dict): map of bosses and their skills and replacement skills
 '''
-def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings , compendium, playerBossArr):
+def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings , compendium, playerBossArr, skillReplacementMap):
     oldHPPool = calculateHPPool(oldEncounterData, newEncounterData)
     newDemons = newEncounterData.getAllUniqueDemonsInEncounter()
     oldDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
@@ -310,6 +476,10 @@ def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonRefe
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
+        if replacementDemon in HEALING_BOSS_MAP.keys():
+            adjustHealingSkills(replacementDemon, referenceDemon, skillReplacementMap)
+        if configSettings.randomizeBossSkills:
+            randomizeSkills(replacementDemon, skillReplacementMap)
         adjustForResistSkills(replacementDemon)
 
 
@@ -325,8 +495,9 @@ Minion HP and stats will be taken from random old minions
             configSettings (Settings): settings of the current rando run
             compendium (List(Compendium_Demon)): list of compendium demons
             playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
+            skillReplacementMap (Dict): map of bosses and their skills and replacement skills
 '''
-def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings: Settings, compendium, playerBossArr):
+def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings: Settings, compendium, playerBossArr, skillReplacementMap):
     newDemons = newEncounterData.getAllUniqueDemonsInEncounter()
     oldDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
     if oldEncounterData.ind != newEncounterData.ind:
@@ -354,6 +525,10 @@ def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr,
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
+        if replacementDemon in HEALING_BOSS_MAP.keys():
+            adjustHealingSkills(replacementDemon, skillReplacementMap)
+        if configSettings.randomizeBossSkills:
+            randomizeSkills(replacementDemon, skillReplacementMap)
         adjustForResistSkills(replacementDemon)
 
 '''
@@ -368,8 +543,9 @@ If the number of demons is equal between the two encounters, HP will be transfer
             configSettings (Settings): settings of the current rando run
             compendium (List(Compendium_Demon)): list of compendium demons
             playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
+            skillReplacementMap (Dict): map of bosses and their skills and replacement skills
 '''
-def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr):
+def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr, skillReplacementMap):
     oldHPPool = calculateHPPool(oldEncounterData, newEncounterData)
     newDemons = newEncounterData.getAllUniqueDemonsInEncounter()
     oldDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
@@ -402,6 +578,11 @@ def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceAr
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
+        if replacementDemon in HEALING_BOSS_MAP.keys():
+            adjustHealingSkills(replacementDemon, skillReplacementMap)
+        if configSettings.randomizeBossSkills:
+            randomizeSkills(replacementDemon, skillReplacementMap)
+       
         adjustForResistSkills(replacementDemon)
 '''
 Calculates a modified HP Pool for a replacement boss encounter to use based on the total HP of the old encounter's demons and the number of demons in each encounter
@@ -1107,6 +1288,24 @@ def adjustForResistSkills(demon):
 
             oldValue = getattr(demon.resist, resistElement).value
             if numbers.compareResistValues(oldValue,value) == 1: #if new value is a stronger resist use it
-                print(demon.name)
                 demon.resist.__setattr__(resistElement, Translated_Value(value,translation.translateResist(value)))
                     
+def randomizeSkills(demon, skillReplacementMap):
+    #TODO: Can#t work like this since bosses that use the same ai would need the same skills (Two abdiels for example)
+    newSkills = []
+    skillReplacementMap[demon.ind] = {}
+    if demon.ind in MISSING_SKILLS_IN_LIST.keys():
+        fullSkillList = demon.skills + [Translated_Value(skill,"") for skill in MISSING_SKILLS_IN_LIST[demon.ind]]
+    else:
+        fullSkillList = demon.skills
+    for index, skill in enumerate(fullSkillList):
+        if skill != 0:
+            #TODO: Actual skill rando code instead of this test thing
+            newSkill = 999 + index
+            newSkills.append(Translated_Value(newSkill,""))
+            skillReplacementMap[demon.ind].update({skill.ind: newSkill})
+    demon.skills = newSkills
+
+def adjustHealingSkills(replacementDemon, skillReplacementMap):
+    pass
+    #TODO: adjusts healing skills of bosses to fit level / put enemy versions in skill list

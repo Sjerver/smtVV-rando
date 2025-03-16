@@ -39,6 +39,7 @@ from UAssetAPI.UnrealTypes import EngineVersion, FString  # type: ignore
 from UAssetAPI.Kismet import KismetSerializer #type:ignore
 from System.Text import Encoding # type: ignore
 
+BTL_AI_FOLDER = 'rando/Project/Content/Blueprints/Battle/Logic/AI/Enemy'
 LV_M061_FOLDER = 'rando/Project/Content/Level/Event/M061'
 EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event'
 SCRIPT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script' 
@@ -116,6 +117,7 @@ PLAYER_355_FOLDER = 'rando/Project/Content/Blueprints/Character/Player/Pla355'
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
+    'Btl_AI': BTL_AI_FOLDER,
     'MM_M061_EM1630': M061_FOLDER, # The Water Nymph 
     'MM_M061_EM1640': M061_FOLDER, # The Spirit of Love
     'MM_M062_EM1660': M062_FOLDER, # Holding The Line
@@ -566,6 +568,8 @@ class Script_File_List:
     
     def writeFile(self,name,file):
         folderKey = name
+        if 'BtlAI' in name:
+            folderKey = 'Btl_AI'
         if folderKey not in SCRIPT_FOLDERS.keys():
             folderKey = getEquivalentSource(name)
         if 'SEQ' in name:
@@ -601,6 +605,8 @@ class Script_File_List:
     def writeFiles(self):
         for index, name in enumerate(self.fileNames):
             folderKey = name
+            if 'BtlAI' in name:
+                folderKey = 'Btl_AI'
             if folderKey not in SCRIPT_FOLDERS.keys():
                 folderKey = getEquivalentSource(name)
             if 'SEQ' in name:
@@ -632,7 +638,9 @@ class Script_File_List:
     Read the file belonging to the script of the given name and create a Script_File and add it to the list.
     '''
     def readFile(self,name):
-        if 'NPC' in name or 'BP_es' in name :
+        if 'BtlAI' in name:
+            scriptPath = 'AI/'
+        elif 'NPC' in name or 'BP_es' in name :
             scriptPath = 'NPC/'
         elif 'ShopEvent' in name or 'JakyoEvent' in name:
             scriptPath = 'ShopEvent/'
