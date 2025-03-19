@@ -7424,7 +7424,8 @@ class Randomizer:
         elif self.configSettings.randomizeVoicesChaos:
             self.randomizeVoiceLines()
         
-        scriptLogic.aiUpdate(self.skillReplacementMap, self.bossArr, self.scriptFiles)
+        if len(self.skillReplacementMap) > 0:
+            scriptLogic.aiUpdate(self.skillReplacementMap, self.bossArr, self.scriptFiles)
         
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)

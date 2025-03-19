@@ -1198,7 +1198,7 @@ def updateEventMessages(encounterReplacements, bossReplacements, demonNames, ran
             if missionEvent in EVENT_CHECKS_ORIGINAL_IDS.keys():
                 hints = EVENT_CHECKS_ORIGINAL_IDS[missionEvent]
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
-            if missionEvent in EVENT_MESSAGE_ITEM_IDS.keys():
+            if missionEvent in EVENT_MESSAGE_ITEM_IDS.keys() and missionEvent in itemReplacements.keys():
                 syncItems = EVENT_MESSAGE_ITEM_IDS[missionEvent]
                 updateItemsInTextFile(missionText,originalMissionText,syncItems,itemReplacements,itemNames,missionEvent)
             
