@@ -98,6 +98,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1400': [Demon_Sync(864)],#Isis Dialogue (Either for other quest or in Minato) (Horus Punishing Foe)
     'mm_em1020': [Demon_Sync(115,432),Demon_Sync(281,802),Demon_Sync(114, isNavi=True)], #The Ultimate Omelet (Hydra, Jatayu, Navi Aitvaras)
     'mm_em1120': [Demon_Sync(147,nameVariant="Mothmen")], #Can I Keep Them? (Mothman)
+    'mm_em0021': [Demon_Sync(537)],#Eligor dialogue (Lucifer)
     'mm_em0041': [Demon_Sync(136, 450)],#Loup Garou dialogue (Loup Garou)
     'mm_em0044': [Demon_Sync(452)],#Saving the Students misc dialogue (Lahmu)
     'mm_em0050': [Demon_Sync(57, isNavi=True), Demon_Sync(23, isNavi=True)],#Golden apple quest creation (Navi Pyro Jack, Navi Idun)
@@ -195,9 +196,9 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1780': [Demon_Sync(295)], #Cleopatra Quest (Cleopatra)
     'mm_em1790': [Demon_Sync(31), Demon_Sync(933), Demon_Sync(432), Demon_Sync(8, 838)], #Artemis Quest (Artemis, Queztalcoatl, Hydra, Zeus 2 for fun) Note: If Artemis's speaker voice is changed the game crashes
     'mm_em1802': [Demon_Sync(359, 921)], #Matador, 2 Quest Files
-    'mm_em1803': [Demon_Sync(921)],
+    'mm_em1803': [Demon_Sync(359, 921)],
     'mm_em1804': [Demon_Sync(357, 922)], #Daisoujou
-    'mm_em1805': [Demon_Sync(922)],
+    'mm_em1805': [Demon_Sync(357, 922)],
     'mm_em1806': [Demon_Sync(356, 923)], #Hell Biker
     'mm_em1807': [Demon_Sync(923)],
     'mm_em1810': [Demon_Sync(354, 924)], #White Rider
@@ -211,7 +212,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1819': [Demon_Sync(351, 928)], #Mother Harlot
     'mm_em1820': [Demon_Sync(928)],
     'mm_em1821': [Demon_Sync(350, 929)], #Trumpeter, 2 Quest Files
-    'mm_em1822': [Demon_Sync(929), Demon_Sync(934)], #Demi-Fiend named here as well
+    'mm_em1822': [Demon_Sync(350, 929), Demon_Sync(934)], #Demi-Fiend named here as well
     'mm_em1823': [Demon_Sync(934)], #Demi-Fiend, 3 Quest Files
     'mm_em1824': [Demon_Sync(934)],
     'mm_em1825': [Demon_Sync(934)],
@@ -247,7 +248,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2520': [Demon_Sync(273, isNavi=True)],#Shinjuku Gem Quest (Navi Decarabia)
     'mm_em2530': [Demon_Sync(141, 751, nameVariant='DORMARTH')], #Dormarth Quest (Dormarth)
     'mm_em2540': [Demon_Sync(291, 891)], #Gurulu Quest (Gurulu)
-    'mm_em2550': [Demon_Sync(756, nameVariant='ZHEn')], #Part Time Quest (Zhen) Optionally add the other 2 encounters you can get here but eh
+    'mm_em2550': [Demon_Sync(509, nameVariant='ZHEn')], #Part Time Quest (Zhen) Optionally add the other 2 encounters you can get here but eh
     'mm_em2570': [Demon_Sync(22, 779), Demon_Sync(838)], #Moirae Haunt Quest (Norn, Zeus 2 for fun)
     'mm_em2580': [Demon_Sync(12, 776, nameVariant='Daigensui Myouou')], #Yoshitsune Haunt Quest (Atavaka)
     'mm_em2600': [Demon_Sync(32), Demon_Sync(826)], #Konohana Sakuya Quest (Konohana Sakuya, Oyamatsumi)
@@ -343,7 +344,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e1000': [Demon_Sync(529, 537)],#Lucifer pre-fight dialogue (Normal Lucifer)
     'e1020': [Demon_Sync(529)],#Aogami says goodbye in true neutral ending (True Lucifer)
     'e2010': [Demon_Sync(552), Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(578, nameVariant='Dazai')],#Labolas 1 pre-fight dialogue (Labolas, Yuzuru, Dazai) Note: For vengeance dialogue replacing mentions of Yuzuru/Dazai, but not Yoko for now
-    'e2015': [Demon_Sync(505, 561)],#Labolas 1 post-fight dialogue (Yuzuru)
+    'e2015': [Demon_Sync(505, 561, nameVariant='Atsuta')],#Labolas 1 post-fight dialogue (Yuzuru)
     'e2017': [Demon_Sync(38, isNavi=True)],#Amanazako first partner spot Vengeance (Navi Amanozako)
     'e2018': [Demon_Sync(43), Demon_Sync(305)],#Possibly unused Yoko dialogue about Apsaras/Leanan (Apsaras, Leanan)
     'e2019': [Demon_Sync(38, isNavi=True)],#Post Hydra dialogue Vengeance (Navi Amanozako)
@@ -385,7 +386,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e2445': [Demon_Sync(509, 562), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(578, nameVariant='Dazai')],#Koshimizu discovers shinjuku (Hayataro, Yuzuru, Dazai)
     'e2450': [Demon_Sync(506, 578), Demon_Sync(564)],#Dazai goes to Chiyoda (Dazai, Abdiel)
     'e2500': [Demon_Sync(562)],#Arriving in Shinjuku (Hayataro)
-    'e2520': [Demon_Sync(513, 550), Demon_Sync(512, 567), Demon_Sync(486, nameVariant='Cherubim')],#First Nuwa/Yakumo scene in Shinjuku (Nuwa, Yakumo, Cherub)
+    'e2520': [Demon_Sync(513, 550), Demon_Sync(512, 567, nameVariant='Yakumo'), Demon_Sync(486, nameVariant='Cherubim')],#First Nuwa/Yakumo scene in Shinjuku (Nuwa, Yakumo, Cherub)
     'e2531': [Demon_Sync(486, nameVariant='Cherubim')],#Cherubim are called after Power gauntlet (Cherub)
     'e2535': [Demon_Sync(567, nameVariant='Yakumo')],#Yoko/Tao talk where Cherub used to be (Yakumo)
     'e2560': [Demon_Sync(512, 567)],#Nuwa/Yakumo talk at Mastema's hill 1 (Yakumo)
@@ -397,9 +398,9 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e2608': [Demon_Sync(561, nameVariant='Yuzuru')],#Aogami comments on Yuzuru's distress (Yuzuru)
     'e2610': [Demon_Sync(193, 579), Demon_Sync(506, 578, nameVariant='Ichiro'), Demon_Sync(505, 561, nameVariant='Yuzuru')],#Isis pre-fight dialogue (Isis, Dazai, Yuzuru)
     'e2615': [Demon_Sync(193, 579), Demon_Sync(566), Demon_Sync(505, 561)],#Isis post-fight dialogue (Isis, Khonsu, Yuzuru)
-    'e2620': [Demon_Sync(514, 566), Demon_Sync(505, 561)],#Khonsu pre-fight dialogue vengeance part 1 (Khonsu, Yuzuru)
-    'e2623': [Demon_Sync(514, 566), Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(506, 578)],#Khonsu pre-fight dialogue vengeance part 2 (Khonsu, Yuzuru, Dazai)
-    'e2625': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(514, 566), Demon_Sync(564), Demon_Sync(596)],#Khonsu post-fight dialogue vengeance (Yuzuru, Khonsu, Abdiel, Mastema)
+    'e2620': [Demon_Sync(514, 566, nameVariant='Khonsu'), Demon_Sync(505, 561)],#Khonsu pre-fight dialogue vengeance part 1 (Khonsu, Yuzuru)
+    'e2623': [Demon_Sync(514, 566, nameVariant='Khonsu'), Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(506, 578)],#Khonsu pre-fight dialogue vengeance part 2 (Khonsu, Yuzuru, Dazai)
+    'e2625': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(514, 566, nameVariant='Khonsu'), Demon_Sync(564), Demon_Sync(596)],#Khonsu post-fight dialogue vengeance (Yuzuru, Khonsu, Abdiel, Mastema)
     'e2630': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(506, 578)],#Yuzuru talk after Khonsu incident (Yuzuru, Dazai)
     'e2631': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(566)],#Aogami discusses Khonsu incident (Yuzuru, Khonsu)
     'e2633': [Demon_Sync(566)],#Yoko discusses Khonsu incident (Khonsu)
@@ -790,7 +791,7 @@ MISSION_INFO_DEMON_IDS = {
     197: [Demon_Sync(122)], #Brawny Ambitions II (Xiezhai)
     201: [Demon_Sync(141,751)], #Knocking on Death's Door (Dormarth)
     202: [Demon_Sync(291,891)], #The Disgraced Bird God (Gurulu)
-    203: [Demon_Sync(288,756)], #Part-Time Gasser (Zhen)
+    203: [Demon_Sync(288,509)], #Part-Time Gasser (Zhen)
     205: [Demon_Sync(22,779)], #Goddesses of Fate (Norn)
     206: [Demon_Sync(12,776)], #Will of the Samurai (Atavaka)
     208: [Demon_Sync(212,826),Demon_Sync(32)], #Sakura Cinders of the East (Oyamatsumi, Konohana Sakuya)
