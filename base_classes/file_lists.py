@@ -669,13 +669,14 @@ class Script_File_List:
         self.files.append((Script_File(assetobject,jsonobject)))
 
 class Script_File:
-    def __init__(self,uasset: UAsset, json):
+    def __init__(self,uasset: UAsset, jsonData):
         self.uasset = uasset
-        self.json = json
-        self.originalJson = copy.deepcopy(json)
+        self.json = jsonData
+        self.originalJson = json.loads(json.dumps(jsonData))
         self.originalByteCodeSize = None
         self.originalBytecode = None
         self.originalNameMap = None
+
     
     '''
     Get the name at the index in the name map of the uasset.
