@@ -105,6 +105,7 @@ def setConfigSettings(configur):
 
     configSettings.ishtarPressTurns = int(configur.get('Boss', 'IshtarPressTurns'))
     configSettings.randomizeIshtarPressTurns = obtainBooleanValue(configur.get('Boss', 'RandomizeIshtarPressTurns'))
+    configSettings.bossPressTurnChance = float(configur.get('Boss', 'BossPressTurnChance'))
 
     configSettings.randomMiracleUnlocks = obtainBooleanValue(configur.get('Miracle', 'RandomMiracleUnlocks'))
     configSettings.randomMiracleCosts = obtainBooleanValue(configur.get('Miracle', 'RandomMiracleCosts'))
