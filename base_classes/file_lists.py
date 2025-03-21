@@ -237,6 +237,7 @@ SCRIPT_FOLDERS = {
     'MM_M062_E2302': M062_PLEIADES_FOLDER, #Arriving in fairy village vengeance
     'MM_M062_E2305': M062_PLEIADES_FOLDER, #Golden Apple Quest start vengeance
     'MM_M062_E2305_2': M062_PLEIADES_FOLDER, #Golden Apple Quest Idun part vengeance
+    'MM_M062_E2326_Direct': M062_PLEIADES_FOLDER, #Dialogue when fairy village is salted
     'MM_M063_E0625': MAIN_M063_FOLDER, #Yakumo post-fight Chiyoda 
     'MM_M063_EM0061': MAIN_M063_FOLDER, #Hellfire Highway Shrine Event
     'MM_M063_EM0070': MAIN_M063_FOLDER, #Decarabia in Ishtar Quest
