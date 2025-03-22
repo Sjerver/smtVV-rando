@@ -456,7 +456,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e3120': [Demon_Sync(8, 481), Demon_Sync(9, 482)],#Zeus + Odin pre-fight dialogue (Zeus, Odin)
     'e3130': [Demon_Sync(8, 481), Demon_Sync(9, 482)],#Zeus + Odin post-fight dialogue (Zeus, Odin)
     'e3300': [Demon_Sync(530, 528), Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(577)],#Dazai pre-fight dialogue (Tsukuyomi, Dazai, Abdiel)
-    'e3310': [Demon_Sync(530, 528), Demon_Sync(561), Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(511, 577)],#Dazai post-fight dialogue (Tsukuyomi, Yuzuru, Dazai, Abdiel)
+    'e3310': [Demon_Sync(530, 528), Demon_Sync(561), Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(577)],#Dazai post-fight dialogue (Tsukuyomi, Yuzuru, Dazai, Abdiel)
     'e3330': [Demon_Sync(565), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(567, nameVariant='Yakumo'), Demon_Sync(578, nameVariant='Dazai')],#Yoko shows up in Empyrean (Tiamat, Yuzuru, Yakumo, Dazai)
     'e3350': [Demon_Sync(565)],#Yoko uses Tiamat on you (Tiamat)
     'e3352': [Demon_Sync(510, 528), Demon_Sync(565)],#Tiamat post-fight dialogue law (Tsukuyomi, Tiamat)
