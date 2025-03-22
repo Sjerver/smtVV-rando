@@ -435,7 +435,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e2912': [Demon_Sync(530, 528), Demon_Sync(578), Demon_Sync(564), Demon_Sync(565)],#Dark block bros pre-fight (Tsukuyomi, Dazai, Abdiel, Tiamat)
     'e2915': [Demon_Sync(530, 528), Demon_Sync(565), Demon_Sync(569), Demon_Sync(559), Demon_Sync(561, nameVariant='Atsuta')],#Shakan angels gossiping (Tsukuyomi, Tiamat, Lilith, Eisheth, Yuzuru)
     'e2917': [Demon_Sync(530, 528)],#Cherub fight dialogue (Tsukuyomi)
-    'e2920': [Demon_Sync(530, 528), Demon_Sync(511, 564), Demon_Sync(561, nameVariant='Atsuta')],#Abdiel in Shakan pre-fight dialogue (Tsukuyomi, Abdiel, Yuzuru)
+    'e2920': [Demon_Sync(530, 528), Demon_Sync(564), Demon_Sync(561, nameVariant='Atsuta')],#Abdiel in Shakan pre-fight dialogue (Tsukuyomi, Abdiel, Yuzuru)
     'e2930': [Demon_Sync(530, 528), Demon_Sync(511, 564), Demon_Sync(565), Demon_Sync(596)],#Abdiel in Shakan post-fight dialogue (Tsukuyomi, Abdiel, Tiamat, Mastema)
     'e2950': [Demon_Sync(530, 528), Demon_Sync(250, 596), Demon_Sync(564)],#Mastema dialogue after Shakan (Tsukuyomi, Mastema, Abdiel)
     'e2953': [Demon_Sync(510, 528)],#Tsukuyomi pre-meeting before area 4 vengeance (Tsukuyomi)
