@@ -27,6 +27,9 @@ Demon/Encounter randomization:
 - Special fusions are randomized and will require demons of a lower level than the result
 - Demons obtained from quests can be their randomized replacements at the same level as the original demon
 - Stats of demons can be randomized
+- Resistances of demons and bosses can be randomized
+- Voices of demons can be randomized
+- Navigators can be randomized
 
 Unique Skill Inheritance:
 - Vanilla: Unique skills can only show up on the skill's original owner
@@ -43,6 +46,7 @@ Item/Miracle randomization:
 - Some important miracles like divine amalgamation will be guaranteed at the start
 
 Basic gameplay changes:
+- Return Pillar replaces the first miman reward
 - All demons who are normally not recruitable as basic enemies have their tone changed, to make them recruitable resulting in the loss of unique level-up lines and similiar text
 - Normally two demons which result in a special fusion do not result in a normal fusion. For the sake of simplicity they now are fusable normally.
   (Example: Barong and Rangda can not be fused normally because they are the requirement for special fusion Shiva. The randomizer adds a normal fusion of Barong + Rangda = Chimera according to normal fusion chart rules.)
