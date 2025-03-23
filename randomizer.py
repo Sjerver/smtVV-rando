@@ -12,15 +12,19 @@ from base_classes.miracles import Abscess, Miracle
 from base_classes.demon_assets import Asset_Entry, Position, UI_Entry, Talk_Camera_Offset_Entry
 from base_classes.map_demons import Map_Demon
 from base_classes.map_event import Map_Event
+from base_classes.navigators import Navigator
 from base_classes.file_lists import Script_File_List, General_UAsset
-from util.jsonExports import BASE_MAPSYMBOLPARAMS
+from util.jsonExports import BASE_MAPSYMBOLPARAMS, VOICEMAP_ESCAPE, VOICEMAP_FIND
+from pprint import pprint
 import script_logic as scriptLogic
 import message_logic as message_logic
 import model_swap
 import util.numbers as numbers
+from util.numbers import RACE_ARRAY
 import util.paths as paths
 import util.translation as translation
 import boss_logic as bossLogic
+import base_classes.message as message
 import math
 import os
 import random
@@ -31,7 +35,6 @@ import copy
 import shutil
 import traceback
 
-RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 DEV_CHEATS = False
 
 class Randomizer:
@@ -65,7 +68,6 @@ class Randomizer:
         self.bossFlagArr = []
         self.bossDuplicateMap = {}
         self.mimanRewardsArr = []
-        self.protofiendArr = []
         self.battleEventArr = []
         self.devilAssetArr = []
         self.overlapCopies = []
@@ -93,14 +95,22 @@ class Randomizer:
         self.alreadyAssignedSkills = set()
         self.scriptFiles = Script_File_List()
         self.mapEventArr = []
-
+        self.navigatorArr = []
+        self.navigatorVoiceIDs = [] #IDs of demon voices in 3-digit string form that have 13 (navi find) and 14 (navi go) voice lines
+        self.naviReplacementMap = {}
+        self.naviParamFile = General_UAsset("NaviDevilParamTable", "rando/Project/Content/Blueprints/Map/Gimic/Daath/")
+        self.voiceMapFile = General_UAsset("BP_DevilVoiceAssetMap","rando/Project/Content/Sound/DevilVoice/")
         self.nahobino = Nahobino()
+        self.totalResistMap = {} #stores all assigned resistances for each element 
+        self.itemReplacementMap = {}
+        self.skillReplacementMap = {}
         
         self.configSettings = Settings()
         self.textSeed = ""
 
         self.elementals = [155,156,157,158]
-        
+        self.specialFusionDemonIDs = []
+
         self.dummyEventIndex = 0
     
     '''
@@ -244,7 +254,7 @@ class Randomizer:
                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 2)))
         demon.resist.ice = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 3),
                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 3)))
-        demon.resist.electric = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 4),
+        demon.resist.elec = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 4),
                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 4)))
         demon.resist.force = Translated_Value(NKMBaseTable.readWord(locations['innate'] + 4 * 5),
                                                     translation.translateResist(NKMBaseTable.readWord(locations['innate'] + 4 * 5)))
@@ -343,8 +353,12 @@ class Randomizer:
                 toPush.offsetNumber = locations
                 
                 ownerID = skillData.readWord(locations['owner'])
-                if ownerID < 0:
+                if ownerID == -1:
                     ownerName = "Nahobino"
+                elif ownerID == -2:
+                    ownerName = "Demon Only"
+                elif ownerID == -3:
+                    ownerName = "Enemy"
                 else:
                     ownerName = self.compendiumNames[ownerID]
                 toPush.owner = Skill_Owner(ownerID, ownerName)
@@ -421,8 +435,12 @@ class Randomizer:
                 toPush.offsetNumber = locations
 
                 ownerID = skillData.readWord(locations['owner'])
-                if ownerID < 0:
+                if ownerID == -1:
                     ownerName = "Nahobino"
+                elif ownerID == -2:
+                    ownerName = "Demon Only"
+                elif ownerID == -3:
+                    ownerName = "Enemy"
                 else:
                     ownerName = self.compendiumNames[ownerID]
                 toPush.owner = Skill_Owner(ownerID, ownerName)
@@ -574,6 +592,7 @@ class Randomizer:
             fusion.demon3 = Translated_Value(fusionData.readHalfword(offset + 6), self.compendiumArr[fusionData.readHalfword(offset + 6)].name)
             fusion.demon4 = Translated_Value(fusionData.readHalfword(offset + 8), self.compendiumArr[fusionData.readHalfword(offset + 8)].name)
             fusion.result = Translated_Value(fusionData.readHalfword(offset + 10), self.compendiumArr[fusionData.readHalfword(offset + 10)].name)
+            self.specialFusionDemonIDs.append(fusion.result.value)
             self.specialFusionArr.append(fusion)
             
     '''
@@ -655,7 +674,7 @@ class Randomizer:
                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 2)))
         demon.resist.ice = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 3),
                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 3)))
-        demon.resist.electric = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 4),
+        demon.resist.elec = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 4),
                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 4)))
         demon.resist.force = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 5),
                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4 * 5)))
@@ -791,7 +810,7 @@ class Randomizer:
         locations = {
             'startingSkill': 0x2C69,
             'statStart': start,
-            'affStart': 0x2B10,
+            'affStart': 0x2B15,
             'innate': 0x2D05
         }
 
@@ -808,7 +827,7 @@ class Randomizer:
         self.nahobino.resist.physical = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 0),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 * 0)))
         self.nahobino.resist.fire = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 1),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *1)))
         self.nahobino.resist.ice = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 2),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *2)))
-        self.nahobino.resist.electric = Translated_Value(playGrow.readWord(locations['affStart'] + 4 *3),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *3)))
+        self.nahobino.resist.elec = Translated_Value(playGrow.readWord(locations['affStart'] + 4 *3),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *3)))
         self.nahobino.resist.force = Translated_Value(playGrow.readWord(locations['affStart'] + 4 *4),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *4)))
         self.nahobino.resist.light = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 5),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *5)))
         self.nahobino.resist.dark = Translated_Value(playGrow.readWord(locations['affStart'] + 4 * 6),translation.translateResist(playGrow.readWord(locations['affStart'] + 4 *6)))
@@ -857,7 +876,7 @@ class Randomizer:
             entry = Shop_Entry()
             entry.offset = offset
             entry.item = Translated_Value(shopData.readHalfword(offset),translation.translateItem(shopData.readHalfword(offset),self.itemNames))
-            entry.unlock = Translated_Value(shopData.readDblword(offset +4), translation.translateFlag(shopData.readDblword(offset+4)))
+            entry.unlock = Translated_Value(shopData.readDblword(offset +4), translation.translateShopFlag(shopData.readDblword(offset+4)))
 
             self.shopArr.append(entry)
     '''
@@ -947,64 +966,6 @@ class Randomizer:
             bossFlags.flags = flags
             self.bossFlagArr.append(bossFlags)
 
-    '''
-    Fills the array protofiendArr with data on all protofiends that serve as the source for their essence data.
-        Parameters:
-            NKMBaseTable (Buffer) the buffer containing all playable demon data
-    '''
-    def fillProtofiendArr(self, NKMBaseTable):
-        relevantIDs = numbers.PROTOFIEND_IDS
-
-        
-        demonOffset = 0x1D0
-        startValue = 0x69 + relevantIDs[0] * demonOffset
-
-        for index, demonID in enumerate(relevantIDs):
-            offset = startValue + demonOffset * index
-            locations = {
-                'level': offset,
-                'nameID': offset - 4,
-                'firstSkill': offset + 0x70,
-                'potential': offset + 0X174,
-                'HP': offset + 0x1C
-            }
-
-            #Then read the list of initial skills learned
-            listOfSkills = []
-            for i in range(8):
-                skillID = NKMBaseTable.readWord(locations['firstSkill'] + 4 * i)
-                if skillID != 0:
-                    listOfSkills.append(Translated_Value(skillID, translation.translateSkillID(skillID, self.skillNames)))
-            
-            demon = Compendium_Demon()
-            demon.ind = demonID
-            demon.nameID = NKMBaseTable.readWord(locations['nameID'])
-            demon.name = self.compendiumNames[demon.nameID]
-            demon.offsetNumbers = locations
-            demon.level = Demon_Level(NKMBaseTable.readWord(locations['level']), NKMBaseTable.readWord(locations['level']))
-            demon.skills = listOfSkills
-            demon.potential.physical = NKMBaseTable.readWord(locations['potential'])
-            demon.potential.fire = NKMBaseTable.readWord(locations['potential'] + 4 * 1)
-            demon.potential.ice = NKMBaseTable.readWord(locations['potential'] + 4 * 2)
-            demon.potential.elec = NKMBaseTable.readWord(locations['potential'] + 4 * 3)
-            demon.potential.force = NKMBaseTable.readWord(locations['potential'] + 4 * 4)
-            demon.potential.light = NKMBaseTable.readWord(locations['potential'] + 4 * 5)
-            demon.potential.dark = NKMBaseTable.readWord(locations['potential'] + 4 * 6)
-            demon.potential.almighty = NKMBaseTable.readWord(locations['potential'] + 4 * 7)
-            demon.potential.ailment = NKMBaseTable.readWord(locations['potential'] + 4 * 8)
-            demon.potential.recover = NKMBaseTable.readWord(locations['potential'] + 4 * 10)
-            demon.potential.support = NKMBaseTable.readWord(locations['potential'] + 4 * 9)
-            demonHP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 0), NKMBaseTable.readWord(locations['HP'] + 4 * 2), NKMBaseTable.readWord(locations['HP'] + 4 * 0))
-            demonMP = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 1), NKMBaseTable.readWord(locations['HP'] + 4 * 3),  NKMBaseTable.readWord(locations['HP'] + 4 * 1))
-            demonStr = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 4), NKMBaseTable.readWord(locations['HP'] + 4 * 9),  NKMBaseTable.readWord(locations['HP'] + 4 * 4))
-            demonVit = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 5), NKMBaseTable.readWord(locations['HP'] + 4 * 10),  NKMBaseTable.readWord(locations['HP'] + 4 * 5))
-            demonMag = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 6), NKMBaseTable.readWord(locations['HP'] + 4 * 11),  NKMBaseTable.readWord(locations['HP'] + 4 * 6))
-            demonAgi = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 7), NKMBaseTable.readWord(locations['HP'] + 4 * 12),  NKMBaseTable.readWord(locations['HP'] + 4 * 7))
-            demonLuk = Stat(NKMBaseTable.readWord(locations['HP'] + 4 * 8), NKMBaseTable.readWord(locations['HP'] + 4 * 13),  NKMBaseTable.readWord(locations['HP'] + 4 * 8))
-            demon.stats = Stats(demonHP, demonMP, demonStr, demonVit, demonMag, demonAgi, demonLuk)
-            
-
-            self.protofiendArr.append(demon)
     '''
     Fills the array missionArr with data on all missions.
         Parameters:
@@ -1371,6 +1332,26 @@ class Randomizer:
             self.mapEventArr.append(event)
 
     '''
+    Fills the array navigatorArr with data on demon navigaors.
+        Parameters:
+            data (Buffer) the buffer containing all navigator data
+    '''
+    def fillNavigatorArr(self, data):
+        start = 0x2AD41
+        size = 0xC
+        
+        for index in range(25):
+            offset = start + size * index
+            navi = Navigator()
+            navi.offset = offset
+            navi.demonID = data.readHalfword(offset)
+            navi.itemBonus = data.readHalfword(offset + 2)
+            navi.itemType = data.readByte(offset + 4)
+            navi.openFlag = data.readHalfword(offset + 8)
+            self.navigatorArr.append(navi)
+            self.navigatorVoiceIDs.append(message_logic.normalVoiceIDForBoss(navi.demonID, self.enemyNames).zfill(3))
+
+    '''
     Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
         Parameters:
             ind (Number): the id of the skill to return
@@ -1400,6 +1381,8 @@ class Randomizer:
         for i in range(len(self.skillNames)):
             skillLevels.append(Skill_Level(self.skillNames[i], i, level=[]))
         bonusSkills = numbers.getBonusSkills()
+        if self.configSettings.fixUniqueSkillAnimations:
+            bonusSkills = bonusSkills + numbers.getAnimationFixOnlySkills()
         if self.configSettings.includeEnemyOnlySkills:
             bonusSkills = bonusSkills + numbers.getEnemyOnlySkills()
         if self.configSettings.includeMagatsuhiSkills:
@@ -1620,30 +1603,33 @@ class Randomizer:
             The edited compendium
     '''
     def assignRandomSkills(self, comp, levelList, settings, mask=None):
+        totalSkillAmount = 0
         #If the skills aren't supposed to be scaled based on level, assemble list where each valid skill appears exactly once
-        if not settings.scaledSkills:
-            levelAggregrate = []
-            for index, level in enumerate(levelList):
-                if index == 0:
-                    #Prevents Magatsuhi skills from being in demons skill pools
-                    continue
-                for skill in level:
-                    levelAggregrate.append(skill)
-            uniqueSkills = {skill.ind for skill in levelAggregrate}
-            allSkills = []
-            for ind in uniqueSkills:
-                    allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
-        if not mask:
+        
+        levelAggregrate = []
+        for index, level in enumerate(levelList):
+            if index == 0:
+                #Prevents Magatsuhi skills from being in demons skill pools
+                continue
+            for skill in level:
+                levelAggregrate.append(skill)
+        uniqueSkills = {skill.ind for skill in levelAggregrate}
+        allSkills = []
+        for ind in uniqueSkills:
+                allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
+        if not mask and (settings.scaledSkills or settings.levelWeightedSkills):
             sortedComp = sorted(comp, key=lambda demon: demon.level.value)
+        elif not mask:
+            sortedComp = sorted(comp,key=lambda x: random.random())
         else:
             sortedComp = comp
 
         #For every demon...
-        for demon in sortedComp:
-            if mask and demon.ind not in mask:
+        for demon in sortedComp:     
+            if (mask and demon.ind not in mask) or demon.ind in numbers.INACCESSIBLE_DEMONS or demon.name.startswith("NOT USED") :
                 continue
             possibleSkills = []
-            if settings.scaledSkills:
+            if settings.scaledSkills or settings.levelWeightedSkills:
                 #get all skills that can be learned at the demons level
                 if demon.level.value > 0:
                     possibleSkills = levelList[demon.level.value]
@@ -1676,11 +1662,15 @@ class Randomizer:
             else:
                 #No level scaling so copy list of all skilsl
                 possibleSkills = allSkills.copy()
-        
-            #Create the weighted list of skills and update it with potentials if necessary
-            weightedSkills = self.createWeightedList(possibleSkills)
-            if settings.potentialWeightedSkills:
-                weightedSkills = self.updateWeightsWithPotential(weightedSkills, demon.potential, demon)
+            if settings.levelWeightedSkills:
+                #use both skills around current level and all skills
+                levelWeightedSkills = copy.deepcopy(possibleSkills)
+                possibleSkills = possibleSkills + allSkills.copy()
+                weightedSkills = self.createWeightedSkillList(possibleSkills, allSkills,demon, levelWeightedSkills)
+            else:
+                #use just possible skills
+                weightedSkills = self.createWeightedSkillList(possibleSkills, allSkills, demon)
+
 
             totalSkills = []
 
@@ -1692,7 +1682,7 @@ class Randomizer:
             if validSkills < 8: #Tao/Yoko need at least 8 skills in pool, most other at least 7
                 for weight in weightedSkills.weights:
                     weight += 1
-
+            
             #If there are skills to be learned
             if len(weightedSkills.values) > 0:
 
@@ -1706,7 +1696,7 @@ class Randomizer:
                     attempts = 100
                     while not foundSkill:
                         # until valid skill is found
-                        rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
+                        rng = random.choices(weightedSkills.values, weightedSkills.weights)[0]
                         if attempts <= 0:
                             print("Something went wrong in skill rando at level " + str(demon.level.value))
                             weightedSkills.weights[weightedSkills.values.index(rng)] = 0
@@ -1723,18 +1713,22 @@ class Randomizer:
                                                 weightedSkills.weights[weightIndex] = 0
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
+                                else:
+                                #elif not (settings.freeInheritance or settings.randomInheritance):
+                                    weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
                     totalSkills.append(skillAddition)
                     self.alreadyAssignedSkills.add(rng)
                     demon.skills[index] = skillAddition
+                    totalSkillAmount += 1
                 #Randomly assign learnable skills; same justifications as starting skills
                 for index in range(len(demon.learnedSkills)):
                     foundSkill = False
                     rng = 0
                     attempts = 100
                     while not foundSkill:
-                        rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
+                        rng = random.choices(weightedSkills.values, weightedSkills.weights)[0]
                         if attempts <= 0:
                             print("Something went wrong in leanred skill rando at level " + str(demon.level.value) + "for demon " + str(demon.name))
                             weightedSkills.weights[weightedSkills.values.index(rng)] = 0
@@ -1748,11 +1742,16 @@ class Randomizer:
                                                 weightedSkills.weights[weightIndex] = 0
                                     foundSkill = True
                                     weightedSkills.weights[weightedSkills.values.index(rng)] = 0
+                                else:
+                                #elif not (settings.freeInheritance or settings.randomInheritance):
+                                    weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                         attempts -= 1
                     skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
                     totalSkills.append(skillAddition)
                     self.alreadyAssignedSkills.add(rng)
                     demon.learnedSkills[index] = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames), level=demon.learnedSkills[index].level)
+                    totalSkillAmount += 1
+        #print("TOTAL SKILL SLOTS USED " + str(totalSkillAmount))
         return comp
     
     '''
@@ -1843,6 +1842,9 @@ class Randomizer:
             if skill.ind in numbers.MAGATSUHI_SKILLS and random.random() > 0.5:
                 #Reduce chance that the protagonist starts with magatsuhi skill
                 continue
+            if skill.owner.ind == -2:
+                #next skill if skill is Demon Only (Inspiring Leader)
+                continue
             if settings.multipleUniques:
             # Unique skill can appear twice
                 # check if skill is unique skill
@@ -1870,107 +1872,7 @@ class Randomizer:
                     validity = True
 
         naho.startingSkill = skill.ind
-
-    '''
-    Assigns every protofiend new skills randomized using weights based on the passed settings.
-    The range of skills available can either be all or level ranges around the protofiends level.
-    Additionally, the weights are either the same for every skill or adjusted based on level range or potential and stat of demon.
-    Furthermore the process ensures that each demon starts with at least one active skill.
-        Parameters: 
-            comp (Array): The array of demons
-            levelList (Array(Skill_Level)): The list of levels and their learnable skills
-            settings (Settings): settings set in gui
-        Returns:
-            The edited compendium
-    '''
-    def assignRandomSkillsToProtofiend(self, protofiends, levelList, settings):
-         #If the skills aren't supposed to be scaled based on level, assemble list where each valid skill appears exactly once
-        if not settings.scaledSkills:
-            levelAggregrate = []
-            for index, level in enumerate(levelList):
-                if index == 0:
-                    #Prevents Magatsuhi skills from being in demons skill pools
-                    continue
-                for skill in level:
-                    levelAggregrate.append(skill)
-            uniqueSkills = {skill.ind for skill in levelAggregrate}
-            allSkills = []
-            for ind in uniqueSkills:
-                    allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
-        
-        for protofiend in protofiends:
-            possibleSkills = []
-            if settings.scaledSkills:
-                #get all skills that can be learned at the demons level
-                if protofiend.level.value > 0:
-                    possibleSkills = levelList[protofiend.level.value]
-                #And add the skills learnable at up to 3 level below and above the demons level
-                if protofiend.level.value < 99:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 1]
-                if protofiend.level.value > 1:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 1]
-                if protofiend.level.value > 2:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 2]
-                if protofiend.level.value > 3:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 3]
-                if protofiend.level.value < 98:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 2]
-                if protofiend.level.value < 97:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 3]
-                #Increase skill pool for demons above level 70 due to diminishing demon numbers
-                if protofiend.level.value > 70:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 4]
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 5]
-                #Increase skill pool for demons above level 90 due to diminishing demon numbers
-                if protofiend.level.value > 90:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 6]
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 7]
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value - 8]
-                #Increase skill pool for demons at level 1 due to low number of available skills
-                if protofiend.level.value == 1:
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 4]
-                    possibleSkills = possibleSkills + levelList[protofiend.level.value + 5]
-            else:
-                #No level scaling so copy list of all skilsl
-                possibleSkills = allSkills.copy()
-
-             #Create the weighted list of skills and update it with potentials if necessary
-            weightedSkills = self.createWeightedList(possibleSkills)
-            totalSkills = []
-            #If there are skills to be learned
-            if len(weightedSkills.values) > 0:
-
-                #For every skill...
-                for index in range(len(protofiend.skills)):
-                    foundSkill = False
-                    if protofiend.skills[index].value == 0:
-                        # Don't set empty skill slots 
-                        continue
-                    rng = 0
-                    attempts = 100
-                    while not foundSkill:
-                        # until valid skill is found
-                        rng = self.weightedRando(weightedSkills.values, weightedSkills.weights)
-                        if attempts <= 0:
-                            print("Something went wrong in skill rando at level " + str(protofiend.level.value))
-                            weightedSkills.weights[weightedSkills.values.index(rng)] = 0
-                            foundSkill = True
-                            break
-                        # Ensure Demon has at least one active skill and no skill appears twice
-                        if not any(e.ind == rng for e in totalSkills) and self.ensureAtLeastOneActive(totalSkills, protofiend, rng):
-                            #Check if skill passes additional conditions or skip that check if skills are not supposed to be weighted by stats and potentials
-                            if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, protofiend)):
-                                if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),protofiend,self.compendiumArr,settings):
-                                    if rng in numbers.MAGATSUHI_SKILLS: #only 1 magatsuhi skill assigned to skill set
-                                        for weightIndex,checkSkill in enumerate(weightedSkills.values):
-                                            if checkSkill in numbers.MAGATSUHI_SKILLS:
-                                                weightedSkills.weights[weightIndex] = 0
-                                    foundSkill = True
-                                    weightedSkills.weights[weightedSkills.values.index(rng)] = 0
-                        attempts -= 1
-                    skillAddition = Translated_Value(rng, translation.translateSkillID(rng, self.skillNames))
-                    totalSkills.append(skillAddition)
-                    protofiend.skills[index] = skillAddition
+        self.alreadyAssignedSkills.add(skill.ind)
     
     '''
     Check to see if adding the skill with index skillIndex to the demons skill list would leave him with at least one active starting skill.
@@ -2002,6 +1904,9 @@ class Randomizer:
     '''
     def checkUniqueSkillConditions(self, skill, demon, comp, settings):
         lunationCondition = (skill.ind == numbers.LUNATION_FLUX_ID) and settings.restrictLunationFlux
+        if skill.owner.ind == -2:
+            # Demon Only skills should stay Demon only (Inspiring Leader)
+            return True
         if settings.multipleUniques and not lunationCondition:
         # Unique skill can appear twice
             # check if skill is unique skill
@@ -2113,50 +2018,6 @@ class Randomizer:
         else:
             #Skill fullfills no additional skill conditions
             return False
-        
-    '''
-    Update the weights in the weightList by applying the given skill potentials to the skills
-        Parameters:
-            weightList (Array): Array with sub-arrays weights and values
-            potentials (Potentials): Object containing the data of skill potentials of a demon
-        Returns:
-            weightList updated with the potentials
-    '''
-    def updateWeightsWithPotential(self, weightList, potentials, demon):
-        #For every skill in weight list
-        newWeights = []
-        for index, element in enumerate(weightList.values):
-            newWeight = weightList.weights[index]
-            skill = self.obtainSkillFromID(element)
-            if skill.name == 'Filler':
-                continue #Exclude filler skill because it has Null values
-            if skill.ind in numbers.MAGATSUHI_SKILLS:
-                newWeights.append(newWeight)
-                continue  #Magatsuhi skills are not effected by potential and keep their weight
-            skillStructure = self.determineSkillStructureByID(skill.ind)
-            #Passive skills do not have a corresponding potential by default so we need to handle them seperately
-            if skillStructure == "Active":
-                potentialType = skill.potentialType.translation
-                potentialValue = self.obtainPotentialByName(potentialType, potentials)
-                if potentialType == "Phys":
-                    additionalWeight = potentialValue
-                else:
-                    additionalWeight =  math.ceil(numbers.POTENTIAL_WEIGHT_MULITPLIER * potentialValue)
-                if skill.skillType.value == 0 and demon.stats.str.start < demon.stats.mag.start:
-                    additionalWeight = additionalWeight - numbers.SKILL_STAT_PENALTY_WEIGHT
-                elif skill.skillType.value == 1 and demon.stats.str.start > demon.stats.mag.start:
-                    additionalWeight = additionalWeight - numbers.SKILL_STAT_PENALTY_WEIGHT
-                
-                if additionalWeight < 0:
-                    newWeight = 0
-                else:
-                    newWeight = newWeight + additionalWeight
-            else:
-                #Placeholder in case I want to modify weights for passive skills
-                pass
-            newWeights.append(newWeight)
-
-        return Weight_List(weightList.values, newWeights, weightList.names)
 
     '''
     Returns the skill potential value based on the potential type indicated by a string.
@@ -2250,23 +2111,27 @@ class Randomizer:
             mask (List(Number)): Optional list of demon IDs to filter comp by, only randomizing potentials of those demons
     '''
     def randomizePotentials(self, comp, mask=None):
+        
 
         for demon in comp:
             if mask and demon.ind not in mask:
                 continue
+            totalPercentage = 100
+            if self.configSettings.betterSpecialFusions and demon.ind in self.specialFusionDemonIDs:
+                totalPercentage = 200
             percentages = []
             for i in range(random.randint(3,9)):
-                percentages.append(random.randint(0,50))
+                percentages.append(random.randint(0,int(totalPercentage/2)))
 
-            while sum(percentages) != 100:
+            while sum(percentages) != totalPercentage:
                 randomN = random.randint(0,len(percentages)-1)
-                if sum(percentages) < 100:
+                if sum(percentages) < totalPercentage:
                     percentages[randomN] += 1
                 else:
                     percentages[randomN] -= 1
             negatives = 1
             for index,percentage in enumerate(percentages):
-                if random.randrange(0,100) < (100 / negatives) and negatives < (len(percentages)/2):
+                if random.randrange(0,totalPercentage) < (totalPercentage / negatives) and negatives < (len(percentages)/2):
                     percentages[index] = percentage * -1
                     negatives += 1
 
@@ -2277,7 +2142,7 @@ class Randomizer:
             #follows rough trends of potentials in base demons
             absPotAmount = round(numbers.POTENTIAL_SCALING_FACTOR * demon.level.value + numbers.BASE_POTENTIAL_VALUE)
             for index,percentage in enumerate(percentages):
-                percentage = percentage / 100
+                percentage = percentage / totalPercentage
                 # 7 is the base game max and min that occurs
                 maxV = 7
                 if(index > 8):
@@ -2294,44 +2159,459 @@ class Randomizer:
             demon.potential.ailment = newPotentials[8]
             demon.potential.support = newPotentials[9]
             demon.potential.recover = newPotentials[10]
-                         
+
     '''
-    Based on array of skills creates two arrays where each skill is only included once.
-    Weight depends of if skill has already been assigned in the randomization process and if they are a magatsuhi skill.
+    Randomizes the resistance profiles of demons. The process attempts to follow base game distribution of resistances and elemnents.
+    The outcome is changed depending on what resistance settings are chosen.
+        Parameters: 
+            comp (List(Compendium_Demon)): List of demons
+            mask (List(Number)): Optional list of demon IDs to filter comp by, only randomizing resitances of those demons
+        #TODO: Not entirely happy with this, so consider completely rethinking this. Maybe taking base resist profiles and then shuffling
+        either profiles or shuffle resists in profiles and then assign those randomly?
+    '''
+    def randomizeResistances(self, comp, mask = None):
+        '''
+        Adjust weights for the resistance level based on the potential of an element for a demon.
+            Parameters:
+                element(String): the potential to use for the element
+                resistWeights(List): list of weights to modify
+                demon(Compendium_Demon): demon to use potentials of
+            Returns the modified list of weights
+        '''
+        def adjustResistWeightForPotential(element,resistWeights,demon):
+            potential = demon.potential.__getattribute__(element)
+            if potential == 0:
+                #increase neutral chance
+                resistWeights[4] = math.ceil(1.1 * resistWeights[4])
+                return resistWeights
+            elif potential < 0:
+                #reduce resist chance, increase weakness chance
+                multiplier = 1 - (potential / -10) 
+                for i in range(4):
+                    resistWeights[i] = math.ceil(resistWeights[i] * multiplier)
+                #resistWeights[4] = math.ceil(multiplier  * resistWeights[4])
+                multiplier = 1 - (potential / 10)
+                resistWeights[5] = math.ceil(resistWeights[5] * multiplier)
+            else:
+                #reduce resist chance, increase weakness chance
+                multiplier = 1 + potential / 10
+                for i in range(4):
+                    resistWeights[i] = math.ceil(resistWeights[i] * multiplier)
+                #resistWeights[4] = math.ceil(multiplier  * resistWeights[4])
+                multiplier = 1 + potential / -10
+                resistWeights[5] = math.ceil(resistWeights[5] * multiplier)
+            return resistWeights
+        
+        '''
+        Adjust weights for the element based on the potential of that element for a demon.
+            Parameters:
+                element(String): the potential to use for the element
+                elementWeights(List): list of weights to modify
+                demon(Compendium_Demon): demon to use potentials of
+                ailmentIndex(Number): optional index for ailments, which all use the same potential and thefore the same element name
+            Returns the modified list of weights
+        '''
+        def adjustElementWeightForPotential(element,elementWeights,demon, ailmentIndex=None):
+            potential = demon.potential.__getattribute__(element)
+            if potential == 0:
+                return elementWeights
+            elif potential < 0:
+                multiplier = 1 - potential / -10
+            else:
+                multiplier = 1 + potential / 10
+            if ailmentIndex is not None:
+                elementWeights[ailmentIndex] *= multiplier
+            else:
+                elementWeights[numbers.ELEMENT_RESIST_NAMES.index(element)] *= multiplier
+            return elementWeights
+
+        demonCount = 0
+        
+        if len(self.totalResistMap) == 0:
+            for attr in vars(comp[0].resist):
+                self.totalResistMap[attr] = {
+                    -1.5: 0,
+                    -1: 0,
+                    0: 0,
+                    0.5: 0,
+                    1: 0,
+                    1.5: 0
+                }  
+        resistProfiles = [] # will store the resistances of every demon, mostly for debug purposes
+
+        #filter out all unused demons (unnamed and Old Lilith, Other Tao), mitamas
+        if mask:
+            filteredComp = [demon for demon in comp if demon.ind in mask]
+        else:
+            filteredComp = [demon for demon in comp if demon.ind not in numbers.INACCESSIBLE_DEMONS and not demon.name.startswith("NOT") and "Mitama" not in demon.name]
+        filteredComp = sorted(filteredComp, key=lambda demon: demon.level.value)
+
+        for demon in filteredComp:
+            demon: Compendium_Demon
+    
+            
+            demonCount += 1
+
+            #calculate phys first
+            if self.configSettings.scaledPhysResists:
+                physWeights = copy.deepcopy(numbers.PHYS_RESIST_DISTRIBUTION[math.ceil(demon.level.value / 10)])
+            else:
+                physWeights = copy.deepcopy(numbers.PHYS_RESIST_DISTRIBUTION[0])
+            
+            if self.configSettings.potentialWeightedResists:
+                #physical uses slightly differnt multipliers for potential weighting than other elements due to distribution
+                if demon.potential.physical == 0:
+                    physWeights[4] = math.ceil(1.1 * physWeights[4])
+                elif demon.potential.physical < 0:
+                    multiplier = 1 - demon.potential.physical / -20
+                    for i in range(4):
+                        physWeights[i] = math.ceil(physWeights[i] * multiplier)
+                    multiplier = 1 - demon.potential.physical / 20
+                    physWeights[5] = math.ceil(physWeights[5] * multiplier)
+                else:
+                    multiplier = 1 + demon.potential.physical / 20
+                    for i in range(4):
+                        physWeights[i] = math.ceil(physWeights[i] * multiplier)
+                    multiplier = 1 + demon.potential.physical / -20
+                    physWeights[5] = math.ceil(physWeights[5] * multiplier)
+            
+            
+            validPhysResist = False
+            while not validPhysResist: #reroll phys resist to be valid with diverseResists if enabled
+                physResist = random.choices(numbers.SIMPLE_RESIST_VALUES,physWeights)[0]
+                if self.configSettings.diverseResists and physResist != 1 and self.totalResistMap["physical"].get(physResist) > demonCount / numbers.DIVERSE_RESIST_FACTOR:
+                    validPhysResist =False
+                else:
+                    validPhysResist = True
+                    
+            chosenResists = [1,1,1,1,1,1] #the element resist results will be saved here
+            alreadyChosen = set() #will contain elements that have already been assigned
+            
+            allowedRange = 1.5 #this is the used to define the sum range in which the total resist sum is allowed to be
+
+            if self.configSettings.scaledElementalResists:
+                baselineSum=  round(numbers.calculateResistBase(demon.level.value) * 2) / 2 
+            else:
+                #base game sum is between roughly 1 and 11 here, so with 1.5 added ranges those end up the min/max values
+                #sum is flat number or ends in .5
+                baselineSum = round(random.uniform(3,10) * 2) / 2 
+           
+            if self.configSettings.betterSpecialFusions and demon.ind in self.specialFusionDemonIDs:
+                #special fusions use lower allowed sum here
+                baselineSum -= allowedRange
+            
+            #Phys is 1.5 because phys weakness/resists should have stronger impact than elemental ones
+            currentSum = sum(chosenResists) + physResist * 1.5
+            
+            minRuns = 3 #minimum amount of elements for which a random resistance is generated
+
+            #Stop choosing resistance values for elements if all elements are chosen or sum is breaking range limits
+            while len(alreadyChosen) < len(numbers.ELEMENT_RESIST_NAMES) and (len(alreadyChosen) <= minRuns or baselineSum - allowedRange < currentSum < baselineSum + allowedRange):
+                elementResistWeights = [] #these weights will be used to calculate which resist value is used
+                
+                #these weights are used to decide the elements based on the not already chosen ones
+                elementWeights = [1 if numbers.ELEMENT_RESIST_NAMES[index] not in alreadyChosen else 0 for index,v in enumerate(chosenResists) ]
+                element = random.choices(numbers.ELEMENT_RESIST_NAMES,elementWeights)[0]
+                alreadyChosen.add(element)
+                
+                if self.configSettings.scaledElementalResists:
+                    if element == "dark" or "light":
+                        elementResistWeights = copy.deepcopy(numbers.LD_RESIST_DISTRIBUTION[math.ceil(demon.level.value / 10)])
+                    else:
+                        elementResistWeights = copy.deepcopy(numbers.FIEF_RESIST_DISTRIBUTION[math.ceil(demon.level.value / 10)])
+                else:
+                    if element == "dark" or "light":
+                        elementResistWeights = copy.deepcopy(numbers.LD_RESIST_DISTRIBUTION[0])
+                    else:
+                        elementResistWeights = copy.deepcopy(numbers.FIEF_RESIST_DISTRIBUTION[0])
+                
+                if self.configSettings.potentialWeightedResists:
+                    elementResistWeights = adjustResistWeightForPotential(element,elementResistWeights,demon)
+                
+                if self.configSettings.diverseResists:
+                    for index, value in enumerate(self.totalResistMap[element].values()):
+                        if 1 +value > demonCount / numbers.DIVERSE_RESIST_FACTOR and index != 4:# neutral resists are not subject to diverseResist setting
+                            elementResistWeights[index] /= 2
+                
+                elementResist = random.choices(numbers.SIMPLE_RESIST_VALUES,elementResistWeights)[0]
+                chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = elementResist
+                currentSum = sum(chosenResists) + physResist * 1.5
+                
+            
+            ailmentResists = [] #the ailment resist results will be saved here
+            for _ in numbers.AILMENT_NAMES:
+                ailmentResists.append(1)
+            alreadyChosen = set()
+
+            #ailments count half because they are should be worth less than elemental ones
+            currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists)/2
+            
+            if self.configSettings.scaledElementalResists:
+                baselineSum = round(numbers.calculateTotalResistBase(demon.level.value) * 2) / 2
+                if self.configSettings.betterSpecialFusions and demon.ind in self.specialFusionDemonIDs:
+                    baselineSum -= allowedRange #since this is calculated again, needs to be applied again
+            else:
+                baselineSum += round(random.uniform(2,3) * 2) / 2 
+            
+
+            while len(alreadyChosen) < len(numbers.AILMENT_NAMES) and (len(alreadyChosen) <= minRuns or baselineSum - allowedRange < currentSum < baselineSum + allowedRange):
+                ailmentResistWeights = []
+                ailmentWeights = [1 if numbers.AILMENT_NAMES[index] not in alreadyChosen else 0 for index,v in enumerate(ailmentResists) ]
+                ailment = random.choices(numbers.AILMENT_NAMES,ailmentWeights)[0]
+                alreadyChosen.add(ailment)
+
+                if self.configSettings.scaledElementalResists:
+                    ailmentResistWeights = copy.deepcopy(numbers.AILMENT_RESIST_DISTRIBUTION[math.ceil(demon.level.value / 10)])
+                else:
+                    ailmentResistWeights = copy.deepcopy(numbers.AILMENT_RESIST_DISTRIBUTION[0])
+
+                if self.configSettings.potentialWeightedResists:
+                    ailmentResistWeights = adjustResistWeightForPotential("ailment",ailmentResistWeights,demon)
+                
+                if self.configSettings.diverseResists:
+                    for index, value in enumerate(self.totalResistMap[ailment].values()):
+                        if 1 +value > demonCount / numbers.DIVERSE_RESIST_FACTOR and index != 4:
+                            ailmentResistWeights[index] /= 2
+
+                ailmentResist = random.choices(numbers.SIMPLE_RESIST_VALUES,ailmentResistWeights)[0]
+                ailmentResists[numbers.AILMENT_NAMES.index(ailment)] = ailmentResist
+                currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists)/2
+
+            attempts = 100
+            #try to make sum fit into range limits, to achieve somewhat balanced resist profiles
+            while currentSum < baselineSum - allowedRange or currentSum > baselineSum + allowedRange:
+                attempts -= 1
+                if attempts <= 0:
+                    print("Something went wrong in resist rando at level " + str(demon.level.value) + "for demon " + str(demon.name))
+                    break
+    
+                if currentSum < baselineSum - allowedRange:
+                    #add weaknesses/ make resist worse, Increase value
+                    
+                    randomTypes = {}
+                    # types that only have weaknesses cannot be added, since no value to increase
+                    if chosenResists.count(1.5) != len(chosenResists):
+                        randomTypes.update({"Elements" : (numbers.FIEF_RESIST_DISTRIBUTION[0][5] + numbers.LD_RESIST_DISTRIBUTION[0][5])/2})
+                    if ailmentResists.count(1.5) != len(ailmentResists):
+                        randomTypes.update({"Ailments" : numbers.AILMENT_RESIST_DISTRIBUTION[0][5]})
+                    if len(randomTypes) == 0: #not checking for phys weakness here, since physWeak would make it highly likely for this occur anyway
+                        randomTypes.update({"Physical": numbers.PHYS_RESIST_DISTRIBUTION[0][5]})
+                    if physResist == -1.5 and ailmentResists.count(1.5) != len(ailmentResists): #if phys is a drain add ailments with higher weights to reduce cases where most elements are weaknesses
+                        randomTypes.update({"Ailments" : numbers.AILMENT_RESIST_DISTRIBUTION[0][5]* 2} )
+                    changeType = random.choices(list(randomTypes.keys()), list(randomTypes.values()))[0]                  
+                    
+                    if changeType == "Ailments":
+                        #weaks cannot be increased further
+                        chooseAilmentWeights = [0 if r == 1.5 else 10 for r in ailmentResists]
+                        if self.configSettings.potentialWeightedResists:
+                            for ailmentIndex,_ in enumerate(numbers.AILMENT_NAMES):
+                                chooseAilmentWeights = adjustElementWeightForPotential("ailment",chooseAilmentWeights,demon,ailmentIndex)
+                        ailment = random.choices(numbers.AILMENT_NAMES,chooseAilmentWeights)[0]
+                        ailmentResist = ailmentResists[numbers.AILMENT_NAMES.index(ailment)]
+                        resistIndex = min(len(numbers.SIMPLE_RESIST_VALUES)-1,numbers.SIMPLE_RESIST_VALUES.index(ailmentResist)  +1)
+                        ailmentResists[numbers.AILMENT_NAMES.index(ailment)] = numbers.SIMPLE_RESIST_VALUES[resistIndex]
+                    elif changeType == "Physical":
+                        element = "physical"
+                        resistIndex = min(len(numbers.SIMPLE_RESIST_VALUES)-1,numbers.SIMPLE_RESIST_VALUES.index(physResist)  +1)
+                        if self.configSettings.diverseResists:
+                            
+                            while resistIndex +1 < len(numbers.SIMPLE_RESIST_VALUES):
+                                if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                                    if self.totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / numbers.DIVERSE_RESIST_FACTOR:
+                                        resistIndex += 1
+                                    else:
+                                        break
+                                else:
+                                    break
+                        physResist = numbers.SIMPLE_RESIST_VALUES[resistIndex]
+                    else:
+                        chooseElementWeights = [0 if r == 1.5 else 10 for r in chosenResists]
+                        if self.configSettings.potentialWeightedResists:
+                            for element in numbers.ELEMENT_RESIST_NAMES:
+                                chooseElementWeights = adjustElementWeightForPotential(element,chooseElementWeights,demon)
+
+                        element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                        elementResist = chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)]
+                        resistIndex = min(len(numbers.SIMPLE_RESIST_VALUES)-1,numbers.SIMPLE_RESIST_VALUES.index(elementResist)  +1)
+                        # Avoid overpopulating resistances if diverseResists is enabled
+                        if self.configSettings.diverseResists:
+                            
+                            while resistIndex +1 < len(numbers.SIMPLE_RESIST_VALUES):
+                                if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                                    if self.totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / numbers.DIVERSE_RESIST_FACTOR:
+                                        resistIndex += 1
+                                    else:
+                                        break
+                                else:
+                                    break
+                        chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = numbers.SIMPLE_RESIST_VALUES[resistIndex]
+
+
+                elif currentSum > baselineSum + allowedRange:
+                    #add resists/make weakness worse, decrease value
+
+                    randomTypes = {}
+                    if chosenResists.count(-1.5) != len(chosenResists):
+                        randomTypes.update({"Elements" : (numbers.FIEF_RESIST_DISTRIBUTION[0][5] + numbers.LD_RESIST_DISTRIBUTION[0][5])/2})
+                    if ailmentResists.count(0) != len(ailmentResists): #ailments cannot have repel/drain
+                        randomTypes.update({"Ailments" : numbers.AILMENT_RESIST_DISTRIBUTION[0][5]})
+                    if len(randomTypes) == 0:
+                        randomTypes.update({"Physical": numbers.PHYS_RESIST_DISTRIBUTION[0][5]})
+                    changeType = random.choices(list(randomTypes.keys()), list(randomTypes.values()))[0]
+                    
+                    if changeType == "Ailments":
+                        chooseAilmentWeights = [0 if r == 0 else 10  for r in ailmentResists]
+                        if self.configSettings.potentialWeightedResists:
+                            for ailmentIndex,_ in enumerate(numbers.AILMENT_NAMES):
+                                chooseAilmentWeights = adjustElementWeightForPotential("ailment",chooseAilmentWeights,demon,ailmentIndex)
+                        ailment = random.choices(numbers.AILMENT_NAMES,chooseAilmentWeights)[0]
+                        ailmentResist = ailmentResists[numbers.AILMENT_NAMES.index(ailment)]
+                        #ailments cannot have repel/drain
+                        resistIndex = max(2,numbers.SIMPLE_RESIST_VALUES.index(ailmentResist) -1)
+                        #TODO: Diversity?
+                        ailmentResists[numbers.AILMENT_NAMES.index(ailment)] = numbers.SIMPLE_RESIST_VALUES[resistIndex]
+                    elif changeType == "Physical":
+                        element = "physical"
+                        resistIndex = max(0,numbers.SIMPLE_RESIST_VALUES.index(physResist) -1)
+                        if self.configSettings.diverseResists:
+                            while resistIndex -1 > 0:
+                                if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                                    if self.totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / numbers.DIVERSE_RESIST_FACTOR:
+                                        resistIndex -= 1
+                                    else:
+                                        break
+                                else:
+                                    break
+
+                        physResist = numbers.SIMPLE_RESIST_VALUES[resistIndex ]
+                    else:
+                        chooseElementWeights = [0 if r == -1.5 else 10  for r in chosenResists]
+                        if self.configSettings.potentialWeightedResists:
+                            for element in numbers.ELEMENT_RESIST_NAMES:
+                                chooseElementWeights = adjustElementWeightForPotential(element,chooseElementWeights,demon)
+
+                        element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                        elementResist = chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)]
+                        resistIndex = max(0,numbers.SIMPLE_RESIST_VALUES.index(elementResist) -1)
+                        if self.configSettings.diverseResists:
+                            while resistIndex -1 > 0:
+                                if numbers.SIMPLE_RESIST_VALUES[resistIndex] == 1:
+                                    if self.totalResistMap[element][numbers.SIMPLE_RESIST_VALUES[resistIndex]] > demonCount / numbers.DIVERSE_RESIST_FACTOR:
+                                        resistIndex -= 1
+                                    else:
+                                        break
+                                else:
+                                    break
+
+                        chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = numbers.SIMPLE_RESIST_VALUES[resistIndex ]
+                currentSum = sum(chosenResists) + physResist * 1.5 + sum(ailmentResists) / 2
+                
+            allChosenResists = [physResist] + chosenResists
+            if self.configSettings.alwaysOneWeak:
+                weakAdded = False
+                if not any(1.5 == r for r in allChosenResists): #Add random weakness
+                    chooseElementWeights = [r + 3 for r in chosenResists] #neutrals have highest chance to become weak, drains the lowest
+                    element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                    chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 1.5
+                    allChosenResists = [physResist] + chosenResists
+                    weakAdded = True
+                if not any(r < 1 for r in allChosenResists): #Add random resistance for element that is not random weakness if it was added
+                    weaknessCount = allChosenResists.count(1.5)
+                    #null out weaknesses if there is only one, and prevent overwriting the potentially previously added one
+                    chooseElementWeights = [ 0 if (weaknessCount < 2 and r==1.5 ) or (weakAdded and index == numbers.ELEMENT_RESIST_NAMES.index(element))else -(r - 3) for index,r in enumerate(chosenResists)]
+                    element = random.choices(numbers.ELEMENT_RESIST_NAMES,chooseElementWeights)[0]
+                    chosenResists[numbers.ELEMENT_RESIST_NAMES.index(element)] = 0.5
+                    allChosenResists = [physResist] + chosenResists
+
+            #Apply resist to demon and increase values in totalResistMap
+            demon.resist.physical = Translated_Value(numbers.SIMPLE_RESIST_RESULTS[physResist],translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[physResist]))
+            self.totalResistMap["physical"][physResist] += +1
+
+            for index, element in enumerate(numbers.ELEMENT_RESIST_NAMES):
+                self.totalResistMap[element][chosenResists[index]] += 1
+                demon.resist.__setattr__(element,Translated_Value(numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]],translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]])))
+            resistProfiles.append([physResist] + chosenResists + ailmentResists)
+            for index, ailment in enumerate(numbers.AILMENT_NAMES):
+                self.totalResistMap[ailment][ailmentResists[index]] += 1
+                demon.resist.__setattr__(ailment,Translated_Value(numbers.SIMPLE_RESIST_RESULTS[ailmentResists[index]],translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[ailmentResists[index]])))
+            #print(demon.name + " " + str(currentSum) + " ( " + str(baselineSum) + ")")
+        #print(demonCount)
+        #pprint(totalResistMap)
+        #return totalResistMap, resistProfiles #Uncomment for debug printing potentially
+
+    '''
+    Based on array of skills creates a Weighted_List object where each skill is only included once.
+    Weight depends of if skill has already been assigned in the randomization process and if they are a magatsuhi skill, as well as potentials, stat preferenrentials.
+    Weight is also modified by seperate settings, to ensure all skills are weighted by level or minimizind duplicate skill assignments.
         Parameters:
             possiblSkills (Array): Array of skills
+            allSkills (List): List of all skills that can be assigned
+            demon (Compendium_Demon): the demon for whom the list is generated
+            levelWeightedSkills(List): a list of skills that marks skills as level appropriate
         Returns:
             An object with an array of values and an array of weights and an array of names for the skills
     '''
-    def createWeightedList(self, possibleSkills):
+    def createWeightedSkillList(self, possibleSkills, allSkills,demon: Compendium_Demon, levelWeightedSkills=None):
+        potentials = demon.potential
+        
+        if levelWeightedSkills:
+            levelWeightedSkills = [s.ind for s in levelWeightedSkills]
+        if len(self.alreadyAssignedSkills) == len(allSkills):
+            self.alreadyAssignedSkills = set()
         random.shuffle(possibleSkills) 
         ids = []
         prob = []
         names = []
         #for every skill...
         for skill in possibleSkills:
-            if skill.ind not in ids:
+            if skill.name == 'Filler':
+                continue #Exclude filler skill because it has Null values
+            if skill.ind not in ids:               
                 #else push value and base weight 
                 ids.append(skill.ind)
                 if skill.ind in numbers.MAGATSUHI_SKILLS:
                     probability = numbers.MAGATSUHI_SKILL_WEIGHT
+                    #Magatsuhi skills are not effected by potential and keep their weight
                 else:
                     probability = numbers.SKILL_WEIGHT
+                    realSkill = self.obtainSkillFromID(skill.ind)
+                    skillStructure = self.determineSkillStructureByID(skill.ind)
+                    #Passive skills do not have a corresponding potential by default so we need to handle them seperately
+                    if self.configSettings.potentialWeightedSkills and skillStructure == "Active":
+                        potentialType = realSkill.potentialType.translation
+                        potentialValue = self.obtainPotentialByName(potentialType, potentials)
+                        if potentialType == "Phys":
+                            probability *= (1 + math.ceil(potentialValue / (numbers.POTENTIAL_WEIGHT_MULITPLIER * 2)))
+                        else:
+                            probability *= (1 + math.ceil(potentialValue / numbers.POTENTIAL_WEIGHT_MULITPLIER ))
+                        if realSkill.skillType.value == 0 and demon.stats.str.start < demon.stats.mag.start:
+                            probability = probability * numbers.SKILL_STAT_PENALTY_MULTIPLIER
+                        elif realSkill.skillType.value == 1 and demon.stats.str.start > demon.stats.mag.start:
+                            probability = probability * numbers.SKILL_STAT_PENALTY_MULTIPLIER
+                    if self.configSettings.limitSkillMPCost and skillStructure == "Active":
+                        potentialType = realSkill.potentialType.translation
+                        potentialValue = self.obtainPotentialByName(potentialType, potentials)
+                        baseCost = realSkill.cost
+                        if potentialType in ["Recovery","Ailment","Support"]:
+                            baseCost *= numbers.NON_OFFENSIVE_POTENTIAL_COST_MULTIPLIERS[min(5,max(-5,potentialValue))]
+                        else:
+                            baseCost *= numbers.OFFENSIVE_POTENTIAL_COST_MULTIPLIERS[potentialValue]
+                        if baseCost > demon.stats.MP.start:
+                            probability = 0
+
+                
                 if skill.ind in self.alreadyAssignedSkills:
-                    probability = probability - numbers.SKILL_PENALTY_WEIGHT
-                if skill.ind not in self.alreadyAssignedSkills and self.configSettings.forceUniqueSkills and self.obtainSkillFromID(skill.ind).owner.ind !=0:
-                    #increase weight if skill is unique and uniques need to be forced
-                    probability = probability * numbers.UNIQUE_SKILL_MULTIPLIER
+                    probability = probability * numbers.SKILL_APPEARANCE_PENALTY_MULTIPLIER
+                if levelWeightedSkills and skill.ind in levelWeightedSkills:
+                    probability *= numbers.LEVEL_SKILL_WEIGHT_MULTIPLIER
+                if skill.ind not in self.alreadyAssignedSkills and self.configSettings.forceAllSkills:
+                    #increase weight if skill are forced and skill not already assigned
+                    #weight increase is higher the more skills have already been assigned
+                    probability = probability * (1 + max(1,(len(self.alreadyAssignedSkills)/ 2))/10)
+                    #probability = probability * numbers.FORCE_SKILL_MULTIPLIER
+
                 prob.append(probability)
                 names.append(skill.name)
-        # for skill in possibleSkills:
-        #     if skill.ind in ids and skill.ind not in numbers.MAGATSUHI_SKILLS: #Magatsuhi Skills should always have weight of 1
-        #         prob[ids.index(skill.ind)] += 1
-        #     elif skill.ind not in ids:
-        #         #else push value and base weight 
-        #         ids.append(skill.ind)
-        #         prob.append(1)
-        #         names.append(skill.name)
         return Weight_List(ids, prob, names)
     
     '''
@@ -2400,6 +2680,9 @@ class Randomizer:
             for index, skill in enumerate(demon.learnedSkills):
                 buffer.writeWord(skill.ind, demon.offsetNumbers['firstLearnedLevel'] + 8 * index + 4)
                 buffer.writeWord(skill.level, demon.offsetNumbers['firstLearnedLevel'] + 8 * index)
+            for index in range(len(demon.learnedSkills),12 - len(demon.learnedSkills)):
+                buffer.writeWord(0, demon.offsetNumbers['firstLearnedLevel'] + 8 * index + 4)
+                buffer.writeWord(0, demon.offsetNumbers['firstLearnedLevel'] + 8 * index)
             #Write various attributes of the demon to the buffer
             buffer.writeWord(demon.level.value, demon.offsetNumbers['level'])
             buffer.writeByte(demon.race.value, demon.offsetNumbers['race'])
@@ -2428,6 +2711,20 @@ class Randomizer:
             buffer.writeWord(demon.potential.ailment, demon.offsetNumbers['potential'] + 4 * 8)
             buffer.writeWord(demon.potential.support, demon.offsetNumbers['potential'] + 4 * 9)
             buffer.writeWord(demon.potential.recover, demon.offsetNumbers['potential'] + 4 * 10)
+            #write resists
+            buffer.writeWord(demon.resist.physical.value, demon.offsetNumbers['innate']+ 4 * 1)
+            buffer.writeWord(demon.resist.fire.value, demon.offsetNumbers['innate']+ 4 * 2)
+            buffer.writeWord(demon.resist.ice.value, demon.offsetNumbers['innate']+ 4 * 3)
+            buffer.writeWord(demon.resist.elec.value, demon.offsetNumbers['innate']+ 4 * 4)
+            buffer.writeWord(demon.resist.force.value, demon.offsetNumbers['innate']+ 4 * 5)
+            buffer.writeWord(demon.resist.light.value, demon.offsetNumbers['innate']+ 4 * 6)
+            buffer.writeWord(demon.resist.dark.value, demon.offsetNumbers['innate']+ 4 * 7)
+            buffer.writeWord(demon.resist.poison.value, demon.offsetNumbers['innate']+ 4 * 9)
+            buffer.writeWord(demon.resist.confusion.value, demon.offsetNumbers['innate']+ 4 * 11)
+            buffer.writeWord(demon.resist.charm.value, demon.offsetNumbers['innate']+ 4 * 12)
+            buffer.writeWord(demon.resist.sleep.value, demon.offsetNumbers['innate']+ 4 * 13)
+            buffer.writeWord(demon.resist.seal.value, demon.offsetNumbers['innate']+ 4 * 14)
+            buffer.writeWord(demon.resist.mirage.value, demon.offsetNumbers['innate']+ 4 * 21)
         return buffer
     
     '''
@@ -2537,6 +2834,20 @@ class Randomizer:
             buffer.writeWord(foe.potential.ailment,offsets['potential'] + 4 * 8)
             buffer.writeWord(foe.potential.recover,offsets['potential'] + 4 * 10)
             buffer.writeWord(foe.potential.support,offsets['potential'] + 4 * 9)
+
+            buffer.writeWord(foe.resist.physical.value, offsets['innate']+ 4 * 1)
+            buffer.writeWord(foe.resist.fire.value, offsets['innate']+ 4 * 2)
+            buffer.writeWord(foe.resist.ice.value, offsets['innate']+ 4 * 3)
+            buffer.writeWord(foe.resist.elec.value, offsets['innate']+ 4 * 4)
+            buffer.writeWord(foe.resist.force.value, offsets['innate']+ 4 * 5)
+            buffer.writeWord(foe.resist.light.value, offsets['innate']+ 4 * 6)
+            buffer.writeWord(foe.resist.dark.value, offsets['innate']+ 4 * 7)
+            buffer.writeWord(foe.resist.poison.value, offsets['innate']+ 4 * 9)
+            buffer.writeWord(foe.resist.confusion.value, offsets['innate']+ 4 * 11)
+            buffer.writeWord(foe.resist.charm.value, offsets['innate']+ 4 * 12)
+            buffer.writeWord(foe.resist.sleep.value, offsets['innate']+ 4 * 13)
+            buffer.writeWord(foe.resist.seal.value, offsets['innate']+ 4 * 14)
+            buffer.writeWord(foe.resist.mirage.value, offsets['innate']+ 4 * 21)
         return buffer
     
     '''
@@ -2586,6 +2897,21 @@ class Randomizer:
             buffer.writeWord(level.mag, 0x1685 + 0x1C * index + 4 * 4)
             buffer.writeWord(level.agi, 0x1685 + 0x1C * index + 4 * 5)
             buffer.writeWord(level.luk, 0x1685 + 0x1C * index + 4 * 6)
+        
+        buffer.writeWord(naho.resist.physical.value,offsets['affStart'] + 4 * 0 )
+        buffer.writeWord(naho.resist.fire.value,offsets['affStart'] + 4 * 1 )
+        buffer.writeWord(naho.resist.ice.value,offsets['affStart'] + 4 * 2 )
+        buffer.writeWord(naho.resist.elec.value,offsets['affStart'] + 4 * 3 )
+        buffer.writeWord(naho.resist.force.value,offsets['affStart'] + 4 * 4 )
+        buffer.writeWord(naho.resist.light.value,offsets['affStart'] + 4 * 5 )
+        buffer.writeWord(naho.resist.dark.value,offsets['affStart'] + 4 * 6 )
+        buffer.writeWord(naho.resist.almighty.value,offsets['affStart'] + 4 * 7 )
+        buffer.writeWord(naho.resist.poison.value,offsets['affStart'] + 4 * 8 )
+        buffer.writeWord(naho.resist.confusion.value,offsets['affStart'] + 4 * 10 )
+        buffer.writeWord(naho.resist.charm.value,offsets['affStart'] + 4 * 11)
+        buffer.writeWord(naho.resist.sleep.value,offsets['affStart'] + 4 * 12 )
+        buffer.writeWord(naho.resist.seal.value,offsets['affStart'] + 4 * 13 )
+        buffer.writeWord(naho.resist.mirage.value,offsets['affStart'] + 4 * 20 )
         
         return buffer
 
@@ -2697,19 +3023,6 @@ class Randomizer:
             buffer.writeHalfword(bossFlags.demonID, bossFlags.offset)
             for index in range(6):
                 buffer.writeByte(bossFlags.flags[index], bossFlags.offset + 4 * (index + 1))
-        return buffer
-    
-    '''
-    Writes the values from the protofiend array to their respective locations in the table buffer
-        Parameters:        
-            buffer (Table)
-            protofiends (Array)
-    '''
-    def updateProtofiendBuffer(self, buffer, protofiends):
-        for demon in protofiends:
-            #Write the id of the demons skills to the buffer
-            for index, skill in enumerate(demon.skills):
-                buffer.writeWord(skill.ind, demon.offsetNumbers['firstSkill'] + 4 * index)
         return buffer
     
     '''
@@ -2918,6 +3231,19 @@ class Randomizer:
         return buffer
 
     '''
+    Writes updated demon navigator data to it's respective location in the table buffer
+        Parameters:
+            buffer (Table): buffer
+    '''
+    def updateNavigatorBuffer(self, buffer):
+        for navi in self.navigatorArr:
+            buffer.writeHalfword(navi.demonID, navi.offset)
+            buffer.writeHalfword(navi.itemBonus, navi.offset + 2)
+            buffer.writeByte(navi.itemType, navi.offset + 4)
+            buffer.writeHalfword(navi.openFlag, navi.offset + 8)
+        return buffer
+
+    '''
     Check if a certain race of demons contains two demons of the same level
         Parameters:        
             comp (Array) 
@@ -2940,26 +3266,6 @@ class Randomizer:
             if demon.name == name:
                 print(demon)
                 break
-            
-    '''
-    For a list of values and weights, outputs a random value taking the weight of values into account
-        Parameters:
-            values (Array): Array of numbers
-            weights (Array) Array of numbers, weights belonging to values with the same index
-        Returns:
-            The randomly chosen value
-    '''
-    def weightedRando(self, values, weights):
-        total = sum(weights)
-        #Generate random number with max being the total weight
-        rng = random.randint(0, total)
-
-        cursor = 0
-        #Add weights together until we reach random number and then apply that value
-        for i in range(len(weights)):
-            cursor += weights[i]
-            if cursor >= rng:
-                return values[i]
             
     '''
     Assign every demon a completely random level between 1 and 98.
@@ -3146,6 +3452,7 @@ class Randomizer:
             expBuffer(Table): table for the special fusion buffer
     '''
     def adjustSpecialFusionTable(self,fusions,comp,expBuffer):
+        self.specialFusionDemonIDs = []
         if len(fusions) > len(self.specialFusionArr):
             newEntries = len(fusions) - len(self.specialFusionArr)
             expBuffer = self.extendSpecialFusionTable(newEntries,expBuffer)
@@ -3169,7 +3476,7 @@ class Randomizer:
             replaced = self.specialFusionArr[index]
             #Set new result demons fusability to 0
             comp[fusion.result.value].fusability = 257
-
+            self.specialFusionDemonIDs.append(fusion.result.value)
             replaced.resultLevel = fusion.resultLevel
             replaced.demon1 = fusion.demon1
             replaced.demon2 = fusion.demon2
@@ -3262,7 +3569,7 @@ class Randomizer:
         
         while len(relevantDemons) > 0:
             #Grab random race, that is valid to assign
-            raceIndex = self.weightedRando(raceIndeces, raceWeights)
+            raceIndex = random.choices(raceIndeces, raceWeights)[0]
             if raceIndex == 0:
                 continue
             if newRatios[raceIndex] == 0:
@@ -3307,7 +3614,7 @@ class Randomizer:
             comp[demonInd].compCostModifier = 100
 
         relevantDemons = [demon for demon in comp if demon.ind not in numbers.BAD_IDS and "Mitama" not in demon.name and not demon.name.startswith('NOT') ]
-        specialFusions = [demon.ind for demon in comp if demon.fusability > 256] #List of demon ids that are fused as a special fusion
+        specialFusions = [demon.ind for demon in comp if demon.fusability > 256 and demon.tone.value != 0] #List of demon ids that are fused as a special fusion
 
         raceAmounts = [ 0 for _ in range(len(RACE_ARRAY)) ] #Number of demons per Race
         raceResults = [ 0 for _ in range(len(RACE_ARRAY)) ] #How many fusion combinations result in this race
@@ -3361,7 +3668,7 @@ class Randomizer:
         while len(base) < 10:
             demon = relevantDemons[index]
             #get random race based on weight
-            raceIndex = self.weightedRando(raceIndeces, raceWeights)
+            raceIndex = random.choices(raceIndeces, raceWeights)[0]
             if len(base) == 0 :
                 #Remove chosen demon from future rounds
                 relevantDemons.remove(demon)
@@ -3431,7 +3738,7 @@ class Randomizer:
             #Check which races can be assigned to the demon
             validRaces = list({fusion[2].race.value for fusion in fusions if fusion[2].ind == -1 and raceWeights[fusion[2].race.value] > 0 and fusion[2].level.value <= demon.level.value })
             validWeights = [weight for index, weight in enumerate(raceWeights) if index in validRaces]
-            raceIndex = self.weightedRando(validRaces,validWeights) #random weighted race
+            raceIndex = random.choices(validRaces,validWeights)[0] #random weighted race
             
             #Check if a demon of the same lavel is already assigned to race
             if demon.level.value in raceLevels[raceIndex]:
@@ -3439,7 +3746,7 @@ class Randomizer:
                 continue
             #Check if demon is special fusion
             if demon.ind in specialFusions:
-                raceIndex = self.weightedRando(raceIndeces, raceWeights)
+                raceIndex = random.choices(raceIndeces, raceWeights)[0]
                 #Remove chosen demon from future rounds
                 relevantDemons.remove(demon)
                 #set demons race to new race
@@ -3526,6 +3833,12 @@ class Randomizer:
                 p[2] = demon
                 fusableDemonS.append(demon)
         
+        
+        specialFusionDemonIDS = [comp[demon] for demon in specialFusions]
+        specialFusions = []
+        for demon in specialFusionDemonIDS:
+            specialFusions.append(self.generateSpecialFusion(demon, [b for b in base if b.level.value < demon.level.value]))
+
         notFusableCurrently = [demon for demon in base if demon not in fusableDemonS and demon.race.translation in numbers.NO_DOWNFUSE_RACES]
         #for all other unfusables that also are not available via element fusion, add an extra special fusion
         for demon in notFusableCurrently:
@@ -3584,6 +3897,7 @@ class Randomizer:
             newStats = Stats(playableEqu.stats.HP.start, playableEqu.stats.MP.start, playableEqu.stats.str.start,
                 playableEqu.stats.vit.start, playableEqu.stats.mag.start,
                 playableEqu.stats.agi.start, playableEqu.stats.luk.start)
+            newResist = copy.deepcopy(playableEqu.resist)
             newSkills = []
             for skill in playableEqu.skills:
                 newID = skill.ind
@@ -3608,7 +3922,19 @@ class Randomizer:
                         newID = numbers.MAGATSUHI_ENEMY_VARIANTS[skill.ind]
                     except KeyError:
                         pass
-                newSkills.append(Translated_Value(newID, translation.translateSkillID(newID, self.skillNames)))
+                skillName = translation.translateSkillID(newID, self.skillNames)
+                newSkills.append(Translated_Value(newID, skillName))
+
+                #check for resistance skills (those do not work on enemies) and apply resistance accordingly
+                if skill.ind in numbers.RESIST_SKILLS.keys():
+                    resistElement = numbers.RESIST_SKILLS[skill.ind][0]
+                    value = numbers.RESIST_SKILLS[skill.ind][1]
+
+                    oldValue = getattr(newResist, resistElement).value
+                    if numbers.compareResistValues(oldValue,value) == 1: #if new value is smaller, use it
+                        newResist.__setattr__(resistElement, Translated_Value(value,translation.translateResist(value)))
+
+
 
             newPressTurns = enemy.pressTurns
             if self.pressTurnChance != 0:
@@ -3622,10 +3948,10 @@ class Randomizer:
             #later overwritten for replacements
             newDrops = Item_Drops(enemy.drops.item1,enemy.drops.item2,enemy.drops.item3)
             
-            newFoe = Enemy_Demon()
-            newFoe.ind = enemy.ind
-            newFoe.name = enemy.name
-            newFoe.offsetNumbers = enemy.offsetNumbers
+            newFoe = copy.deepcopy(enemy)
+            #newFoe.ind = enemy.ind
+            #newFoe.name = enemy.name
+            #newFoe.offsetNumbers = enemy.offsetNumbers
             newFoe.level = newLevel
             newFoe.originalLevel = enemy.level
             newFoe.stats = newStats
@@ -3640,12 +3966,12 @@ class Randomizer:
             newFoe.experience = newExperience
             newFoe.money = newMacca
             newFoe.skills = newSkills
-            newFoe.instakillRate = enemy.instakillRate
+            #newFoe.instakillRate = enemy.instakillRate
             newFoe.drops = newDrops
             newFoe.oldDrops = enemy.drops
             newFoe.innate = playableEqu.innate   #copy innate from player version
-            newFoe.resist = enemy.resist
-            newFoe.potential = playableEqu.potential
+            newFoe.resist = newResist
+            newFoe.potential = copy.deepcopy(playableEqu.potential)
             foes.append(newFoe)
         return foes
     
@@ -3891,14 +4217,21 @@ class Randomizer:
         if not encounterPools:
             return
         with open(paths.BOSS_SPOILER, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
-            for filteredEncounters in encounterPools:
+            for poolName, filteredEncounters in encounterPools.items():
                 validForcedEventEncounter = False
                 shuffledEncounters = []
-                while not validForcedEventEncounter: #until solution is found where event only bosses are replaced by event encounters
-                    shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
-                    forcedEventEncounterIndeces = [i for i, e in enumerate(shuffledEncounters) if e.ind in bossLogic.EVENT_ONLY_BOSSES]
-                    if all(filteredEncounters[i].isEvent for i in forcedEventEncounterIndeces):
-                          validForcedEventEncounter = True
+                if "Vanilla" in poolName:
+                    shuffledEncounters = filteredEncounters
+                else:
+                    while not validForcedEventEncounter: #until solution is found where event only bosses are replaced by event encounters
+                        shuffledEncounters = sorted(filteredEncounters, key=lambda x: random.random()) #First filter the encounters and shuffle the ones to randomize
+                        forcedEventEncounterIndeces = [i for i, e in enumerate(shuffledEncounters) if e.ind in bossLogic.EVENT_ONLY_BOSSES]
+                        if all(filteredEncounters[i].isEvent for i in forcedEventEncounterIndeces):
+                            validForcedEventEncounter = True
+                        if self.configSettings.bossNoEarlyPhysImmunity and not self.configSettings.randomizeBossResistances:
+                            earlyEncounterIndeces = [i for i,e in enumerate(filteredEncounters) if self.staticBossArr[e.demons[0]].level < numbers.EARLY_BOSS_LEVEL_LIMIT]
+                            if any(any(demon in numbers.PHYS_IMMUNE_BOSSES for demon in shuffledEncounters[i].demons) for i in earlyEncounterIndeces):
+                                validForcedEventEncounter = False
                 shuffledEncounters = [copy.deepcopy(x) for x in shuffledEncounters] 
                 for index, encounter in enumerate(filteredEncounters): #Write to spoiler log
                     spoilerLog.write(str(encounter.ind) + " (" + str(encounter.isEvent) +  ") " + "(" + str(encounter.demons[0]) + ") "+ self.enemyNames[encounter.demons[0]] + " replaced by " + str(shuffledEncounters[index].ind) + " (" + str(shuffledEncounters[index].isEvent)+ ") " + self.enemyNames[shuffledEncounters[index].demons[0]] + "\n")
@@ -3915,7 +4248,7 @@ class Randomizer:
                             self.bossReplacements[encounter.demons[2]] = self.bossReplacements[encounter.demons[1]]
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     
-                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings.scaleBossPressTurnsToCheck, self.configSettings.scaleBossInstakillRates)
+                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings, self.compendiumArr, self.playerBossArr, self.skillReplacementMap)
                     #print("Old hp " + str(self.staticBossArr[encounter.demons[0]].stats.HP) + " of " + self.enemyNames[encounter.demons[0]] + " now is "  +
                     #      self.enemyNames[shuffledEncounters[index].demons[0]] + " with " + str(self.bossArr[shuffledEncounters[index].demons[0]].stats.HP) + " HP")
                     self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
@@ -3924,6 +4257,9 @@ class Randomizer:
                     else:
                         self.encountArr[encounter.ind] = encounter.normalEncounter
                         self.updatedNormalEncounters.append(encounter.ind)
+                        if encounter.ind == bossLogic.ILLUSION_AGRAT_ENCOUNTER: #Illusion Agrat needs the symbol updated so the correct demon spawns on overworld and prevents hard camera issues in battle
+                            mainDemon = encounter.demons[0]
+                            self.encountSymbolArr[bossLogic.ILLUSION_AGRAT_SYMBOL].symbol = Translated_Value(mainDemon, self.playerBossArr[mainDemon].name)
 
                     if shuffledEncounters[index].ind in encountersWithBattleEvents and shuffledEncounters[index].isEvent:
                         if encounter.isEvent:
@@ -4432,7 +4768,7 @@ class Randomizer:
         Parameters:
             scaling (Boolean): Whether the rewards scale to the map the chest is in.
     '''
-    def randomizeChests(self, scaling):
+    def randomizeChests(self, scaling, keyitems):
         validItems = []
         validEssences = []
         if scaling: #Valid Rewards are dependent on map
@@ -4452,6 +4788,30 @@ class Randomizer:
                     validEssences.append(itemID)
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     validItems.append(itemID)
+        
+        validChests = [chest for chest in self.chestArr if not ((chest.item.value == 0 and chest.macca == 0) or chest.item.value >= numbers.KEY_ITEM_CUTOFF) and chest.chestID not in numbers.CHEST_BANNED_KEY_ITEM]
+        for item in keyitems:
+            chosenChest = random.choice(validChests)
+            #print(str(chosenChest.map)+ " " + str(chosenChest.chestID) )
+            if chosenChest.map in [63,64]: #if a key item is put in chest in chiyoda or shinjuku it also needs to be in the other
+                try:
+                    subValidChests = [chest for chest in validChests if chest.map in [63,64] and chest.map != chosenChest.map]
+                    chest2 = random.choice(subValidChests)
+                    chest2.item = Translated_Value(item,self.itemNames[item])
+                    chest2.amount = 1
+                    chest2.macca = 0
+                    validChests.remove(chest2)
+                    #pprint("Also:" + str(chest2.map)+ " " + str(chest2.chestID) )
+                except StopIteration: #no valid chest found in other map, use chest from map that is not chiyoda or shinjuku
+                    subValidChests =  [chest for chest in validChests if chest.map not in [63,64]]
+                    chosenChest = random.choice(subValidChests)
+                    #pprint("Instead : " + str(chosenChest.map)+ " " + str(chosenChest.chestID) )
+            chosenChest.item = Translated_Value(item,self.itemNames[item])
+            chosenChest.amount = 1
+            chosenChest.macca = 0
+            validChests.remove(chosenChest)
+
+
                 
         for chest in self.chestArr:
             if (chest.item.value == 0 and chest.macca == 0) or chest.item.value >= numbers.KEY_ITEM_CUTOFF: #Skip unused chests and key item 'chests'
@@ -4700,6 +5060,7 @@ class Randomizer:
             rewardingMissions.remove(mission)
             mission.macca = 0
             mission.reward = uniqueRewards[index]
+        
         for mission in rewardingMissions:
             if scaling: #Set area if reward should scale
                 rewardArea = missionRewardAreas[mission.ind]
@@ -4797,12 +5158,12 @@ class Randomizer:
     def randomizeGiftItems(self, pool):
         randomizedGifts = []
         if not self.configSettings.combineKeyItemPools:#No combined pools means that exclusive items stay normal due to otherwise having not enough gift slots
-            unchangedGifts = list(filter(lambda gift: gift.script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS or gift.script  in scriptLogic.NEWGAMEPLUS_GIFTS, pool.allGifts))
+            unchangedGifts = list(filter(lambda gift: gift.script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS or gift.script  in scriptLogic.NEWGAMEPLUS_GIFTS or gift.script in scriptLogic.MISSABLE_GIFTS, pool.allGifts))
             for gift in unchangedGifts:
-                pool.uniqueRewards.remove(gift.reward)
+                pool.uniqueRewards.remove(gift.item)
                 randomizedGifts.append(gift)
         #Filter out exclusive gifts that should not contain a unique item
-        possibleGifts = list(filter(lambda gift: gift.script not in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS and gift.script not in scriptLogic.NEWGAMEPLUS_GIFTS, pool.allGifts))
+        possibleGifts = list(filter(lambda gift: gift.script not in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS and gift.script not in scriptLogic.NEWGAMEPLUS_GIFTS or gift.script in scriptLogic.MISSABLE_GIFTS, pool.allGifts))
         uniqueGifts = random.sample(possibleGifts, len(pool.uniqueRewards))
         for gift in uniqueGifts:
             reward = random.choice(pool.uniqueRewards)
@@ -4852,14 +5213,19 @@ class Randomizer:
                     itemID = random.choice(validEssences)
                     validEssences.remove(itemID) #Limit 1 gift per essence for diversity
                 gift.item.ind = itemID
+                amount = 1
             else:
                 if self.configSettings.scaleItemsToArea: #scaled items depend on area
                     itemID = random.choice(validItems[rewardArea])
                 else:
                     itemID = random.choice(validItems)
                 gift.item.ind = itemID
+                amount = random.choices(list(numbers.CHEST_QUANTITY_WEIGHTS.keys()), list(numbers.CHEST_QUANTITY_WEIGHTS.values()))[0]
+            if gift.item.ind in numbers.ITEM_QUANTITY_LIMITS.keys():
+                amount = min(amount, numbers.ITEM_QUANTITY_LIMITS[gift.item.ind])
+            gift.item.amount = amount
             #print(gift.script + str(gift.item.ind))
-        scriptLogic.updateGiftScripts(pool.allGifts,self.scriptFiles)
+        scriptLogic.updateGiftScripts(pool.allGifts,self.scriptFiles, self.itemReplacementMap)
 
     '''
     Initializes the pools of all gifts and unique rewards from gifts.
@@ -4882,12 +5248,13 @@ class Randomizer:
         return giftPool
             
     '''
-    Randomizes the miman and mission rewards, with a combined pool depending on the settings.
+    Randomizes the miman, chest, gift and mission rewards, with a combined pool for key items depending on the settings.
     '''
     def randomizeItemRewards(self):
         self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards(self.scriptFiles)
         missionPool = self.initializeMissionPools()
         giftPool = self.initializeGiftPools()
+        chestKeyItemPool = []
         if not self.configSettings.combineKeyItemPools:
             #Mission Pool get initialized regardless so just stays the same
             mimanPool = copy.deepcopy(numbers.MIMAN_BASE_KEY_ITEMS) #Use base pool
@@ -4898,13 +5265,16 @@ class Randomizer:
                 for reward in missionPool.uniqueRewards:
                     missionKeyItemIDs.append(reward.ind)
                 combinedItemPool = combinedItemPool + missionKeyItemIDs
+            
             if self.configSettings.randomizeMimanRewards: #Add miman rewards to the combined pool
                 combinedItemPool = numbers.MIMAN_BASE_KEY_ITEMS + combinedItemPool
+            
             if self.configSettings.randomizeGiftItems: #Add unique gift rewards to the combined pool
                 giftItemIDs = []
                 for reward in giftPool.uniqueRewards:
                     giftItemIDs.append(reward.ind)
                 combinedItemPool = giftItemIDs + combinedItemPool
+            
 
             #Distribute combined pool, starting with sub pools of fixed or lower size
             if self.configSettings.randomizeMimanRewards:#Miman pool has fixed size
@@ -4912,14 +5282,22 @@ class Randomizer:
                 for itemID in mimanPool:
                     combinedItemPool.remove(itemID)
             
-            if self.configSettings.randomizeGiftItems: #Gift pool has fixed size#TODO:Vary Size?
+            if self.configSettings.randomizeGiftItems:                                                                              
                 tsukuyomiCorrection = 0 
                 if not self.configSettings.includeTsukuyomiTalisman:
                     tsukuyomiCorrection = 1 #Increase unique item count by 1 to account for tsukuyomi talisman not being in pool
-                itemIDs = random.sample(combinedItemPool, tsukuyomiCorrection + len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS))
+                maxSize = tsukuyomiCorrection + len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS) - len(scriptLogic.MISSABLE_GIFTS)
+                giftPoolSize = random.randrange(maxSize // 2, maxSize) #Half of size was chosen arbitrarily
+                itemIDs = random.sample(combinedItemPool,giftPoolSize)
                 giftPool.uniqueRewards = []
                 for itemID in itemIDs:
                     giftPool.uniqueRewards.append(Reward_Item(itemID, 1))
+                    combinedItemPool.remove(itemID)
+            
+            if self.configSettings.randomChests:
+                chestPoolSize = random.randrange(0, len(combinedItemPool) // 2) #Half of size was chosen arbitrarily (only 2 pool sizes remaining, mission should be larger)
+                chestKeyItemPool = random.sample(combinedItemPool,chestPoolSize)
+                for itemID in chestKeyItemPool:
                     combinedItemPool.remove(itemID)
             
             if self.configSettings.randomizeMissionRewards:#Largest pool and therefore last
@@ -4934,6 +5312,9 @@ class Randomizer:
 
         if self.configSettings.randomizeGiftItems:
             self.randomizeGiftItems(giftPool)
+
+        if self.configSettings.randomChests:
+            self.randomizeChests(self.configSettings.scaleItemsToArea, chestKeyItemPool)
 
         if self.configSettings.randomizeMissionRewards:
             self.randomizeMissionRewards(self.configSettings.scaleItemsToArea, missionPool)
@@ -5014,7 +5395,7 @@ class Randomizer:
                 numDrops = random.choices(list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.keys()), list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.values()))[0]
                 if demonID not in self.essenceBannedBosses and random.random() < numbers.BOSS_ESSENCE_ODDS: #Boss will drop its own essence
                     try:
-                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation)
+                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.BANNED_ESSENCES)
                         drop.item1 = Item_Drop(essence.ind, essence.name, 100, 0)
                     except StopIteration:
                         item = random.choice(validItems[rewardArea])
@@ -5036,7 +5417,7 @@ class Randomizer:
                 numDrops = random.choices(list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.keys()), list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.values()))[0]
                 if demonID not in self.essenceBannedBosses and random.random() < numbers.BOSS_ESSENCE_ODDS: #Boss will drop its own essence
                     try:
-                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation)
+                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.BANNED_ESSENCES)
                         drop.item1 = Item_Drop(essence.ind, essence.name, 100, 0)
                     except StopIteration:
                         item = random.choice(validItems)
@@ -5138,7 +5519,7 @@ class Randomizer:
             nahoLevel = self.nahobino.stats[demon.level.value]
             avgMin = 0.96 #Girimekhalas Stat Mod Average, lowest of normal demons
             avgMax = 1.35 #Pixies Stat Mod Average, highest of normal demons
-            
+
             def averageCalc():
                 sum = 0
                 for n in randomNumbers: sum += n
@@ -5147,6 +5528,10 @@ class Randomizer:
             ogRanges = [numbers.DEMON_HP_MOD_RANGE,numbers.DEMON_MP_MOD_RANGE, numbers.DEMON_STAT_MOD_RANGE, copy.deepcopy(numbers.DEMON_STAT_MOD_RANGE),copy.deepcopy(numbers.DEMON_STAT_MOD_RANGE),copy.deepcopy(numbers.DEMON_STAT_MOD_RANGE),copy.deepcopy(numbers.DEMON_STAT_MOD_RANGE)]
             ranges = copy.deepcopy(ogRanges)
             
+            if self.configSettings.betterSpecialFusions and demon.ind in self.specialFusionDemonIDs:
+                avgMin += 0.15 
+                avgMax += 0.15
+
             #initialize random numbers
             randomNumbers = [
                 random.randrange(ranges[0][0],ranges[0][1]) / 1000, #HP 
@@ -5188,6 +5573,9 @@ class Randomizer:
                     foe.stats.agi / demon.stats.agi.og,
                     foe.stats.luk / demon.stats.luk.og
                 )
+            if self.configSettings.betterSpecialFusions and demon.ind in self.specialFusionDemonIDs:
+                for randomNumber in randomNumbers:
+                    randomNumber += 0.15
             #Apply these multipliers to the nahobinos stats at new level to gain new level
             demon.stats.HP.og = math.floor(nahoLevel.HP * randomNumbers[0])
             demon.stats.MP.og = math.floor(nahoLevel.MP * randomNumbers[1])
@@ -5218,6 +5606,13 @@ class Randomizer:
             ]
 
             sumRange = [138,148]#growth total sums obtained from vanilla data
+
+            if self.configSettings.betterSpecialFusions and demon.ind in self.specialFusionDemonIDs:
+                for value in sumRange:
+                    value = int(value * 1.15)
+                for growthRange in growthRanges:
+                    growthRange[0] += 5
+                    growthRange[1] += 5
 
             randomGrowths = []
             for index in range(7):
@@ -5796,6 +6191,7 @@ class Randomizer:
             if demon.level.original != demon.level.value:
                 if len(demon.learnedSkills) > 0 and demon.level.value == 99:
                     demon.skills = demon.skills + demon.learnedSkills
+                    demon.learnedSkills = []
                 else:
                     for skill in demon.learnedSkills:
                         skillLevel = min(99, skill.level - demon.level.original + demon.level.value)
@@ -6191,6 +6587,7 @@ class Randomizer:
             entry["Value"][7]["Value"] = referenceEntry["Value"][7]["Value"]
 
             table.append(entry)
+        
     '''
     Removes entries in the map symbol scale table that were added to aid in collision calculation in model swapping.
     '''
@@ -6199,12 +6596,11 @@ class Randomizer:
 
         table = json["Exports"][0]["Table"]["Data"]
         #tableCopy = copy.deepcopy(table)
-
+        
         for entry in table:
             demonID = entry["Value"][0]["Value"]
             if demonID in numbers.REMOVE_TEMP_MODEL_DEMONS:
                 table.remove(entry)
-        
 
     '''
     Changes the scaling of normal demon symbols with overly large scaling factors to the normal 1.2 factor.
@@ -6284,6 +6680,7 @@ class Randomizer:
                 #replacement.encountCollision.scale(scalingFactor)
         except StopIteration:
             pass
+
     '''
     Speeds up demons on the overworld that replace punishing foe birds with large movement cycles
     '''
@@ -6307,14 +6704,209 @@ class Randomizer:
                     copiedSymbol["Value"][0]["Value"] = replacementID
                     copiedSymbol["Value"][1]["Value"] = walkSpeed
                     table.append(copiedSymbol)
+                    #example case: Gabriel
+                    print("No boss symbol for bird replacement " +str(replacementID))
 
                 except (KeyError,StopIteration) as e:
                     birdSymbol = next(d for x, d in enumerate(table) if d["Value"][0]["Value"] == birdID)
                     #birdSymbol = next(d for x, d in enumerate(self.mapSymbolArr) if d.demonID == birdID)
                     birdSymbol["Value"][0]["Value"] = replacementID
+                    #example case: Tsukuyomi
+                    print("No normal symbol for bird replacement " +str(replacementID) +". Might cause slight issues")
                     #buffer.writeWord(replacementID, birdSymbol.offsetNumbers['demonID'])
 
         #return buffer
+
+    '''
+    Adds unused overworld demons with speed and hitbox data to the map symbol file
+    '''
+    def addAdditionalMapSymbols(self):
+        json = self.mapSymbolFile.json
+
+        table = json["Exports"][0]["Table"]["Data"]
+        nameMap = json["NameMap"]
+
+        extraSymbolDF = pd.read_csv(paths.EXTRA_SYMBOLS, sep='\t')
+        
+        for _ , row in extraSymbolDF.iterrows():
+            entry = copy.deepcopy(next(entry for entry in table if entry["Value"][0]["Value"] == row['CollisionCopyID']))
+            uniqueName = translation.getUniqueMapSymbolName(row['DemonID'])
+            nameMap.append(uniqueName)
+            entry["Name"] = uniqueName
+            entry["Value"][4]["Value"] = 1.2
+            entry["Value"][0]["Value"] = row['DemonID']
+            entry["Value"][1]["Value"] = float(row['WalkSpeed'])
+            entry["Value"][2]["Value"] = float(row['AssaultSpeed'])
+            table.append(entry)
+
+    '''
+    Adds aggro and escape voice clips for unused overworld demons
+    '''
+    def addEscapeFindLines(self):
+        json = self.voiceMapFile.json
+        table = json["Exports"][1]["Data"][0]["Value"]
+        extraDataDF = pd.read_csv(paths.EXTRA_VOICE_DATA)
+        for _ , row in extraDataDF.iterrows():
+            entry = next(e for e in table if e[0]["Value"] == row["DemonID"])
+            voiceEnums = entry[1]["Value"][0]["Value"]
+            findIndex = -1
+            escapeIndex = -1
+            attackIndex = -1
+            for index, voiceEnum in enumerate(voiceEnums):
+                enumType = voiceEnum[0]["Value"]
+                if enumType == "EDevilVoiceType::Escape":
+                    escapeIndex = index
+                if enumType == "EDevilVoiceType::Find":
+                    findIndex = index
+                if enumType == "EDevilVoiceType::Attack":
+                    attackIndex = index
+            if isinstance(row["Escape"], str):
+                if escapeIndex == -1:
+                    voiceEnums = voiceEnums[:attackIndex + 1] + copy.deepcopy(VOICEMAP_ESCAPE) + voiceEnums[attackIndex + 1:]
+                    escapeIndex = attackIndex + 1
+                    if findIndex >= 0:
+                        findIndex += 1;
+                voiceEnums[escapeIndex][1]["Value"]["AssetPath"]["AssetName"] = row["Escape"]
+            if isinstance(row["Find"], str):
+                if findIndex == -1:
+                    findIndex = attackIndex + 2
+                    if escapeIndex == -1:
+                        findIndex -= 1
+                    voiceEnums = voiceEnums[:findIndex] + copy.deepcopy(VOICEMAP_FIND) + voiceEnums[findIndex:]
+                voiceEnums[findIndex][1]["Value"]["AssetPath"]["AssetName"] = row["Find"]
+            entry[1]["Value"][0]["Value"] = voiceEnums
+
+
+    '''
+    Shuffles demon voices around while preserving individual voice sets
+    '''
+    def randomizeVoiceSets(self):
+        self.addDevilTalkLines()
+        json = self.voiceMapFile.json
+        table = json["Exports"][1]["Data"][0]["Value"]
+        demonIDs = []
+        for entry in table:
+            demonIDs.append(entry[0]["Value"])
+        random.shuffle(demonIDs)
+        for entry in table:
+            entry[0]["Value"] = demonIDs.pop()
+
+    '''
+    Adds negotiation/haunt lines to boss-only versions of demons for use in the voice randomizer
+    '''
+    def addDevilTalkLines(self):
+        json = self.voiceMapFile.json
+        table = json["Exports"][1]["Data"][0]["Value"]
+        for bossDemon, normalDemon in numbers.VOICE_MAP_DEMON_ALTS.items():
+            bossEntry = next(e for e in table if e[0]["Value"] == bossDemon)
+            normalEntry = next(e for e in table if e[0]["Value"] == normalDemon)
+            bossVoiceEnums = bossEntry[1]["Value"][0]["Value"]
+            normalVoiceEnums = normalEntry[1]["Value"][0]["Value"]
+            reachedTalks = False
+            for voiceEnum in normalVoiceEnums:
+                enumType = voiceEnum[0]["Value"]
+                if enumType == "EDevilVoiceType::DevilTalk_Positive":
+                    reachedTalks = True
+                if reachedTalks:
+                    bossVoiceEnums.append(copy.deepcopy(voiceEnum))
+
+    '''
+    Randomizes each individual demon voice line, allowing one demon to have lines from multiple demons
+    '''
+    def randomizeVoiceLines(self):
+        json = self.voiceMapFile.json
+        table = json["Exports"][1]["Data"][0]["Value"]
+        voiceBank = {}
+        for entry in table:
+            voiceEnums = entry[1]["Value"][0]["Value"]
+            for voiceEnum in voiceEnums:
+                enumType = voiceEnum[0]["Value"]
+                assetPath = voiceEnum[1]["Value"]["AssetPath"]["AssetName"]
+                if enumType not in voiceBank.keys():
+                    voiceBank[enumType] = []
+                voiceBank[enumType].append(assetPath)
+        for voiceType in voiceBank.values():
+            random.shuffle(voiceType)
+        for entry in table:
+            voiceEnums = entry[1]["Value"][0]["Value"]
+            for voiceEnum in voiceEnums:
+                enumType = voiceEnum[0]["Value"]
+                voiceEnum[1]["Value"]["AssetPath"]["AssetName"] = voiceBank[enumType].pop()
+
+    '''
+    Randomizes demon navigator chances to find items and type of items
+    Guarantees at least one navigator can find each type of item, as well as the minimum and maximum chance of items vs demons
+    '''
+    def randomizeNavigatorAbilities(self):
+        guaranteedTypeSample = random.sample(self.navigatorArr, k=5)
+        guaranteedBonusSample = random.sample(self.navigatorArr, k=2)
+        minBonus = -10
+        maxBonus = 15
+        for navi in self.navigatorArr:
+            navi.itemType = random.randrange(1, 6)
+            if random.randrange(0, 10) == 0: #Small chance to get any number between -10 and 15, otherwise limit to multiples of 5
+                navi.itemBonus = random.randrange(minBonus, maxBonus + 1)
+            else:
+                navi.itemBonus = random.randrange(int(minBonus / 5), int(maxBonus / 5) + 1) * 5
+        for index, navi in enumerate(guaranteedTypeSample):
+            navi.itemType = index + 1
+        guaranteedBonusSample[0].itemBonus = minBonus
+        guaranteedBonusSample[1].itemBonus = maxBonus
+
+    '''
+    Changes the demon navigators to reflect what their respective enemy/boss replacements are
+    '''
+    def changeNavigatorDemons(self):
+        json = self.naviParamFile.json
+        table = json["Exports"][0]["Table"]["Data"]
+        nameMap = json["NameMap"]
+        mapJson = self.mapSymbolFile.json
+
+        mapTable = mapJson["Exports"][0]["Table"]["Data"]
+        tableIndex = 1 #First navigator entry is dummy data
+        for navi in self.navigatorArr:
+            entry = table[tableIndex]
+            if navi.demonID in numbers.NAVIGATOR_BOSS_MAP.keys():
+                replacementID = self.bossReplacements[numbers.NAVIGATOR_BOSS_MAP[navi.demonID]]
+            else:
+                replacementID = self.encounterReplacements[navi.demonID]
+            #replacementID = 565 #Tiamat
+            try:
+                mapEntry = copy.deepcopy(next(e for e in mapTable if e["Value"][0]["Value"] == replacementID))
+            except StopIteration:
+                replacementID = self.enemyNames.index(self.enemyNames[replacementID])
+                try:
+                    mapEntry = copy.deepcopy(next(e for e in mapTable if e["Value"][0]["Value"] == replacementID))
+                except StopIteration:
+                    print("WARNING: No valid map table entry for demon ID " + str(replacementID))
+            xCollision = mapEntry["Value"][5]["Value"] #Resize model within a random range of navigator sizes
+            yCollision = mapEntry["Value"][6]["Value"] #Encounter collision isn't a great correlation to model collision but it seems to work well enough
+            zCollision = mapEntry["Value"][7]["Value"]
+            maxCollision = max(xCollision, yCollision, zCollision) #Only consider the largest collision dimension for calculating new model size
+            maxCollision = maxCollision * numbers.BASE_NAVI_MODEL_SCALE_FACTOR / mapEntry["Value"][4]["Value"]
+            targetSize = random.randrange(numbers.MIN_NAVI_SIZE, numbers.MAX_NAVI_SIZE)
+            scaleFactor = targetSize / maxCollision
+            if replacementID in numbers.GIANT_DEMON_MODELS:
+                scaleFactor = scaleFactor / numbers.GIANT_MODEL_SCALE_FACTOR
+            entry["Value"][1]["Value"] = scaleFactor
+            entry["Value"][13]["Value"] = False #Fix issue with small models moving to navi spots on certain navi IDs
+            entry["Value"][14]["Value"] = True
+            entry["Value"][15]["Value"] = 30 
+            entry["Value"][16]["Value"] = 50
+            entry["Value"][17]["Value"] = 100
+            #print(str(scaleFactor) + " for " + str(replacementID) + " to hit target size " + str(targetSize))
+            replacementVoiceID = message_logic.normalVoiceIDForBoss(replacementID, self.enemyNames).zfill(3) #Replace voices
+            nameMap.append(message.getCuePath(replacementVoiceID, message_logic.DEMON_FILENAMES, isNameMap=True)[0])
+            if replacementVoiceID in self.navigatorVoiceIDs:
+                goVoice = "dev" + replacementVoiceID + "_vo_14" #There is also a find voice but that is a common sound effect to all navigators
+            else:
+                goVoice = "dev" + replacementVoiceID + "_vo_23" #Use support skill voice when there is no navigator go voice
+            nameMap.append(message.getCuePath(replacementVoiceID, message_logic.DEMON_FILENAMES, voice=goVoice, isNameMap=True)[0])
+            entry["Value"][3]["Value"]["AssetPath"]["AssetName"] = message.getCuePath(replacementVoiceID, message_logic.DEMON_FILENAMES, voice=goVoice)[0]
+            self.naviReplacementMap[navi.demonID] = replacementID
+            navi.demonID = replacementID
+            tableIndex += 1
+        message_logic.updateNavigatorVoiceAndText(self.naviReplacementMap, self.enemyNames)
 
     '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
@@ -6511,7 +7103,7 @@ class Randomizer:
         Parameters:
             config (Settings) 
     '''
-    def fullRando(self, config):
+    def fullRando(self, config: Settings, testing= False):
         if os.path.exists("rando"):
             shutil.rmtree("rando")
 
@@ -6546,6 +7138,8 @@ class Randomizer:
         mapSymbolParamBuffer = readBinaryTable(paths.MAP_SYMBOL_PARAM_IN)
         eventEncountPostUassetBuffer = readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN)
         mapEventBuffer = readBinaryTable(paths.MAP_EVENT_DATA_IN)
+        navigatorBuffer = readBinaryTable(paths.NAVIGATOR_DATA_IN)
+        message_logic.initDemonModelData()
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -6579,7 +7173,6 @@ class Randomizer:
         self.fillNahobino(playGrowBuffer)
         self.fillEssenceArr(itemBuffer)
         self.fillShopArr(shopBuffer)
-        self.fillProtofiendArr(compendiumBuffer)
         self.fillMissionArr(missionBuffer)
         self.fillUniqueSymbolArr(uniqueSymbolBuffer)
         self.fillChestArr(chestBuffer)
@@ -6588,6 +7181,7 @@ class Randomizer:
         self.fillConsumableArr(itemBuffer)
         self.fillFusionSkillReqs(skillBuffer)
         self.fillMapEventArr(mapEventBuffer)
+        self.fillNavigatorArr(navigatorBuffer)
         
         #self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
         self.eventEncountArr = self.addPositionsToNormalEncountArr(eventEncountPostBuffer, self.eventEncountArr, eventEncountPostUassetBuffer)
@@ -6639,23 +7233,68 @@ class Randomizer:
             if attempts >= 10:
                 print('Major issue with generating demon levels and fusions')
                 return False
-            self.adjustSkillSlotsToLevel(newComp)
         else: newComp = self.compendiumArr
 
         
         if config.scaledPotentials:
             self.scalePotentials(newComp)
 
-        #TODO: Consider case for potential weight or level dependency without random skills
+        if config.randomResists:
+            self.randomizeResistances(newComp)
+            self.randomizeResistances(self.playerBossArr, mask=numbers.GUEST_IDS)
+            self.randomizeResistances(self.playerBossArr, mask=numbers.PROTOFIEND_IDS)
+            #Nahobino shares resistances with first aogami essence
+            self.nahobino.resist = self.playerBossArr[numbers.PROTOFIEND_IDS[0]].resist
+            #testing = True
+            # stuff = []
+            # stuff2 = []
+            # for i in range(100):
+            #     totalResistMap, resistProfiles = self.randomizeResistances(newComp)
+            #     stuff.append(totalResistMap)
+            #     stuff2.append(resistProfiles)
+            
+            # newDict = {}
+            # for dictionary in stuff:
+            #     for element, resists in dictionary.items():
+            #         if element not in newDict.keys():
+            #             newDict.update({element:resists})
+            #         else:
+            #             subDict = newDict[element]
+            #             for resist,value in resists.items():
+            #                 subDict[resist] += value
+            # for element, resists in newDict.items():
+            #     for resist, value in resists.items():
+            #         resists[resist] = value / len(stuff)
+            # pprint(newDict)
+            # demonSums = []
+            # for dlist in stuff2:
+            #     for d in dlist:
+            #         sumD = 0
+            #         for index,value in enumerate(d):
+            #             if index == 0:
+            #                 sumD += 1.5* value
+            #             elif index > 7:
+            #                 sumD += value/2
+            #             else:
+            #                 sumD += value
+            #         demonSums.append(sumD)
+            # avgDSums = sum(demonSums) / len(demonSums)
+            # print(avgDSums)
+
+
+            
 
         if config.randomSkills:
+            self.adjustSkillSlotsToLevel(newComp)
             self.assignRandomStartingSkill(self.nahobino, levelSkillList, config)
-            self.assignRandomSkillsToProtofiend(self.protofiendArr, levelSkillList, config)
             newComp = self.assignRandomSkills(newComp,levelSkillList, config)
+            self.assignRandomSkills(self.playerBossArr,levelSkillList, config, mask=numbers.PROTOFIEND_IDS)
             if config.fixUniqueSkillAnimations:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
             else:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
+        if self.configSettings.forceAllSkills:
+            self.debugPrintUnassignedSkills(levelSkillList)
         self.outputSkillSets() 
 
         if config.randomInnates:
@@ -6685,9 +7324,14 @@ class Randomizer:
         self.removeIshtarCopies()
         self.syncMaras()
         self.randomizeBosses()
+
+        #pprint(bossLogic.resistProfiles)
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
-            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings)
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr)
+        elif config.randomizeBossResistances:
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr)
+        
         self.updateUniqueSymbolDemons()
         if config.scaleBossDamage:
             self.scaleBossDamage()
@@ -6713,8 +7357,6 @@ class Randomizer:
         if config.unlockFusions:
             self.removeFusionFlags()
             
-        if config.randomChests:
-            self.randomizeChests(self.configSettings.scaleItemsToArea)
         
         if self.configSettings.randomShopItems:
             self.randomizeShopItems(self.configSettings.scaleItemsToArea)
@@ -6752,24 +7394,39 @@ class Randomizer:
 
         self.addEntriesToMapSymbolScaleTable()
         self.scaleLargeSymbolDemonsDown()
+        self.patchAdramelechReplacementSize()
             
         if DEV_CHEATS:
             self.applyCheats()
-
-
+        
+        self.addAdditionalMapSymbols()
+        
+        if self.configSettings.randomizeNavigatorStats:
+            self.randomizeNavigatorAbilities()
+        if self.configSettings.navigatorModelSwap: #Create naviReplacementMap before updating event and mission text
+            self.changeNavigatorDemons()
         message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
-        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel)
-        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName)
+        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap)
+        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
 
         if self.configSettings.swapCutsceneModels:
-            model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings)
+            model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings, self.naviReplacementMap)
 
         self.removeCalcOnlyMapSymbolScales()
-        self.patchAdramelechReplacementSize()
+        
+        
         self.adjustPunishingFoeSpeeds()
-
+        self.addEscapeFindLines()
+        if self.configSettings.randomizeVoicesNormal:
+            self.randomizeVoiceSets()
+        elif self.configSettings.randomizeVoicesChaos:
+            self.randomizeVoiceLines()
+        
+        if len(self.skillReplacementMap) > 0:
+            scriptLogic.aiUpdate(self.skillReplacementMap, self.bossArr, self.scriptFiles)
+        
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.bossArr[numbers.NORMAL_ENEMY_COUNT:])
@@ -6787,7 +7444,6 @@ class Randomizer:
         eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr, eventEncountUassetBuffer)
         eventEncountPostBuffer = self.updateEventEncountPostBuffer(eventEncountPostBuffer, self.eventEncountArr)
         bossFlagBuffer = self.updateBossFlagBuffer(bossFlagBuffer)
-        compendiumBuffer = self.updateProtofiendBuffer(compendiumBuffer, self.protofiendArr)
         battleEventsBuffer = self.updateBattleEventsBuffer(battleEventsBuffer, self.battleEventArr, battleEventUassetBuffer)
         devilAssetTableBuffer = self.updateDevilAssetBuffer(devilAssetTableBuffer, self.devilAssetArr)
         missionBuffer = self.updateMissionBuffer(missionBuffer, self.missionArr)
@@ -6800,6 +7456,7 @@ class Randomizer:
         chestBuffer = self.updateChestBuffer(chestBuffer)
         itemBuffer = self.updateConsumableData(itemBuffer, self.consumableArr)        
         mapEventBuffer = self.updateMapEventBuffer(mapEventBuffer)
+        navigatorBuffer = self.updateNavigatorBuffer(navigatorBuffer)
 
         #self.printOutEncounters(newSymbolArr)
         self.printOutFusions(self.normalFusionArr)
@@ -6851,13 +7508,16 @@ class Randomizer:
         writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
         writeBinaryTable(eventEncountPostUassetBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         writeBinaryTable(mapEventBuffer.buffer, paths.MAP_EVENT_DATA_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(navigatorBuffer.buffer, paths.NAVIGATOR_DATA_OUT, paths.MAP_FOLDER_OUT)
         #copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         copyFile(paths.TITLE_TEXTURE_IN, paths.TITLE_TEXTURE_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         
         self.mapSymbolFile.write()
-
-        self.applyUnrealPak()
+        self.voiceMapFile.write()
+        self.naviParamFile.write()
+        if not testing:
+            self.applyUnrealPak()
 
     '''
     Prints out a list of all symbol encounters and their encounter battles that do not contain the symbol demons id.
@@ -6901,11 +7561,56 @@ class Randomizer:
         with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
             file.write(finalString)
     
+    def debugPrintUnassignedSkills(self, levelList):
+        sortedDemons = sorted(self.compendiumArr, key=lambda demon: demon.level.value)
+        levelAggregrate = []
+        for index, level in enumerate(levelList):
+            if index == 0:
+                #Prevents Magatsuhi skills from being in demons skill pools
+                continue
+            for skill in level:
+                levelAggregrate.append(skill)
+        allSkillIDs = {skill.ind for skill in levelAggregrate}
+        allSkills = []
+        for ind in allSkillIDs:
+                allSkills.append(next(skill for skill in levelAggregrate if skill.ind == ind))
+        
+        for demon in sortedDemons:
+            if "NOT USED" in demon.name or demon.ind in numbers.INACCESSIBLE_DEMONS:
+                continue
+            for skill in demon.skills:
+                if skill.ind in allSkillIDs:
+                    allSkillIDs.remove(skill.ind)
+            for skill in demon.learnedSkills:
+                if skill.ind in allSkillIDs:
+                    allSkillIDs.remove(skill.ind)
+        
+        skillID = self.nahobino.startingSkill
+        if skillID in allSkillIDs:
+                allSkillIDs.remove(skillID)
+        for protoFiend in self.playerBossArr:
+            if protoFiend.ind in numbers.PROTOFIEND_IDS:
+                for skill in protoFiend.skills:
+                    if skill.ind in allSkillIDs:
+                        allSkillIDs.remove(skill.ind)
+        for guest in self.playerBossArr:
+            if guest.ind in numbers.GUEST_IDS:
+                for skill in guest.skills:
+                    if skill.ind in allSkillIDs:
+                        allSkillIDs.remove(skill.ind)
+                for skill in guest.learnedSkills:
+                    if skill.ind in allSkillIDs:
+                        allSkillIDs.remove(skill.ind)
+
+
+        for skillID in allSkillIDs:
+            print(translation.translateSkillID(skillID,self.skillNames) + " " + str(skillID))
+
     def outputSkillSets(self):
         sortedDemons = sorted(self.compendiumArr, key=lambda demon: demon.level.value)
         with open(paths.SKILL_SET_DEBUG, 'w', encoding="utf-8") as file:
             for demon in sortedDemons:
-                if "NOT USED" in demon.name:
+                if "NOT USED" in demon.name or demon.ind in numbers.INACCESSIBLE_DEMONS:
                     continue
                 skillString = "[" + str(demon.ind) + "](" + str(demon.level.value) +") " + demon.name + ": "
                 for skill in demon.skills:
@@ -6917,6 +7622,31 @@ class Randomizer:
                         continue
                     skillString = skillString + translation.translateSkillID(skill.value, self.skillNames)+ "(" + str(skill.level) + ")" + "/"
                 file.write(skillString + "\n")
+            for demon in self.playerBossArr:
+                if demon.ind in numbers.GUEST_IDS:
+                    skillString = "[" + str(demon.ind) + "](" + str(demon.level.value) +") " + demon.name + ": "
+                    for skill in demon.skills:
+                        if skill.ind == 0:
+                            continue
+                        skillString = skillString + translation.translateSkillID(skill.value, self.skillNames) + "/"
+                    for skill in demon.learnedSkills:
+                        if skill.ind == 0:
+                            continue
+                        skillString = skillString + translation.translateSkillID(skill.value, self.skillNames)+ "(" + str(skill.level) + ")" + "/"
+                    file.write(skillString + "\n")
+                if demon.ind in numbers.PROTOFIEND_IDS:
+                    skillString = "[" + str(demon.ind) + "](" + str(demon.level.value) +") " + "Aogami/Tsukuyomi Essence" + ": "
+                    for skill in demon.skills:
+                        if skill.ind == 0:
+                            continue
+                        skillString = skillString + translation.translateSkillID(skill.value, self.skillNames) + "/"
+                    for skill in demon.learnedSkills:
+                        if skill.ind == 0:
+                            continue
+                        skillString = skillString + translation.translateSkillID(skill.value, self.skillNames)+ "(" + str(skill.level) + ")" + "/"
+                    file.write(skillString + "\n")
+
+
 
                     
 if __name__ == '__main__':

@@ -1,4 +1,7 @@
 from base_classes.demon_assets import Position 
+import math
+
+RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 
 PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,110,1111,1112,1113,1114,1115,1116,1117,1118]
 
@@ -16,6 +19,9 @@ DUPLICATE_SOURCES = {442 : [61 ,65], #School Aitvaras
 }
 #Selection of dummy demons to be overwritten with overlapping demons
 DUMMY_DEMONS= [487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511]
+
+#List of demons with a name that cannot be accessed by the player
+INACCESSIBLE_DEMONS = [71,364] #Old Lilith, Tao
 
 NORMAL_ENEMY_COUNT = 396
 
@@ -70,6 +76,11 @@ RANK_VIOLATION_ID = 31
 TUTORIAL_DAEMON_ID = 430
 
 FIRST_GUEST_YUZURU_ID = 1150
+
+#ChestIDs that are banned from containing key items
+CHEST_BANNED_KEY_ITEM = [29, #Very first Chest, cannot be obtained if it is not picked up at the beginning of the game
+    0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 #The vanilla content of theses chests seems dubious, so to be safe
+]
 
 CHEST_MACCA_MIN = 500
 CHEST_MACCA_MAX = 60000
@@ -488,6 +499,8 @@ BOSS_TRACK_FIX_MAP = {
     163: 66,
     164: 68
 }
+EARLY_BOSS_LEVEL_LIMIT = 16 #Hydra+1
+PHYS_IMMUNE_BOSSES = [630,827,626,928,890,828,932,621] #Siegfried(Abcess),Giri,Rangda,Mother Harlot,Gogmagog,Arahabaki,Mephisto,Slime(Abcess)
 
 #IDs of enemy only healing skills that heal more than the player versions
 ENEMY_HEALING_SKILL_IDS = [103, 104, 105, 106, 352, 353, 354, 355, 381, 382, 383, 384, 385, 386, 850, 852, 856, 887, 888]
@@ -522,6 +535,7 @@ SCRIPT_JOIN_DEMONS = {
     'MM_M035_EM1480': 242, # Michael
     'MM_M036_EM1490': 83, # Belial
     'MM_M061_EM1781': 295, # Cleopatra
+    'MM_M061_EM1782': 295, # Cleopatra
     'MM_M061_EM2613_HitAction': 4, # Dagda
     'MM_M030_EM1769': 78, # Mephisto (Can only join this way)
     'MM_M061_EM1791': 31, # Artemis
@@ -601,12 +615,235 @@ MAGATSUHI_SKILLS_LEVEL_RESTRICTIONS = {
     928: [52,99] #Omnipotent Succession (52 is level of Lilith Boss in CoV, you get Talisman after)
 }
 
-SKILL_STAT_PENALTY_WEIGHT = 2 #Penalty applied to weight in skill rando if stat used to attack is lower than other attacking stat
-POTENTIAL_WEIGHT_MULITPLIER = 1.7 #Multiplier applied to potential to update weight of skill rando
-MAGATSUHI_SKILL_WEIGHT = 6 #Base weight of magatsuhi skills if included in skill rando
-SKILL_WEIGHT = 10 #Base weight for all skills in skill rando
-SKILL_PENALTY_WEIGHT = 4 #Weight penalty for skills if the skill has already been assigned in process in an attempt to diversify skill sets
-UNIQUE_SKILL_MULTIPLIER = 6 #Multiplier to ensure unique skills are assigned to at least one enemy
+SKILL_STAT_PENALTY_MULTIPLIER = 0.8 #Penalty applied to weight in skill rando if stat used to attack is lower than other attacking stat
+POTENTIAL_WEIGHT_MULITPLIER = 10 #Multiplier applied to potential to update weight of skill rando
+MAGATSUHI_SKILL_WEIGHT = 60 #Base weight of magatsuhi skills if included in skill rando
+SKILL_WEIGHT = 100 #Base weight for all skills in skill rando
+SKILL_APPEARANCE_PENALTY_MULTIPLIER = 0.5 #Weight penalty for skills if the skill has already been assigned in process in an attempt to diversify skill sets
+#FORCE_SKILL_MULTIPLIER = 100 #Multiplier to ensure all skills are assigned to at least one enemy
+LEVEL_SKILL_WEIGHT_MULTIPLIER = 175 #Multiplier for a skill that is in the level range
+
+DIVERSE_RESIST_FACTOR = 2
+ELEMENT_RESIST_NAMES = ["fire","ice","elec","force","light","dark"]
+AILMENT_NAMES = ["poison","confusion","charm","sleep","seal","mirage"]
+SIMPLE_RESIST_VALUES = [-1.5,-1,0,0.5,1,1.5] #1.5 is here despite weaknesses only having a 1.25 damage multiplier, but this way it exactly counteroffsets a resistance. Drain=-1.5, Repel=-1
+#What the simple resist values correspond to as actual values in gamedata
+SIMPLE_RESIST_RESULTS = {
+    -1.5: 1000,
+    -1: 999,
+    0 : 0,
+    0.5 : 50,
+    1 : 100,
+    1.5: 125 
+}
+# Boss ailments can have different resist values than just normal resist
+SIMPLE_BOSS_AILMENT_RESIST_RESULTS = {
+    0 : 0,
+    0.1 : 10,
+    0.2 : 20,
+    0.4 : 40,
+    0.5 : 50,
+    1 : 100,
+    1.5: 125 
+}
+
+#These distributions are calculated for ranges of level with CEIL(LEVEL / 10)
+PHYS_RESIST_DISTRIBUTION = [
+    [1,3,5,20,246,4], #TOTAL Distribution
+    [0,0,0,0,16,0],
+    [0,0,0,1,29,0],
+    [0,0,0,2,29,0],
+    [0,0,0,2,34,1],
+    [0,0,0,3,35,1],
+    [0,0,0,4,32,0],
+    [1,3,2,1,27,1],
+    [0,0,1,3,23,0],
+    [0,0,2,1,15,1],
+    [0,0,0,3,6,0], 
+]
+# Fire, Ice, Elec, Force
+FIEF_RESIST_DISTRIBUTION = [
+    [7,5,32,31,141,65], #TOTAL Distribution
+    [0,0,1,3,7,6],
+    [0,0,2,4,17,9],
+    [1,0,4,3,19,7],
+    [1,0,5,4,19,9],
+    [1,1,7,4,21,8],
+    [1,1,5,2,21,9],
+    [2,1,3,5,16,10],
+    [1,2,4,5,12,5], 
+    [1,1,3,2,9,4],
+    [1,1,1,3,3,1],
+]
+# Light, Dark
+LD_RESIST_DISTRIBUTION = [
+    [5,6,54,47,124,45], #TOTAL Distribution
+    [0,0,1,2,10,4],
+    [0,0,3,4,20,4],
+    [0,0,5,5,15,7],
+    [1,0,6,7,18,7],
+    [0,1,7,6,20,7],
+    [1,0,9,6,16,5],
+    [1,1,7,9,12,6],
+    [2,2,7,5,9,4],
+    [0,2,8,4,4,2],
+    [1,1,4,2,2,1], 
+]
+AILMENT_RESIST_DISTRIBUTION = [
+    [0,0,12.33333333,21,229.8333333,15.83333333], #TOTAL Distributio
+    [0,0,0.3333333333,0.6666666667,14.5,0.5],
+    [0,0,0.3333333333,2.666666667,25.33333333,1.666666667],
+    [0,0,0.8333333333,3.166666667,24.16666667,2.833333333],
+    [0,0,1,2.166666667,32,1.833333333],
+    [0,0,2.166666667,2.5,31,3.333333333],
+    [0,0,1.166666667,5,28.33333333,1.5],
+    [0,0,1.333333333,2.5,29.16666667,2],
+    [0,0,2.5,1.166666667,21.5,1.833333333],
+    [0,0,1.5,1,16.5,0],
+    [0,0,1.166666667,0.1666666667,7.333333333,0.3333333333],
+    ]
+
+BOSS_PHYS_RESIST_DISTRIBUTION = [
+    [1,4,5,32,273,8],
+    [0,0,0,0,5,0],
+    [0,0,0,3,34,1],
+    [0,0,0,4,22,1],
+    [0,0,0,2,28,0],
+    [0,1,1,4,59,2],
+    [0,0,0,4,25,0],
+    [1,2,1,0,24,0],
+    [0,0,1,5,32,1],
+    [0,1,0,3,26,3],
+    [0,0,2,7,18,0],
+
+]
+
+BOSS_FIEF_RESIST_DISTRIBUTION = [
+    [0,0,1,1,3,2],
+    [0.25,0,3.25,4.25,20,10.25],
+    [0.75,0.25,2,3,15.75,5.25],
+    [0.25,0,4.5,3.25,15.25,6.75],
+    [1,1.25,8,8.25,34,14.5],
+    [0.5,0.75,3.5,3,16,5.25],
+    [0.5,0.25,3.75,3.25,12.75,7.5],
+    [1.25,1,5.5,7.5,16.75,7],
+    [2.5,1,2.75,4.25,16,4.75],
+    [1,0,3.25,2.25,12,8.5],
+    [8,4.5,37,39.25,160.75,71.75],
+]
+
+BOSS_LD_RESIST_DISTRIBUTION = [
+    [3,4,30,26,69,29],
+    [0,0,0,0,1.5,1],
+    [0,0,0.5,3.5,10,5],
+    [0,0,1,2.5,5,5],
+    [0,0,1.5,2,7.5,4],
+    [0,0.5,6,4,18.5,4.5],
+    [0,1,4,3,3.5,3],
+    [0.5,0,5,3.5,4,1],
+    [2,2,7,3,4,1.5],
+    [0,0.5,2.5,2,9.5,1.5],
+    [0.5,0,2.5,2.5,5.5,2.5], 
+]
+
+BOSS_AILMENT_RESIST_DISTRIBUTION = [
+#0         ,0.1         ,0.2        ,0.4         ,0.5       ,1           ,1.5
+[35.33333333,0.6666666667,51.16666667,161.6666667,7.333333333,48.33333333,18.33333333],
+[0.1666666667,0,0,0.8333333333,0.1666666667,3.666666667,0],
+[1.5,0,1.166666667,4.166666667,3.666666667,24.5,3],
+[3.666666667,0,4.666666667,7.333333333,1,8.5,1.833333333],
+[3.5,0,4.833333333,16.83333333,1.166666667,3,0.6666666667],
+[4.333333333,0.1666666667,10.33333333,41.83333333,0.5,5.166666667,4.666666667],
+[1.333333333,0.3333333333,5.5,20,0,0,1.833333333],
+[1,0,1.666666667,22.33333333,0,0,3],
+[3.333333333,0,8.5,24.66666667,0.6666666667,0,1.833333333],
+[12.66666667,0,10.83333333,9,0,0,0.5],
+[3.833333333,0.1666666667,3.666666667,14.66666667,0.1666666667,3.5,1],
+
+]
+
+#Skills that grant element resistance and their value
+RESIST_SKILLS = {
+    401	: ["physical",50], #	Resist Phys
+    402	: ["physical",0], #	Null Phys
+    403	: ["physical",1000], #	Drain Phys
+    404	: ["physical",999], #	Repel Phys
+    405	: ["fire",50], #	Resist Fire
+    406	: ["fire",0], #	Null Fire
+    407	: ["fire",1000], #	Drain Fire
+    408	: ["fire",999], #	Repel Fire
+    409	: ["ice",50], #	Resist Ice
+    410	: ["ice",0], #	Null Ice
+    411	: ["ice",1000], #	Drain Ice
+    412	: ["ice",999], #	Repel Ice
+    413	: ["elec",50], #	Resist Elec
+    414	: ["elec",0], #	Null Elec
+    415	: ["elec",1000], #	Drain Elec
+    416	: ["elec",999], #	Repel Elec
+    417	: ["force",50], #	Resist Force
+    418	: ["force",0], #	Null Force
+    419	: ["force",1000], #	Drain Force
+    420	: ["force",999], #	Repel Force
+    421	: ["dark",50], #	Resist Dark
+    422	: ["dark",0], #	Null Dark
+    423	: ["dark",1000], #	Drain Dark
+    424	: ["dark",999], #	Repel Dark
+    425	: ["light",50], #	Resist Light
+    426	: ["light",0], #	Null Light
+    427	: ["light",1000], #	Drain Light
+    428	: ["light",999], #	Repel Light
+}
+
+#Source Wiki, some values made up
+OFFENSIVE_POTENTIAL_COST_MULTIPLIERS = {
+    -9: 1.6,-8: 1.5,-7: 1.46,-6: 1.4,
+    -5: 1.34,-4: 1.25,-3: 1.16,-2: 1.13,-1: 1.1,
+    0: 1,1: 0.9,2: 0.87,3: 0.84, 4: 0.81,5: 0.75,
+    6: 0.72,7: 0.69, 8: 0.66,9: 0.6,
+}
+NON_OFFENSIVE_POTENTIAL_COST_MULTIPLIERS = {
+    -5: 1.6,-4: 1.5,-3: 1.4,-2: 1.3,-1: 1.15,
+    0: 1,1: 0.85,2: 0.8,3: 0.75, 4: 0.7,5: 0.6,
+}
+
+#Maps boss versions of demons with few voice lines to their normal counterparts so missing lines can be filled in for the voice randomizer
+VOICE_MAP_DEMON_ALTS = {
+    39: 38, #Amanozako
+    432: 431, #Hydra
+    455: 98, #Tiamat -> Ananta
+    460: 607, #Tehom -> Yoko
+    502: 80, #Surt
+    504: 84, #Abaddon
+    505: 85, #Moloch
+    506: 86, #Belphegor
+    507: 94, #Huang Long
+    508: 127, #Chimera
+    509: 211, #Arahabaki
+    510: 212, #Oyamatsumi
+    511: 237, #Girimekhala
+    512: 283, #Thunderbird
+    513: 322, #Hecatoncheires
+    514: 87, #King Frost
+    515: 72, #Black Frost
+    516: 77, #Mara
+    517: 291, #Gurulu
+    518: 337, #Gogmagog
+    519: 142, #Glasya Labolas
+}
+
+#Key: Normal navigator demon ID, Value: Boss demon ID to find the replacement for when changing the navigator demons
+NAVIGATOR_BOSS_MAP = {
+    77: 892, #Mara
+    356: 923, #Hell Biker
+    295: 931 #Cleopatra
+}
+
+MIN_NAVI_SIZE = 60 #Sets the bounds on navigator hitboxes
+MAX_NAVI_SIZE = 175
+
+GIANT_DEMON_MODELS = [565] #List of demon models that need to be shrunk extra as navigators
+GIANT_MODEL_SCALE_FACTOR = 2.5
+BASE_NAVI_MODEL_SCALE_FACTOR = 1.2 #Model size to normalize to before calculating hitboxes
 
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
@@ -634,6 +871,14 @@ def getMaccaValues ():
 
 def getExpValues():
     return [0,24,26,29,32,37,42,47,57,74,87,98,123,151,182,217,257,300,347,398,453,512,575,642,713,788,867,949,1035,1124,1216,1312,1427,1548,1675,1807,1946,2090,2241,2397,2559,2727,2901,3081,3267,3459,3657,3861,4071,4281,4500,4728,4856,4927,4997,5165,5334,5372,5410,5460,5509,5597,5672,5773,5821,5860,5933,6000,6058,6132,6172,6280,6326,6447,6568,6665,6762,6858,6954,7050,7146,7242,7338,7434,7530,7626,7722,7818,7914,8010,8106,8202,8298,8394,8490,8586,8682,8778,8874,8970]
+
+def calculateResistBase(x):
+    #trendline for average resist/weak sum with phys counting 1.5 times
+    return -0.0414*x + 9.21
+
+def calculateTotalResistBase(x):
+    #trendline for average resist/weak sum with phys counting 1.5 times and ailments counting half
+    return -0.0449*x + 12.2
 
 def getEnemyOnlySkills():
     return [["Impaler's Revenge",510,90,90],
@@ -713,4 +958,29 @@ def getBonusSkills():
             [ 'Gaea Rage',830,95,99]
         ]
 
-#TODO: 311 Revival Chant is not in pool, test with different animation
+
+def getAnimationFixOnlySkills():
+    return [
+        [ 'Revival Chant',311,61,61] #Revival Chant can only be used by non-nahobino with the animation fix (though then functions as a revive swap for demons/npcs)
+    ]
+
+'''
+Compares two values of resistances.
+    Parameters:
+        a(Number): first value to compare
+        b (Number): second value to compare
+    Returns 0 if the values are the same, 1 if resistance a is weaker than b, else -1
+'''
+def compareResistValues(a, b):
+    values = list(SIMPLE_RESIST_RESULTS.values())
+
+    aIndex = values.index(a)
+    bIndex = values.index(b)
+
+    if aIndex == bIndex:
+        return 0
+    elif aIndex > bIndex:
+        return 1
+    else:
+        return -1
+    

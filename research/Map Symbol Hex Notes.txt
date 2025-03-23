@@ -5,3 +5,6 @@ Demon ID is 25 bytes later, call this 0x00
 
 Could probably replace demons that no longer spawn on the overworld with their replacements
 to have less demons using the default slow speed
+
+Json specific notes:
+Each table entry must have a unique name or all entries but the final one using the same name will be overwritten. The unique name must also be added to the NameMap

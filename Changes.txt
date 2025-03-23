@@ -1,3 +1,32 @@
+Version 1.04
+Features:
+* New settings to randomize demon voices in battle, haunts, and for overworld enemies
+* New settings to randomize and model swap demon navigators
+* New settings to randomize the resistances of demons and bosses
+* New setting to prevent early game bosse that prevent physical damage
+* New setting to limit mp cost of assigned skills in skill rando
+* New setting to make special fusions better (better stats/potentials/resists)
+* New setting to give additional press turns to bosses
+* Added chase/escape lines to unused overworld enemies
+* Added speed values to unused overworld enemies
+* Changed skill scaling to choice between none, level-weights, and level-based
+* Changed setting to force unique skills to force all skills and minimize duplicate assignments
+
+Misc:
+* Return Pillar is now first obtained as the reward for the first miman
+* Added illusion Agrat to miniboss pool
+* When item pools are combined, key items can now also appear in chests
+* Revival Chant included in skill pool, if animation fix patch is applied
+
+Bugfixes:
+* Lucifer Phase 2/3 level and damage now is updated properly
+* Various Textbox Fixes
+* Fixed Rando Crash that occured if Demon Levels were not randomized but Races were
+* Fixed Rando Crash that occured if item pools were not combinded but gifts were randomized
+* Inspiring Leader is no longer treated as a unique skill
+* Removed unused Lahmu II fight from boss pool
+* Fix Danu's Jack Frost/Jack O'Lantern summon not being updated
+
 Version 1.03
 Features:
 * Full support for the demon navigator update, including the Marici Boss

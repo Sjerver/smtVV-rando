@@ -1,0 +1,342 @@
+Number,folderName,DemonName,MainDemonID,HasSimpleBP
+001,satan,Satan,1,FALSE
+002,lucifer,Lucifer,2,FALSE
+004,dagda,Dagda,4,TRUE
+008,zeus,Zeus,8,TRUE
+009,odin,Odin,9,TRUE
+011,mitra,Mithra,11,FALSE
+012,atavaka,Atavaka,12,FALSE
+013,horus,Horus,13,FALSE
+014,tooto,Thoth,14,TRUE
+016,vishnu,Vishnu,16,FALSE
+017,baal,Baal,17,FALSE
+019,demter,Demeter,19,TRUE
+020,anahita,Anahita,20,TRUE
+021,lakshmi,Lakshmi,21,FALSE
+022,norn,Norn,22,FALSE
+023,iduna,Idun,23,TRUE
+024,sarasvati,Sarasvati,24,TRUE
+025,ishtar,Ishtar,25,FALSE
+026,scathach,Scathach,26,TRUE
+027,parlvati,Parvati,27,FALSE
+028,amenouzume,Ame-no-Uzume,28,TRUE
+029,fortuna,Fortuna,29,FALSE
+030,maria,Maria,30,TRUE
+032,konohanasakuya,Konohana Sakuya,32,TRUE
+034,hanuman,Hanuman,34,FALSE
+035,fionn,Fionn mac Cumhaill,35,TRUE
+036,cuchulainn,Cu Chulainn,36,TRUE
+037,kuramatengu,Kurama Tengu,37,TRUE
+038,amanozako,Amanozako,38,TRUE
+039,amanozako_runaway,Amanozako,876,FALSE
+040,kresnik,Kresnik,40,TRUE
+041,anansi,Anansi,41,TRUE
+042,koppatengu,Koppa Tengu,42,TRUE
+043,apsaras,Apsaras,43,TRUE
+044,agation,Agathion,44,TRUE
+045,mandrake,Mandrake,45,TRUE
+046,dis,Dis,46,FALSE
+047,ifrit,Efreet,47,FALSE
+051,titania,Titania,51,TRUE
+052,oberon,Oberon,52,TRUE
+053,silky,Silky,53,TRUE
+054,setanta,Setanta,54,TRUE
+055,kelpie,Kelpie,55,TRUE
+056,highpixy,High Pixie,56,TRUE
+057,jackrantan,Jack O'Lantern,57,TRUE
+058,jackfrost,Jack Frost,58,TRUE
+059,pixy,Pixie,59,TRUE
+060,nahobiho,Nahobeeho,60,FALSE
+064,queenmab,Queen Medb,64,TRUE
+065,succubus,Succubus,65,TRUE
+066,kiun,Kaiwan,66,TRUE
+067,ririm,Lilim,67,TRUE
+068,incubus,Incubus,68,TRUE
+069,mokoi,Mokoi,69,TRUE
+070,zandmann,Sandman,70,TRUE
+072,jaakufrost,Black Frost,72,TRUE
+076,amon,Amon,76,TRUE
+077,maare,Mara,77,FALSE
+078,mephisto,Mephisto,78,FALSE
+079,chihyu,Chi You,79,FALSE
+080,surtr,Surt,80,FALSE
+081,beerzebub,Beelzebub,81,FALSE
+082,arioch,Arioch,82,FALSE
+083,belial,Belial,83,TRUE
+084,abaddon,Abaddon,84,FALSE
+085,moloch,Moloch,85,TRUE
+086,belphegor,Belphegor,86,TRUE
+087,kingfrost,King Frost,87,TRUE
+088,mithras,Mithras,88,FALSE
+089,loki,Loki,89,TRUE
+094,koryu,Huang Long,94,TRUE
+095,quetzalcoatl,Quetzalcoatl,95,FALSE
+096,seiryu,Qinq Long,96,FALSE
+097,genbu,Xuanwu,97,FALSE
+098,ananta,Ananta,98,FALSE
+099,vrtra,Vritra,99,FALSE
+100,nyaminyami,Nyami Nyami,100,TRUE
+103,yamatano_orochi,Yamata-no-Orochi,103,FALSE
+104,nagaraja,Naga Raja,104,FALSE
+105,yurung,Yurlungur,105,TRUE
+106,naga,Naga,106,TRUE
+107,nozuchi,Nozuchi,107,TRUE
+108,vouivre,Vouivre,108,TRUE
+111,vasuki,Vasuki,111,TRUE
+112,set,Seth,112,FALSE
+113,basilisk,Basilisk,113,FALSE
+114,aitvaras,Aitvaras,114,TRUE
+116,fafnir,Fafnir,116,TRUE
+117,chotonda,Zhu Tun She,117,FALSE
+118,samael,Samael,118,TRUE
+119,baron,Barong,119,FALSE
+120,anubis,Anubis,120,TRUE
+121,makami,Makami,121,TRUE
+122,kaichi,Xiezhai,122,FALSE
+126,byakko,Baihu,126,FALSE
+127,chimera,Chimera,127,TRUE
+128,cironnup,Cironnup,128,TRUE
+129,sisa,Shiisaa,129,FALSE
+130,senri,Senri,130,TRUE
+131,unicorn,Unicorn,131,TRUE
+134,cerberus,Cerberus,134,FALSE
+135,orthos,Orthrus,135,TRUE
+136,loupsgarous,Loup-garou,136,FALSE
+137,nekomata,Nekomata,137,TRUE
+138,inugami,Inugami,138,TRUE
+139,orobas,Orobas,139,TRUE
+140,cait_sith,Cait Sith,140,TRUE
+141,dormath,Dormath,141,TRUE
+142,glasyalabolas,Glasya-Labolas,142,FALSE
+144,bugs,Bugs,144,TRUE
+145,nue,Nue,145,TRUE
+146,bicorn,Bicorn,146,TRUE
+147,mothman,Mothman,147,TRUE
+148,fenrir,Fenrir,148,FALSE
+149,peallaidh,Peallaidh,149,TRUE
+152,hayataro,Hayataro,152,TRUE
+155,framez,Flaemis,155,TRUE
+156,aquanz,Aquans,156,TRUE
+157,aeros,Aeros,157,TRUE
+158,arshez,Erthys,158,TRUE
+163,sakimitama,Saki Mitama,163,TRUE
+164,kushimitama,Kushi Mitama,164,TRUE
+165,nigimitama,Nigi Mitama,165,TRUE
+166,aramitama,Ara Mitama,166,TRUE
+171,blackooze,Black Ooze,171,FALSE
+172,region,Legion,172,TRUE
+173,slime,Slime,173,TRUE
+174,madgasser,Mad Gasser,174,TRUE
+175,turbobachan,Turbo Granny,175,FALSE
+178,siva,Shiva,178,FALSE
+179,moto,Mot,179,FALSE
+180,zaougongen,Zaou-Gongen,180,FALSE
+181,asura,Asura,181,FALSE
+182,chernobog,Chernobog,182,FALSE
+183,dionysos,Dionysos,183,TRUE
+188,danu,Danu,188,FALSE
+189,inanna,Inanna,189,FALSE
+190,kali,Kali,190,FALSE
+191,cybele,Cybele,191,FALSE
+192,skadi,Skadi,192,FALSE
+193,isis,Isis,193,TRUE
+194,kikurihime,Kikuri-Hime,194,TRUE
+195,hariti,Hariti,195,FALSE
+198,alilato,Alilat,198,FALSE
+200,thor,Thor,200,FALSE
+201,futunusi,Futsunushi,201,TRUE
+202,attis,Attis,202,TRUE
+203,bishamonten,Bishamonten,203,TRUE
+204,jikokuten,Jikokuten,204,TRUE
+205,koumokuten,Koumokuten,205,TRUE
+206,zouchouten,Zouchouten,206,TRUE
+207,marishiten,Marici,207,FALSE
+211,arahabaki,Arahabaki,211,TRUE
+212,ooyamatumi,Oyamatsumi,212,TRUE
+213,kushinadahime,Kushinada-Hime,213,TRUE
+214,sukunahikona,Sukuna-Hikona,214,TRUE
+215,ookuninushi,Okuninushi,215,TRUE
+216,takeminekata,Take-Minekata,216,TRUE
+221,ganesha,Ganesha,221,FALSE
+222,siegfried,Siegfried,222,TRUE
+223,valkyrie,Valkyrie,223,TRUE
+224,yoshitune,Yoshitsune,224,FALSE
+225,nekoshogun,Neko Shogun,225,TRUE
+226,natataishi,Nezha Taizi,226,FALSE
+227,masakado,Masakado,227,FALSE
+231,mada,Mada,231,FALSE
+232,girimekara,Girimekhala,232,FALSE
+233,pazuzu,Pazuzu,233,TRUE
+234,misyakuji,Mishaguji,234,FALSE
+235,baphomet,Baphomet,235,TRUE
+237,saturnus,Saturnus,237,TRUE
+238,tzitzimitl,Tzitzimitl,238,TRUE
+241,metathron,Metatron,241,FALSE
+242,michael,Michael,242,TRUE
+243,gabriel,Gabriel,243,FALSE
+244,sraosha,Sraosha,244,FALSE
+245,raphael,Raphael,245,FALSE
+246,sandalphon,Sandalphon,246,FALSE
+247,uriel,Uriel,247,FALSE
+248,kamael,Camael,248,FALSE
+249,melkisedec,Melchizedek,249,TRUE
+250,mansemat,Mastema,250,TRUE
+251,armaiti,Armaiti,251,TRUE
+254,thorone,Throne,254,TRUE
+255,dominion,Dominion,255,TRUE
+256,power,Power,256,TRUE
+257,principality,Principality,257,TRUE
+258,archangel,Archangel,258,TRUE
+259,angel,Angel,259,TRUE
+260,cherub,Cherub,260,TRUE
+265,adramelech,Adramelech,265,TRUE
+266,flauros,Flauros,266,FALSE
+267,nebiros,Nebiros,267,FALSE
+268,berith,Berith,268,FALSE
+269,ose,Ose,269,TRUE
+270,erigor,Eligor,270,TRUE
+271,forneus,Forneus,271,FALSE
+272,andras,Andras,272,TRUE
+273,decarabia,Decarabia,273,FALSE
+274,halphas,Halphas,274,TRUE
+275,azazel,Azazel,275,FALSE
+278,garuda,Garuda,278,FALSE
+279,suzaku,Zhuque,279,FALSE
+280,yatagarasu,Yatagarasu,280,TRUE
+281,jatayu,Jatayu,281,FALSE
+282,houou,Feng Huang,282,FALSE
+283,thunderbird,Thunderbird,283,FALSE
+287,anzu,Anzu,287,FALSE
+288,zhen,Zhen,288,TRUE
+289,moeshobo,Muu Shuwuu,289,TRUE
+290,onmoraki,Onmoraki,290,TRUE
+291,gurr,Gurulu,291,FALSE
+295,cleopatra,Cleopatra,295,FALSE
+296,rangda,Rangda,296,FALSE
+297,dakini,Dakini,297,FALSE
+298,atropos,Atropos,298,FALSE
+299,yaksni,Yakshini,299,TRUE
+300,lachesis,Lachesis,300,FALSE
+301,klotho,Clotho,301,FALSE
+302,manananggal,Manananggal,302,TRUE
+303,ramia,Lamia,303,TRUE
+304,mermaid,Mermaid,304,TRUE
+305,leanan_sidhe,Leanan Sidhe,305,TRUE
+310,ongyoki,Ongyo-Ki,310,TRUE
+311,shikiouji,Shiki-Ouji,311,TRUE
+312,suiki,Sui-Ki,312,FALSE
+313,fuuki,Fuu-Ki,313,FALSE
+314,kinki,Kin-Ki,314,FALSE
+315,azumi,Azumi,315,FALSE
+316,ippondatara,Ippon-Datara,316,TRUE
+317,daimon,Daemon,317,FALSE
+318,oni,Oni,318,TRUE
+319,karasutengu,Karasu Tengu,319,TRUE
+322,hekatoncheir,Hecatoncheires,322,FALSE
+323,roa,Loa,323,TRUE
+324,rakshasa,Rakshasa,324,TRUE
+325,turudaku,Turdak,325,TRUE
+326,macabre,Macabre,326,TRUE
+327,gremlin,Gremlin,327,FALSE
+330,kayanohime,Kaya-no-Hime,330,TRUE
+331,tsutigumo,Tsuchigumo,331,TRUE
+332,narcissus,Narcissus,332,TRUE
+333,kahaku,Hua Po,333,FALSE
+334,korpokkur,Koropokkur,334,TRUE
+335,sudama,Sudama,335,TRUE
+336,kodama,Kodama,336,TRUE
+337,gogmagog,Gogmagog,337,FALSE
+341,pisaca,Pisaca,341,FALSE
+342,kubhanda,Kumbhanda,342,FALSE
+343,poltergeist,Poltergeist,343,TRUE
+344,obariyon,Obariyon,344,TRUE
+345,gaki,Preta,345,TRUE
+346,kudlak,Kudlak,346,TRUE
+350,trumpeter,Trumpeter,350,FALSE
+351,motherharlot,Mother Harlot,351,FALSE
+352,blackrider,Black Rider,352,FALSE
+353,redrider,Red Rider,353,FALSE
+354,whiterider,White Rider,354,FALSE
+355,alice,Alice,355,TRUE
+356,hells_angel,Hell Biker,356,FALSE
+357,daisoujou,Daisoujou,357,FALSE
+358,palerider,Pale Rider,358,FALSE
+359,matador,Matador,359,FALSE
+381,inabasirousagi,Hare of Inaba,381,TRUE
+385,kinmamon,Kinmamon,385,TRUE
+386,onyankopon,Onyankopon,386,TRUE
+387,amabie,Amabie,387,FALSE
+391,lilith,Lilith,391,FALSE
+392,agrat,Agrat,392,FALSE
+393,naamah,Naamah,393,FALSE
+394,eisheth,Eisheth,394,FALSE
+395,lilith_evt,Lilith,-395,FALSE
+396,agrat_evt,Agrat,-396,FALSE
+401,lahmu_mask,Lahmu,441,FALSE
+402,lahmu_white,Lahmu,-1,FALSE
+403,lahmu_tentacle1,Lahmu's Tentacle,-1,FALSE
+404,lahmu_tentacle2,Lahmu's Tentacle,-1,FALSE
+405,lahmu_tentacle3,Lahmu's Tentacle,-1,FALSE
+406,lahmu_tentacle4,Lahmu's Tentacle,-1,FALSE
+407,lahmu_tentacle5,Lahmu's Tentacle,-1,FALSE
+408,lahmu_tentacle6,Lahmu's Tentacle,-1,FALSE
+409,lahmu_all,Lahmu,236,FALSE
+416,joka_1st,Nuwa,75,TRUE
+417,joka_2nd,Nuwa,197,FALSE
+418,joka_all,Nuwa,-1,FALSE
+421,abdiel_1st,Abdiel,240,FALSE
+422,abdiel_2nd,Abdiel,264,FALSE
+423,abdiel_all,Abdiel,-1,FALSE
+426,khons_1st,Khonsu,7,TRUE
+427,khons_2nd,Khonsu Ra,15,FALSE
+431,hydra,Hydra,115,FALSE
+432,hydra_big,Hydra,-432,FALSE
+451,lucifer2,Lucifer,529,FALSE
+452,lucifer2_effect1,Lucifer,-1,FALSE
+453,lucifer2_effect3,Lucifer,-1,FALSE
+455,tiamat,Tiamat,565,FALSE
+456,tiamat_dragon,Dragon Head,-1,FALSE
+457,tiamat_goat,Goat Head,-1,FALSE
+458,tiamat_camel,Camel Head,-1,FALSE
+459,tiamat_evt,Tiamat,-459,FALSE
+460,tehom,Tehom,597,FALSE
+461,tehom_evt,Tehom,-1,FALSE
+500,lucifer,Lucifer,-500,FALSE
+501,artemis,Artemis,31,FALSE
+502,surtr1_big,Surt,-1,FALSE
+503,surtr2_big,Surt,454,FALSE
+504,abaddon_big,Abaddon,-1,FALSE
+505,moloch_big,Moloch,-1,FALSE
+506,belphegor_big,Belphegor,-1,FALSE
+507,koyru_big,Huang Long,-1,FALSE
+508,chimera_big,Chimera,-1,FALSE
+509,arahabaki_big,Arahabaki,-1,FALSE
+510,ooyamatumi_big,Oyamatsumi,-1,FALSE
+511,girimekara_big,Girimekhala,-1,FALSE
+512,thunderbird_big,Thunderbird,-1,FALSE
+513,hekatoncheir_big,Hecatoncheires,-1,FALSE
+514,kingfrost_big,King Frost,-1,FALSE
+515,jaakufrost_big,Black Frost,-1,FALSE
+516,maare_big,Mara,-1,FALSE
+517,gurr_big,Gurulu,-1,FALSE
+518,gogmagog_big,Gogmagog,-1,FALSE
+519,glasyalabolas_big,Glasya-Labolas,-1,FALSE
+605,lawko,Tao,-1,FALSE
+606,lawko_bag,Tao Schoolbag,-1,FALSE
+607,chaoko,Yoko,-1,FALSE
+609,tomoo,Yuzuru,561,TRUE
+610,tomoo_bag,Yuzuru Schoolbag,-1,FALSE
+611,karuo,Dazai,1151,TRUE
+612,karuo_bag,Dazai Schoolbag,-1,FALSE
+617,sori,Koshimizu,-617,FALSE
+618,kichio,Yakumo,465,TRUE
+621,lawko_megami_1st,Tao Panagia JP,-1,FALSE
+622,lawko_megami_2nd,Tao Panagia,-1,FALSE
+624,chaoko_megami_2nd,Yoko Panagia,-1,FALSE
+625,tomoo_union,Tsukuyomi Nahobino,528,FALSE
+626,karuo_union,Abdiel Nahobino,-1,FALSE
+627,kichio_union,Nuwa Nahobino,-1,FALSE
+629,karuo_hairdiff,Dazai Hair,578,FALSE
+643,karuo_union_all,Abdiel Nahobino,525,FALSE
+650,kichio_union_all,Nuwa Nahobino,520,FALSE
+651,demi_fiend,Demi-fiend,934,FALSE

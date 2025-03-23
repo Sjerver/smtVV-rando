@@ -316,3 +316,57 @@ BASE_MAPSYMBOLPARAMS = {
               }
             ]
           }
+
+VOICEMAP_ESCAPE = [[
+                        {
+                          "$type": "UAssetAPI.PropertyTypes.Objects.EnumPropertyData, UAssetAPI",
+                          "EnumType": None,
+                          "InnerType": None,
+                          "Name": "VoiceMap",
+                          "DuplicationIndex": 0,
+                          "IsZero": False,
+                          "Value": "EDevilVoiceType::Escape"
+                        },
+                        {
+                          "$type": "UAssetAPI.PropertyTypes.Objects.SoftObjectPropertyData, UAssetAPI",
+                          "Name": "VoiceMap",
+                          "DuplicationIndex": 0,
+                          "IsZero": False,
+                          "Value": {
+                            "$type": "UAssetAPI.PropertyTypes.Objects.FSoftObjectPath, UAssetAPI",
+                            "AssetPath": {
+                              "$type": "UAssetAPI.PropertyTypes.Objects.FTopLevelAssetPath, UAssetAPI",
+                              "PackageName": None,
+                              "AssetName": "/Game/Sound/CueSheet/Devil/Devil_vo/dev303_vo_ramia/dev303_vo_07.dev303_vo_07"
+                            },
+                            "SubPathString": None
+                          }
+                        }
+                      ]]
+
+VOICEMAP_FIND =  [[
+                        {
+                          "$type": "UAssetAPI.PropertyTypes.Objects.EnumPropertyData, UAssetAPI",
+                          "EnumType": None,
+                          "InnerType": None,
+                          "Name": "VoiceMap",
+                          "DuplicationIndex": 0,
+                          "IsZero": False,
+                          "Value": "EDevilVoiceType::Find"
+                        },
+                        {
+                          "$type": "UAssetAPI.PropertyTypes.Objects.SoftObjectPropertyData, UAssetAPI",
+                          "Name": "VoiceMap",
+                          "DuplicationIndex": 0,
+                          "IsZero": False,
+                          "Value": {
+                            "$type": "UAssetAPI.PropertyTypes.Objects.FSoftObjectPath, UAssetAPI",
+                            "AssetPath": {
+                              "$type": "UAssetAPI.PropertyTypes.Objects.FTopLevelAssetPath, UAssetAPI",
+                              "PackageName": None,
+                              "AssetName": "/Game/Sound/CueSheet/Devil/Devil_vo/dev303_vo_ramia/dev303_vo_10.dev303_vo_10"
+                            },
+                            "SubPathString": None
+                          }
+                        }
+                      ]]

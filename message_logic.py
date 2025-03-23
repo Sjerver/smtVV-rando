@@ -1,9 +1,10 @@
-
+import pandas as pd
+import util.paths as paths
 import util.numbers as numbers
 import copy
 import re
 from base_classes.message import Message_File, Demon_Sync
-from randomizer import RACE_ARRAY
+from util.numbers import RACE_ARRAY
 
 MAX_LINE_LENGTH = 48 #Arbitray Number ( at least correct for missionInfo Text)
 BRAWNY_AMBITIONS_2 = 'mm_em2490'
@@ -15,7 +16,8 @@ OUTPUT_FOLDERS = {
     'ItemHelpMess' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Item/',
     'MissionInfo' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission/',
     'EventMessage' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Event/EventMessage/',
-    'Garden': 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Garden/'
+    'Garden': 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Garden/',
+    'NaviDevilMessage' : 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Map/NaviDevilMessage/'
 }
 
 #List of folders that have to be created in the output folder in order of creation
@@ -30,6 +32,7 @@ FOLDERS_TO_CREATE = ['rando',
         'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Battle',
         'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Mission',
         'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Event',
+        'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Map'
 ]    
 
 #Dict for items with demon names in them and which demon they should be synced with
@@ -93,17 +96,34 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2030': [Demon_Sync(117)],#Brawny Ambitions (Zhu Tun She)
     'mm_em1300': [Demon_Sync(864),Demon_Sync(453),Demon_Sync(463)],#Falcon's Head (Horus Punishing Foe,Shinagawa Station Lahmu II, Arioch)
     'mm_em1400': [Demon_Sync(864)],#Isis Dialogue (Either for other quest or in Minato) (Horus Punishing Foe)
-    'mm_em1020': [Demon_Sync(115,432),Demon_Sync(281,802)], #The Ultimate Omelet (Hydra, Jatayu)
+    'mm_em1020': [Demon_Sync(115,432),Demon_Sync(281,802),Demon_Sync(114, isNavi=True)], #The Ultimate Omelet (Hydra, Jatayu, Navi Aitvaras)
     'mm_em1120': [Demon_Sync(147,nameVariant="Mothmen")], #Can I Keep Them? (Mothman)
+    'mm_em0021': [Demon_Sync(537)],#Eligor dialogue (Lucifer)
     'mm_em0041': [Demon_Sync(136, 450)],#Loup Garou dialogue (Loup Garou)
     'mm_em0044': [Demon_Sync(452)],#Saving the Students misc dialogue (Lahmu)
-    'mm_em0050_b': [Demon_Sync(559), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta')],#Golden apple quest vengeance (Eisheth, Yuzuru)
-    'mm_em0051': [Demon_Sync(810)],#Golden apple quest Idun dialogue (Loki)
+    'mm_em0050': [Demon_Sync(57, isNavi=True), Demon_Sync(23, isNavi=True)],#Golden apple quest creation (Navi Pyro Jack, Navi Idun)
+    'mm_em0050_b': [Demon_Sync(559), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(57, isNavi=True), Demon_Sync(23, isNavi=True)],#Golden apple quest vengeance (Eisheth, Yuzuru, Navi Pyro Jack, Navi Idun)
+    'mm_em0051': [Demon_Sync(810), Demon_Sync(57, isNavi=True), Demon_Sync(23, isNavi=True)],#Golden apple quest Idun dialogue (Loki, Navi Pyro Jack, Navi Idun)
+    'mm_em0052': [Demon_Sync(57, isNavi=True)],#Golden apple quest golden apple dialogue (Navi Pyro Jack)
     'mm_em0060': [Demon_Sync(80, 454), Demon_Sync(215, 822), Demon_Sync(214, 823), Demon_Sync(216, 824)],#Hellfire Highway (Surt, Okuninushi, Sukuna Hikona, Minakata)
-    'mm_em0070': [Demon_Sync(80, 454), Demon_Sync(25, 455)],#Ishtar Quest (Surt and Ishtar)
-    'mm_em0143': [Demon_Sync(111, 468), Demon_Sync(178, 845)],#Taito India Amanozako dialogue (Vasuki and Shiva)
-    'mm_em0145': [Demon_Sync(8, 469)],#Taito Greek Amanozako dialogue (Zeus)
-    'mm_em0147': [Demon_Sync(9, 470)],#Taito Norse Amanozako dialogue (Odin)
+    'mm_em0070': [Demon_Sync(80, 454), Demon_Sync(25, 455), Demon_Sync(273, isNavi=True)],#Ishtar Quest (Surt, Ishtar, Navi Decarabia)
+    'mm_em0120': [Demon_Sync(38, isNavi=True)],#Amanozako rejoins in area 2 (Navi Amanozako)
+    'mm_em0121': [Demon_Sync(38, isNavi=True)],#Amanozako dialogue about captured humans (Navi Amanozako)
+    'mm_em0122': [Demon_Sync(38, isNavi=True)],#Amanozako car dialogue (Navi Amanozako)
+    'mm_em0123': [Demon_Sync(38, isNavi=True)],#Amanozako railroad dialogue (Navi Amanozako)
+    'mm_em0124': [Demon_Sync(38, isNavi=True)],#Amanozako container dialogue (Navi Amanozako)
+    'mm_em0125': [Demon_Sync(38, isNavi=True)],#Amanozako leaves in area 2 (Navi Amanozako)
+    'mm_em0130': [Demon_Sync(38, isNavi=True)],#Amanozako in Chiyoda (Navi Amanozako)
+    'mm_em0140': [Demon_Sync(38, isNavi=True)],#Amanozako rejoins in area 4 creation (Navi Amanozako)
+    'mm_em0141': [Demon_Sync(38, isNavi=True)],#Amanozako dialogue about Nuwa (Navi Amanozako)
+    'mm_em0142': [Demon_Sync(38, isNavi=True)],#Amanozako dialogue after Nuwa in area 4 (Navi Amanozako)
+    'mm_em0143': [Demon_Sync(111, 468), Demon_Sync(178, 845),Demon_Sync(38, isNavi=True)],#Taito India Amanozako dialogue (Vasuki, Shiva, Navi Amanozako)
+    'mm_em0144': [Demon_Sync(38, isNavi=True)],#Amanozako key of austerity dialogue (Navi Amanozako)
+    'mm_em0145': [Demon_Sync(8, 469),Demon_Sync(38, isNavi=True)],#Taito Greek Amanozako dialogue (Zeus, Navi Amanozako)
+    'mm_em0146': [Demon_Sync(38, isNavi=True)],#Amanozako key of benevolence dialogue (Navi Amanozako)
+    'mm_em0147': [Demon_Sync(9, 470),Demon_Sync(38, isNavi=True)],#Taito Norse Amanozako dialogue (Odin, Navi Amanozako)
+    'mm_em0148': [Demon_Sync(38, isNavi=True)],#Amanozako key of harmony dialogue (Navi Amanozako)
+    'mm_em0149': [Demon_Sync(38, isNavi=True)],#Amanozako leaves in area 4 (Navi Amanozako)
     'mm_em0150': [Demon_Sync(345, 889)], # A Preta Predicament (Preta)
     'mm_em0151': [Demon_Sync(43)],#A Preta Predicament (Apsaras)
     'mm_em0152': [Demon_Sync(345, 889)],#A Preta Predicament (Preta)
@@ -112,18 +132,21 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em0172': [Demon_Sync(318, 888)],
     'mm_em0173': [Demon_Sync(318, 888)],
     'mm_em0174': [Demon_Sync(318, 888)],
-    'mm_em1031': [Demon_Sync(233, 801)],#The Cursed Mermaids (Pazuzu)
-    'mm_em1040': [Demon_Sync(20, 803)],#Anahita Quest (Anahita, 2 quest files)
-    'mm_em1041': [Demon_Sync(20, 803)],
+    'mm_em1030': [Demon_Sync(304, isNavi=True)],#The Cursed Mermaids part 1 (Navi Mermaid)
+    'mm_em1031': [Demon_Sync(233, 801), Demon_Sync(304, nameVariant = 'mermaid', isNavi=True)],#The Cursed Mermaids part 2 (Pazuzu, Navi Mermaid)
+    'mm_em1040': [Demon_Sync(20, 803), Demon_Sync(304, isNavi=True)],#Anahita Quest (Anahita, Navi Mermaid, 2 quest files)
+    'mm_em1041': [Demon_Sync(20, 803), Demon_Sync(304, isNavi=True)],
     'mm_em1050': [Demon_Sync(311, 820)],#Talisman Hunt (Shiki Ouji)
     'mm_em1140': [Demon_Sync(342, 809)],#Kumbhanda Quest (Kumbhanda)
-    'mm_em1150': [Demon_Sync(89, 810)],#A Goddess Stolen (Loki, 2 quest files)
-    'mm_em1151': [Demon_Sync(89, 810)],
+    'mm_em1150': [Demon_Sync(89, 810), Demon_Sync(23, isNavi=True)],#A Goddess Stolen (Loki, Navi Idun, 2 quest files)
+    'mm_em1151': [Demon_Sync(89, 810), Demon_Sync(23, isNavi=True)],
     'mm_em1160': [Demon_Sync(19)],#The Tyrant of Tennozu Demeter lines (Demeter)
     'mm_em1161': [Demon_Sync(86, 804)],#The Tyrant of Tennozu Belphegor lines (Belphegor)
     'mm_em1180': [Demon_Sync(87, 821)],#King Frost Quest (King Frost, 2 quest files)
     'mm_em1182': [Demon_Sync(87, 821)],
     'mm_em1210': [Demon_Sync(212, 826), Demon_Sync(216, 824), Demon_Sync(80, 454)],#Oyamatsumi Quest (Oyamatsumi, Minakata, Surt)
+    'mm_em1230': [Demon_Sync(333, isNavi=True)],#Hua Po Quest (Navi Hua Po)
+    'mm_em1240': [Demon_Sync(273, isNavi=True)],#Chiyoda Gem Quest (Navi Decarabia)
     'mm_em1250': [Demon_Sync(215, 822), Demon_Sync(214, 823), Demon_Sync(212, 826)],#Kunitsukami Fight Quest (Okuninushi, Sukuna Hikona, Oyamatsumi)
     'mm_em1260': [Demon_Sync(19), Demon_Sync(127, 812)], #Chimera Quest (Demeter, Chimera)
     'mm_em1270': [Demon_Sync(322, 813)], #Hecaton Quest (Hecaton)
@@ -150,6 +173,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1500': [Demon_Sync(30, 842), Demon_Sync(188, 843), Demon_Sync(189, 844)],#Seed of Life Quest (Maria, Danu, Innana)
     'mm_em1530': [Demon_Sync(178, 845), Demon_Sync(111, 468)],#A Universe in Peril (Shiva, Vasuki)
     'mm_em1570': [Demon_Sync(845)],#Sarasvati Collection Quest (Shiva)
+    'mm_em1580': [Demon_Sync(280, isNavi=True)],#On Bended Knees (Navi Yatagarasu)
     'mm_em1590': [Demon_Sync(876), Demon_Sync(453)],#Berserk Amanozako Quest (Amanozako, 3 Quest Files, Final Lahmu)
     'mm_em1591': [Demon_Sync(38, 876)],
     'mm_em1592': [Demon_Sync(38, 876)],
@@ -172,9 +196,9 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1780': [Demon_Sync(295)], #Cleopatra Quest (Cleopatra)
     'mm_em1790': [Demon_Sync(31), Demon_Sync(933), Demon_Sync(432), Demon_Sync(8, 838)], #Artemis Quest (Artemis, Queztalcoatl, Hydra, Zeus 2 for fun) Note: If Artemis's speaker voice is changed the game crashes
     'mm_em1802': [Demon_Sync(359, 921)], #Matador, 2 Quest Files
-    'mm_em1803': [Demon_Sync(921)],
+    'mm_em1803': [Demon_Sync(359, 921)],
     'mm_em1804': [Demon_Sync(357, 922)], #Daisoujou
-    'mm_em1805': [Demon_Sync(922)],
+    'mm_em1805': [Demon_Sync(357, 922)],
     'mm_em1806': [Demon_Sync(356, 923)], #Hell Biker
     'mm_em1807': [Demon_Sync(923)],
     'mm_em1810': [Demon_Sync(354, 924)], #White Rider
@@ -188,12 +212,13 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1819': [Demon_Sync(351, 928)], #Mother Harlot
     'mm_em1820': [Demon_Sync(928)],
     'mm_em1821': [Demon_Sync(350, 929)], #Trumpeter, 2 Quest Files
-    'mm_em1822': [Demon_Sync(929), Demon_Sync(934)], #Demi-Fiend named here as well
+    'mm_em1822': [Demon_Sync(350, 929), Demon_Sync(934)], #Demi-Fiend named here as well
     'mm_em1823': [Demon_Sync(934)], #Demi-Fiend, 3 Quest Files
     'mm_em1824': [Demon_Sync(934)],
     'mm_em1825': [Demon_Sync(934)],
     'mm_em2020': [Demon_Sync(107, 752, nameVariant='NOZUCHI'), Demon_Sync(336, nameVariant='KODAMA')], #Nozuchi Queset (Nozuchi, Normal Enemy Kodama)
     'mm_em2040': [Demon_Sync(20, 803)], #Pisaca Quest part 1 (Anahita)
+    'mm_em2050': [Demon_Sync(387, isNavi=True)], #Amabie Quest (Navi Amabie)
     'mm_em2090': [Demon_Sync(561), Demon_Sync(562)], #Yuzuru Supply Run Quest (Yuzuru, Hayataro)
     'mm_em2111': [Demon_Sync(108, 769)], #Vouivre Quest (Vouivre)
     'mm_em2130': [Demon_Sync(113), Demon_Sync(41), Demon_Sync(386)], #Basilisk Hunt Quest (Basilisk, Anansi, Onyankopon)
@@ -203,20 +228,27 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2270': [Demon_Sync(346, 772), Demon_Sync(40)], #Side with Kresnik (Kudlak, Kresnik)
     'mm_em2280': [Demon_Sync(40, 774), Demon_Sync(346)], #Side with Kudlak (Kresnik, Kudlak)
     'mm_em2290': [Demon_Sync(890)], #Gogmagog Quest (Gogmagog)
+    'mm_em2300': [Demon_Sync(387, isNavi=True)], #Macabre Dance Quest (Navi Amabie)
     'mm_em2310': [Demon_Sync(386, 770), Demon_Sync(41)], #Side with Onyankopon (Onyankopon, Anansi) - Swapped boss/recruit versions due to the way these 2 join compared to others
     'mm_em2320': [Demon_Sync(41, 771), Demon_Sync(386)], #Side with Anansi (Anansi, Onyankopon)
     'mm_em2350': [Demon_Sync(200, 778)], #Idun Haunt Quest (Thor)
+    'mm_em2360': [Demon_Sync(355, isNavi=True)], #Alice Quest (Navi Alice)
     'mm_em2370': [Demon_Sync(278, 865), Demon_Sync(564), Demon_Sync(468), Demon_Sync(481)], #Siegfried Quest (Garuda, Vengeance Abdiel, Vasuki, Vengeance Zeus) Odin is mentioned but the same text box is used in both routes
-    'mm_em2390': [Demon_Sync(776), Demon_Sync(227)], #Cironnup Quest (Atavaka, Masakado)
+    'mm_em2380': [Demon_Sync(289, isNavi=True)], #Mo Shuvuu Quest (Mo Shuvuu)
+    'mm_em2390': [Demon_Sync(776), Demon_Sync(227), Demon_Sync(128, isNavi=True)], #Cironnup Quest (Atavaka, Masakado, Navi Cironnup)
     'mm_em2400': [Demon_Sync(118, 760), Demon_Sync(537)], #Samael Quest (Samael, Lucifer)
     'mm_em2420': [Demon_Sync(1, 681), Demon_Sync(760), Demon_Sync(537), Demon_Sync(250, 596)], #Satan Quest (Satan, Samael, Lucifer, Mastema)
+    'mm_em2430': [Demon_Sync(59, isNavi=True)], #Detective Pixie Quest (Navi Pixie)
+    'mm_em2440': [Demon_Sync(38, isNavi=True)], #Yakshini Quest (Navi Amanozako)
     'mm_em2460': [Demon_Sync(77, 892)], #Mara Quest (Mara)
     'mm_em2470': [Demon_Sync(175, 754, nameVariant='TURBO GRANNY')], #Turbo Granny Quest (Turbo Granny)
-    'mm_em2490': [Demon_Sync(122)], #Hare of Inaba 2 Quest (Xiezhai) TODO: Replace Puncture Punch with updated skill
+    'mm_em2480': [Demon_Sync(60, isNavi=True)], #Nahobeeho Quest (Navi Nahobeeho)
+    'mm_em2490': [Demon_Sync(122)], #Hare of Inaba 2 Quest (Xiezhai)
     'mm_em2500': [Demon_Sync(215), Demon_Sync(122), Demon_Sync(214)], #Hare of Inaba 3 Quest (Okuninushi, Xiezhai, Sukona Hikona for fun)
+    'mm_em2520': [Demon_Sync(273, isNavi=True)],#Shinjuku Gem Quest (Navi Decarabia)
     'mm_em2530': [Demon_Sync(141, 751, nameVariant='DORMARTH')], #Dormarth Quest (Dormarth)
     'mm_em2540': [Demon_Sync(291, 891)], #Gurulu Quest (Gurulu)
-    'mm_em2550': [Demon_Sync(756, nameVariant='ZHEn')], #Part Time Quest (Zhen) Optionally add the other 2 encounters you can get here but eh
+    'mm_em2550': [Demon_Sync(509, nameVariant='ZHEn')], #Part Time Quest (Zhen) Optionally add the other 2 encounters you can get here but eh
     'mm_em2570': [Demon_Sync(22, 779), Demon_Sync(838)], #Moirae Haunt Quest (Norn, Zeus 2 for fun)
     'mm_em2580': [Demon_Sync(12, 776, nameVariant='Daigensui Myouou')], #Yoshitsune Haunt Quest (Atavaka)
     'mm_em2600': [Demon_Sync(32), Demon_Sync(826)], #Konohana Sakuya Quest (Konohana Sakuya, Oyamatsumi)
@@ -231,7 +263,7 @@ MISSION_EVENTS_DEMON_IDS = {
 #Demon_Sync(demonID mentioned in text, IF applicable id of demon to use replacement for) since boss mentions just use normal enemy ids
 EVENT_MESSAGE_DEMON_IDS = {
     'e0180': [Demon_Sync(345, 431)],#Triple Preta Pre-fight dialogue (Preta)
-    'e0262': [Demon_Sync(537)],#Pre-Hydra dialogue (Lucifer)
+    'e0262': [Demon_Sync(537), Demon_Sync(38, isNavi=True)],#Pre-Hydra dialogue (Lucifer, Navi Amanozako)
     'e0300': [Demon_Sync(432, nameVariant='hydra')],#Return Pillar cutscene (Hydra)
     'e0310': [Demon_Sync(115, 432)],#Unused? Hydra dialogue (Hydra)
     'e0330': [Demon_Sync(75, 435)],#Snake Nuwa Pre-fight dialogue (Nuwa)
@@ -243,6 +275,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e0379': [Demon_Sync(35, 451)],#Fionn 1 Pre-fight dialogue (Fionn)
     'e0380': [Demon_Sync(35, 451), Demon_Sync(452)],#Fionn 1 Post-fight dialogue (Fionn, Lahmu)
     'e0390': [Demon_Sync(451, nameVariant='Fionn')],#First Miyazu dialogue in fairy village (Fionn)
+    'e0430': [Demon_Sync(432)],#Jojozi Temple Goko dialogue creation (Hydra)
     'e0431': [Demon_Sync(236, 441)],#Lahmu 1 Post-fight dialogue (Lahmu) Note: Lahmu mentions will switch from Lahmu 1 to final Lahmu once you enter area 2
     'e0432': [Demon_Sync(236, 441)],#Lahmu 1 Pre-fight dialogue (Lahmu)
     'e0435': [Demon_Sync(441)],#Arriving at overrun school (Lahmu)
@@ -264,7 +297,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e0600': [Demon_Sync(8, 469), Demon_Sync(9, 470), Demon_Sync(111, 468), Demon_Sync(7, 516), Demon_Sync(845), Demon_Sync(240, 467), Demon_Sync(454), Demon_Sync(455), Demon_Sync(463), Demon_Sync(537)],#First Bethel summit cutscene (Zeus, Odin, Vasuki, Khonsu, Shiva, Abdiel, Surt, Ishtar, Arioch, Lucifer)
     'e0602': [Demon_Sync(8, 469), Demon_Sync(9, 470), Demon_Sync(111, 468), Demon_Sync(7, 516), Demon_Sync(845), Demon_Sync(467)],#Talking to faction leaders at summit (Zeus, Odin, Vasuki, Khonsu, Shiva, Abdiel)
     'e0603': [Demon_Sync(8, 469), Demon_Sync(9, 470), Demon_Sync(111, 468), Demon_Sync(7, 516), Demon_Sync(845), Demon_Sync(240, 467)],#Abdiel pre-fight dialogue at summit (Zeus, Odin, Vasuki, Khonsu, Shiva, Abdiel)
-    'e0604': [Demon_Sync(8, 469), Demon_Sync(9, 470), Demon_Sync(111, 468), Demon_Sync(7, 516), Demon_Sync(845), Demon_Sync(510, 528), Demon_Sync(240, 467)],#Abdiel post-fight dialogue at summit (Zeus, Odin, Vasuki, Khonsu, Shiva, Tsukuyomi, Abdiel)
+    'e0604': [Demon_Sync(8, 469), Demon_Sync(9, 470), Demon_Sync(111, 468), Demon_Sync(7, 516), Demon_Sync(845), Demon_Sync(528), Demon_Sync(240, 467)],#Abdiel post-fight dialogue at summit (Zeus, Odin, Vasuki, Khonsu, Shiva, Tsukuyomi, Abdiel)
     'e0610': [Demon_Sync(467)],#Angels giving directions to DKC (Abdiel)
     'e0620': [Demon_Sync(512, 465), Demon_Sync(75, 435)],#Yakumo pre-fight dialogue (Yakumo, Nuwa)
     'e0625': [Demon_Sync(512, 465), Demon_Sync(75, 435), Demon_Sync(453)],#Yakumo post-fight dialogue (Yakumo, Nuwa, Lahmu)
@@ -280,7 +313,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e0690': [Demon_Sync(467), Demon_Sync(528)],#Koshimitzu meeting after area 3 (Abdiel, Tsukuyomi)
     'e0730': [Demon_Sync(837), Demon_Sync(537), Demon_Sync(510, 528)],#Regarding the war of the gods dialogue (Baal, Lucifer, Tsukuyomi)
     'e0735': [Demon_Sync(467)],#Dazai dialogue after summit (Abdiel)
-    'e0736': [Demon_Sync(511, 467)],#Dazai/Abdiel talk after summit (Abdiel)
+    'e0736': [Demon_Sync(467)],#Dazai/Abdiel talk after summit (Abdiel)
     'e0762': [Demon_Sync(512, 465, nameVariant='Yakumo'), Demon_Sync(75, 520)],#Nuwa in area 4 (Yakumo, Nuwa) Note: I guess start referencing nahobino nuwa/abdiel in area 4?
     'e0765': [Demon_Sync(525)],#Dazai hat scene (Abdiel)
     'e0770': [Demon_Sync(468), Demon_Sync(845)],#Bethel India demon dialogue (Vasuki, Shiva)
@@ -311,8 +344,10 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e1000': [Demon_Sync(529, 537)],#Lucifer pre-fight dialogue (Normal Lucifer)
     'e1020': [Demon_Sync(529)],#Aogami says goodbye in true neutral ending (True Lucifer)
     'e2010': [Demon_Sync(552), Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(578, nameVariant='Dazai')],#Labolas 1 pre-fight dialogue (Labolas, Yuzuru, Dazai) Note: For vengeance dialogue replacing mentions of Yuzuru/Dazai, but not Yoko for now
-    'e2015': [Demon_Sync(505, 561)],#Labolas 1 post-fight dialogue (Yuzuru)
+    'e2015': [Demon_Sync(505, 561, nameVariant='Atsuta')],#Labolas 1 post-fight dialogue (Yuzuru)
+    'e2017': [Demon_Sync(38, isNavi=True)],#Amanazako first partner spot Vengeance (Navi Amanozako)
     'e2018': [Demon_Sync(43), Demon_Sync(305)],#Possibly unused Yoko dialogue about Apsaras/Leanan (Apsaras, Leanan)
+    'e2019': [Demon_Sync(38, isNavi=True)],#Post Hydra dialogue Vengeance (Navi Amanozako)
     'e2020': [Demon_Sync(393, 553)],#Naamah pre-fight dialogue 1 (Naamah)
     'e2022': [Demon_Sync(393, 553)],#Naamah pre-fight dialogue 2 (Naamah)
     'e2025': [Demon_Sync(393, 553)],#Naamah post-fight dialogue (Naamah)
@@ -351,7 +386,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e2445': [Demon_Sync(509, 562), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(578, nameVariant='Dazai')],#Koshimizu discovers shinjuku (Hayataro, Yuzuru, Dazai)
     'e2450': [Demon_Sync(506, 578), Demon_Sync(564)],#Dazai goes to Chiyoda (Dazai, Abdiel)
     'e2500': [Demon_Sync(562)],#Arriving in Shinjuku (Hayataro)
-    'e2520': [Demon_Sync(513, 550), Demon_Sync(512, 567), Demon_Sync(486, nameVariant='Cherubim')],#First Nuwa/Yakumo scene in Shinjuku (Nuwa, Yakumo, Cherub)
+    'e2520': [Demon_Sync(513, 550), Demon_Sync(512, 567, nameVariant='Yakumo'), Demon_Sync(486, nameVariant='Cherubim')],#First Nuwa/Yakumo scene in Shinjuku (Nuwa, Yakumo, Cherub)
     'e2531': [Demon_Sync(486, nameVariant='Cherubim')],#Cherubim are called after Power gauntlet (Cherub)
     'e2535': [Demon_Sync(567, nameVariant='Yakumo')],#Yoko/Tao talk where Cherub used to be (Yakumo)
     'e2560': [Demon_Sync(512, 567)],#Nuwa/Yakumo talk at Mastema's hill 1 (Yakumo)
@@ -363,9 +398,9 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e2608': [Demon_Sync(561, nameVariant='Yuzuru')],#Aogami comments on Yuzuru's distress (Yuzuru)
     'e2610': [Demon_Sync(193, 579), Demon_Sync(506, 578, nameVariant='Ichiro'), Demon_Sync(505, 561, nameVariant='Yuzuru')],#Isis pre-fight dialogue (Isis, Dazai, Yuzuru)
     'e2615': [Demon_Sync(193, 579), Demon_Sync(566), Demon_Sync(505, 561)],#Isis post-fight dialogue (Isis, Khonsu, Yuzuru)
-    'e2620': [Demon_Sync(514, 566), Demon_Sync(505, 561)],#Khonsu pre-fight dialogue vengeance part 1 (Khonsu, Yuzuru)
-    'e2623': [Demon_Sync(514, 566), Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(506, 578)],#Khonsu pre-fight dialogue vengeance part 2 (Khonsu, Yuzuru, Dazai)
-    'e2625': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(514, 566), Demon_Sync(564), Demon_Sync(596)],#Khonsu post-fight dialogue vengeance (Yuzuru, Khonsu, Abdiel, Mastema)
+    'e2620': [Demon_Sync(514, 566, nameVariant='Khonsu'), Demon_Sync(505, 561)],#Khonsu pre-fight dialogue vengeance part 1 (Khonsu, Yuzuru)
+    'e2623': [Demon_Sync(514, 566, nameVariant='Khonsu'), Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(506, 578)],#Khonsu pre-fight dialogue vengeance part 2 (Khonsu, Yuzuru, Dazai)
+    'e2625': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(514, 566, nameVariant='Khonsu'), Demon_Sync(564), Demon_Sync(596)],#Khonsu post-fight dialogue vengeance (Yuzuru, Khonsu, Abdiel, Mastema)
     'e2630': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(506, 578)],#Yuzuru talk after Khonsu incident (Yuzuru, Dazai)
     'e2631': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(566)],#Aogami discusses Khonsu incident (Yuzuru, Khonsu)
     'e2633': [Demon_Sync(566)],#Yoko discusses Khonsu incident (Khonsu)
@@ -400,7 +435,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e2912': [Demon_Sync(530, 528), Demon_Sync(578), Demon_Sync(564), Demon_Sync(565)],#Dark block bros pre-fight (Tsukuyomi, Dazai, Abdiel, Tiamat)
     'e2915': [Demon_Sync(530, 528), Demon_Sync(565), Demon_Sync(569), Demon_Sync(559), Demon_Sync(561, nameVariant='Atsuta')],#Shakan angels gossiping (Tsukuyomi, Tiamat, Lilith, Eisheth, Yuzuru)
     'e2917': [Demon_Sync(530, 528)],#Cherub fight dialogue (Tsukuyomi)
-    'e2920': [Demon_Sync(530, 528), Demon_Sync(511, 564), Demon_Sync(561, nameVariant='Atsuta')],#Abdiel in Shakan pre-fight dialogue (Tsukuyomi, Abdiel, Yuzuru)
+    'e2920': [Demon_Sync(530, 528), Demon_Sync(564), Demon_Sync(561, nameVariant='Atsuta')],#Abdiel in Shakan pre-fight dialogue (Tsukuyomi, Abdiel, Yuzuru)
     'e2930': [Demon_Sync(530, 528), Demon_Sync(511, 564), Demon_Sync(565), Demon_Sync(596)],#Abdiel in Shakan post-fight dialogue (Tsukuyomi, Abdiel, Tiamat, Mastema)
     'e2950': [Demon_Sync(530, 528), Demon_Sync(250, 596), Demon_Sync(564)],#Mastema dialogue after Shakan (Tsukuyomi, Mastema, Abdiel)
     'e2953': [Demon_Sync(510, 528)],#Tsukuyomi pre-meeting before area 4 vengeance (Tsukuyomi)
@@ -421,7 +456,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e3120': [Demon_Sync(8, 481), Demon_Sync(9, 482)],#Zeus + Odin pre-fight dialogue (Zeus, Odin)
     'e3130': [Demon_Sync(8, 481), Demon_Sync(9, 482)],#Zeus + Odin post-fight dialogue (Zeus, Odin)
     'e3300': [Demon_Sync(530, 528), Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(577)],#Dazai pre-fight dialogue (Tsukuyomi, Dazai, Abdiel)
-    'e3310': [Demon_Sync(530, 528), Demon_Sync(561), Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(511, 577)],#Dazai post-fight dialogue (Tsukuyomi, Yuzuru, Dazai, Abdiel)
+    'e3310': [Demon_Sync(530, 528), Demon_Sync(561), Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(577)],#Dazai post-fight dialogue (Tsukuyomi, Yuzuru, Dazai, Abdiel)
     'e3330': [Demon_Sync(565), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(567, nameVariant='Yakumo'), Demon_Sync(578, nameVariant='Dazai')],#Yoko shows up in Empyrean (Tiamat, Yuzuru, Yakumo, Dazai)
     'e3350': [Demon_Sync(565)],#Yoko uses Tiamat on you (Tiamat)
     'e3352': [Demon_Sync(510, 528), Demon_Sync(565)],#Tiamat post-fight dialogue law (Tsukuyomi, Tiamat)
@@ -432,6 +467,15 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e3420': [Demon_Sync(250, 596)],#Mastema pre-fight dialogue (Mastema)
     'e3425': [Demon_Sync(250, 596)],#Mastema post-fight dialogue (Mastema)
     'e3475': [Demon_Sync(529, 537)],#Lucifer chaos ending dialogue (Lucifer)
+    'em0011': [Demon_Sync(38, isNavi=True)],#Amanozako showing where angels are maybe (Navi Amanozako)
+    'em0013': [Demon_Sync(38, isNavi=True)],#Amanozako quest tutorial maybe (Navi Amanozako)
+    'em0019': [Demon_Sync(38, isNavi=True)],#Amanozako leaves after area 1 (Navi Amanozako)
+    'em0021': [Demon_Sync(38, isNavi=True)],#Amanozako dialogue about Hydra (Navi Amanozako)
+    'em0026': [Demon_Sync(38, isNavi=True)],#Amanozako dialogue post Hydra maybe (Navi Amanozako)
+    'em0027': [Demon_Sync(38, isNavi=True)],#Amanozako showing where angels are most likely (Navi Amanozako)
+    'em0028': [Demon_Sync(38, isNavi=True)],#Angel dialogue in CoC with maybe Amanozako lines (Navi Amanozako)
+    'em0181': [],#Amanozako gives you a bead
+    'em0182': [Demon_Sync(38, isNavi=True)],#Amanozako becomes your navigator (Navi Amanozako)
     'es035_m063_01': [Demon_Sync(35)],#Fionn dialogue in area 3/4 (Fionn)
     'es152_m062_01': [Demon_Sync(152)],#Hayataro dialogue in fairy village (Hayataro)
     'es152_m063_01': [Demon_Sync(152)],#Hayataro dialogue in Chiyoda (Hayataro)
@@ -447,16 +491,28 @@ EVENT_MESSAGE_DEMON_IDS = {
     'npc_m036': [Demon_Sync(467), Demon_Sync(463)],#NPC text in Demon King's Castle (Abdiel, Arioch)
     'npc_m038': [Demon_Sync(596), Demon_Sync(564), Demon_Sync(463)],#NPC text in Shakan (Mastema, Abdiel, Arioch)
     'npc_m060': [Demon_Sync(831), Demon_Sync(566), Demon_Sync(463), Demon_Sync(565), Demon_Sync(509, 152)],#NPC text in Area 4 (Amon, Khonsu(Vengeance), Arioch, Tiamat, Hayataro)
+    'npc_m060_navi': [Demon_Sync(35, isNavi=True), Demon_Sync(77, isNavi=True), Demon_Sync(144, isNavi=True)],#Navigator text in Area 4 (Fionn, Mara, Bugs)
     'npc_m061': [Demon_Sync(537), Demon_Sync(432), Demon_Sync(516), Demon_Sync(870)],#NPC text in Area 1 creation (Lucifer, Hydra, Khonsu, Seth)
     'npc_m061_b': [Demon_Sync(537), Demon_Sync(432), Demon_Sync(566), Demon_Sync(870), Demon_Sync(193, 579)],#NPC text in Area 1 vengeance (Lucifer, Hydra, Khonsu, Seth, Isis)
-    'npc_m061_navi': [Demon_Sync(801)],#Navigator text in Area 1 (Pazuzu)
+    'npc_m061_navi': [Demon_Sync(801), Demon_Sync(295, isNavi=True), Demon_Sync(304, isNavi=True), Demon_Sync(316, isNavi=True), Demon_Sync(356, isNavi=True)],#Navigator text in Area 1 (Pazuzu, Cleopatra, Mermaid, Ippon Datara, Hell Biker)
     'npc_m062': [Demon_Sync(452), Demon_Sync(451, nameVariant='Fionn')],#NPC text in Area 2 creation (Lahmu, Fionn)
     'npc_m062_b': [Demon_Sync(556), Demon_Sync(827), Demon_Sync(506, 578)],#NPC text in Area 2 vengeance (Lahmu, Fionn, Girimehkala, Dazai)
+    'npc_m062_navi': [Demon_Sync(23, isNavi=True), Demon_Sync(44, isNavi=True), Demon_Sync(147, isNavi=True)],#Navigator text in Area 2 (Idun, Agathion, Mothman)
     'npc_m063': [Demon_Sync(454), Demon_Sync(455), Demon_Sync(467)],#NPC text in Chiyoda (Surt, Ishtar, Abdiel)
-    'npc_m064': [Demon_Sync(463), Demon_Sync(564), Demon_Sync(183, 881), Demon_Sync(775), Demon_Sync(596), Demon_Sync(822), Demon_Sync(772, nameVariant='kuDLaK'), Demon_Sync(505, 561)],#NPC text in Shinjuku (Arioch, Abdiel, Dionysus, Orochi, Mastema, Okuninushi, Kudlak, Yuzuru)
+    'npc_m064': [Demon_Sync(463), Demon_Sync(564), Demon_Sync(183, 881), Demon_Sync(775), Demon_Sync(596), Demon_Sync(822), Demon_Sync(772, nameVariant='kuDLaK'), Demon_Sync(505, 561), Demon_Sync(214, isNavi=True)],#NPC text in Shinjuku (Arioch, Abdiel, Dionysus, Orochi, Mastema, Okuninushi, Kudlak, Yuzuru, Sukuna Hikona navi)
     'npc_m085': [Demon_Sync(578), Demon_Sync(463), Demon_Sync(841)],#NPC text in research lab (Dazai, Arioch, Michael)
     'npc_TokyoMap': [Demon_Sync(465, nameVariant='Yakumo')],#NPC text in world map creation (Yakumo)
     'npc_TokyoMap_b': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(567, nameVariant='Yakumo')],#NPC text in world map vengeance (Yuzuru, Yakumo)
+}
+
+#Message files for mission events and what items need to be updated in them
+MISSION_EVENTS_ITEM_IDS = {
+
+}
+
+#Message files for events and what items need to be updated in them
+EVENT_MESSAGE_ITEM_IDS = {
+    'em0181': [4],#Amanozako gives you a bead
 }
 
 #Alternative names to use for demons with names longer than 11 characters
@@ -630,17 +686,18 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "Speak to me and face <BOSSNAME>."] #35 - Goko dialogue in Marici quest
 
 MISSION_INFO_DEMON_IDS = {
-    7: [Demon_Sync(281,802)], #The Ultimate Omelet (Jatayu)
-    8: [Demon_Sync(233,801)], #The Cursed Mermaid (Pazuzu)
-    9: [Demon_Sync(20,803)], #The Demon of the Spring (Anahita)
-    12: [Demon_Sync(89,810)], #A Golden Opportunity (Loki)
+    7: [Demon_Sync(281,802), Demon_Sync(114, isNavi=True)], #The Ultimate Omelet (Jatayu, Navi Aitvaras)
+    8: [Demon_Sync(233,801), Demon_Sync(304, isNavi=True)], #The Cursed Mermaid (Pazuzu, Navi Mermaid)
+    9: [Demon_Sync(20,803), Demon_Sync(304, isNavi=True)], #The Demon of the Spring (Anahita, Navi Mermaid)
+    12: [Demon_Sync(89,810), Demon_Sync(23, isNavi=True)], #A Golden Opportunity (Loki, Navi Idun)
     13: [Demon_Sync(311,820)], #Talisman Hunt (Shiki-Ouji)
     15: [Demon_Sync(147,nameVariant="Mothmen")], #Can I Keep Them? (Mothman)
     17: [Demon_Sync(342, 809)], #Kumhanda's Bottle (Kumbhanda)
-    18: [Demon_Sync(89,810)], #A Goddess Stolen (Loki)
+    18: [Demon_Sync(89,810), Demon_Sync(23, isNavi=True)], #A Goddess Stolen (Loki, Navi Idun)
     22: [Demon_Sync(80,454)], #Hellfire Highway (Surt)
     23: [Demon_Sync(25,455)], #The Augmented Goddess (Ishtar)
     24: [Demon_Sync(212,826)], #The Search for Oyamatsumi (Oyamatsumi)
+    26: [Demon_Sync(333, isNavi=True)], #The Path to Myojin Forest (Navi Hua Po)
     28: [Demon_Sync(215,822)], #Clash with the Kunitsukami (Okuninushi)
     30: [Demon_Sync(322,813)], #He of a Hundred Hands (Hecatoncheires)
     31: [Demon_Sync(248,814)], #The Angel of Destruction (Camael)
@@ -666,6 +723,7 @@ MISSION_INFO_DEMON_IDS = {
     53: [Demon_Sync(188,843)], #The Noble Queen (Danu)
     54: [Demon_Sync(189,844)], #The Wrathful Queen (Inanna)
     55: [Demon_Sync(178,845)], #A Universe in Peril (Shiva)
+    63: [Demon_Sync(280, isNavi=True)], #On Bended Knees (Navi Yatagarasu)
     70: [Demon_Sync(305),Demon_Sync(43,868)], #The Water Nymph (Leanan Sidhe, Apsaras Boss)
     71: [Demon_Sync(305,866),Demon_Sync(43)], #The Spirit of Love (Leanan Sidhe Boss, Apsaras)
     72: [Demon_Sync(13,864)], #The Falcon's Head (Horus)
@@ -707,6 +765,7 @@ MISSION_INFO_DEMON_IDS = {
     148: [Demon_Sync(232,827)], #An Unusual Forecast CoV (Girimekhala)
     150: [Demon_Sync(336),Demon_Sync(107,752)], #Beastly Battle of Wits (Nozuchi, Kodama(Not the ones in the boss fight)
     151: [Demon_Sync(117)], #Brawny Ambitions (Zhu Tun She)
+    153: [Demon_Sync(387, isNavi=True)], #Picture Perfect-Debut (Navi Amabie)
     159: [Demon_Sync(108,769)], #Heart of Garnet (Vouivre)
     161: [Demon_Sync(113),Demon_Sync(41), Demon_Sync(386)], #Tough Love (Basilisk, Onyankopon, Anansi)
     165: [Demon_Sync(227)], #Guardian of Tokyo (Masakado)
@@ -715,18 +774,24 @@ MISSION_INFO_DEMON_IDS = {
     175: [Demon_Sync(40),Demon_Sync(346,772)], #The Hunter in White (Kresnik, Kudlak Boss)
     176: [Demon_Sync(49,774),Demon_Sync(346)], #The Vampire in Black (Kresnik Boss, Kudlak)
     177: [Demon_Sync(337,890)], #As God Wills (Gogmagog)
+    178: [Demon_Sync(387, isNavi=True)], #A Star is Born (Navi Amabie)
     179: [Demon_Sync(386), Demon_Sync(41,771)], #Reclaim the Golden Stool CoV (Onyankopon, Anansi Boss)
     180: [Demon_Sync(386,770),Demon_Sync(41)], #Liberate the Golden Stool CoV (Onyankopon Boss, Anans
     183: [Demon_Sync(200,778)], #Rascal of the Norse (Thor)
+    184: [Demon_Sync(355, isNavi=True)], #Alice's Wonderland (Navi Alice)
     185: [Demon_Sync(278,865)], #Maker of Myth (Garuda)
+    186: [Demon_Sync(289, isNavi=True)], #To new Horizons (Navi Muu Shuwuu)
+    187: [Demon_Sync(128, isNavi=True)], #Trial of the Seven Stars (Navi Cironnup)
     188: [Demon_Sync(118,760),Demon_Sync(250,596)], #The Serpent King (Samael, Mastema)
     189: [Demon_Sync(175,754)], #Supersonic Racing (Turbo Granny)
     190: [Demon_Sync(1,681),Demon_Sync(250,596)], #The Great Adversary (Satan, Mastema)
+    191: [Demon_Sync(59, isNavi=True)], #Pixie on the Case (Navi Pixie)
     194: [Demon_Sync(77,892)], #Devotion to Order (Mara)
+    196: [Demon_Sync(60, isNavi=True)], #Wannabe-ho Nahobino (Navi Nahobeeho)
     197: [Demon_Sync(122)], #Brawny Ambitions II (Xiezhai)
     201: [Demon_Sync(141,751)], #Knocking on Death's Door (Dormarth)
     202: [Demon_Sync(291,891)], #The Disgraced Bird God (Gurulu)
-    203: [Demon_Sync(288,756)], #Part-Time Gasser (Zhen)
+    203: [Demon_Sync(288,509)], #Part-Time Gasser (Zhen)
     205: [Demon_Sync(22,779)], #Goddesses of Fate (Norn)
     206: [Demon_Sync(12,776)], #Will of the Samurai (Atavaka)
     208: [Demon_Sync(212,826),Demon_Sync(32)], #Sakura Cinders of the East (Oyamatsumi, Konohana Sakuya)
@@ -823,10 +888,56 @@ SPECIAL_SPEAKER_IDS = {
     465: 512, # Yakumos
     567: 512,
     578: 506, # Dazai
-    601: 25, #Abcess Jack Frost (Jack Frost is also Dummy Name)
-    25: 25, # Normal Jack Frost
+    601: 58, #Abcess Jack Frost (Jack Frost is also Dummy Name)
+    58: 58, # Normal Jack Frost
     526: 511, #Depraved Arm (or Wing) use Abdiel Name
+    597: 404, #Tehom
+    391: 391, #Lilith otherwise defaults to old lilith
+    569: 391,
+    565: 496 #Tiamat
 }
+
+#Map of demon ID to voice ID for characters without normal enemy demon counterparts
+SPECIAL_VOICE_IDS = {
+    467: 240, # Abdiels
+    525: 525,
+    564: 240,
+    577: 264,
+    578: 578, # Dazai
+    601: 58, #Abcess Jack Frost (Jack Frost is also Dummy Name)
+    58: 58, # Normal Jack Frost
+    526: 525, #Depraved Arm (or Wing) use Abdiel Voice
+    527: 525,
+    391: 391, #Lilith otherwise defaults to old lilith
+    569: 391,
+    934: 934, #Demi-Fiend has an incorrect earlier version
+    465: 465, # Yakumos
+    567: 465,
+    435: 197, #Nuwas
+    520: 520,
+    550: 75,
+    521: 520, #Thunder bits should use Nuwa voice
+    522: 520,
+    523: 520,
+    524: 520,
+    529: 529, #Trancendent Lucifers
+    537: 529,
+    593: 565, #Tiamat heads should use Tiamat voice
+    594: 565,
+    595: 565,
+    424: 236, #Lahmu's tentacle should use Lahmu voice
+    558: 236,
+}
+
+
+NAVIDEVILMESSAGE_FILENAME_PREFIX = 'NaviDevil_Dev';
+NAVIDEVILMESSAGE_FOLDER = 'NaviDevilMessage/';
+NAVI_NAME_ALIAS_MAP = {
+    147: ['moTHmAN', ' moThMAn']  
+}
+
+DEMON_FILENAMES = {}
+DEMON_ID_FILE_ID = {}
 
 '''
 Changes the names and descriptions of items with demon names in them to that of their replacement if there is any.
@@ -988,6 +1099,9 @@ def addSkillOwnershipToDesc(file: Message_File, skillData):
                     skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Nahobino) ','')
                 elif owner.ind == -1: #skill is nahobino skill
                     skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Unique) ','(Nahobino) ')
+                elif owner.ind == -2: #skill is Demon only skill:
+                    #Do not change description if skill is demon only
+                    pass
                 elif owner.ind == -3: #skill is enemy only skill
                     skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Unique) ','(Enemy) ')
                     skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace('(Nahobino) ','(Enemy) ')
@@ -1011,27 +1125,37 @@ Update the mention of demon names in mission events.
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
+        navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
+        itemReplacements(Dict): Mapping of what items replace what items in events
+        itemNames(list(String)): list of item names
+
 '''
-def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, brawnyAmbitions2SkillName):
-    updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
-    updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
+def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, brawnyAmbitions2SkillName, navigatorMap,itemReplacements,itemNames):
+    updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+    updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, itemReplacements,itemNames)
     for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
             missionText = file.getMessageStrings()
             originalMissionText = copy.deepcopy(missionText)
-            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
+            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
             speakerNames = file.getSpeakerNames();
             originalSpeakerNames = copy.deepcopy(speakerNames)
-            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
-            
+            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+            voices = file.getVoices()
+            originalVoices = copy.deepcopy(voices)
+            updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
             if missionEvent in MISSION_CHECKS_ORIGINAL_IDS.keys():
                 hints = MISSION_CHECKS_ORIGINAL_IDS[missionEvent]
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
             if missionEvent == BRAWNY_AMBITIONS_2:
                 updateSkillNameInFile(missionText, brawnyAmbitions2SkillName)
+            if missionEvent in MISSION_EVENTS_ITEM_IDS.keys():
+                syncItems = MISSION_EVENTS_ITEM_IDS[missionEvent]
+                updateItemsInTextFile(missionText,originalMissionText,syncItems,itemReplacements,itemNames,missionEvent)
             file.setMessageStrings(missionText)
             file.setSpeakerNames(speakerNames)
+            file.setVoices(voices, DEMON_FILENAMES)
             file.writeToFiles()
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
@@ -1054,23 +1178,33 @@ Update the mention of demon names in story event messages.
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
+        navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
+        itemReplacements(Dict): Mapping of what items replace what items in events
+        itemNames(list(String)): list of item names
 '''
-def updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+def updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,itemReplacements,itemNames):
     for missionEvent,syncDemons in EVENT_MESSAGE_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/EventMessage/',OUTPUT_FOLDERS['EventMessage'])
             missionText = file.getMessageStrings()
             originalMissionText = copy.deepcopy(missionText)
-            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
+            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
             speakerNames = file.getSpeakerNames();
             originalSpeakerNames = copy.deepcopy(speakerNames)
-            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
+            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+            voices = file.getVoices()
+            originalVoices = copy.deepcopy(voices)
+            updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
             if missionEvent in EVENT_CHECKS_ORIGINAL_IDS.keys():
                 hints = EVENT_CHECKS_ORIGINAL_IDS[missionEvent]
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+            if missionEvent in EVENT_MESSAGE_ITEM_IDS.keys() and missionEvent in itemReplacements.keys():
+                syncItems = EVENT_MESSAGE_ITEM_IDS[missionEvent]
+                updateItemsInTextFile(missionText,originalMissionText,syncItems,itemReplacements,itemNames,missionEvent)
             
             file.setMessageStrings(missionText)
             file.setSpeakerNames(speakerNames)
+            file.setVoices(voices, DEMON_FILENAMES)
             file.writeToFiles()
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
@@ -1094,12 +1228,13 @@ Update the mention of demon names for the bench in demon haunts.
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
+        navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
 '''
-def updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+def updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap):
         file = Message_File('GardenMsg_PlayerTalk','',OUTPUT_FOLDERS['Garden'])
         missionText = file.getMessageStrings()
         originalMissionText = copy.deepcopy(missionText)
-        updateDemonsInTextFile(missionText, originalMissionText,HAUNT_BENCH_DEMON_IDS,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons)
+        updateDemonsInTextFile(missionText, originalMissionText,HAUNT_BENCH_DEMON_IDS,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
         for syncDemon, index in HAUNT_BENCH_DEMON_IDS_BY_INDEX:
             originalDemonID = syncDemon.ind #id of demon mentionend in text
             syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
@@ -1129,26 +1264,33 @@ Update the mention of demon names in a single event message file
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
+        navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
 '''
-def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap):
     for syncDemon in syncDemons:
         originalDemonID = syncDemon.ind #id of demon mentionend in text
         syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
-        if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
-            continue
         originalName = demonNames[originalDemonID]
-        if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
-            try:
-                replacementID = bossReplacements[syncDemonID]
-            except KeyError:
-                #print("Key Error: " + str(syncDemonID))
+        if syncDemon.isNavi:
+            if not navigatorMap:
                 continue
-        else: #else it is a boss
-            try:
-                replacementID = encounterReplacements[syncDemonID]
-            except KeyError:
-                #print("Key Error: " + str(syncDemonID))
+            else:
+                replacementID = navigatorMap[originalDemonID]
+        else:
+            if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
                 continue
+            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
+                try:
+                    replacementID = bossReplacements[syncDemonID]
+                except KeyError:
+                    #print("Key Error: " + str(syncDemonID))
+                    continue
+            else: #else it is a boss
+                try:
+                    replacementID = encounterReplacements[syncDemonID]
+                except KeyError:
+                    #print("Key Error: " + str(syncDemonID))
+                    continue
         #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
         replacementName = demonNames[replacementID]
 
@@ -1183,32 +1325,78 @@ Update the mention of text box speaker names in a single event message file
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
+        navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
 '''
-def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons):
+def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap):
     for syncDemon in syncDemons:
         originalDemonID = syncDemon.ind #id of demon mentioned in text
         syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
-        if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
-            continue
-        #originalName = demonNames[originalDemonID]
-        if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
-            try:
-                replacementID = bossReplacements[syncDemonID]
-            except KeyError:
+        if syncDemon.isNavi:
+            if not navigatorMap:
                 continue
-        else: #else it is a boss
-            try:
-                replacementID = encounterReplacements[syncDemonID]
-            except KeyError:
+            else:
+                replacementID = navigatorMap[originalDemonID]
+        else:
+            if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
                 continue
+            #originalName = demonNames[originalDemonID]
+            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
+                try:
+                    replacementID = bossReplacements[syncDemonID]
+                except KeyError:
+                    continue
+            else: #else it is a boss
+                try:
+                    replacementID = encounterReplacements[syncDemonID]
+                except KeyError:
+                    continue
         #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
         #replacementName = demonNames[replacementID]
         replacementID = normalEnemyIDForBoss(replacementID, demonNames)
 
         #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
         for index, name in enumerate(speakerNames): #for every text box name
-            if bytes(str(originalDemonID), 'utf-8') + b'\x00' == bytes(originalSpeakerNames[index]):
-                speakerNames[index] = bytes(str(replacementID), 'utf-8') + b'\x00' #Add null byte to end of demon ID
+            if str(originalDemonID) == originalSpeakerNames[index]:
+                speakerNames[index] = str(replacementID)
+
+'''
+Update the mention of text box speaker names in a single event message file
+    Parameters:
+        voices(List(String)): List of all voices in the file to update
+        originalVoices(List(String)): Unchanging version of the voices to find original demon ids to replace
+        syncDemons(List(Demon_Sync)): List of all demons that need to be updated to their replacements
+        encounterReplacements(Dict): map for which demon replaces which demon as normal encounter
+        bossReplacements(Dict): map for which boss replaces which boss
+        demonNames(list(String)): list of demon names
+        randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
+        navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
+'''
+def updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap):
+    for syncDemon in syncDemons:
+        originalDemonID = syncDemon.ind #id of demon mentioned in text
+        syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
+        if syncDemon.isNavi:
+            if not navigatorMap:
+                continue
+            else:
+                replacementID = navigatorMap[originalDemonID]
+        else:
+            if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
+                continue
+            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
+                try:
+                    replacementID = bossReplacements[syncDemonID]
+                except KeyError:
+                    continue
+            else: #else it is a boss
+                try:
+                    replacementID = encounterReplacements[syncDemonID]
+                except KeyError:
+                    continue
+        replacementID = normalVoiceIDForBoss(replacementID, demonNames)
+        for index, voiceID in enumerate(voices): #for every voice
+            if originalVoices[index] != None and 'dev' + str(originalDemonID).zfill(3) + '_vo' in originalVoices[index]:
+                voices[index] = originalVoices[index].replace('dev' + str(originalDemonID).zfill(3) + '_vo', 'dev' + str(replacementID).zfill(3) + '_vo')
 
 '''
 Adds hint messages for checks related to mission events
@@ -1313,8 +1501,9 @@ Updates the mission info file with randomized demon replacements and adds additi
         brawnyAmbition2Skill(String): name of the skill required for Brawny Ambition II
         fakeMissions(List(Fake_Mission)): list of fake missions to add rewards to description for
         itemNames(List(String)): list of item names
+        navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
 '''
-def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawnyAmbition2Skill, fakeMissions, itemNames, randomizeQuestJoinDemons):
+def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawnyAmbition2Skill, fakeMissions, itemNames, randomizeQuestJoinDemons, navigatorMap):
     file = Message_File('MissionInfo','/',OUTPUT_FOLDERS['MissionInfo'])
 
     missionText = file.getMessageStrings()
@@ -1326,24 +1515,32 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
         for syncDemon in syncDemons:
             originalDemonID = syncDemon.ind #id of demon mentionend in text
             syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
-            if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
-                continue
             originalName = demonNames[originalDemonID]
-            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
-                try:
-                    replacementID = bossReplacements[syncDemonID]
-                except KeyError:
+            if syncDemon.isNavi:
+                if not navigatorMap:
                     continue
-            else: #else it is a boss
-                try:
-                    replacementID = encounterReplacements[syncDemonID]
-                except KeyError:
+                else:
+                    replacementID = navigatorMap[originalDemonID]
+            else:
+                if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not randomizeQuestJoinDemons: #If demon isn't getting replaced ignore it
                     continue
+                if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is a normal enemy
+                    try:
+                        replacementID = bossReplacements[syncDemonID]
+                    except KeyError:
+                        continue
+                else: #else it is a boss
+                    try:
+                        replacementID = encounterReplacements[syncDemonID]
+                    except KeyError:
+                        continue
             #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
             replacementName = demonNames[replacementID]
 
             for index in range(missionTextCount):
                 messageComponent = missionText[commonEntries + index + 7 * (missionIndex)]
+                if messageComponent == None:
+                    continue
                 #print(str(missionIndex) + "/" + str(index) + " " + messageComponent)
                 if originalName in messageComponent: #Name is plain text
                     messageComponent = messageComponent.replace(originalName, replacementName)
@@ -1441,6 +1638,20 @@ def normalEnemyIDForBoss(bossID, demonNames):
     return earliestID
 
 '''
+Finds the proper filename ID of a demon's name that is used for voice cue files
+If the demon uses a specific name ID instead of their normal enemy version, the specific one is returned instead
+    Parameters:
+        bossID (number): The boss ID to find an earlier version of
+        demonNames (List(String)): List of enemy demon names
+'''
+def normalVoiceIDForBoss(bossID, demonNames):
+    if bossID in SPECIAL_VOICE_IDS.keys():
+        return DEMON_ID_FILE_ID[SPECIAL_VOICE_IDS[bossID]]
+    earliestID = demonNames.index(demonNames[bossID])
+    #print("Earliest id of " + str(bossID) + " is " + str(earliestID))
+    return DEMON_ID_FILE_ID[earliestID]
+
+'''
 Updates occurences of Puncture Punch with the new skill name.
 '''
 def updateSkillNameInFile(missionText, skillName):
@@ -1448,3 +1659,80 @@ def updateSkillNameInFile(missionText, skillName):
         if numbers.BRAWNY_AMBITIONS2_SKILL in box:
             box = box.replace(numbers.BRAWNY_AMBITIONS2_SKILL, skillName)
         missionText[index] = box
+
+'''
+Updates the names of Navigators in their text boxes and the voice lines to match the new demons
+TODO: Update other navigator related files
+    Parameters:
+        naviMap (Dict<Int, Int>): keys are the original navigator IDs, values are the replacement demon IDs
+'''
+def updateNavigatorVoiceAndText(naviMap, demonNames):
+    for originalID, replacementID in naviMap.items():
+        filename = NAVIDEVILMESSAGE_FILENAME_PREFIX + str(originalID).zfill(3)
+        file = Message_File(filename,NAVIDEVILMESSAGE_FOLDER,OUTPUT_FOLDERS['NaviDevilMessage'])
+        fileText = file.getMessageStrings();
+        speakerNames = file.getSpeakerNames();
+        voices = file.getVoices();
+        #debugger = str(speakerNames[0]) + " to "
+        updatedReplacementID = normalEnemyIDForBoss(replacementID, demonNames)
+        voiceReplacementID = normalVoiceIDForBoss(replacementID, demonNames)
+        for index, name in enumerate(speakerNames): #for every text box name
+            if str(originalID) == name:
+                speakerNames[index] = str(updatedReplacementID)
+        file.setSpeakerNames(speakerNames)
+        for index, voiceID in enumerate(voices):
+            if voiceID != None and 'dev' + str(originalID).zfill(3) + '_vo' in voiceID:
+                voiceID = voiceID.replace('dev' + str(originalID).zfill(3) + '_vo', 'dev' + str(voiceReplacementID).zfill(3) + '_vo')
+                voices[index] = voiceID
+        file.setVoices(voices, DEMON_FILENAMES)
+        originalName = demonNames[originalID]
+        replacementName = demonNames[replacementID]
+        for index, box in enumerate(fileText): #for every dialogue box
+            if originalName in box: #Name is plain text
+                box = box.replace(originalName, replacementName)
+            if 'enemy ' + str(originalID).zfill(3) in box: #name is talked about via ID
+                box = box.replace('enemy ' + str(originalID).zfill(3), 'enemy ' + str(updatedReplacementID).zfill(3))
+            if originalID in NAVI_NAME_ALIAS_MAP.keys():
+                for alias in NAVI_NAME_ALIAS_MAP[originalID]:
+                    if alias in box:
+                        box = box.replace(alias, replacementName)
+            if 'chara ' + str(originalID) + '>' in box: #Replace 'speaker' name
+                box = box.replace('chara ' + str(originalID) + '>', 'chara ' + str(updatedReplacementID) + '>')
+            if 'voice dev' + str(originalID).zfill(3) + '_vo' in box: #Replace 'voice'
+                box = box.replace('voice dev' + str(originalID).zfill(3) + '_vo', 'voice dev' + str(updatedReplacementID).zfill(3) + '_vo')
+
+            fileText[index] = box
+        file.setMessageStrings(fileText)
+        
+        #print(voices)
+        #print(debugger + str(speakerNames[0]))
+        file.writeToFiles()
+
+'''
+Reads data about cue file names from the model names csv and fills dictionaries.
+'''
+def initDemonModelData():
+    fileNameMap = pd.read_csv(paths.VOICE_FILE_NAMES, dtype=str)
+    for index, row in fileNameMap.iterrows():
+        if type(row['MainDemonID']) is str:
+             DEMON_FILENAMES[row['Number']] = row['folderName']
+             DEMON_ID_FILE_ID[int(row['MainDemonID'])] = row['Number']
+
+'''
+Update the mention of items in a single event message file
+    Parameters:
+        missionText(List(String)): List of all text boxes in the file to update
+        originalMissionText(List(String)): Unchanging version of the text boxes to find original demon names to replace
+        syncItems(List(Number)): List of all items that need to be updated to their replacements
+        itemReplacements(Dict): map for which item replaces which item in a event
+        itemNames(list(String)): list of item names
+        missionEvent(String): name of the message file
+'''
+def updateItemsInTextFile(missionText, originalMissionText, syncItems, itemReplacements, itemNames, missionEvent):
+    for item in syncItems:
+        replacementItem = itemReplacements[missionEvent][item]
+        for index, box in enumerate(missionText):
+            if "item " + str(item) in originalMissionText[index]:
+                box = box.replace("item " + str(item),"item " + str(replacementItem))
+            missionText[index] = box
+

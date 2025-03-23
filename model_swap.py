@@ -1,4 +1,4 @@
-from base_classes.script import Script_Function_Type,Script_Uasset,Bytecode
+from base_classes.script import Script_Function_Type,Script_Uasset,Bytecode,Serialized_Bytecode_Expression
 from base_classes.file_lists import UMap_File, UMap_File_List, Script_File, Script_File_List
 from base_classes.demon_assets import Demon_Model, Position
 from util.binary_table import readBinaryTable
@@ -59,8 +59,9 @@ Updates the models used in events.
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
         mapSymbolArr(List): list of map symbol data
         config (Config_Settings): settings set for the randomizer
+        navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator models
 '''
-def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Script_File_List, mapSymbolFile, config):
+def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Script_File_List, mapSymbolFile, config, navigatorMap):
     mapSymbolTable = mapSymbolFile.json["Exports"][0]["Table"]["Data"]
     originalMapSymbolTable = mapSymbolFile.originalJson["Exports"][0]["Table"]["Data"]
     initDemonModelData()
@@ -76,18 +77,24 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
             syncDemonID = syncDemon.sync
             if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not config.ensureDemonJoinLevel: #If demon isn't getting replaced ignore it
                 continue
-            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is boss
-                try:
-                    replacementID = bossReplacements[syncDemonID]
-                except KeyError:
-                    #print("Key Error: " + str(syncDemonID))
+            if syncDemon.isNavi:
+                if not navigatorMap:
                     continue
-            else: #else it is a normal demon
-                try:
-                    replacementID = encounterReplacements[syncDemonID]
-                except KeyError:
-                    #print("Key Error: " + str(syncDemonID))
-                    continue
+                else:
+                    replacementID = navigatorMap[originalDemonID]
+            else:
+                if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is boss
+                    try:
+                        replacementID = bossReplacements[syncDemonID]
+                    except KeyError:
+                        #print("Key Error: " + str(syncDemonID))
+                        continue
+                else: #else it is a normal demon
+                    try:
+                        replacementID = encounterReplacements[syncDemonID]
+                    except KeyError:
+                        #print("Key Error: " + str(syncDemonID))
+                        continue
             if replacementID == originalDemonID: #do not need to swap models if replacement is the same as originalDemonID
                 continue
             try: #Does replacement boss use a different model that has no tie to their id
@@ -114,9 +121,10 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
         scale = 1
         currentScale = 1
         for originalDemonID, replacementID in replacementMap.items():
-            currentMapSymbolTable = mapSymbolTable
-            if file.relevantFunctionExps[0] == []:
-                currentMapSymbolTable = originalMapSymbolTable
+            #currentMapSymbolTable = mapSymbolTable
+            #if file.relevantFunctionExps[0] == []:
+            #    currentMapSymbolTable = originalMapSymbolTable
+            currentMapSymbolTable = originalMapSymbolTable
             try:
                 og = next(d for x, d in enumerate(currentMapSymbolTable) if d["Value"][0]["Value"] == originalDemonID)
                 replacement = next(d for x, d in enumerate(currentMapSymbolTable) if d["Value"][0]["Value"] == replacementID)
@@ -168,7 +176,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
     print(endTime - startTime)
     
     umapList.writeFiles()
-    updateCutsceneModels(encounterReplacements, bossReplacements,config)
+    updateCutsceneModels(encounterReplacements, bossReplacements,config, navigatorMap)
 
 '''
 Prepares the given script file by preparing data that gets used in the model swap process.
@@ -295,6 +303,8 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         if script in name:
             #Do not change names for Main File Exports if DemonId or Name is in script
             continue
+        if 'MAP_FLAG_NaviDev' in name:
+            continue #Do not change names of map flags
         if oldIDString in name and ("/Blueprints/Character" in name or "_C" in name): 
             nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
             nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
@@ -334,6 +344,21 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
 
     # get serialized bytecode to calculate statement indeces
     serializedByteCode = file.getSerializedScriptBytecode(file.exportIndex,jsonData)
+    statementIndeces = []
+    lastStatementIndex = file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData)
+    for imp,stackNode in file.relevantImports.items():
+        expressions = file.relevantImportExps[stackNode]
+        for expIndex, exp in enumerate(expressions):
+            bytecodeIndex = bytecode.getIndex(exp)
+            if bytecodeIndex is not None:
+                currentStatementIndex = serializedByteCode[bytecodeIndex]["StatementIndex"]
+                if currentStatementIndex > file.originalByteCodeSize: #to not potentially move or adjust code that has been moved already!
+                    continue
+                nextStatementIndex = serializedByteCode[bytecodeIndex+1]["StatementIndex"]
+                statementIndeces.append(Serialized_Bytecode_Expression(exp, currentStatementIndex, nextStatementIndex, imp))
+    # sort them in order of currentStatementIndex reversed  can pretty much just do exp right?
+    statementIndeces = sorted(statementIndeces, key=lambda sbexp: sbexp.currentStatementIndex, reverse=True)
+
     
     '''
     Replaces ids in animation or blueprint class strings
@@ -350,102 +375,116 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
         return nstring
 
     # for all cases where the function is an import and the id or name is in a string
-    for imp,stackNode in file.relevantImports.items():
-        expressions = file.relevantImportExps[stackNode]
-        for expIndex, exp in enumerate(expressions):
-            if bytecode.getIndex(exp) is None:
-                # First case: Nested expression (will be fixed at some point)
-                # Second case: Expression has already been modified in the new one, so we can skip it here
+    # for imp,stackNode2 in file.relevantImports.items():
+    #     expressions = file.relevantImportExps[stackNode2]
+    #     for expIndex, exp in enumerate(expressions):
+    for sbexp in statementIndeces:
+        sbexp: Serialized_Bytecode_Expression
+        exp = sbexp.exp
+        imp = sbexp.imp
+
+        if bytecode.getIndex(exp) is None:
+            # First case: Nested expression (will be fixed at some point)
+            # Second case: Expression has already been modified in the new one, so we can skip it here
+            continue
+        #currentStatementIndex = serializedByteCode[bytecode.getIndex(exp)]["StatementIndex"]
+        currentStatementIndex = sbexp.currentStatementIndex
+        
+        
+        if currentStatementIndex > file.originalByteCodeSize: #to not potentially move or adjust code that has been moved already!
+            continue
+        if imp == 'PrintString' or imp == "TargetBinding": 
+            stringValue = exp['Parameters'][1].get('Value')
+            if stringValue[:3] in ["dev","Dev","npc","Npc"]:
+                stringValue = replaceOldIDinString(stringValue)
+                newExpression = bytecode.json[bytecode.getIndex(exp)]
+                newExpression['Parameters'][1]['Value'] = stringValue
+        elif imp == 'LoadAsset' or imp == 'LoadAssetClass':
+            try:
+                stringValue = exp['Parameters'][1].get('Value').get('Value')
+            except AttributeError:
                 continue
-            currentStatementIndex = serializedByteCode[bytecode.getIndex(exp)]["StatementIndex"]
-            
-            
-            if currentStatementIndex > file.originalByteCodeSize: #to not potentially move or adjust code that has been moved already!
+            if oldIDString not in stringValue and oldName not in stringValue:
+                #if neither oldID or oldName are in the string go to next exp
                 continue
-            if imp == 'PrintString' or imp == "TargetBinding": 
-                stringValue = exp['Parameters'][1].get('Value')
-                if stringValue[:3] in ["dev","Dev","npc","Npc"]:
-                    stringValue = replaceOldIDinString(stringValue)
-                    newExpression = bytecode.json[bytecode.getIndex(exp)]
-                    newExpression['Parameters'][1]['Value'] = stringValue
-            elif imp == 'LoadAsset' or imp == 'LoadAssetClass':
-                try:
-                    stringValue = exp['Parameters'][1].get('Value').get('Value')
-                except AttributeError:
-                    continue
-                if oldIDString not in stringValue and oldName not in stringValue:
-                    #if neither oldID or oldName are in the string go to next exp
-                    continue
-                #print(stringValue)
-                originalLength = len(stringValue)
-                #create new string here for calculation of lenghtDifference
-                newString = replaceOldIDinString(stringValue).replace(oldName,newName)
+            if 'MAP_FLAG_NaviDev' in stringValue:
+                continue #Do not change names of map flags
+            #print(stringValue)
+            originalLength = len(stringValue)
+            #create new string here for calculation of lenghtDifference
+            newString = replaceOldIDinString(stringValue).replace(oldName,newName)
+            if ("/Blueprints/Character" in stringValue or "_C" in stringValue):
+                newString = replaceNonExistentAnimations(script, newString,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
+            else:
+                newString = replaceNonExistentAnimations(script, newString,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)#exp['Parameters'][1]['Value']['Value'] = stringValue
+                
+            if imp == "LoadAssetClass" and "Simple" in newString and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
+                newString = newString.replace("_Simple","")
+
+            lengthDifference = len(newString) - originalLength
+
+            if stringValue == newString:
+                #No change in string
+                continue
+
+            if oldIDString in stringValue and lengthDifference == 0: 
+                #if the oldID is there in string format, replace with new string
+                stringValue= replaceOldIDinString(stringValue)
+                
+            if oldName in stringValue and lengthDifference == 0:
+                #length is the same so can swap name and anim
+                stringValue = stringValue.replace(oldName,newName)
                 if ("/Blueprints/Character" in stringValue or "_C" in stringValue):
-                    newString = replaceNonExistentAnimations(script, newString,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
+                    stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
                 else:
-                    newString = replaceNonExistentAnimations(script, newString,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)#exp['Parameters'][1]['Value']['Value'] = stringValue
-                    
+                    stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)#exp['Parameters'][1]['Value']['Value'] = stringValue
+                if imp == "LoadAssetClass" and "Simple" in stringValue and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
+                    stringValue = newString.replace("_Simple","")
+                newExpression = bytecode.json[bytecode.getIndex(exp)]
+                newExpression['Parameters'][1]['Value']['Value'] = stringValue
+            elif lengthDifference != 0:
+                #length is not the same so need to move expression around
+                #recalc new string just in case
+                stringValue = replaceOldIDinString(stringValue)
+                newString = stringValue.replace(oldName,newName)
+                newString = replaceOldIDinString(newString)
                 if imp == "LoadAssetClass" and "Simple" in newString and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
                     newString = newString.replace("_Simple","")
+                stringSizeDiff = len(newString) - originalLength
 
-                lengthDifference = len(newString) - originalLength
+                # nextStatementIndex = serializedByteCode[bytecode.getIndex(exp)+1]["StatementIndex"]
+                # lastStatementIndex = file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData)
+                # statementLength = nextStatementIndex - currentStatementIndex
+                nextStatementIndex = sbexp.nextStatementIndex
+                statementLength = sbexp.statementLength
+                
+                #Copy and change values and append to the end
+                newExpression = copy.deepcopy(exp)
+                newExpression['Parameters'][1]['Value']['Value'] = newString
+                bytecode.json.append(newExpression)
+                jumpBack = copy.deepcopy(jsonExports.BYTECODE_JUMP)
+                jumpBack['CodeOffset'] = nextStatementIndex
+                bytecode.json.append(jumpBack)
 
-                if stringValue == newString:
-                    #No change in string
-                    continue
+                #change original expression to be jump
+                expReplacement = copy.deepcopy(jsonExports.BYTECODE_JUMP)
+                expReplacement['CodeOffset'] = lastStatementIndex #last one is either EndOfScript or jump if already inserted something and we want to start after that
+                # fill with nothing 
+                nothingInsts = []
+                amount = statementLength - 5 #(due to jump)
+                for i in range(amount):
+                    nothingInsts.append(jsonExports.BYTECODE_NOTHING)
 
-                if oldIDString in stringValue and lengthDifference == 0: 
-                    #if the oldID is there in string format, replace with new string
-                    stringValue= replaceOldIDinString(stringValue)
-                    
-                if oldName in stringValue and lengthDifference == 0:
-                    #length is the same so can swap name and anim
-                    stringValue = stringValue.replace(oldName,newName)
-                    if ("/Blueprints/Character" in stringValue or "_C" in stringValue):
-                        stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
-                    else:
-                        stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)#exp['Parameters'][1]['Value']['Value'] = stringValue
-                    if imp == "LoadAssetClass" and "Simple" in stringValue and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
-                        stringValue = newString.replace("_Simple","")
-                    newExpression = bytecode.json[bytecode.getIndex(exp)]
-                    newExpression['Parameters'][1]['Value']['Value'] = stringValue
-                elif lengthDifference != 0:
-                    #length is not the same so need to move expression around
-                    #recalc new string just in case
-                    stringValue = replaceOldIDinString(stringValue)
-                    newString = stringValue.replace(oldName,newName)
-                    newString = replaceOldIDinString(newString)
-                    if imp == "LoadAssetClass" and "Simple" in newString and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
-                        newString = newString.replace("_Simple","")
-
-                    nextStatementIndex = serializedByteCode[bytecode.getIndex(exp)+1]["StatementIndex"]
-                    lastStatementIndex = file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData)
-                    statementLength = nextStatementIndex - currentStatementIndex
-                    
-                    #Copy and change values and append to the end
-                    newExpression = copy.deepcopy(exp)
-                    newExpression['Parameters'][1]['Value']['Value'] = newString
-                    bytecode.json.append(newExpression)
-                    jumpBack = copy.deepcopy(jsonExports.BYTECODE_JUMP)
-                    jumpBack['CodeOffset'] = nextStatementIndex
-                    bytecode.json.append(jumpBack)
-
-                    #change original expression to be jump
-                    expReplacement = copy.deepcopy(jsonExports.BYTECODE_JUMP)
-                    expReplacement['CodeOffset'] = lastStatementIndex #last one is either EndOfScript or jump if already inserted something and we want to start after that
-                    # fill with nothing 
-                    nothingInsts = []
-                    amount = statementLength - 5 #(due to jump)
-                    for i in range(amount):
-                        nothingInsts.append(jsonExports.BYTECODE_NOTHING)
-
-                    bytecode.replace(exp, expReplacement, nothingInsts)
-                    #Updated serializedByteCodeList for new statement indeces
-                    #TODO: This seems to be the main cause of why the whole process takes long, can I use this less aka calculate index myself again?
-                    serializedByteCode = file.getSerializedScriptBytecode(file.exportIndex,jsonData)
-                else: #oldName not in String, save id swaps
-                    newExpression = bytecode.json[bytecode.getIndex(exp)]
-                    newExpression['Parameters'][1]['Value']['Value'] = stringValue
+                bytecode.replace(exp, expReplacement, nothingInsts)
+                #Updated serializedByteCodeList for new statement indeces
+                lastStatementIndex = lastStatementIndex + statementLength + stringSizeDiff + 5
+                #TODO: This seems to be the main cause of why the whole process takes long, can I use this less aka calculate index myself again?
+                #serializedByteCode = file.getSerializedScriptBytecode(file.exportIndex,jsonData)
+                #if 0 != lastStatementIndex - file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData):
+                #print(lastStatementIndex - file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData))
+            else: #oldName not in String, save id swaps
+                newExpression = bytecode.json[bytecode.getIndex(exp)]
+                newExpression['Parameters'][1]['Value']['Value'] = stringValue
                 
     file.updateFileWithJson(jsonData)
     return file
@@ -571,7 +610,7 @@ def updateEventHitGen(file, scale, script):
     file.updateFileWithJson(file.json)
     return True
 
-def updateCutsceneModels(encounterReplacements, bossReplacements, config):
+def updateCutsceneModels(encounterReplacements, bossReplacements, config, navigatorMap):
     startTime = datetime.datetime.now()
     cutsceneFiles = Script_File_List()
     totalFiles = len(EVENT_CUTSCENES.keys())
@@ -584,18 +623,24 @@ def updateCutsceneModels(encounterReplacements, bossReplacements, config):
             syncDemonID = syncDemon.sync
             if syncDemonID in numbers.SCRIPT_JOIN_DEMONS.values() and not config.ensureDemonJoinLevel: #If demon isn't getting replaced ignore it
                 continue
-            if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is boss
-                try:
-                    replacementID = bossReplacements[syncDemonID]
-                except KeyError:
-                    #print("Key Error: " + str(syncDemonID))
+            if syncDemon.isNavi:
+                if not navigatorMap:
                     continue
-            else: #else it is a normal demon
-                try:
-                    replacementID = encounterReplacements[syncDemonID]
-                except KeyError:
-                    #print("Key Error: " + str(syncDemonID))
-                    continue
+                else:
+                    replacementID = navigatorMap[originalDemonID]
+            else:
+                if syncDemonID > numbers.NORMAL_ENEMY_COUNT: # if demon to get replacement from is boss
+                    try:
+                        replacementID = bossReplacements[syncDemonID]
+                    except KeyError:
+                        #print("Key Error: " + str(syncDemonID))
+                        continue
+                else: #else it is a normal demon
+                    try:
+                        replacementID = encounterReplacements[syncDemonID]
+                    except KeyError:
+                        #print("Key Error: " + str(syncDemonID))
+                        continue
             if replacementID == originalDemonID: #do not need to swap models if replacement is the same as originalDemonID
                 continue
             try: #Does replacement boss use a different model that has no tie to their id

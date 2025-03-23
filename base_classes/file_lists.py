@@ -39,6 +39,7 @@ from UAssetAPI.UnrealTypes import EngineVersion, FString  # type: ignore
 from UAssetAPI.Kismet import KismetSerializer #type:ignore
 from System.Text import Encoding # type: ignore
 
+BTL_AI_FOLDER = 'rando/Project/Content/Blueprints/Battle/Logic/AI/Enemy'
 LV_M061_FOLDER = 'rando/Project/Content/Level/Event/M061'
 EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event'
 SCRIPT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script' 
@@ -68,8 +69,13 @@ M061_EM2240_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M
 M061_EM2380_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2380'
 M062_EM1650_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM1650'
 M062_EM2110_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2110'
+M062_EM2430_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2430'
 M062_EM2440_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2440'
+M063_EM2390_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M063/EM2390'
+M064_EM2300_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M064/EM2300'
+M064_EM2360_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M064/EM2360'
 M064_EM2620_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M064/EM2620'
+M060_EM2480_FODLER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M060/EM2480'
 M060_EM2700_FODLER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M060/EM2700'
 GARDEN_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/Garden'
 MINATO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m061'
@@ -102,9 +108,16 @@ ES152_M062_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es152_m062'
 ES152_M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es152_m063'
 ES618_M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es618_m063'
 ES618_M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/es618_m060'
+PLAYER_038_FOLDER = 'rando/Project/Content/Blueprints/Character/Player/Pla038'
+PLAYER_059_FOLDER = 'rando/Project/Content/Blueprints/Character/Player/Pla059'
+PLAYER_060_FOLDER = 'rando/Project/Content/Blueprints/Character/Player/Pla060'
+PLAYER_128_FOLDER = 'rando/Project/Content/Blueprints/Character/Player/Pla128'
+PLAYER_289_FOLDER = 'rando/Project/Content/Blueprints/Character/Player/Pla289'
+PLAYER_355_FOLDER = 'rando/Project/Content/Blueprints/Character/Player/Pla355'
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
+    'Btl_AI': BTL_AI_FOLDER,
     'MM_M061_EM1630': M061_FOLDER, # The Water Nymph 
     'MM_M061_EM1640': M061_FOLDER, # The Spirit of Love
     'MM_M062_EM1660': M062_FOLDER, # Holding The Line
@@ -149,13 +162,24 @@ SCRIPT_FOLDERS = {
     'esNPC_m061_31a' : MINATO_NPC_FOLDER, #Rakshasa on Diet Building Roof
     'esNPC_m061_30a' : MINATO_NPC_FOLDER, #Slime near Qing Long
     'esNPC_m061_34a' : MINATO_NPC_FOLDER, #Pixie in Kamiyacho
+    'esNPC_m061_32_Navi': MINATO_NPC_FOLDER, #Navi Ippon Datara
+    'esNPC_m061_33_Navi': MINATO_NPC_FOLDER, #Navi Mermaid
+    'esNPC_m061_37_Navi': MINATO_NPC_FOLDER, #Navi Hell Biker
+    'esNPC_m061_38_Navi': MINATO_NPC_FOLDER, #Navi Cleopatra
     'BP_esNPC_TokyoMap_15b': TOKYO_NPC_FOLDER, #Tokyo NPC Mischievous Mascot Periapt
     'esNPC_m062_32a': SHINAGAWA_NPC_FOLDER, #Nue in Container
     'esNPC_m062_33a': SHINAGAWA_NPC_FOLDER, #Angel after Loup-garou/Eisheth 
     'esNPC_m062_40a': SHINAGAWA_NPC_FOLDER, #Slime in Shinagawa
+    'esNPC_m062_NaviDevil_01': SHINAGAWA_NPC_FOLDER, #Navi Agathion
+    'esNPC_m062_NaviDevil_41': SHINAGAWA_NPC_FOLDER, #Navi Mothman
+    'esNPC_m062_NaviDevil_42': SHINAGAWA_NPC_FOLDER, #Navi Idun
     'esNPC_m063_20a': CHIYODA_NPC_FOLDER, #Yurlungur NPC
     'esNPC_m063_21a': CHIYODA_NPC_FOLDER, #Setanta NPC
+    'esNPC_m064_NaviDevil_01': SHINJUKU_NPC_FOLDER, #Navi Sukuna Hikona
     'esNPC_m060_10a': TAITO_NPC_FOLDER, #Orthrus NPC
+    'esNPC_m060_08_Navi': TAITO_NPC_FOLDER, #Navi Bugs
+    'esNPC_m060_14_Navi': TAITO_NPC_FOLDER, #Navi Mara
+    'esNPC_m060_15_Navi': TAITO_NPC_FOLDER, #Navi Fionn
     'esNPC_m016_02a': EMPYREAN_NPC_FOLDER, #Ongyo-Ki NPC
     'MM_M062_EM1132': M062_FOLDER, #Cait Sith in Fairy Village
     'MM_M060_EM1370_Direct': M060_FOLDER, #Fighting Bishamonten without Quest(shares reward with quest)
@@ -170,6 +194,10 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM1640_Hit': M061_EM1640_FOLDER, # The Spirit of Love First Entry (Apsaras)
     'MM_M061_E2620': MAINMISSION_M061_FOLDER, #CoV Khonsu Event Bethel Egypt
     'MM_M061_E2625_Direct': MAINMISSION_M061_FOLDER, #CoV Khonsu Event Post Fight Bethel Egypt
+    'MM_M061_EM0181': MAINMISSION_M061_FOLDER, #Amanozako gives you a bead
+    'MM_M061_EM0182': MAINMISSION_M061_FOLDER, #Amanozako becomes your navigator
+    'EM_M061_Q0019': MAINMISSION_M061_FOLDER, #Amanozako leaves in area 1
+    'EM_M061_TutorialNavi02': MAINMISSION_M061_FOLDER, #Amanazako first partner spot
     'MM_M016_E0891': MAIN_M016_FOLDER, #Empyrean Melchizedek
     'MM_M016_E0892': MAIN_M016_FOLDER, #Empyrean Sraosha
     'MM_M016_E0893': MAIN_M016_FOLDER, #Empyrean Alilat
@@ -190,18 +218,31 @@ SCRIPT_FOLDERS = {
     'MM_M060_E3110_Direct': MAIN_M060_FOLDER, #CoV Beelzebub
     'MM_M060_E3130_Direct': MAIN_M060_FOLDER, #CoV Zeus + Odin
     'MM_M060_Npc609Talk': MAIN_M060_FOLDER, #CoC Yuzuru Hayataro NPC Event?
+    'MM_M060_EM0140': MAIN_M060_FOLDER, #Amanozako rejoins in area 4 creation
+    'MM_M062_EM0050': MAIN_M062_FOLDER, # Golden Apple Quest part 1
+    'MM_M062_EM0051': MAIN_M062_FOLDER, # Idun in Golden Apple Quest
     'MM_M062_E0378': MAIN_M062_FOLDER, #Dazai/Abdiel talk in area 2 creation (Abdiel)
     'MM_M062_E0380': MAIN_M062_FOLDER, #Fionn 1 Post-fight (Fionn)
     'MM_M062_E0492': MAIN_M062_FOLDER,#Final Lahmu (Lahmu Phase 2)
     'MM_M062_EM0041': MAIN_M062_FOLDER, #Loup-garous Event
+    'MM_M062_EM0120_Direct': MAIN_M062_FOLDER, #Amanozako rejoins in area 2
+    'MM_M062_EM0122': MAIN_M062_FOLDER, #Amanozako car event
+    'MM_M062_EM0123': MAIN_M062_FOLDER, #Amanozako railroad event
+    'MM_M062_EM0124': MAIN_M062_FOLDER, #Amanozako container event
+    'MM_M062_EM0125': MAIN_M062_FOLDER, #Amanozako leaves in area 2
     'MM_M062_E2275': M062_PLEIADES_FOLDER, #Dazai/Abdiel talk in area 2 vengeance
     'MM_M062_E2295_Direct': M062_PLEIADES_FOLDER, #Eisheth pre-fight
     'MM_M062_E2298_Direct': M062_PLEIADES_FOLDER, #Fionn post-fight Vengeance
     'MM_M062_E2300': M062_PLEIADES_FOLDER,  #Dazai Pre-Blocker Vengeance
     'MM_M062_E2302': M062_PLEIADES_FOLDER, #Arriving in fairy village vengeance
+    'MM_M062_E2305': M062_PLEIADES_FOLDER, #Golden Apple Quest start vengeance
+    'MM_M062_E2305_2': M062_PLEIADES_FOLDER, #Golden Apple Quest Idun part vengeance
+    'MM_M062_E2326_Direct': M062_PLEIADES_FOLDER, #Dialogue when fairy village is salted
     'MM_M063_E0625': MAIN_M063_FOLDER, #Yakumo post-fight Chiyoda 
     'MM_M063_EM0061': MAIN_M063_FOLDER, #Hellfire Highway Shrine Event
+    'MM_M063_EM0070': MAIN_M063_FOLDER, #Decarabia in Ishtar Quest
     'MM_M063_EM0079': MAIN_M063_FOLDER, #Ishtar Post Fight
+    'MM_M063_EM0130': MAIN_M063_FOLDER, #Amanozako in Chiyoda
     'MM_M063_M0680': MAIN_M063_FOLDER, #Abdiel celebrates Arioch's death
     'MM_M064_E2510_Direct': MAIN_M064_FOLDER, #First Power Fight in Shinjuku
     'MM_M064_E2512': MAIN_M064_FOLDER, #Second Power Fight in Shinjuku
@@ -214,6 +255,7 @@ SCRIPT_FOLDERS = {
     'MM_M064_E2638': MAIN_M064_FOLDER, #Dazai joins to see Mastema 2 (?)
     'MM_M064_E2642_Direct': MAIN_M064_FOLDER, #Meeting Mastema (Dazai,Mastema)
     'MM_M064_E2644_Direct': MAIN_M064_FOLDER, #Dazai got salted (Dazai,Mastema)
+    'MM_M064_E2647': MAIN_M064_FOLDER, #Amanozako in Shinjuku
     'MM_M064_E2650_Direct': MAIN_M064_FOLDER, #Nuwa/Yakumo talk after seeing Naamah (Nuwa, Yakumo)
     'MM_M064_E2690': MAIN_M064_FOLDER, #Dead Cherubim 
     'MM_M064_E2900': MAIN_M064_FOLDER,#Mastema sends you to Shakan
@@ -258,7 +300,7 @@ SCRIPT_FOLDERS = {
     'MM_M060_EM1821': M030_FOLDER, # Trumpeter Fiend Fight
     'MM_M060_EM1821_NewRoute': M030_FOLDER,# Trumpeter Fiend Fight
     'MM_M061_EM1771': M030_FOLDER,#Mephisto Quest
-    'MM_M061_EM1782': M030_FOLDER,#Cleopatra Quest (Cleopatra) Couldn't join due to full party#TODO: Check script join
+    'MM_M061_EM1782': M030_FOLDER,#Cleopatra Quest (Cleopatra) Couldn't join due to full party
     'MM_M061_EM1791': M030_FOLDER, #Artemis Quest
     'MM_M061_EM1802': M030_FOLDER, # Matador Fiend Fight
     'MM_M061_EM1802_NewRoute': M030_FOLDER, # Matador Fiend Fight
@@ -286,6 +328,7 @@ SCRIPT_FOLDERS = {
     'MM_M035_EM1491': M035_FOLDER, # The Red Dragon's Invitation
     'MM_M201_EM2411': M050_EM2410_FOLDER, # Turbo Granny Quest
     'MM_M061_EM0021': M061_FOLDER, # Eligor and Andras Event
+    'MM_M061_EM1020': M061_FOLDER, # The Ultimate Omelet
     'MM_M061_EM1031': M061_FOLDER,  #Pazuzu Event Mermaid Quest
     'MM_M061_EM1041': M061_FOLDER, #Anahita Event Mermaid Quest 2
     'MM_M061_EM1050_New': M061_FOLDER, #Talisman Hunt (Shiki Ouji)
@@ -303,12 +346,15 @@ SCRIPT_FOLDERS = {
     'MM_M061_EM1710': M061_EM1710_FOLDER, # Movin' on Up
     'MM_M061_EM2020': M061_EM2020_FOLDER, # Nozuchi Quest
     'MM_M061_EM2030': M061_EM2030_FOLDER, #Brawny Ambitions
-    'MM_M201_EM2040':M061_EM2040_FOLDER, #Pisaca Quest
-    'MM_M061_EM2240':M061_EM2240_FOLDER, #CoV Khonsu Ra Quest
-    'MM_M061_EM2242':M061_EM2240_FOLDER, #CoV Khonsu Ra Quest
-    'MM_M061_EM2245':M061_EM2240_FOLDER, #CoV Khonsu Ra Quest
-    'MM_M061_EM2380':M061_EM2380_FOLDER, #Mo Shuvuu Quest (Andras)
+    'MM_M201_EM2040': M061_EM2040_FOLDER, #Pisaca Quest
+    'MM_M061_EM2240': M061_EM2240_FOLDER, #CoV Khonsu Ra Quest
+    'MM_M061_EM2242': M061_EM2240_FOLDER, #CoV Khonsu Ra Quest
+    'MM_M061_EM2245': M061_EM2240_FOLDER, #CoV Khonsu Ra Quest
+    'MM_M061_EM2380': M061_EM2380_FOLDER, #Mo Shuvuu Quest (Andras)
+    'MM_M061_EM2382': M061_EM2380_FOLDER, #Mo Shuvuu Quest part 3
+    'MM_M061_EM2383': M061_EM2380_FOLDER, #Mo Shuvuu Quest part 4
     'MM_M062_EM1141': M062_FOLDER, #Kumbhanda Bottle Quest
+    'MM_M062_EM1150': M062_FOLDER, #A Goddess Stolen part 1
     'MM_M062_EM1151_Hit': M062_FOLDER, #A Goddess Stolen
     'MM_M062_EM1160': M062_FOLDER, #The Tyrant of Tennozu (Demeter)
     'MM_M062_EM1161_A': M062_FOLDER, #The Tyrant of Tennozu  (Belphegor)
@@ -326,9 +372,19 @@ SCRIPT_FOLDERS = {
     'esNPC_em1650_05': M062_EM1650_FOLDER,  # Lilim/Principality Quest NPCs (Lilim)
     'esNPC_em1650_06': M062_EM1650_FOLDER,  # Lilim/Principality Quest NPCs (Lilim) 
     'MM_M062_EM2110_Enemy': M062_EM2110_FOLDER, #Vouivre Quest (Vouivre) 
+    'MM_M062_EM2430': M062_EM2430_FOLDER, #Pixie on the Case
+    'MM_M062_EM2432': M062_EM2430_FOLDER, #Pixie on the Case npc Pixies
     'MM_M062_EM2440': M062_EM2440_FOLDER, #Amanozako Control Quest(Yakshini)
+    'MM_M062_EM2441': M062_EM2440_FOLDER, #Amanozako Control Quest part 2
+    'MM_M062_EM2442': M062_EM2440_FOLDER, #Amanozako Control Quest part 3
+    'MM_M062_EM2443': M062_EM2440_FOLDER, #Amanozako Control Quest part 4
+    'MM_M062_EM2444': M062_EM2440_FOLDER, #Amanozako Control Quest part 5
+    'MM_M062_EM2446': M062_EM2440_FOLDER, #Amanozako Control Quest part 7
     'MM_M063_EM1210': M063_FOLDER, #Oyamatsumi Quest (Take-Minakata,Oyamatsumi)
     'MM_M063_EM1211': M063_FOLDER, #Oyamatsumi Quest (Oyamatsumi)
+    'MM_M063_EM1230_HitAAction': M063_FOLDER, #Hua Po Quest start
+    'MM_M063_EM1231': M063_FOLDER, #Hua Po Quest end
+    'MM_M063_EM1241_Navi': M063_FOLDER, #Chiyoda Gem Quest
     'MM_M063_EM1250': M063_FOLDER,#Kunitsukami Fight Quest (Okuninushi)
     'MM_M063_EM1251': M063_FOLDER,#Kunitsukami Fight Quest (Sukuna Hikona)
     'MM_M063_EM1260': M063_FOLDER, #Demeter Defeat Chimera (Demeter)
@@ -336,6 +392,9 @@ SCRIPT_FOLDERS = {
     'MM_M063_EM1291': M063_FOLDER, #Roar of Hatred (Moloch)
     'MM_M063_EM1592': M063_FOLDER, #Berserk Amanozako Quest (Amanozako Runaway)
     'MM_M063_EM2170': M063_FOLDER, #Masakado Quest
+    'MM_M063_EM2390': M063_EM2390_FOLDER, #Cironnup Quest
+    'MM_M063_EM2390_Start': M063_EM2390_FOLDER, #Cironnup Quest start
+    'MM_M063_EM2397': M063_EM2390_FOLDER, #Cironnup Quest part 8
     'MM_M063_EM2580': M063_FOLDER, #Yoshitsune Haunt Quest (Atavaka)
     'MM_M064_EM1260': M064_FOLDER, #Demeter Defeat Chimera Shinjuku (Demeter)
     'MM_M064_EM1261': M064_FOLDER, #Demeter Defeat Chimera Shinjuku (Chimera)
@@ -344,11 +403,19 @@ SCRIPT_FOLDERS = {
     'MM_M064_EM1391': M064_FOLDER, #Winged Sun (Mithras, Asura)
     'MM_M064_EM2130': M064_FOLDER, #Basilisk Hunt Quest (Anansi, Onyankopon)
     'MM_M064_EM2131': M064_FOLDER, #Basilisk Hunt Quest (Anansi)
+    'MM_M064_EM2306': M064_EM2300_FOLDER, #Amabie in Macabre 
+    'MM_M064_EM2360': M064_EM2360_FOLDER, #Alice Quest
+    'MM_M064_EM2360_Event': M064_EM2360_FOLDER, #Alice Quest Event
+    'MM_M064_EM2361': M064_EM2360_FOLDER, #Alice Quest part 2
+    'MM_M064_EM2363': M064_EM2360_FOLDER, #Alice Quest part 4
+    'MM_M064_EM2364': M064_EM2360_FOLDER, #Alice Quest part 5
+    'MM_M064_EM2366': M064_EM2360_FOLDER, #Alice Quest part 7
     'MM_M064_EM2400': M064_FOLDER, #Samael Quest (Mastema)
     'MM_M064_EM2402': M064_FOLDER, #Samael Quest (Samael)
     'MM_M064_EM2421_Direct': M064_FOLDER, #Satan Quest (Satan)
     'MM_M064_EM2461': M064_FOLDER, #Mara Quest (Mara)
     'MM_M064_EM2500': M064_FOLDER, #Brawny Ambitions III (Okuninushi)
+    'MM_M064_EM2521_Navi': M064_FOLDER, #Shinjuku Gem Quest
     'MM_M064_EM2552': M064_FOLDER, #MadGasser Quest (Zhen (3xCopy))
     'MM_M064_EM2621':M064_EM2620_FOLDER , #Orochi Quest (Orochi)
     'MM_M060_EM1381': M060_FOLDER, #Khonsu CoC Quest (Khonsu)
@@ -358,8 +425,14 @@ SCRIPT_FOLDERS = {
     'MM_M060_EM1431': M060_FOLDER, #Holy Ring Quest (Uriel, Raphael,Gabriel)
     'MM_M060_EM1440': M060_FOLDER, #Baal Quest (Demeter)
     'MM_M060_EM1441': M060_FOLDER, #Baal Quest (Baal)
+    'MM_M060_EM1580': M060_FOLDER, #On Bended Knees
     'MM_M060_EM1600': M060_FOLDER,  #Final Amanozako Quest (Kurama Tengu)
     'MM_M060_EM2371': M060_FOLDER,  #Garuda Quest (Garuda)
+    'MM_M060_EM2480': M060_EM2480_FODLER,  #Nahobiho Quest
+    'MM_M060_EM2481': M060_EM2480_FODLER,  #Nahobiho Quest part 2
+    'MM_M060_EM2482': M060_EM2480_FODLER,  #Nahobiho Quest part 3
+    'MM_M060_EM2483': M060_EM2480_FODLER,  #Nahobiho Quest part 4
+    'MM_M060_EM2484': M060_EM2480_FODLER,  #Nahobiho Quest part 5
     'MM_M060_EM2570': M060_FOLDER, #Moirae Haunt Quest (Norn)
     'MM_M060_EM2630': M060_FOLDER,  #Saturnus Quest()
     
@@ -373,11 +446,25 @@ SCRIPT_FOLDERS = {
     
     'LV_E0660': DESIGN_EVENT_FOLDER, #Arioch Cutscene Test
     'LV_E0180': DESIGN_EVENT_FOLDER, #Triple Preta Cutscene
+    'LV_E0181': DESIGN_EVENT_FOLDER, #Post Triple Preta Cutscene
     'LV_E0330': DESIGN_EVENT_FOLDER, #Snake Nuwa Pre-fight Cutscene
     'LV_E0340': DESIGN_EVENT_FOLDER, #Snake Nuwa Post-fight Cutscene
     'LV_E0350': DESIGN_EVENT_FOLDER, #Meeting Abdiel Cutscene
     'LV_E0375': DESIGN_EVENT_FOLDER, #Arioch Hayataro in Beginning of Shinagawa Cutscene
     'LV_E0379': DESIGN_EVENT_FOLDER, #Arioch Fionn 1 Cutscene
+
+    'Pla038': PLAYER_038_FOLDER, #Playable Amanozako
+    'Pla038_AnimBP': PLAYER_038_FOLDER, #Playable Amanozako Anims
+    'Pla059': PLAYER_059_FOLDER, #Playable Pixie
+    'Pla059_AnimBP': PLAYER_059_FOLDER, #Playable Pixie Anims
+    'Pla060': PLAYER_060_FOLDER, #Playable Nahobiho
+    'Pla060_AnimBP': PLAYER_060_FOLDER, #Playable Nahobiho Anims
+    'Pla128': PLAYER_128_FOLDER, #Playable Cironnup
+    'Pla128_AnimBP': PLAYER_128_FOLDER, #Playable Cironnup Anims
+    'Pla289': PLAYER_289_FOLDER, #Playable Mo Shuvuu
+    'Pla289_AnimBP': PLAYER_289_FOLDER, #Playable Mo Shuvuu Anims
+    'Pla355': PLAYER_355_FOLDER, #Playable Alice
+    'Pla355_AnimBP': PLAYER_355_FOLDER, #Playable Alice Anims
 }
 
 #List of which folder each umap should be in when writing output
@@ -388,7 +475,9 @@ UMAP_FOLDERS = {
 
 #List of scripts that are in the main mission folder despite submission naming convention
 MAINMISSION_EXCEPTIONS = [
-'MM_M062_EM0041','MM_M063_EM0061','MM_M063_EM0079'
+'MM_M062_EM0041','MM_M062_EM0050','MM_M062_EM0051','MM_M063_EM0061','MM_M063_EM0079','MM_M063_EM0070','MM_M061_EM0181',
+'MM_M061_EM0182','EM_M061_Q0019','EM_M061_TutorialNavi02','MM_M062_EM0120_Direct','MM_M062_EM0122','MM_M062_EM0123','MM_M062_EM0124','MM_M062_EM0125',
+'MM_M063_EM0130','MM_M060_EM0140'
 ]
 
 class UMap_File_List:
@@ -480,6 +569,8 @@ class Script_File_List:
     
     def writeFile(self,name,file):
         folderKey = name
+        if 'BtlAI' in name:
+            folderKey = 'Btl_AI'
         if folderKey not in SCRIPT_FOLDERS.keys():
             folderKey = getEquivalentSource(name)
         if 'SEQ' in name:
@@ -515,6 +606,8 @@ class Script_File_List:
     def writeFiles(self):
         for index, name in enumerate(self.fileNames):
             folderKey = name
+            if 'BtlAI' in name:
+                folderKey = 'Btl_AI'
             if folderKey not in SCRIPT_FOLDERS.keys():
                 folderKey = getEquivalentSource(name)
             if 'SEQ' in name:
@@ -546,10 +639,14 @@ class Script_File_List:
     Read the file belonging to the script of the given name and create a Script_File and add it to the list.
     '''
     def readFile(self,name):
-        if 'NPC' in name or 'BP_es' in name :
+        if 'BtlAI' in name:
+            scriptPath = 'AI/'
+        elif 'NPC' in name or 'BP_es' in name :
             scriptPath = 'NPC/'
         elif 'ShopEvent' in name or 'JakyoEvent' in name:
             scriptPath = 'ShopEvent/'
+        elif name.startswith('Pla'):
+            scriptPath = 'Player/'
         elif 'EM' in name and not 'DevilTalk' in name and not 'M092' in name:
             scriptPath = 'SubMission/'
         else:
@@ -572,13 +669,14 @@ class Script_File_List:
         self.files.append((Script_File(assetobject,jsonobject)))
 
 class Script_File:
-    def __init__(self,uasset: UAsset, json):
+    def __init__(self,uasset: UAsset, jsonData):
         self.uasset = uasset
-        self.json = json
-        self.originalJson = copy.deepcopy(json)
+        self.json = jsonData
+        self.originalJson = json.loads(json.dumps(jsonData))
         self.originalByteCodeSize = None
         self.originalBytecode = None
         self.originalNameMap = None
+
     
     '''
     Get the name at the index in the name map of the uasset.
@@ -652,8 +750,8 @@ class Script_File:
         return newStatementIndex[1]
             
 class General_UAsset:
-    def __init__(self,name, writePath):
-        self.uasset =  UAsset('base/' +  name+ '.uasset', EngineVersion.VER_UE4_27)
+    def __init__(self,name, writePath, readPath = 'base/'):
+        self.uasset =  UAsset(readPath +  name+ '.uasset', EngineVersion.VER_UE4_27)
         self.name = name
         self.writePath = writePath
         jsonstring = self.uasset.SerializeJson()
@@ -665,3 +763,4 @@ class General_UAsset:
         stringy = json.dumps(self.json)
         self.uasset = self.uasset.DeserializeJson(stringy)
         self.uasset.Write(self.writePath + self.name +'.uasset')
+        self.uasset = None

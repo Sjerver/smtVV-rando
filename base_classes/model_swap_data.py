@@ -25,11 +25,11 @@ REQUIRES_HIT_UPDATE = [
     'MM_M088_E0602_Abdiel','MM_M088_E0602_Khons','MM_M088_E0602_Koshimizu','MM_M088_E0602_Vasuki','MM_M088_E0602_Odin','MM_M088_E0602_Zeus',
     'MM_M092_EM101_','MM_M092_EM102_','MM_M092_EM105_1','MM_M092_EM106_','MM_M092_EM110',
     'MM_M016_EM1450','MM_M016_EM1500',
-    'MM_M061_EM1782','MM_M061_EM1791','MM_M061_EM2611','MM_M107_EM1824','MM_M107_EM1825_Dev651','MM_M107_EM1825_Hit',
+    'MM_M061_EM1782','MM_M061_EM1791','MM_M061_EM2611','MM_M107_EM1824','MM_M107_EM1825_Dev651','MM_M107_EM1825_Hit','MM_M061_EM1020','MM_M061_EM1030',
     'MM_M035_EM1480','MM_M035_EM1491','MM_M036_EM1490','MM_M036_EM1481',
     'MM_M061_EM1041','MM_M061_EM1050_New','MM_M061_EM1360','MM_M061_EM1630','MM_M061_EM1640', 'MM_M061_EM2190','MM_M061_EM2531',
     'MM_M061_EM0151','MM_M061_EM0152','MM_M061_EM0154','MM_M061_EM1710','MM_M061_EM2240','MM_M061_EM2245',
-    'MM_M062_EM1160','MM_M062_EM1161_A','MM_M062_EM1181','MM_M062_EM1331','MM_M062_EM1340','MM_M062_EM1401','MM_M062_EM1650','MM_M062_EM1660','MM_M062_EM2090','MM_M062_EM2110_Enemy',
+    'MM_M062_EM1160','MM_M062_EM1161_A','MM_M062_EM1181','MM_M062_EM1331','MM_M062_EM1340','MM_M062_EM1401','MM_M062_EM1650','MM_M062_EM1660','MM_M062_EM2090','MM_M062_EM2110_Enemy','MM_M062_EM0051','MM_M062_E2305_2',
     'MM_M063_EM1210','MM_M063_EM1250','MM_M063_EM1260','MM_M063_EM1291','MM_M063_EM1350','MM_M063_EM1670','MM_M063_EM1680','MM_M063_EM2170',
     'MM_M064_EM1260','MM_M064_EM1261','MM_M064_EM1291','MM_M064_EM2130','MM_M064_EM2270','MM_M064_EM2280','MM_M064_EM2310','MM_M064_EM2320','MM_M064_EM2400','MM_M064_EM2402','MM_M064_EM2552','MM_M064_EM2621',
     'MM_M060_EM1370','MM_M060_EM1381','MM_M060_EM1390','MM_M060_EM1390_NewRoute','MM_M060_EM1420','MM_M060_EM1441','MM_M060_EM1600','MM_M060_EM1601','MM_M060_EM1602','MM_M060_EM1690','MM_M060_EM1700','MM_M060_EM2630',
@@ -42,7 +42,8 @@ OVERLAPPING_SCRIPTS = [
 ]
 
 EVENT_CUTSCENES = {
-    'LV_E0180': [Demon_Sync(431)], #UMAP Triple Preta Cutscene
+    'LV_E0180': [Demon_Sync(431), Demon_Sync(38, isNavi=True)], #UMAP Triple Preta Cutscene
+    'LV_E0181': [Demon_Sync(38, isNavi=True)], #UMAP Post Triple Preta Cutscene
     'LV_E0310': [Demon_Sync(-432,432)], #Hydra Cutscene
     'LV_E0330': [Demon_Sync(75,550),Demon_Sync(435)], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa (CoV w/Yakumo), Snake Nuwa)
     'LV_E0340': [Demon_Sync(465),Demon_Sync(75,550),Demon_Sync(435)], #UMAP Snake Nuwa Post-fight Cutscene (Yakumo, Nuwa (CoV w/Yakumo), Snake Nuwa)
@@ -117,7 +118,7 @@ EVENT_CUTSCENES = {
     'LV_E2310': [Demon_Sync(1151,578)],#Dazai loses to Eisheth (Dazai)
     'LV_E2320': [Demon_Sync(561),Demon_Sync(394, 559),Demon_Sync(152, 562)],#Yuzuru pre-fight dialogue (Yuzuru, Eisheth, Hayataro)
     'LV_E2325': [Demon_Sync(561),Demon_Sync(394, 559),Demon_Sync(152, 562),Demon_Sync(1151,578),Demon_Sync(-396, 568),Demon_Sync(7,566)], #Yuzuru post-fight dialogue (Yuzuru,Eisheth,Hayataro, Dazai, Agrat, Khonsu)
-    'LV_E2330': [Demon_Sync(1151,578),Demon_Sync(561)],#Discovering Salted Village (Dazai, Yuzuru)
+    'LV_E2330': [Demon_Sync(1151,578),Demon_Sync(561), Demon_Sync(57, isNavi=True)],#Discovering Salted Village (Dazai, Yuzuru, navi Pyro Jack)
     'LV_E2440': [Demon_Sync(393, 554),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(391, 569)], #Qadistu Dream ??? (Naamah II ,Agrat,Eisheth,Lilith)
     'LV_E2519': [Demon_Sync(550), Demon_Sync(567)],#First Nuwa/Yakumo scene in Shinjuku(Nuwa, Yakumo)
     'LV_E2560': [Demon_Sync(550), Demon_Sync(567)],#Nuwa/Yakumo talk at Mastema's hill 1(Nuwa, Yakumo)
@@ -143,13 +144,13 @@ EVENT_CUTSCENES = {
     'LV_E3300': [Demon_Sync(578),Demon_Sync(577)], #Dazai pre-fight dialogue (Dazai, Abdiel)
     'LV_E3310': [Demon_Sync(578),Demon_Sync(577)],#Dazai post-fight dialogue (Dazai, Abdiel)
     'LV_E3350': [Demon_Sync(-459,565)], #Yoko uses Tiamat on you (Tiamat)
-    #'LV_E3352': [Demon_Sync(-459,565)], #Tiamat post-fight (Tiamat) #Json erialization crashes, but is error with UassetAPI (consider re-adding if rewrite without json serialization)
+    'LV_E3352': [Demon_Sync(-459,565)], #Tiamat post-fight (Tiamat)
     'LV_E3355': [Demon_Sync(597)],#Tehom pre-fight dialogue (Tehom)
     'LV_E3358': [Demon_Sync(597)],#Tehom post?-fight dialogue (Tehom)
     'LV_E3390': [Demon_Sync(596)],#Siding with Yoko (Mastema)
     'LV_E3400': [Demon_Sync(596)],#Siding with Yoko (Mastema)
     'LV_E3410': [Demon_Sync(596),Demon_Sync(-459,565)],#Mastema uses Tiamat on you (Mastema,Tiamat)
-    #'LV_E3415': [Demon_Sync(596),Demon_Sync(-459,565)],#Tiamat post-fight chaos (Mastema,Tiamat)
+    'LV_E3415': [Demon_Sync(596),Demon_Sync(-459,565)],#Tiamat post-fight chaos (Mastema,Tiamat)
     'LV_E3420': [Demon_Sync(596)],#Mastema pre-fight dialogue (Mastema)
     'LV_E3425': [Demon_Sync(596)],#Mastema post-fight dialogue (Mastema)
     'LV_E3480': [Demon_Sync(391, 569)], #Some CoV Chaos Ending Cutscene (Lilith)
@@ -164,6 +165,10 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_E2610' : [Demon_Sync(193,579),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Isis Event Bethel Egypt (Isis, Yuzuru,Dazai)
     'MM_M061_E2620': [Demon_Sync(561),Demon_Sync(1151,578),Demon_Sync(7,566)], #CoV Khonsu Event Bethel Egypt (Khonsu,Yuzuru,Dazai)
     'MM_M061_E2625_Direct': [Demon_Sync(193,579),Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
+    'MM_M061_EM0181': [Demon_Sync(38, isNavi=True)], #Amanozako gives you a bead
+    'MM_M061_EM0182': [Demon_Sync(38, isNavi=True)], #Amanozako becomes your navigator
+    'EM_M061_Q0019': [Demon_Sync(38, isNavi=True)], #Amanozako leaves in area 1
+    'EM_M061_TutorialNavi02': [Demon_Sync(38, isNavi=True)], #Amanazako first partner spot
     #Mainmission M016 (Empyrean)
     'MM_M016_E0885': [Demon_Sync(152)], #CoC Chaos Route Empyrean Hayataro Joins After Stock is Full (Hayataro)
     'MM_M016_E0885_Direct': [Demon_Sync(152)], #CoC Chaos Route Empyrean Hayataro Joins Stock is Full so wait (Hayataro)
@@ -190,7 +195,15 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_E3110_Direct': [Demon_Sync(81,483)], #CoV Beelzebub
     'MM_M060_E3130_Direct': [Demon_Sync(482),Demon_Sync(481)], #CoV Zeus + Odin
     'MM_M060_Npc609Talk': [Demon_Sync(152)], #CoC Yuzuru Hayataro NPC Event? (Hayataro)
+    'MM_M060_EM0140': [Demon_Sync(38, isNavi=True)], #Amanozako rejoins in area 4 creation
     #Mainmission M062 (Shinagawa)
+    'MM_M062_EM0050': [Demon_Sync(57, isNavi=True)], #Golden Apple Quest part 1 creation (Pyro Jack)
+    'MM_M062_EM0051': [Demon_Sync(23, isNavi=True)], #Idun in Golden Apple Quest creation (Idun)
+    'MM_M062_EM0120_Direct': [Demon_Sync(38, isNavi=True)], #Amanozako rejoins in area 2
+    'MM_M062_EM0122': [Demon_Sync(38, isNavi=True)], #Amanozako car event
+    'MM_M062_EM0123': [Demon_Sync(38, isNavi=True)], #Amanozako railroad event
+    'MM_M062_EM0124': [Demon_Sync(38, isNavi=True)], #Amanozako container event
+    'MM_M062_EM0125': [Demon_Sync(38, isNavi=True)], #Amanozako leaves in area 2
     'MM_M062_E0378': [Demon_Sync(467)], #Dazai/Abdiel talk in area 2 creation (Abdiel)
     'MM_M062_E0380': [Demon_Sync(35,451)], #Fionn 1 Post-fight (Fionn)
     'MM_M062_E0492': [Demon_Sync(453)], #Final Lahmu (Lahmu Phase 2)
@@ -200,10 +213,15 @@ EVENT_SCRIPT_MODELS = {
     'MM_M062_E2298_Direct': [Demon_Sync(451)], #Fionn post-fight Vengeance
     'MM_M062_E2300': [Demon_Sync(1151,578)], #Dazai Pre-Blocker Vengeance
     'MM_M062_E2302': [Demon_Sync(561),Demon_Sync(1151,578)], #Arriving in fairy village vengeance (Yuzuru,Dazai)
+    'MM_M062_E2305': [Demon_Sync(57, isNavi=True)], #Golden Apple Quest part 1 vengeance (Pyro Jack)
+    'MM_M062_E2305_2': [Demon_Sync(23, isNavi=True)], #Idun in Golden Apple Quest vengeance (Idun)
+    'MM_M062_E2326_Direct': [Demon_Sync(57, isNavi=True)], #Dialogue when fairy village is salted (Pyro Jack)
     #Mainmission M063 (Chiyoda)
     'MM_M063_E0625': [Demon_Sync(465),Demon_Sync(75,435)], #Yakumo post-fight Chiyoda (Yakumo, Nuwa)
     'MM_M063_EM0061': [Demon_Sync(822),Demon_Sync(823),Demon_Sync(824)], #Hellfire Highway (Okuninushi, Sukuna Hikona, Minakata)
-    'MM_M063_EM0079': [Demon_Sync(455)], #Ishtar Post Fight
+    'MM_M063_EM0070': [Demon_Sync(273, isNavi=True)], #Decarabia in Ishtar Quest (Decarabia)
+    'MM_M063_EM0079': [Demon_Sync(455), Demon_Sync(273, isNavi=True)], #Ishtar Post Fight
+    'MM_M063_EM0130': [Demon_Sync(38, isNavi=True)], #Amanozako in Chiyoda
     'MM_M063_M0680': [Demon_Sync(467)],#Abdiel celebrates Arioch's death (Abdiel)
     #Mainmission M064 (Shinjuku)
     'MM_M064_E2510_Direct': [Demon_Sync(503)], #First Power Fight in Shinjuku 
@@ -217,6 +235,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_E2638': [Demon_Sync(1151,578)], #Dazai joins to see Mastema 2 (?)
     'MM_M064_E2642_Direct': [Demon_Sync(1151,578),Demon_Sync(596)], #Meeting Mastema (Dazai,Mastema)
     'MM_M064_E2644_Direct': [Demon_Sync(596)], #Dazai got salted (Mastema)
+    'MM_M064_E2647': [Demon_Sync(38, isNavi=True)], #Amanozako in Shinjuku
     'MM_M064_E2650_Direct': [Demon_Sync(550),Demon_Sync(567)], #Nuwa/Yakumo talk after seeing Naamah (Nuwa, Yakumo)
     'MM_M064_E2690': [Demon_Sync(486)], #Dead Cherubim
     'MM_M064_E2900': [Demon_Sync(596)],#Mastema sends you to Shakan
@@ -239,7 +258,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M085_E2660': [Demon_Sync(561)], #Koshimizu meeting before Yakumo fight(Yuzuru)
     'MM_M085_E2688': [Demon_Sync(561)], #Koshimizu meeting after Yakumo fight (Yuzuru)
     #Mainmission M087 (Shrine Vengeance (Normal Lightning)) (NOT YET TESTED)
-    'MM_M087_E2450_Direct': [Demon_Sync(1151,578)],#Dazai goes to Chiyoda #TODO: This has a bead that Could be included as event item randomization
+    'MM_M087_E2450_Direct': [Demon_Sync(1151,578)],#Dazai goes to Chiyoda 
     #Mainmission M088 (Summit)
     'MM_M088_E0602_Abdiel': [Demon_Sync(467)], #Summmit (Abdiel)
     'MM_M088_E0602_Khons': [Demon_Sync(516)], #Summmit (Khonsu)
@@ -312,6 +331,8 @@ EVENT_SCRIPT_MODELS = {
 
     #SubMission M061 (Minato)
     'MM_M061_EM0021': [Demon_Sync(433),Demon_Sync(434)], #Eligor and Andras Event
+    'MM_M061_EM1020': [Demon_Sync(114, isNavi=True)], #The Ultimate Omelet (Aitvaras)
+    'MM_M061_EM1030': [Demon_Sync(304, isNavi=True)], #The Cursed Mermaids Mermaid Part
     'MM_M061_EM1031': [Demon_Sync(801)], #Pazuzu Event Mermaid Quest
     'MM_M061_EM1041': [Demon_Sync(803)], #Anahita Event Mermaid Quest 2
     'MM_M061_EM1050_New': [Demon_Sync(820)], #Talisman Hunt (Shiki Ouji)
@@ -340,11 +361,14 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_EM2240': [Demon_Sync(519),Demon_Sync(566)], #CoV Khonsu Ra Quest (Khonsu Ra, Khonsu) 
     'MM_M061_EM2242': [Demon_Sync(579)], #CoV Khonsu Ra Quest (Isis)
     'MM_M061_EM2245': [Demon_Sync(566)], #CoV Khonsu Ra Quest (Khonsu)
-    'MM_M061_EM2380': [Demon_Sync(781)], #Mo Shuvuu Quest (Andras)
+    'MM_M061_EM2380': [Demon_Sync(781), Demon_Sync(289, isNavi=True)], #Mo Shuvuu Quest (Andras, Navi Mo Shuvuu)
+    'MM_M061_EM2382': [Demon_Sync(289, isNavi=True)], #Mo Shuvuu Quest part 3 (Mo Shuvuu)
+    'MM_M061_EM2383': [Demon_Sync(781), Demon_Sync(289, isNavi=True)], #Mo Shuvuu Quest part 4 (Mo Shuvuu, Andras)
 
     #SubMission M062 (Shinagawa)
     'MM_M062_EM1141': [Demon_Sync(809)], #Kumbhanda Bottle Quest (Kumbhanda)
-    'MM_M062_EM1151_Hit': [Demon_Sync(810)], #A Goddess Stolen (Loki)
+    'MM_M062_EM1150': [Demon_Sync(23, isNavi=True)], #A Goddess Stolen part 1 (Idun)
+    'MM_M062_EM1151_Hit': [Demon_Sync(810), Demon_Sync(23, isNavi=True)], #A Goddess Stolen (Loki, Idun)
     'MM_M062_EM1160': [Demon_Sync(19)], #The Tyrant of Tennozu (Demeter)
     'MM_M062_EM1161_A': [Demon_Sync(804)], #The Tyrant of Tennozu  (Belphegor)
     'MM_M062_EM1181': [Demon_Sync(821)], #King Frost Quest (King Frost) 
@@ -364,11 +388,21 @@ EVENT_SCRIPT_MODELS = {
     'esNPC_em1650_05': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) 
     'esNPC_em1650_06': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim)
     'MM_M062_EM2110_Enemy': [Demon_Sync(769)], #Vouivre Quest (Vouivre) 
-    'MM_M062_EM2440': [Demon_Sync(768)], #Amanozako Control Quest(Yakshini)
+    'MM_M062_EM2430': [Demon_Sync(59, isNavi=True)], #Pixie on the Case (Pixie)
+    'MM_M062_EM2432': [Demon_Sync(59, isNavi=True)], #Pixie on the Case npc Pixies (Pixie)
+    'MM_M062_EM2440': [Demon_Sync(768), Demon_Sync(38, isNavi=True)], #Amanozako Control Quest(Yakshini, Amanozako)
+    'MM_M062_EM2441': [Demon_Sync(38, isNavi=True)], #Amanozako Control Quest part 2 (Amanozako)
+    'MM_M062_EM2442': [Demon_Sync(38, isNavi=True)], #Amanozako Control Quest part 3 (Amanozako)
+    'MM_M062_EM2443': [Demon_Sync(38, isNavi=True)], #Amanozako Control Quest part 4 (Amanozako)
+    'MM_M062_EM2444': [Demon_Sync(38, isNavi=True)], #Amanozako Control Quest part 5 (Amanozako)
+    'MM_M062_EM2446': [Demon_Sync(38, isNavi=True)], #Amanozako Control Quest part 7 (Amanozako)
 
     #SubMission M063 (Chiyoda)
     'MM_M063_EM1210': [Demon_Sync(824),Demon_Sync(826)], #Oyamatsumi Quest (Take-Minakata,Oyamatsumi)
     'MM_M063_EM1211': [Demon_Sync(826)], #Oyamatsumi Quest (Oyamatsumi)
+    'MM_M063_EM1230_HitAAction': [Demon_Sync(333, isNavi=True)], #Hua Po Quest (Hua Po)
+    'MM_M063_EM1231': [Demon_Sync(333, isNavi=True)], #Hua Po Quest end
+    'MM_M063_EM1241_Navi': [Demon_Sync(273, isNavi=True)], #Chiyoda Gem Quest (Decarabia)
     'MM_M063_EM1250': [Demon_Sync(822)],#Kunitsukami Fight Quest (Okuninushi) 
     'MM_M063_EM1251': [Demon_Sync(823)],#Kunitsukami Fight Quest (Sukuna Hikona)
     'MM_M063_EM1260': [Demon_Sync(19)], #Demeter Defeat Chimera (Demeter) 
@@ -378,7 +412,10 @@ EVENT_SCRIPT_MODELS = {
     'MM_M063_EM1592': [Demon_Sync(876)], #Berserk Amanozako Quest (Amanozako Runaway) 
     'MM_M063_EM1670': [Demon_Sync(72)], #Black Frost Dionysus Quest (Black Frost) 
     'MM_M063_EM1680': [Demon_Sync(183)], #Black Frost Dionysus Quest (Dionysus)
-    'MM_M063_EM2170': [Demon_Sync(227)], #Masakado Quest 
+    'MM_M063_EM2170': [Demon_Sync(227)], #Masakado Quest
+    'MM_M063_EM2390': [Demon_Sync(128, isNavi=True)], #Cironnup Quest (Cironnup)
+    'MM_M063_EM2390_Start': [Demon_Sync(128, isNavi=True)], #Cironnup Quest start (Cironnup)
+    'MM_M063_EM2397': [Demon_Sync(128, isNavi=True)], #Cironnup Quest part 8 (Cironnup)
     'MM_M063_EM2580': [Demon_Sync(776)], #Yoshitsune Haunt Quest (Atavaka)
 
     #SubMission M064 (Shinjuku)
@@ -391,6 +428,13 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_EM2131': [Demon_Sync(41)], #Basilisk Hunt Quest (Anansi)
     'MM_M064_EM2270': [Demon_Sync(40)], #Kresnik Kudlak Quest (Kresnik) 
     'MM_M064_EM2280': [Demon_Sync(346)], #Kresnik Kudlak Quest (Kudlak)
+    'MM_M064_EM2306': [Demon_Sync(387, isNavi=True)], #Amabie in Macabre Quest (Amabie)
+    'MM_M064_EM2360': [Demon_Sync(355, isNavi=True)], #Alice Quest (Alice)
+    'MM_M064_EM2360_Event': [Demon_Sync(355, isNavi=True)], #Alice Quest Event (Alice)
+    'MM_M064_EM2361': [Demon_Sync(355, isNavi=True)], #Alice Quest part 2 (Alice)
+    'MM_M064_EM2363': [Demon_Sync(355, isNavi=True)], #Alice Quest part 4 (Alice)
+    'MM_M064_EM2364': [Demon_Sync(355, isNavi=True)], #Alice Quest part 5 (Alice)
+    'MM_M064_EM2366': [Demon_Sync(355, isNavi=True)], #Alice Quest part 7 (Alice)
     'MM_M064_EM2310': [Demon_Sync(386, 770), Demon_Sync(41)], #Onyakopon Anansi Quest (Onyakopon Side)
     'MM_M064_EM2320': [Demon_Sync(41, 771), Demon_Sync(386)], #Onyakopon Anansi Quest (Anansi Side)
     'MM_M064_EM2400': [Demon_Sync(596)], #Samael Quest (Mastema) 
@@ -398,6 +442,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_EM2421_Direct': [Demon_Sync(681)], #Satan Quest (Satan) 
     'MM_M064_EM2461': [Demon_Sync(892)], #Mara Quest (Mara) 
     'MM_M064_EM2500': [Demon_Sync(215)], #Brawny Ambitions III (Okuninushi) 
+    'MM_M064_EM2521_Navi': [Demon_Sync(273, isNavi=True)], #Shinjuku Gem Quest (Decarabia)
     'MM_M064_EM2552': [Demon_Sync(509)], #MadGasser Quest (Zhen (3xCopy))
     'MM_M064_EM2621': [Demon_Sync(775)], #Orochi Quest (Orochi) 
 
@@ -412,12 +457,18 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_EM1440': [Demon_Sync(19)], #Baal Quest (Demeter) 
     'MM_M060_EM1441': [Demon_Sync(837)], #Baal Quest (Baal) 
     'MM_M060_EM1460': [Demon_Sync(839)], #The Gold Dragon's Arrival (Huang Long) 
+    'MM_M060_EM1580': [Demon_Sync(280, isNavi=True)], #On Bended Knees (Yatagarasu)
     'MM_M060_EM1600': [Demon_Sync(878)],  #Final Amanozako Quest (Kurama Tengu) 
     'MM_M060_EM1601': [Demon_Sync(878),Demon_Sync(38),Demon_Sync(877)], #Final Amanozako Quest (Kurama Tengu,Amanozako, Zaou Gongen)
     'MM_M060_EM1602': [Demon_Sync(38)],  #Final Amanozako Quest (Amanozako) 
     'MM_M060_EM1690': [Demon_Sync(265)],  #Adramelech Futsunushi Quest (Adramalech) 
     'MM_M060_EM1700': [Demon_Sync(201)],  #Adramelech Futsunushi Quest (Futsunushi) 
     'MM_M060_EM2371': [Demon_Sync(865)],  #Garuda Quest (Garuda) 
+    'MM_M060_EM2480': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest (Nahobiho)
+    'MM_M060_EM2481': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 2 (Nahobiho)
+    'MM_M060_EM2482': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 3 (Nahobiho)
+    'MM_M060_EM2483': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 4 (Nahobiho)
+    'MM_M060_EM2484': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 5 (Nahobiho)
     'MM_M060_EM2570': [Demon_Sync(22, 779)], #Moirae Haunt Quest (Norn)
     'MM_M060_EM2630': [Demon_Sync(782)],  #Saturnus Quest(Saturnus) 
     'MM_M061_EM2705': [Demon_Sync(207)], # The Guardian of Light (Marici)
@@ -433,7 +484,31 @@ EVENT_SCRIPT_MODELS = {
     'BP_es618_m060_01': [Demon_Sync(465)],#Yakumo in Area 4 
     'BP_es418_m063_01': [Demon_Sync(75, 435)],#Nuwa in Area 3 #TODO No clue where they are
     'BP_es618_m063_01': [Demon_Sync(465)],#Yakumo in Area 3 #TODO No clue where they are
+    'esNPC_m061_32_Navi': [Demon_Sync(316, isNavi=True)], #Navi Ippon Datara
+    'esNPC_m061_33_Navi': [Demon_Sync(304, isNavi=True)], #Navi Mermaid
+    'esNPC_m061_37_Navi': [Demon_Sync(356, isNavi=True)], #Navi Hell Biker
+    'esNPC_m061_38_Navi': [Demon_Sync(295, isNavi=True)], #Navi Cleopatra
+    'esNPC_m062_NaviDevil_01': [Demon_Sync(44, isNavi=True)], #Navi Agathion
+    'esNPC_m062_NaviDevil_41': [Demon_Sync(147, isNavi=True)], #Navi Mothman
+    'esNPC_m062_NaviDevil_42': [Demon_Sync(23, isNavi=True)], #Navi Idun
+    'esNPC_m064_NaviDevil_01': [Demon_Sync(214, isNavi=True)], #Navi Sukuna Hikona
+    'esNPC_m060_08_Navi': [Demon_Sync(144, isNavi=True)], #Navi Bugs
+    'esNPC_m060_14_Navi': [Demon_Sync(77, isNavi=True)], #Navi Mara
+    'esNPC_m060_15_Navi': [Demon_Sync(35, isNavi=True)], #Navi Fionn
 
+    #Playable Demons
+    'Pla038': [Demon_Sync(38, isNavi=True)], #Player Amanozako
+    'Pla038_AnimBP': [Demon_Sync(38, isNavi=True)], #Player Amanozako Animations
+    'Pla059': [Demon_Sync(59, isNavi=True)], #Player Pixie
+    'Pla059_AnimBP': [Demon_Sync(59, isNavi=True)], #Player Pixie Animations
+    'Pla060': [Demon_Sync(60, isNavi=True)], #Player Nahobiho
+    'Pla060_AnimBP': [Demon_Sync(60, isNavi=True)], #Player Nahobiho Animations
+    'Pla128': [Demon_Sync(128, isNavi=True)], #Player Cironnup
+    'Pla128_AnimBP': [Demon_Sync(128, isNavi=True)], #Player Cironnup Animations
+    'Pla289': [Demon_Sync(289, isNavi=True)], #Player Mo Shuvuu
+    'Pla289_AnimBP': [Demon_Sync(289, isNavi=True)], #Player Mo Shuvuu Animations
+    'Pla355': [Demon_Sync(355, isNavi=True)], #Player Alice
+    'Pla355_AnimBP': [Demon_Sync(355, isNavi=True)], #Player Alice Animations
 }
 
 #Which animations are being played in scripts that might not be available to every demon and which to use instead
@@ -445,15 +520,27 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M061_EM1640': [Anim_Sync('06skill_Composite','06skill')], # The Spirit of Love (Apsaras)
     'MM_M061_EM1640_Hit': [Anim_Sync('map/700000_event_idle', '01idleA')], # The Spirit of Love First Entry (Apsaras)
     'MM_M061_E2625_Direct': [Anim_Sync('map/700000_dying','04dying')], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
+    'MM_M061_EM0181': [Anim_Sync('Event/EVT_v_sit_loop','01idleA'),Anim_Sync('map/700007_sit_idleA','04dying')], #Amanozako gives you a bead
+    'MM_M061_EM0182': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700002_doya','05attack'),Anim_Sync('map/700004_yuudou_in','11run'),Anim_Sync('map/700005_yuudou_loop','04dying'),Anim_Sync('map/001000_run','11run'),Anim_Sync('map/700007_sit_idleA','04dying')], #Amanozako becomes your navigator
+    'EM_M061_Q0019': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700005_yuudou_loop','04dying')], #Amanozako leaves in area 1
+    'EM_M061_TutorialNavi02': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('Event/EVT_v_action_loop','05attack'),Anim_Sync('Event/EVT_v_action_inout','11run'),Anim_Sync('map/700000_yes','51yes')], #Amanozako first partner spot
     'MM_M038_E2930_Direct': [Anim_Sync('Event/EVT_E0604c01m_loop','04dying')], #Shakan Abdiel Post Fight
     'MM_M060_E762': [Anim_Sync('map/700000_event_idle', '01idleA')],#Nuwa in area 4 at the gate
     'MM_M060_E3020': [Anim_Sync('Event/EVT_v_turnwalk_inout','11run')], #Yakumo in area 4 vengeance part 2
+    'MM_M062_EM0120_Direct': [Anim_Sync('map/700002_doya','05attack'),Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/001000_run','11run')], #Amanozako rejoins in area 2
+    'MM_M062_EM0122': [Anim_Sync('Event/EVT_v_idle_loop','01idleA')], #Amanozako car event
+    'MM_M062_EM0123': [Anim_Sync('map/700002_doya','05attack'),Anim_Sync('Event/EVT_v_idle_loop','01idleA')], #Amanozako railroad event
+    'MM_M062_EM0124': [Anim_Sync('map/700000_yes','51yes'),Anim_Sync('Event/EVT_v_idle_loop','01idleA'),Anim_Sync('Event/EVT_v_run_loop','11run')], #Amanozako container event
+    'MM_M062_EM0125': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700005_yuudou_loop','04dying'),Anim_Sync('map/001000_run','11run')], #Amanozako leaves in area 2
     'MM_M062_E0380': [Anim_Sync('Map/700002_event_idle','01idleA')], #Fionn 1 Post-fight (Fionn)
     'MM_M062_E0492': [Anim_Sync('3rd_01idleA','01idleA'),Anim_Sync('3rd_41encount','41encount')], #Final Lahmu (Lahmu Phase 2)
     #'MM_M062_EM0041': [Anim_Sync('Event/EVT_SlowEncount_inout','41encount')], #Loup-garous Event
     'MM_M062_E2295_Direct': [Anim_Sync('02idleB','05attack')],#Eisheth pre-fight
     'MM_M062_E2298_Direct': [Anim_Sync('Map/700002_event_idle','01idleA')], #Fionn 1 Post-fight Vengeance (Fionn)
+    'MM_M063_EM0130': [Anim_Sync('map/700006_yuudou_out','11run'),Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/001000_run','11run')], #Amanozako in Chiyoda
+    'MM_M064_E2647': [Anim_Sync('Event/EVT_v_idle_loop','01idleA'),Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700004_yuudou_in','11run'),Anim_Sync('map/700005_yuudou_loop','04dying'),Anim_Sync('Event/EVT_E0180c03m_loop','06skill'),Anim_Sync('map/001000_run','11run')], #Amanozako in Shinjuku
     'MM_M064_E2690': [Anim_Sync('map/700000_dead01','04dying'),Anim_Sync('map/700001_dead02','04dying')], #Dead Cherubim
+    'MM_M060_EM0140': [Anim_Sync('Event/EVT_E0180c03m_loop','06skill'),Anim_Sync('map/700002_doya','05attack'),Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/001000_run','11run')], #Amanozako rejoins in area 4 Creation
     'MM_M092_EM107_': [Anim_Sync('06skill_a','06skill'),Anim_Sync('06skill_b','06skill'),Anim_Sync('06skill_c','06skill')], #School Rakshasa + Incubus
     'MM_M092_EM109_a': [Anim_Sync('02idleB','05attack')], #School Save Jack Frost (Manananggal)
 
@@ -465,6 +552,8 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M061_EM1781': [Anim_Sync('02idleB','05attack')], #Cleopatra Quest 
     'MM_M061_EM1791': [Anim_Sync('02idleB','05attack'),Anim_Sync('map/700000_event_idle', '01idleA')], #Artemis Quest 
     'MM_M061_EM2613_HitAction': [Anim_Sync('02idleB','41encount'),Anim_Sync('Sub/Sub_13skill_ex1','06skill')], #Dagda Quest
+    'MM_M061_EM2380': [Anim_Sync('20skillA','06skill')], #Mo Shuvuu Quest
+    'MM_M061_EM2382': [Anim_Sync('20skillA','06skill')], #Mo Shuvuu Quest part 3
     'MM_M062_EM1806': [Anim_Sync('06skill_Composite','06skill')], # Hell Biker Fight
     'MM_M062_EM1806_NewRoute': [Anim_Sync('06skill_Composite','06skill')], # Hell Biker Fight
     'MM_M063_EM1810': [Anim_Sync('06skill_Composite','06skill')], #White Rider Fight Chiyoda
@@ -495,9 +584,21 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'esNPC_em1650_06': [Anim_Sync('map/700000_event_idle','04dying')], # Lilim/Principality Quest NPCs (Lilim) 
     'MM_M063_EM1210': [Anim_Sync('06skill_Composite','06skill')], #Kunitsu Quest (Take-Minakata,Oyamatsumi)
     'MM_M063_EM1281': [Anim_Sync('21skillB','06skill')],#The Archangel of Destruction (Camael)
-    'MM_M062_EM1680': [Anim_Sync('06skill_Composite','06skill')],#Black Frost Dionysus Quest (Dionysus)
+    'MM_M062_EM0050': [Anim_Sync('map/000000_idleA','01idleA')],#Idun in Golden Apple Quest creation
+    'MM_M062_E2305_2': [Anim_Sync('map/000000_idleA','01idleA')],#Idun in Golden Apple Quest vengeance
+    'MM_M062_EM2440': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/001000_run','11run'),Anim_Sync('map/700001_no','03dmg')],#Amanozako Control Quest
+    'MM_M062_EM2440': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/001000_run','11run'),Anim_Sync('map/700001_no','03dmg')],#Amanozako Control Quest
+    'MM_M062_EM2441': [Anim_Sync('map/700001_no','03dmg'),Anim_Sync('Event/EVT_v_run_loop','11run'),Anim_Sync('map/001000_run','11run'),Anim_Sync('Event/EVT_v_idle_loop','01idleA'),Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700000_yes','51yes')],#Amanozako Control Quest part 2
+    'MM_M062_EM2442': [Anim_Sync('map/700002_doya','05attack'),Anim_Sync('map/700000_yes','51yes'),Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700003_homeru','06skill')],#Amanozako Control Quest part 3
+    'MM_M062_EM2443': [Anim_Sync('map/000000_idleA','01idleA')],#Amanozako Control Quest part 4
+    'MM_M062_EM2444': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700001_no','03dmg')],#Amanozako Control Quest part 5
+    'MM_M062_EM2446': [Anim_Sync('map/000000_idleA','01idleA'),Anim_Sync('map/700000_yes','51yes'),Anim_Sync('map/700002_doya','05attack')],#Amanozako Control Quest part 7
     'MM_M064_EM1281': [Anim_Sync('21skillB','06skill')],#The Archangel of Destruction Shinjuku (Camael)
     'MM_M064_EM2130': [Anim_Sync('02idleB','05attack'),Anim_Sync('map/700020_stick','14command'),Anim_Sync('map/700010_laugh','14command')], #Basilisk Hunt Quest (Anansi, Onyankopon)
+    'MM_M064_EM2306': [Anim_Sync('map/700000_dance','51yes')],#Amabie in Macabre Quest
+    'MM_M064_EM2360': [Anim_Sync('map/700000_event_idle_in','51yes'),Anim_Sync('map/700002_event_idle_out','14command'),Anim_Sync('map/700001_event_idle_loop','01idleA'),Anim_Sync('07skill_b','06skill'),Anim_Sync('06skill_a','06skill')],#Alice Quest
+    'MM_M064_EM2360_Event': [Anim_Sync('map/700000_event_idle_in','51yes'),Anim_Sync('map/700001_event_idle_loop','01idleA')],#Alice Quest Event
+    'MM_M064_EM2366': [Anim_Sync('map/700000_event_idle_in','51yes'),Anim_Sync('map/700001_event_idle_loop','01idleA')],#Alice Quest part 7
     'MM_M064_EM2310': [Anim_Sync('02idleB','05attack')],#Onyakopon Anansi Quest (Onyakopon Side)
     'MM_M064_EM2400': [Anim_Sync('13skill_ex2','06skill')], #Samael Quest (Mastema)
     'MM_M064_EM2421_Direct': [Anim_Sync('13skill_ex3_Composite','05attack')], #Satan Quest (Satan)
@@ -505,6 +606,14 @@ SCRIPT_ANIMS_REPLACEMENTS = {
     'MM_M060_EM1381': [Anim_Sync('09skill_d','06skill'),Anim_Sync('09skill_c','06skill'),Anim_Sync('02idleB','14command')], #Winge Sun CoC (Amon,Khonsu)
     'MM_M060_EM1420': [Anim_Sync('Map/700002_event_idle','14command'),Anim_Sync('Map/700000_event_idle','51yes')], #Fionn 2 Quest (Fionn)
     'MM_M060_EM1440': [Anim_Sync('02idleB','14command')], #Baal Quest (Demeter)
+    'MM_M060_EM2480': [Anim_Sync('01idleA_field','01idleA'),Anim_Sync('Map/700001_awawa','03dmg'),Anim_Sync('Map/700000_encount_loop','41encount')], #Nahobiho Quest
+    'MM_M060_EM2481': [Anim_Sync('01idleA_field','01idleA'),Anim_Sync('Map/700001_awawa','03dmg')], #Nahobiho Quest part 2
+    'MM_M060_EM2482': [Anim_Sync('01idleA_field','01idleA')], #Nahobiho Quest part 3
+    'MM_M060_EM2483': [Anim_Sync('Map/700001_awawa','03dmg')], #Nahobiho Quest part 4
+    'MM_M060_EM2483': [Anim_Sync('01idleA_field','01idleA')], #Nahobiho Quest part 5
+    'Pla038_AnimBP': [Anim_Sync('map/000000_idleA','01idleA')], #Player Amanozako Animations
+    'Pla060_AnimBP': [Anim_Sync('01idleA_field','01idleA'),Anim_Sync('81twistPoseAsset','51yes')], #Player Nahobiho Animations
+    'Pla289_AnimBP': [Anim_Sync('11run_EvtRemote','11run'),Anim_Sync('81twist_PoseAsset','51yes')], #Player Mo Shuvuu Animations
 }
 
 #For bosses that do not use their own model, which model they should use instead
@@ -776,12 +885,14 @@ MODEL_SYNC = {
     524: 520, # Thunder Bit (use Nahobino Nuwa)
     526: 525, # Depraved Arm (use Nahobino Abdiel)
     527: 525, # Depraved Wing (use Nahobino Abdiel)
+    576: 392, # Agrat Illusion
 
 }
 
 
 LV_SEQUENCES = {
     'LV_E0180': ['SEQ_E0180_c01','SEQ_E0180_c02','SEQ_E0180_c03','SEQ_E0180_c04','SEQ_E0180_c05','SEQ_E0180_c06','SEQ_E0180_c07','SEQ_E0180_c08','SEQ_E0180_c09'], #Triple Preta Cutscene
+    'LV_E0181': ['SEQ_E0181_c01','SEQ_E0181_c02','SEQ_E0181_c03','SEQ_E0181_c04','SEQ_E0181_c05','SEQ_E0181_c06','SEQ_E0181_c07'], #Post Triple Preta Cutscene
     'LV_E0310': ['SEQ_E0310_c01', 'SEQ_E0310_c02', 'SEQ_E0310_c03', 'SEQ_E0310_c05', 'SEQ_E0310_c06', 'SEQ_E0310_c07', 'SEQ_E0310_c08', 'SEQ_E0310_c09'],
     'LV_E0330': ['SEQ_E0330_c01','SEQ_E0330_c02','SEQ_E0330_c03','SEQ_E0330_c04','SEQ_E0330_c06','SEQ_E0330_c08','SEQ_E0330_c09','SEQ_E0330_c10','SEQ_E0330_c10B','SEQ_E0330_c11','SEQ_E0330_c13','SEQ_E0330_c14','SEQ_E0330_c15','SEQ_E0330_c16','SEQ_E0330_c17','SEQ_E0330_c20'], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa, Snake Nuwa)
     'LV_E0340': ['SEQ_E0340_c01','SEQ_E0340_c02','SEQ_E0340_c02B','SEQ_E0340_c04','SEQ_E0340_c04B','SEQ_E0340_c05','SEQ_E0340_c06','SEQ_E0340_c07','SEQ_E0340_c08','SEQ_E0340_c09','SEQ_E0340_c11','SEQ_E0340_c12','SEQ_E0340_c13',], #UMAP Snake Nuwa Post-fight Cutscene (Yakumo, Nuwa, Snake Nuwa)

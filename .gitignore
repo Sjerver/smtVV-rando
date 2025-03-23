@@ -52,9 +52,6 @@ rando/Project/Content/L10N
 rando/Project/Content/Level
 rando/Project/Content/Blueprints/Gamedata/BinTable/Map
 rando/Project/Content/Design/Event/
-debug/bossSpoilerLog.txt
-debug/skillsets.txt
-debug/encounterResults.txt
-debug/fusionResults.txt
-debug/currentSeed.txt
+rando/Project/Content/Sound/DevilVoice/
+debug/
 rando.pak

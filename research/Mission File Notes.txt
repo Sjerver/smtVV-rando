@@ -17,6 +17,8 @@ A goddess stolen (Loki) - 1150, mentioned with normal enemy version tag multiple
 The Tyrant of Tennozu (Belphegor) - 1160/1161, warning in 1161 (also uses normal enemy version tag)
 King Frost quest - 1180
 Oyamatsumi quest - 1210 (Surt mentioned too)
+Hua Po quest - 1230
+Chiyoda gem quest - 1240, mentions Decarabia
 Kunitsukami fight quest - 1250 (Mentions Oyamatsumi, need hint for Okuninushi)
 Chimera quest - 1260
 Hecaton quest - 1270
@@ -43,6 +45,7 @@ Siding with Belial - 1490, Mentions Arioch
 Maria/Danu/Innana - 1500
 A Universe in Peril (Shiva) - 1530, Mentions Vasuki
 Sarasvati Collection Quest - 1570 but mentions Shiva
+Yatagarasu Quest - 1580
 Berserk Amanozako Quest - 1590-1593, mentions Lahmu, Amanozako named in 1590-1592
 Final Amanozako Quest - 1600-1603, 1600 mentions Surt, Zaou-Gongen in 1602-1603 (Warning in 1602)
 Bully Breaker (Daemon) - 1610, theoretically should be auto as it uses the mission condition
@@ -73,6 +76,7 @@ Demi Fiend - 1823-1825
 Nozuchi Quest - 2020, mentions normal enemy Kodama
 Brawny Ambitions (Hare 1) - 2030
 Pisaca Quest - 2040, mentions Anahita
+Amabie First Quest - 2050
 Prince of Her Dreams - 2080, but appears in both routes which have different Khonsus
 Vouivre Quest - 2111
 Basilisk Hunt Quest - 2130, mentions Anansi and Onyakopon
@@ -84,10 +88,12 @@ VR Kunitsukami Quest - 2250
 Siding with Kresnik - 2270
 Siding with Kudlak - 2280
 Gogmagog Quest - 2290
+Macabre Dance Quest (Amabie) - 2300
 Siding with Onyankopon - 2310
 Siding with Anansi - 2320
 Fionn Haunt Quest - 2330
 Idun Haunt Quest - 2350, mentions Loki
+Alice Quest - 2360
 Siegfried Quest (Garuda) - 2370, mentions Odin
 Mo Shuvuu Quest (Andras) - 2380
 Cironnup Quest - 2390, mentions Atavaka, Masakado
@@ -100,6 +106,7 @@ Turbo Granny Quest - 2470
 Nahobeeho Quest - 2480
 Hare of Inaba 2 Quest (Xiezhai with Puncture Punch) - 2490
 Hare of Inaba 3 Quest (Okuninushi) - 2500, mentions Xiezhai, Sukona-Hikona
+Shinjuku Gem Quest - 2520, mentions Decarabia
 Dormarth Quest - 2530
 Gurulu Quest - 2540
 Part Time Gasser (Zhen) - 2550
