@@ -237,7 +237,7 @@ def createGUI(configSettings: Settings):
     demonLabel.pack()
     #demonLabel.grid(row=0, column=0, sticky='nsew', columnspan= 2, padx = [10,0])
 
-    listDemon = tk.Listbox(page1FrameTopLeft, selectmode = "multiple", width=75, height = 8, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listDemon = tk.Listbox(page1FrameTopLeft, selectmode = "multiple", width=75, height = 9, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listDemon.insert(0, "Randomize Levels & Encounters")
     listDemon.insert(1, "Randomize Potentials")
     listDemon.insert(2, "Scale Potentials to Level")
