@@ -1,9 +1,10 @@
 class Normal_Fusion:
-    def __init__(self, offsetNumbers, firstDemon, secondDemon, result):
+    def __init__(self, offsetNumbers, firstDemon, secondDemon, result, key= 0):
         self.offsetNumbers = offsetNumbers
         self.firstDemon = firstDemon
         self.secondDemon = secondDemon
         self.result = result
+        self.key = key
         
 class Fusion_Chart_Node:
     def __init__(self, offset, race1, race2, result):

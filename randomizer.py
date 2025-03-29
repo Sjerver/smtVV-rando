@@ -299,6 +299,7 @@ class Randomizer:
                                         translation.translateSkillID(NKMBaseTable.readWord(locations['innate']), self.skillNames))
         demon.skills = listOfSkills
         demon.learnedSkills = listOfLearnedSkills
+        demon.preventDeletionFlag = NKMBaseTable.readWord(locations['encounterSpawn'] - 8)
         demon.creationSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'])
         demon.creationSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 4)
         demon.vengeanceSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 8)
@@ -2694,6 +2695,7 @@ class Randomizer:
             buffer.writeByte(demon.unlockFlags[1], demon.offsetNumbers['unlockFlags'] +1)
             buffer.writeByte(demon.tone.value, demon.offsetNumbers['tone'])
             buffer.writeByte(demon.tone.secondary, demon.offsetNumbers['tone'] + 1)
+            buffer.writeWord(demon.preventDeletionFlag,demon.offsetNumbers['encounterSpawn'] -8 )
             buffer.writeWord(demon.creationSpawn.mapNameID,demon.offsetNumbers['encounterSpawn'] )
             buffer.writeWord(demon.creationSpawn.zoneNameID,demon.offsetNumbers['encounterSpawn'] +4)
             buffer.writeWord(demon.vengeanceSpawn.mapNameID,demon.offsetNumbers['encounterSpawn'] +8)
@@ -3295,9 +3297,29 @@ class Randomizer:
             fusions (Array): The array of normal fusions to modify
             comp (Array): The array of demons 
     '''
-    def adjustFusionTableToLevels(self, fusions, comp):
+    def adjustFusionTableToLevels(self, comp):
+        normalFusionFile = General_UAsset("UniteCombineTable",paths.UNITE_COMBINE_TABLE_OUT)
         #Recreate the fusion array in its original form
-        #Mostly as a way of testing
+        #Mostly as a way of testing 
+        fusionCount = normalFusionFile.json['Exports'][0]['Data'][0]['Value'][0]['Value']
+        fusionsData = normalFusionFile.json['Exports'][0]['Data'][1]['Value']
+        fusions = []
+        for entry in fusionsData:
+            firstID = entry["Value"][0]["Value"]
+            secondID = entry["Value"][1]["Value"]
+            key = entry["Value"][2]["Value"]
+            resultID = entry["Value"][3]["Value"]
+
+            calculatedKey = firstID + secondID * 65536
+            if calculatedKey != key:
+                print("WRONG KEY CALCULATED")
+
+            firstDemon = Translated_Value(firstID, comp[firstID].name)
+            secondDemon = Translated_Value(secondID, comp[secondID].name)
+            result = Translated_Value(resultID, comp[resultID].name)
+
+            fusions.append(Normal_Fusion(None, firstDemon, secondDemon, result, key= calculatedKey))
+        
         oldFusions = []
         for element in fusions:
             firstDemon = Translated_Value(element.firstDemon.value, comp[element.firstDemon.value].name)
@@ -3442,6 +3464,17 @@ class Randomizer:
                 else:
                     fusion.result.value = 0
                     fusion.result.translation = "Empty"
+        self.printOutFusions(fusions)
+        for index,fusion in enumerate(fusions):
+            entry = fusionsData[index]
+
+            entry["Value"][0]["Value"] = fusion.firstDemon.value
+            entry["Value"][1]["Value"] = fusion.secondDemon.value
+            if fusion.key > 0:
+                entry["Value"][2]["Value"] = fusion.key
+            entry["Value"][3]["Value"] = fusion.result.value
+        normalFusionFile.write()
+        normalFusionFile = None
 
     '''
     Adjusts the special fusions in specialFusionArr with the new fusions based on the randomization in shuffleLevel.
@@ -7044,20 +7077,7 @@ class Randomizer:
                 self.validBossDemons.add(newID) #Add new duplicate demons to the list of boss demons
                 self.essenceBannedBosses.add(newID) #These are all duplicates of another boss demon so they shouldn't drop their essence
 
-    def addEventEncounter(self):
-        newEvEnc = copy.deepcopy(self.eventEncountArr[0])
-        newEvEnc.ind = self.eventEncountArr[-1].ind +1
-        offset = 0x45 + 0x60 * newEvEnc.ind
-        newEvEnc.offsets = {
-                'demons': offset + 0x48,
-                'track': offset + 0x2E,
-                'levelpath': offset,
-                'unknownDemon': offset + 0x38,
-                '23Flag': offset + 0x23,
-                'battlefield': offset + 0x24
-            }
-        self.eventEncountArr.append(newEvEnc)
-
+    
     '''
     Generates a random seed if none was provided by the user and sets the random seed
     '''
@@ -7113,7 +7133,6 @@ class Randomizer:
 
         compendiumBuffer = readBinaryTable(paths.NKM_BASE_TABLE_IN)
         skillBuffer = readBinaryTable(paths.SKILL_DATA_IN)
-        normalFusionBuffer = readBinaryTable(paths.UNITE_COMBINE_TABLE_IN)
         otherFusionBuffer = readBinaryTable(paths.UNITE_TABLE_IN)
         encountBuffer = readBinaryTable(paths.ENCOUNT_DATA_IN)
         playGrowBuffer = readBinaryTable(paths.MAIN_CHAR_DATA_IN)
@@ -7146,7 +7165,6 @@ class Randomizer:
         self.readDataminedEnemyNames()
         self.fillCompendiumArr(compendiumBuffer)
         self.fillSkillArrs(skillBuffer)
-        self.fillNormalFusionArr(normalFusionBuffer)
         self.fillFusionChart(otherFusionBuffer)
         self.fillSpecialFusionArr(otherFusionBuffer)
         self.fillBasicEnemyArr(compendiumBuffer)
@@ -7314,7 +7332,7 @@ class Randomizer:
                     self.encounterReplacements[demon.ind] = demon.ind
         
         if config.randomDemonLevels or config.randomRaces:
-            self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
+            self.adjustFusionTableToLevels(self.compendiumArr)
 
         if config.randomShopEssences:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp, self.configSettings.scaleItemsToArea)
@@ -7436,7 +7454,6 @@ class Randomizer:
             self.patchYuzuruGLStats(compendiumBuffer)
         skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr, self.fusionSkillReqs)
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
-        normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
         encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
         playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
         itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
@@ -7459,7 +7476,6 @@ class Randomizer:
         navigatorBuffer = self.updateNavigatorBuffer(navigatorBuffer)
 
         #self.printOutEncounters(newSymbolArr)
-        self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
 
         writeFolder(paths.BLUEPRINTS_FOLDER_OUT)
@@ -7481,7 +7497,6 @@ class Randomizer:
         self.scriptFiles.writeFiles()
         del self.scriptFiles
 
-        writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
         writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
         writeBinaryTable(skillBuffer.buffer, paths.SKILL_DATA_OUT, paths.SKILL_FOLDER_OUT)
         writeBinaryTable(otherFusionBuffer.buffer, paths.UNITE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
@@ -7652,7 +7667,7 @@ class Randomizer:
 if __name__ == '__main__':
     rando = Randomizer()
     print('Warning: This is an early build of the randomizer and some things may not work as intended. Performance will be somewhat worse than vanilla SMTVV')
-    print('Welcome to the SMTVV Rando v1.03. This version was created with game version 1.03 and will likely not work with other versions of SMTVV')
+    print('Welcome to the SMTVV Rando v1.04. This version was created with game version 1.03 and will likely not work with other versions of SMTVV')
     try:
         rando.configSettings, rando.textSeed = gui.createGUI(rando.configSettings)
         if rando.configSettings.swapCutsceneModels:
