@@ -764,8 +764,9 @@ class Randomizer:
             #each symbol has 16 encounters with different chances attached
             possEnc = []
             for i in range(16):
-                encId = encounters.readHalfword(locations['encounter1'] + 4 * i)
-                possEnc.append(Possible_Encounter(encId, self.encountArr[encId], encounters.readHalfword(locations['encounter1Chance'] + 4 * i)))
+                possEnc.append(encounters.readHalfword(locations['encounter1'] + 4 * i))
+                
+                #possEnc.append(Possible_Encounter(encId, self.encountArr[encId], encounters.readHalfword(locations['encounter1Chance'] + 4 * i)))
 
             ind = encounters.readHalfword(locations['symbol'])
             translation = "NO BASIC ENEMY" #Since non base demons arent saved anywhere currently use this filler name
@@ -2860,17 +2861,23 @@ class Randomizer:
         Returns:
             The updated buffer
     '''
-    def updateEncounterBuffer(self, buffer, symbolArr):
+    def updateEncounterBuffer(self, buffer, symbolArr, encountArr):
         #For each overworld encounter
         for symbolEntry in symbolArr:
             offsets = symbolEntry.offsetNumbers
             buffer.writeHalfword(symbolEntry.symbol.ind, offsets['symbol'])
             #go through its list of encounter battles
-            for encounterEntry in symbolEntry.encounters:
-                enc = encounterEntry.encounter
-                encOffsets = enc.offsetNumbers
+            # for encounterEntry in symbolEntry.encounters:
+            #     enc = encounterEntry.encounter
+            #     encOffsets = enc.offsetNumbers
+            #     #and write the data for every demon
+            #     for index, demon in enumerate(enc.demons):
+            #         buffer.writeHalfword(demon, encOffsets['demon'] + 2 * index)
+        for encounterEntry in encountArr:
+                encOffsets = encounterEntry.offsetNumbers
                 #and write the data for every demon
-                for index, demon in enumerate(enc.demons):
+                buffer.writeByte(encounterEntry.track, encOffsets['track'])
+                for index, demon in enumerate(encounterEntry.demons):
                     buffer.writeHalfword(demon, encOffsets['demon'] + 2 * index)
         for bossEncounter in self.updatedNormalEncounters:
             enc = self.encountArr[bossEncounter]
@@ -4017,7 +4024,7 @@ class Randomizer:
         Returns:
             The adjusted array of symbol encounters 
     '''
-    def adjustEncountersToSameLevel(self, symbolArr, comp, enemyArr):
+    def adjustEncountersToSameLevel(self, symbolArr, comp, enemyArr, encountArr):
 
         #will be in form [OG ID, NEW ID] #TODO: Rewrite this so it uses a dictionary in the first place
         replacements = []
@@ -4074,54 +4081,6 @@ class Randomizer:
             else:
                 #if it does get replacement
                 symbolFoe = getFoeWithID(next(r for x, r in enumerate(replacements) if r[0] == encount.symbol.ind)[1], foes)
-
-            #For every encounter battle for the current symbol encounter
-            for form in replaceEnc.encounters:
-                #That can actually appear
-                if form.chance > 0:
-                    formation = form.encounter
-                    #and is not the basic dummy encounter
-                    if formation.ind != 0:
-
-                        #Check if this encounter has been updated already
-                        if formation.updated:
-                            #check if symbol demon isn't in encounter
-                            if symbolFoe.ind not in formation.demons:
-                                valid = False
-                                #Is there a demon in encounter that has no replacement defined that can be replaced
-                                for d in formation.demons:
-                                    if d > 0 and any(r[0] == d for r in replacements) and 'Mitama' not in comp[d].name:
-                                        valid = True
-                                        d = symbolFoe.ind
-                                #Is there a demon more than once in encounter battle that can be replaced
-                                if not valid:
-                                    counter = []
-                                    for j, d in enumerate(formation.demons):
-                                        if any(r[0] == d for r in counter):
-                                            next(r for x, r in enumerate(counter) if r[0] == d)[1] += 1
-                                        else:
-                                            if d > 0 and 'Mitama' not in comp[d].name:
-                                                counter.append([d, 1])
-                                    if any(c[1] > 1 for c in counter):
-                                        cID = counter.index(next(c for x, c in enumerate(counter) if c[1] > 1))
-                                        valid = True
-                                        formation.demons[cID] = symbolFoe.ind
-                                #Replace symbolFoe with one of the demons in encounter
-                                if not valid:
-                                    symbolFoe = getFoeWithID(formation.demons[0], foes)
-                        else:
-                            #encounter has not been updated yet
-                            #for each demon in encounter battle
-                            for count, d in enumerate(formation.demons):
-                                #dont replace empty slots or mitamas
-                                if d > 0 and 'Mitama' not in comp[d].name:
-                                    #insert replacement if defined, random demon else
-                                    if any(r[0] == d for r in replacements):
-                                        formation.demons[count] = next(r for x, r in enumerate(replacements) if r[0] == d)[1]
-                                    # else:
-                                    #     demonR = random.choice(possibilities)
-                                    #     formation.demons[count] = demonR.ind
-                        formation.updated = True
             replaceEnc.symbol.ind = symbolFoe.ind
             replaceEnc.symbol.translation = symbolFoe.name
 
@@ -4131,6 +4090,12 @@ class Randomizer:
         replacementDict = {}
         for pair in replacements:
             replacementDict[pair[0]] = pair[1]
+
+        for encount in encountArr:
+            for index, demon in enumerate(encount.demons):
+                if demon in replacementDict.keys():
+                    encount.demons[index] = replacementDict[demon]
+
 
         #These need to be done before the we add the remaining demons so we know which demons cannot be encountered on the field
         self.adjustBasicEnemyDrops(replacementDict, enemyArr)
@@ -7322,7 +7287,7 @@ class Randomizer:
 
         self.enemyArr = self.adjustBasicEnemyArr(self.enemyArr, newComp)
         if config.randomDemonLevels:
-            newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, self.enemyArr)
+            newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, self.enemyArr, self.encountArr)
             self.adjustTutorialPixie(newComp,self.eventEncountArr)
             self.assignTalkableTones(newComp)
         else:
@@ -7454,7 +7419,7 @@ class Randomizer:
             self.patchYuzuruGLStats(compendiumBuffer)
         skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr, self.fusionSkillReqs)
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
-        encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
+        encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr, self.encountArr)
         playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
         itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
         shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr, self.mimanRewardsArr)
