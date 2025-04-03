@@ -5158,8 +5158,9 @@ class Randomizer:
         if not self.configSettings.combineKeyItemPools:#No combined pools means that exclusive items stay normal due to otherwise having not enough gift slots
             unchangedGifts = list(filter(lambda gift: gift.script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS or gift.script  in scriptLogic.NEWGAMEPLUS_GIFTS or gift.script in scriptLogic.MISSABLE_GIFTS, pool.allGifts))
             for gift in unchangedGifts:
-                pool.uniqueRewards.remove(gift.item)
-                randomizedGifts.append(gift)
+                if gift.item.ind >= numbers.KEY_ITEM_CUTOFF:
+                    pool.uniqueRewards.remove(gift.item)
+                    randomizedGifts.append(gift)
         #Filter out exclusive gifts that should not contain a unique item
         possibleGifts = list(filter(lambda gift: gift.script not in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS and gift.script not in scriptLogic.NEWGAMEPLUS_GIFTS or gift.script in scriptLogic.MISSABLE_GIFTS, pool.allGifts))
         uniqueGifts = random.sample(possibleGifts, len(pool.uniqueRewards))

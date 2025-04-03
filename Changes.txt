@@ -1,6 +1,7 @@
 Version 1.05
 Bugfixes:
 * Battles from navigator spots are now always correctly randomized
+* Gift randomization when item pools are not combined no longer causes a crash
 
 Version 1.04
 Features:
