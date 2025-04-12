@@ -10,6 +10,8 @@ import copy
 import json
 import csv
 
+DEBUG_MODE = False
+
 #Key: EventScriptName, Value: Type for what and where to search for values to be changed
 SCRIPT_JOIN_TYPES = {
     'MM_M061_EM1630': Script_Join_Type.CODE, # The Water Nymph 
@@ -200,6 +202,33 @@ ITEM_MESSAGE_REPLACEMENTS = {
 
 #Stores original expressions from script calls
 ORIGINAL_SCRIPT_FUNCTION_CALLS = {}
+
+#Scripts of AIs that also need to check a second unusual script for skill replacements
+ALLY_SCRIPTS = {
+    #TODO: Do I need them multiple times here?
+    "150" : ['BtlAI_DemiFiendNkmBase'],
+    "152" : ['BtlAI_DemiFiendNkmBase'],
+    "149" : ['BtlAI_DemiFiendNkmBase'],
+    "151" : ['BtlAI_DemiFiendNkmBase'],
+    "148" : ['BtlAI_DemiFiendNkmBase'],
+    "153" : ['BtlAI_DemiFiendNkmBase'],
+    "147" : ['BtlAI_DemiFiendNkmBase'],
+    "173" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "174" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "175" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "176" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "177" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "178" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "179" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "180" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "181" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "182" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "183" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "184" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "189" : ['BtlAI_TiamatNkmBase'],
+    "190" : ['BtlAI_TiamatNkmBase'],
+    "191" : ['BtlAI_TiamatNkmBase'],
+}
 
 '''
 Returns the original script that is used as the base for a script with equivalent reward.
@@ -620,7 +649,10 @@ def updateSkillsInAIScript(file, skillReplacements, scriptName):
             'BtlAIe121_NormalAct',
             'BtlAI_e064_YoroiOrZetu',
             'GetSkillRate',
-            'GetUseSkillforTgt' #AI 199
+            'GetUseSkillforTgt', #AI 199
+            'IsValidSkill', #DemiFiendNkmBase
+            'BtlAIe124_SkillList',
+            'BtlAIe125_SkillList',
         ]
     #Common names of properties in exports that represent skillIDs
     commonPropertyNames = [
@@ -696,6 +728,10 @@ def updateSkillsInAIScript(file, skillReplacements, scriptName):
             'BtlAIe121_NormalAct', #AI 121
             'GetSkillRate', #AI 140
             'UpDate_UseSkillData', #AI 137
+            'CallActSkill_TarEnAnalyze', #DemiFiendNkm
+            'CallActSkill_TarAI', #DemiFiendNkm
+            'GetHojoSkillValidTgt', #AI 192
+            'ChkMyUseSkillIDTurn', #AI 102
         ] 
         #Virtual functions where the skillID is not (only) in the first parameter
         specificParameters = {
@@ -707,22 +743,6 @@ def updateSkillsInAIScript(file, skillReplacements, scriptName):
             'DecideUseSkill': [1,2],
             'BtlAIe121_NormalAct': [0,3],
         }               
-        
-        #Misceallenous notes
-        #AI 024 has check for 386 Diarama (Thoth in Khonsu Ra Fight(No one there has diarama or uses it?))
-        #AI 171 has check for 148 Impaler's Animus (Dazai (Impaler's is only on Abdiel))
-        
-        #Okuninushi(822) 041 has check for 139 (from Oyamatsumi 825)
-        #Orobas(817) 016 has checks for 214/216 (from Moloch 816)
-        #Flauros(818) 023 has checks for 214/216/3 (from Moloch 816) and for 10 from Oroboas 817
-        #Anubis(517) 010 has check for 323 from Khonsu Ra  519
-        #Thoth(518) 024 has check for 323 from Khonsu Ra  519
-        #Amanozako(876) 119 has check for 117 Heavenly Counter Active Part
-        
-        #Demi-fiend(934) 139 uses skillID 372 to check if 397 can hit everything?
-
-        #TODO: NKMBase AI for Demifiend/Satan/Tiamat??
-        #Not yet analyzed AI files?, (Lucifer P2/3, Tsukuyomi Clones)
 
         #grab original function calls, so that only calls for the original item get replaced to prevent chain replacements
         if scriptName + export not in ORIGINAL_SCRIPT_FUNCTION_CALLS.keys():
@@ -904,9 +924,6 @@ def updateSkillsInAIScript(file, skillReplacements, scriptName):
                         varname = parameters[1]["Variable"]["New"]["Path"][0]
                         if varname in processedInstanceVars or varname in processedLocalVars:
                             processExpression(parameters[0],exp['Parameters'][0],imp)
-   
- 
-        # Some AI files might also relate to others (the ones for Arioch & Decarabia I believe for example)
         
     
     #initial values for instance variables
@@ -953,6 +970,7 @@ Updates ai scripts according to the skill replacement map.
 '''
 def aiUpdate(skillReplacementMap, bossArr, scriptFiles):
     infoDict = {}
+    storeNkm = {}
     for demonID in skillReplacementMap.keys():
         demon = bossArr[demonID]
         ai = str(demon.AI).zfill(3)
@@ -960,33 +978,56 @@ def aiUpdate(skillReplacementMap, bossArr, scriptFiles):
             #000 is for lahmu tentacles, or nuwa thunder bits
             #055 is random so no need to modify it at all
             continue
+        #fileName = 
+        fileNames = ["BtlAI_e" + ai]
+        if ai in ALLY_SCRIPTS.keys():
+            for allyScript in ALLY_SCRIPTS[ai]:
+                if allyScript not in storeNkm:
+                    storeNkm[allyScript] = {}
+                storeNkm[allyScript].update(skillReplacementMap[demonID])
+
+            
 
         #print(demon.name + " " + ai)
 
-        fileName = "BtlAI_e" + ai
-        if fileName in scriptFiles.fileNames:
-            #To prevent chain replacements for bosses that use the same AI (example: Abdiel in CoC/CoV)
-            continue
+        for fileName in fileNames:
+            if fileName in scriptFiles.fileNames:
+                #To prevent chain replacements for bosses that use the same AI (example: Abdiel in CoC/CoV)
+                continue
+            file = scriptFiles.getFile(fileName)
+            infoDict.update({demon.name + "(" + str(demon.ind) + ")" + " " + fileName  : updateSkillsInAIScript(file,skillReplacementMap[demonID],fileName)})
+            scriptFiles.setFile(fileName,file)
+            scriptFiles.writeFile(fileName,file)
+
+    for fileName, replacements in storeNkm.items():
         file = scriptFiles.getFile(fileName)
-        infoDict.update({demon.name + "(" + str(demon.ind) + ")" + " " + ai  : updateSkillsInAIScript(file,skillReplacementMap[demonID],fileName)})
+        infoDict.update({fileName  : updateSkillsInAIScript(file,replacements,fileName)})
         scriptFiles.setFile(fileName,file)
         scriptFiles.writeFile(fileName,file)
 
-    with open(paths.SKILL_REPLACEMENT_FAILS, "w") as file:
-        for demon, categories in infoDict.items():
-            file.write(f"### {demon} ###\n")
-            for category, values in categories.items():
-                file.write(f"{category}:\n")
-                if isinstance(values, list):
-                    for item in values:
-                        file.write(f"  - {item}\n")
-                else:
-                    file.write(f"  {values}\n")
-            file.write("\n")
+    if DEBUG_MODE:
+        with open(paths.SKILL_REPLACEMENT_FAILS, "w") as file:
+            for demon, categories in infoDict.items():
+                file.write(f"### {demon} ###\n")
+                for category, values in categories.items():
+                    file.write(f"{category}:\n")
+                    if isinstance(values, list):
+                        for item in values:
+                            file.write(f"  - {item}\n")
+                    else:
+                        file.write(f"  {values}\n")
+                file.write("\n")
+
     with open(paths.SKILL_REPLACEMENTS, "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["Demon Name","Script File", "Original Skill ID", "New Skill ID"])  # Header
 
         for demon, replacements in skillReplacementMap.items():
             for old_skill, new_skill in replacements.items():
-                writer.writerow([bossArr[demon].name,"BtlAI_e" +str(bossArr[demon].AI).zfill(3), old_skill, new_skill])
+                ai = str(bossArr[demon].AI).zfill(3)
+                fileNames = ["BtlAI_e" +ai]
+                for fileName in fileNames:
+                    writer.writerow([bossArr[demon].name,fileName, old_skill, new_skill])
+        for fileName, replacements in storeNkm.items():
+            for old_skill, new_skill in replacements.items():
+                writer.writerow([fileName,fileName, old_skill, new_skill])

@@ -10,7 +10,7 @@ import pandas as pd
 #Stores the distribution of resist in the boss resistance process
 TOTAL_BOSS_RESIST_MAP = {}
 #Stores resist profiles of all bosses
-resistProfiles = []
+RESIST_PROFILES = []
 #Filled with ids of bosses and which comp demon they represent
 BOSS_PLAYER_MAP = {}
 #Encounter IDs that should not be randomized
@@ -136,168 +136,11 @@ ILLUSION_AGRAT_SYMBOL = 1862
 #Encounter ID for Illusion Agrat
 ILLUSION_AGRAT_ENCOUNTER = 2629
 
-#Map of bosses with healing skills and which one instead shows up in their AI scripts
-HEALING_BOSS_MAP = {
-    822: { #Okuninushi
-       354 : 383, #Media
-    },
-    814: { #Camael
-       353 : 386, #Diarama
-    },
-    876: { #Amanozako
-       104 : 386, #Diarama
-    },
-}
+#Stores additionall boss skills outside their skill list
+ADDITIONAL_BOSS_SKILLS = {}
 
-#Map of bosses and which skills are missing in their skill list but they can still use
-MISSING_SKILLS_IN_LIST = {
-    861: [ #Koumokuten (4 Turn)
-        75, #Megidoloan
-        127, #Dekaja
-    ],
-    862: [ #Jikokuten (4 Turn)
-        127, #Dekaja
-    ],
-    863: [ #Bishamonten (4 Turn)
-        137, #Dekunda
-    ],
-    519: [ #Khonsu Ra 
-        323, #Wait for Mesekteths Path??
-    ],
-    520: [ #Nuwa (Nahobino)
-        359,360,361,362, #Rising Storm Dragon (Variants)
-        285 #Electrify (Variant)
-    ],
-    528: [ #Tsukuyomi
-        324, #Wait for Tsukuyomi?
-        136, #Debilitate
-        386, #Diarama Variant
-    ],
-    452: [ #Lahmu (Tentacles CoC?)
-        287, #Attack (AOE?)
-    ],
-    455: [#Ishtar
-        137, #Dekunda
-        313, #Dreadful Gleam (Does Nothing)
-    ],
-    561: [#Yuzuru Atsuta
-        136, #Debilitate (Is an Initial Value (unlikely to be used))
-    ],
-    565: [ #Tiamat
-        866, #Annihilation Ray
-        867, #Annihilation Ray (Not working)
-        933, #Magatsuhi Harvest (Special)
-    ],
-    567: [#Shohei Yakumo (CoV)
-        151, #Do Nothing
-    ],
-    550: [#Nuwa (CoV)
-        151, #Do Nothing
-    ],
-    569: [#Lilith
-        151, #Do Nothing
-        889, #Qadistu Entropy
-        907, #Failed Qadistu Entropy
-        933, #Magatsuhi Harvest (Special)
-    ],
-    570: [#Agrat (lilith)
-        151, #Do Nothing
-        889, #Qadistu Entropy
-        907, #Failed Qadistu Entropy
-    ],
-    572: [#Eisheth
-        151, #Do Nothing
-        889, #Qadistu Entropy
-        907, #Failed Qadistu Entropy
-    ],
-    574: [#Naamah
-        151, #Do Nothing
-        889, #Qadistu Entropy
-        907, #Failed Qadistu Entropy
-    ],
-    577: [#Abdiel (Dazai)
-        151, #Do Nothing
-    ],
-    578: [#Dazai
-        151, #Do Nothing
-    ],
-    597: [#Tehom
-        75, #Megidoloan
-        127, #Dekaja
-        137, #Dekunda
-        859, #Tehom Wait
-        862, #Inception of Chaos
-        933, #Magatsuhi Harvest
-    ],
-    947: [#Dagda
-        77, #Freikugel
-    ],
-    681: [#Satan #TODO: Sync with Minions
-        7, # Agibarion
-        12, # Maragibarion
-        22, # Bufubarion
-        27, # Mabufubarion
-        37, # Ziobarion
-        42, # Maziobarion
-        52, # Zanbarion
-        57, # Mazanbarion
-        63, # Mudobarion
-        66, # Mamudobarion
-        69, # Hamabarion
-        72, # Mahamabarion
-        75, # Megidolaon
-        77, # Freikugel
-        81, # Energy Drain
-        82, # Slumber Vortex
-        89, # Pulinpa
-        91, # Marin Karin
-        93, # Makajama
-        194, # Figment Slash
-        211, # Yabusame Shot
-        250, # Toxic Spray
-        933, # Magatsuhi Harvest (Special)
-    ],
-    826: [#Oyamatsumi (Punishing)
-        153, #Wait and see
-    ],
-    576: [#Agrat (Illusion)
-        143, #Concentrate
-        888, #Diamrita
-    ],
-    596: [#Mastema
-        126, #Luster Candy
-        850, #Diarama
-    ],
-    529: [#Lucifer (True P1)
-        127, #Dekaja
-        137, #Dekunda
-        69, #Hamabarion
-        63, #Mudobarion 
-    ],
-    529: [#Lucifer (False)
-        127, #Dekaja
-        137, #Dekunda
-        69, #Hamabarion
-        63, #Mudobarion 
-    ],
-    932: [#Mephisto
-        127, #Dekaja
-    ],
-    758: [#Masakado
-        244, #Black Dracostrike
-        245, #White Dracostrike
-        179, #Ice Dracostrike
-        180, #Storm Dracostrike
-        181, #Wind Dracostrike
-    ],
-    757: [#Masakado
-        244, #Black Dracostrike
-        245, #White Dracostrike
-        179, #Ice Dracostrike
-        180, #Storm Dracostrike
-        181, #Wind Dracostrike
-    ],
-}
+BASIC_ENEMY_MAGATSUHI = 380
+GODBORN_ENEMY_MAGATSUHI = 950
 
 class Boss_Metadata(object):
     def __init__(self, demons, id):
@@ -382,6 +225,41 @@ class Boss_Metadata(object):
                 continue
             totalCount += count
         return totalCount
+
+'''
+Reads data about additional boss skills and fills dictionary.
+'''
+def initAdditionalBossSkillData():
+    skillMap = pd.read_csv(paths.BOSS_SKILL_DATA, dtype=str)
+    for index, row in skillMap.iterrows():
+        bossID = int(row['BossID'])
+        skillID = int(row['SkillID'])
+        replacementSkill = int(row['ReplacementSkill'])
+        syncSkill = int(row['SyncSkill'])
+        syncDemon = int(row['SyncDemon'])
+
+        if bossID not in ADDITIONAL_BOSS_SKILLS.keys():
+            ADDITIONAL_BOSS_SKILLS[bossID] = {
+                'ReplacementSkills': {},
+                'SyncSkills': {},
+                'SyncDemons': {},
+                'AdditionalSkills': []
+            }
+        if replacementSkill != 0:
+            #Skills that replace a skill in the actual skill list (Example: Diarama in Skill list is not the one in AI script)
+            ADDITIONAL_BOSS_SKILLS[bossID]['ReplacementSkills'].update({replacementSkill: skillID})
+        elif syncSkill != 0:
+            #Skills that use a different version of the same skill in some part of the script(Ex: Demi-fiend uses the player Javelin Rain to check if it can hit and then uses the boss version)
+            ADDITIONAL_BOSS_SKILLS[bossID]['SyncSkills'].update({syncSkill: skillID})
+            ADDITIONAL_BOSS_SKILLS[bossID]['AdditionalSkills'].append(skillID)
+        else:
+            #Skills that don't appear in the skill list or need to be synced with a different demon
+            ADDITIONAL_BOSS_SKILLS[bossID]['AdditionalSkills'].append(skillID)
+        if syncDemon != 0:
+            #Skills that need to be synced across Demons (Ex: Satan steals Skills or Flauros checks what Moloch/Oroboas used)
+            if syncDemon not in ADDITIONAL_BOSS_SKILLS[bossID]['SyncDemons']:
+                ADDITIONAL_BOSS_SKILLS[bossID]['SyncDemons'][syncDemon] = []
+            ADDITIONAL_BOSS_SKILLS[bossID]['SyncDemons'][syncDemon].append(skillID)
 
 '''
 Balances the stats of boss demons, including summoned adds to their new location
@@ -476,10 +354,8 @@ def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonRefe
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
-        if replacementDemon in HEALING_BOSS_MAP.keys():
-            adjustHealingSkills(replacementDemon, referenceDemon, skillReplacementMap)
         if configSettings.randomizeBossSkills:
-            randomizeSkills(replacementDemon, skillReplacementMap)
+            randomizeSkills(replacementDemon, skillReplacementMap, configSettings)
         adjustForResistSkills(replacementDemon)
 
 
@@ -524,11 +400,9 @@ def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr,
         if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
-            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
-        if replacementDemon in HEALING_BOSS_MAP.keys():
-            adjustHealingSkills(replacementDemon, skillReplacementMap)
+            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr)      
         if configSettings.randomizeBossSkills:
-            randomizeSkills(replacementDemon, skillReplacementMap)
+            randomizeSkills(replacementDemon, skillReplacementMap, configSettings)
         adjustForResistSkills(replacementDemon)
 
 '''
@@ -577,11 +451,9 @@ def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceAr
         if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
-            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
-        if replacementDemon in HEALING_BOSS_MAP.keys():
-            adjustHealingSkills(replacementDemon, skillReplacementMap)
+            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr)         
         if configSettings.randomizeBossSkills:
-            randomizeSkills(replacementDemon, skillReplacementMap)
+            randomizeSkills(replacementDemon, skillReplacementMap, configSettings)
        
         adjustForResistSkills(replacementDemon)
 '''
@@ -623,8 +495,9 @@ True Lucifer's phase 2 and phase 3 versions need to be synced as well, and their
         configSettings (Settings): Settings determining what types of bosses were randomized
         compendium (List(Compendium_Demon)): list of compendium demons
         playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
+        skillReplacementMap (Dict): map of bosses and their skills and replacement skills
 '''
-def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr):
+def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr, skillReplacementMap):
     for base, duplicates in REVIVED_DEMON_DUPLICATE_MAP.items():
         referenceDemon = bossArr[base]
         for duplicate in duplicates:
@@ -635,6 +508,7 @@ def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr):
             demonToPatch.damageMultiplier = referenceDemon.damageMultiplier
             demonToPatch.instakillRate = referenceDemon.instakillRate
             demonToPatch.resist = referenceDemon.resist
+            randomizeSkills(demonToPatch, skillReplacementMap, configSettings)
     if configSettings.randomizeLucifer:
         luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
         luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
@@ -660,7 +534,10 @@ def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr):
             luciferPhase2.resist = randomizeBossResistances(luciferPhase2, copy.deepcopy(luciferPhase1),LUCIFER_PHASE_2_RESIST_TOTALS,configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
             resistTotalSubDict = calculateResistTotals(LUCIFER_PHASES[2],luciferPhase2)
-            luciferPhase2.resist = randomizeBossResistances(luciferPhase2,copy.deepcopy(luciferPhase1),resistTotalSubDict[LUCIFER_PHASES[2]],configSettings, compendium, playerBossArr)       
+            luciferPhase2.resist = randomizeBossResistances(luciferPhase2,copy.deepcopy(luciferPhase1),resistTotalSubDict[LUCIFER_PHASES[2]],configSettings, compendium, playerBossArr)
+        if configSettings.randomizeBossSkills:  
+            randomizeSkills(luciferPhase2, skillReplacementMap, configSettings)
+            randomizeSkills(luciferPhase3, skillReplacementMap, configSettings)         
     
 
 '''
@@ -1228,7 +1105,7 @@ def randomizeBossResistances(replacementDemon, referenceDemon, checkSums, config
             if replacementDemon.ind in STRONG_WEAKNESS_BOSSES and value == 1.5:
                 value *= 2
             referenceDemon.resist.__setattr__(element,Translated_Value(value,translation.translateResist(numbers.SIMPLE_RESIST_RESULTS[chosenResists[index]])))
-        resistProfiles.append([physResist] + chosenResists + ailmentResists)
+        RESIST_PROFILES.append([physResist] + chosenResists + ailmentResists)
         for index, ailment in enumerate(numbers.AILMENT_NAMES):
             TOTAL_BOSS_RESIST_MAP[ailment][ailmentResists[index]] += 1
             referenceDemon.resist.__setattr__(ailment,Translated_Value(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS[ailmentResists[index]],translation.translateResist(numbers.SIMPLE_BOSS_AILMENT_RESIST_RESULTS[ailmentResists[index]])))    
@@ -1290,22 +1167,73 @@ def adjustForResistSkills(demon):
             if numbers.compareResistValues(oldValue,value) == 1: #if new value is a stronger resist use it
                 demon.resist.__setattr__(resistElement, Translated_Value(value,translation.translateResist(value)))
                     
-def randomizeSkills(demon, skillReplacementMap):
-    #TODO: Can#t work like this since bosses that use the same ai would need the same skills (Two abdiels for example)
-    newSkills = []
-    skillReplacementMap[demon.ind] = {}
-    if demon.ind in MISSING_SKILLS_IN_LIST.keys():
-        fullSkillList = demon.skills + [Translated_Value(skill,"") for skill in MISSING_SKILLS_IN_LIST[demon.ind]]
+def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
+    localReplacements = {} # Temp storage for skill replacements of the current demon
+    if demon.ind not in skillReplacementMap.keys():
+        skillReplacementMap[demon.ind] = {}
+    else:
+        #if demon is already in list grab skill replacements that had been already decided
+        localReplacements.update(skillReplacementMap[demon.ind])
+
+    if demon.ind in ADDITIONAL_BOSS_SKILLS.keys():
+        fullSkillList = demon.skills + [Translated_Value(skill,"") for skill in ADDITIONAL_BOSS_SKILLS[demon.ind]["AdditionalSkills"]]
     else:
         fullSkillList = demon.skills
-    for index, skill in enumerate(fullSkillList):
-        if skill != 0:
-            #TODO: Actual skill rando code instead of this test thing
-            newSkill = 999 + index
-            newSkills.append(Translated_Value(newSkill,""))
-            skillReplacementMap[demon.ind].update({skill.ind: newSkill})
-    demon.skills = newSkills
 
-def adjustHealingSkills(replacementDemon, skillReplacementMap):
-    pass
-    #TODO: adjusts healing skills of bosses to fit level / put enemy versions in skill list
+    fullSkillList.extend([Translated_Value(GODBORN_ENEMY_MAGATSUHI,"Godborn Magatsuhi Harvest"),Translated_Value(BASIC_ENEMY_MAGATSUHI,"Godborn Magatsuhi Harvest")])
+    
+    #Replace skills with different skill version to use instead
+    for index, skill in enumerate(fullSkillList):
+        if demon.ind in ADDITIONAL_BOSS_SKILLS.keys() and skill.ind in ADDITIONAL_BOSS_SKILLS[demon.ind]["ReplacementSkills"]:
+            fullSkillList[index] = Translated_Value(ADDITIONAL_BOSS_SKILLS[demon.ind]["ReplacementSkills"][skill.ind],"")
+    
+
+
+    #TODO: Actual skill rando code instead of this test thing
+    shuffledList = copy.deepcopy(fullSkillList)
+    #random.shuffle(shuffledList)
+    
+    for index, skill in enumerate(fullSkillList):
+        # do not randomize empty skills and skills where replacement has already been decided
+        if skill.ind != 0 and skill.ind not in localReplacements.keys():
+            
+            if skill.ind in [GODBORN_ENEMY_MAGATSUHI, BASIC_ENEMY_MAGATSUHI]:
+                if configSettings.alwaysCritical:
+                    newSkill = BASIC_ENEMY_MAGATSUHI
+                elif configSettings.alwaysPierce:
+                    newSkill = GODBORN_ENEMY_MAGATSUHI
+                else:
+                    newSkill = random.choice([GODBORN_ENEMY_MAGATSUHI, BASIC_ENEMY_MAGATSUHI])
+            else:
+                #newSkill = 999 + index
+                newSkill = shuffledList[index].ind
+            
+            
+            
+            
+            
+            localReplacements.update({skill.ind: newSkill})
+    
+
+
+
+    if demon.ind in ADDITIONAL_BOSS_SKILLS.keys():
+        for oldSkill,syncSkill in ADDITIONAL_BOSS_SKILLS[demon.ind]['SyncSkills'].items():
+            #Use replacement of sync skill instead if it exists
+            localReplacements[syncSkill] = localReplacements[oldSkill]
+        
+        for syncDemon, syncSkills in ADDITIONAL_BOSS_SKILLS[demon.ind]['SyncDemons'].items():
+            for syncSkill in syncSkills:
+                if syncDemon in skillReplacementMap.keys() and syncSkill in skillReplacementMap[syncDemon].keys():
+                    #if replacement skill for sync skill of sync demon has already been decided use that
+                    localReplacements[syncSkill] = skillReplacementMap[syncDemon][syncSkill]
+                elif syncDemon in skillReplacementMap.keys() and syncSkill not in skillReplacementMap[syncDemon].keys():
+                    #if replacement skill has not been decided but sync demon has skill replacements add new replacement skill
+                    skillReplacementMap[syncDemon][syncSkill] = localReplacements[syncSkill]
+                else:
+                    #if sync demon has no skill replacements yet, add sync demon and replacement skill
+                    skillReplacementMap[syncDemon] = {syncSkill: localReplacements[syncSkill]}
+
+
+    skillReplacementMap[demon.ind].update(localReplacements)
+    demon.skills = [Translated_Value(skill_id, "") for skill_id in localReplacements.values()]

@@ -7125,6 +7125,7 @@ class Randomizer:
         mapEventBuffer = readBinaryTable(paths.MAP_EVENT_DATA_IN)
         navigatorBuffer = readBinaryTable(paths.NAVIGATOR_DATA_IN)
         message_logic.initDemonModelData()
+        bossLogic.initAdditionalBossSkillData()
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
@@ -7312,9 +7313,9 @@ class Randomizer:
         #pprint(bossLogic.resistProfiles)
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
-            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr)
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap)
         elif config.randomizeBossResistances:
-            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr)
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap)
         
         self.updateUniqueSymbolDemons()
         if config.scaleBossDamage:
