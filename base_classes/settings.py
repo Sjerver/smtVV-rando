@@ -84,7 +84,10 @@ class Settings(object):
         self.diverseBossResists = False             # Diversify resitance profiles to prevent all bosses having the same weaknesses/resists
         self.bossNoEarlyPhysImmunity = False        # Prevents bosses up till Hydra to be immune to physical skills
         self.bossPressTurnChance = 0.0              # Chance of adding extra press turns to bosses. Values over 1.0 can add multiple turns
-        self.randomizeBossSkills = False             # Randomizes Skills of Bosses TODO: Not implemented properly
+        self.randomizeBossSkills = False            # Randomizes Skills of Bosses
         self.alwaysCritical = False                 # Enemies always use Omagatoki: Critical as the generic magatsuhi skill
         self.alwaysPierce = False                   # Enemies always use Omagatoki: Pierce as the generic magatsuhi skill
         self.randomMagatsuhi = False                # Random per AI script per Mode if Omagatoki: Pierce or Omagatoki: Critical
+        self.similiarBossSkillRank = False          # Boss Skills are replaced by skills with a similiar skill rank
+        self.allowBossMagatsuhiSkill = False        # Allows magatsuhi skills to be in bosses skill pools
+        self.allowContemptOfGod = False             # Allows Contempt of God to be randomized and show up on bosses              

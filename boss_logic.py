@@ -2,6 +2,7 @@ from base_classes.encounters import Encounter, Event_Encounter, Mixed_Boss_Encou
 from util import numbers, translation, paths
 from base_classes.settings import Settings
 from base_classes.base import Translated_Value
+from base_classes.skills import Active_Skill, Passive_Skill
 import math
 import copy
 import random
@@ -11,6 +12,11 @@ import pandas as pd
 TOTAL_BOSS_RESIST_MAP = {}
 #Stores resist profiles of all bosses
 RESIST_PROFILES = []
+
+SKILL_ARR = []
+PASSIVE_ARR = []
+INNATE_ARR = []
+
 #Filled with ids of bosses and which comp demon they represent
 BOSS_PLAYER_MAP = {}
 #Encounter IDs that should not be randomized
@@ -139,8 +145,31 @@ ILLUSION_AGRAT_ENCOUNTER = 2629
 #Stores additionall boss skills outside their skill list
 ADDITIONAL_BOSS_SKILLS = {}
 
+#Skill ids of Enemy Omagatoki:Critical and Omagatoki:Pierce
 BASIC_ENEMY_MAGATSUHI = 380
 GODBORN_ENEMY_MAGATSUHI = 950
+
+#TODO: Sync Formless Arrow in Marici Fight?
+
+#List of skills that cannot be chosen as result of randomization
+BANNED_SKILLS = [834,835, #Unused Uniques from Pixie/High Pixie,
+                 371, #Demi-fiend Gaea Rage
+                 248, #Taunt does not work when Enemies use it
+                 154,951,929, #Trafuri (+Dazai Version), Riberama
+                 313, #Dreadful Gleam Fail
+                 99,102, #Diarahan, Mediarahan
+    ]
+
+#List of skills that should not be changed in randomization
+UNCHANGEABLE_SKILLS = [
+    240,357,324,358,854,901, #Mesektet's Path,True Replication,Tsukuyomi Wait,False Replication,Shadow Summoning,Primordial Parturition
+    316,317,318,319,867,933, #Call Angel, Call Soldiers, Call Souls, Call Evil,Annihilation Ray,Magatsuhi Harvest Special
+    151,889,907,859,838,153, #Do Nothing,Qadistu Entropy, Qadistu Entropy Failed,Tehom Wait,Haze Invocation,Wait and see
+    323,356,285,287,117,886, #Wait Mesektet's Path,Electrify x2,Lahmu Attack All(Unused?),Heavenly Counter Active Part,Revival Bead
+    286,359,360,361,362,267, #Rising Storm Dragon x5, Witness Me Hayataro(#TODO:Decide if that should be in here, since it kinda breaks fight otherwise)
+    371,387,350,313, #Demi-fiend Gaea Rage, False Replica Erased, TrueLuci P2 Attack,Dreadful Gleam Fail
+    99,102, #Diarahan, Mediarahan
+]
 
 class Boss_Metadata(object):
     def __init__(self, demons, id):
@@ -509,10 +538,11 @@ def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr, s
             demonToPatch.instakillRate = referenceDemon.instakillRate
             demonToPatch.resist = referenceDemon.resist
             randomizeSkills(demonToPatch, skillReplacementMap, configSettings)
+    
+    luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
+    luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
+    luciferPhase3 = bossArr[LUCIFER_PHASES[2]]
     if configSettings.randomizeLucifer:
-        luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
-        luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
-        luciferPhase3 = bossArr[LUCIFER_PHASES[2]]
         luciferPhase2.stats = copy.deepcopy(luciferPhase1.stats) #Lucifer has some stat variance between phases but eh
         luciferPhase3.stats = copy.deepcopy(luciferPhase1.stats)
         luciferPhase2.pressTurns = luciferPhase1.pressTurns
@@ -530,14 +560,18 @@ def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr, s
         luciferPhase3.level = luciferPhase1.level
         luciferPhase3.resist = luciferPhase1.resist
         
-        if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
-            luciferPhase2.resist = randomizeBossResistances(luciferPhase2, copy.deepcopy(luciferPhase1),LUCIFER_PHASE_2_RESIST_TOTALS,configSettings, compendium, playerBossArr)
-        elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
-            resistTotalSubDict = calculateResistTotals(LUCIFER_PHASES[2],luciferPhase2)
-            luciferPhase2.resist = randomizeBossResistances(luciferPhase2,copy.deepcopy(luciferPhase1),resistTotalSubDict[LUCIFER_PHASES[2]],configSettings, compendium, playerBossArr)
-        if configSettings.randomizeBossSkills:  
-            randomizeSkills(luciferPhase2, skillReplacementMap, configSettings)
-            randomizeSkills(luciferPhase3, skillReplacementMap, configSettings)         
+    luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
+    luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
+    luciferPhase3 = bossArr[LUCIFER_PHASES[2]]
+    if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
+        luciferPhase2.resist = randomizeBossResistances(luciferPhase2, copy.deepcopy(luciferPhase1),LUCIFER_PHASE_2_RESIST_TOTALS,configSettings, compendium, playerBossArr)
+    elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
+        resistTotalSubDict = calculateResistTotals(LUCIFER_PHASES[2],luciferPhase2)
+        luciferPhase2.resist = randomizeBossResistances(luciferPhase2,copy.deepcopy(luciferPhase1),resistTotalSubDict[LUCIFER_PHASES[2]],configSettings, compendium, playerBossArr)
+    if configSettings.randomizeBossSkills:  
+        randomizeSkills(luciferPhase2, skillReplacementMap, configSettings)
+        randomizeSkills(luciferPhase3, skillReplacementMap, configSettings)
+
     
 
 '''
@@ -1189,30 +1223,55 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
     
 
 
-    #TODO: Actual skill rando code instead of this test thing
-    shuffledList = copy.deepcopy(fullSkillList)
-    #random.shuffle(shuffledList)
+    #TODO: Refine settings and algorithm for this
     
     for index, skill in enumerate(fullSkillList):
+        newSkill = skill.ind
+        
         # do not randomize empty skills and skills where replacement has already been decided
-        if skill.ind != 0 and skill.ind not in localReplacements.keys():
+        if (skill.ind != 0 and skill.ind not in UNCHANGEABLE_SKILLS) and skill.ind not in localReplacements.keys():
             
             if skill.ind in [GODBORN_ENEMY_MAGATSUHI, BASIC_ENEMY_MAGATSUHI]:
                 if configSettings.alwaysCritical:
                     newSkill = BASIC_ENEMY_MAGATSUHI
                 elif configSettings.alwaysPierce:
                     newSkill = GODBORN_ENEMY_MAGATSUHI
-                else:
+                elif configSettings.randomMagatsuhi:
                     newSkill = random.choice([GODBORN_ENEMY_MAGATSUHI, BASIC_ENEMY_MAGATSUHI])
+                else:
+                    newSkill = skill.ind
+            elif 400 <= skill.ind <800:
+                #Passive Skill
+                newSkill = skill.ind
             else:
                 #newSkill = 999 + index
-                newSkill = shuffledList[index].ind
-            
-            
-            
-            
-            
-            localReplacements.update({skill.ind: newSkill})
+                
+                activeSkill = obtainSkillFromID(skill.ind)
+                activeSkill: Active_Skill
+                # filter unviable skills
+                currentSkills = [skill for skill in SKILL_ARR if skill.ind != 0 and skill.ind not in localReplacements.values() and skill.ind not in BANNED_SKILLS and skill.ind not in numbers.MAGATSUHI_ENEMY_VARIANTS.keys()]
+                #same type of skill
+                currentSkills = [skill for skill in currentSkills if skill.skillType.value == activeSkill.skillType.value]
+
+                if configSettings.similiarBossSkillRank:
+                    currentSkills = [skill for skill in currentSkills if (skill.rank == 0 or skill.rank -5 <= activeSkill.rank <= skill.rank + 5)]
+                #TODO: The higher the rank the stronger the difference between them, so maybe take that into account here
+
+                if not configSettings.allowBossMagatsuhiSkill:
+                    currentSkills = [skill for skill in currentSkills if skill.rank != 0]
+                else:
+                    #Magatsuhi Skills should be rarer
+                    currentSkills = [skill for skill in currentSkills if skill.rank != 0 or (activeSkill.magatsuhi.enable !=0 and random.randint(1,10) == 1)]
+                
+                currentSkills = [skill.ind for skill in currentSkills]
+                if len(currentSkills) > 0:
+                    newSkill = random.choice(currentSkills)
+                else:
+                    newSkill = activeSkill.ind
+                    print(str(demon.ind) + " " + demon.name + ": " + str(activeSkill.ind) + " " + activeSkill.name +" not randomized!" )
+  
+        localReplacements.update({skill.ind: newSkill})
+        
     
 
 
@@ -1232,8 +1291,73 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
                     skillReplacementMap[syncDemon][syncSkill] = localReplacements[syncSkill]
                 else:
                     #if sync demon has no skill replacements yet, add sync demon and replacement skill
-                    skillReplacementMap[syncDemon] = {syncSkill: localReplacements[syncSkill]}
+                    skillReplacementMap[syncDemon] = {syncSkill: localReplacements[syncSkill]} 
 
-
+    for oldID, newID in localReplacements.items():
+        #Replace Healing Skills with enemy variant
+        #if([97,98,100,101,266,909,279,855].includes(newID))
+        if newID == 855:
+            newID = 856 #Sakuya Sakura
+        elif newID == 909 or newID == 266:
+            newID = 887 #Suns Radiance
+        elif newID == 270:
+            newID = 277 #Matriarchs Love
+        elif newID == 101:
+            newID = 384 #Mediarama (Throne,Clotho)
+        elif newID == 100:
+            newID = 383 #Media 
+        elif newID == 98:
+            newID = 382 #Diarama
+        elif newID == 97:
+            newID = 381 #Dia
+        if skill.ind in numbers.MAGATSUHI_SKILLS:
+            try: #try to use enemy version of magatsuhi skill if possible
+                newID = numbers.MAGATSUHI_ENEMY_VARIANTS[skill.ind]
+            except KeyError:
+                pass
+        localReplacements[oldID] = newID
+    
     skillReplacementMap[demon.ind].update(localReplacements)
-    demon.skills = [Translated_Value(skill_id, "") for skill_id in localReplacements.values()]
+    ogLen = len(demon.skills)
+    
+    demon.skills = [Translated_Value(skill_id, "") for skill_id in localReplacements.values()][0:ogLen-2]
+
+'''
+Makes the skill arrs accessible for boss_logic and temporarily modifies certain skills to make them work better in the skill randomization.
+Parameters:
+    skillArr(List(Active_Skill)): list of active skills
+    passiveSkillArr(List(Passive_Skill)): list of all passive skills
+    innateSkillArr(List(Passive_Skill)): list of all passive skills that are actually innate skills
+    configSettings(Settings): settings fo the randomizer that modify which skills are temporarily modified
+'''
+def prepareSkillRando(skillArr,passiveSkillArr,innateSkillArr, configSettings):
+    SKILL_ARR.extend(skillArr)
+    PASSIVE_ARR.extend(passiveSkillArr)
+    INNATE_ARR.extend(innateSkillArr)
+
+    for skill in SKILL_ARR:
+        if skill.ind in numbers.ENEMY_SKILL_RANKS.keys():
+            skill.rank = numbers.ENEMY_SKILL_RANKS[skill.ind]
+        
+        if skill.ind == numbers.CONTEMPT_OF_GOD_ID and configSettings.allowContemptOfGod:
+            skill.skillType = Translated_Value(4,'Support')
+        if skill.ind in numbers.PHYSICAL_RATE_SKILLS:
+            skill.skillType = Translated_Value(1,'StrBased')
+
+'''
+Based on the skill id returns the object containing data about the skill from one of skillArr, passiveSkillArr or innateSkillArr.
+    Parameters:
+        ind (Number): the id of the skill to return
+    Returns:
+        The skill object with the given id
+'''
+def obtainSkillFromID(ind):
+        #print(ind)
+        if ind <= 400:
+            return SKILL_ARR[ind]
+        elif ind <= 530:
+            return PASSIVE_ARR[ind - 401]
+        elif ind <= 800:
+            return INNATE_ARR[ind - 531]
+        else:
+            return SKILL_ARR[ind - 400]

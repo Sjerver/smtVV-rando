@@ -16,9 +16,21 @@ BossID,BossName,SkillID,SkillName,ReplacementSkill,ReplacementName,SyncSkill,Syn
 528,Tsukuyomi, 324, Wait for Tsukuyomi?,0,Unused,0,Unused,0,Unused,
 528,Tsukuyomi, 386, Diarama Variant,0,Unused,0,Unused,0,Unused,
 530,Tsukuyomi Clone (High HP), 387, Tsukuyomi False Replica "Erase Virtual Image",0,Unused,0,Unused,0,Unused,
-540,Tsukuyomi Clone (Low HP), 136, Debilitate,0,Unused,0,Unused,0,Unused,
-540,Tsukuyomi Clone (Low HP), 324, Wait for Tsukuyomi?,0,Unused,0,Unused,0,Unused,
-540,Tsukuyomi Clone (Low HP), 386, Diarama Variant,0,Unused,0,Unused,0,Unused,
+530,Tsukuyomi Clone (High HP), 22, Bufubarion,0,Unused,0,Unused,528,Tsukuyomi,
+530,Tsukuyomi Clone (High HP), 69, Hamabarion,0,Unused,0,Unused,528,Tsukuyomi,
+530,Tsukuyomi Clone (High HP), 27, Mabufubarion,0,Unused,0,Unused,528,Tsukuyomi,
+530,Tsukuyomi Clone (High HP), 185, Myriad Slashes,0,Unused,0,Unused,528,Tsukuyomi,
+530,Tsukuyomi Clone (High HP), 211, Yabusame Shot,0,Unused,0,Unused,528,Tsukuyomi,
+530,Tsukuyomi Clone (High HP), 255, Moonlight Frost,0,Unused,0,Unused,528,Tsukuyomi,
+540,Tsukuyomi Clone (Low HP), 22, Bufubarion,0,Unused,0,Unused,528,Tsukuyomi,
+540,Tsukuyomi Clone (Low HP), 69, Hamabarion,0,Unused,0,Unused,528,Tsukuyomi,
+540,Tsukuyomi Clone (Low HP), 27, Mabufubarion,0,Unused,0,Unused,528,Tsukuyomi,
+540,Tsukuyomi Clone (Low HP), 185, Myriad Slashes,0,Unused,0,Unused,528,Tsukuyomi,
+540,Tsukuyomi Clone (Low HP), 211, Yabusame Shot,0,Unused,0,Unused,528,Tsukuyomi,
+540,Tsukuyomi Clone (Low HP), 255, Moonlight Frost,0,Unused,0,Unused,528,Tsukuyomi,
+540,Tsukuyomi Clone (Low HP), 136, Debilitate,0,Unused,0,Unused,528,Tsukuyomi,
+540,Tsukuyomi Clone (Low HP), 324, Wait for Tsukuyomi?,0,Unused,0,Unused,528,Tsukuyomi,
+540,Tsukuyomi Clone (Low HP), 386, Diarama Variant,0,Unused,0,Unused,528,Tsukuyomi,
 452,Lahmu (Tentacles CoC?), 287, Attack (AOE?),0,Unused,0,Unused,0,Unused,
 455,Ishtar, 137, Dekunda,0,Unused,0,Unused,0,Unused,
 455,Ishtar, 313, Dreadful Gleam (Does Nothing),0,Unused,0,Unused,0,Unused,
@@ -41,18 +53,27 @@ BossID,BossName,SkillID,SkillName,ReplacementSkill,ReplacementName,SyncSkill,Syn
 570,Agrat (Lilith), 151, Do Nothing,0,Unused,0,Unused,0,Unused,
 570,Agrat (Lilith), 907, Failed Qadistu Entropy,0,Unused,0,Unused,0,Unused,
 570,Agrat (Lilith), 933, Magatsuhi Harvest (Special),0,Unused,0,Unused,0,Unused,
+571,Agrat (Lilith Revived), 11, Maragidyne,0,Unused,0,Unused,570,Agrat (Lilith),
+571,Agrat (Lilith Revived), 26, Mabufudyne,0,Unused,0,Unused,570,Agrat (Lilith),
+571,Agrat (Lilith Revived), 22, Bufubarion,0,Unused,0,Unused,570,Agrat (Lilith),
 571,Agrat (Lilith Revived), 151, Do Nothing,0,Unused,0,Unused,0,Unused,
 571,Agrat (Lilith Revived), 907, Failed Qadistu Entropy,0,Unused,0,Unused,0,Unused,
 571,Agrat (Lilith Revived), 933, Magatsuhi Harvest (Special),0,Unused,0,Unused,0,Unused,
 572,Eisheth (Lilith), 151, Do Nothing,0,Unused,0,Unused,0,Unused,
 572,Eisheth (Lilith), 907, Failed Qadistu Entropy,0,Unused,0,Unused,0,Unused,
 572,Eisheth (Lilith), 933, Magatsuhi Harvest (Special),0,Unused,0,Unused,0,Unused,
+573,Eisheth (Lilith Revived), 162, Deathbound,0,Unused,0,Unused,572,Eisheth,
+573,Eisheth (Lilith Revived), 199, Axel Claw,0,Unused,0,Unused,572,Eisheth,
+573,Eisheth (Lilith Revived), 189, Mist Rush,0,Unused,0,Unused,572,Eisheth,
 573,Eisheth (Lilith Revived), 151, Do Nothing,0,Unused,0,Unused,0,Unused,
 573,Eisheth (Lilith Revived), 907, Failed Qadistu Entropy,0,Unused,0,Unused,0,Unused,
 573,Eisheth (Lilith Revived), 933, Magatsuhi Harvest (Special),0,Unused,0,Unused,0,Unused,
 574,Naamah (Lilith), 151, Do Nothing,0,Unused,0,Unused,0,Unused,
 574,Naamah (Lilith), 907, Failed Qadistu Entropy,0,Unused,0,Unused,0,Unused,
 574,Naamah (Lilith), 933, Magatsuhi Harvest (Special),0,Unused,0,Unused,0,Unused,
+575,Naamah (Lilith Revived), 127, Dekaja,0,Unused,0,Unused,574,Naamah
+575,Naamah (Lilith Revived), 129, Matarunda,0,Unused,0,Unused,574,Naamah
+575,Naamah (Lilith Revived), 135, Marakunda,0,Unused,0,Unused,574,Naamah
 575,Naamah (Lilith Revived), 151, Do Nothing,0,Unused,0,Unused,0,Unused,
 575,Naamah (Lilith Revived), 907, Failed Qadistu Entropy,0,Unused,0,Unused,0,Unused,
 575,Naamah (Lilith Revived), 933, Magatsuhi Harvest (Special),0,Unused,0,Unused,0,Unused,
@@ -152,5 +173,26 @@ BossID,BossName,SkillID,SkillName,ReplacementSkill,ReplacementName,SyncSkill,Syn
 818,Flauros, 216, Rampage,0,Unused,0,Unused,816,Moloch,
 818,Flauros, 3, Agilao,0,Unused,0,Unused,816,Moloch,
 818,Flauros, 10, Maragion,0,Unused,0,Unused,817,Orobas,
-
-
+476,Melchizidek, 159, Mortal Jihad,0,Unused,0,Unused,471, Melchizidek
+476,Melchizidek, 68, Hamaon,0,Unused,0,Unused,471, Melchizidek
+476,Melchizidek, 71, Mahamon,0,Unused,0,Unused,471, Melchizidek
+476,Melchizidek, 96, Fogna,0,Unused,0,Unused,471, Melchizidek
+562,Hayataro, 265, Carnage Fang,0,Unused,0,Unused,563, Hayataro
+562,Hayataro, 887, Suns Radiance,0,Unused,0,Unused,563, Hayataro
+562,Hayataro, 267, Witness Me,0,Unused,0,Unused,563, Hayataro
+562,Hayataro, 35, Ziodyne,0,Unused,0,Unused,563, Hayataro
+763,Agrat's Shadow (Revive),880, Queen's Decree,0,Unused,0,Unused,762,Agrat's Shadow,
+763,Agrat's Shadow (Revive),22, Bufubarion,0,Unused,0,Unused,762,Agrat's Shadow,
+763,Agrat's Shadow (Revive),27, Mabufubarion,0,Unused,0,Unused,762,Agrat's Shadow,
+763,Agrat's Shadow (Revive),143, Concentrate,0,Unused,0,Unused,762,Agrat's Shadow,
+765,Eisheth's Shadow (Revive),142, Charge,0,Unused,0,Unused,764,Eisheth's Shadow,
+765,Eisheth's Shadow (Revive),168, Titanomachia,0,Unused,0,Unused,764,Eisheth's Shadow,
+765,Eisheth's Shadow (Revive),164, Brave Blade,0,Unused,0,Unused,764,Eisheth's Shadow,
+765,Eisheth's Shadow (Revive),882, Voracious Salvation,0,Unused,0,Unused,764,Eisheth's Shadow,
+767,Naamah's Shadow (Revive),881, Capitulate to Pleasure,0,Unused,0,Unused,766,Naamah's Shadow,
+767,Naamah's Shadow (Revive),63, Mudobarion,0,Unused,0,Unused,766,Naamah's Shadow,
+767,Naamah's Shadow (Revive),66, Mamudobarion,0,Unused,0,Unused,766,Naamah's Shadow,
+767,Naamah's Shadow (Revive),881, Energy Drain,0,Unused,0,Unused,766,Naamah's Shadow,
+937,Legion,139,Tetrakarn,0,Unused,0,Unused,939,Legion,
+937,Legion,119,Matarukaja,0,Unused,0,Unused,939,Legion,
+937,Legion,161,Heat Wave,0,Unused,0,Unused,939,Legion,

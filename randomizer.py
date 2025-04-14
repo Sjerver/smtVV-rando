@@ -34,6 +34,7 @@ import pandas as pd
 import copy
 import shutil
 import traceback
+import csv
 
 DEV_CHEATS = False
 
@@ -7308,13 +7309,17 @@ class Randomizer:
             self.patchMissingBossMusic()
         self.removeIshtarCopies()
         self.syncMaras()
+
+        if self.configSettings.randomizeBossSkills:
+            bossLogic.prepareSkillRando(self.skillArr,self.passiveSkillArr, self.innateSkillArr,self.configSettings)
+
         self.randomizeBosses()
 
         #pprint(bossLogic.resistProfiles)
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
             bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap)
-        elif config.randomizeBossResistances:
+        elif config.randomizeBossResistances or config.randomizeBossSkills:
             bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap)
         
         self.updateUniqueSymbolDemons()
@@ -7410,7 +7415,12 @@ class Randomizer:
             self.randomizeVoiceLines()
         
         if len(self.skillReplacementMap) > 0:
-            scriptLogic.aiUpdate(self.skillReplacementMap, self.bossArr, self.scriptFiles)
+            storedNkm = scriptLogic.aiUpdate(self.skillReplacementMap, self.bossArr, self.scriptFiles)
+            self.debugSkillReplacements(storedNkm)
+            if self.configSettings.allowContemptOfGod:
+                self.obtainSkillFromID(numbers.CONTEMPT_OF_GOD_ID).skillType = Translated_Value(8,'')
+            for skill in numbers.PHYSICAL_RATE_SKILLS:
+                self.obtainSkillFromID(skill).skillType = Translated_Value(14,'')
         
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
@@ -7543,6 +7553,26 @@ class Randomizer:
         with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
             file.write(finalString)
     
+    '''
+    Output all boss skill replacements to a csv.
+    Parameters:
+        storedNkm(Dictionary): dictionary of skill replacements for the additional AI files
+    '''
+    def debugSkillReplacements(self, storedNkm):
+        with open(paths.SKILL_REPLACEMENTS, "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Demon Name","Script File", "Original Skill ID", "New Skill ID","Old Skill Name","New Skill Name"])  # Header
+
+            for demon, replacements in self.skillReplacementMap.items():
+                for old_skill, new_skill in replacements.items():
+                    ai = str(self.bossArr[demon].AI).zfill(3)
+                    fileNames = ["BtlAI_e" +ai]
+                    for fileName in fileNames:
+                        writer.writerow([self.bossArr[demon].name,fileName, old_skill, new_skill, self.obtainSkillFromID(old_skill).name, self.obtainSkillFromID(new_skill).name])
+            for fileName, replacements in storedNkm.items():
+                for old_skill, new_skill in replacements.items():
+                    writer.writerow([fileName,fileName, old_skill, new_skill, self.obtainSkillFromID(old_skill).name, self.obtainSkillFromID(new_skill).name])
+        
     def debugPrintUnassignedSkills(self, levelList):
         sortedDemons = sorted(self.compendiumArr, key=lambda demon: demon.level.value)
         levelAggregrate = []

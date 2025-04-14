@@ -470,6 +470,9 @@ def createGUI(configSettings: Settings):
 
     listBossSkills = tk.Listbox(page3FrameLeft, selectmode = "multiple", width=50, height = 5, exportselection=False, selectbackground = VENGEANCE_PURPLE)
     listBossSkills.insert(0, "Randomize Boss Skills")
+    listBossSkills.insert(1, "Similiar Skill Rank")
+    listBossSkills.insert(2, "Allow Magatsuhi Skills")
+    listBossSkills.insert(3, "Allow Contempt of God")
     listBossSkills.pack()
 
     magatsuhiHarvestLabel = tk.Label(page3FrameRight, text="Generic Boss Magatsuhi")
@@ -477,8 +480,8 @@ def createGUI(configSettings: Settings):
 
     listMagatsuhiHarvest = tk.Listbox(page3FrameRight,selectmode= "single",height=4,width=30,exportselection=False, selectbackground = VENGEANCE_PURPLE)
     listMagatsuhiHarvest.insert(0, "Vanilla")
-    listMagatsuhiHarvest.insert(1, "Always Omagatoki:Critical")
-    listMagatsuhiHarvest.insert(2, "Always Omagatoki:Pierce")
+    listMagatsuhiHarvest.insert(1, "If possible: Omagatoki:Critical")
+    listMagatsuhiHarvest.insert(2, "If possible: Omagatoki:Pierce")
     listMagatsuhiHarvest.insert(3, "Random")
     listMagatsuhiHarvest.selection_set(0)
     listMagatsuhiHarvest.pack()
@@ -679,6 +682,9 @@ def createGUI(configSettings: Settings):
                'RandomizeIshtarPressTurns': ('Checkbutton',ishtarRandomizeCheckbox),
 
                'RandomizeBossSkills': ('Listbox', listBossSkills, 0),
+               'similiarBossSkillRank': ('Listbox', listBossSkills, 1),
+               'allowBossMagatsuhiSkill': ('Listbox', listBossSkills, 2),
+               'allowContemptOfGod': ('Listbox', listBossSkills, 3),
 
                'alwaysCritical': ('Listbox_single', listMagatsuhiHarvest, 1),
                'alwaysPierce': ('Listbox_single', listMagatsuhiHarvest, 2), 
@@ -1002,6 +1008,12 @@ def createGUI(configSettings: Settings):
 
     configSettings.randomizeBossSkills = bossSkillFlags[0]
     configur.set('Boss', 'RandomizeBossSkills', str(bossSkillFlags[0]).lower())
+    configSettings.similiarBossSkillRank = bossSkillFlags[1]
+    configur.set('Boss', 'similiarBossSkillRank', str(bossSkillFlags[1]).lower())
+    configSettings.allowBossMagatsuhiSkill = bossSkillFlags[2]
+    configur.set('Boss', 'allowBossMagatsuhiSkill', str(bossSkillFlags[2]).lower())
+    configSettings.allowContemptOfGod = bossSkillFlags[3]
+    configur.set('Boss', 'allowContemptOfGod', str(bossSkillFlags[3]).lower())
 
     configSettings.alwaysCritical = bool(magatsuhiHarvestChoice and magatsuhiHarvestChoice[0] == 1)
     configur.set('Boss', 'alwaysCritical', str(configSettings.alwaysCritical).lower())
@@ -1113,7 +1125,8 @@ def createConfigFile(configur):
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
                                  'ScaleInstakillRates': False, 'bossNoEarlyPhysImmunity': False, 'BossPressTurnChance': 0.0, 'RandomizeBossSkills': False,
-                                 'alwaysCritical': False,'alwaysPierce': False,'randomMagatsuhi': False,}
+                                 'alwaysCritical': False,'alwaysPierce': False,'randomMagatsuhi': False,'similiarBossSkillRank':False,'allowBossMagatsuhiSkill':False,
+                                 'allowContemptOfGod':False,}
     configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.1, 'UnlockFusions': False, 'swapCutsceneModels': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,

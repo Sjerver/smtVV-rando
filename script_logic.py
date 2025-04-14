@@ -1018,16 +1018,5 @@ def aiUpdate(skillReplacementMap, bossArr, scriptFiles):
                         file.write(f"  {values}\n")
                 file.write("\n")
 
-    with open(paths.SKILL_REPLACEMENTS, "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Demon Name","Script File", "Original Skill ID", "New Skill ID"])  # Header
-
-        for demon, replacements in skillReplacementMap.items():
-            for old_skill, new_skill in replacements.items():
-                ai = str(bossArr[demon].AI).zfill(3)
-                fileNames = ["BtlAI_e" +ai]
-                for fileName in fileNames:
-                    writer.writerow([bossArr[demon].name,fileName, old_skill, new_skill])
-        for fileName, replacements in storeNkm.items():
-            for old_skill, new_skill in replacements.items():
-                writer.writerow([fileName,fileName, old_skill, new_skill])
+    return storeNkm
+    
