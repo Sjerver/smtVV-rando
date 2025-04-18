@@ -3008,21 +3008,32 @@ class Randomizer:
         return buffer
         
     '''
-    Writes the position values from an event encouter or encounter array to their respective locations in the table buffer.
+    Writes the position values from an event encouter or encounter array to their respective locations in the table uasset.
         Parameters:        
-            buffer (Table): binary table
-            evEncount (Array): list of encounters
+            file (General_UAsset): uasset file to overwrite positions in
+            encountArr (List()): list of encounters to get the new positions from
     '''
-    def updateEventEncountPostBuffer(self,buffer,evEncount):
-        for ind, enc in enumerate(evEncount):
-            if ind < 3000: #length of EncountPostBuffer is 3000
-                for index, pos in enumerate(enc.positions.demons):
-                    buffer.writeFloat(pos.x, enc.positions.offsetNumber['demon1'] + 0xC * index)
-                    buffer.writeFloat(pos.y, enc.positions.offsetNumber['demon1'] + 4 + 0xC * index)
-                for index, pos in enumerate(enc.positions.addDemons):
-                    buffer.writeFloat(pos.x, enc.positions.offsetNumber['addDemon1'] + 0xC * index)
-                    buffer.writeFloat(pos.y, enc.positions.offsetNumber['addDemon1'] + 4 + 0xC * index)
-        return buffer
+    def updateEncountPostFile(self,file: General_UAsset,encountArr):
+        encounterPositions = file.json['Exports'][0]['Table']['Data']
+        for ind, enc in enumerate(encountArr):
+            if ind >= len(encounterPositions):
+                continue
+            currentEncount = encounterPositions[ind]['Value']
+            postArray = currentEncount[2]['Value']
+            for index, pos in enumerate(enc.positions.demons):
+                post = postArray[index]['Value'][0]['Value']
+                post['X'] = pos.x
+                post['Y'] = pos.y
+            addPostArray = currentEncount[3]['Value']
+            for index, pos in enumerate(enc.positions.addDemons):
+                post = addPostArray[index]['Value'][0]['Value']
+                post['X'] = pos.x
+                post['Y'] = pos.y
+
+        file.write()
+        file = None
+            
+
     '''
     Writes the values from the boss flag array to their respective locations in the table buffer
         Parameters:        
@@ -4715,52 +4726,40 @@ class Randomizer:
         return eventEncountArr
 
     '''
-    Adds the data containing the positions of demon slots in normal encounters to the respective Event_Encounter.
+    Adds the data containing the positions of demon slots in encounters to the respective Encounter.
     Also adjusts the size so that every encounter can have the same amount of additional demons.
     Parameters:
-        data (Table): binary table containing the positions of demon slots in normal encounters.
-        encountArr (List(Event_Encounter)): list of normal encounters to add positions to
-        uassetBuffer (Table): binary table of the uasset needed to adjust the total size of file
+        encountArr (List()): list of encounters to add positions to
+        fileName (String): name of the uasset file that has the positions
+        writePath (String): where the uasset file should be written to eventually
     Returns: the list of encounters with positions
     '''
-    def addPositionsToNormalEncountArr(self, data, encountArr, uassetBuffer):
-        start = 0xCE
-        size = 0x18F
-        totalSize1 = uassetBuffer.readWord(0xA9)
-        totalSize2 = uassetBuffer.readWord(len(uassetBuffer.buffer) - 0x60)
+    def addPositionsToEncountArr(self, encountArr, fileName, writePath):
+        file = General_UAsset(fileName,writePath)
+        
+        encounterPositions = file.json['Exports'][0]['Table']['Data']
         for index, element in enumerate(encountArr):
-            if index >= 3000: #there is one less entry than there are normal encounters
-                continue
-            offset = start + size * index
-            locations = {
-                'demon1': offset,
-                'addDemon1': offset + 0xB6
-            }
-            for i in range(8):
-                element.positions.demons.append(Position(data.readFloat(locations['demon1'] + 0xC * i),data.readFloat(locations['demon1'] + 4 + 0xC * i)))
-            addDemonLength = data.readByte(offset + 0x70)
-            addDemonAmount = data.readByte(offset + 0x81)
-            addDemonLength2 = data.readByte(offset + 0x95)
-            #make sure each encounter can have up to 4 additional demon positions
-            while addDemonAmount < 4:
-                for i in range(12):
-                    data.buffer.insert(locations['addDemon1'],0)
-
-                addDemonAmount += 1
-                addDemonLength += 12
-                addDemonLength2 += 12
-                data.writeByte(addDemonLength,offset + 0x70)
-                data.writeByte(addDemonAmount,offset + 0x81)
-                data.writeByte(addDemonLength2,offset + 0x95)
-                totalSize1 += 12
-                totalSize2 += 12
-
-            for i in range(4):
-                element.positions.addDemons.append(Position(data.readFloat(locations['addDemon1'] + 0xC * i),data.readFloat(locations['addDemon1'] + 4 + 0xC * i)))
-            element.positions.offsetNumber = locations
-        uassetBuffer.writeWord(totalSize1,0xA9)
-        uassetBuffer.writeWord(totalSize2,len(uassetBuffer.buffer) - 0x60)
-        return encountArr
+                
+                if index >= len(encounterPositions):
+                    continue
+                currentEncount = encounterPositions[index]['Value']
+                postArray = currentEncount[2]['Value']
+                for i in range(8):
+                    post = postArray[i]['Value'][0]['Value']
+                    element.positions.demons.append(Position(post['X'],post['Y']))
+                addPostArray = currentEncount[3]['Value']
+                addDemonAmount = len(addPostArray)
+                while addDemonAmount < 4:
+                    addDemonAmount += 1
+                    newPostTop = copy.deepcopy(postArray[0])
+                    newPost = newPostTop['Value'][0]['Value']
+                    newPost['X'] = 0
+                    newPost['Y'] = 0
+                    addPostArray.append(newPostTop)
+                for i in range(4):
+                    post = addPostArray[i]['Value'][0]['Value']
+                    element.positions.addDemons.append(Position(post['X'],post['Y']))
+        return file
 
     '''
     Randomizes chest rewards including items, essences, and macca.
@@ -7114,15 +7113,11 @@ class Randomizer:
         abscessBuffer = readBinaryTable(paths.ABSCESS_TABLE_IN)
         devilUIBuffer = readBinaryTable(paths.DEVIL_UI_IN)
         talkCameraBuffer = readBinaryTable(paths.TALK_CAMERA_OFFSETS_IN)
-        eventEncountPostBuffer = readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_IN)
         miracleBuffer = readBinaryTable(paths.MIRACLE_TABLE_IN)
         eventEncountUassetBuffer = readBinaryTable(paths.EVENT_ENCOUNT_UASSET_IN)
         uniqueSymbolBuffer = readBinaryTable(paths.UNIQUE_SYMBOL_DATA_IN)
-        encountPostBuffer = readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_IN)
-        encountPostUassetBuffer = readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_UASSET_IN)
         chestBuffer = readBinaryTable(paths.CHEST_TABLE_IN)
         mapSymbolParamBuffer = readBinaryTable(paths.MAP_SYMBOL_PARAM_IN)
-        eventEncountPostUassetBuffer = readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN)
         mapEventBuffer = readBinaryTable(paths.MAP_EVENT_DATA_IN)
         navigatorBuffer = readBinaryTable(paths.NAVIGATOR_DATA_IN)
         message_logic.initDemonModelData()
@@ -7170,8 +7165,8 @@ class Randomizer:
         self.fillNavigatorArr(navigatorBuffer)
         
         #self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
-        self.eventEncountArr = self.addPositionsToNormalEncountArr(eventEncountPostBuffer, self.eventEncountArr, eventEncountPostUassetBuffer)
-        self.encountArr = self.addPositionsToNormalEncountArr(encountPostBuffer, self.encountArr, encountPostUassetBuffer)
+        eventEncountPosFile = self.addPositionsToEncountArr(self.eventEncountArr,"EventEncountPostDataTable",paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT)
+        encountPosFile = self.addPositionsToEncountArr(self.encountArr,"EncountPostDataTable",paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT)
         
         self.findValidBossDemons()
         self.removeBattleTutorials()
@@ -7436,7 +7431,7 @@ class Randomizer:
         itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
         shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr, self.mimanRewardsArr)
         eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr, eventEncountUassetBuffer)
-        eventEncountPostBuffer = self.updateEventEncountPostBuffer(eventEncountPostBuffer, self.eventEncountArr)
+        self.updateEncountPostFile(eventEncountPosFile, self.eventEncountArr)
         bossFlagBuffer = self.updateBossFlagBuffer(bossFlagBuffer)
         battleEventsBuffer = self.updateBattleEventsBuffer(battleEventsBuffer, self.battleEventArr, battleEventUassetBuffer)
         devilAssetTableBuffer = self.updateDevilAssetBuffer(devilAssetTableBuffer, self.devilAssetArr)
@@ -7446,7 +7441,7 @@ class Randomizer:
         abscessBuffer = self.updateAbscessBuffer(abscessBuffer)
         miracleBuffer = self.updateMiracleBuffer(miracleBuffer)
         uniqueSymbolBuffer = self.updateUniqueSymbolBuffer(uniqueSymbolBuffer)
-        encountPostBuffer = self.updateEventEncountPostBuffer(encountPostBuffer, self.encountArr)
+        self.updateEncountPostFile(encountPosFile, self.encountArr)
         chestBuffer = self.updateChestBuffer(chestBuffer)
         itemBuffer = self.updateConsumableData(itemBuffer, self.consumableArr)        
         mapEventBuffer = self.updateMapEventBuffer(mapEventBuffer)
@@ -7490,15 +7485,11 @@ class Randomizer:
         writeBinaryTable(devilUIBuffer.buffer, paths.DEVIL_UI_OUT, paths.UI_GRAPHCIS_FOLDER_OUT)
         writeBinaryTable(talkCameraBuffer.buffer,paths.TALK_CAMERA_OFFSETS_OUT,paths.CAMP_STATUS_FOLDER_OUT)
         writeBinaryTable(abscessBuffer.buffer, paths.ABSCESS_TABLE_OUT, paths.MAP_FOLDER_OUT)
-        writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         writeBinaryTable(miracleBuffer.buffer, paths.MIRACLE_TABLE_OUT, paths.MIRACLE_FOLDER_OUT)
         #writeBinaryTable(eventEncountUassetBuffer.buffer, paths.EVENT_ENCOUNT_UASSET_OUT, paths.MAP_FOLDER_OUT)
         writeBinaryTable(uniqueSymbolBuffer.buffer, paths.UNIQUE_SYMBOL_DATA_OUT, paths.MAP_FOLDER_OUT)
-        writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         writeBinaryTable(chestBuffer.buffer, paths.CHEST_TABLE_OUT, paths.MAP_FOLDER_OUT)
         writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
-        writeBinaryTable(eventEncountPostUassetBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         writeBinaryTable(mapEventBuffer.buffer, paths.MAP_EVENT_DATA_OUT, paths.MAP_FOLDER_OUT)
         writeBinaryTable(navigatorBuffer.buffer, paths.NAVIGATOR_DATA_OUT, paths.MAP_FOLDER_OUT)
         #copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
