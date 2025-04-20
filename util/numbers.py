@@ -920,7 +920,18 @@ ENEMY_SKILL_RANKS = {
     925: 16, #Lunar Hurricane (Wind Dracostrike is 15)
     926: 19, #Luminescent Mirage (Tetrakarn is 16)
     342: 30, #Contempt of God 
-    #TODO: Magatsuhi Skill Ranks (Enemy variants only?)
+    842: 26, #Shield of God(Enemy) (Kannabi Veil * 2)
+    843: 27, #Impaler's Glory(Enemy) (Impaler's Animus +5)
+    934: 31, #Big Bang (Enemy) 
+    935: 32, #Freikugel EX (Enemy) 
+    936: 31, #Soul Drain(Enemy)
+    937: 31, #Twilight Wave (Enemy)
+    940: 31, #Accursed Poison (Enemy)
+    941: 28, #Rasetsu Feast (Enemy) (Debilitate +5)
+    942: 28, #Fairy Banquet (Enemy) (Luster +5)
+    943: 26, #Shield of God(Enemy) (Kannabi Veil * 2)
+    944: 27, #Impaler's Glory(Enemy) (Impaler's Animus +5)
+    945: 21, #Dekajaon (Dekaja/Dekunda +5)
 }   
 '''
 Returns dictionary lining out to which reward are each shop slot belongs

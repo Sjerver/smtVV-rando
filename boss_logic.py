@@ -157,7 +157,7 @@ BANNED_SKILLS = [834,835, #Unused Uniques from Pixie/High Pixie,
                  248, #Taunt does not work when Enemies use it
                  154,951,929, #Trafuri (+Dazai Version), Riberama
                  313, #Dreadful Gleam Fail
-                 99,102, #Diarahan, Mediarahan
+                 99,102,110,938,112,939 #Diarahan, Mediarahan, Eternal Prayer(Player+Enemy), Waters of Youth (P+E)
     ]
 
 #List of skills that should not be changed in randomization
@@ -168,7 +168,7 @@ UNCHANGEABLE_SKILLS = [
     323,356,285,287,117,886, #Wait Mesektet's Path,Electrify x2,Lahmu Attack All(Unused?),Heavenly Counter Active Part,Revival Bead
     286,359,360,361,362,267, #Rising Storm Dragon x5, Witness Me Hayataro(#TODO:Decide if that should be in here, since it kinda breaks fight otherwise)
     371,387,350,313, #Demi-fiend Gaea Rage, False Replica Erased, TrueLuci P2 Attack,Dreadful Gleam Fail
-    99,102, #Diarahan, Mediarahan
+    99,102,110,938,112,939 #Diarahan, Mediarahan,Eternal Prayer(Player+Enemy),Waters of Youth (P+E)
 ]
 
 class Boss_Metadata(object):
@@ -1217,21 +1217,21 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
     fullSkillList.extend([Translated_Value(GODBORN_ENEMY_MAGATSUHI,"Godborn Magatsuhi Harvest"),Translated_Value(BASIC_ENEMY_MAGATSUHI,"Godborn Magatsuhi Harvest")])
     
     #Replace skills with different skill version to use instead
-    for index, skill in enumerate(fullSkillList):
-        if demon.ind in ADDITIONAL_BOSS_SKILLS.keys() and skill.ind in ADDITIONAL_BOSS_SKILLS[demon.ind]["ReplacementSkills"]:
-            fullSkillList[index] = Translated_Value(ADDITIONAL_BOSS_SKILLS[demon.ind]["ReplacementSkills"][skill.ind],"")
+    for index, skillFromList in enumerate(fullSkillList):
+        if demon.ind in ADDITIONAL_BOSS_SKILLS.keys() and skillFromList.ind in ADDITIONAL_BOSS_SKILLS[demon.ind]["ReplacementSkills"]:
+            fullSkillList[index] = Translated_Value(ADDITIONAL_BOSS_SKILLS[demon.ind]["ReplacementSkills"][skillFromList.ind],"")
     
 
 
     #TODO: Refine settings and algorithm for this
     
-    for index, skill in enumerate(fullSkillList):
-        newSkill = skill.ind
+    for index, skillFromList in enumerate(fullSkillList):
+        newSkill = skillFromList.ind
         
         # do not randomize empty skills and skills where replacement has already been decided
-        if (skill.ind != 0 and skill.ind not in UNCHANGEABLE_SKILLS) and skill.ind not in localReplacements.keys():
+        if (skillFromList.ind != 0 and skillFromList.ind not in UNCHANGEABLE_SKILLS) and skillFromList.ind not in localReplacements.keys():
             
-            if skill.ind in [GODBORN_ENEMY_MAGATSUHI, BASIC_ENEMY_MAGATSUHI]:
+            if skillFromList.ind in [GODBORN_ENEMY_MAGATSUHI, BASIC_ENEMY_MAGATSUHI]:
                 if configSettings.alwaysCritical:
                     newSkill = BASIC_ENEMY_MAGATSUHI
                 elif configSettings.alwaysPierce:
@@ -1239,14 +1239,14 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
                 elif configSettings.randomMagatsuhi:
                     newSkill = random.choice([GODBORN_ENEMY_MAGATSUHI, BASIC_ENEMY_MAGATSUHI])
                 else:
-                    newSkill = skill.ind
-            elif 400 <= skill.ind <800:
+                    newSkill = skillFromList.ind
+            elif 400 <= skillFromList.ind <800:
                 #Passive Skill
-                newSkill = skill.ind
+                newSkill = skillFromList.ind
             else:
                 #newSkill = 999 + index
                 
-                activeSkill = obtainSkillFromID(skill.ind)
+                activeSkill = obtainSkillFromID(skillFromList.ind)
                 activeSkill: Active_Skill
                 # filter unviable skills
                 currentSkills = [skill for skill in SKILL_ARR if skill.ind != 0 and skill.ind not in localReplacements.values() and skill.ind not in BANNED_SKILLS and skill.ind not in numbers.MAGATSUHI_ENEMY_VARIANTS.keys()]
@@ -1258,10 +1258,12 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
                 #TODO: The higher the rank the stronger the difference between them, so maybe take that into account here
 
                 if not configSettings.allowBossMagatsuhiSkill:
-                    currentSkills = [skill for skill in currentSkills if skill.rank != 0]
+                    if activeSkill.magatsuhi.enable != 0:
+                        continue
+                    currentSkills = [skill for skill in currentSkills if skill.magatsuhi.enable == 0]
                 else:
                     #Magatsuhi Skills should be rarer
-                    currentSkills = [skill for skill in currentSkills if skill.rank != 0 or (activeSkill.magatsuhi.enable !=0 and random.randint(1,10) == 1)]
+                    currentSkills = [skill for skill in currentSkills if skill.magatsuhi.enable == 0 or (skill.magatsuhi.enable !=0 and random.randint(1,10) == 1)]
                 
                 currentSkills = [skill.ind for skill in currentSkills]
                 if len(currentSkills) > 0:
@@ -1270,7 +1272,7 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
                     newSkill = activeSkill.ind
                     print(str(demon.ind) + " " + demon.name + ": " + str(activeSkill.ind) + " " + activeSkill.name +" not randomized!" )
   
-        localReplacements.update({skill.ind: newSkill})
+        localReplacements.update({skillFromList.ind: newSkill})
         
     
 
@@ -1310,9 +1312,9 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
             newID = 382 #Diarama
         elif newID == 97:
             newID = 381 #Dia
-        if skill.ind in numbers.MAGATSUHI_SKILLS:
+        if skillFromList.ind in numbers.MAGATSUHI_SKILLS:
             try: #try to use enemy version of magatsuhi skill if possible
-                newID = numbers.MAGATSUHI_ENEMY_VARIANTS[skill.ind]
+                newID = numbers.MAGATSUHI_ENEMY_VARIANTS[skillFromList.ind]
             except KeyError:
                 pass
         localReplacements[oldID] = newID
