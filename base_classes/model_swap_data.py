@@ -7,6 +7,30 @@ class Anim_Sync():
         if sync:
             self.sync = sync
 
+class Model_Swap_Demon():
+    def __init__(self,originalDemonID,replacementID):
+        self.originalDemonID = originalDemonID
+        self.replacementID = replacementID
+        self.oldIDString = None
+        self.oldName = None
+        self.oldFolderPrefix = DEVIL_PREFIX
+        self.oldPrefix = "dev"
+        self.oldPrefixVariant = "Dev"
+        self.newIDString = None
+        self.newName = None
+        self.newPrefix = "dev"
+        self.newFolderPrefix = DEVIL_PREFIX
+        self.newPrefixVariant = "Dev"
+        self.classOldFolderPrefix = None
+        self.classOldPrefix = None
+        self.classNewFolderPrefix = None
+        self.classNewPrefix = None
+        self.classOldPrefixVariant = None
+        self.classNewPrefixVariant = None
+        self.lahmuSuffix = None
+
+DEVIL_PREFIX = "/Devil/"
+NPC_PREFIX = "/NPC/"
 
 #List of which level umaps event scripts use for their location and sizes
 #To find out, look at which MapEventID the Script has in its File and then take a look at map event data

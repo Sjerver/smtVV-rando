@@ -1254,7 +1254,7 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
                 currentSkills = [skill for skill in currentSkills if skill.skillType.value == activeSkill.skillType.value]
 
                 if configSettings.similiarBossSkillRank:
-                    currentSkills = [skill for skill in currentSkills if (skill.rank == 0 or skill.rank -5 <= activeSkill.rank <= skill.rank + 5)]
+                    currentSkills = [skill for skill in currentSkills if (skill.rank -5 <= activeSkill.rank <= skill.rank + 5)]
                 #TODO: The higher the rank the stronger the difference between them, so maybe take that into account here
 
                 if not configSettings.allowBossMagatsuhiSkill:
