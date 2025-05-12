@@ -7552,17 +7552,35 @@ class Randomizer:
     def debugSkillReplacements(self, storedNkm):
         with open(paths.SKILL_REPLACEMENTS, "w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow(["Demon Name","Script File", "Original Skill ID", "New Skill ID","Old Skill Name","New Skill Name"])  # Header
+            writer.writerow(["Demon Name","Script File", "Original Skill ID", "New Skill ID","Old Skill Name","New Skill Name","Old Rank","New Rank"])  # Header
 
             for demon, replacements in self.skillReplacementMap.items():
                 for old_skill, new_skill in replacements.items():
                     ai = str(self.bossArr[demon].AI).zfill(3)
                     fileNames = ["BtlAI_e" +ai]
                     for fileName in fileNames:
-                        writer.writerow([self.bossArr[demon].name,fileName, old_skill, new_skill, self.obtainSkillFromID(old_skill).name, self.obtainSkillFromID(new_skill).name])
+                        newRank = "PASSIVE"
+                        if isinstance(self.obtainSkillFromID(new_skill),Active_Skill):
+                            newRank = self.obtainSkillFromID(new_skill).rank
+                        if old_skill >= 999:
+                            writer.writerow([self.bossArr[demon].name,fileName, old_skill, new_skill, "NEW", self.obtainSkillFromID(new_skill).name,"NONE",newRank])
+                        else:
+                            oldRank = "PASSIVE"
+                            if isinstance(self.obtainSkillFromID(old_skill),Active_Skill):
+                                oldRank = self.obtainSkillFromID(old_skill).rank
+                            writer.writerow([self.bossArr[demon].name,fileName, old_skill, new_skill, self.obtainSkillFromID(old_skill).name, self.obtainSkillFromID(new_skill).name,oldRank,newRank])
             for fileName, replacements in storedNkm.items():
                 for old_skill, new_skill in replacements.items():
-                    writer.writerow([fileName,fileName, old_skill, new_skill, self.obtainSkillFromID(old_skill).name, self.obtainSkillFromID(new_skill).name])
+                    newRank = "PASSIVE"
+                    if isinstance(self.obtainSkillFromID(new_skill),Active_Skill):
+                        newRank = self.obtainSkillFromID(new_skill).rank
+                    if old_skill >= 999:
+                        writer.writerow([fileName,fileName, old_skill, new_skill,"NEW", self.obtainSkillFromID(new_skill).name,"NONE",newRank])
+                    else:
+                        oldRank = "PASSIVE"
+                        if isinstance(self.obtainSkillFromID(old_skill),Active_Skill):
+                            oldRank = self.obtainSkillFromID(old_skill).rank
+                        writer.writerow([fileName,fileName, old_skill, new_skill, self.obtainSkillFromID(old_skill).name, self.obtainSkillFromID(new_skill).name,oldRank,newRank])
         
     def debugPrintUnassignedSkills(self, levelList):
         sortedDemons = sorted(self.compendiumArr, key=lambda demon: demon.level.value)

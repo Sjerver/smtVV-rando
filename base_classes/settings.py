@@ -90,4 +90,5 @@ class Settings(object):
         self.randomMagatsuhi = False                # Random per AI script per Mode if Omagatoki: Pierce or Omagatoki: Critical
         self.similiarBossSkillRank = False          # Boss Skills are replaced by skills with a similiar skill rank
         self.allowBossMagatsuhiSkill = False        # Allows magatsuhi skills to be in bosses skill pools
-        self.allowContemptOfGod = False             # Allows Contempt of God to be randomized and show up on bosses              
+        self.allowContemptOfGod = False             # Allows Contempt of God to be randomized and show up on bosses
+        self.fillEmptySlotsWithPassives = False     # Fills empty skill slots of demons with additional passives              

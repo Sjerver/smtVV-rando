@@ -154,7 +154,7 @@ GODBORN_ENEMY_MAGATSUHI = 950
 #List of skills that cannot be chosen as result of randomization
 BANNED_SKILLS = [834,835, #Unused Uniques from Pixie/High Pixie,
                  371, #Demi-fiend Gaea Rage
-                 248, #Taunt does not work when Enemies use it
+                 248,260, #Taunt, Fierce Roar does not work when Enemies use it
                  154,951,929, #Trafuri (+Dazai Version), Riberama
                  313, #Dreadful Gleam Fail
                  99,102,110,938,112,939 #Diarahan, Mediarahan, Eternal Prayer(Player+Enemy), Waters of Youth (P+E)
@@ -166,9 +166,10 @@ UNCHANGEABLE_SKILLS = [
     316,317,318,319,867,933, #Call Angel, Call Soldiers, Call Souls, Call Evil,Annihilation Ray,Magatsuhi Harvest Special
     151,889,907,859,838,153, #Do Nothing,Qadistu Entropy, Qadistu Entropy Failed,Tehom Wait,Haze Invocation,Wait and see
     323,356,285,287,117,886, #Wait Mesektet's Path,Electrify x2,Lahmu Attack All(Unused?),Heavenly Counter Active Part,Revival Bead
-    286,359,360,361,362,267, #Rising Storm Dragon x5, Witness Me Hayataro(#TODO:Decide if that should be in here, since it kinda breaks fight otherwise)
-    371,387,350,313, #Demi-fiend Gaea Rage, False Replica Erased, TrueLuci P2 Attack,Dreadful Gleam Fail
-    99,102,110,938,112,939 #Diarahan, Mediarahan,Eternal Prayer(Player+Enemy),Waters of Youth (P+E)
+    286,359,360,361,362,267, #Rising Storm Dragon x5, Witness Me Hayataro
+    371,387,350,313,347,348,349, #Demi-fiend Gaea Rage, False Replica Erased, TrueLuci P2 Attack,Dreadful Gleam Fail, Falling Star x2, Morning Star
+    99,102,110,938,112,939, #Diarahan, Mediarahan,Eternal Prayer(Player+Enemy),Waters of Youth (P+E)
+    862,866,288, #Inception of Chaos, Annihilation Ray, harge (Lahmu (targets all))
 ]
 
 class Boss_Metadata(object):
@@ -384,7 +385,7 @@ def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonRefe
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
         if configSettings.randomizeBossSkills:
-            randomizeSkills(replacementDemon, skillReplacementMap, configSettings)
+            changeBossSkills(replacementDemon, skillReplacementMap, configSettings)
         adjustForResistSkills(replacementDemon)
 
 
@@ -431,7 +432,7 @@ def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr,
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr)      
         if configSettings.randomizeBossSkills:
-            randomizeSkills(replacementDemon, skillReplacementMap, configSettings)
+            changeBossSkills(replacementDemon, skillReplacementMap, configSettings)
         adjustForResistSkills(replacementDemon)
 
 '''
@@ -482,7 +483,7 @@ def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceAr
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr)         
         if configSettings.randomizeBossSkills:
-            randomizeSkills(replacementDemon, skillReplacementMap, configSettings)
+            changeBossSkills(replacementDemon, skillReplacementMap, configSettings)
        
         adjustForResistSkills(replacementDemon)
 '''
@@ -537,8 +538,9 @@ def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr, s
             demonToPatch.damageMultiplier = referenceDemon.damageMultiplier
             demonToPatch.instakillRate = referenceDemon.instakillRate
             demonToPatch.resist = referenceDemon.resist
-            randomizeSkills(demonToPatch, skillReplacementMap, configSettings)
-    
+            changeBossSkills(demonToPatch, skillReplacementMap, configSettings,refDemon=referenceDemon)
+            adjustForResistSkills(demonToPatch)
+
     luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
     luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
     luciferPhase3 = bossArr[LUCIFER_PHASES[2]]
@@ -563,16 +565,17 @@ def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr, s
     luciferPhase1 = bossArr[LUCIFER_PHASES[0]]
     luciferPhase2 = bossArr[LUCIFER_PHASES[1]]
     luciferPhase3 = bossArr[LUCIFER_PHASES[2]]
+    
     if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
         luciferPhase2.resist = randomizeBossResistances(luciferPhase2, copy.deepcopy(luciferPhase1),LUCIFER_PHASE_2_RESIST_TOTALS,configSettings, compendium, playerBossArr)
     elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
         resistTotalSubDict = calculateResistTotals(LUCIFER_PHASES[2],luciferPhase2)
         luciferPhase2.resist = randomizeBossResistances(luciferPhase2,copy.deepcopy(luciferPhase1),resistTotalSubDict[LUCIFER_PHASES[2]],configSettings, compendium, playerBossArr)
     if configSettings.randomizeBossSkills:  
-        randomizeSkills(luciferPhase2, skillReplacementMap, configSettings)
-        randomizeSkills(luciferPhase3, skillReplacementMap, configSettings)
+        changeBossSkills(luciferPhase2, skillReplacementMap, configSettings)
+        changeBossSkills(luciferPhase3, skillReplacementMap, configSettings)
 
-    
+    adjustForResistSkills(demonToPatch)
 
 '''
 Creates the pools of boss encounters that should be randomized within themselves
@@ -1200,7 +1203,29 @@ def adjustForResistSkills(demon):
             oldValue = getattr(demon.resist, resistElement).value
             if numbers.compareResistValues(oldValue,value) == 1: #if new value is a stronger resist use it
                 demon.resist.__setattr__(resistElement, Translated_Value(value,translation.translateResist(value)))
-                    
+
+'''
+Change the skills of a boss demon, including randomization and extra passives.
+    Parameters:
+        demon(Enemy_Demon): the demon to change skills of
+        skillReplacementMap (Dict): map of bosses and their skills and replacement skills
+        configSettings (Settings): settings of the current rando run
+        refDemon(Enemy_Demon): the demon who is the reference for a duplicate revival demon
+'''                    
+def changeBossSkills(demon, skillReplacementMap, configSettings: Settings, refDemon = None):
+
+    if configSettings.randomizeBossSkills:
+        randomizeSkills(demon, skillReplacementMap, configSettings)
+    if configSettings.fillEmptySlotsWithPassives:
+        fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings, refDemon = refDemon)
+
+'''
+Randomizes skill of boss demons.
+Parameters:
+        demon(Enemy_Demon): the demon to change skills of
+        skillReplacementMap (Dict): map of bosses and their skills and replacement skills
+        configSettings (Settings): settings of the current rando run
+'''
 def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
     localReplacements = {} # Temp storage for skill replacements of the current demon
     if demon.ind not in skillReplacementMap.keys():
@@ -1210,7 +1235,7 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
         localReplacements.update(skillReplacementMap[demon.ind])
 
     if demon.ind in ADDITIONAL_BOSS_SKILLS.keys():
-        fullSkillList = demon.skills + [Translated_Value(skill,"") for skill in ADDITIONAL_BOSS_SKILLS[demon.ind]["AdditionalSkills"]]
+        fullSkillList = demon.skills + [Translated_Value(skill,"") for skill in ADDITIONAL_BOSS_SKILLS[demon.ind]["AdditionalSkills"] if not any(skill == s.ind for s in demon.skills)]
     else:
         fullSkillList = demon.skills
 
@@ -1251,7 +1276,7 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
                 # filter unviable skills
                 currentSkills = [skill for skill in SKILL_ARR if skill.ind != 0 and skill.ind not in localReplacements.values() and skill.ind not in BANNED_SKILLS and skill.ind not in numbers.MAGATSUHI_ENEMY_VARIANTS.keys()]
                 #same type of skill
-                currentSkills = [skill for skill in currentSkills if skill.skillType.value == activeSkill.skillType.value]
+                currentSkills = [skill for skill in currentSkills if skill.skillType.value == activeSkill.skillType.value and skill.rank != 0]
 
                 if configSettings.similiarBossSkillRank:
                     currentSkills = [skill for skill in currentSkills if (skill.rank -5 <= activeSkill.rank <= skill.rank + 5)]
@@ -1271,7 +1296,8 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
                 else:
                     newSkill = activeSkill.ind
                     print(str(demon.ind) + " " + demon.name + ": " + str(activeSkill.ind) + " " + activeSkill.name +" not randomized!" )
-  
+        elif skillFromList.ind in localReplacements.keys():
+            newSkill = localReplacements[skillFromList.ind]
         localReplacements.update({skillFromList.ind: newSkill})
         
     
@@ -1322,7 +1348,36 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
     skillReplacementMap[demon.ind].update(localReplacements)
     ogLen = len(demon.skills)
     
-    demon.skills = [Translated_Value(skill_id, "") for skill_id in localReplacements.values()][0:ogLen-2]
+    demon.skills = [Translated_Value(skill_id, "") for skill_id in localReplacements.values() if skill_id not in [GODBORN_ENEMY_MAGATSUHI,BASIC_ENEMY_MAGATSUHI]][0:ogLen]
+
+'''
+Fill up the empty slots in a demon's skill list with additional passives.
+    Parameters:
+        demon(Enemy_Demon): the demon to in question
+        skillReplacementMap (Dict): map of bosses and their skills and replacement skills
+        configSettings (Settings): settings of the current rando run
+        refDemon(Enemy_Demon): the demon who is the reference for a duplicate revival demon
+''' 
+def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Settings, refDemon = None):
+    if refDemon:
+        while len(refDemon.skills) > len(demon.skills):
+            skill = refDemon.skills[len(demon.skills)]
+            demon.skills.append(skill)
+            skillReplacementMap[demon.ind].update({len(demon.skills)+999:skill.ind})
+
+    else:
+        #TODO: Logic so skills are somwewhat logical (ie no elec pleroma if there is no elec skill)
+        
+        allPassives = [skill for skill in PASSIVE_ARR if not skill.name.startswith('NOT USED')]
+
+        while len(demon.skills) < 8:
+            validChoices = [skill for skill in allPassives if skill.ind not in skillReplacementMap[demon.ind].values()]
+
+            newSkill = random.choice(validChoices)
+            demon.skills.append(Translated_Value(newSkill.ind,newSkill.name))
+            skillReplacementMap[demon.ind].update({len(demon.skills)+999:newSkill.ind})
+
+
 
 '''
 Makes the skill arrs accessible for boss_logic and temporarily modifies certain skills to make them work better in the skill randomization.

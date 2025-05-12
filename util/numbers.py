@@ -852,7 +852,7 @@ PHYSICAL_RATE_SKILLS = [170,69] #Power Punch, Beatdown
 
 #Enemy only (and Nahobino) skills that don't have a skill rank and what they should use as their skill rank for the boss skill randomization
 ENEMY_SKILL_RANKS = {
-    249 : 32, #Moonlight Frost (Same As Gaea Rage 450 Power Pierce)
+    255 : 32, #Moonlight Frost (Same As Gaea Rage 450 Power Pierce)
     283: 6, #Frenzy (Weaker than Heat Wave which is 7)
     284 : 16, #Galavanic Slash (More Accurate Storm Dracostrike which is 15)
     292: 21, #Sakanagi (Mortal Jihad has +20 BP, but isn't Almighty and is 20)
@@ -868,7 +868,7 @@ ENEMY_SKILL_RANKS = {
     310: 6, #Miracle Water (Media is 8 with +10BP but -7%MHP)
     315: 10, #Toxic Breath (Mamudo is 8, with -15 BP)
     320: 30, #Purgatorium (Trisagion is -10BP and 27, but not AOE)
-    312: 26, #Impetus (Hades Blast is -30BP and 23)
+    321: 26, #Impetus (Hades Blast is -30BP and 23)
     329: 29, #Inferno of God (Maragidyne is 26 and - 35 BP)
     330: 29, #Hailstorm of God (Maragidyne is 26 and - 35 BP)
     331: 29, #Lightning of God (Maragidyne is 26 and - 35 BP)
@@ -932,6 +932,20 @@ ENEMY_SKILL_RANKS = {
     943: 26, #Shield of God(Enemy) (Kannabi Veil * 2)
     944: 27, #Impaler's Glory(Enemy) (Impaler's Animus +5)
     945: 21, #Dekajaon (Dekaja/Dekunda +5)
+    103: 1, #Dia (Enemy (Agathion,Kodama))
+    104: 12, #Diarama (Enemy (Amanozako))) 
+    277: 25, #Matriarchs Love (Enemy (Danu))
+    353: 11, #Diarama (Enemy (Camael, Tsukuyomi, Okuninushi, Principality))
+    354: 12, #Media (Enemy (Okuninushi)) (Media +4)
+    355: 19, #Mediarama (Enemy (Kushinada, Tiamat)) 
+    381: 15, #Dia (Enemy (Abcess Pixie)) (+3 Normal Diarama)
+    382: 19, #Diarama (Enemy (Dominion, Power)) (same rank as Diarahan)
+    384: 20, #Mediarama (Enemy (Ananta, Throne)) (High % Heal, same Rank as Light of Order/Golden Apple)
+    385: 13, #Dia (Enemy (Demi-fiend Pixie)) (+1 Normal Diarama)
+    386: 22, #Diarama (Enemy (Camael, Ishtar, Khonsu)) 
+    850: 25, #Diarama (Enemy (Masakado, Mastema)) 
+    852: 23, #Mediarama (Enemy (Samael))
+    888: 15, #Diamrita (Enemy (Agrat))
 }   
 '''
 Returns dictionary lining out to which reward are each shop slot belongs
