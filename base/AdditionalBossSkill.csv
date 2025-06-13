@@ -113,9 +113,9 @@ BossID,BossName,SkillID,SkillName,ReplacementSkill,ReplacementName,SyncSkill,Syn
 681,Satan, 211, Yabusame Shot,0,Unused,0,Unused,687,Kumbhanda,
 681,Satan, 933, Magatsuhi Harvest (Special),0,Unused,0,Unused,0,Unused,
 681,Satan, 931, Magatsuhi Plunder,0,Unused,0,Unused,0,Unused,
-681,Satan, 934, Big Bang,0,Unused,0,Unused,0,Unused,
-681,Satan, 935, Freikugel EX,0,Unused,0,Unused,0,Unused,
-681,Satan, 936, Soul Drain,0,Unused,0,Unused,0,Unused,
+681,Satan, 934, Big Bang,0,Unused,0,Unused,0,Unused,Non Randomizable really
+681,Satan, 935, Freikugel EX,0,Unused,0,Unused,0,Unused,Non Randomizable really
+681,Satan, 936, Soul Drain,0,Unused,0,Unused,0,Unused,Non Randomizable really
 681,Satan, 937, Twilight Wave,0,Unused,0,Unused,0,Unused,
 681,Satan, 938, Eternal Prayer,0,Unused,0,Unused,0,Unused,
 681,Satan, 939, Waters of Youth,0,Unused,0,Unused,0,Unused,

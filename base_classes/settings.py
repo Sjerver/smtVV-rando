@@ -57,7 +57,7 @@ class Settings(object):
         self.expMultiplier = 1                      # Determines how much exp demons and quests provide
         self.includeTsukuyomiTalisman = False       # Includes the Tsukuyomi Talisman in gift randomization
         self.includeEnemyOnlySkills = False         # Include Enemy only skills in skill pool
-        self.pressTurnChance = 0.1                  # Chance that normal enemies have an additional press turn
+        self.pressTurnChance = 0.0                  # Chance that normal enemies have an additional press turn
         self.unlockFusions = False                  # Unlock all fusions from the beginning
         self.includeOmagatokiCritical = False       # Randomizes which skill is universable available as a magatsuhi skill
         self.includeOmnipotentSuccession = False    # Randomizes the skill belonging to the Nahobino Race
@@ -91,4 +91,5 @@ class Settings(object):
         self.similiarBossSkillRank = False          # Boss Skills are replaced by skills with a similiar skill rank
         self.allowBossMagatsuhiSkill = False        # Allows magatsuhi skills to be in bosses skill pools
         self.allowContemptOfGod = False             # Allows Contempt of God to be randomized and show up on bosses
-        self.fillEmptySlotsWithPassives = False     # Fills empty skill slots of demons with additional passives              
+        self.elementCountConsistency = False        # Bosses have the same amount of element and only replace skills of one element with one other element
+        self.fillEmptySlotsWithPassives = False     # Fills empty skill slots of bosses with additional passives              

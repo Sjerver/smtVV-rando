@@ -468,11 +468,13 @@ def createGUI(configSettings: Settings):
     bossSkillLabel = tk.Label(page3FrameLeft, text="Boss Skills")
     bossSkillLabel.pack()
 
-    listBossSkills = tk.Listbox(page3FrameLeft, selectmode = "multiple", width=50, height = 5, exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listBossSkills = tk.Listbox(page3FrameLeft, selectmode = "multiple", width=50, height = 8, exportselection=False, selectbackground = VENGEANCE_PURPLE)
     listBossSkills.insert(0, "Randomize Boss Skills")
     listBossSkills.insert(1, "Similiar Skill Rank")
     listBossSkills.insert(2, "Allow Magatsuhi Skills")
     listBossSkills.insert(3, "Allow Contempt of God")
+    listBossSkills.insert(4, "Consistent Element Count/Replacement")
+    listBossSkills.insert(5, "Fill Empty Slots with Passives")
     listBossSkills.pack()
 
     magatsuhiHarvestLabel = tk.Label(page3FrameRight, text="Generic Boss Magatsuhi")
@@ -553,7 +555,7 @@ def createGUI(configSettings: Settings):
     expLabel.pack()
 
     pressTurnScale = tk.Scale(page4FrameBottomLeft, from_=0, to=1, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
-    pressTurnScale.set(0.1)
+    pressTurnScale.set(0.0)
     pressTurnScale.pack()
 
     itemLabel = tk.Label(page4FrameBottomRight, text="Item Randomizer")
@@ -685,6 +687,8 @@ def createGUI(configSettings: Settings):
                'similiarBossSkillRank': ('Listbox', listBossSkills, 1),
                'allowBossMagatsuhiSkill': ('Listbox', listBossSkills, 2),
                'allowContemptOfGod': ('Listbox', listBossSkills, 3),
+               'elementCountConsistency': ('Listbox', listBossSkills, 4),
+               'fillEmptySlotsWithPassives': ('Listbox', listBossSkills, 5),
 
                'alwaysCritical': ('Listbox_single', listMagatsuhiHarvest, 1),
                'alwaysPierce': ('Listbox_single', listMagatsuhiHarvest, 2), 
@@ -1014,6 +1018,10 @@ def createGUI(configSettings: Settings):
     configur.set('Boss', 'allowBossMagatsuhiSkill', str(bossSkillFlags[2]).lower())
     configSettings.allowContemptOfGod = bossSkillFlags[3]
     configur.set('Boss', 'allowContemptOfGod', str(bossSkillFlags[3]).lower())
+    configSettings.elementCountConsistency = bossSkillFlags[4]
+    configur.set('Boss', 'elementCountConsistency', str(bossSkillFlags[4]).lower())
+    configSettings.fillEmptySlotsWithPassives = bossSkillFlags[5]
+    configur.set('Boss', 'fillEmptySlotsWithPassives', str(bossSkillFlags[5]).lower())
 
     configSettings.alwaysCritical = bool(magatsuhiHarvestChoice and magatsuhiHarvestChoice[0] == 1)
     configur.set('Boss', 'alwaysCritical', str(configSettings.alwaysCritical).lower())
@@ -1126,8 +1134,8 @@ def createConfigFile(configur):
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
                                  'ScaleInstakillRates': False, 'bossNoEarlyPhysImmunity': False, 'BossPressTurnChance': 0.0, 'RandomizeBossSkills': False,
                                  'alwaysCritical': False,'alwaysPierce': False,'randomMagatsuhi': False,'similiarBossSkillRank':False,'allowBossMagatsuhiSkill':False,
-                                 'allowContemptOfGod':False,}
-    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.1, 'UnlockFusions': False, 'swapCutsceneModels': False}
+                                 'allowContemptOfGod':False, 'elementCountConsistency': False, 'fillEmptySlotsWithPassives':False}
+    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.0, 'UnlockFusions': False, 'swapCutsceneModels': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
                         'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False, 'EarlyInheritenceViolation': False}

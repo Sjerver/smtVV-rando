@@ -172,6 +172,14 @@ UNCHANGEABLE_SKILLS = [
     862,866,288, #Inception of Chaos, Annihilation Ray, harge (Lahmu (targets all))
 ]
 
+#List of passives banned from being added to bosses
+BANNED_PASSIVES = [
+    429,430,431,432,439,440,441,442,464,465,477,511 #Life Aid x2, Mana Aid x2, Mana Spring x2, Curse Siphon x2, Restore x2, Inspiring Leader, Lightning Pulse
+]
+
+#Ids of passives that manipulate poison damage
+POISON_PASSIVES = [470,471]
+
 class Boss_Metadata(object):
     def __init__(self, demons, id):
         self.ind = id
@@ -277,7 +285,7 @@ def initAdditionalBossSkillData():
             }
         if replacementSkill != 0:
             #Skills that replace a skill in the actual skill list (Example: Diarama in Skill list is not the one in AI script)
-            ADDITIONAL_BOSS_SKILLS[bossID]['ReplacementSkills'].update({replacementSkill: skillID})
+            ADDITIONAL_BOSS_SKILLS[bossID]['ReplacementSkills'].update({skillID: replacementSkill})
         elif syncSkill != 0:
             #Skills that use a different version of the same skill in some part of the script(Ex: Demi-fiend uses the player Javelin Rain to check if it can hit and then uses the boss version)
             ADDITIONAL_BOSS_SKILLS[bossID]['SyncSkills'].update({syncSkill: skillID})
@@ -1249,6 +1257,8 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
 
 
     #TODO: Refine settings and algorithm for this
+
+    #TODO: Elemental consistency, Also do not forget to think about the switch from phys to Mag to make consistency work
     
     for index, skillFromList in enumerate(fullSkillList):
         newSkill = skillFromList.ind
@@ -1366,12 +1376,32 @@ def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Setti
             skillReplacementMap[demon.ind].update({len(demon.skills)+999:skill.ind})
 
     else:
-        #TODO: Logic so skills are somwewhat logical (ie no elec pleroma if there is no elec skill)
         
         allPassives = [skill for skill in PASSIVE_ARR if not skill.name.startswith('NOT USED')]
 
+        invalidChoices = BANNED_PASSIVES.copy()
+
+        #Pleroma Filter
+        pleromas = [skill for skill in allPassives if skill.name.endswith('Pleroma')]
+        elementList = set()
+        canPoison = False
+        for skill in demon.skills:
+            trueSkill = obtainSkillFromID(skill.ind)
+            if isinstance(trueSkill,Active_Skill):
+                elementList.add(trueSkill.element.value)
+
+                #Poison Adept/Master Filter
+                if not canPoison and trueSkill.ailmentFlags.poison > 0:
+                    canPoison = True
+
+        invalidChoices = invalidChoices + [pleroma.ind for pleroma in pleromas if pleroma.element.value not in elementList]
+        if not canPoison:
+            invalidChoices = invalidChoices + POISON_PASSIVES
+        
+
+
         while len(demon.skills) < 8:
-            validChoices = [skill for skill in allPassives if skill.ind not in skillReplacementMap[demon.ind].values()]
+            validChoices = [skill for skill in allPassives if skill.ind not in skillReplacementMap[demon.ind].values() and skill.ind not in invalidChoices]
 
             newSkill = random.choice(validChoices)
             demon.skills.append(Translated_Value(newSkill.ind,newSkill.name))
