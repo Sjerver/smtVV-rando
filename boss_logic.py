@@ -157,7 +157,7 @@ BANNED_SKILLS = [834,835, #Unused Uniques from Pixie/High Pixie,
                  248, #Taunt
                  154,951,929, #Trafuri (+Dazai Version), Riberama
                  313, #Dreadful Gleam Fail
-                 99,102,110,938,112,939, #Diarahan, Mediarahan, Eternal Prayer(Player+Enemy), Waters of Youth (P+E)
+                 99,102,110,938,112,939,281, #Diarahan, Mediarahan, Eternal Prayer(Player+Enemy), Waters of Youth (P+E), Eleusinian Harvest
                  115,116, #Recarm, Samarecarm, Revival Chant
     ]
 
@@ -1358,7 +1358,7 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
             newID = 856 #Sakuya Sakura
         elif newID == 909 or newID == 266:
             newID = 887 #Suns Radiance
-        elif newID == 270:
+        elif newID == 279:
             newID = 277 #Matriarchs Love
         elif newID == 101:
             newID = 384 #Mediarama (Throne,Clotho)
@@ -1380,8 +1380,8 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
 
     if configSettings.elementCountConsistency:
         potentialSet = copy.deepcopy(demon.potential)
-        for element, newElement in elementMap:
-            potentialSet.__getattribute__(newElement) = demon.potential__getattribute__(element)
+        for element, newElement in elementMap.items():
+            potentialSet.__setattr__(newElement.lower(),demon.potential.__getattribute__(element.lower())) 
         demon.potential = potentialSet
 
 
