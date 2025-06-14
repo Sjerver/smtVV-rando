@@ -154,10 +154,11 @@ GODBORN_ENEMY_MAGATSUHI = 950
 #List of skills that cannot be chosen as result of randomization
 BANNED_SKILLS = [834,835, #Unused Uniques from Pixie/High Pixie,
                  371, #Demi-fiend Gaea Rage
-                 248,260, #Taunt, Fierce Roar does not work when Enemies use it
+                 248, #Taunt
                  154,951,929, #Trafuri (+Dazai Version), Riberama
                  313, #Dreadful Gleam Fail
-                 99,102,110,938,112,939 #Diarahan, Mediarahan, Eternal Prayer(Player+Enemy), Waters of Youth (P+E)
+                 99,102,110,938,112,939, #Diarahan, Mediarahan, Eternal Prayer(Player+Enemy), Waters of Youth (P+E)
+                 115,116, #Recarm, Samarecarm, Revival Chant
     ]
 
 #List of skills that should not be changed in randomization
@@ -1259,7 +1260,9 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
     #TODO: Refine settings and algorithm for this
 
     #TODO: Elemental consistency, Also do not forget to think about the switch from phys to Mag to make consistency work
-    
+
+    elementMap = {}
+
     for index, skillFromList in enumerate(fullSkillList):
         newSkill = skillFromList.ind
         
@@ -1285,8 +1288,27 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
                 activeSkill: Active_Skill
                 # filter unviable skills
                 currentSkills = [skill for skill in SKILL_ARR if skill.ind != 0 and skill.ind not in localReplacements.values() and skill.ind not in BANNED_SKILLS and skill.ind not in numbers.MAGATSUHI_ENEMY_VARIANTS.keys()]
-                #same type of skill
-                currentSkills = [skill for skill in currentSkills if skill.skillType.value == activeSkill.skillType.value and skill.rank != 0]
+                
+                #same Element
+                if configSettings.elementCountConsistency:
+                    element = activeSkill.element.translation
+                    if element in translation.SKILL_ELEMENTS[:8]: #Ailments, Recovery,Support do not count as elements
+                        if element not in elementMap.keys(): #get element replacement
+                            elementChoices = translation.SKILL_ELEMENTS[:8]
+                            elementChoices = [e for e in elementChoices if e not in elementMap.values()]
+                            newElement = random.choice(elementChoices)
+                            elementMap[element] = newElement
+
+                        newElement = elementMap[element]
+                        currentSkills = [skill for skill in currentSkills if skill.element.translation == newElement]
+                        skillTypes = [0,1] #"StrBased", "MagBased"
+                        currentSkills = [skill for skill in currentSkills if skill.skillType.value in skillTypes and skill.rank != 0]
+                    else:
+                        #same type of skill for Ailments, Recovery,Support
+                        currentSkills = [skill for skill in currentSkills if skill.skillType.value == activeSkill.skillType.value and skill.rank != 0]
+                else:
+                    #same type of skill for all skills
+                    currentSkills = [skill for skill in currentSkills if skill.skillType.value == activeSkill.skillType.value and skill.rank != 0]
 
                 if configSettings.similiarBossSkillRank:
                     currentSkills = [skill for skill in currentSkills if (skill.rank -5 <= activeSkill.rank <= skill.rank + 5)]
@@ -1397,6 +1419,8 @@ def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Setti
         invalidChoices = invalidChoices + [pleroma.ind for pleroma in pleromas if pleroma.element.value not in elementList]
         if not canPoison:
             invalidChoices = invalidChoices + POISON_PASSIVES
+
+            #TODO: Resist/null/repel/Drain logic + setting ?
         
 
 
