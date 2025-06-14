@@ -7092,6 +7092,8 @@ class Randomizer:
     def fullRando(self, config: Settings, testing= False):
         if os.path.exists("rando"):
             shutil.rmtree("rando")
+        
+        shutil.copytree(paths.PRE_MODIFIED_FILES, paths.PRE_MODIFIED_FILES_OUT)
 
         writeFolder(paths.DEBUG_FOLDER)
         with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
