@@ -1259,8 +1259,6 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
 
     #TODO: Refine settings and algorithm for this
 
-    #TODO: Elemental consistency, Also do not forget to think about the switch from phys to Mag to make consistency work
-
     elementMap = {}
 
     for index, skillFromList in enumerate(fullSkillList):
@@ -1379,7 +1377,14 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
     
     skillReplacementMap[demon.ind].update(localReplacements)
     ogLen = len(demon.skills)
-    
+
+    if configSettings.elementCountConsistency:
+        potentialSet = copy.deepcopy(demon.potential)
+        for element, newElement in elementMap:
+            potentialSet.__getattribute__(newElement) = demon.potential__getattribute__(element)
+        demon.potential = potentialSet
+
+
     demon.skills = [Translated_Value(skill_id, "") for skill_id in localReplacements.values() if skill_id not in [GODBORN_ENEMY_MAGATSUHI,BASIC_ENEMY_MAGATSUHI]][0:ogLen]
 
 '''
@@ -1423,13 +1428,30 @@ def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Setti
             #TODO: Resist/null/repel/Drain logic + setting ?
         
 
-
         while len(demon.skills) < 8:
             validChoices = [skill for skill in allPassives if skill.ind not in skillReplacementMap[demon.ind].values() and skill.ind not in invalidChoices]
 
             newSkill = random.choice(validChoices)
-            demon.skills.append(Translated_Value(newSkill.ind,newSkill.name))
-            skillReplacementMap[demon.ind].update({len(demon.skills)+999:newSkill.ind})
+
+            skipChoice = False
+
+            if newSkill.resists.type.value > 0:
+                trueNewSkill = obtainSkillFromID(newSkill.ind)
+                #Check if demon has resistance skill of same element already
+                for skill in demon.skills:
+                    trueSkill = obtainSkillFromID(skill.ind)
+                    for attr in vars(trueSkill.resists):
+                        attrValue = trueSkill.resists.__getattribute__(attr)
+                        if isinstance(trueSkill,Passive_Skill) and isinstance(attrValue,int):
+                            if attrValue> 0 and trueNewSkill.resists.__getattribute__(attr) > 0:
+                                skipChoice = True
+                                invalidChoices.append(newSkill)
+                                break
+            
+
+            if not skipChoice:
+                demon.skills.append(Translated_Value(newSkill.ind,newSkill.name))
+                skillReplacementMap[demon.ind].update({len(demon.skills)+999:newSkill.ind})
 
 
 
