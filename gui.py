@@ -473,7 +473,7 @@ def createGUI(configSettings: Settings):
     listBossSkills.insert(1, "Similiar Skill Rank")
     listBossSkills.insert(2, "Allow Magatsuhi Skills")
     listBossSkills.insert(3, "Allow Contempt of God")
-    listBossSkills.insert(4, "Consistent Element Count/Replacement")
+    listBossSkills.insert(4, "Preserve Elemental Slots per Boss")
     listBossSkills.insert(5, "Fill Empty Slots with Passives")
     listBossSkills.pack()
 
