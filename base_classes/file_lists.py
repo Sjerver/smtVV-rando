@@ -34,7 +34,7 @@ except Exception as e:
     sys.exit(1)  
 
 
-from UAssetAPI import UAsset  # type: ignore
+from UAssetAPI import UAsset, Import # type: ignore
 from UAssetAPI.UnrealTypes import EngineVersion, FString  # type: ignore
 from UAssetAPI.Kismet import KismetSerializer #type:ignore
 from System.Text import Encoding # type: ignore
@@ -435,6 +435,7 @@ SCRIPT_FOLDERS = {
     'MM_M060_EM2484': M060_EM2480_FODLER,  #Nahobiho Quest part 5
     'MM_M060_EM2570': M060_FOLDER, #Moirae Haunt Quest (Norn)
     'MM_M060_EM2630': M060_FOLDER,  #Saturnus Quest()
+    'MM_M0082_E0171': MAIN_M082_FOLDER,#Event after Naming Protag that handles Students Talking
     
     'BP_es035_m063_01': ES035_M063_FOLDER,#Fionn area 3 (Fionn)
     'BP_es152_m062_01': ES152_M062_FOLDER,#,#Hayataro area 2
@@ -677,6 +678,14 @@ class Script_File:
         self.originalBytecode = None
         self.originalNameMap = None
 
+#SetEvent has -60 in 171, -66 in TutorialCrystal?
+    def addImport(self, classPackage, className, outerIndex: int, objectName, importOptional):
+        newImport = Import(classPackage, className, outerIndex, objectName, importOptional, self.uasset)
+        self.uasset.addImport(newImport)
+        self.updateJsonWithUasset()
+        
+        #Import(string classPackage, string className, FPackageIndex outerIndex, string objectName, bool importOptional, UAsset asset)
+
     
     '''
     Get the name at the index in the name map of the uasset.
@@ -696,6 +705,15 @@ class Script_File:
         except UnicodeEncodeError:
             encoding = Encoding.Unicode
         self.uasset.SetNameReference(index,FString.FromString(name,encoding))    
+    
+    def addNameToNameMap(self, name):  
+        encoding = None
+        try:
+            name.encode('ascii')
+            encoding = Encoding.ASCII
+        except UnicodeEncodeError:
+            encoding = Encoding.Unicode
+        self.uasset.AddNameReference(FString.FromString(name,encoding),False,False)
     
     '''
     Returns a new JSON based on the current uasset data.

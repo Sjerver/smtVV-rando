@@ -12,6 +12,11 @@ BYTECODE_JUMP = {
 #KismetBytecode Expression for an empty expression (useful as filler)
 BYTECODE_NOTHING = {"$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_Nothing, UAssetAPI"}
 
+BYTECODE_EX_NAMECONST= {
+              "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_NameConst, UAssetAPI",
+              "Value": "PLACEHOLDER"
+            }
+
 BASE_MAPSYMBOLPARAMS = {
             "$type": "UAssetAPI.PropertyTypes.Structs.StructPropertyData, UAssetAPI",
             "StructType": "MapSymbolParam",
@@ -370,3 +375,20 @@ VOICEMAP_FIND =  [[
                           }
                         }
                       ]]
+
+def getImportedFunctionCall(stackNode, parameters):
+    return {
+          "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath, UAssetAPI",
+          "StackNode": stackNode,
+          "Parameters": parameters
+        }
+
+def getBytecodeBoolen(value = True):
+    if value:
+      return {
+                "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_True, UAssetAPI"
+              }
+    else:
+       return {
+                "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_False, UAssetAPI"
+              }

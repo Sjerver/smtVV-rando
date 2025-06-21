@@ -6,6 +6,7 @@ import util.numbers as numbers
 from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join_Type, Bytecode
 from base_classes.quests import Mission_Reward, Fake_Mission
 from base_classes.uasset_custom import UAsset_Custom
+import util.jsonExports as jsonExports
 import copy
 import json
 import csv
@@ -1019,4 +1020,99 @@ def aiUpdate(skillReplacementMap, bossArr, scriptFiles):
                 file.write("\n")
 
     return storeNkm
+
+'''
+Set certain event flags early in order to skip events/tutorials.
+    Parameters:
+        scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+'''
+def setCertainFlagsEarly(scriptFiles):
+    file = scriptFiles.getFile("MM_M0082_E0171") #Talking to the students directly in front of Player after naming cutscene
+    jsonData = file.json
+
+    FLAGLIST = [
+        #School NPC Events
+        "MAP_FLAG_P_E0171","MAP_FLAG_P_E0172","MAP_FLAG_P_E0173","MAP_FLAG_P_E0170_Finish",
+        "MAP_FLAG_E0171","MAP_FLAG_E0172","MAP_FLAG_E0173","MAP_FLAG_E0170_Finish",
+        #Events between leaving School and entering Dazai Tunnel
+        "MAP_FLAG_E0186",
+        "MAP_FLAG_P_E0186",
+        "MAP_FLAG_E0190","MAP_FLAG_E0190_npc", "MAP_FLAG_E0192", "MAP_FLAG_E0191","MAP_FLAG_E0195",
+        "MAP_FLAG_P_E0190","MAP_FLAG_P_E0191","MAP_FLAG_P_E0192","MAP_FLAG_P_E0195",
+    
+
+        #Early Tutorials in Minato up to after the Treasure
+        "script_m061_mm_018",
+        "script_m061_mm_019", #Magatsuhi Crystal Tutorial
+        "script_m061_mm_020","script_m061_mm_021","script_m061_mm_026",
+        #Early Tutorials in Minato up to after the Treasure (CoV)
+        "MAP_FLAG_P_EM0002",#Magatsuhi Crystal Tutorial
+        "MAP_FLAG_P_EM0001","MAP_FLAG_P_EM0003","MAP_FLAG_P_EM0004","MAP_FLAG_P_EM0005",
+
+        "sflag0018_FirstShop",
+
+        #Miman Tutorial Stop
+        "script_m061_mm_014",#"script_m061_mm_014_2", This one is also responsible for the 1 miman reward scene, by not skipping it the first visit to Gustave gives reward immediately
+        
+        #Miman Tutorial
+        "MAP_FLAG_P_EM0018","script_m061_mm_009",
+
+        #Tutorials (Slash, UniqueSymbol)
+        "script_m061_mm_011","script_m061_mm_030",
+
+        #Tutorials CoV (Slash, UniqueSymbol)
+        "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020",
+
+
+    ]
+
+    FALSE_FLAGS = [
+        "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock"
+    ]
+
+    file.exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
+    file.exportIndex = file.exportNameList.index("TalkStart")
+    bytecode = Bytecode(jsonData["Exports"][file.exportIndex]['ScriptBytecode'])
+    
+    file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+    imp = "SetEventFlag"
+    stackNode = -1 * file.importNameList.index(imp) -1
+    
+
+    for flag in FLAGLIST:
+        if flag not in  jsonData["NameMap"]:
+            jsonData["NameMap"].append(flag)
+
+        nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_NAMECONST)
+        nameConst["Value"] = flag
+
+        localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen()])
+        bytecode.json.insert(0,localFinalFunction)
+    
+    for flag in FALSE_FLAGS:
+        if flag not in  jsonData["NameMap"]:
+            jsonData["NameMap"].append(flag)
+
+        nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_NAMECONST)
+        nameConst["Value"] = flag
+
+        localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen(False)])
+        bytecode.json.insert(0,localFinalFunction)
+    
+    file.updateFileWithJson(jsonData)
+    scriptFiles.setFile("MM_M0082_E0171",file)
+    scriptFiles.writeFile("MM_M0082_E0171",file)
+
+
+    #TODO: Test if this is the correct way to add import, so we can then edit the event immediately after naming event so no talk is necessary
+    # file = scriptFiles.getFile("MM_MM061_E0242")
+    # file.addImport("/Script/CoreUObject", "Package", 0, "/Game/Blueprints/Map/Gimic/Common/BPL/BPL_MapPiece", False)
+    # stackNode = (file.uasset.Imports.Count +1) *-1
+    # file.addImport("/Game/Blueprints/Map/Gimic/Common/BPL/BPL_MapPiece", "BPL_MapPiece_C",stackNode , "Default__BPL_MapPiece_C", False)
+    
+    
+    
+    # scriptFiles.setFile("MM_MM061_E0242",file)
+    # scriptFiles.writeFile("MM_MM061_E0242",file)
+
     

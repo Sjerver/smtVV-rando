@@ -1424,8 +1424,6 @@ def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Setti
         invalidChoices = invalidChoices + [pleroma.ind for pleroma in pleromas if pleroma.element.value not in elementList]
         if not canPoison:
             invalidChoices = invalidChoices + POISON_PASSIVES
-
-            #TODO: Resist/null/repel/Drain logic + setting ?
         
 
         while len(demon.skills) < 8:
@@ -1437,6 +1435,7 @@ def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Setti
 
             if newSkill.resists.type.value > 0:
                 trueNewSkill = obtainSkillFromID(newSkill.ind)
+                #TODO: Optimize: Search for resist before while loop and then add resists to a list when a new resist skill is added
                 #Check if demon has resistance skill of same element already
                 for skill in demon.skills:
                     trueSkill = obtainSkillFromID(skill.ind)
