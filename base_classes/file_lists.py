@@ -4,7 +4,6 @@ import json
 import os
 import sys
 import copy
-from script_logic import getEquivalentSource
 from pythonnet import load
 
 base_path = os.path.join(os.getcwd(), r'base')
@@ -160,15 +159,21 @@ SCRIPT_FOLDERS = {
     'MM_M060_EM2351': GARDEN_FOLDER, # Rascal of the Norse
     'EM_M061_DevilTalk' : MAINMISSION_M061_FOLDER, # Tutorial Pixie Event
     'esNPC_m061_31a' : MINATO_NPC_FOLDER, #Rakshasa on Diet Building Roof
+    'esNPC_m061b_31a' : MINATO_NPC_FOLDER, #Rakshasa on Diet Building Roof (Vengeance)
     'esNPC_m061_30a' : MINATO_NPC_FOLDER, #Slime near Qing Long
+    'esNPC_m061b_30a' : MINATO_NPC_FOLDER, #Slime near Qing Long (Vengeance)
     'esNPC_m061_34a' : MINATO_NPC_FOLDER, #Pixie in Kamiyacho
     'esNPC_m061_32_Navi': MINATO_NPC_FOLDER, #Navi Ippon Datara
     'esNPC_m061_33_Navi': MINATO_NPC_FOLDER, #Navi Mermaid
     'esNPC_m061_37_Navi': MINATO_NPC_FOLDER, #Navi Hell Biker
     'esNPC_m061_38_Navi': MINATO_NPC_FOLDER, #Navi Cleopatra
     'BP_esNPC_TokyoMap_15b': TOKYO_NPC_FOLDER, #Tokyo NPC Mischievous Mascot Periapt
+    'BP_esNPC_TokyoMap_15b2': TOKYO_NPC_FOLDER, #Tokyo NPC Mischievous Mascot Periapt
+    'BP_esNPC_TokyoMap_15c': TOKYO_NPC_FOLDER, #Tokyo NPC Mischievous Mascot Periapt
     'esNPC_m062_32a': SHINAGAWA_NPC_FOLDER, #Nue in Container
-    'esNPC_m062_33a': SHINAGAWA_NPC_FOLDER, #Angel after Loup-garou/Eisheth 
+    'esNPC_m062_33a': SHINAGAWA_NPC_FOLDER, #Angel after Loup-garou/Eisheth
+    'esNPC_m062b_32a': SHINAGAWA_NPC_FOLDER, #Nue in Container (Vengeance)
+    'esNPC_m062b_33a': SHINAGAWA_NPC_FOLDER, #Angel after Loup-garou/Eisheth  (Vengeance)
     'esNPC_m062_40a': SHINAGAWA_NPC_FOLDER, #Slime in Shinagawa
     'esNPC_m062_NaviDevil_01': SHINAGAWA_NPC_FOLDER, #Navi Agathion
     'esNPC_m062_NaviDevil_41': SHINAGAWA_NPC_FOLDER, #Navi Mothman
@@ -181,10 +186,12 @@ SCRIPT_FOLDERS = {
     'esNPC_m060_14_Navi': TAITO_NPC_FOLDER, #Navi Mara
     'esNPC_m060_15_Navi': TAITO_NPC_FOLDER, #Navi Fionn
     'esNPC_m016_02a': EMPYREAN_NPC_FOLDER, #Ongyo-Ki NPC
+    'esNPC_m016_02b': EMPYREAN_NPC_FOLDER, #Ongyo-Ki NPC
     'MM_M062_EM1132': M062_FOLDER, #Cait Sith in Fairy Village
     'MM_M060_EM1370_Direct': M060_FOLDER, #Fighting Bishamonten without Quest(shares reward with quest)
     'MM_M061_E2610': MAINMISSION_M061_FOLDER, #Isis Event in CoV
     'MM_M060_E0763': MAIN_M060_FOLDER, #Tao Talisman Event at the beginning of Taito
+    'MM_M060_E3001_Direct': MAIN_M060_FOLDER, #Tao Talisman Event at the beginning of Taito (Vengeance)
     'MM_M064_E2797': MAIN_M064_FOLDER, #Qadistu Talisman/Periapt
     'MM_M064_E2795_Direct': MAIN_M064_FOLDER, #Tsukuyomi Talisman
     'BP_JakyoEvent': SHOP_EVENT_FOLDER, #Cathedral of Shadows Event
@@ -572,11 +579,12 @@ class Script_File_List:
         folderKey = name
         if 'BtlAI' in name:
             folderKey = 'Btl_AI'
-        if folderKey not in SCRIPT_FOLDERS.keys():
-            folderKey = getEquivalentSource(name)
-        if 'SEQ' in name:
+        elif 'SEQ' in name:
             subFolder = name.split("_")[1]
             folderKey = "LV_" + subFolder
+        elif folderKey not in SCRIPT_FOLDERS.keys() and 'LV_E' not in folderKey:
+            raise KeyError(f"No folder mapping found for '{name}' (folderKey = '{folderKey}')")
+
         
         if 'SEQ' not in name:
             stringy = json.dumps(file.json)
@@ -609,11 +617,11 @@ class Script_File_List:
             folderKey = name
             if 'BtlAI' in name:
                 folderKey = 'Btl_AI'
-            if folderKey not in SCRIPT_FOLDERS.keys():
-                folderKey = getEquivalentSource(name)
-            if 'SEQ' in name:
+            elif 'SEQ' in name:
                 subFolder = name.split("_")[1]
                 folderKey = "LV_" + subFolder
+            elif folderKey not in SCRIPT_FOLDERS.keys() and 'LV_E' not in folderKey:
+                raise KeyError(f"No folder mapping found for '{name}' (folderKey = '{folderKey}')")
             
             file = self.files[index]
             if 'SEQ' not in name:
@@ -766,6 +774,37 @@ class Script_File:
             KismetSerializer.asset = self.uasset
             newStatementIndex = KismetSerializer.SerializeExpression(self.uasset.Exports[exportIndex].ScriptBytecode[-1], preLastIndex, True)
         return newStatementIndex[1]
+    
+    #TODO
+    def jsonReverseFlagSetting(self,flagName):
+        def recursiveReverseFlag(obj):
+            if isinstance(obj, dict):
+                if obj.get("$type") == "UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath, UAssetAPI":
+                    params = obj.get("Parameters", [])
+                    if (len(params) >= 2 and
+                        params[0].get("$type") == "UAssetAPI.Kismet.Bytecode.Expressions.EX_NameConst, UAssetAPI" and
+                        params[0].get("Value") == flagName):
+
+                        # Swap EX_True to EX_False and vice versa
+                        if params[1].get("$type") == "UAssetAPI.Kismet.Bytecode.Expressions.EX_True, UAssetAPI":
+                            params[1] = {
+                                "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_False, UAssetAPI"
+                            }
+                        elif params[1].get("$type") == "UAssetAPI.Kismet.Bytecode.Expressions.EX_False, UAssetAPI":
+                            params[1] = {
+                                "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_True, UAssetAPI"
+                            }
+
+                for value in obj.values():
+                    recursiveReverseFlag(value)
+
+            elif isinstance(obj, list):
+                for item in obj:
+                    recursiveReverseFlag(item)
+
+        recursiveReverseFlag(self.json)
+        self.updateFileWithJson(self.json)
+
             
 class General_UAsset:
     def __init__(self,name, writePath, readPath = 'base/'):

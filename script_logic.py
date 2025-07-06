@@ -6,6 +6,7 @@ import util.numbers as numbers
 from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join_Type, Bytecode
 from base_classes.quests import Mission_Reward, Fake_Mission
 from base_classes.uasset_custom import UAsset_Custom
+from base_classes.file_lists import Script_File, Script_File_List
 import util.jsonExports as jsonExports
 import copy
 import json
@@ -1064,6 +1065,10 @@ def setCertainFlagsEarly(scriptFiles):
         #Tutorials CoV (Slash, UniqueSymbol,AogamiDebris)
         "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020","MAP_FLAG_P_E2006",
 
+        #Mita Leyline Fount
+        "MAP_FLAG_P_E0250","MAP_FLAG_P_E0251","MAP_FLAG_P_E0243",
+        "script_m061_mm_012","script_m061_mm_016","MAP_FLAG_E0243",
+
         #Abcess Tutorial (Vengeance too)
         "script_m061_mm_013", "MAP_FLAG_P_EM0012",
 
@@ -1076,7 +1081,9 @@ def setCertainFlagsEarly(scriptFiles):
 
     FALSE_FLAGS = [
         "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock",
-        #Demon Haunt (TalkingToAogami) #Are set to true again by EM0182, which cannot be skipped due to giving navi
+        #Cathedral of Shadows, Leyline Travel
+        "sflag0021_JakyoLock","sflag0020_RyuketsuWarpLock",
+        #Demon Haunt (TalkingToAogami)
         "sflag0030_GardenLock","sflag0109_GardenTutorial", 
     ]
 
@@ -1114,6 +1121,19 @@ def setCertainFlagsEarly(scriptFiles):
     scriptFiles.writeFile("MM_M0082_E0171",file)
 
 
+    script = "MM_M061_EM0182"
+    file = scriptFiles.getFile(script)
+
+
+    file.jsonReverseFlagSetting("sflag0109_GardenTutorial")
+
+    #file.updateFileWithJson(jsonData)
+    scriptFiles.setFile(script,file)
+
+    
+
+
+
     #TODO: Test if this is the correct way to add import, so we can then edit the event immediately after naming event so no talk is necessary
     #TODO: correct for better test of actually adding SetEventFlag
     # file = scriptFiles.getFile("MM_MM061_E0242")
@@ -1125,5 +1145,7 @@ def setCertainFlagsEarly(scriptFiles):
     
     # scriptFiles.setFile("MM_MM061_E0242",file)
     # scriptFiles.writeFile("MM_MM061_E0242",file)
+
+    return scriptFiles
 
     

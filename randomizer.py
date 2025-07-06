@@ -7419,7 +7419,7 @@ class Randomizer:
             for skill in numbers.PHYSICAL_RATE_SKILLS:
                 self.obtainSkillFromID(skill).skillType = Translated_Value(14,'')
         
-        scriptLogic.setCertainFlagsEarly(self.scriptFiles)
+        self.scriptFiles = scriptLogic.setCertainFlagsEarly(self.scriptFiles)
         
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
