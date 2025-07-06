@@ -1049,7 +1049,8 @@ def setCertainFlagsEarly(scriptFiles):
         "MAP_FLAG_P_EM0002",#Magatsuhi Crystal Tutorial
         "MAP_FLAG_P_EM0001","MAP_FLAG_P_EM0003","MAP_FLAG_P_EM0004","MAP_FLAG_P_EM0005",
 
-        "sflag0018_FirstShop",
+        #First Shop, Leyline Fount Tutorial (TODO: Worth skipping, if you need to do cavaders hollow before going further anyway?)
+        "sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014",
 
         #Miman Tutorial Stop
         "script_m061_mm_014",#"script_m061_mm_014_2", This one is also responsible for the 1 miman reward scene, by not skipping it the first visit to Gustave gives reward immediately
@@ -1057,17 +1058,26 @@ def setCertainFlagsEarly(scriptFiles):
         #Miman Tutorial
         "MAP_FLAG_P_EM0018","script_m061_mm_009",
 
-        #Tutorials (Slash, UniqueSymbol)
-        "script_m061_mm_011","script_m061_mm_030",
+        #Tutorials (Slash, UniqueSymbol,AogamiDebris)
+        "script_m061_mm_011","script_m061_mm_030","MAP_FLAG_E2006",
 
-        #Tutorials CoV (Slash, UniqueSymbol)
-        "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020",
+        #Tutorials CoV (Slash, UniqueSymbol,AogamiDebris)
+        "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020","MAP_FLAG_P_E2006",
 
+        #Abcess Tutorial (Vengeance too)
+        "script_m061_mm_013", "MAP_FLAG_P_EM0012",
+
+        
+        
+        #Various Tutorial Pop-ups #TODO I think these just decide which Tutorial to play? So no point?
+        "sflag0089_AmuletTutorial","sflag0090_AmuletTutorial",
 
     ]
 
     FALSE_FLAGS = [
-        "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock"
+        "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock",
+        #Demon Haunt (TalkingToAogami) #Are set to true again by EM0182, which cannot be skipped due to giving navi
+        "sflag0030_GardenLock","sflag0109_GardenTutorial", 
     ]
 
     file.exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
@@ -1105,14 +1115,14 @@ def setCertainFlagsEarly(scriptFiles):
 
 
     #TODO: Test if this is the correct way to add import, so we can then edit the event immediately after naming event so no talk is necessary
-    # file = scriptFiles.getFile("MM_MM061_E0242")
-    # file.addImport("/Script/CoreUObject", "Package", 0, "/Game/Blueprints/Map/Gimic/Common/BPL/BPL_MapPiece", False)
-    # stackNode = (file.uasset.Imports.Count +1) *-1
-    # file.addImport("/Game/Blueprints/Map/Gimic/Common/BPL/BPL_MapPiece", "BPL_MapPiece_C",stackNode , "Default__BPL_MapPiece_C", False)
+    file = scriptFiles.getFile("MM_MM061_E0242")
+    file.addImport("/Script/CoreUObject", "Package", 0, "/Game/Blueprints/Map/Gimic/Common/BPL/BPL_MapPiece", False)
+    stackNode = (file.uasset.Imports.Count +1) *-1
+    file.addImport("/Game/Blueprints/Map/Gimic/Common/BPL/BPL_MapPiece", "BPL_MapPiece_C",stackNode , "Default__BPL_MapPiece_C", False)
     
     
     
-    # scriptFiles.setFile("MM_MM061_E0242",file)
-    # scriptFiles.writeFile("MM_MM061_E0242",file)
+    scriptFiles.setFile("MM_MM061_E0242",file)
+    scriptFiles.writeFile("MM_MM061_E0242",file)
 
     
