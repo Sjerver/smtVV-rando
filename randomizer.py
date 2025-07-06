@@ -1526,7 +1526,7 @@ class Randomizer:
             success = True
             while success: #Since Succession can not replace critical repeat until chosen skill is not succession
                 skill = random.choice(magaSkills)
-                if skill != 928:
+                if skill.ind != 928:
                     success = False
             availableRaces.remove(0)
             magatsuhiSkillResults.append(skill)
