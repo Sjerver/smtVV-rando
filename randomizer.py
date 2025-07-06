@@ -1330,7 +1330,7 @@ class Randomizer:
             event.compFlag1 = binTable.readWord(offset + 0x14)
             event.compFlag2 = binTable.readWord(offset + 0x18)
             event.mapID = binTable.readWord(offset + 0x1C)
-            event.levelUMap = binTable.readWord(offset + 0x24)
+            event.levelUMap = binTable.read32chars(offset + 0x24)
 
             self.mapEventArr.append(event)
 

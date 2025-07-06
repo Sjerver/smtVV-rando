@@ -1115,14 +1115,15 @@ def setCertainFlagsEarly(scriptFiles):
 
 
     #TODO: Test if this is the correct way to add import, so we can then edit the event immediately after naming event so no talk is necessary
-    file = scriptFiles.getFile("MM_MM061_E0242")
-    file.addImport("/Script/CoreUObject", "Package", 0, "/Game/Blueprints/Map/Gimic/Common/BPL/BPL_MapPiece", False)
-    stackNode = (file.uasset.Imports.Count +1) *-1
-    file.addImport("/Game/Blueprints/Map/Gimic/Common/BPL/BPL_MapPiece", "BPL_MapPiece_C",stackNode , "Default__BPL_MapPiece_C", False)
+    #TODO: correct for better test of actually adding SetEventFlag
+    # file = scriptFiles.getFile("MM_MM061_E0242")
+    # file.addImport("/Script/CoreUObject", "Package", 0, "/Game/Blueprints/Map/Gimic/Common/BPL/BPL_MapPiece", False)
+    # stackNode = (file.uasset.Imports.Count +1) *-1
+    # file.addImport("/Game/Blueprints/Map/Gimic/Common/BPL/BPL_MapPiece", "BPL_MapPiece_C",stackNode , "Default__BPL_MapPiece_C", False)
     
     
     
-    scriptFiles.setFile("MM_MM061_E0242",file)
-    scriptFiles.writeFile("MM_MM061_E0242",file)
+    # scriptFiles.setFile("MM_MM061_E0242",file)
+    # scriptFiles.writeFile("MM_MM061_E0242",file)
 
     
