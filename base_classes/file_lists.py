@@ -443,6 +443,7 @@ SCRIPT_FOLDERS = {
     'MM_M060_EM2570': M060_FOLDER, #Moirae Haunt Quest (Norn)
     'MM_M060_EM2630': M060_FOLDER,  #Saturnus Quest()
     'MM_M0082_E0171': MAIN_M082_FOLDER,#Event after Naming Protag that handles Students Talking
+    'MM_M0082_E0171_First': MAIN_M082_FOLDER,#Event after Naming Protag 
     
     'BP_es035_m063_01': ES035_M063_FOLDER,#Fionn area 3 (Fionn)
     'BP_es152_m062_01': ES152_M062_FOLDER,#,#Hayataro area 2
@@ -688,9 +689,22 @@ class Script_File:
 
 #SetEvent has -60 in 171, -66 in TutorialCrystal?
     def addImport(self, classPackage, className, outerIndex: int, objectName, importOptional):
-        newImport = Import(classPackage, className, outerIndex, objectName, importOptional, self.uasset)
-        self.uasset.addImport(newImport)
-        self.updateJsonWithUasset()
+        # newImport = Import(classPackage, className, outerIndex, objectName, importOptional, self.uasset)
+        # self.uasset.addImport(newImport)
+        # self.updateJsonWithUasset()
+        baseImport = {
+            "$type": "UAssetAPI.Import, UAssetAPI",
+            "ObjectName": objectName,
+            "OuterIndex": outerIndex,
+            "ClassPackage": classPackage,
+            "ClassName": className,
+            "PackageName": None,
+            "bImportOptional": importOptional
+            }
+        self.json["Imports"].append(baseImport)
+        self.json["NameMap"].append(objectName)
+
+        self.updateFileWithJson(self.json)
         
         #Import(string classPackage, string className, FPackageIndex outerIndex, string objectName, bool importOptional, UAsset asset)
 

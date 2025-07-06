@@ -1028,13 +1028,28 @@ Set certain event flags early in order to skip events/tutorials.
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
 def setCertainFlagsEarly(scriptFiles):
-    file = scriptFiles.getFile("MM_M0082_E0171") #Talking to the students directly in front of Player after naming cutscene
+    script = "MM_M0082_E0171_First"
+    file = scriptFiles.getFile(script)
+    file: Script_File
     jsonData = file.json
+    file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+
+    stackNode = file.importNameList.index("/Script/Project") * -1 -1
+    file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_EventFlag", False)
+    stackNode = (file.uasset.Imports.Count) *-1
+    file.addImport("/Script/CoreUObject", "Function",stackNode , "SetEventFlag", False)
+    
+    
+    jsonData = file.json
+    
 
     FLAGLIST = [
         #School NPC Events
         "MAP_FLAG_P_E0171","MAP_FLAG_P_E0172","MAP_FLAG_P_E0173","MAP_FLAG_P_E0170_Finish",
         "MAP_FLAG_E0171","MAP_FLAG_E0172","MAP_FLAG_E0173","MAP_FLAG_E0170_Finish",
+        #These Do not change anything, maybe something missing to trigger Yuzuru Meeting event automatically? If even possible this way
+        # "MAP_FLAG_E0171_Finish","MAP_FLAG_P_E0171_Finish",
+        # "MAP_FLAG_P_E0174","MAP_FLAG_E0174",
         #Events between leaving School and entering Dazai Tunnel
         "MAP_FLAG_E0186",
         "MAP_FLAG_P_E0186",
@@ -1088,7 +1103,7 @@ def setCertainFlagsEarly(scriptFiles):
     ]
 
     file.exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
-    file.exportIndex = file.exportNameList.index("TalkStart")
+    file.exportIndex = file.exportNameList.index("ReceiveBeginPlay")
     bytecode = Bytecode(jsonData["Exports"][file.exportIndex]['ScriptBytecode'])
     
     file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
@@ -1117,10 +1132,10 @@ def setCertainFlagsEarly(scriptFiles):
         bytecode.json.insert(0,localFinalFunction)
     
     file.updateFileWithJson(jsonData)
-    scriptFiles.setFile("MM_M0082_E0171",file)
-    scriptFiles.writeFile("MM_M0082_E0171",file)
+    scriptFiles.setFile(script,file)
+    scriptFiles.writeFile(script,file)
 
-
+    #Modify Event where Amanozako joins to not start Haunt Tutorial
     script = "MM_M061_EM0182"
     file = scriptFiles.getFile(script)
 
@@ -1130,21 +1145,6 @@ def setCertainFlagsEarly(scriptFiles):
     #file.updateFileWithJson(jsonData)
     scriptFiles.setFile(script,file)
 
-    
-
-
-
-    #TODO: Test if this is the correct way to add import, so we can then edit the event immediately after naming event so no talk is necessary
-    #TODO: correct for better test of actually adding SetEventFlag
-    # file = scriptFiles.getFile("MM_MM061_E0242")
-    # file.addImport("/Script/CoreUObject", "Package", 0, "/Game/Blueprints/Map/Gimic/Common/BPL/BPL_MapPiece", False)
-    # stackNode = (file.uasset.Imports.Count +1) *-1
-    # file.addImport("/Game/Blueprints/Map/Gimic/Common/BPL/BPL_MapPiece", "BPL_MapPiece_C",stackNode , "Default__BPL_MapPiece_C", False)
-    
-    
-    
-    # scriptFiles.setFile("MM_MM061_E0242",file)
-    # scriptFiles.writeFile("MM_MM061_E0242",file)
 
     return scriptFiles
 
