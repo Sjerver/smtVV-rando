@@ -1424,31 +1424,45 @@ def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Setti
         invalidChoices = invalidChoices + [pleroma.ind for pleroma in pleromas if pleroma.element.value not in elementList]
         if not canPoison:
             invalidChoices = invalidChoices + POISON_PASSIVES
+
+        #Collect resist skills of resistances
+        resists = {}
+        for skill in demon.skills:
+            trueSkill = obtainSkillFromID(skill.ind)
+            if isinstance(trueSkill,Passive_Skill):
+                for attr in vars(trueSkill.resists):
+                    attrValue = trueSkill.resists.__getattribute__(attr)
+                    if isinstance(attrValue,int) and attrValue> 0:
+                        resists.update({attr: attrValue})
         
 
         while len(demon.skills) < 8:
             validChoices = [skill for skill in allPassives if skill.ind not in skillReplacementMap[demon.ind].values() and skill.ind not in invalidChoices]
 
             newSkill = random.choice(validChoices)
+            trueNewSkill = obtainSkillFromID(newSkill.ind)
 
             skipChoice = False
 
+            if not isinstance(trueNewSkill,Passive_Skill):
+                skipChoice = True
+                invalidChoices.append(newSkill)
+                break
+
             if newSkill.resists.type.value > 0:
-                trueNewSkill = obtainSkillFromID(newSkill.ind)
-                #TODO: Optimize: Search for resist before while loop and then add resists to a list when a new resist skill is added
                 #Check if demon has resistance skill of same element already
-                for skill in demon.skills:
-                    trueSkill = obtainSkillFromID(skill.ind)
-                    for attr in vars(trueSkill.resists):
-                        attrValue = trueSkill.resists.__getattribute__(attr)
-                        if isinstance(trueSkill,Passive_Skill) and isinstance(attrValue,int):
-                            if attrValue> 0 and trueNewSkill.resists.__getattribute__(attr) > 0:
-                                skipChoice = True
-                                invalidChoices.append(newSkill)
-                                break
+                for attr,attrValue in resists.items():
+                    if attrValue> 0 and trueNewSkill.resists.__getattribute__(attr) > 0:
+                        skipChoice = True
+                        invalidChoices.append(newSkill)
+                        break
             
 
             if not skipChoice:
+                for attr in vars(trueNewSkill.resists):
+                    attrValue = trueNewSkill.resists.__getattribute__(attr)
+                    if isinstance(attrValue,int) and attrValue> 0:
+                        resists.update({attr: attrValue})
                 demon.skills.append(Translated_Value(newSkill.ind,newSkill.name))
                 skillReplacementMap[demon.ind].update({len(demon.skills)+999:newSkill.ind})
 
