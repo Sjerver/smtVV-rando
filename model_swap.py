@@ -125,6 +125,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
             #    currentMapSymbolTable = originalMapSymbolTable
             currentMapSymbolTable = originalMapSymbolTable
             try:
+                #TODO: this does not catch Huang Long replacements. Possible Solutions: Incorporate Scaling from the symbol table OR special exceptions for the ones from numbers.LARGE_SYMBOL_NORMAL_DEMONS
                 og = next(d for x, d in enumerate(currentMapSymbolTable) if d["Value"][0]["Value"] == originalDemonID)
                 replacement = next(d for x, d in enumerate(currentMapSymbolTable) if d["Value"][0]["Value"] == replacementID)
                 baseCollision = Position(og["Value"][5]["Value"],og["Value"][6]["Value"],og["Value"][7]["Value"])
