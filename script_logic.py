@@ -1084,8 +1084,14 @@ def setCertainFlagsEarly(scriptFiles):
         "MAP_FLAG_P_E0250","MAP_FLAG_P_E0251","MAP_FLAG_P_E0243",
         "script_m061_mm_012","script_m061_mm_016","MAP_FLAG_E0243",
 
-        #Abcess Tutorial (Vengeance too)
-        "script_m061_mm_013", "MAP_FLAG_P_EM0012",
+        #Abcess Tutorial, Magatsu Rail (Vengeance too)
+        "script_m061_mm_013", "MAP_FLAG_P_EM0012", "scriptflagp0514_Magatsuro", "scriptflagp0518_Magatsuro_P",
+
+        #Magatsuhi Demon Tutorial
+        "scriptflagp0516_MagaDevil","scriptflagp0520_MagaDevil_P",
+
+        #Demon of the Tower
+        "script_m061_mm_031","MAP_FLAG_P_EM0021",
 
         
         
