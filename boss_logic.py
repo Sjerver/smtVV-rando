@@ -169,8 +169,9 @@ UNCHANGEABLE_SKILLS = [
     323,356,285,287,117,886, #Wait Mesektet's Path,Electrify x2,Lahmu Attack All(Unused?),Heavenly Counter Active Part,Revival Bead
     286,359,360,361,362,267, #Rising Storm Dragon x5, Witness Me Hayataro
     371,387,350,313,347,348,349, #Demi-fiend Gaea Rage, False Replica Erased, TrueLuci P2 Attack,Dreadful Gleam Fail, Falling Star x2, Morning Star
-    99,102,110,938,112,939, #Diarahan, Mediarahan,Eternal Prayer(Player+Enemy),Waters of Youth (P+E)
-    862,866,288, #Inception of Chaos, Annihilation Ray, harge (Lahmu (targets all))
+    99,102,110,938,112,939,  #Diarahan, Mediarahan,Eternal Prayer(Player+Enemy),Waters of Youth (P+E)
+    862,866,288,             #Inception of Chaos, Annihilation Ray, harge (Lahmu (targets all))
+    935,936,                 #Freikugel EX (Satan), Soul Drain(Satan)
 ]
 
 #List of passives banned from being added to bosses
@@ -1456,6 +1457,10 @@ def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Setti
                         skipChoice = True
                         invalidChoices.append(newSkill)
                         break
+                if configSettings.bossNoEarlyPhysImmunity and trueNewSkill.resists.physical >1:
+                    skipChoice = True
+                    invalidChoices.append(newSkill)
+
             
 
             if not skipChoice:
