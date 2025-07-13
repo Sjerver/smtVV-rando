@@ -1028,118 +1028,153 @@ Set certain event flags early in order to skip events/tutorials.
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
 def setCertainFlagsEarly(scriptFiles):
-    script = "MM_M0082_E0171_First"
-    file = scriptFiles.getFile(script)
-    file: Script_File
-    jsonData = file.json
-    file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
 
-    stackNode = file.importNameList.index("/Script/Project") * -1 -1
-    file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_EventFlag", False)
-    stackNode = (file.uasset.Imports.Count) *-1
-    file.addImport("/Script/CoreUObject", "Function",stackNode , "SetEventFlag", False)
-    
-    
-    jsonData = file.json
-    
-
-    FLAGLIST = [
-        #School NPC Events
-        "MAP_FLAG_P_E0171","MAP_FLAG_P_E0172","MAP_FLAG_P_E0173","MAP_FLAG_P_E0170_Finish",
-        "MAP_FLAG_E0171","MAP_FLAG_E0172","MAP_FLAG_E0173","MAP_FLAG_E0170_Finish",
-        #These Do not change anything, maybe something missing to trigger Yuzuru Meeting event automatically? If even possible this way
-        # "MAP_FLAG_E0171_Finish","MAP_FLAG_P_E0171_Finish",
-        # "MAP_FLAG_P_E0174","MAP_FLAG_E0174",
-        #Events between leaving School and entering Dazai Tunnel
-        "MAP_FLAG_E0186",
-        "MAP_FLAG_P_E0186",
-        "MAP_FLAG_E0190","MAP_FLAG_E0190_npc", "MAP_FLAG_E0192", "MAP_FLAG_E0191","MAP_FLAG_E0195",
-        "MAP_FLAG_P_E0190","MAP_FLAG_P_E0191","MAP_FLAG_P_E0192","MAP_FLAG_P_E0195",
-    
-
-        #Early Tutorials in Minato up to after the Treasure
-        "script_m061_mm_018",
-        "script_m061_mm_019", #Magatsuhi Crystal Tutorial
-        "script_m061_mm_020","script_m061_mm_021","script_m061_mm_026",
-        #Early Tutorials in Minato up to after the Treasure (CoV)
-        "MAP_FLAG_P_EM0002",#Magatsuhi Crystal Tutorial
-        "MAP_FLAG_P_EM0001","MAP_FLAG_P_EM0003","MAP_FLAG_P_EM0004","MAP_FLAG_P_EM0005",
-
-        #First Shop, Leyline Fount Tutorial (TODO: Worth skipping, if you need to do cavaders hollow before going further anyway?)
-        "sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014",
-
-        #Miman Tutorial Stop
-        "script_m061_mm_014",#"script_m061_mm_014_2", This one is also responsible for the 1 miman reward scene, by not skipping it the first visit to Gustave gives reward immediately
+    FLAGLIST = {
+        "MM_M0082_E0171_First": [        
+            #School NPC Events
+            "MAP_FLAG_P_E0171","MAP_FLAG_P_E0172","MAP_FLAG_P_E0173","MAP_FLAG_P_E0170_Finish",
+            "MAP_FLAG_E0171","MAP_FLAG_E0172","MAP_FLAG_E0173","MAP_FLAG_E0170_Finish",
+            #These Do not change anything, maybe something missing to trigger Yuzuru Meeting event automatically? If even possible this way
+            # "MAP_FLAG_E0171_Finish","MAP_FLAG_P_E0171_Finish",
+            # "MAP_FLAG_P_E0174","MAP_FLAG_E0174",
+            #Events between leaving School and entering Dazai Tunnel
+            "MAP_FLAG_E0186",
+            "MAP_FLAG_P_E0186",
+            "MAP_FLAG_E0190","MAP_FLAG_E0190_npc", "MAP_FLAG_E0192", "MAP_FLAG_E0191","MAP_FLAG_E0195",
+            "MAP_FLAG_P_E0190","MAP_FLAG_P_E0191","MAP_FLAG_P_E0192","MAP_FLAG_P_E0195",
         
-        #Miman Tutorial
-        "MAP_FLAG_P_EM0018","script_m061_mm_009",
 
-        #Tutorials (Slash, UniqueSymbol,AogamiDebris)
-        "script_m061_mm_011","script_m061_mm_030","MAP_FLAG_E2006",
+            #Early Tutorials in Minato up to after the Treasure
+            "script_m061_mm_018",
+            "script_m061_mm_019", #Magatsuhi Crystal Tutorial
+            "script_m061_mm_020","script_m061_mm_021","script_m061_mm_026",
+            #Early Tutorials in Minato up to after the Treasure (CoV)
+            "MAP_FLAG_P_EM0002",#Magatsuhi Crystal Tutorial
+            "MAP_FLAG_P_EM0001","MAP_FLAG_P_EM0003","MAP_FLAG_P_EM0004","MAP_FLAG_P_EM0005",
 
-        #Tutorials CoV (Slash, UniqueSymbol,AogamiDebris)
-        "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020","MAP_FLAG_P_E2006",
+            #Lay of the Land Start Event
+            "script_m061_mm_001","MAP_FLAG_P_EM0010",
 
-        #Mita Leyline Fount
-        "MAP_FLAG_P_E0250","MAP_FLAG_P_E0251","MAP_FLAG_P_E0243",
-        "script_m061_mm_012","script_m061_mm_016","MAP_FLAG_E0243",
+            #First Shop, Leyline Fount Tutorial (TODO: Worth skipping, if you need to do cavaders hollow before going further anyway?)
+            "sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014",
 
-        #Abcess Tutorial, Magatsu Rail (Vengeance too)
-        "script_m061_mm_013", "MAP_FLAG_P_EM0012", "scriptflagp0514_Magatsuro", "scriptflagp0518_Magatsuro_P",
+            #Miman Tutorial Stop
+            "script_m061_mm_014",#"script_m061_mm_014_2", This one is also responsible for the 1 miman reward scene, by not skipping it the first visit to Gustave gives reward immediately
+            
+            #Miman Tutorial
+            "MAP_FLAG_P_EM0018","script_m061_mm_009",
 
-        #Magatsuhi Demon Tutorial
-        "scriptflagp0516_MagaDevil","scriptflagp0520_MagaDevil_P",
+            #Tutorials (Slash, UniqueSymbol,AogamiDebris)
+            "script_m061_mm_011","script_m061_mm_030","MAP_FLAG_E2006",
 
-        #Demon of the Tower
-        "script_m061_mm_031","MAP_FLAG_P_EM0021",
+            #Tutorials CoV (Slash, UniqueSymbol,AogamiDebris)
+            "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020","MAP_FLAG_P_E2006",
 
+            #Mita Leyline Fount
+            "MAP_FLAG_P_E0250","MAP_FLAG_P_E0251","MAP_FLAG_P_E0243",
+            "script_m061_mm_012","script_m061_mm_016","MAP_FLAG_E0243",
+
+            #Abcess Tutorial, Magatsu Rail (Vengeance too)
+            "script_m061_mm_013", "MAP_FLAG_P_EM0012", "scriptflagp0514_Magatsuro", "scriptflagp0518_Magatsuro_P",
+
+            #CoC Yuzuru Train Event
+            "MAP_FLAG_E0260","script_m061_mm_004",
+            
+            #Magatsuhi Demon Tutorial
+            "scriptflagp0516_MagaDevil","scriptflagp0520_MagaDevil_P",
+
+            #Demon of the Tower
+            "script_m061_mm_031","MAP_FLAG_P_EM0021",
+            
+            #Various Tutorial Pop-ups #TODO I think these just decide which Tutorial to play? So no point?
+            "sflag0089_AmuletTutorial","sflag0090_AmuletTutorial",
+
+            #Subquest Tutorial
+            "script_m061_mm_005","MAP_FLAG_P_EM0013",
+        ],
+        "MM_M061_EM0026": [ #EVent immediately after Hydra
+            #Goko Meeting Movie
+            "MAP_FLAG_E0300","MAP_FLAG_P_E0300",
+            "MAP_FLAG_P_EM0027","script_m061_mm_024",
+
+            #Post Nuwa Dazai Scene
+            "MAP_FLAG_P_E0345","MAP_FLAG_E0345",
+        ]
+    }
+
+    FALSE_FLAGS = {
+        "MM_M0082_E0171_First": [
+            "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock","sflag0012_CampQuestLock",
+            #Cathedral of Shadows, Leyline Travel, Rails
+            "sflag0021_JakyoLock","sflag0020_RyuketsuWarpLock","sflag0093_CoasterLock",
+            #Demon Haunt (TalkingToAogami), 
+            "sflag0030_GardenLock","sflag0109_GardenTutorial",
+            #Navi Tutorial, Magatsuhi Devil
+            "pflag0018_NaviTutorial_Outer","pflag0019_NaviTutorial_Inner","MAP_FLAG_MagatsuhiDevilLock",
+        ],
+        "MM_M061_EM0026": [
+
+        ],
+    }
+
+    SKIP_SCRIPT_MAP = {
+        "MM_M0082_E0171_First": ["ReceiveBeginPlay"],
+        "MM_M061_EM0026": ["E2019_Event","EvtDis_Finish_Complete"],
+        }
+
+    for script,hookFuncs in SKIP_SCRIPT_MAP.items():
+
+        file = scriptFiles.getFile(script)
+        file: Script_File
+        jsonData = file.json
+        file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+
+        #TODO: Check if file has imports already?
+        if "BPL_EventFlag" not in file.importNameList:
+            stackNode = file.importNameList.index("/Script/Project") * -1 -1
+            file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_EventFlag", False)
+        if "SetEventFlag" not in file.importNameList:
+            stackNode = (file.uasset.Imports.Count) *-1
+            file.addImport("/Script/CoreUObject", "Function",stackNode , "SetEventFlag", False)
         
         
-        #Various Tutorial Pop-ups #TODO I think these just decide which Tutorial to play? So no point?
-        "sflag0089_AmuletTutorial","sflag0090_AmuletTutorial",
+        jsonData = file.json
+        
 
-    ]
 
-    FALSE_FLAGS = [
-        "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock",
-        #Cathedral of Shadows, Leyline Travel
-        "sflag0021_JakyoLock","sflag0020_RyuketsuWarpLock",
-        #Demon Haunt (TalkingToAogami)
-        "sflag0030_GardenLock","sflag0109_GardenTutorial", 
-    ]
+        for hookFunc in hookFuncs:
+            file.exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
+            file.exportIndex = file.exportNameList.index(hookFunc)
+            bytecode = Bytecode(jsonData["Exports"][file.exportIndex]['ScriptBytecode'])
+            
+            file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+            imp = "SetEventFlag"
+            stackNode = -1 * file.importNameList.index(imp) -1
+            
 
-    file.exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
-    file.exportIndex = file.exportNameList.index("ReceiveBeginPlay")
-    bytecode = Bytecode(jsonData["Exports"][file.exportIndex]['ScriptBytecode'])
-    
-    file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
-    imp = "SetEventFlag"
-    stackNode = -1 * file.importNameList.index(imp) -1
-    
+            for flag in FLAGLIST[script]:
+                if flag not in  jsonData["NameMap"]:
+                    jsonData["NameMap"].append(flag)
 
-    for flag in FLAGLIST:
-        if flag not in  jsonData["NameMap"]:
-            jsonData["NameMap"].append(flag)
+                nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_NAMECONST)
+                nameConst["Value"] = flag
 
-        nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_NAMECONST)
-        nameConst["Value"] = flag
+                localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen()])
+                bytecode.json.insert(0,localFinalFunction)
+            
+            for flag in FALSE_FLAGS[script]:
+                if flag not in  jsonData["NameMap"]:
+                    jsonData["NameMap"].append(flag)
 
-        localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen()])
-        bytecode.json.insert(0,localFinalFunction)
-    
-    for flag in FALSE_FLAGS:
-        if flag not in  jsonData["NameMap"]:
-            jsonData["NameMap"].append(flag)
+                nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_NAMECONST)
+                nameConst["Value"] = flag
 
-        nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_NAMECONST)
-        nameConst["Value"] = flag
-
-        localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen(False)])
-        bytecode.json.insert(0,localFinalFunction)
-    
-    file.updateFileWithJson(jsonData)
-    scriptFiles.setFile(script,file)
-    scriptFiles.writeFile(script,file)
+                localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen(False)])
+                bytecode.json.insert(0,localFinalFunction)
+        
+        file.updateFileWithJson(jsonData)
+        scriptFiles.setFile(script,file)
+        scriptFiles.writeFile(script,file)
 
     #Modify Event where Amanozako joins to not start Haunt Tutorial
     script = "MM_M061_EM0182"
@@ -1153,5 +1188,7 @@ def setCertainFlagsEarly(scriptFiles):
 
 
     return scriptFiles
+
+#TODO: Can increase skip step by 1 for LV_EXXX files so movie events skip to choices immediately instead of the line before them
 
     
