@@ -171,7 +171,6 @@ UNCHANGEABLE_SKILLS = [
     371,387,350,313,347,348,349, #Demi-fiend Gaea Rage, False Replica Erased, TrueLuci P2 Attack,Dreadful Gleam Fail, Falling Star x2, Morning Star
     99,102,110,938,112,939,  #Diarahan, Mediarahan,Eternal Prayer(Player+Enemy),Waters of Youth (P+E)
     862,866,288,             #Inception of Chaos, Annihilation Ray, harge (Lahmu (targets all))
-    935,936,                 #Freikugel EX (Satan), Soul Drain(Satan)
 ]
 
 #List of passives banned from being added to bosses
@@ -1310,7 +1309,15 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
                     currentSkills = [skill for skill in currentSkills if skill.skillType.value == activeSkill.skillType.value and skill.rank != 0]
 
                 if configSettings.similiarBossSkillRank:
-                    currentSkills = [skill for skill in currentSkills if (skill.rank -5 <= activeSkill.rank <= skill.rank + 5)]
+                    rankMargin = 5
+                    skillRankSkills = [skill for skill in currentSkills if (skill.rank -rankMargin <= activeSkill.rank <= skill.rank + rankMargin)]
+                    while len(skillRankSkills) == 0 and rankMargin < 30: #to prevent infinite loop
+                        #TODO: Comment out once enough testing has been done
+                        print(str(demon.ind) + " " + demon.name + ": " + str(activeSkill.ind) + " " + activeSkill.name +" needed increased skill rank margin to get randomized!" )
+                        rankMargin += 1
+                        skillRankSkills = [skill for skill in currentSkills if (skill.rank -rankMargin <= activeSkill.rank <= skill.rank + rankMargin)]
+                    currentSkills = skillRankSkills
+
                 #TODO: The higher the rank the stronger the difference between them, so maybe take that into account here
 
                 if not configSettings.allowBossMagatsuhiSkill:
@@ -1457,7 +1464,8 @@ def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Setti
                         skipChoice = True
                         invalidChoices.append(newSkill)
                         break
-                if configSettings.bossNoEarlyPhysImmunity and trueNewSkill.resists.physical >1:
+                if configSettings.bossNoEarlyPhysImmunity and demon.level < numbers.EARLY_BOSS_LEVEL_LIMIT and trueNewSkill.resists.physical >1:
+                    print("Skipped Physical resist extra skill for "+ demon.name + " at level " + str(demon.level))
                     skipChoice = True
                     invalidChoices.append(newSkill)
 
