@@ -105,6 +105,7 @@ class Randomizer:
         self.totalResistMap = {} #stores all assigned resistances for each element 
         self.itemReplacementMap = {}
         self.skillReplacementMap = {}
+        self.eventFlagNames = {}
         
         self.configSettings = Settings()
         self.textSeed = ""
@@ -169,6 +170,18 @@ class Randomizer:
     def readDataminedEnemyNames(self):
         df = pd.read_csv(paths.NKM_CSV_IN, skiprows=4)
         self.enemyNames = df['Name'].values.tolist()
+
+    '''
+    Reads the csv file contaning names for all enemy demons including bosses and saves all names in list enemyNames
+        Returns: 
+            The list of enemy names
+    '''
+    def readEventFlagNames(self):
+        df = pd.read_csv(paths.EVENT_FLAG_NAMES)
+        for index, row in df.iterrows():
+            name = row['Flag']
+            ind = row['ID']
+            self.eventFlagNames[name] = ind
             
     '''
     Fills the array compendiumArr with data extracted from the Buffer NKMBaseTable.
@@ -7128,6 +7141,7 @@ class Randomizer:
         self.readSkillNames()
         self.readItemNames()
         self.readDataminedEnemyNames()
+        self.readEventFlagNames()
         self.fillCompendiumArr(compendiumBuffer)
         self.fillSkillArrs(skillBuffer)
         self.fillFusionChart(otherFusionBuffer)
@@ -7419,7 +7433,7 @@ class Randomizer:
             for skill in numbers.PHYSICAL_RATE_SKILLS:
                 self.obtainSkillFromID(skill).skillType = Translated_Value(14,'')
         
-        self.scriptFiles = scriptLogic.setCertainFlagsEarly(self.scriptFiles)
+        self.scriptFiles = scriptLogic.setCertainFlagsEarly(self.scriptFiles, self.mapEventArr, self.eventFlagNames)
         
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)

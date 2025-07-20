@@ -381,7 +381,6 @@ def adjustFirstMimanEventReward(config, itemNames, replacements, essenceArr, scr
     #     for essence in essenceArr:
     #         if essence.demon.value == demonID:
     #             essenceID = essence.ind
-    #TODO: What are we doing with actual return pillar spawn?
     essenceID = 70 #Return Pillar
 
     updateItemRewardInScript(file, ogEssenceID, essenceID, 'BP_ShopEvent')
@@ -1026,8 +1025,10 @@ def aiUpdate(skillReplacementMap, bossArr, scriptFiles):
 Set certain event flags early in order to skip events/tutorials.
     Parameters:
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+        mapEventArr (List): list of map events
+        eventFlagNames (Dict): map of event flag names and their respective values
 '''
-def setCertainFlagsEarly(scriptFiles):
+def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames):
 
     FLAGLIST = {
         "MM_M0082_E0171_First": [        
@@ -1058,9 +1059,9 @@ def setCertainFlagsEarly(scriptFiles):
             #First Shop, Leyline Fount Tutorial (TODO: Worth skipping, if you need to do cavaders hollow before going further anyway?)
             "sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014",
 
-            #Miman Tutorial Stop
-            "script_m061_mm_014",#"script_m061_mm_014_2", This one is also responsible for the 1 miman reward scene, by not skipping it the first visit to Gustave gives reward immediately
-            
+            #Miman Tutorial Stop  
+            "script_m061_mm_014",#"script_m061_mm_014_2", #This one is also responsible for the 1 miman reward scene, by not skipping it the first visit to Gustave gives reward immediately
+
             #Miman Tutorial
             "MAP_FLAG_P_EM0018","script_m061_mm_009",
 
@@ -1117,25 +1118,24 @@ def setCertainFlagsEarly(scriptFiles):
         ],
     }
 
-    SKIP_SCRIPT_MAP = {
+    SCRIPTS_TO_INSERT_INTO = {
         "MM_M0082_E0171_First": ["ReceiveBeginPlay"],
         "MM_M061_EM0026": ["E2019_Event","EvtDis_Finish_Complete"],
         }
 
-    for script,hookFuncs in SKIP_SCRIPT_MAP.items():
+    for script,hookFuncs in SCRIPTS_TO_INSERT_INTO.items():
 
         file = scriptFiles.getFile(script)
         file: Script_File
         jsonData = file.json
         file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
 
-        #TODO: Check if file has imports already?
         if "BPL_EventFlag" not in file.importNameList:
             stackNode = file.importNameList.index("/Script/Project") * -1 -1
             file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_EventFlag", False)
-        if "SetEventFlag" not in file.importNameList:
+        if "SetEventFlagValue" not in file.importNameList:
             stackNode = (file.uasset.Imports.Count) *-1
-            file.addImport("/Script/CoreUObject", "Function",stackNode , "SetEventFlag", False)
+            file.addImport("/Script/CoreUObject", "Function",stackNode , "SetEventFlagValue", False)
         
         
         jsonData = file.json
@@ -1148,26 +1148,32 @@ def setCertainFlagsEarly(scriptFiles):
             bytecode = Bytecode(jsonData["Exports"][file.exportIndex]['ScriptBytecode'])
             
             file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
-            imp = "SetEventFlag"
+            imp = "SetEventFlagValue"
             stackNode = -1 * file.importNameList.index(imp) -1
             
 
             for flag in FLAGLIST[script]:
+                if flag not in eventFlagNames.keys():
+                    continue
+
                 if flag not in  jsonData["NameMap"]:
                     jsonData["NameMap"].append(flag)
 
-                nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_NAMECONST)
-                nameConst["Value"] = flag
+                nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
+                nameConst["Value"] = eventFlagNames[flag]
 
                 localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen()])
                 bytecode.json.insert(0,localFinalFunction)
             
             for flag in FALSE_FLAGS[script]:
+                if flag not in eventFlagNames.keys():
+                    continue
+
                 if flag not in  jsonData["NameMap"]:
                     jsonData["NameMap"].append(flag)
 
-                nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_NAMECONST)
-                nameConst["Value"] = flag
+                nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
+                nameConst["Value"] = eventFlagNames[flag]
 
                 localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen(False)])
                 bytecode.json.insert(0,localFinalFunction)
@@ -1187,8 +1193,23 @@ def setCertainFlagsEarly(scriptFiles):
     scriptFiles.setFile(script,file)
 
 
+    #Modify Event that stops you from moving past wihout entering Cadaver's Hollow 
+    mimanTutorialScripts = ["LV_MainMission_M061_P","LV_MainMission_M061","EM_M061_MimanTutorial_Stop"]
+    for script in mimanTutorialScripts:
+        #script = "BP_ShopEvent"
+        file = scriptFiles.getFile(script)
+        jsonData = file.json
+
+        flag = "sflag0018_FirstShop" #Doesn't really matter which flag as long as it is guaranteed to be true
+        if flag not in  jsonData["NameMap"]:
+            jsonData["NameMap"].append(flag)
+
+        file.jsonReplaceFlag("script_m061_mm_014_2",flag,modifyCheck = True)
+        #file.updateFileWithJson(jsonData)
+        scriptFiles.setFile(script,file)
+
     return scriptFiles
 
 #TODO: Can increase skip step by 1 for LV_EXXX files so movie events skip to choices immediately instead of the line before them
-
+#TODO: Add code that makes the needed modification to route choice cutscene, instaed of using preedited file
     

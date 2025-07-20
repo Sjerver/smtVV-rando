@@ -1,5 +1,5 @@
 from base_classes.script import Script_Function_Type,Script_Uasset,Bytecode,Serialized_Bytecode_Expression
-from base_classes.file_lists import UMap_File, UMap_File_List, Script_File, Script_File_List
+from base_classes.file_lists import Script_File, Script_File_List
 from base_classes.demon_assets import Demon_Model, Position
 from util.binary_table import readBinaryTable
 from base_classes.model_swap_data import *
@@ -64,7 +64,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
     originalMapSymbolTable = mapSymbolFile.originalJson["Exports"][0]["Table"]["Data"]
     initDemonModelData()
     startTime = datetime.datetime.now()
-    umapList = UMap_File_List()
+    umapList = scriptFiles
     totalScripts = len(EVENT_SCRIPT_MODELS.keys())
     currentScriptIndex = 0
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
@@ -176,7 +176,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
     endTime = datetime.datetime.now()
     print(endTime - startTime)
     
-    umapList.writeFiles()
+    #umapList.writeFiles()
     updateCutsceneModels(encounterReplacements, bossReplacements,config, navigatorMap)
 
 '''
@@ -567,11 +567,11 @@ def replaceNonExistentAnimations(script, string, replacementID,replacementName, 
 
 '''
 Modifies the scaling for the event hit trigger of the given script by the scale given.
-    umap(UMap_File): file containing the umap and uexp data
+    umap(Script_File): file containing the umap and uexp data
     script(String): name of the script the event hit should be updated for
     scale(Float): by what the current scale should be multiplied
 '''
-def updateEventHitScaling(umap: UMap_File,script,scale):
+def updateEventHitScaling(umap: Script_File,script,scale):
     asset = umap.uasset
     exports = umap.json['Exports']
 

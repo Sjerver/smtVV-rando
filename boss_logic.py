@@ -504,6 +504,24 @@ Calculates a modified HP Pool for a replacement boss encounter to use based on t
         The calculated HP total to split among the new encounter demons
 '''
 def calculateHPPool(oldEncounterData, newEncounterData):
+
+    # demonCounts = [1,2,3,4,5,6] #TODO: Code to check HP modifier for all possible demonCounts
+    # for oldDemonCount in demonCounts:
+    #     fixedOld = copy.deepcopy(oldDemonCount)
+    #     for newDemonCount in demonCounts:
+    #         oldDemonCount = copy.deepcopy(fixedOld)
+    #         fixedNew = copy.deepcopy(newDemonCount)
+    #         multiplier = 1.0
+    #         modifier = GROUP_HP_MODIFIER
+    #         while oldDemonCount > newDemonCount: #More demons in the old encounter, apply a HP penalty
+    #             multiplier = multiplier * modifier
+    #             modifier = modifier + (1 - modifier) ** 2
+    #             oldDemonCount -= 1
+    #         while newDemonCount > oldDemonCount: #More demons in the new encounter, apply a HP bonus
+    #             multiplier = multiplier * 1 + (1 - modifier) * 3 / 4
+    #             modifier = modifier + (1 - modifier) ** 2
+    #             newDemonCount -= 1
+    #         print(str(fixedOld) + " -> " + str(fixedNew) + " => " + str(multiplier * 100) + "%")
     pool = oldEncounterData.totalHP
     oldDemonCount = oldEncounterData.getCountOfDemonsExcludingMinions()
     newDemonCount = newEncounterData.getCountOfDemonsExcludingMinions()
@@ -522,6 +540,8 @@ def calculateHPPool(oldEncounterData, newEncounterData):
         modifiedPool = round(modifiedPool * BOSS_HP_MODIFIERS[oldEncounterData.demons[0]])
     if newEncounterData.demons[0] in BOSS_HP_MODIFIERS.keys():
         modifiedPool = round(modifiedPool / BOSS_HP_MODIFIERS[newEncounterData.demons[0]])
+    # if oldEncounterData.demons[0] == 481 or newEncounterData.demons[0] == 481:
+    #     print(str(oldEncounterData.demons[0]) + " -> " + str(newEncounterData.demons[0]) + " = " + str(multiplier))
     return modifiedPool
     
 
@@ -1254,10 +1274,6 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
     for index, skillFromList in enumerate(fullSkillList):
         if demon.ind in ADDITIONAL_BOSS_SKILLS.keys() and skillFromList.ind in ADDITIONAL_BOSS_SKILLS[demon.ind]["ReplacementSkills"]:
             fullSkillList[index] = Translated_Value(ADDITIONAL_BOSS_SKILLS[demon.ind]["ReplacementSkills"][skillFromList.ind],"")
-    
-
-
-    #TODO: Refine settings and algorithm for this
 
     elementMap = {}
 
@@ -1312,8 +1328,7 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
                     rankMargin = 5
                     skillRankSkills = [skill for skill in currentSkills if (skill.rank -rankMargin <= activeSkill.rank <= skill.rank + rankMargin)]
                     while len(skillRankSkills) == 0 and rankMargin < 30: #to prevent infinite loop
-                        #TODO: Comment out once enough testing has been done
-                        print(str(demon.ind) + " " + demon.name + ": " + str(activeSkill.ind) + " " + activeSkill.name +" needed increased skill rank margin to get randomized!" )
+                        #print(str(demon.ind) + " " + demon.name + ": " + str(activeSkill.ind) + " " + activeSkill.name +" needed increased skill rank margin to get randomized!" )
                         rankMargin += 1
                         skillRankSkills = [skill for skill in currentSkills if (skill.rank -rankMargin <= activeSkill.rank <= skill.rank + rankMargin)]
                     currentSkills = skillRankSkills

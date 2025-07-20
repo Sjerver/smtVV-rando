@@ -36,6 +36,7 @@ TITLE_TEXTURE_UASSET_IN = 'base/title_menu01.uasset'
 MAP_EVENT_DATA_IN = 'base/MapEventData.uexp'
 NAVIGATOR_DATA_IN = 'base/NaviDevilData.uexp'
 PRE_MODIFIED_FILES= 'base/Modified Files' #TODO: maybe modify via rando program instead of using pre modified files so any potential future patches to the game cannot really break it
+EVENT_FLAG_NAMES = 'base/EventFlagTable.csv'
 
 PRE_MODIFIED_FILES_OUT = 'rando/Project/Content'
 NKM_BASE_TABLE_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uexp'

@@ -17,6 +17,11 @@ BYTECODE_EX_NAMECONST= {
               "Value": "PLACEHOLDER"
             }
 
+BYTECODE_EX_INTCONST= {
+                  "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_IntConst, UAssetAPI",
+                  "Value": 0
+                }
+
 BASE_MAPSYMBOLPARAMS = {
             "$type": "UAssetAPI.PropertyTypes.Structs.StructPropertyData, UAssetAPI",
             "StructType": "MapSymbolParam",
