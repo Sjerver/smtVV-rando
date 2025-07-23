@@ -1098,6 +1098,9 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames):
             "MAP_FLAG_E0300","MAP_FLAG_P_E0300",
             "MAP_FLAG_P_EM0027","script_m061_mm_024",
 
+            #TODO: these skip the angel/eligor events entirely
+            #"mis_m061_em0020","MAP_FLAG_P_EM0022",
+
             #Post Nuwa Dazai Scene
             "MAP_FLAG_P_E0345","MAP_FLAG_E0345",
         ]
@@ -1133,9 +1136,11 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames):
         if "BPL_EventFlag" not in file.importNameList:
             stackNode = file.importNameList.index("/Script/Project") * -1 -1
             file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_EventFlag", False)
+            file.importNameList.append("BPL_EventFlag")
         if "SetEventFlagValue" not in file.importNameList:
-            stackNode = (file.uasset.Imports.Count) *-1
+            stackNode = file.importNameList.index("BPL_EventFlag") * -1 -1
             file.addImport("/Script/CoreUObject", "Function",stackNode , "SetEventFlagValue", False)
+            file.importNameList.append("SetEventFlagValue")
         
         
         jsonData = file.json
