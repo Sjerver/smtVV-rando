@@ -82,7 +82,7 @@ REVIVED_DEMON_DUPLICATE_MAP = {
 LUCIFER_PHASES = [529, 534, 535]
 
 #HP Penalty for single target bosses/bonus for multi-target bosses to account for AOE skills
-GROUP_HP_MODIFIER = 0.85
+GROUP_HP_MODIFIER = 0.90
 
 #Event Encounter IDs that contain Lucifer (normal and true version), excluding VR battle duplicates
 LUCIFER_ENCOUNTERS = [6, 12]
