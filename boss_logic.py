@@ -1315,14 +1315,17 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
 
                         newElement = elementMap[element]
                         currentSkills = [skill for skill in currentSkills if skill.element.translation == newElement]
-                        skillTypes = [0,1] #"StrBased", "MagBased"
+                        skillTypes = [0,1,13] #"StrBased", "MagBased", "LevelBased"
                         currentSkills = [skill for skill in currentSkills if skill.skillType.value in skillTypes and skill.rank != 0]
                     else:
                         #same type of skill for Ailments, Recovery,Support
                         currentSkills = [skill for skill in currentSkills if skill.skillType.value == activeSkill.skillType.value and skill.rank != 0]
                 else:
                     #same type of skill for all skills
-                    currentSkills = [skill for skill in currentSkills if skill.skillType.value == activeSkill.skillType.value and skill.rank != 0]
+                    skillTypes = [activeSkill.skillType.value]
+                    if activeSkill.skillType.value in [0,1,13]: #"StrBased", "MagBased", "LevelBased"
+                        skillTypes = [0,1,13]
+                    currentSkills = [skill for skill in currentSkills if skill.skillType.value in skillTypes and skill.rank != 0]
 
                 if configSettings.similiarBossSkillRank:
                     rankMargin = 5
