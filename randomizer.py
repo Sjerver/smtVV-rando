@@ -1939,7 +1939,10 @@ class Randomizer:
                     skill.owner.name = "Nahobino"
                 else:
                     skill.owner.ind = demon.ind
-                    skill.owner.name = demon.name    
+                    skill.owner.name = demon.name
+            elif settings.randomInheritance and skill.owner.ind != skill.owner.original:
+                if random.random() > 0.5:
+                    return False
             return True  
         else:
         # Unique skills can not appear twice
