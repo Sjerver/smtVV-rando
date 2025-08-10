@@ -118,7 +118,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
             continue
         scale = 1
         currentScale = 1
-        demonsToUse = {}
+        demonsToUse = {}     
         for originalDemonID, replacementID in replacementMap.items():
             #currentMapSymbolTable = mapSymbolTable
             #if file.relevantFunctionExps[0] == []:
@@ -128,8 +128,10 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
                 #TODO: this does not catch Huang Long replacements. Possible Solutions: Incorporate Scaling from the symbol table OR special exceptions for the ones from numbers.LARGE_SYMBOL_NORMAL_DEMONS
                 og = next(d for x, d in enumerate(currentMapSymbolTable) if d["Value"][0]["Value"] == originalDemonID)
                 replacement = next(d for x, d in enumerate(currentMapSymbolTable) if d["Value"][0]["Value"] == replacementID)
-                baseCollision = Position(og["Value"][5]["Value"],og["Value"][6]["Value"],og["Value"][7]["Value"])
-                replacementCollision = Position(replacement["Value"][5]["Value"],replacement["Value"][6]["Value"],replacement["Value"][7]["Value"])
+                baseScale = og["Value"][4]["Value"]
+                baseCollision = Position(og["Value"][5]["Value"]*baseScale,og["Value"][6]["Value"]*baseScale,og["Value"][7]["Value"]*baseScale)
+                replacementScale = replacement["Value"][4]["Value"]
+                replacementCollision = Position(replacement["Value"][5]["Value"]*replacementScale,replacement["Value"][6]["Value"]*replacementScale,replacement["Value"][7]["Value"]*replacementScale)
                 scalingFactor = baseCollision.stretchToBox(replacementCollision)
                 #scalingFactor = og.encountCollision.stretchToBox(replacement.encountCollision, ignoreY = True)
                 if scalingFactor != 0:
