@@ -538,10 +538,12 @@ def createGUI(configSettings: Settings):
     patchesLabel = tk.Label(page4FrameBottomLeft, text="Patches")
     patchesLabel.pack()
 
-    listPatches = tk.Listbox(page4FrameBottomLeft, selectmode = "multiple", width=50, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listPatches = tk.Listbox(page4FrameBottomLeft, selectmode = "multiple", width=50, height=5, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listPatches.insert(0, "Fix unique skill animations")
     listPatches.insert(1, "Buff guest Yuzuru to make first Labolas check easier")
     listPatches.insert(2, "Unlock all fusions from the start")
+    listPatches.insert(3, "Skip non-essential cutscenes (Up to end of first Da'at)")
+    listPatches.insert(4, "Only Remove Tutorials")
     listPatches.pack()
     
     expLabel = tk.Label(page4FrameBottomLeft, text="EXP Multiplier")
@@ -591,6 +593,8 @@ def createGUI(configSettings: Settings):
                 'FixUniqueSkillAnimations': ('Listbox', listPatches, 0),
                 'BuffGuestYuzuru': ('Listbox', listPatches, 1),
                 'UnlockFusions': ('Listbox', listPatches, 2),
+                'SkipCutscenes': ('Listbox', listPatches, 3),
+                'OnlySkipTutorials': ('Listbox', listPatches, 4),
             },
             'Demon': {
                 'RandomLevels': ('Listbox', listDemon, 0),
@@ -1101,6 +1105,10 @@ def createGUI(configSettings: Settings):
     configur.set('Patches', 'BuffGuestYuzuru', str(patchFlags[1]).lower())
     configSettings.unlockFusions = patchFlags[2]
     configur.set('Patches', 'UnlockFusions', str(patchFlags[2]).lower())
+    configSettings.removeCutscenes = patchFlags[3]
+    configur.set('Patches', 'SkipCutscenes', str(patchFlags[3]).lower())
+    configSettings.onlySkipTutorials = patchFlags[4]
+    configur.set('Patches', 'OnlySkipTutorials', str(patchFlags[4]).lower())
         
     configSettings.expMultiplier = expChoice
     configur.set('Patches', 'EXPMultiplier', str(expChoice))
@@ -1135,7 +1143,8 @@ def createConfigFile(configur):
                                  'ScaleInstakillRates': False, 'bossNoEarlyPhysImmunity': False, 'BossPressTurnChance': 0.0, 'RandomizeBossSkills': False,
                                  'alwaysCritical': False,'alwaysPierce': False,'randomMagatsuhi': False,'similiarBossSkillRank':False,'allowBossMagatsuhiSkill':False,
                                  'allowContemptOfGod':False, 'elementCountConsistency': False, 'fillEmptySlotsWithPassives':False}
-    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.0, 'UnlockFusions': False, 'swapCutsceneModels': False}
+    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.0, 'UnlockFusions': False, 'swapCutsceneModels': False,
+                           'SkipCutscenes': False, 'OnlySkipTutorials': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
                         'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False, 'EarlyInheritenceViolation': False}

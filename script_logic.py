@@ -7,6 +7,7 @@ from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join
 from base_classes.quests import Mission_Reward, Fake_Mission
 from base_classes.uasset_custom import UAsset_Custom
 from base_classes.file_lists import Script_File, Script_File_List
+from base_classes.settings import Settings
 import util.jsonExports as jsonExports
 import copy
 import json
@@ -1027,8 +1028,9 @@ Set certain event flags early in order to skip events/tutorials.
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
         mapEventArr (List): list of map events
         eventFlagNames (Dict): map of event flag names and their respective values
+        configSettings (Settings): settings to control which flags are set
 '''
-def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames):
+def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSettings: Settings):
 
     FLAGLIST = {
         "MM_M0082_E0171_First": [        
@@ -1056,7 +1058,7 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames):
             #Lay of the Land Start Event
             "script_m061_mm_001","MAP_FLAG_P_EM0010",
 
-            #First Shop, Leyline Fount Tutorial (TODO: Worth skipping, if you need to do cavaders hollow before going further anyway?)
+            #First Shop, Leyline Fount Tutorial 
             "sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014",
 
             #Miman Tutorial Stop  
@@ -1098,11 +1100,16 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames):
             "MAP_FLAG_E0300","MAP_FLAG_P_E0300",
             "MAP_FLAG_P_EM0027","script_m061_mm_024",
 
-            #TODO: these skip the angel/eligor events entirely
-            #"mis_m061_em0020","MAP_FLAG_P_EM0022",
-
             #Post Nuwa Dazai Scene
-            "MAP_FLAG_P_E0345","MAP_FLAG_E0345",
+            #"MAP_FLAG_P_E0345","MAP_FLAG_E0345",
+
+            #Zako Leaves Should not be skipped, but is triggered by  Post Nuwa Dazai Scene anyway
+            #"script_m061_mm_002","MAP_FLAG_P_EM0019",
+
+            #Arriving in Tokyo after Abdiel Scene
+            #Re-investigate this since this way the simulator battles do not become available
+            #"MAP_FLAG_E0360_es605",
+            #"MAP_FLAG_E0360_0","MAP_FLAG_E0360","MAP_FLAG_E0360_es611","MAP_FLAG_E0360_es609",
         ]
     }
 
@@ -1125,6 +1132,17 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames):
         "MM_M0082_E0171_First": ["ReceiveBeginPlay"],
         "MM_M061_EM0026": ["E2019_Event","EvtDis_Finish_Complete"],
         }
+    
+    TUTORIAL_RELATED_FLAGS = [
+        "script_m061_mm_018","script_m061_mm_019","script_m061_mm_020","script_m061_mm_021","script_m061_mm_026","MAP_FLAG_P_EM0002",
+        "MAP_FLAG_P_EM0001","MAP_FLAG_P_EM0003","MAP_FLAG_P_EM0004","MAP_FLAG_P_EM0005",
+        "sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014","script_m061_mm_014",
+        "MAP_FLAG_P_EM0018","script_m061_mm_009","script_m061_mm_011","script_m061_mm_030","MAP_FLAG_E2006",
+        "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020","MAP_FLAG_P_E2006",
+        "script_m061_mm_013", "MAP_FLAG_P_EM0012", "scriptflagp0514_Magatsuro", "scriptflagp0518_Magatsuro_P",
+        "scriptflagp0516_MagaDevil","scriptflagp0520_MagaDevil_P",
+        "script_m061_mm_005","MAP_FLAG_P_EM0013",
+    ]
 
     for script,hookFuncs in SCRIPTS_TO_INSERT_INTO.items():
 
@@ -1160,9 +1178,11 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames):
             for flag in FLAGLIST[script]:
                 if flag not in eventFlagNames.keys():
                     continue
+                if configSettings.onlySkipTutorials and flag not in TUTORIAL_RELATED_FLAGS:
+                    continue
 
-                if flag not in  jsonData["NameMap"]:
-                    jsonData["NameMap"].append(flag)
+                # if flag not in  jsonData["NameMap"]:
+                #     jsonData["NameMap"].append(flag)
 
                 nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
                 nameConst["Value"] = eventFlagNames[flag]
@@ -1173,9 +1193,11 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames):
             for flag in FALSE_FLAGS[script]:
                 if flag not in eventFlagNames.keys():
                     continue
+                if configSettings.onlySkipTutorials and flag not in TUTORIAL_RELATED_FLAGS:
+                    continue
 
-                if flag not in  jsonData["NameMap"]:
-                    jsonData["NameMap"].append(flag)
+                # if flag not in  jsonData["NameMap"]:
+                #     jsonData["NameMap"].append(flag)
 
                 nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
                 nameConst["Value"] = eventFlagNames[flag]
