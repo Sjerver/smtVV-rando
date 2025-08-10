@@ -2,6 +2,7 @@ Version 1.05
 Features:
 * New settings to randomize boss skills, their magatsuhi skills, additional passives and more
 * New settings to remove tutorials and some cutscenes
+* The cutscene for the choice of the Canon can be skipped to get directly to the choice
 
 Balance:
 * Lowered the HP bonus/penalty if a single enemy boss replaces a multi one and vice-versa
