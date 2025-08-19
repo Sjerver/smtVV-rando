@@ -7436,7 +7436,7 @@ class Randomizer:
             for skill in numbers.PHYSICAL_RATE_SKILLS:
                 self.obtainSkillFromID(skill).skillType = Translated_Value(14,'')
         
-        if self.configSettings.removeCutscenes or self.configSettings.onlySkipTutorials:
+        if self.configSettings.removeCutscenes or self.configSettings.skipTutorials:
             self.scriptFiles = scriptLogic.setCertainFlagsEarly(self.scriptFiles, self.mapEventArr, self.eventFlagNames, self.configSettings)
         
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)

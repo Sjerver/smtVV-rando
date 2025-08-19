@@ -1178,7 +1178,7 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
             for flag in FLAGLIST[script]:
                 if flag not in eventFlagNames.keys():
                     continue
-                if configSettings.onlySkipTutorials and flag not in TUTORIAL_RELATED_FLAGS:
+                if not configSettings.skipTutorials and flag in TUTORIAL_RELATED_FLAGS or flag not in TUTORIAL_RELATED_FLAGS and not configSettings.removeCutscenes:
                     continue
 
                 # if flag not in  jsonData["NameMap"]:
@@ -1193,7 +1193,7 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
             for flag in FALSE_FLAGS[script]:
                 if flag not in eventFlagNames.keys():
                     continue
-                if configSettings.onlySkipTutorials and flag not in TUTORIAL_RELATED_FLAGS:
+                if not configSettings.skipTutorials and flag in TUTORIAL_RELATED_FLAGS or flag not in TUTORIAL_RELATED_FLAGS and not configSettings.removeCutscenes:
                     continue
 
                 # if flag not in  jsonData["NameMap"]:

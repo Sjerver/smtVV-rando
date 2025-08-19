@@ -94,4 +94,4 @@ class Settings(object):
         self.elementCountConsistency = False        # Bosses have the same amount of element and only replace skills of one element with one other element
         self.fillEmptySlotsWithPassives = False     # Fills empty skill slots of bosses with additional passives              
         self.removeCutscenes = False                # Remove cutscenes (that do not affect gameplay) (currently only Minato)
-        self.onlySkipTutorials = False              # Removes as many tutorials as possible
+        self.skipTutorials = False              # Removes as many tutorials as possible

@@ -1107,7 +1107,7 @@ def createGUI(configSettings: Settings):
     configur.set('Patches', 'UnlockFusions', str(patchFlags[2]).lower())
     configSettings.removeCutscenes = patchFlags[3]
     configur.set('Patches', 'SkipCutscenes', str(patchFlags[3]).lower())
-    configSettings.onlySkipTutorials = patchFlags[4]
+    configSettings.skipTutorials = patchFlags[4]
     configur.set('Patches', 'OnlySkipTutorials', str(patchFlags[4]).lower())
         
     configSettings.expMultiplier = expChoice
