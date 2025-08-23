@@ -34,6 +34,7 @@ import pandas as pd
 import copy
 import shutil
 import traceback
+import csv
 
 DEV_CHEATS = False
 
@@ -104,6 +105,7 @@ class Randomizer:
         self.totalResistMap = {} #stores all assigned resistances for each element 
         self.itemReplacementMap = {}
         self.skillReplacementMap = {}
+        self.eventFlagNames = {}
         
         self.configSettings = Settings()
         self.textSeed = ""
@@ -168,6 +170,18 @@ class Randomizer:
     def readDataminedEnemyNames(self):
         df = pd.read_csv(paths.NKM_CSV_IN, skiprows=4)
         self.enemyNames = df['Name'].values.tolist()
+
+    '''
+    Reads the csv file contaning names for all enemy demons including bosses and saves all names in list enemyNames
+        Returns: 
+            The list of enemy names
+    '''
+    def readEventFlagNames(self):
+        df = pd.read_csv(paths.EVENT_FLAG_NAMES)
+        for index, row in df.iterrows():
+            name = row['Flag']
+            ind = row['ID']
+            self.eventFlagNames[name] = ind
             
     '''
     Fills the array compendiumArr with data extracted from the Buffer NKMBaseTable.
@@ -299,6 +313,7 @@ class Randomizer:
                                         translation.translateSkillID(NKMBaseTable.readWord(locations['innate']), self.skillNames))
         demon.skills = listOfSkills
         demon.learnedSkills = listOfLearnedSkills
+        demon.preventDeletionFlag = NKMBaseTable.readWord(locations['encounterSpawn'] - 8)
         demon.creationSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'])
         demon.creationSpawn.zoneNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 4)
         demon.vengeanceSpawn.mapNameID = NKMBaseTable.readWord(locations['encounterSpawn'] + 8)
@@ -763,8 +778,9 @@ class Randomizer:
             #each symbol has 16 encounters with different chances attached
             possEnc = []
             for i in range(16):
-                encId = encounters.readHalfword(locations['encounter1'] + 4 * i)
-                possEnc.append(Possible_Encounter(encId, self.encountArr[encId], encounters.readHalfword(locations['encounter1Chance'] + 4 * i)))
+                possEnc.append(encounters.readHalfword(locations['encounter1'] + 4 * i))
+                
+                #possEnc.append(Possible_Encounter(encId, self.encountArr[encId], encounters.readHalfword(locations['encounter1Chance'] + 4 * i)))
 
             ind = encounters.readHalfword(locations['symbol'])
             translation = "NO BASIC ENEMY" #Since non base demons arent saved anywhere currently use this filler name
@@ -1327,7 +1343,7 @@ class Randomizer:
             event.compFlag1 = binTable.readWord(offset + 0x14)
             event.compFlag2 = binTable.readWord(offset + 0x18)
             event.mapID = binTable.readWord(offset + 0x1C)
-            event.levelUMap = binTable.readWord(offset + 0x24)
+            event.levelUMap = binTable.read32chars(offset + 0x24)
 
             self.mapEventArr.append(event)
 
@@ -1523,7 +1539,7 @@ class Randomizer:
             success = True
             while success: #Since Succession can not replace critical repeat until chosen skill is not succession
                 skill = random.choice(magaSkills)
-                if skill != 928:
+                if skill.ind != 928:
                     success = False
             availableRaces.remove(0)
             magatsuhiSkillResults.append(skill)
@@ -1923,7 +1939,10 @@ class Randomizer:
                     skill.owner.name = "Nahobino"
                 else:
                     skill.owner.ind = demon.ind
-                    skill.owner.name = demon.name    
+                    skill.owner.name = demon.name
+            elif settings.randomInheritance and skill.owner.ind != skill.owner.original:
+                if random.random() > 0.5:
+                    return False
             return True  
         else:
         # Unique skills can not appear twice
@@ -2694,6 +2713,7 @@ class Randomizer:
             buffer.writeByte(demon.unlockFlags[1], demon.offsetNumbers['unlockFlags'] +1)
             buffer.writeByte(demon.tone.value, demon.offsetNumbers['tone'])
             buffer.writeByte(demon.tone.secondary, demon.offsetNumbers['tone'] + 1)
+            buffer.writeWord(demon.preventDeletionFlag,demon.offsetNumbers['encounterSpawn'] -8 )
             buffer.writeWord(demon.creationSpawn.mapNameID,demon.offsetNumbers['encounterSpawn'] )
             buffer.writeWord(demon.creationSpawn.zoneNameID,demon.offsetNumbers['encounterSpawn'] +4)
             buffer.writeWord(demon.vengeanceSpawn.mapNameID,demon.offsetNumbers['encounterSpawn'] +8)
@@ -2858,17 +2878,23 @@ class Randomizer:
         Returns:
             The updated buffer
     '''
-    def updateEncounterBuffer(self, buffer, symbolArr):
+    def updateEncounterBuffer(self, buffer, symbolArr, encountArr):
         #For each overworld encounter
         for symbolEntry in symbolArr:
             offsets = symbolEntry.offsetNumbers
             buffer.writeHalfword(symbolEntry.symbol.ind, offsets['symbol'])
             #go through its list of encounter battles
-            for encounterEntry in symbolEntry.encounters:
-                enc = encounterEntry.encounter
-                encOffsets = enc.offsetNumbers
+            # for encounterEntry in symbolEntry.encounters:
+            #     enc = encounterEntry.encounter
+            #     encOffsets = enc.offsetNumbers
+            #     #and write the data for every demon
+            #     for index, demon in enumerate(enc.demons):
+            #         buffer.writeHalfword(demon, encOffsets['demon'] + 2 * index)
+        for encounterEntry in encountArr:
+                encOffsets = encounterEntry.offsetNumbers
                 #and write the data for every demon
-                for index, demon in enumerate(enc.demons):
+                buffer.writeByte(encounterEntry.track, encOffsets['track'])
+                for index, demon in enumerate(encounterEntry.demons):
                     buffer.writeHalfword(demon, encOffsets['demon'] + 2 * index)
         for bossEncounter in self.updatedNormalEncounters:
             enc = self.encountArr[bossEncounter]
@@ -2998,21 +3024,32 @@ class Randomizer:
         return buffer
         
     '''
-    Writes the position values from an event encouter or encounter array to their respective locations in the table buffer.
+    Writes the position values from an event encouter or encounter array to their respective locations in the table uasset.
         Parameters:        
-            buffer (Table): binary table
-            evEncount (Array): list of encounters
+            file (General_UAsset): uasset file to overwrite positions in
+            encountArr (List()): list of encounters to get the new positions from
     '''
-    def updateEventEncountPostBuffer(self,buffer,evEncount):
-        for ind, enc in enumerate(evEncount):
-            if ind < 3000: #length of EncountPostBuffer is 3000
-                for index, pos in enumerate(enc.positions.demons):
-                    buffer.writeFloat(pos.x, enc.positions.offsetNumber['demon1'] + 0xC * index)
-                    buffer.writeFloat(pos.y, enc.positions.offsetNumber['demon1'] + 4 + 0xC * index)
-                for index, pos in enumerate(enc.positions.addDemons):
-                    buffer.writeFloat(pos.x, enc.positions.offsetNumber['addDemon1'] + 0xC * index)
-                    buffer.writeFloat(pos.y, enc.positions.offsetNumber['addDemon1'] + 4 + 0xC * index)
-        return buffer
+    def updateEncountPostFile(self,file: General_UAsset,encountArr):
+        encounterPositions = file.json['Exports'][0]['Table']['Data']
+        for ind, enc in enumerate(encountArr):
+            if ind >= len(encounterPositions):
+                continue
+            currentEncount = encounterPositions[ind]['Value']
+            postArray = currentEncount[2]['Value']
+            for index, pos in enumerate(enc.positions.demons):
+                post = postArray[index]['Value'][0]['Value']
+                post['X'] = pos.x
+                post['Y'] = pos.y
+            addPostArray = currentEncount[3]['Value']
+            for index, pos in enumerate(enc.positions.addDemons):
+                post = addPostArray[index]['Value'][0]['Value']
+                post['X'] = pos.x
+                post['Y'] = pos.y
+
+        file.write()
+        file = None
+            
+
     '''
     Writes the values from the boss flag array to their respective locations in the table buffer
         Parameters:        
@@ -3295,9 +3332,29 @@ class Randomizer:
             fusions (Array): The array of normal fusions to modify
             comp (Array): The array of demons 
     '''
-    def adjustFusionTableToLevels(self, fusions, comp):
+    def adjustFusionTableToLevels(self, comp):
+        normalFusionFile = General_UAsset("UniteCombineTable",paths.UNITE_COMBINE_TABLE_OUT)
         #Recreate the fusion array in its original form
-        #Mostly as a way of testing
+        #Mostly as a way of testing 
+        fusionCount = normalFusionFile.json['Exports'][0]['Data'][0]['Value'][0]['Value']
+        fusionsData = normalFusionFile.json['Exports'][0]['Data'][1]['Value']
+        fusions = []
+        for entry in fusionsData:
+            firstID = entry["Value"][0]["Value"]
+            secondID = entry["Value"][1]["Value"]
+            key = entry["Value"][2]["Value"]
+            resultID = entry["Value"][3]["Value"]
+
+            calculatedKey = firstID + secondID * 65536
+            if calculatedKey != key:
+                print("WRONG KEY CALCULATED")
+
+            firstDemon = Translated_Value(firstID, comp[firstID].name)
+            secondDemon = Translated_Value(secondID, comp[secondID].name)
+            result = Translated_Value(resultID, comp[resultID].name)
+
+            fusions.append(Normal_Fusion(None, firstDemon, secondDemon, result, key= calculatedKey))
+        
         oldFusions = []
         for element in fusions:
             firstDemon = Translated_Value(element.firstDemon.value, comp[element.firstDemon.value].name)
@@ -3442,6 +3499,17 @@ class Randomizer:
                 else:
                     fusion.result.value = 0
                     fusion.result.translation = "Empty"
+        self.printOutFusions(fusions)
+        for index,fusion in enumerate(fusions):
+            entry = fusionsData[index]
+
+            entry["Value"][0]["Value"] = fusion.firstDemon.value
+            entry["Value"][1]["Value"] = fusion.secondDemon.value
+            if fusion.key > 0:
+                entry["Value"][2]["Value"] = fusion.key
+            entry["Value"][3]["Value"] = fusion.result.value
+        normalFusionFile.write()
+        normalFusionFile = None
 
     '''
     Adjusts the special fusions in specialFusionArr with the new fusions based on the randomization in shuffleLevel.
@@ -3984,7 +4052,7 @@ class Randomizer:
         Returns:
             The adjusted array of symbol encounters 
     '''
-    def adjustEncountersToSameLevel(self, symbolArr, comp, enemyArr):
+    def adjustEncountersToSameLevel(self, symbolArr, comp, enemyArr, encountArr):
 
         #will be in form [OG ID, NEW ID] #TODO: Rewrite this so it uses a dictionary in the first place
         replacements = []
@@ -4041,54 +4109,6 @@ class Randomizer:
             else:
                 #if it does get replacement
                 symbolFoe = getFoeWithID(next(r for x, r in enumerate(replacements) if r[0] == encount.symbol.ind)[1], foes)
-
-            #For every encounter battle for the current symbol encounter
-            for form in replaceEnc.encounters:
-                #That can actually appear
-                if form.chance > 0:
-                    formation = form.encounter
-                    #and is not the basic dummy encounter
-                    if formation.ind != 0:
-
-                        #Check if this encounter has been updated already
-                        if formation.updated:
-                            #check if symbol demon isn't in encounter
-                            if symbolFoe.ind not in formation.demons:
-                                valid = False
-                                #Is there a demon in encounter that has no replacement defined that can be replaced
-                                for d in formation.demons:
-                                    if d > 0 and any(r[0] == d for r in replacements) and 'Mitama' not in comp[d].name:
-                                        valid = True
-                                        d = symbolFoe.ind
-                                #Is there a demon more than once in encounter battle that can be replaced
-                                if not valid:
-                                    counter = []
-                                    for j, d in enumerate(formation.demons):
-                                        if any(r[0] == d for r in counter):
-                                            next(r for x, r in enumerate(counter) if r[0] == d)[1] += 1
-                                        else:
-                                            if d > 0 and 'Mitama' not in comp[d].name:
-                                                counter.append([d, 1])
-                                    if any(c[1] > 1 for c in counter):
-                                        cID = counter.index(next(c for x, c in enumerate(counter) if c[1] > 1))
-                                        valid = True
-                                        formation.demons[cID] = symbolFoe.ind
-                                #Replace symbolFoe with one of the demons in encounter
-                                if not valid:
-                                    symbolFoe = getFoeWithID(formation.demons[0], foes)
-                        else:
-                            #encounter has not been updated yet
-                            #for each demon in encounter battle
-                            for count, d in enumerate(formation.demons):
-                                #dont replace empty slots or mitamas
-                                if d > 0 and 'Mitama' not in comp[d].name:
-                                    #insert replacement if defined, random demon else
-                                    if any(r[0] == d for r in replacements):
-                                        formation.demons[count] = next(r for x, r in enumerate(replacements) if r[0] == d)[1]
-                                    # else:
-                                    #     demonR = random.choice(possibilities)
-                                    #     formation.demons[count] = demonR.ind
-                        formation.updated = True
             replaceEnc.symbol.ind = symbolFoe.ind
             replaceEnc.symbol.translation = symbolFoe.name
 
@@ -4098,6 +4118,12 @@ class Randomizer:
         replacementDict = {}
         for pair in replacements:
             replacementDict[pair[0]] = pair[1]
+
+        for encount in encountArr:
+            for index, demon in enumerate(encount.demons):
+                if demon in replacementDict.keys():
+                    encount.demons[index] = replacementDict[demon]
+
 
         #These need to be done before the we add the remaining demons so we know which demons cannot be encountered on the field
         self.adjustBasicEnemyDrops(replacementDict, enemyArr)
@@ -4716,52 +4742,40 @@ class Randomizer:
         return eventEncountArr
 
     '''
-    Adds the data containing the positions of demon slots in normal encounters to the respective Event_Encounter.
+    Adds the data containing the positions of demon slots in encounters to the respective Encounter.
     Also adjusts the size so that every encounter can have the same amount of additional demons.
     Parameters:
-        data (Table): binary table containing the positions of demon slots in normal encounters.
-        encountArr (List(Event_Encounter)): list of normal encounters to add positions to
-        uassetBuffer (Table): binary table of the uasset needed to adjust the total size of file
+        encountArr (List()): list of encounters to add positions to
+        fileName (String): name of the uasset file that has the positions
+        writePath (String): where the uasset file should be written to eventually
     Returns: the list of encounters with positions
     '''
-    def addPositionsToNormalEncountArr(self, data, encountArr, uassetBuffer):
-        start = 0xCE
-        size = 0x18F
-        totalSize1 = uassetBuffer.readWord(0xA9)
-        totalSize2 = uassetBuffer.readWord(len(uassetBuffer.buffer) - 0x60)
+    def addPositionsToEncountArr(self, encountArr, fileName, writePath):
+        file = General_UAsset(fileName,writePath)
+        
+        encounterPositions = file.json['Exports'][0]['Table']['Data']
         for index, element in enumerate(encountArr):
-            if index >= 3000: #there is one less entry than there are normal encounters
-                continue
-            offset = start + size * index
-            locations = {
-                'demon1': offset,
-                'addDemon1': offset + 0xB6
-            }
-            for i in range(8):
-                element.positions.demons.append(Position(data.readFloat(locations['demon1'] + 0xC * i),data.readFloat(locations['demon1'] + 4 + 0xC * i)))
-            addDemonLength = data.readByte(offset + 0x70)
-            addDemonAmount = data.readByte(offset + 0x81)
-            addDemonLength2 = data.readByte(offset + 0x95)
-            #make sure each encounter can have up to 4 additional demon positions
-            while addDemonAmount < 4:
-                for i in range(12):
-                    data.buffer.insert(locations['addDemon1'],0)
-
-                addDemonAmount += 1
-                addDemonLength += 12
-                addDemonLength2 += 12
-                data.writeByte(addDemonLength,offset + 0x70)
-                data.writeByte(addDemonAmount,offset + 0x81)
-                data.writeByte(addDemonLength2,offset + 0x95)
-                totalSize1 += 12
-                totalSize2 += 12
-
-            for i in range(4):
-                element.positions.addDemons.append(Position(data.readFloat(locations['addDemon1'] + 0xC * i),data.readFloat(locations['addDemon1'] + 4 + 0xC * i)))
-            element.positions.offsetNumber = locations
-        uassetBuffer.writeWord(totalSize1,0xA9)
-        uassetBuffer.writeWord(totalSize2,len(uassetBuffer.buffer) - 0x60)
-        return encountArr
+                
+                if index >= len(encounterPositions):
+                    continue
+                currentEncount = encounterPositions[index]['Value']
+                postArray = currentEncount[2]['Value']
+                for i in range(8):
+                    post = postArray[i]['Value'][0]['Value']
+                    element.positions.demons.append(Position(post['X'],post['Y']))
+                addPostArray = currentEncount[3]['Value']
+                addDemonAmount = len(addPostArray)
+                while addDemonAmount < 4:
+                    addDemonAmount += 1
+                    newPostTop = copy.deepcopy(postArray[0])
+                    newPost = newPostTop['Value'][0]['Value']
+                    newPost['X'] = 0
+                    newPost['Y'] = 0
+                    addPostArray.append(newPostTop)
+                for i in range(4):
+                    post = addPostArray[i]['Value'][0]['Value']
+                    element.positions.addDemons.append(Position(post['X'],post['Y']))
+        return file
 
     '''
     Randomizes chest rewards including items, essences, and macca.
@@ -5160,8 +5174,9 @@ class Randomizer:
         if not self.configSettings.combineKeyItemPools:#No combined pools means that exclusive items stay normal due to otherwise having not enough gift slots
             unchangedGifts = list(filter(lambda gift: gift.script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS or gift.script  in scriptLogic.NEWGAMEPLUS_GIFTS or gift.script in scriptLogic.MISSABLE_GIFTS, pool.allGifts))
             for gift in unchangedGifts:
-                pool.uniqueRewards.remove(gift.item)
-                randomizedGifts.append(gift)
+                if gift.item.ind >= numbers.KEY_ITEM_CUTOFF:
+                    pool.uniqueRewards.remove(gift.item)
+                    randomizedGifts.append(gift)
         #Filter out exclusive gifts that should not contain a unique item
         possibleGifts = list(filter(lambda gift: gift.script not in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS and gift.script not in scriptLogic.NEWGAMEPLUS_GIFTS or gift.script in scriptLogic.MISSABLE_GIFTS, pool.allGifts))
         uniqueGifts = random.sample(possibleGifts, len(pool.uniqueRewards))
@@ -7044,20 +7059,7 @@ class Randomizer:
                 self.validBossDemons.add(newID) #Add new duplicate demons to the list of boss demons
                 self.essenceBannedBosses.add(newID) #These are all duplicates of another boss demon so they shouldn't drop their essence
 
-    def addEventEncounter(self):
-        newEvEnc = copy.deepcopy(self.eventEncountArr[0])
-        newEvEnc.ind = self.eventEncountArr[-1].ind +1
-        offset = 0x45 + 0x60 * newEvEnc.ind
-        newEvEnc.offsets = {
-                'demons': offset + 0x48,
-                'track': offset + 0x2E,
-                'levelpath': offset,
-                'unknownDemon': offset + 0x38,
-                '23Flag': offset + 0x23,
-                'battlefield': offset + 0x24
-            }
-        self.eventEncountArr.append(newEvEnc)
-
+    
     '''
     Generates a random seed if none was provided by the user and sets the random seed
     '''
@@ -7106,6 +7108,8 @@ class Randomizer:
     def fullRando(self, config: Settings, testing= False):
         if os.path.exists("rando"):
             shutil.rmtree("rando")
+        
+        shutil.copytree(paths.PRE_MODIFIED_FILES, paths.PRE_MODIFIED_FILES_OUT)
 
         writeFolder(paths.DEBUG_FOLDER)
         with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
@@ -7113,7 +7117,6 @@ class Randomizer:
 
         compendiumBuffer = readBinaryTable(paths.NKM_BASE_TABLE_IN)
         skillBuffer = readBinaryTable(paths.SKILL_DATA_IN)
-        normalFusionBuffer = readBinaryTable(paths.UNITE_COMBINE_TABLE_IN)
         otherFusionBuffer = readBinaryTable(paths.UNITE_TABLE_IN)
         encountBuffer = readBinaryTable(paths.ENCOUNT_DATA_IN)
         playGrowBuffer = readBinaryTable(paths.MAIN_CHAR_DATA_IN)
@@ -7128,25 +7131,22 @@ class Randomizer:
         abscessBuffer = readBinaryTable(paths.ABSCESS_TABLE_IN)
         devilUIBuffer = readBinaryTable(paths.DEVIL_UI_IN)
         talkCameraBuffer = readBinaryTable(paths.TALK_CAMERA_OFFSETS_IN)
-        eventEncountPostBuffer = readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_IN)
         miracleBuffer = readBinaryTable(paths.MIRACLE_TABLE_IN)
         eventEncountUassetBuffer = readBinaryTable(paths.EVENT_ENCOUNT_UASSET_IN)
         uniqueSymbolBuffer = readBinaryTable(paths.UNIQUE_SYMBOL_DATA_IN)
-        encountPostBuffer = readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_IN)
-        encountPostUassetBuffer = readBinaryTable(paths.ENCOUNT_POST_DATA_TABLE_UASSET_IN)
         chestBuffer = readBinaryTable(paths.CHEST_TABLE_IN)
         mapSymbolParamBuffer = readBinaryTable(paths.MAP_SYMBOL_PARAM_IN)
-        eventEncountPostUassetBuffer = readBinaryTable(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN)
         mapEventBuffer = readBinaryTable(paths.MAP_EVENT_DATA_IN)
         navigatorBuffer = readBinaryTable(paths.NAVIGATOR_DATA_IN)
         message_logic.initDemonModelData()
+        bossLogic.initAdditionalBossSkillData()
         self.readDemonNames()
         self.readSkillNames()
         self.readItemNames()
         self.readDataminedEnemyNames()
+        self.readEventFlagNames()
         self.fillCompendiumArr(compendiumBuffer)
         self.fillSkillArrs(skillBuffer)
-        self.fillNormalFusionArr(normalFusionBuffer)
         self.fillFusionChart(otherFusionBuffer)
         self.fillSpecialFusionArr(otherFusionBuffer)
         self.fillBasicEnemyArr(compendiumBuffer)
@@ -7184,8 +7184,8 @@ class Randomizer:
         self.fillNavigatorArr(navigatorBuffer)
         
         #self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
-        self.eventEncountArr = self.addPositionsToNormalEncountArr(eventEncountPostBuffer, self.eventEncountArr, eventEncountPostUassetBuffer)
-        self.encountArr = self.addPositionsToNormalEncountArr(encountPostBuffer, self.encountArr, encountPostUassetBuffer)
+        eventEncountPosFile = self.addPositionsToEncountArr(self.eventEncountArr,"EventEncountPostDataTable",paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT)
+        encountPosFile = self.addPositionsToEncountArr(self.encountArr,"EncountPostDataTable",paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT)
         
         self.findValidBossDemons()
         self.removeBattleTutorials()
@@ -7304,7 +7304,7 @@ class Randomizer:
 
         self.enemyArr = self.adjustBasicEnemyArr(self.enemyArr, newComp)
         if config.randomDemonLevels:
-            newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, self.enemyArr)
+            newSymbolArr = self.adjustEncountersToSameLevel(self.encountSymbolArr, newComp, self.enemyArr, self.encountArr)
             self.adjustTutorialPixie(newComp,self.eventEncountArr)
             self.assignTalkableTones(newComp)
         else:
@@ -7314,7 +7314,7 @@ class Randomizer:
                     self.encounterReplacements[demon.ind] = demon.ind
         
         if config.randomDemonLevels or config.randomRaces:
-            self.adjustFusionTableToLevels(self.normalFusionArr, self.compendiumArr)
+            self.adjustFusionTableToLevels(self.compendiumArr)
 
         if config.randomShopEssences:
             self.adjustShopEssences(self.shopArr, self.essenceArr, newComp, self.configSettings.scaleItemsToArea)
@@ -7323,14 +7323,18 @@ class Randomizer:
             self.patchMissingBossMusic()
         self.removeIshtarCopies()
         self.syncMaras()
+
+        if self.configSettings.randomizeBossSkills:
+            bossLogic.prepareSkillRando(self.skillArr,self.passiveSkillArr, self.innateSkillArr,self.configSettings)
+
         self.randomizeBosses()
 
         #pprint(bossLogic.resistProfiles)
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
-            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr)
-        elif config.randomizeBossResistances:
-            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr)
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap)
+        elif config.randomizeBossResistances or config.randomizeBossSkills:
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap)
         
         self.updateUniqueSymbolDemons()
         if config.scaleBossDamage:
@@ -7425,7 +7429,15 @@ class Randomizer:
             self.randomizeVoiceLines()
         
         if len(self.skillReplacementMap) > 0:
-            scriptLogic.aiUpdate(self.skillReplacementMap, self.bossArr, self.scriptFiles)
+            storedNkm = scriptLogic.aiUpdate(self.skillReplacementMap, self.bossArr, self.scriptFiles)
+            self.debugSkillReplacements(storedNkm)
+            if self.configSettings.allowContemptOfGod:
+                self.obtainSkillFromID(numbers.CONTEMPT_OF_GOD_ID).skillType = Translated_Value(8,'')
+            for skill in numbers.PHYSICAL_RATE_SKILLS:
+                self.obtainSkillFromID(skill).skillType = Translated_Value(14,'')
+        
+        if self.configSettings.removeCutscenes or self.configSettings.skipTutorials:
+            self.scriptFiles = scriptLogic.setCertainFlagsEarly(self.scriptFiles, self.mapEventArr, self.eventFlagNames, self.configSettings)
         
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
@@ -7436,13 +7448,12 @@ class Randomizer:
             self.patchYuzuruGLStats(compendiumBuffer)
         skillBuffer = self.updateSkillBuffer(skillBuffer, self.skillArr, self.passiveSkillArr, self.innateSkillArr, self.fusionSkillReqs)
         otherFusionBuffer = self.updateOtherFusionBuffer(otherFusionBuffer, self.specialFusionArr)
-        normalFusionBuffer = self.updateNormalFusionBuffer(normalFusionBuffer, self.normalFusionArr)
-        encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr)
+        encountBuffer = self.updateEncounterBuffer(encountBuffer, newSymbolArr, self.encountArr)
         playGrowBuffer = self.updateMCBuffer(playGrowBuffer, self.nahobino)
         itemBuffer = self.updateEssenceData(itemBuffer,self.essenceArr)
         shopBuffer = self.updateShopBuffer(shopBuffer, self.shopArr, self.mimanRewardsArr)
         eventEncountBuffer = self.updateEventEncountBuffer(eventEncountBuffer,self.eventEncountArr, eventEncountUassetBuffer)
-        eventEncountPostBuffer = self.updateEventEncountPostBuffer(eventEncountPostBuffer, self.eventEncountArr)
+        self.updateEncountPostFile(eventEncountPosFile, self.eventEncountArr)
         bossFlagBuffer = self.updateBossFlagBuffer(bossFlagBuffer)
         battleEventsBuffer = self.updateBattleEventsBuffer(battleEventsBuffer, self.battleEventArr, battleEventUassetBuffer)
         devilAssetTableBuffer = self.updateDevilAssetBuffer(devilAssetTableBuffer, self.devilAssetArr)
@@ -7452,14 +7463,13 @@ class Randomizer:
         abscessBuffer = self.updateAbscessBuffer(abscessBuffer)
         miracleBuffer = self.updateMiracleBuffer(miracleBuffer)
         uniqueSymbolBuffer = self.updateUniqueSymbolBuffer(uniqueSymbolBuffer)
-        encountPostBuffer = self.updateEventEncountPostBuffer(encountPostBuffer, self.encountArr)
+        self.updateEncountPostFile(encountPosFile, self.encountArr)
         chestBuffer = self.updateChestBuffer(chestBuffer)
         itemBuffer = self.updateConsumableData(itemBuffer, self.consumableArr)        
         mapEventBuffer = self.updateMapEventBuffer(mapEventBuffer)
         navigatorBuffer = self.updateNavigatorBuffer(navigatorBuffer)
 
         #self.printOutEncounters(newSymbolArr)
-        self.printOutFusions(self.normalFusionArr)
         #self.findUnlearnableSkills(skillLevels)
 
         writeFolder(paths.BLUEPRINTS_FOLDER_OUT)
@@ -7481,7 +7491,6 @@ class Randomizer:
         self.scriptFiles.writeFiles()
         del self.scriptFiles
 
-        writeBinaryTable(normalFusionBuffer.buffer, paths.UNITE_COMBINE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
         writeBinaryTable(compendiumBuffer.buffer, paths.NKM_BASE_TABLE_OUT, paths.DEVIL_FOLDER_OUT)
         writeBinaryTable(skillBuffer.buffer, paths.SKILL_DATA_OUT, paths.SKILL_FOLDER_OUT)
         writeBinaryTable(otherFusionBuffer.buffer, paths.UNITE_TABLE_OUT, paths.UNITE_FOLDER_OUT)
@@ -7498,15 +7507,11 @@ class Randomizer:
         writeBinaryTable(devilUIBuffer.buffer, paths.DEVIL_UI_OUT, paths.UI_GRAPHCIS_FOLDER_OUT)
         writeBinaryTable(talkCameraBuffer.buffer,paths.TALK_CAMERA_OFFSETS_OUT,paths.CAMP_STATUS_FOLDER_OUT)
         writeBinaryTable(abscessBuffer.buffer, paths.ABSCESS_TABLE_OUT, paths.MAP_FOLDER_OUT)
-        writeBinaryTable(eventEncountPostBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         writeBinaryTable(miracleBuffer.buffer, paths.MIRACLE_TABLE_OUT, paths.MIRACLE_FOLDER_OUT)
         #writeBinaryTable(eventEncountUassetBuffer.buffer, paths.EVENT_ENCOUNT_UASSET_OUT, paths.MAP_FOLDER_OUT)
         writeBinaryTable(uniqueSymbolBuffer.buffer, paths.UNIQUE_SYMBOL_DATA_OUT, paths.MAP_FOLDER_OUT)
-        writeBinaryTable(encountPostBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
-        writeBinaryTable(encountPostUassetBuffer.buffer, paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         writeBinaryTable(chestBuffer.buffer, paths.CHEST_TABLE_OUT, paths.MAP_FOLDER_OUT)
         writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
-        writeBinaryTable(eventEncountPostUassetBuffer.buffer, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         writeBinaryTable(mapEventBuffer.buffer, paths.MAP_EVENT_DATA_OUT, paths.MAP_FOLDER_OUT)
         writeBinaryTable(navigatorBuffer.buffer, paths.NAVIGATOR_DATA_OUT, paths.MAP_FOLDER_OUT)
         #copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
@@ -7561,6 +7566,44 @@ class Randomizer:
         with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
             file.write(finalString)
     
+    '''
+    Output all boss skill replacements to a csv.
+    Parameters:
+        storedNkm(Dictionary): dictionary of skill replacements for the additional AI files
+    '''
+    def debugSkillReplacements(self, storedNkm):
+        with open(paths.SKILL_REPLACEMENTS, "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Demon Name","Script File", "Original Skill ID", "New Skill ID","Old Skill Name","New Skill Name","Old Rank","New Rank"])  # Header
+
+            for demon, replacements in self.skillReplacementMap.items():
+                for old_skill, new_skill in replacements.items():
+                    ai = str(self.bossArr[demon].AI).zfill(3)
+                    fileNames = ["BtlAI_e" +ai]
+                    for fileName in fileNames:
+                        newRank = "PASSIVE"
+                        if isinstance(self.obtainSkillFromID(new_skill),Active_Skill):
+                            newRank = self.obtainSkillFromID(new_skill).rank
+                        if old_skill >= 999:
+                            writer.writerow([self.bossArr[demon].name,fileName, old_skill, new_skill, "NEW", self.obtainSkillFromID(new_skill).name,"NONE",newRank])
+                        else:
+                            oldRank = "PASSIVE"
+                            if isinstance(self.obtainSkillFromID(old_skill),Active_Skill):
+                                oldRank = self.obtainSkillFromID(old_skill).rank
+                            writer.writerow([self.bossArr[demon].name,fileName, old_skill, new_skill, self.obtainSkillFromID(old_skill).name, self.obtainSkillFromID(new_skill).name,oldRank,newRank])
+            for fileName, replacements in storedNkm.items():
+                for old_skill, new_skill in replacements.items():
+                    newRank = "PASSIVE"
+                    if isinstance(self.obtainSkillFromID(new_skill),Active_Skill):
+                        newRank = self.obtainSkillFromID(new_skill).rank
+                    if old_skill >= 999:
+                        writer.writerow([fileName,fileName, old_skill, new_skill,"NEW", self.obtainSkillFromID(new_skill).name,"NONE",newRank])
+                    else:
+                        oldRank = "PASSIVE"
+                        if isinstance(self.obtainSkillFromID(old_skill),Active_Skill):
+                            oldRank = self.obtainSkillFromID(old_skill).rank
+                        writer.writerow([fileName,fileName, old_skill, new_skill, self.obtainSkillFromID(old_skill).name, self.obtainSkillFromID(new_skill).name,oldRank,newRank])
+        
     def debugPrintUnassignedSkills(self, levelList):
         sortedDemons = sorted(self.compendiumArr, key=lambda demon: demon.level.value)
         levelAggregrate = []
@@ -7652,7 +7695,7 @@ class Randomizer:
 if __name__ == '__main__':
     rando = Randomizer()
     print('Warning: This is an early build of the randomizer and some things may not work as intended. Performance will be somewhat worse than vanilla SMTVV')
-    print('Welcome to the SMTVV Rando v1.03. This version was created with game version 1.03 and will likely not work with other versions of SMTVV')
+    print('Welcome to the SMTVV Rando v1.05. This version was created with game version 1.03 and will likely not work with other versions of SMTVV')
     try:
         rando.configSettings, rando.textSeed = gui.createGUI(rando.configSettings)
         if rando.configSettings.swapCutsceneModels:

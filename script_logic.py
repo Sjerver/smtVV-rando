@@ -6,9 +6,14 @@ import util.numbers as numbers
 from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join_Type, Bytecode
 from base_classes.quests import Mission_Reward, Fake_Mission
 from base_classes.uasset_custom import UAsset_Custom
+from base_classes.file_lists import Script_File, Script_File_List
+from base_classes.settings import Settings
+import util.jsonExports as jsonExports
 import copy
 import json
 import csv
+
+DEBUG_MODE = False
 
 #Key: EventScriptName, Value: Type for what and where to search for values to be changed
 SCRIPT_JOIN_TYPES = {
@@ -201,6 +206,33 @@ ITEM_MESSAGE_REPLACEMENTS = {
 #Stores original expressions from script calls
 ORIGINAL_SCRIPT_FUNCTION_CALLS = {}
 
+#Scripts of AIs that also need to check a second unusual script for skill replacements
+ALLY_SCRIPTS = {
+    #TODO: Do I need them multiple times here?
+    "150" : ['BtlAI_DemiFiendNkmBase'],
+    "152" : ['BtlAI_DemiFiendNkmBase'],
+    "149" : ['BtlAI_DemiFiendNkmBase'],
+    "151" : ['BtlAI_DemiFiendNkmBase'],
+    "148" : ['BtlAI_DemiFiendNkmBase'],
+    "153" : ['BtlAI_DemiFiendNkmBase'],
+    "147" : ['BtlAI_DemiFiendNkmBase'],
+    "173" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "174" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "175" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "176" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "177" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "178" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "179" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "180" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "181" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "182" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "183" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "184" : ['BtlAI_SatanNkmAttrBase','BtlAI_SatanNkmBstBase','BtlAI_SatanNkmSingAllBase'],
+    "189" : ['BtlAI_TiamatNkmBase'],
+    "190" : ['BtlAI_TiamatNkmBase'],
+    "191" : ['BtlAI_TiamatNkmBase'],
+}
+
 '''
 Returns the original script that is used as the base for a script with equivalent reward.
 '''
@@ -350,7 +382,6 @@ def adjustFirstMimanEventReward(config, itemNames, replacements, essenceArr, scr
     #     for essence in essenceArr:
     #         if essence.demon.value == demonID:
     #             essenceID = essence.ind
-    #TODO: What are we doing with actual return pillar spawn?
     essenceID = 70 #Return Pillar
 
     updateItemRewardInScript(file, ogEssenceID, essenceID, 'BP_ShopEvent')
@@ -620,7 +651,10 @@ def updateSkillsInAIScript(file, skillReplacements, scriptName):
             'BtlAIe121_NormalAct',
             'BtlAI_e064_YoroiOrZetu',
             'GetSkillRate',
-            'GetUseSkillforTgt' #AI 199
+            'GetUseSkillforTgt', #AI 199
+            'IsValidSkill', #DemiFiendNkmBase
+            'BtlAIe124_SkillList',
+            'BtlAIe125_SkillList',
         ]
     #Common names of properties in exports that represent skillIDs
     commonPropertyNames = [
@@ -696,6 +730,10 @@ def updateSkillsInAIScript(file, skillReplacements, scriptName):
             'BtlAIe121_NormalAct', #AI 121
             'GetSkillRate', #AI 140
             'UpDate_UseSkillData', #AI 137
+            'CallActSkill_TarEnAnalyze', #DemiFiendNkm
+            'CallActSkill_TarAI', #DemiFiendNkm
+            'GetHojoSkillValidTgt', #AI 192
+            'ChkMyUseSkillIDTurn', #AI 102
         ] 
         #Virtual functions where the skillID is not (only) in the first parameter
         specificParameters = {
@@ -707,22 +745,6 @@ def updateSkillsInAIScript(file, skillReplacements, scriptName):
             'DecideUseSkill': [1,2],
             'BtlAIe121_NormalAct': [0,3],
         }               
-        
-        #Misceallenous notes
-        #AI 024 has check for 386 Diarama (Thoth in Khonsu Ra Fight(No one there has diarama or uses it?))
-        #AI 171 has check for 148 Impaler's Animus (Dazai (Impaler's is only on Abdiel))
-        
-        #Okuninushi(822) 041 has check for 139 (from Oyamatsumi 825)
-        #Orobas(817) 016 has checks for 214/216 (from Moloch 816)
-        #Flauros(818) 023 has checks for 214/216/3 (from Moloch 816) and for 10 from Oroboas 817
-        #Anubis(517) 010 has check for 323 from Khonsu Ra  519
-        #Thoth(518) 024 has check for 323 from Khonsu Ra  519
-        #Amanozako(876) 119 has check for 117 Heavenly Counter Active Part
-        
-        #Demi-fiend(934) 139 uses skillID 372 to check if 397 can hit everything?
-
-        #TODO: NKMBase AI for Demifiend/Satan/Tiamat??
-        #Not yet analyzed AI files?, (Lucifer P2/3, Tsukuyomi Clones)
 
         #grab original function calls, so that only calls for the original item get replaced to prevent chain replacements
         if scriptName + export not in ORIGINAL_SCRIPT_FUNCTION_CALLS.keys():
@@ -904,9 +926,6 @@ def updateSkillsInAIScript(file, skillReplacements, scriptName):
                         varname = parameters[1]["Variable"]["New"]["Path"][0]
                         if varname in processedInstanceVars or varname in processedLocalVars:
                             processExpression(parameters[0],exp['Parameters'][0],imp)
-   
- 
-        # Some AI files might also relate to others (the ones for Arioch & Decarabia I believe for example)
         
     
     #initial values for instance variables
@@ -953,6 +972,7 @@ Updates ai scripts according to the skill replacement map.
 '''
 def aiUpdate(skillReplacementMap, bossArr, scriptFiles):
     infoDict = {}
+    storeNkm = {}
     for demonID in skillReplacementMap.keys():
         demon = bossArr[demonID]
         ai = str(demon.AI).zfill(3)
@@ -960,33 +980,263 @@ def aiUpdate(skillReplacementMap, bossArr, scriptFiles):
             #000 is for lahmu tentacles, or nuwa thunder bits
             #055 is random so no need to modify it at all
             continue
+        #fileName = 
+        fileNames = ["BtlAI_e" + ai]
+        if ai in ALLY_SCRIPTS.keys():
+            for allyScript in ALLY_SCRIPTS[ai]:
+                if allyScript not in storeNkm:
+                    storeNkm[allyScript] = {}
+                storeNkm[allyScript].update(skillReplacementMap[demonID])
+
+            
 
         #print(demon.name + " " + ai)
 
-        fileName = "BtlAI_e" + ai
-        if fileName in scriptFiles.fileNames:
-            #To prevent chain replacements for bosses that use the same AI (example: Abdiel in CoC/CoV)
-            continue
+        for fileName in fileNames:
+            if fileName in scriptFiles.fileNames:
+                #To prevent chain replacements for bosses that use the same AI (example: Abdiel in CoC/CoV)
+                continue
+            file = scriptFiles.getFile(fileName)
+            infoDict.update({demon.name + "(" + str(demon.ind) + ")" + " " + fileName  : updateSkillsInAIScript(file,skillReplacementMap[demonID],fileName)})
+            scriptFiles.setFile(fileName,file)
+            scriptFiles.writeFile(fileName,file)
+
+    for fileName, replacements in storeNkm.items():
         file = scriptFiles.getFile(fileName)
-        infoDict.update({demon.name + "(" + str(demon.ind) + ")" + " " + ai  : updateSkillsInAIScript(file,skillReplacementMap[demonID],fileName)})
+        infoDict.update({fileName  : updateSkillsInAIScript(file,replacements,fileName)})
         scriptFiles.setFile(fileName,file)
         scriptFiles.writeFile(fileName,file)
 
-    with open(paths.SKILL_REPLACEMENT_FAILS, "w") as file:
-        for demon, categories in infoDict.items():
-            file.write(f"### {demon} ###\n")
-            for category, values in categories.items():
-                file.write(f"{category}:\n")
-                if isinstance(values, list):
-                    for item in values:
-                        file.write(f"  - {item}\n")
-                else:
-                    file.write(f"  {values}\n")
-            file.write("\n")
-    with open(paths.SKILL_REPLACEMENTS, "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Demon Name","Script File", "Original Skill ID", "New Skill ID"])  # Header
+    if DEBUG_MODE:
+        with open(paths.SKILL_REPLACEMENT_FAILS, "w") as file:
+            for demon, categories in infoDict.items():
+                file.write(f"### {demon} ###\n")
+                for category, values in categories.items():
+                    file.write(f"{category}:\n")
+                    if isinstance(values, list):
+                        for item in values:
+                            file.write(f"  - {item}\n")
+                    else:
+                        file.write(f"  {values}\n")
+                file.write("\n")
 
-        for demon, replacements in skillReplacementMap.items():
-            for old_skill, new_skill in replacements.items():
-                writer.writerow([bossArr[demon].name,"BtlAI_e" +str(bossArr[demon].AI).zfill(3), old_skill, new_skill])
+    return storeNkm
+
+'''
+Set certain event flags early in order to skip events/tutorials.
+    Parameters:
+        scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+        mapEventArr (List): list of map events
+        eventFlagNames (Dict): map of event flag names and their respective values
+        configSettings (Settings): settings to control which flags are set
+'''
+def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSettings: Settings):
+
+    FLAGLIST = {
+        "MM_M0082_E0171_First": [        
+            #School NPC Events
+            "MAP_FLAG_P_E0171","MAP_FLAG_P_E0172","MAP_FLAG_P_E0173","MAP_FLAG_P_E0170_Finish",
+            "MAP_FLAG_E0171","MAP_FLAG_E0172","MAP_FLAG_E0173","MAP_FLAG_E0170_Finish",
+            #These Do not change anything, maybe something missing to trigger Yuzuru Meeting event automatically? If even possible this way
+            # "MAP_FLAG_E0171_Finish","MAP_FLAG_P_E0171_Finish",
+            # "MAP_FLAG_P_E0174","MAP_FLAG_E0174",
+            #Events between leaving School and entering Dazai Tunnel
+            "MAP_FLAG_E0186",
+            "MAP_FLAG_P_E0186",
+            "MAP_FLAG_E0190","MAP_FLAG_E0190_npc", "MAP_FLAG_E0192", "MAP_FLAG_E0191","MAP_FLAG_E0195",
+            "MAP_FLAG_P_E0190","MAP_FLAG_P_E0191","MAP_FLAG_P_E0192","MAP_FLAG_P_E0195",
+        
+
+            #Early Tutorials in Minato up to after the Treasure
+            "script_m061_mm_018",
+            "script_m061_mm_019", #Magatsuhi Crystal Tutorial
+            "script_m061_mm_020","script_m061_mm_021","script_m061_mm_026",
+            #Early Tutorials in Minato up to after the Treasure (CoV)
+            "MAP_FLAG_P_EM0002",#Magatsuhi Crystal Tutorial
+            "MAP_FLAG_P_EM0001","MAP_FLAG_P_EM0003","MAP_FLAG_P_EM0004","MAP_FLAG_P_EM0005",
+
+            #Lay of the Land Start Event
+            "script_m061_mm_001","MAP_FLAG_P_EM0010",
+
+            #First Shop, Leyline Fount Tutorial 
+            "sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014",
+
+            #Miman Tutorial Stop  
+            "script_m061_mm_014",#"script_m061_mm_014_2", #This one is also responsible for the 1 miman reward scene, by not skipping it the first visit to Gustave gives reward immediately
+
+            #Miman Tutorial
+            "MAP_FLAG_P_EM0018","script_m061_mm_009",
+
+            #Tutorials (Slash, UniqueSymbol,AogamiDebris)
+            "script_m061_mm_011","script_m061_mm_030","MAP_FLAG_E2006",
+
+            #Tutorials CoV (Slash, UniqueSymbol,AogamiDebris)
+            "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020","MAP_FLAG_P_E2006",
+
+            #Mita Leyline Fount
+            "MAP_FLAG_P_E0250","MAP_FLAG_P_E0251","MAP_FLAG_P_E0243",
+            "script_m061_mm_012","script_m061_mm_016","MAP_FLAG_E0243",
+
+            #Abcess Tutorial, Magatsu Rail (Vengeance too)
+            "script_m061_mm_013", "MAP_FLAG_P_EM0012", "scriptflagp0514_Magatsuro", "scriptflagp0518_Magatsuro_P",
+
+            #CoC Yuzuru Train Event
+            "MAP_FLAG_E0260","script_m061_mm_004",
+            
+            #Magatsuhi Demon Tutorial
+            "scriptflagp0516_MagaDevil","scriptflagp0520_MagaDevil_P",
+
+            #Demon of the Tower
+            "script_m061_mm_031","MAP_FLAG_P_EM0021",
+            
+            #Various Tutorial Pop-ups #TODO I think these just decide which Tutorial to play? So no point?
+            "sflag0089_AmuletTutorial","sflag0090_AmuletTutorial",
+
+            #Subquest Tutorial
+            "script_m061_mm_005","MAP_FLAG_P_EM0013",
+        ],
+        "MM_M061_EM0026": [ #EVent immediately after Hydra
+            #Goko Meeting Movie
+            "MAP_FLAG_E0300","MAP_FLAG_P_E0300",
+            "MAP_FLAG_P_EM0027","script_m061_mm_024",
+
+            #Post Nuwa Dazai Scene
+            #"MAP_FLAG_P_E0345","MAP_FLAG_E0345",
+
+            #Zako Leaves Should not be skipped, but is triggered by  Post Nuwa Dazai Scene anyway
+            #"script_m061_mm_002","MAP_FLAG_P_EM0019",
+
+            #Arriving in Tokyo after Abdiel Scene
+            #Re-investigate this since this way the simulator battles do not become available
+            #"MAP_FLAG_E0360_es605",
+            #"MAP_FLAG_E0360_0","MAP_FLAG_E0360","MAP_FLAG_E0360_es611","MAP_FLAG_E0360_es609",
+        ]
+    }
+
+    FALSE_FLAGS = {
+        "MM_M0082_E0171_First": [
+            "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock","sflag0012_CampQuestLock",
+            #Cathedral of Shadows, Leyline Travel, Rails
+            "sflag0021_JakyoLock","sflag0020_RyuketsuWarpLock","sflag0093_CoasterLock",
+            #Demon Haunt (TalkingToAogami), 
+            "sflag0030_GardenLock","sflag0109_GardenTutorial",
+            #Navi Tutorial, Magatsuhi Devil
+            "pflag0018_NaviTutorial_Outer","pflag0019_NaviTutorial_Inner","MAP_FLAG_MagatsuhiDevilLock",
+        ],
+        "MM_M061_EM0026": [
+
+        ],
+    }
+
+    SCRIPTS_TO_INSERT_INTO = {
+        "MM_M0082_E0171_First": ["ReceiveBeginPlay"],
+        "MM_M061_EM0026": ["E2019_Event","EvtDis_Finish_Complete"],
+        }
+    
+    TUTORIAL_RELATED_FLAGS = [
+        "script_m061_mm_018","script_m061_mm_019","script_m061_mm_020","script_m061_mm_021","script_m061_mm_026","MAP_FLAG_P_EM0002",
+        "MAP_FLAG_P_EM0001","MAP_FLAG_P_EM0003","MAP_FLAG_P_EM0004","MAP_FLAG_P_EM0005",
+        "sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014","script_m061_mm_014",
+        "MAP_FLAG_P_EM0018","script_m061_mm_009","script_m061_mm_011","script_m061_mm_030","MAP_FLAG_E2006",
+        "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020","MAP_FLAG_P_E2006",
+        "script_m061_mm_013", "MAP_FLAG_P_EM0012", "scriptflagp0514_Magatsuro", "scriptflagp0518_Magatsuro_P",
+        "scriptflagp0516_MagaDevil","scriptflagp0520_MagaDevil_P",
+        "script_m061_mm_005","MAP_FLAG_P_EM0013",
+    ]
+
+    for script,hookFuncs in SCRIPTS_TO_INSERT_INTO.items():
+
+        file = scriptFiles.getFile(script)
+        file: Script_File
+        jsonData = file.json
+        file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+
+        if "BPL_EventFlag" not in file.importNameList:
+            stackNode = file.importNameList.index("/Script/Project") * -1 -1
+            file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_EventFlag", False)
+            file.importNameList.append("BPL_EventFlag")
+        if "SetEventFlagValue" not in file.importNameList:
+            stackNode = file.importNameList.index("BPL_EventFlag") * -1 -1
+            file.addImport("/Script/CoreUObject", "Function",stackNode , "SetEventFlagValue", False)
+            file.importNameList.append("SetEventFlagValue")
+        
+        
+        jsonData = file.json
+        
+
+
+        for hookFunc in hookFuncs:
+            file.exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
+            file.exportIndex = file.exportNameList.index(hookFunc)
+            bytecode = Bytecode(jsonData["Exports"][file.exportIndex]['ScriptBytecode'])
+            
+            file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+            imp = "SetEventFlagValue"
+            stackNode = -1 * file.importNameList.index(imp) -1
+            
+
+            for flag in FLAGLIST[script]:
+                if flag not in eventFlagNames.keys():
+                    continue
+                if not configSettings.skipTutorials and flag in TUTORIAL_RELATED_FLAGS or flag not in TUTORIAL_RELATED_FLAGS and not configSettings.removeCutscenes:
+                    continue
+
+                # if flag not in  jsonData["NameMap"]:
+                #     jsonData["NameMap"].append(flag)
+
+                nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
+                nameConst["Value"] = eventFlagNames[flag]
+
+                localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen()])
+                bytecode.json.insert(0,localFinalFunction)
+            
+            for flag in FALSE_FLAGS[script]:
+                if flag not in eventFlagNames.keys():
+                    continue
+                if not configSettings.skipTutorials and flag in TUTORIAL_RELATED_FLAGS or flag not in TUTORIAL_RELATED_FLAGS and not configSettings.removeCutscenes:
+                    continue
+
+                # if flag not in  jsonData["NameMap"]:
+                #     jsonData["NameMap"].append(flag)
+
+                nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
+                nameConst["Value"] = eventFlagNames[flag]
+
+                localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen(False)])
+                bytecode.json.insert(0,localFinalFunction)
+        
+        file.updateFileWithJson(jsonData)
+        scriptFiles.setFile(script,file)
+        scriptFiles.writeFile(script,file)
+
+    #Modify Event where Amanozako joins to not start Haunt Tutorial
+    script = "MM_M061_EM0182"
+    file = scriptFiles.getFile(script)
+
+
+    file.jsonReverseFlagSetting("sflag0109_GardenTutorial")
+
+    #file.updateFileWithJson(jsonData)
+    scriptFiles.setFile(script,file)
+
+
+    #Modify Event that stops you from moving past wihout entering Cadaver's Hollow 
+    mimanTutorialScripts = ["LV_MainMission_M061_P","LV_MainMission_M061","EM_M061_MimanTutorial_Stop"]
+    for script in mimanTutorialScripts:
+        #script = "BP_ShopEvent"
+        file = scriptFiles.getFile(script)
+        jsonData = file.json
+
+        flag = "sflag0018_FirstShop" #Doesn't really matter which flag as long as it is guaranteed to be true
+        if flag not in  jsonData["NameMap"]:
+            jsonData["NameMap"].append(flag)
+
+        file.jsonReplaceFlag("script_m061_mm_014_2",flag,modifyCheck = True)
+        #file.updateFileWithJson(jsonData)
+        scriptFiles.setFile(script,file)
+
+    return scriptFiles
+
+#TODO: Can increase skip step by 1 for LV_EXXX files so movie events skip to choices immediately instead of the line before them
+#TODO: Add code that makes the needed modification to route choice cutscene, instaed of using preedited file
+    

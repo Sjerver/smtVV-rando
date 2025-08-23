@@ -7,6 +7,30 @@ class Anim_Sync():
         if sync:
             self.sync = sync
 
+class Model_Swap_Demon():
+    def __init__(self,originalDemonID,replacementID):
+        self.originalDemonID = originalDemonID
+        self.replacementID = replacementID
+        self.oldIDString = None
+        self.oldName = None
+        self.oldFolderPrefix = DEVIL_PREFIX
+        self.oldPrefix = "dev"
+        self.oldPrefixVariant = "Dev"
+        self.newIDString = None
+        self.newName = None
+        self.newPrefix = "dev"
+        self.newFolderPrefix = DEVIL_PREFIX
+        self.newPrefixVariant = "Dev"
+        self.classOldFolderPrefix = None
+        self.classOldPrefix = None
+        self.classNewFolderPrefix = None
+        self.classNewPrefix = None
+        self.classOldPrefixVariant = None
+        self.classNewPrefixVariant = None
+        self.lahmuSuffix = None
+
+DEVIL_PREFIX = "/Devil/"
+NPC_PREFIX = "/NPC/"
 
 #List of which level umaps event scripts use for their location and sizes
 #To find out, look at which MapEventID the Script has in its File and then take a look at map event data
@@ -17,6 +41,7 @@ LEVEL_UASSETS = {
 }
 
 #List of events that require updated scaling to trigger events with large demons
+#TODO: Maybe change this by getting all possible event hits from the files and using a csv instead
 REQUIRES_HIT_UPDATE = [
     'MM_M016_E0885','MM_M038_E2912','MM_M060_Npc609Talk',
     'MM_M063_EM0061','MM_M064_E2512','MM_M064_E2540','MM_M085_E0690','MM_M085_E0730',
@@ -29,7 +54,7 @@ REQUIRES_HIT_UPDATE = [
     'MM_M035_EM1480','MM_M035_EM1491','MM_M036_EM1490','MM_M036_EM1481',
     'MM_M061_EM1041','MM_M061_EM1050_New','MM_M061_EM1360','MM_M061_EM1630','MM_M061_EM1640', 'MM_M061_EM2190','MM_M061_EM2531',
     'MM_M061_EM0151','MM_M061_EM0152','MM_M061_EM0154','MM_M061_EM1710','MM_M061_EM2240','MM_M061_EM2245',
-    'MM_M062_EM1160','MM_M062_EM1161_A','MM_M062_EM1181','MM_M062_EM1331','MM_M062_EM1340','MM_M062_EM1401','MM_M062_EM1650','MM_M062_EM1660','MM_M062_EM2090','MM_M062_EM2110_Enemy','MM_M062_EM0051','MM_M062_E2305_2',
+    'MM_M062_EM1160','MM_M062_EM1161_A','MM_M062_EM1181','MM_M062_EM1331','MM_M062_EM1340','MM_M062_EM1401','MM_M062_EM1650','MM_M062_EM1660','MM_M062_EM2090','MM_M062_EM2110_Enemy','MM_M062_EM0051','MM_M062_E2305_2','MM_M062_EM2430',
     'MM_M063_EM1210','MM_M063_EM1250','MM_M063_EM1260','MM_M063_EM1291','MM_M063_EM1350','MM_M063_EM1670','MM_M063_EM1680','MM_M063_EM2170',
     'MM_M064_EM1260','MM_M064_EM1261','MM_M064_EM1291','MM_M064_EM2130','MM_M064_EM2270','MM_M064_EM2280','MM_M064_EM2310','MM_M064_EM2320','MM_M064_EM2400','MM_M064_EM2402','MM_M064_EM2552','MM_M064_EM2621',
     'MM_M060_EM1370','MM_M060_EM1381','MM_M060_EM1390','MM_M060_EM1390_NewRoute','MM_M060_EM1420','MM_M060_EM1441','MM_M060_EM1600','MM_M060_EM1601','MM_M060_EM1602','MM_M060_EM1690','MM_M060_EM1700','MM_M060_EM2630',

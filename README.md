@@ -14,7 +14,7 @@ You can choose a mix of any or all of these randomizations in the settings
 
 Demon/Encounter randomization:
 - Encounters get replaced with a demon at the same level as the original encounter
-- For all playable demons and normal map encounters: Level (including EXP and Money adjustment), Press Turns (10%, doubled if normally two turns)
+- For all playable demons and normal map encounters: Level (including EXP and Money adjustment), Press Turns (optional setting)
 - Starting and learnable skills for demons can be randomized
 - Skill distribution can be tied to their level and is based on the skill distribution of the main game, including Nahobino only and some Enemy only Skills.
   Skills are also weighted by how often they appear in the main game, and whether the demon has more strength or magic.
@@ -30,6 +30,7 @@ Demon/Encounter randomization:
 - Resistances of demons and bosses can be randomized
 - Voices of demons can be randomized
 - Navigators can be randomized
+- Boss skills can be randomized
 
 Unique Skill Inheritance:
 - Vanilla: Unique skills can only show up on the skill's original owner
@@ -38,6 +39,7 @@ Unique Skill Inheritance:
 
 Item/Miracle randomization:
 - Shop Items are randomized, but dampeners are guaranteed to show up immediately
+- To prevent soft locks due to builds, New Testament Tablets are also guaranteed in the shop
 - Chest Items, enemy/boss drops, quest rewards, and miman rewards can be randomized
 - Key Items required for quest progression will always be in obtainable in the same way
 - The randomizer will try to provide one of each essence before giving any duplicates
@@ -46,12 +48,13 @@ Item/Miracle randomization:
 - Some important miracles like divine amalgamation will be guaranteed at the start
 
 Basic gameplay changes:
+- Tutorial Daemon always drops the Spyglass
 - Return Pillar replaces the first miman reward
 - All demons who are normally not recruitable as basic enemies have their tone changed, to make them recruitable resulting in the loss of unique level-up lines and similiar text
 - Normally two demons which result in a special fusion do not result in a normal fusion. For the sake of simplicity they now are fusable normally.
   (Example: Barong and Rangda can not be fused normally because they are the requirement for special fusion Shiva. The randomizer adds a normal fusion of Barong + Rangda = Chimera according to normal fusion chart rules.)
 - For some unique skills the animations might not play properly but the game should continue if the animation is skipped
-- In the vengeance route, Yuzuru will be level 99 for the Glasya-Labolas check to avoid getting hard-walled
+- In the vengeance route, Yuzuru can be level 99 for the Glasya-Labolas check to avoid getting hard-walled
 - In order to allow for more flexible assignment of random races and level, additional fusion combinations for previously unfusable races have been added to the fusion chart.
 
 For detailed explanations of settings and gameplay changes, you can refer to the [wiki](https://github.com/Sjerver/smtVV-rando/wiki)
@@ -70,6 +73,7 @@ The mod should now work when loading the game.
 
 Since the randomizer makes edits to a plethora of files it is incompatible with most mods. For a concrete list of files the randomizer modifies check the base folder.
 
-One final note: using the 'Randomize Cutscene Models' setting is experimental and may cause the randomizer to take a long time to run (10-30+ minutes)
+One final note: using the 'Randomize Cutscene Models' setting is experimental and may cause the randomizer to take a long time to run (10-30+ minutes).
+If you get stuck due an issue with the swapped models, you can rerun the randomizer with the same seed and settings and disable the 'Randomize Cutscene Models' setting.
 
 If you have any questions or technical difficulties, join the SMT Randomizer discord: https://discord.gg/d25ZAha

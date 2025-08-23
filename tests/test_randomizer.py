@@ -17,7 +17,6 @@ def prepareRando(seed = None, settings = None):
     buffers = {
         "compendiumBuffer": readBinaryTable(paths.NKM_BASE_TABLE_IN),
         "skillBuffer": readBinaryTable(paths.SKILL_DATA_IN),
-        "normalFusionBuffer": readBinaryTable(paths.UNITE_COMBINE_TABLE_IN),
         "otherFusionBuffer": readBinaryTable(paths.UNITE_TABLE_IN),
         "encountBuffer": readBinaryTable(paths.ENCOUNT_DATA_IN),
         "playGrowBuffer": readBinaryTable(paths.MAIN_CHAR_DATA_IN),
@@ -49,7 +48,6 @@ def prepareRando(seed = None, settings = None):
     rando.readDataminedEnemyNames()
     rando.fillCompendiumArr(buffers["compendiumBuffer"])
     rando.fillSkillArrs(buffers["skillBuffer"])
-    rando.fillNormalFusionArr(buffers["normalFusionBuffer"])
     rando.fillFusionChart(buffers["otherFusionBuffer"])
     rando.fillSpecialFusionArr(buffers["otherFusionBuffer"])
     rando.fillBasicEnemyArr(buffers["compendiumBuffer"])
@@ -73,7 +71,6 @@ def prepareRando(seed = None, settings = None):
     rando.fillNahobino(buffers["playGrowBuffer"])
     rando.fillEssenceArr(buffers["itemBuffer"])
     rando.fillShopArr(buffers["shopBuffer"])
-    rando.fillProtofiendArr(buffers["compendiumBuffer"])
     rando.fillMissionArr(buffers["missionBuffer"])
     rando.fillUniqueSymbolArr(buffers["uniqueSymbolBuffer"])
     rando.fillChestArr(buffers["chestBuffer"])

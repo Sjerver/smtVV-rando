@@ -21,6 +21,7 @@ class Compendium_Demon:
         self.creationSpawn = Encounter_Spawn()
         self.vengeanceSpawn = Encounter_Spawn()
         self.compCostModifier = None
+        self.preventDeletionFlag = None
 
 class Enemy_Demon:
     def __init__(self):

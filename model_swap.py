@@ -1,5 +1,5 @@
 from base_classes.script import Script_Function_Type,Script_Uasset,Bytecode,Serialized_Bytecode_Expression
-from base_classes.file_lists import UMap_File, UMap_File_List, Script_File, Script_File_List
+from base_classes.file_lists import Script_File, Script_File_List
 from base_classes.demon_assets import Demon_Model, Position
 from util.binary_table import readBinaryTable
 from base_classes.model_swap_data import *
@@ -15,8 +15,6 @@ DEBUG_SWAP_PRINT = False
 DEBUG_BIG_MODEL_TEST = False
 DEBUG_MODELS = [565,525,520]
 
-DEVIL_PREFIX = "/Devil/"
-NPC_PREFIX = "/NPC/"
 NPC_MODEL_START = 600
 LAHMU_2ND_FORM_ID = 236
 
@@ -66,7 +64,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
     originalMapSymbolTable = mapSymbolFile.originalJson["Exports"][0]["Table"]["Data"]
     initDemonModelData()
     startTime = datetime.datetime.now()
-    umapList = UMap_File_List()
+    umapList = scriptFiles
     totalScripts = len(EVENT_SCRIPT_MODELS.keys())
     currentScriptIndex = 0
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
@@ -120,16 +118,20 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
             continue
         scale = 1
         currentScale = 1
+        demonsToUse = {}     
         for originalDemonID, replacementID in replacementMap.items():
             #currentMapSymbolTable = mapSymbolTable
             #if file.relevantFunctionExps[0] == []:
             #    currentMapSymbolTable = originalMapSymbolTable
             currentMapSymbolTable = originalMapSymbolTable
             try:
+                #TODO: this does not catch Huang Long replacements. Possible Solutions: Incorporate Scaling from the symbol table OR special exceptions for the ones from numbers.LARGE_SYMBOL_NORMAL_DEMONS
                 og = next(d for x, d in enumerate(currentMapSymbolTable) if d["Value"][0]["Value"] == originalDemonID)
                 replacement = next(d for x, d in enumerate(currentMapSymbolTable) if d["Value"][0]["Value"] == replacementID)
-                baseCollision = Position(og["Value"][5]["Value"],og["Value"][6]["Value"],og["Value"][7]["Value"])
-                replacementCollision = Position(replacement["Value"][5]["Value"],replacement["Value"][6]["Value"],replacement["Value"][7]["Value"])
+                baseScale = og["Value"][4]["Value"]
+                baseCollision = Position(og["Value"][5]["Value"]*baseScale,og["Value"][6]["Value"]*baseScale,og["Value"][7]["Value"]*baseScale)
+                replacementScale = replacement["Value"][4]["Value"]
+                replacementCollision = Position(replacement["Value"][5]["Value"]*replacementScale,replacement["Value"][6]["Value"]*replacementScale,replacement["Value"][7]["Value"]*replacementScale)
                 scalingFactor = baseCollision.stretchToBox(replacementCollision)
                 #scalingFactor = og.encountCollision.stretchToBox(replacement.encountCollision, ignoreY = True)
                 if scalingFactor != 0:
@@ -166,8 +168,9 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
                 if not successful:
                     #print("FAILED TO UPDATE HIT SCALE IN:" + script)
                     continue
+            demonsToUse.update({originalDemonID: replacementID})
             
-            file = replaceDemonModelInScript(script, file, originalDemonID, replacementID)   
+        file = replaceDemonModelInScript(script, file, demonsToUse)   
         
         scriptFiles.setFile(script,file)
         scriptFiles.writeFile(script,file)
@@ -175,7 +178,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
     endTime = datetime.datetime.now()
     print(endTime - startTime)
     
-    umapList.writeFiles()
+    #umapList.writeFiles()
     updateCutsceneModels(encounterReplacements, bossReplacements,config, navigatorMap)
 
 '''
@@ -236,111 +239,118 @@ Replaces the a demon model with the model of another demon in the given script.
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
         #TODO: Think about how to optimize this function: Maybe rewrite to use API for all and not modify json
 '''
-def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementDemonID):
+def replaceDemonModelInScript(script, file: Script_File, demonsToUse):
+    changes = []
     jsonData = file.json
-    #Get the Strings corresponding to the old demon and the prefixes
-    oldIDString = DEMON_ID_MODEL_ID[ogDemonID]
-    oldName = MODEL_NAMES[oldIDString]
-    oldFolderPrefix = DEVIL_PREFIX
-    oldPrefix = "dev"
-    oldPrefixVariant = "Dev"
-    if int(oldIDString) > NPC_MODEL_START:
-        oldFolderPrefix = NPC_PREFIX
-        oldPrefix = "npc"
-        oldPrefixVariant = "Npc"
-    #Get the Strings corresponding to the new demon and the prefixes
-    try:
-        newIDString = DEMON_ID_MODEL_ID[replacementDemonID]
-    except KeyError:
-        print(str(replacementDemonID) + " needs a model tied to it. Stopping replacement")
-        return file
-    newName = MODEL_NAMES[newIDString]
-    newPrefix = "dev"
-    newFolderPrefix = DEVIL_PREFIX
-    newPrefixVariant = "Dev"
-    if int(newIDString) > NPC_MODEL_START:
-        newPrefix = "npc"
-        newFolderPrefix = NPC_PREFIX
-        newPrefixVariant = "Npc"
-    if replacementDemonID == LAHMU_2ND_FORM_ID:
-        lahmuSuffix = "_3rd"
-    else:
-        lahmuSuffix = ""
-    if DEBUG_SWAP_PRINT:
-        print("SWAP: " + oldPrefix +"/" +  oldName + " -> " + newPrefix +"/"+ newName + " in " + script)
 
-    #There are some special cases for these class blueprints
-    classOldFolderPrefix = copy.deepcopy(oldFolderPrefix)
-    classOldPrefix = copy.deepcopy(oldPrefix)
-    classOldPrefixVariant = copy.deepcopy(oldPrefixVariant)
-    classNewFolderPrefix = copy.deepcopy(newFolderPrefix)
-    classNewPrefix = copy.deepcopy(newPrefix)
-    classNewPrefixVariant = copy.deepcopy(newPrefixVariant)
-    if int(newIDString) in NPC_MODELS_DEV_BLUEPRINT:
-        #only new is exception that use devil instead of npc for this
-        classNewFolderPrefix = DEVIL_PREFIX
-        classNewPrefix = "dev"
-        classNewPrefixVariant = "Dev"
-        
-    elif int(oldIDString) in NPC_MODELS_DEV_BLUEPRINT and script not in FOLDER_SWITCH_RESTRICTIONS:
-        #old is exception that use devil instead of npc for this
-        classOldFolderPrefix = DEVIL_PREFIX
-        classOldPrefix = "dev"
-        classOldPrefixVariant = "Dev"
-    
-    
-    for index, name in enumerate(file.originalNameMap):
-        if "DevilBaseLight" in name and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] :
-            #Applies to CoC Nuwa Gate, Kunitsukami Fight, Dagda, 4 Heavenly Kings, Pisaca Quest Anahita Event, Konohana Sakuya, Nozuchi, Huang Long
-            #print("DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
-            return file # since we might run into softlocks otherwise
-    #print("NO DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
-
-    
-
-    for index, name in enumerate(file.originalNameMap): #change occurences of oldDemonID and oldDemonName in all names in the uasset
-        nameEntry = file.getNameAtIndex(index)
-        if script in name:
-            #Do not change names for Main File Exports if DemonId or Name is in script
+    for ogDemonID, replacementDemonID in demonsToUse.items():
+        modelSwapDemon = Model_Swap_Demon(ogDemonID, replacementDemonID)
+        #Get the Strings corresponding to the old demon and the prefixes
+        modelSwapDemon.oldIDString = DEMON_ID_MODEL_ID[ogDemonID]
+        modelSwapDemon.oldName = MODEL_NAMES[modelSwapDemon.oldIDString]
+        if int(modelSwapDemon.oldIDString) > NPC_MODEL_START:
+            modelSwapDemon.oldFolderPrefix = NPC_PREFIX
+            modelSwapDemon.oldPrefix = "npc"
+            modelSwapDemon.oldPrefixVariant = "Npc"
+        #Get the Strings corresponding to the new demon and the prefixes
+        try:
+            modelSwapDemon.newIDString = DEMON_ID_MODEL_ID[replacementDemonID]
+        except KeyError:
+            print(str(replacementDemonID) + " needs a model tied to it. Stopping replacement")
             continue
-        if 'MAP_FLAG_NaviDev' in name:
-            continue #Do not change names of map flags
-        if oldIDString in name and ("/Blueprints/Character" in name or "_C" in name): 
-            nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
-            nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
-            if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
-                nameEntry = nameEntry.replace("_Simple","")
-        elif oldIDString in name and not "Spawn" in name: #to just get the model names since sometimes DevXXX or devXXX
-            nameEntry = nameEntry.replace(oldFolderPrefix + oldPrefix + oldIDString, newFolderPrefix + newPrefix +newIDString).replace(oldPrefix + oldIDString, newPrefix +newIDString)
-            nameEntry = nameEntry.replace(oldFolderPrefix + oldPrefixVariant + oldIDString, newFolderPrefix + newPrefixVariant +newIDString).replace(oldPrefixVariant + oldIDString, newPrefixVariant +newIDString)
-            if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
-                nameEntry = nameEntry.replace("_Simple","")
-        if oldName in name and ("Character" in name or "Anim" in name): #to prevent stuff like replacing set(seth) in LoadAsset
-            #print(nameEntry)
-            nameEntry = nameEntry.replace(oldName,newName)
-        # elif oldName in name:
-        #     print("EXTRA CHECK Necessary? " + nameEntry)
-        if "Anim/" in name or name[:3] == "AN_":
-            nameEntry = replaceNonExistentAnimations(script, nameEntry,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
-        file.setNameAtIndex(index,nameEntry)
-        
-        
-    
-    #get updated jsonData
-    jsonData = file.updateJsonWithUasset()
+            #return file
+        modelSwapDemon.newName = MODEL_NAMES[modelSwapDemon.newIDString]
+        if int(modelSwapDemon.newIDString) > NPC_MODEL_START:
+            modelSwapDemon.newPrefix = "npc"
+            modelSwapDemon.newFolderPrefix = NPC_PREFIX
+            modelSwapDemon.newPrefixVariant = "Npc"
+        if replacementDemonID == LAHMU_2ND_FORM_ID:
+            modelSwapDemon.lahmuSuffix = "_3rd"
+        else:
+            modelSwapDemon.lahmuSuffix = ""
+        if DEBUG_SWAP_PRINT:
+            print("SWAP: " + modelSwapDemon.oldPrefix +"/" +  modelSwapDemon.oldName + " -> " + modelSwapDemon.newPrefix +"/"+ modelSwapDemon.newName + " in " + script)
 
-    #get the bytecode and size and export name listanew
+        #There are some special cases for these class blueprints
+        modelSwapDemon.classOldFolderPrefix = copy.deepcopy(modelSwapDemon.oldFolderPrefix)
+        modelSwapDemon.classOldPrefix = copy.deepcopy(modelSwapDemon.oldPrefix)
+        modelSwapDemon.classOldPrefixVariant = copy.deepcopy(modelSwapDemon.oldPrefixVariant)
+        modelSwapDemon.classNewFolderPrefix = copy.deepcopy(modelSwapDemon.newFolderPrefix)
+        modelSwapDemon.classNewPrefix = copy.deepcopy(modelSwapDemon.newPrefix)
+        modelSwapDemon.classNewPrefixVariant = copy.deepcopy(modelSwapDemon.newPrefixVariant)
+        if int(modelSwapDemon.newIDString) in NPC_MODELS_DEV_BLUEPRINT:
+            #only new is exception that use devil instead of npc for this
+            modelSwapDemon.classNewFolderPrefix = DEVIL_PREFIX
+            modelSwapDemon.classNewPrefix = "dev"
+            modelSwapDemon.classNewPrefixVariant = "Dev"
+            
+        elif int(modelSwapDemon.oldIDString) in NPC_MODELS_DEV_BLUEPRINT and script not in FOLDER_SWITCH_RESTRICTIONS:
+            #old is exception that use devil instead of npc for this
+            modelSwapDemon.classOldFolderPrefix = DEVIL_PREFIX
+            modelSwapDemon.classOldPrefix = "dev"
+            modelSwapDemon.classOldPrefixVariant = "Dev"
+        
+        
+        for index, name in enumerate(file.originalNameMap):
+            breakDemon = False
+            if "DevilBaseLight" in name and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] :
+                #Applies to CoC Nuwa Gate, Kunitsukami Fight, Dagda, 4 Heavenly Kings, Pisaca Quest Anahita Event, Konohana Sakuya, Nozuchi, Huang Long
+                #print("DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
+                #return file # since we might run into softlocks otherwise
+                breakDemon = True
+        if breakDemon:
+            continue
+
+        #print("NO DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
+
+        
+        for index, name in enumerate(file.originalNameMap): #change occurences of oldDemonID and oldDemonName in all names in the uasset
+            nameEntry = file.getNameAtIndex(index)
+            if script in name:
+                #Do not change names for Main File Exports if DemonId or Name is in script
+                continue
+            if 'MAP_FLAG_NaviDev' in name:
+                continue #Do not change names of map flags
+            if modelSwapDemon.oldIDString in name and ("/Blueprints/Character" in name or "_C" in name): 
+                nameEntry = nameEntry.replace(modelSwapDemon.classOldFolderPrefix + modelSwapDemon.classOldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.classNewFolderPrefix + modelSwapDemon.classNewPrefix +modelSwapDemon.newIDString).replace(modelSwapDemon.classOldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.classNewPrefix +modelSwapDemon.newIDString)
+                nameEntry = nameEntry.replace(modelSwapDemon.classOldFolderPrefix + modelSwapDemon.classOldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.classNewFolderPrefix + modelSwapDemon.classNewPrefixVariant +modelSwapDemon.newIDString).replace(modelSwapDemon.classOldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.classNewPrefixVariant +modelSwapDemon.newIDString)
+                if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
+                    nameEntry = nameEntry.replace("_Simple","")
+            elif modelSwapDemon.oldIDString in name and not "Spawn" in name: #to just get the model names since sometimes DevXXX or devXXX
+                nameEntry = nameEntry.replace(modelSwapDemon.oldFolderPrefix + modelSwapDemon.oldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.newFolderPrefix + modelSwapDemon.newPrefix +modelSwapDemon.newIDString).replace(modelSwapDemon.oldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.newPrefix +modelSwapDemon.newIDString)
+                nameEntry = nameEntry.replace(modelSwapDemon.oldFolderPrefix + modelSwapDemon.oldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.newFolderPrefix + modelSwapDemon.newPrefixVariant +modelSwapDemon.newIDString).replace(modelSwapDemon.oldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.newPrefixVariant +modelSwapDemon.newIDString)
+                if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
+                    nameEntry = nameEntry.replace("_Simple","")
+            if modelSwapDemon.oldName in name and ("Character" in name or "Anim" in name): #to prevent stuff like replacing set(seth) in LoadAsset
+                #print(nameEntry)
+                nameEntry = nameEntry.replace(modelSwapDemon.oldName,modelSwapDemon.newName)
+            # elif oldName in name:
+            #     print("EXTRA CHECK Necessary? " + nameEntry)
+            if "Anim/" in name or name[:3] == "AN_":
+                nameEntry = replaceNonExistentAnimations(script, nameEntry,modelSwapDemon.newIDString,modelSwapDemon.newName, modelSwapDemon.classOldFolderPrefix, modelSwapDemon.classOldPrefix, modelSwapDemon.classNewFolderPrefix, modelSwapDemon.classNewPrefix, modelSwapDemon.lahmuSuffix)
+            file.setNameAtIndex(index,nameEntry)
+            
+        changes.append(modelSwapDemon)        
+        
+    #get updated jsonData
+    jsonData = file.updateJsonWithUasset() #TODO: Can be replaced by manually editing nameMap in Json?
+    #get the bytecode and size and export name listanew 'TODO: in loop or not`?`
     bytecode = Bytecode(jsonData["Exports"][file.exportIndex]['ScriptBytecode'])
-    #Adjust cases where demon ID is in function call
-    for index,func in enumerate(file.relevantFunctionNames):
-        for exp in file.relevantFunctionExps[index]:
-            if func == "BPL_AdjustMapSymbolScale":
-                modelValue = exp['Parameters'][1].get('Value')
-                #print(modelValue)
-                if modelValue == ogDemonID: #Only change demonID for the oldDemon
-                    newExpression = bytecode.json[bytecode.getIndex(exp)]
-                    #print(newExpression['$type'])
-                    newExpression['ContextExpression']['Parameters'][1]['Value'] = replacementDemonID
+    
+    for modelSwapDemon in changes:
+        ogDemonID = modelSwapDemon.originalDemonID
+        replacementDemonID = modelSwapDemon.replacementID
+        
+        #Adjust cases where demon ID is in function call
+        for index,func in enumerate(file.relevantFunctionNames):
+            for exp in file.relevantFunctionExps[index]:
+                if func == "BPL_AdjustMapSymbolScale":
+                    modelValue = exp['Parameters'][1].get('Value')
+                    #print(modelValue)
+                    if modelValue == ogDemonID: #Only change demonID for the oldDemon
+                        newExpression = bytecode.json[bytecode.getIndex(exp)]
+                        #print(newExpression['$type'])
+                        newExpression['ContextExpression']['Parameters'][1]['Value'] = replacementDemonID
 
     # get serialized bytecode to calculate statement indeces
     serializedByteCode = file.getSerializedScriptBytecode(file.exportIndex,jsonData)
@@ -365,13 +375,13 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     '''
     def replaceOldIDinString(string):
         if ("/Blueprints/Character" in string or "_C" in string):
-            nstring = string.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
-            nstring = nstring.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
-            nstring = replaceNonExistentAnimations(script, nstring,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
+            nstring = string.replace(modelSwapDemon.classOldFolderPrefix + modelSwapDemon.classOldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.classNewFolderPrefix + modelSwapDemon.classNewPrefix +modelSwapDemon.newIDString).replace(modelSwapDemon.classOldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.classNewPrefix +modelSwapDemon.newIDString)
+            nstring = nstring.replace(modelSwapDemon.classOldFolderPrefix + modelSwapDemon.classOldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.classNewFolderPrefix + modelSwapDemon.classNewPrefixVariant +modelSwapDemon.newIDString).replace(modelSwapDemon.classOldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.classNewPrefixVariant +modelSwapDemon.newIDString)
+            nstring = replaceNonExistentAnimations(script, nstring,modelSwapDemon.newIDString,modelSwapDemon.newName, modelSwapDemon.classOldFolderPrefix, modelSwapDemon.classOldPrefix, modelSwapDemon.classNewFolderPrefix, modelSwapDemon.classNewPrefix, modelSwapDemon.lahmuSuffix)
         else:
-            nstring = string.replace(oldFolderPrefix + oldPrefix + oldIDString, newFolderPrefix + newPrefix +newIDString).replace(oldPrefix + oldIDString, newPrefix +newIDString)
-            nstring = nstring.replace(oldFolderPrefix + oldPrefixVariant + oldIDString, newFolderPrefix + newPrefixVariant +newIDString).replace(oldPrefixVariant + oldIDString, newPrefixVariant +newIDString)
-            nstring = replaceNonExistentAnimations(script, nstring,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)
+            nstring = string.replace(modelSwapDemon.oldFolderPrefix + modelSwapDemon.oldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.newFolderPrefix + modelSwapDemon.newPrefix +modelSwapDemon.newIDString).replace(modelSwapDemon.oldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.newPrefix +modelSwapDemon.newIDString)
+            nstring = nstring.replace(modelSwapDemon.oldFolderPrefix + modelSwapDemon.oldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.newFolderPrefix + modelSwapDemon.newPrefixVariant +modelSwapDemon.newIDString).replace(modelSwapDemon.oldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.newPrefixVariant +modelSwapDemon.newIDString)
+            nstring = replaceNonExistentAnimations(script, nstring,modelSwapDemon.newIDString,modelSwapDemon.newName, modelSwapDemon.oldFolderPrefix, modelSwapDemon.oldPrefix, modelSwapDemon.newFolderPrefix, modelSwapDemon.newPrefix, modelSwapDemon.lahmuSuffix)
         return nstring
 
     # for all cases where the function is an import and the id or name is in a string
@@ -379,112 +389,122 @@ def replaceDemonModelInScript(script, file: Script_File, ogDemonID, replacementD
     #     expressions = file.relevantImportExps[stackNode2]
     #     for expIndex, exp in enumerate(expressions):
     for sbexp in statementIndeces:
-        sbexp: Serialized_Bytecode_Expression
-        exp = sbexp.exp
-        imp = sbexp.imp
-
-        if bytecode.getIndex(exp) is None:
-            # First case: Nested expression (will be fixed at some point)
-            # Second case: Expression has already been modified in the new one, so we can skip it here
-            continue
-        #currentStatementIndex = serializedByteCode[bytecode.getIndex(exp)]["StatementIndex"]
-        currentStatementIndex = sbexp.currentStatementIndex
-        
-        
-        if currentStatementIndex > file.originalByteCodeSize: #to not potentially move or adjust code that has been moved already!
-            continue
-        if imp == 'PrintString' or imp == "TargetBinding": 
-            stringValue = exp['Parameters'][1].get('Value')
-            if stringValue[:3] in ["dev","Dev","npc","Npc"]:
-                stringValue = replaceOldIDinString(stringValue)
-                newExpression = bytecode.json[bytecode.getIndex(exp)]
-                newExpression['Parameters'][1]['Value'] = stringValue
-        elif imp == 'LoadAsset' or imp == 'LoadAssetClass':
-            try:
-                stringValue = exp['Parameters'][1].get('Value').get('Value')
-            except AttributeError:
+        skipSbexp = False
+        for modelSwapDemon in changes:
+            if skipSbexp:
                 continue
-            if oldIDString not in stringValue and oldName not in stringValue:
-                #if neither oldID or oldName are in the string go to next exp
+            sbexp: Serialized_Bytecode_Expression
+            exp = sbexp.exp
+            imp = sbexp.imp
+
+            if bytecode.getIndex(exp) is None:
+                # First case: Nested expression (will be fixed at some point)
+                # Second case: Expression has already been modified in the new one, so we can skip it here
+                skipSbexp = True
                 continue
-            if 'MAP_FLAG_NaviDev' in stringValue:
-                continue #Do not change names of map flags
-            #print(stringValue)
-            originalLength = len(stringValue)
-            #create new string here for calculation of lenghtDifference
-            newString = replaceOldIDinString(stringValue).replace(oldName,newName)
-            if ("/Blueprints/Character" in stringValue or "_C" in stringValue):
-                newString = replaceNonExistentAnimations(script, newString,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
-            else:
-                newString = replaceNonExistentAnimations(script, newString,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)#exp['Parameters'][1]['Value']['Value'] = stringValue
-                
-            if imp == "LoadAssetClass" and "Simple" in newString and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
-                newString = newString.replace("_Simple","")
-
-            lengthDifference = len(newString) - originalLength
-
-            if stringValue == newString:
-                #No change in string
+            #currentStatementIndex = serializedByteCode[bytecode.getIndex(exp)]["StatementIndex"]
+            currentStatementIndex = sbexp.currentStatementIndex
+            
+            
+            if currentStatementIndex > file.originalByteCodeSize: #to not potentially move or adjust code that has been moved already!
+                skipSbexp = True
                 continue
-
-            if oldIDString in stringValue and lengthDifference == 0: 
-                #if the oldID is there in string format, replace with new string
-                stringValue= replaceOldIDinString(stringValue)
-                
-            if oldName in stringValue and lengthDifference == 0:
-                #length is the same so can swap name and anim
-                stringValue = stringValue.replace(oldName,newName)
+            if imp == 'PrintString' or imp == "TargetBinding": 
+                stringValue = exp['Parameters'][1].get('Value')
+                if stringValue[:3] in ["dev","Dev","npc","Npc"]:
+                    stringValue = replaceOldIDinString(stringValue)
+                    newExpression = bytecode.json[bytecode.getIndex(exp)]
+                    newExpression['Parameters'][1]['Value'] = stringValue
+            elif imp == 'LoadAsset' or imp == 'LoadAssetClass':
+                try:
+                    stringValue = exp['Parameters'][1].get('Value').get('Value')
+                except AttributeError:
+                    skipSbexp = True
+                    continue
+                if modelSwapDemon.oldIDString not in stringValue and modelSwapDemon.oldName not in stringValue:
+                    #if neither oldID or oldName are in the string go to next exp
+                    skipSbexp = True
+                    continue
+                if 'MAP_FLAG_NaviDev' in stringValue:
+                    skipSbexp = True
+                    continue #Do not change names of map flags
+                #print(stringValue)
+                originalLength = len(stringValue)
+                #create new string here for calculation of lenghtDifference
+                newString = replaceOldIDinString(stringValue).replace(modelSwapDemon.oldName,modelSwapDemon.newName)
                 if ("/Blueprints/Character" in stringValue or "_C" in stringValue):
-                    stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
+                    newString = replaceNonExistentAnimations(script, newString,modelSwapDemon.newIDString,modelSwapDemon.newName, modelSwapDemon.classOldFolderPrefix, modelSwapDemon.classOldPrefix, modelSwapDemon.classNewFolderPrefix, modelSwapDemon.classNewPrefix, modelSwapDemon.lahmuSuffix)
                 else:
-                    stringValue = replaceNonExistentAnimations(script, stringValue,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)#exp['Parameters'][1]['Value']['Value'] = stringValue
-                if imp == "LoadAssetClass" and "Simple" in stringValue and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
-                    stringValue = newString.replace("_Simple","")
-                newExpression = bytecode.json[bytecode.getIndex(exp)]
-                newExpression['Parameters'][1]['Value']['Value'] = stringValue
-            elif lengthDifference != 0:
-                #length is not the same so need to move expression around
-                #recalc new string just in case
-                stringValue = replaceOldIDinString(stringValue)
-                newString = stringValue.replace(oldName,newName)
-                newString = replaceOldIDinString(newString)
+                    newString = replaceNonExistentAnimations(script, newString,modelSwapDemon.newIDString,modelSwapDemon.newName, modelSwapDemon.oldFolderPrefix, modelSwapDemon.oldPrefix, modelSwapDemon.newFolderPrefix, modelSwapDemon.newPrefix, modelSwapDemon.lahmuSuffix)#exp['Parameters'][1]['Value']['Value'] = stringValue
+                    
                 if imp == "LoadAssetClass" and "Simple" in newString and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
                     newString = newString.replace("_Simple","")
-                stringSizeDiff = len(newString) - originalLength
 
-                # nextStatementIndex = serializedByteCode[bytecode.getIndex(exp)+1]["StatementIndex"]
-                # lastStatementIndex = file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData)
-                # statementLength = nextStatementIndex - currentStatementIndex
-                nextStatementIndex = sbexp.nextStatementIndex
-                statementLength = sbexp.statementLength
-                
-                #Copy and change values and append to the end
-                newExpression = copy.deepcopy(exp)
-                newExpression['Parameters'][1]['Value']['Value'] = newString
-                bytecode.json.append(newExpression)
-                jumpBack = copy.deepcopy(jsonExports.BYTECODE_JUMP)
-                jumpBack['CodeOffset'] = nextStatementIndex
-                bytecode.json.append(jumpBack)
+                lengthDifference = len(newString) - originalLength
 
-                #change original expression to be jump
-                expReplacement = copy.deepcopy(jsonExports.BYTECODE_JUMP)
-                expReplacement['CodeOffset'] = lastStatementIndex #last one is either EndOfScript or jump if already inserted something and we want to start after that
-                # fill with nothing 
-                nothingInsts = []
-                amount = statementLength - 5 #(due to jump)
-                for i in range(amount):
-                    nothingInsts.append(jsonExports.BYTECODE_NOTHING)
+                if stringValue == newString:
+                    #No change in string
+                    skipSbexp = True
+                    continue
 
-                bytecode.replace(exp, expReplacement, nothingInsts)
-                #Updated serializedByteCodeList for new statement indeces
-                lastStatementIndex = lastStatementIndex + statementLength + stringSizeDiff + 5
-                #TODO: This seems to be the main cause of why the whole process takes long, can I use this less aka calculate index myself again?
-                #serializedByteCode = file.getSerializedScriptBytecode(file.exportIndex,jsonData)
-                #if 0 != lastStatementIndex - file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData):
-                #print(lastStatementIndex - file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData))
-            else: #oldName not in String, save id swaps
-                newExpression = bytecode.json[bytecode.getIndex(exp)]
-                newExpression['Parameters'][1]['Value']['Value'] = stringValue
+                if modelSwapDemon.oldIDString in stringValue and lengthDifference == 0: 
+                    #if the oldID is there in string format, replace with new string
+                    stringValue= replaceOldIDinString(stringValue)
+                    
+                if modelSwapDemon.oldName in stringValue and lengthDifference == 0:
+                    #length is the same so can swap name and anim
+                    stringValue = stringValue.replace(modelSwapDemon.oldName,modelSwapDemon.newName)
+                    if ("/Blueprints/Character" in stringValue or "_C" in stringValue):
+                        stringValue = replaceNonExistentAnimations(script, stringValue,modelSwapDemon.newIDString,modelSwapDemon.newName, modelSwapDemon.classOldFolderPrefix, modelSwapDemon.classOldPrefix, modelSwapDemon.classNewFolderPrefix, modelSwapDemon.classNewPrefix, modelSwapDemon.lahmuSuffix)
+                    else:
+                        stringValue = replaceNonExistentAnimations(script, stringValue,modelSwapDemon.newIDString,modelSwapDemon.newName, modelSwapDemon.oldFolderPrefix, modelSwapDemon.oldPrefix, modelSwapDemon.newFolderPrefix, modelSwapDemon.newPrefix, modelSwapDemon.lahmuSuffix)#exp['Parameters'][1]['Value']['Value'] = stringValue
+                    if imp == "LoadAssetClass" and "Simple" in stringValue and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
+                        stringValue = newString.replace("_Simple","")
+                    newExpression = bytecode.json[bytecode.getIndex(exp)]
+                    newExpression['Parameters'][1]['Value']['Value'] = stringValue
+                elif lengthDifference != 0:
+                    #length is not the same so need to move expression around
+                    #recalc new string just in case
+                    stringValue = replaceOldIDinString(stringValue)
+                    newString = stringValue.replace(modelSwapDemon.oldName,modelSwapDemon.newName)
+                    newString = replaceOldIDinString(newString)
+                    if imp == "LoadAssetClass" and "Simple" in newString and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID]:
+                        newString = newString.replace("_Simple","")
+                    stringSizeDiff = len(newString) - originalLength
+
+                    # nextStatementIndex = serializedByteCode[bytecode.getIndex(exp)+1]["StatementIndex"]
+                    # lastStatementIndex = file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData)
+                    # statementLength = nextStatementIndex - currentStatementIndex
+                    nextStatementIndex = sbexp.nextStatementIndex
+                    statementLength = sbexp.statementLength
+                    
+                    #Copy and change values and append to the end
+                    newExpression = copy.deepcopy(exp)
+                    newExpression['Parameters'][1]['Value']['Value'] = newString
+                    bytecode.json.append(newExpression)
+                    jumpBack = copy.deepcopy(jsonExports.BYTECODE_JUMP)
+                    jumpBack['CodeOffset'] = nextStatementIndex
+                    bytecode.json.append(jumpBack)
+
+                    #change original expression to be jump
+                    expReplacement = copy.deepcopy(jsonExports.BYTECODE_JUMP)
+                    expReplacement['CodeOffset'] = lastStatementIndex #last one is either EndOfScript or jump if already inserted something and we want to start after that
+                    # fill with nothing 
+                    nothingInsts = []
+                    amount = statementLength - 5 #(due to jump)
+                    for i in range(amount):
+                        nothingInsts.append(jsonExports.BYTECODE_NOTHING)
+
+                    bytecode.replace(exp, expReplacement, nothingInsts)
+                    #Updated serializedByteCodeList for new statement indeces
+                    lastStatementIndex = lastStatementIndex + statementLength + stringSizeDiff + 5
+                    #TODO: This seems to be the main cause of why the whole process takes long, can I use this less aka calculate index myself again?
+                    #serializedByteCode = file.getSerializedScriptBytecode(file.exportIndex,jsonData)
+                    #if 0 != lastStatementIndex - file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData):
+                    #print(lastStatementIndex - file.calcLastStatementIndex(file.exportIndex,serializedByteCode[-1]["StatementIndex"], jsonData))
+                else: #oldName not in String, save id swaps
+                    newExpression = bytecode.json[bytecode.getIndex(exp)]
+                    newExpression['Parameters'][1]['Value']['Value'] = stringValue
                 
     file.updateFileWithJson(jsonData)
     return file
@@ -549,11 +569,11 @@ def replaceNonExistentAnimations(script, string, replacementID,replacementName, 
 
 '''
 Modifies the scaling for the event hit trigger of the given script by the scale given.
-    umap(UMap_File): file containing the umap and uexp data
+    umap(Script_File): file containing the umap and uexp data
     script(String): name of the script the event hit should be updated for
     scale(Float): by what the current scale should be multiplied
 '''
-def updateEventHitScaling(umap: UMap_File,script,scale):
+def updateEventHitScaling(umap: Script_File,script,scale):
     asset = umap.uasset
     exports = umap.json['Exports']
 
@@ -663,20 +683,25 @@ def updateCutsceneModels(encounterReplacements, bossReplacements, config, naviga
 
         file = cutsceneFiles.getFile(event)
         
-        
+        demonsToUse = {}
         rawCode = prepareScriptFileForModelReplacement(event, file)
         if rawCode: #script does not have byte code so continue with next one (Debug print happens elsewhere)
             continue
         #TODO:Also might be problematic if replacement is a demon that is already in event, but not swapped EX: Dead Powers in the Nuwa I event
         for originalDemonID, replacementID in replacementMap.items():
-            file = replaceDemonModelInScript(event, file, originalDemonID, replacementID)
+            demonsToUse.update({originalDemonID: replacementID})
+        
+        file = replaceDemonModelInScript(event, file, demonsToUse)
         cutsceneFiles.setFile(event,file)
         
         if event in LV_SEQUENCES.keys():
+            
             for seq in LV_SEQUENCES[event]:
+                demonsToUse = {}
                 fileSeq = cutsceneFiles.getFile(seq)
                 for originalDemonID, replacementID in replacementMap.items():
-                    fileSeq = replaceDemonInSequence(seq,fileSeq,originalDemonID,replacementID,event)
+                    demonsToUse.update({originalDemonID: replacementID})
+                fileSeq = replaceDemonInSequence(seq,fileSeq,demonsToUse,event)
             cutsceneFiles.setFile(seq,fileSeq)
             cutsceneFiles.writeFile(seq,fileSeq)
         
@@ -688,109 +713,112 @@ def updateCutsceneModels(encounterReplacements, bossReplacements, config, naviga
     print(endTime - startTime)
 
 
-def replaceDemonInSequence(seq, file:Script_File, ogDemonID, replacementDemonID,event):
+def replaceDemonInSequence(seq, file:Script_File, demonsToUse,event):
     
     '''
     Replaces ids in animation or blueprint class strings
     '''
     def replaceOldIDinString(string):
         if ("/Blueprints/Character" in string or "_C" in string):
-            nstring = string.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
-            nstring = nstring.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
-            nstring = replaceNonExistentAnimations(seq, nstring,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
+            nstring = string.replace(modelSwapDemon.classOldFolderPrefix + modelSwapDemon.classOldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.classNewFolderPrefix + modelSwapDemon.classNewPrefix +modelSwapDemon.newIDString).replace(modelSwapDemon.classOldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.classNewPrefix +modelSwapDemon.newIDString)
+            nstring = nstring.replace(modelSwapDemon.classOldFolderPrefix + modelSwapDemon.classOldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.classNewFolderPrefix + modelSwapDemon.classNewPrefixVariant +modelSwapDemon.newIDString).replace(modelSwapDemon.classOldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.classNewPrefixVariant +modelSwapDemon.newIDString)
+            nstring = replaceNonExistentAnimations(seq, nstring,modelSwapDemon.newIDString,modelSwapDemon.newName, modelSwapDemon.classOldFolderPrefix, modelSwapDemon.classOldPrefix, modelSwapDemon.classNewFolderPrefix, modelSwapDemon.classNewPrefix, modelSwapDemon.lahmuSuffix)
         else:
-            nstring = string.replace(oldFolderPrefix + oldPrefix + oldIDString, newFolderPrefix + newPrefix +newIDString).replace(oldPrefix + oldIDString, newPrefix +newIDString)
-            nstring = nstring.replace(oldFolderPrefix + oldPrefixVariant + oldIDString, newFolderPrefix + newPrefixVariant +newIDString).replace(oldPrefixVariant + oldIDString, newPrefixVariant +newIDString)
-            nstring = replaceNonExistentAnimations(seq, nstring,newIDString,newName, oldFolderPrefix, oldPrefix, newFolderPrefix, newPrefix, lahmuSuffix)
+            nstring = string.replace(modelSwapDemon.oldFolderPrefix + modelSwapDemon.oldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.newFolderPrefix + modelSwapDemon.newPrefix +modelSwapDemon.newIDString).replace(modelSwapDemon.oldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.newPrefix +modelSwapDemon.newIDString)
+            nstring = nstring.replace(modelSwapDemon.oldFolderPrefix + modelSwapDemon.oldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.newFolderPrefix + modelSwapDemon.newPrefixVariant +modelSwapDemon.newIDString).replace(modelSwapDemon.oldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.newPrefixVariant +modelSwapDemon.newIDString)
+            nstring = replaceNonExistentAnimations(seq, nstring,modelSwapDemon.newIDString,modelSwapDemon.newName, modelSwapDemon.oldFolderPrefix, modelSwapDemon.oldPrefix, modelSwapDemon.newFolderPrefix, modelSwapDemon.newPrefix, modelSwapDemon.lahmuSuffix)
         return nstring
 
     jsonData = file.json
+    
     if file.originalNameMap is None: #use original name map to prevent chain replacements
         file.originalNameMap = copy.deepcopy(jsonData['NameMap'])
         file.exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
-    #Get the Strings corresponding to the old demon and the prefixes
-    oldIDString = DEMON_ID_MODEL_ID[ogDemonID]
-    oldName = MODEL_NAMES[oldIDString]
-    oldFolderPrefix = DEVIL_PREFIX
-    oldPrefix = "dev"
-    oldPrefixVariant = "Dev"
-    if int(oldIDString) > NPC_MODEL_START :
-        oldFolderPrefix = NPC_PREFIX
-        oldPrefix = "npc"
-        oldPrefixVariant = "Npc"
-    #Get the Strings corresponding to the new demon and the prefixes
-    try:
-        newIDString = DEMON_ID_MODEL_ID[replacementDemonID]
-    except KeyError:
-        print(str(replacementDemonID) + " needs a model tied to it. Stopping replacement")
-        return file
-    newName = MODEL_NAMES[newIDString]
-    newPrefix = "dev"
-    newFolderPrefix = DEVIL_PREFIX
-    newPrefixVariant = "Dev"
-    if int(newIDString) > NPC_MODEL_START:
-        newPrefix = "npc"
-        newFolderPrefix = NPC_PREFIX
-        newPrefixVariant = "Npc"
-    if replacementDemonID == LAHMU_2ND_FORM_ID:
-        lahmuSuffix = "_3rd"
-    else:
-        lahmuSuffix = ""
-    if DEBUG_SWAP_PRINT:
-        print("SWAP: " + oldPrefix +"/" +  oldName + " -> " + newPrefix +"/"+ newName + " in " + seq)
-
-    #There are some special cases for these class blueprints
-    classOldFolderPrefix = copy.deepcopy(oldFolderPrefix)
-    classOldPrefix = copy.deepcopy(oldPrefix)
-    classOldPrefixVariant = copy.deepcopy(oldPrefixVariant)
-    classNewFolderPrefix = copy.deepcopy(newFolderPrefix)
-    classNewPrefix = copy.deepcopy(newPrefix)
-    classNewPrefixVariant = copy.deepcopy(newPrefixVariant)
-    if int(newIDString) in NPC_MODELS_DEV_BLUEPRINT:
-        #only new is exception that use devil instead of npc for this
-        classNewFolderPrefix = DEVIL_PREFIX
-        classNewPrefix = "dev"
-        classNewPrefixVariant = "Dev"
-        
-    elif int(oldIDString) in NPC_MODELS_DEV_BLUEPRINT and event not in FOLDER_SWITCH_RESTRICTIONS:
-        #old is exception that use devil instead of npc for this
-        classOldFolderPrefix = DEVIL_PREFIX
-        classOldPrefix = "dev"
-        classOldPrefixVariant = "Dev"
-    
-    
-    for index, name in enumerate(file.originalNameMap):
-        if "DevilBaseLight" in name and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] :
-            #Applies to CoC Nuwa Gate, Kunitsukami Fight, Dagda, 4 Heavenly Kings, Pisaca Quest Anahita Event, Konohana Sakuya, Nozuchi, Huang Long
-            #print("DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
-            return file # since we might run into softlocks otherwise
-    #print("NO DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
-
-    
-
-    for index, name in enumerate(file.originalNameMap): #change occurences of oldDemonID and oldDemonName in all names in the uasset
-        nameEntry = file.getNameAtIndex(index)
-        if seq in name:
-            #Do not change names for Main File Exports if DemonId or Name is in script
+    changes = []
+    for ogDemonID, replacementDemonID in demonsToUse.items():
+        modelSwapDemon = Model_Swap_Demon(ogDemonID, replacementDemonID)
+        #Get the Strings corresponding to the old demon and the prefixes
+        modelSwapDemon.oldIDString = DEMON_ID_MODEL_ID[ogDemonID]
+        modelSwapDemon.oldName = MODEL_NAMES[modelSwapDemon.oldIDString]
+        if int(modelSwapDemon.oldIDString) > NPC_MODEL_START:
+            modelSwapDemon.oldFolderPrefix = NPC_PREFIX
+            modelSwapDemon.oldPrefix = "npc"
+            modelSwapDemon.oldPrefixVariant = "Npc"
+        #Get the Strings corresponding to the new demon and the prefixes
+        try:
+            modelSwapDemon.newIDString = DEMON_ID_MODEL_ID[replacementDemonID]
+        except KeyError:
+            print(str(replacementDemonID) + " needs a model tied to it. Stopping replacement")
             continue
-        if oldIDString in name and ("/Blueprints/Character" in name or "_C" in name): 
-            nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefix + oldIDString, classNewFolderPrefix + classNewPrefix +newIDString).replace(classOldPrefix + oldIDString, classNewPrefix +newIDString)
-            nameEntry = nameEntry.replace(classOldFolderPrefix + classOldPrefixVariant + oldIDString, classNewFolderPrefix + classNewPrefixVariant +newIDString).replace(classOldPrefixVariant + oldIDString, classNewPrefixVariant +newIDString)
-            if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
-                nameEntry = nameEntry.replace("_Simple","")
-        elif oldIDString in name and not "Spawn" in name: #to just get the model names since sometimes DevXXX or devXXX
-            nameEntry = nameEntry.replace(oldFolderPrefix + oldPrefix + oldIDString, newFolderPrefix + newPrefix +newIDString).replace(oldPrefix + oldIDString, newPrefix +newIDString)
-            nameEntry = nameEntry.replace(oldFolderPrefix + oldPrefixVariant + oldIDString, newFolderPrefix + newPrefixVariant +newIDString).replace(oldPrefixVariant + oldIDString, newPrefixVariant +newIDString)
-            if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
-                nameEntry = nameEntry.replace("_Simple","")
-        if oldName in name and ("Character" in name or "Anim" in name): #to prevent stuff like replacing set(seth) in LoadAsset
-            #print(nameEntry)
-            nameEntry = nameEntry.replace(oldName,newName)
-        # elif oldName in name:
-        #     print("EXTRA CHECK Necessary? " + nameEntry)
-        if "Anim/" in name or name[:3] == "AN_":
-            nameEntry = replaceNonExistentAnimations(event, nameEntry,newIDString,newName, classOldFolderPrefix, classOldPrefix, classNewFolderPrefix, classNewPrefix, lahmuSuffix)
-        file.setNameAtIndex(index,nameEntry)
+            #return file
+        modelSwapDemon.newName = MODEL_NAMES[modelSwapDemon.newIDString]
+        if int(modelSwapDemon.newIDString) > NPC_MODEL_START:
+            modelSwapDemon.newPrefix = "npc"
+            modelSwapDemon.newFolderPrefix = NPC_PREFIX
+            modelSwapDemon.newPrefixVariant = "Npc"
+        if replacementDemonID == LAHMU_2ND_FORM_ID:
+            modelSwapDemon.lahmuSuffix = "_3rd"
+        else:
+            modelSwapDemon.lahmuSuffix = ""
+        if DEBUG_SWAP_PRINT:
+            print("SWAP: " + modelSwapDemon.oldPrefix +"/" +  modelSwapDemon.oldName + " -> " + modelSwapDemon.newPrefix +"/"+ modelSwapDemon.newName + " in " + seq)
+
+        #There are some special cases for these class blueprints
+        modelSwapDemon.classOldFolderPrefix = copy.deepcopy(modelSwapDemon.oldFolderPrefix)
+        modelSwapDemon.classOldPrefix = copy.deepcopy(modelSwapDemon.oldPrefix)
+        modelSwapDemon.classOldPrefixVariant = copy.deepcopy(modelSwapDemon.oldPrefixVariant)
+        modelSwapDemon.classNewFolderPrefix = copy.deepcopy(modelSwapDemon.newFolderPrefix)
+        modelSwapDemon.classNewPrefix = copy.deepcopy(modelSwapDemon.newPrefix)
+        modelSwapDemon.classNewPrefixVariant = copy.deepcopy(modelSwapDemon.newPrefixVariant)
+        if int(modelSwapDemon.newIDString) in NPC_MODELS_DEV_BLUEPRINT:
+            #only new is exception that use devil instead of npc for this
+            modelSwapDemon.classNewFolderPrefix = DEVIL_PREFIX
+            modelSwapDemon.classNewPrefix = "dev"
+            modelSwapDemon.classNewPrefixVariant = "Dev"
+            
+        elif int(modelSwapDemon.oldIDString) in NPC_MODELS_DEV_BLUEPRINT and event not in FOLDER_SWITCH_RESTRICTIONS:
+            #old is exception that use devil instead of npc for this
+            modelSwapDemon.classOldFolderPrefix = DEVIL_PREFIX
+            modelSwapDemon.classOldPrefix = "dev"
+            modelSwapDemon.classOldPrefixVariant = "Dev"
+        
+        breakDemon = False
+        for index, name in enumerate(file.originalNameMap):
+            if "DevilBaseLight" in name and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] :
+                #Applies to CoC Nuwa Gate, Kunitsukami Fight, Dagda, 4 Heavenly Kings, Pisaca Quest Anahita Event, Konohana Sakuya, Nozuchi, Huang Long
+                #print("DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
+                #return file # since we might run into softlocks otherwise
+                breakDemon = True
+        if breakDemon:
+            continue
+        #print("NO DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
+
+    
+
+        for index, name in enumerate(file.originalNameMap): #change occurences of oldDemonID and oldDemonName in all names in the uasset
+            nameEntry = file.getNameAtIndex(index)
+            if seq in name:
+                #Do not change names for Main File Exports if DemonId or Name is in script
+                continue
+            if modelSwapDemon.oldIDString in name and ("/Blueprints/Character" in name or "_C" in name): 
+                nameEntry = nameEntry.replace(modelSwapDemon.classOldFolderPrefix + modelSwapDemon.classOldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.classNewFolderPrefix + modelSwapDemon.classNewPrefix +modelSwapDemon.newIDString).replace(modelSwapDemon.classOldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.classNewPrefix +modelSwapDemon.newIDString)
+                nameEntry = nameEntry.replace(modelSwapDemon.classOldFolderPrefix + modelSwapDemon.classOldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.classNewFolderPrefix + modelSwapDemon.classNewPrefixVariant +modelSwapDemon.newIDString).replace(modelSwapDemon.classOldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.classNewPrefixVariant +modelSwapDemon.newIDString)
+                if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
+                    nameEntry = nameEntry.replace("_Simple","")
+            elif modelSwapDemon.oldIDString in name and not "Spawn" in name: #to just get the model names since sometimes DevXXX or devXXX
+                nameEntry = nameEntry.replace(modelSwapDemon.oldFolderPrefix + modelSwapDemon.oldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.newFolderPrefix + modelSwapDemon.newPrefix +modelSwapDemon.newIDString).replace(modelSwapDemon.oldPrefix + modelSwapDemon.oldIDString, modelSwapDemon.newPrefix +modelSwapDemon.newIDString)
+                nameEntry = nameEntry.replace(modelSwapDemon.oldFolderPrefix + modelSwapDemon.oldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.newFolderPrefix + modelSwapDemon.newPrefixVariant +modelSwapDemon.newIDString).replace(modelSwapDemon.oldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.newPrefixVariant +modelSwapDemon.newIDString)
+                if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
+                    nameEntry = nameEntry.replace("_Simple","")
+            if modelSwapDemon.oldName in name and ("Character" in name or "Anim" in name): #to prevent stuff like replacing set(seth) in LoadAsset
+                #print(nameEntry)
+                nameEntry = nameEntry.replace(modelSwapDemon.oldName,modelSwapDemon.newName)
+            # elif oldName in name:
+            #     print("EXTRA CHECK Necessary? " + nameEntry)
+            if "Anim/" in name or name[:3] == "AN_":
+                nameEntry = replaceNonExistentAnimations(event, nameEntry,modelSwapDemon.newIDString,modelSwapDemon.newName, modelSwapDemon.classOldFolderPrefix, modelSwapDemon.classOldPrefix, modelSwapDemon.classNewFolderPrefix, modelSwapDemon.classNewPrefix, modelSwapDemon.lahmuSuffix)
+            file.setNameAtIndex(index,nameEntry)
+        changes.append(modelSwapDemon)     
 
     
     movieSceneName = "MovieScene_0"
@@ -799,24 +827,38 @@ def replaceDemonInSequence(seq, file:Script_File, ogDemonID, replacementDemonID,
     dataNames = [exp['Name'] for exp in file.originalJson["Exports"][file.exportIndex]["Data"]]
     possessables = file.uasset.Exports[file.exportIndex].Data[dataNames.index("Possessables")]
     objectBindings = file.uasset.Exports[file.exportIndex].Data[dataNames.index('ObjectBindings')]
-
+   
     for i,possessable in enumerate(possessables.Value):
-        if oldIDString in file.originalJson["Exports"][file.exportIndex]["Data"][dataNames.index("Possessables")]["Value"][i]["Value"][2]["Value"]:
-            possessable.Value[2].Value.Value = replaceOldIDinString(possessable.Value[2].Value.Value)
+        demonChosen = False
+        for modelSwapDemon in changes:
+            if demonChosen:
+                continue
+            if modelSwapDemon.oldIDString in file.originalJson["Exports"][file.exportIndex]["Data"][dataNames.index("Possessables")]["Value"][i]["Value"][2]["Value"]:
+                possessable.Value[2].Value.Value = replaceOldIDinString(possessable.Value[2].Value.Value)
+                demonChosen = True
     
     for i,objectBinding in enumerate(objectBindings.Value):
-        if oldIDString in file.originalJson["Exports"][file.exportIndex]["Data"][dataNames.index("ObjectBindings")]["Value"][i]["Value"][1]["Value"]:
-            objectBinding.Value[1].Value.Value = replaceOldIDinString(objectBinding.Value[1].Value.Value)
+        demonChosen = False
+        for modelSwapDemon in changes:
+            if demonChosen:
+                continue
+            if modelSwapDemon.oldIDString in file.originalJson["Exports"][file.exportIndex]["Data"][dataNames.index("ObjectBindings")]["Value"][i]["Value"][1]["Value"]:
+                objectBinding.Value[1].Value.Value = replaceOldIDinString(objectBinding.Value[1].Value.Value)
+                demonChosen = True
     if seq == 'SEQ_E2297_C20':
         file.exportIndex = file.exportNameList.index('SEQ_E2297_c20')
     else:
         file.exportIndex = file.exportNameList.index(seq)
     bindList = file.uasset.Exports[file.exportIndex].Data[1].Value[0].Value
     for i,entry in enumerate(bindList):
-        try:
-            if oldIDString in file.originalJson["Exports"][file.exportIndex]["Data"][1]["Value"][0]["Value"][i][1]["Value"][0]["Value"][0]["Value"][0]["Value"][0]["Value"]["SubPathString"]:
-                entry.Value.Value[0].Value[0].Value[0].Value[0].Value.SubPathString.Value = replaceOldIDinString(entry.Value.Value[0].Value[0].Value[0].Value[0].Value.SubPathString.Value)
-        except (TypeError, AttributeError) as e:
-            #not bad error, just too lazy to stop differently
-            pass
+        for modelSwapDemon in changes:
+            if demonChosen:
+                continue
+            try:
+                if modelSwapDemon.oldIDString in file.originalJson["Exports"][file.exportIndex]["Data"][1]["Value"][0]["Value"][i][1]["Value"][0]["Value"][0]["Value"][0]["Value"][0]["Value"]["SubPathString"]:
+                    entry.Value.Value[0].Value[0].Value[0].Value[0].Value.SubPathString.Value = replaceOldIDinString(entry.Value.Value[0].Value[0].Value[0].Value[0].Value.SubPathString.Value)
+                    demonChosen = True
+            except (TypeError, AttributeError) as e:
+                #not bad error, just too lazy to stop differently
+                continue
     return file

@@ -1,3 +1,19 @@
+Version 1.05
+Features:
+* New settings to randomize boss skills, their magatsuhi skills, additional passives and more
+* New settings to remove tutorials and some cutscenes
+* The cutscene for the choice of the Canon can be skipped to get directly to the choice
+
+Balance:
+* Lowered the HP bonus/penalty if a single enemy boss replaces a multi one and vice-versa
+* Reduced chance of unique skill in skill sets if both "Unique skills show up more than once" and "Random" skill inheritance are chosen
+
+Bugfixes:
+* Battles from navigator spots are now always correctly randomized
+* Gift randomization when item pools are not combined no longer causes a crash
+* Fixed issue where no correct universal magatsuhi was chosen, instead displaying Feline Fury
+* Fixed issue with collision with large demons in model swaps
+
 Version 1.04
 Features:
 * New settings to randomize demon voices in battle, haunts, and for overworld enemies

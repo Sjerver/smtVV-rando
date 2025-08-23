@@ -107,6 +107,17 @@ def setConfigSettings(configur):
     configSettings.randomizeIshtarPressTurns = obtainBooleanValue(configur.get('Boss', 'RandomizeIshtarPressTurns'))
     configSettings.bossPressTurnChance = float(configur.get('Boss', 'BossPressTurnChance'))
 
+    configSettings.randomizeBossSkills = obtainBooleanValue(configur.get('Boss', 'RandomizeBossSkills'))
+    configSettings.similiarBossSkillRank = obtainBooleanValue(configur.get('Boss', 'similiarBossSkillRank'))
+    configSettings.allowBossMagatsuhiSkill = obtainBooleanValue(configur.get('Boss', 'allowBossMagatsuhiSkill'))
+    configSettings.allowContemptOfGod = obtainBooleanValue(configur.get('Boss', 'allowContemptOfGod'))
+    configSettings.elementCountConsistency = obtainBooleanValue(configur.get('Boss', 'elementCountConsistency'))
+    configSettings.fillEmptySlotsWithPassives = obtainBooleanValue(configur.get('Boss', 'fillEmptySlotsWithPassives'))
+
+    configSettings.alwaysCritical = obtainBooleanValue(configur.get('Boss', 'alwaysCritical'))
+    configSettings.alwaysPierce = obtainBooleanValue(configur.get('Boss', 'alwaysPierce'))
+    configSettings.randomMagatsuhi = obtainBooleanValue(configur.get('Boss', 'randomMagatsuhi'))
+
     configSettings.randomMiracleUnlocks = obtainBooleanValue(configur.get('Miracle', 'RandomMiracleUnlocks'))
     configSettings.randomMiracleCosts = obtainBooleanValue(configur.get('Miracle', 'RandomMiracleCosts'))
     configSettings.reverseDivineGarrisons = obtainBooleanValue(configur.get('Miracle', 'ReverseDivineGarrisons'))
@@ -127,6 +138,8 @@ def setConfigSettings(configur):
     configSettings.fixUniqueSkillAnimations = obtainBooleanValue(configur.get('Patches', 'FixUniqueSkillAnimations'))
     configSettings.buffGuestYuzuru = obtainBooleanValue(configur.get('Patches', 'BuffGuestYuzuru'))
     configSettings.unlockFusions = obtainBooleanValue(configur.get('Patches', 'UnlockFusions'))
+    configSettings.removeCutscenes = obtainBooleanValue(configur.get('Patches', 'SkipCutscenes'))
+    configSettings.skipTutorials = obtainBooleanValue(configur.get('Patches', 'OnlySkipTutorials'))
 
     configSettings.expMultiplier = float(configur.get('Patches', 'EXPMultiplier'))
     configSettings.pressTurnChance = float(configur.get('Patches', 'PressTurnChance'))

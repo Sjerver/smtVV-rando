@@ -626,7 +626,7 @@ EVENT_CHECKS_ORIGINAL_IDS = {
     'e0825': [(7, 477, 0)],#Metatron
     'e1001': [(3, 537, 9), (10, 537, 19), (11, 529, 20)],#Lucifer
     'e2005': [(1, 431, 0)],#Triple Preta
-    'e2008': [(1, 552, 21)],#Labolas 1
+    'em0181': [(2, 552, 21)],#Labolas 1
     'e2019': [(3, 553, 27)],#Naamah 1
     'e2060': [(8, 554, 28)],#Naamah 2
     'e2245': [(1, 556, 22)],#Vengeance Lahmu
@@ -669,7 +669,7 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "I'm also detecting the presence of <BOSSNAME>\nbehind the first reading.", #18 - Two-part boss warning
                  "A powerful <BOSSNAMEPLAINTEXT>.", #19 - Normal Lucifer
                  "An extremely powerful <BOSSNAMEPLAINTEXT>.", #20 - True Lucifer
-                 "I think I'm detecting <BOSSNAME> ahead.\nIt may ambush us at the train.", #21 - Labolas warning that plays in both routes unfortunately
+                 "I was watching you! You must be pretty tough\nif you can take out an Abscess like that!\n Maybe you can even beat the <BOSSNAME> near here.", #21 - Labolas warning that plays in both routes unfortunately
                  "I'm detecting <BOSSNAME>...? That can't...", #22 - Tao dialogue before vengeance Lahmu
                  "Yoko will turn into <BOSSNAME>.\nWe should probably prepare while we can.", #23 - Tehom
                  "Young man, I'm detecting several\n<BOSSNAME>s within the cave.", #24 - Preta

@@ -4,7 +4,6 @@ import json
 import os
 import sys
 import copy
-from script_logic import getEquivalentSource
 from pythonnet import load
 
 base_path = os.path.join(os.getcwd(), r'base')
@@ -34,7 +33,7 @@ except Exception as e:
     sys.exit(1)  
 
 
-from UAssetAPI import UAsset  # type: ignore
+from UAssetAPI import UAsset, Import # type: ignore
 from UAssetAPI.UnrealTypes import EngineVersion, FString  # type: ignore
 from UAssetAPI.Kismet import KismetSerializer #type:ignore
 from System.Text import Encoding # type: ignore
@@ -160,15 +159,21 @@ SCRIPT_FOLDERS = {
     'MM_M060_EM2351': GARDEN_FOLDER, # Rascal of the Norse
     'EM_M061_DevilTalk' : MAINMISSION_M061_FOLDER, # Tutorial Pixie Event
     'esNPC_m061_31a' : MINATO_NPC_FOLDER, #Rakshasa on Diet Building Roof
+    'esNPC_m061b_31a' : MINATO_NPC_FOLDER, #Rakshasa on Diet Building Roof (Vengeance)
     'esNPC_m061_30a' : MINATO_NPC_FOLDER, #Slime near Qing Long
+    'esNPC_m061b_30a' : MINATO_NPC_FOLDER, #Slime near Qing Long (Vengeance)
     'esNPC_m061_34a' : MINATO_NPC_FOLDER, #Pixie in Kamiyacho
     'esNPC_m061_32_Navi': MINATO_NPC_FOLDER, #Navi Ippon Datara
     'esNPC_m061_33_Navi': MINATO_NPC_FOLDER, #Navi Mermaid
     'esNPC_m061_37_Navi': MINATO_NPC_FOLDER, #Navi Hell Biker
     'esNPC_m061_38_Navi': MINATO_NPC_FOLDER, #Navi Cleopatra
     'BP_esNPC_TokyoMap_15b': TOKYO_NPC_FOLDER, #Tokyo NPC Mischievous Mascot Periapt
+    'BP_esNPC_TokyoMap_15b2': TOKYO_NPC_FOLDER, #Tokyo NPC Mischievous Mascot Periapt
+    'BP_esNPC_TokyoMap_15c': TOKYO_NPC_FOLDER, #Tokyo NPC Mischievous Mascot Periapt
     'esNPC_m062_32a': SHINAGAWA_NPC_FOLDER, #Nue in Container
-    'esNPC_m062_33a': SHINAGAWA_NPC_FOLDER, #Angel after Loup-garou/Eisheth 
+    'esNPC_m062_33a': SHINAGAWA_NPC_FOLDER, #Angel after Loup-garou/Eisheth
+    'esNPC_m062b_32a': SHINAGAWA_NPC_FOLDER, #Nue in Container (Vengeance)
+    'esNPC_m062b_33a': SHINAGAWA_NPC_FOLDER, #Angel after Loup-garou/Eisheth  (Vengeance)
     'esNPC_m062_40a': SHINAGAWA_NPC_FOLDER, #Slime in Shinagawa
     'esNPC_m062_NaviDevil_01': SHINAGAWA_NPC_FOLDER, #Navi Agathion
     'esNPC_m062_NaviDevil_41': SHINAGAWA_NPC_FOLDER, #Navi Mothman
@@ -181,10 +186,12 @@ SCRIPT_FOLDERS = {
     'esNPC_m060_14_Navi': TAITO_NPC_FOLDER, #Navi Mara
     'esNPC_m060_15_Navi': TAITO_NPC_FOLDER, #Navi Fionn
     'esNPC_m016_02a': EMPYREAN_NPC_FOLDER, #Ongyo-Ki NPC
+    'esNPC_m016_02b': EMPYREAN_NPC_FOLDER, #Ongyo-Ki NPC
     'MM_M062_EM1132': M062_FOLDER, #Cait Sith in Fairy Village
     'MM_M060_EM1370_Direct': M060_FOLDER, #Fighting Bishamonten without Quest(shares reward with quest)
     'MM_M061_E2610': MAINMISSION_M061_FOLDER, #Isis Event in CoV
     'MM_M060_E0763': MAIN_M060_FOLDER, #Tao Talisman Event at the beginning of Taito
+    'MM_M060_E3001_Direct': MAIN_M060_FOLDER, #Tao Talisman Event at the beginning of Taito (Vengeance)
     'MM_M064_E2797': MAIN_M064_FOLDER, #Qadistu Talisman/Periapt
     'MM_M064_E2795_Direct': MAIN_M064_FOLDER, #Tsukuyomi Talisman
     'BP_JakyoEvent': SHOP_EVENT_FOLDER, #Cathedral of Shadows Event
@@ -196,8 +203,10 @@ SCRIPT_FOLDERS = {
     'MM_M061_E2625_Direct': MAINMISSION_M061_FOLDER, #CoV Khonsu Event Post Fight Bethel Egypt
     'MM_M061_EM0181': MAINMISSION_M061_FOLDER, #Amanozako gives you a bead
     'MM_M061_EM0182': MAINMISSION_M061_FOLDER, #Amanozako becomes your navigator
+    'MM_M061_EM0026': MAINMISSION_M061_FOLDER, #Amanozako congratulating you after hydra defeat
     'EM_M061_Q0019': MAINMISSION_M061_FOLDER, #Amanozako leaves in area 1
     'EM_M061_TutorialNavi02': MAINMISSION_M061_FOLDER, #Amanazako first partner spot
+    'EM_M061_MimanTutorial_Stop': MAINMISSION_M061_FOLDER, #Barrier stopping player for Miman Tutorial
     'MM_M016_E0891': MAIN_M016_FOLDER, #Empyrean Melchizedek
     'MM_M016_E0892': MAIN_M016_FOLDER, #Empyrean Sraosha
     'MM_M016_E0893': MAIN_M016_FOLDER, #Empyrean Alilat
@@ -435,6 +444,8 @@ SCRIPT_FOLDERS = {
     'MM_M060_EM2484': M060_EM2480_FODLER,  #Nahobiho Quest part 5
     'MM_M060_EM2570': M060_FOLDER, #Moirae Haunt Quest (Norn)
     'MM_M060_EM2630': M060_FOLDER,  #Saturnus Quest()
+    'MM_M0082_E0171': MAIN_M082_FOLDER,#Event after Naming Protag that handles Students Talking
+    'MM_M0082_E0171_First': MAIN_M082_FOLDER,#Event after Naming Protag 
     
     'BP_es035_m063_01': ES035_M063_FOLDER,#Fionn area 3 (Fionn)
     'BP_es152_m062_01': ES152_M062_FOLDER,#,#Hayataro area 2
@@ -465,83 +476,18 @@ SCRIPT_FOLDERS = {
     'Pla289_AnimBP': PLAYER_289_FOLDER, #Playable Mo Shuvuu Anims
     'Pla355': PLAYER_355_FOLDER, #Playable Alice
     'Pla355_AnimBP': PLAYER_355_FOLDER, #Playable Alice Anims
-}
 
-#List of which folder each umap should be in when writing output
-UMAP_FOLDERS = {
     'LV_EventMission_M061': LV_M061_FOLDER,
     'LV_MainMission_M061': LV_M061_FOLDER,
+    'LV_MainMission_M061_P':LV_M061_FOLDER,
 }
 
 #List of scripts that are in the main mission folder despite submission naming convention
 MAINMISSION_EXCEPTIONS = [
 'MM_M062_EM0041','MM_M062_EM0050','MM_M062_EM0051','MM_M063_EM0061','MM_M063_EM0079','MM_M063_EM0070','MM_M061_EM0181',
 'MM_M061_EM0182','EM_M061_Q0019','EM_M061_TutorialNavi02','MM_M062_EM0120_Direct','MM_M062_EM0122','MM_M062_EM0123','MM_M062_EM0124','MM_M062_EM0125',
-'MM_M063_EM0130','MM_M060_EM0140'
-]
-
-class UMap_File_List:
-    def __init__(self):
-        self.files = []
-        self.fileNames = []
-
-    '''
-    Returns a umap file for the given file name. 
-    If there is no umap file for the given name in the list, the file is created by reading the umap and uexp.
-    '''
-    def getFile(self,name):
-        if name not in self.fileNames:
-            self.readFile(name)
-
-        index = self.fileNames.index(name)
-        return self.files[index]
-
-    '''
-    Set the file of the given umap file name to the given umap file.
-    '''
-    def setFile(self,name,file):
-        index = self.fileNames.index(name)
-        self.files[index] = file
-
-    '''
-    Writes the umap and uexp for every file in the list to their respective folder.
-    '''
-    def writeFiles(self):
-        for index, name in enumerate(self.fileNames):
-            folderKey = name
-            
-            file = self.files[index]
-            stringy = json.dumps(file.json)
-            
-            writeFolder(UMAP_FOLDERS[folderKey])
-
-            file.uasset = file.uasset.DeserializeJson(stringy)
-            file.uasset.Write(UMAP_FOLDERS[folderKey] + '/' + name + '.umap')
-            #writeBinaryTable(file.uexp.buffer, UMAP_FOLDERS[folderKey] + '/' + name + '.uexp', UMAP_FOLDERS[folderKey])
-            #writeBinaryTable(file.uasset.binaryTable.buffer, UMAP_FOLDERS[folderKey] + '/' + name + '.umap', UMAP_FOLDERS[folderKey])
-    
-    '''
-    Read the binary data of the files belonging to the umap of the given name and create a UMap_File and add it to the list.
-    '''
-    def readFile(self,name):
-        # uexp = readBinaryTable('base/Level/' + name + '.uexp')
-        # uassetData = UAsset_Custom(readBinaryTable('base/Level/' + name + '.umap'))
-        assetobject = UAsset('base/Level/' +  name+ '.umap', EngineVersion.VER_UE4_27)
-
-        jsonstring = assetobject.SerializeJson()
-        jsonobject = json.loads(jsonstring)
-        self.fileNames.append(name)
-        self.files.append(UMap_File(assetobject,jsonobject))
-        
-
-class UMap_File:
-    def __init__(self,uasset: UAsset, jsonForm=None):
-        self.uasset = uasset 
-        if jsonForm:
-            self.json = jsonForm
-        else:
-            jsonstring = self.uasset.SerializeJson()
-            self.json = json.loads(jsonstring)
+'MM_M063_EM0130','MM_M060_EM0140', "MM_M061_EM0026","EM_M061_MimanTutorial_Stop"
+]       
 
 class Script_File_List:
     def __init__(self):
@@ -567,15 +513,19 @@ class Script_File_List:
         index = self.fileNames.index(name)
         self.files[index] = file
     
+    '''
+    Writes a specific uasset and uexp for every file in the list to their respective folder.
+    '''
     def writeFile(self,name,file):
         folderKey = name
         if 'BtlAI' in name:
             folderKey = 'Btl_AI'
-        if folderKey not in SCRIPT_FOLDERS.keys():
-            folderKey = getEquivalentSource(name)
-        if 'SEQ' in name:
+        elif 'SEQ' in name:
             subFolder = name.split("_")[1]
             folderKey = "LV_" + subFolder
+        elif folderKey not in SCRIPT_FOLDERS.keys() and 'LV_E' not in folderKey:
+            raise KeyError(f"No folder mapping found for '{name}' (folderKey = '{folderKey}')")
+
         
         if 'SEQ' not in name:
             stringy = json.dumps(file.json)
@@ -608,24 +558,27 @@ class Script_File_List:
             folderKey = name
             if 'BtlAI' in name:
                 folderKey = 'Btl_AI'
-            if folderKey not in SCRIPT_FOLDERS.keys():
-                folderKey = getEquivalentSource(name)
-            if 'SEQ' in name:
+            elif 'SEQ' in name:
                 subFolder = name.split("_")[1]
                 folderKey = "LV_" + subFolder
+            elif folderKey not in SCRIPT_FOLDERS.keys() and 'LV_E' not in folderKey:
+                raise KeyError(f"No folder mapping found for '{name}' (folderKey = '{folderKey}')")
             
             file = self.files[index]
             if 'SEQ' not in name:
                 stringy = json.dumps(file.json)
                 file.uasset = file.uasset.DeserializeJson(stringy)
-            if 'LV_E' in folderKey:
+            if 'LV_E' in folderKey and name[5].isnumeric():
                 writeFolder(DESIGN_EVENT_FOLDER)
             else:
                 writeFolder(SCRIPT_FOLDERS[folderKey])
-            if 'LV_E' in folderKey:
+            if 'LV_E' in folderKey and name[5].isnumeric():
                 subFolder = folderKey.split("_")[1]
                 writeFolder(DESIGN_EVENT_FOLDER + '/'  + subFolder)
                 file.uasset.Write(DESIGN_EVENT_FOLDER + '/'  + subFolder + '/' + name + '.umap')
+            elif 'LV_' in folderKey:
+                file.uasset = file.uasset.DeserializeJson(stringy)
+                file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.umap')
             elif 'SEQ' in name:
                 subFolder = name.split("_")[1]
                 writeFolder(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder)
@@ -653,8 +606,10 @@ class Script_File_List:
             scriptPath = 'MainMission/'
         if name in MAINMISSION_EXCEPTIONS:
             scriptPath = 'MainMission/'
-        if 'LV' == name[:2]:
+        if 'LV_E' == name[:4] and name[5].isnumeric():
             assetobject = UAsset('base/Design Event/' + name + '.umap', EngineVersion.VER_UE4_27)
+        elif 'LV_' == name[:3]:
+            assetobject = UAsset('base/Level/' +  name+ '.umap', EngineVersion.VER_UE4_27)
         elif 'SEQ' in name:
             assetobject = UAsset('base/Design Event/' + name + '.uasset', EngineVersion.VER_UE4_27)
         else:
@@ -677,7 +632,43 @@ class Script_File:
         self.originalBytecode = None
         self.originalNameMap = None
 
+    '''
+    Adds an import to the import list of the uasset.
+        Parameters:
+            classPackage(String): the package of the class of the import
+            className(String): the class of the import 
+            outerIndex(Integer): import index of the outer class/object, always <= 0
+            objectName(String): the name of the import
+            importOptional(Boolean): if the import is optional or not
+    '''
+    def addImport(self, classPackage, className, outerIndex: int, objectName, importOptional):
+        # newImport = Import(classPackage, className, outerIndex, objectName, importOptional, self.uasset)
+        # self.uasset.addImport(newImport)
+        # self.updateJsonWithUasset()
+        baseImport = {
+            "$type": "UAssetAPI.Import, UAssetAPI",
+            "ObjectName": objectName,
+            "OuterIndex": outerIndex,
+            "ClassPackage": classPackage,
+            "ClassName": className,
+            "PackageName": None,
+            "bImportOptional": importOptional
+            }
+        self.json["Imports"].append(baseImport)
+        self.json["NameMap"].append(objectName)
+
+        self.updateFileWithJson(self.json)
     
+    '''
+    Returns the index of the given import, which is always negative.
+    If the import does not exist it returns 1 instead.
+    '''
+    def getImportIndex(self, objectName):
+        self.importNameList = [imp['ObjectName'] for imp in self.json['Imports']]
+        if objectName not in self.importNameList:
+            return 1
+        else:
+            return -1 * self.importNameList.index(objectName) -1
     '''
     Get the name at the index in the name map of the uasset.
     '''
@@ -696,6 +687,15 @@ class Script_File:
         except UnicodeEncodeError:
             encoding = Encoding.Unicode
         self.uasset.SetNameReference(index,FString.FromString(name,encoding))    
+    
+    def addNameToNameMap(self, name):  
+        encoding = None
+        try:
+            name.encode('ascii')
+            encoding = Encoding.ASCII
+        except UnicodeEncodeError:
+            encoding = Encoding.Unicode
+        self.uasset.AddNameReference(FString.FromString(name,encoding),False,False)
     
     '''
     Returns a new JSON based on the current uasset data.
@@ -748,6 +748,85 @@ class Script_File:
             KismetSerializer.asset = self.uasset
             newStatementIndex = KismetSerializer.SerializeExpression(self.uasset.Exports[exportIndex].ScriptBytecode[-1], preLastIndex, True)
         return newStatementIndex[1]
+    
+    '''
+    Reverses every boolean value for when the specified event flag is set using SetEventFlag.
+    '''
+    def jsonReverseFlagSetting(self,flagName):
+        '''
+        Reverses boolean value for the given parameter list of SetEventFlag.
+        '''
+        def reverseFlagValue(params):
+            # Swap EX_True to EX_False and vice versa
+            if params[1].get("$type") == "UAssetAPI.Kismet.Bytecode.Expressions.EX_True, UAssetAPI":
+                params[1] = {
+                    "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_False, UAssetAPI"
+                }
+            elif params[1].get("$type") == "UAssetAPI.Kismet.Bytecode.Expressions.EX_False, UAssetAPI":
+                params[1] = {
+                    "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_True, UAssetAPI"
+                }
+        
+        importIndex = self.getImportIndex("SetEventFlag")
+        if importIndex < 1:
+            self.recursiveSetFlag(self.json,importIndex,flagName,reverseFlagValue, 2)
+        self.updateFileWithJson(self.json)
+    
+    '''
+    Replaces every instance of a flag being passed as an parameter to either CheckEventFlag or SetEventFlag.
+        Parameters:
+            flagName(String): the name of the old flag to replace
+            newFlagName(String): the name of the replacing flag
+            modifySet(Boolean): if SetEventFlag should be modified
+            modifyCheck(Boolean): if CheckEventFlag should be modified
+    '''
+    def jsonReplaceFlag(self, flagName, newFlagName, modifySet = False, modifyCheck = False):
+        def replaceFlagName(params):
+            params[0]["Value"] = newFlagName
+        importIndex = self.getImportIndex("SetEventFlag")
+        if importIndex < 1 and modifySet:
+            self.recursiveSetFlag(self.json,importIndex,flagName,replaceFlagName,2)
+        importIndex = self.getImportIndex("CheckEventFlag")
+        if importIndex < 1 and modifyCheck:
+            self.recursiveSetFlag(self.json,importIndex,flagName,replaceFlagName)
+        self.updateFileWithJson(self.json)
+
+    '''
+    Recursively goes through the ScriptByteCode to find use cases of CheckEventFlag or SetEventFlag.
+        Parameters:
+            obj(Dict): the thing to look at recursively
+            importIndex(Integer): the import index of the searched function
+            flagName(String): the name of the flag which should be in the parameters of the function
+            action(Function): the method that should be performed for the parameters of the found functions
+            paramCount(Integer): how many parameters the target function has 
+    
+    '''
+    def recursiveSetFlag(self,obj,importIndex,flagName,action,paramCount = 1):
+        if isinstance(obj, dict):
+            if obj.get("$type") == "UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath, UAssetAPI":
+                params = obj.get("Parameters", [])
+                if (len(params) == 2 == paramCount and 
+                    params[0].get("$type") == "UAssetAPI.Kismet.Bytecode.Expressions.EX_NameConst, UAssetAPI" and
+                    params[0].get("Value") == flagName):
+
+                    action(params)
+                elif (len(params) == 1 == paramCount and
+                    params[0].get("$type") == "UAssetAPI.Kismet.Bytecode.Expressions.EX_NameConst, UAssetAPI" and
+                    params[0].get("Value") == flagName):
+                    action(params)
+
+                    
+
+            for value in obj.values():
+                self.recursiveSetFlag(value,importIndex, flagName, action,paramCount)
+
+        elif isinstance(obj, list):
+            for item in obj:
+                self.recursiveSetFlag(item,importIndex, flagName, action,paramCount)
+
+    
+
+
             
 class General_UAsset:
     def __init__(self,name, writePath, readPath = 'base/'):

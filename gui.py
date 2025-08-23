@@ -29,8 +29,11 @@ def createGUI(configSettings: Settings):
     page3Frame = tk.Frame(window, width=1000, height=500, background="#cccccc")
     page3Frame.grid(row=1, column=0)
     page3Frame.pack_propagate(False)
-    pages = [page1Frame, page2Frame, page3Frame]
-    buttonControlsFrame = tk.Frame(window, width=400, height=30)
+    page4Frame = tk.Frame(window, width=1000, height=500, background="#cccccc")
+    page4Frame.grid(row=1, column=0)
+    page4Frame.pack_propagate(False)
+    pages = [page1Frame, page2Frame,page3Frame, page4Frame]
+    buttonControlsFrame = tk.Frame(window, width=480, height=30)
     buttonControlsFrame.grid(row=2, column=0)
     buttonControlsFrame.pack_propagate(False)
     persistentFrameLeft = tk.Frame(persistentFrame, width=500, height=170)
@@ -57,18 +60,26 @@ def createGUI(configSettings: Settings):
     page2FrameRight = tk.Frame(page2Frame, width=500, height=500, background="#cccccc")
     page2FrameRight.grid(row=0, column=1)
     page2FrameRight.pack_propagate(False)
-    page3FrameTopLeft = tk.Frame(page3Frame, width=500, height=200, background="#cccccc")
-    page3FrameTopLeft.grid(row=0, column=0)
-    page3FrameTopLeft.pack_propagate(False)
-    page3FrameTopRight = tk.Frame(page3Frame, width=500, height=200, background="#cccccc")
-    page3FrameTopRight.grid(row=0, column=1)
-    page3FrameTopRight.pack_propagate(False)
-    page3FrameBottomLeft = tk.Frame(page3Frame, width=500, height=300, background="#cccccc")
-    page3FrameBottomLeft.grid(row=1, column=0)
-    page3FrameBottomLeft.pack_propagate(False)
-    page3FrameBottomRight = tk.Frame(page3Frame, width=500, height=300, background="#cccccc")
-    page3FrameBottomRight.grid(row=1, column=1)
-    page3FrameBottomRight.pack_propagate(False)
+
+    page3FrameLeft = tk.Frame(page3Frame, width=500, height=500, background="#cccccc")
+    page3FrameLeft.grid(row=0, column=0)
+    page3FrameLeft.pack_propagate(False)
+    page3FrameRight = tk.Frame(page3Frame, width=500, height=500, background="#cccccc")
+    page3FrameRight.grid(row=0, column=1)
+    page3FrameRight.pack_propagate(False)
+
+    page4FrameTopLeft = tk.Frame(page4Frame, width=500, height=200, background="#cccccc")
+    page4FrameTopLeft.grid(row=0, column=0)
+    page4FrameTopLeft.pack_propagate(False)
+    page4FrameTopRight = tk.Frame(page4Frame, width=500, height=200, background="#cccccc")
+    page4FrameTopRight.grid(row=0, column=1)
+    page4FrameTopRight.pack_propagate(False)
+    page4FrameBottomLeft = tk.Frame(page4Frame, width=500, height=300, background="#cccccc")
+    page4FrameBottomLeft.grid(row=1, column=0)
+    page4FrameBottomLeft.pack_propagate(False)
+    page4FrameBottomRight = tk.Frame(page4Frame, width=500, height=300, background="#cccccc")
+    page4FrameBottomRight.grid(row=1, column=1)
+    page4FrameBottomRight.pack_propagate(False)
         
     def randomizeClick():
         window.quit()
@@ -170,9 +181,20 @@ def createGUI(configSettings: Settings):
     )
     page1Button.pack(side=tk.LEFT)
     
-    page3Button = tk.Button( #Button to go to page 2
+    page4Button = tk.Button( #Button to go to page 4
         buttonControlsFrame,
         text="Other",
+        width=10,
+        height=3,
+        bg=NAHOBINO_BLUE,
+        fg="black",
+        command=lambda pageIndex=3: switchPage(pageIndex),
+    )
+    page4Button.pack(side=tk.RIGHT)
+    
+    page3Button = tk.Button( #Button to go to page 3
+        buttonControlsFrame,
+        text="Bosses II",
         width=10,
         height=3,
         bg=NAHOBINO_BLUE,
@@ -180,7 +202,7 @@ def createGUI(configSettings: Settings):
         command=lambda pageIndex=2: switchPage(pageIndex),
     )
     page3Button.pack(side=tk.RIGHT)
-    
+
     page2Button = tk.Button( #Button to go to page 2
         buttonControlsFrame,
         text="Bosses",
@@ -191,8 +213,8 @@ def createGUI(configSettings: Settings):
         command=lambda pageIndex=1: switchPage(pageIndex),
     )
     page2Button.pack(side=tk.RIGHT)
-        
-    pageButtons = [page1Button, page2Button, page3Button]
+    
+    pageButtons = [page1Button, page2Button,page3Button, page4Button]
        
     currentPage = tk.IntVar(window, 0)
 
@@ -443,29 +465,52 @@ def createGUI(configSettings: Settings):
     ishtarRandomizeCheckbox.pack()
     ishtarScale.pack()
 
-    miracleLabel = tk.Label(page3FrameTopLeft, text="Miracle Randomizer")
+    bossSkillLabel = tk.Label(page3FrameLeft, text="Boss Skills")
+    bossSkillLabel.pack()
+
+    listBossSkills = tk.Listbox(page3FrameLeft, selectmode = "multiple", width=50, height = 8, exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listBossSkills.insert(0, "Randomize Boss Skills")
+    listBossSkills.insert(1, "Similiar Skill Rank")
+    listBossSkills.insert(2, "Allow Magatsuhi Skills")
+    listBossSkills.insert(3, "Allow Contempt of God")
+    listBossSkills.insert(4, "Preserve Elemental Slots per Boss")
+    listBossSkills.insert(5, "Fill Empty Slots with Passives")
+    listBossSkills.pack()
+
+    magatsuhiHarvestLabel = tk.Label(page3FrameRight, text="Generic Boss Magatsuhi")
+    magatsuhiHarvestLabel.pack()
+
+    listMagatsuhiHarvest = tk.Listbox(page3FrameRight,selectmode= "single",height=4,width=30,exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listMagatsuhiHarvest.insert(0, "Vanilla")
+    listMagatsuhiHarvest.insert(1, "If possible: Omagatoki:Critical")
+    listMagatsuhiHarvest.insert(2, "If possible: Omagatoki:Pierce")
+    listMagatsuhiHarvest.insert(3, "Random")
+    listMagatsuhiHarvest.selection_set(0)
+    listMagatsuhiHarvest.pack()
+
+    miracleLabel = tk.Label(page4FrameTopLeft, text="Miracle Randomizer")
     miracleLabel.pack()
 
-    listMiracle = tk.Listbox(page3FrameTopLeft, selectmode = "multiple", width = 75, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listMiracle = tk.Listbox(page4FrameTopLeft, selectmode = "multiple", width = 75, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listMiracle.insert(0, "Randomize Miracle unlocks")
     listMiracle.insert(1, "Randomize Miracle prices")
     listMiracle.insert(2, "Learn +3 stock Divine Garrisons first")            
     listMiracle.pack()
     
-    rankViolationLabel = tk.Label(page3FrameTopLeft, text="Rank Violation")
+    rankViolationLabel = tk.Label(page4FrameTopLeft, text="Rank Violation")
     rankViolationLabel.pack()
 
-    listRankViolation = tk.Listbox(page3FrameTopLeft, selectmode = "single", width = 50, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listRankViolation = tk.Listbox(page4FrameTopLeft, selectmode = "single", width = 50, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listRankViolation.insert(0, "Randomize Rank Violation")
     listRankViolation.insert(1, "Vanilla Rank Violation")
     listRankViolation.insert(2, "Guarantee Rank Violation early")
     listRankViolation.selection_set(0)
     listRankViolation.pack()
     
-    earlyMiracleLabel = tk.Label(page3FrameTopRight, text="Miracles to guarantee early")
+    earlyMiracleLabel = tk.Label(page4FrameTopRight, text="Miracles to guarantee early")
     earlyMiracleLabel.pack()
 
-    listEarlyMiracle = tk.Listbox(page3FrameTopRight, selectmode = "multiple", width = 50, height=8, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listEarlyMiracle = tk.Listbox(page4FrameTopRight, selectmode = "multiple", width = 50, height=8, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listEarlyMiracle.insert(0, "First Divine Garrison")
     listEarlyMiracle.insert(1, "Forestall")
     listEarlyMiracle.insert(2, "Empowering Cheer 1")
@@ -486,37 +531,39 @@ def createGUI(configSettings: Settings):
             
     listMiracle.bind("<<ListboxSelect>>", toggleMiracleListboxes)
     
-    uniqueSkillAnimationsNote = tk.Label(page3FrameBottomLeft, text="If the wrong demon uses a unique skill, \nthe game will hang until the skip animations button is pressed.\n"
+    uniqueSkillAnimationsNote = tk.Label(page4FrameBottomLeft, text="If the wrong demon uses a unique skill, \nthe game will hang until the skip animations button is pressed.\n"
                                          + "The 'Fix unique skill animations' patch replaces \nunique skill anims with normal skill anims to get around this.")
     uniqueSkillAnimationsNote.pack()
 
-    patchesLabel = tk.Label(page3FrameBottomLeft, text="Patches")
+    patchesLabel = tk.Label(page4FrameBottomLeft, text="Patches")
     patchesLabel.pack()
 
-    listPatches = tk.Listbox(page3FrameBottomLeft, selectmode = "multiple", width=50, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listPatches = tk.Listbox(page4FrameBottomLeft, selectmode = "multiple", width=50, height=5, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listPatches.insert(0, "Fix unique skill animations")
     listPatches.insert(1, "Buff guest Yuzuru to make first Labolas check easier")
     listPatches.insert(2, "Unlock all fusions from the start")
+    listPatches.insert(3, "Skip non-essential cutscenes (Up to end of first Da'at)")
+    listPatches.insert(4, "Only Remove Tutorials")
     listPatches.pack()
     
-    expLabel = tk.Label(page3FrameBottomLeft, text="EXP Multiplier")
+    expLabel = tk.Label(page4FrameBottomLeft, text="EXP Multiplier")
     expLabel.pack()
     
-    expScale = tk.Scale(page3FrameBottomLeft, from_=1, to=2, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
+    expScale = tk.Scale(page4FrameBottomLeft, from_=1, to=2, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
     expScale.set(1)
     expScale.pack()
 
-    expLabel = tk.Label(page3FrameBottomLeft, text="Chance for basic enemies to receive additional press turns")
+    expLabel = tk.Label(page4FrameBottomLeft, text="Chance for basic enemies to receive additional press turns")
     expLabel.pack()
 
-    pressTurnScale = tk.Scale(page3FrameBottomLeft, from_=0, to=1, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
-    pressTurnScale.set(0.1)
+    pressTurnScale = tk.Scale(page4FrameBottomLeft, from_=0, to=1, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
+    pressTurnScale.set(0.0)
     pressTurnScale.pack()
 
-    itemLabel = tk.Label(page3FrameBottomRight, text="Item Randomizer")
+    itemLabel = tk.Label(page4FrameBottomRight, text="Item Randomizer")
     itemLabel.pack()
 
-    listItem = tk.Listbox(page3FrameBottomRight, selectmode = "multiple", width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listItem = tk.Listbox(page4FrameBottomRight, selectmode = "multiple", width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listItem.insert(0, "Randomize Shop Items")
     listItem.insert(1, "Randomize Shop Essences")
     listItem.insert(2, "Randomize Enemy Drops")
@@ -529,10 +576,10 @@ def createGUI(configSettings: Settings):
     listItem.insert(9, "Include Tsukuyomi Talisman as Item Gift")
     listItem.pack()
 
-    naviLabel = tk.Label(page3FrameBottomRight, text="Demon Navigators")
+    naviLabel = tk.Label(page4FrameBottomRight, text="Demon Navigators")
     naviLabel.pack()
 
-    listNavi = tk.Listbox(page3FrameBottomRight, selectmode = "multiple", width = 75, height = 2, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listNavi = tk.Listbox(page4FrameBottomRight, selectmode = "multiple", width = 75, height = 2, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listNavi.insert(0, "Randomize Navigator Stats")
     listNavi.insert(1, "Navigator Model Swaps")
     listNavi.pack()
@@ -546,6 +593,8 @@ def createGUI(configSettings: Settings):
                 'FixUniqueSkillAnimations': ('Listbox', listPatches, 0),
                 'BuffGuestYuzuru': ('Listbox', listPatches, 1),
                 'UnlockFusions': ('Listbox', listPatches, 2),
+                'SkipCutscenes': ('Listbox', listPatches, 3),
+                'OnlySkipTutorials': ('Listbox', listPatches, 4),
             },
             'Demon': {
                 'RandomLevels': ('Listbox', listDemon, 0),
@@ -637,6 +686,17 @@ def createGUI(configSettings: Settings):
                'bossNoEarlyPhysImmunity': ('Listbox', listBossSettings, 7), 
 
                'RandomizeIshtarPressTurns': ('Checkbutton',ishtarRandomizeCheckbox),
+
+               'RandomizeBossSkills': ('Listbox', listBossSkills, 0),
+               'similiarBossSkillRank': ('Listbox', listBossSkills, 1),
+               'allowBossMagatsuhiSkill': ('Listbox', listBossSkills, 2),
+               'allowContemptOfGod': ('Listbox', listBossSkills, 3),
+               'elementCountConsistency': ('Listbox', listBossSkills, 4),
+               'fillEmptySlotsWithPassives': ('Listbox', listBossSkills, 5),
+
+               'alwaysCritical': ('Listbox_single', listMagatsuhiHarvest, 1),
+               'alwaysPierce': ('Listbox_single', listMagatsuhiHarvest, 2), 
+               'randomMagatsuhi': ('Listbox_single', listMagatsuhiHarvest, 3),  
             },
             'Miracle': {
                 'RandomMiracleUnlocks': ('Listbox', listMiracle, 0),
@@ -669,6 +729,7 @@ def createGUI(configSettings: Settings):
         listPunishing.selection_set(0)
         listSuperboss.selection_set(0)
         listMiniboss.selection_set(0)
+        listMagatsuhiHarvest.selection_set(0)
         listRankViolation.selection_set(0)
         toggleMiracleListboxes(None)
         toggleSkillScalingListbox(None)
@@ -761,6 +822,10 @@ def createGUI(configSettings: Settings):
         minibossChoice = listMiniboss.curselection()
         ishtarChoice = ishtarScale.get()
         bossTurnChoice = bossTurnScale.get()
+        bossSkillFlags = [False for i in range(listBossSkills.size())]
+        for i in listBossSkills.curselection():
+            bossSkillFlags[i] = True
+        magatsuhiHarvestChoice = listMagatsuhiHarvest.curselection()
         ishtarRandomizeChoice = randomIshtarPressTurnsVar.get()
         miracleFlags = [False for i in range(listMiracle.size())]
         for i in listMiracle.curselection():
@@ -949,6 +1014,26 @@ def createGUI(configSettings: Settings):
     configSettings.bossPressTurnChance = bossTurnChoice
     configur.set('Boss', 'BossPressTurnChance', str(bossTurnChoice))
 
+    configSettings.randomizeBossSkills = bossSkillFlags[0]
+    configur.set('Boss', 'RandomizeBossSkills', str(bossSkillFlags[0]).lower())
+    configSettings.similiarBossSkillRank = bossSkillFlags[1]
+    configur.set('Boss', 'similiarBossSkillRank', str(bossSkillFlags[1]).lower())
+    configSettings.allowBossMagatsuhiSkill = bossSkillFlags[2]
+    configur.set('Boss', 'allowBossMagatsuhiSkill', str(bossSkillFlags[2]).lower())
+    configSettings.allowContemptOfGod = bossSkillFlags[3]
+    configur.set('Boss', 'allowContemptOfGod', str(bossSkillFlags[3]).lower())
+    configSettings.elementCountConsistency = bossSkillFlags[4]
+    configur.set('Boss', 'elementCountConsistency', str(bossSkillFlags[4]).lower())
+    configSettings.fillEmptySlotsWithPassives = bossSkillFlags[5]
+    configur.set('Boss', 'fillEmptySlotsWithPassives', str(bossSkillFlags[5]).lower())
+
+    configSettings.alwaysCritical = bool(magatsuhiHarvestChoice and magatsuhiHarvestChoice[0] == 1)
+    configur.set('Boss', 'alwaysCritical', str(configSettings.alwaysCritical).lower())
+    configSettings.alwaysPierce = bool(magatsuhiHarvestChoice and magatsuhiHarvestChoice[0] == 2)
+    configur.set('Boss', 'alwaysPierce', str(configSettings.alwaysPierce).lower())
+    configSettings.randomMagatsuhi = bool(magatsuhiHarvestChoice and magatsuhiHarvestChoice[0] == 3)
+    configur.set('Boss', 'randomMagatsuhi', str(configSettings.randomMagatsuhi).lower())
+
     configSettings.randomMiracleUnlocks = miracleFlags[0]
     configur.set('Miracle', 'RandomMiracleUnlocks', str(miracleFlags[0]).lower())
     configSettings.randomMiracleCosts = miracleFlags[1]
@@ -1020,6 +1105,10 @@ def createGUI(configSettings: Settings):
     configur.set('Patches', 'BuffGuestYuzuru', str(patchFlags[1]).lower())
     configSettings.unlockFusions = patchFlags[2]
     configur.set('Patches', 'UnlockFusions', str(patchFlags[2]).lower())
+    configSettings.removeCutscenes = patchFlags[3]
+    configur.set('Patches', 'SkipCutscenes', str(patchFlags[3]).lower())
+    configSettings.skipTutorials = patchFlags[4]
+    configur.set('Patches', 'OnlySkipTutorials', str(patchFlags[4]).lower())
         
     configSettings.expMultiplier = expChoice
     configur.set('Patches', 'EXPMultiplier', str(expChoice))
@@ -1051,8 +1140,11 @@ def createConfigFile(configur):
                                  'OverworldBossesSelf': False, 'OverworldBossesMixed': False, 'SuperbossesSelf': False, 'SuperbossesMixed': False,
                                  'MinibossesSelf': False, 'MinibossesMixed': False, 'ScaleBossDamage': False, 'ScalePressTurns': False, 'IshtarPressTurns': 3,
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
-                                 'ScaleInstakillRates': False, 'bossNoEarlyPhysImmunity': False, 'BossPressTurnChance': 0.0}
-    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.1, 'UnlockFusions': False, 'swapCutsceneModels': False}
+                                 'ScaleInstakillRates': False, 'bossNoEarlyPhysImmunity': False, 'BossPressTurnChance': 0.0, 'RandomizeBossSkills': False,
+                                 'alwaysCritical': False,'alwaysPierce': False,'randomMagatsuhi': False,'similiarBossSkillRank':False,'allowBossMagatsuhiSkill':False,
+                                 'allowContemptOfGod':False, 'elementCountConsistency': False, 'fillEmptySlotsWithPassives':False}
+    configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.0, 'UnlockFusions': False, 'swapCutsceneModels': False,
+                           'SkipCutscenes': False, 'OnlySkipTutorials': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
                         'EarlyEmpoweringCheer': False, 'EarlyDivineAmalgamation': False, 'EarlyDivineGarrison': False, 'EarlyDemonProficiency': False,
                         'EarlyDivineProficiency': False, 'EarlyArtOfEssences': False, 'EarlyRankViolation': False, 'EarlyInheritenceViolation': False}
