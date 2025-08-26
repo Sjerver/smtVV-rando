@@ -983,13 +983,8 @@ def createGUI(configSettings: Settings):
     configur.set('Boss', 'NerfBossHealing', str(bossFlags[5]).lower())
     configSettings.scaleBossInstakillRates = bossFlags[6]
     configur.set('Boss', 'ScaleInstakillRates', str(bossFlags[6]).lower())
-
-    configSettings.bossNoEarlyPhysImmunity = bool(passiveChoice and passiveChoice[0] == 1)
-    configur.set('Boss', 'bossNoEarlyPhysImmunity', str(configSettings.bossNoEarlyPhysImmunity).lower())
-    configSettings.scalePassiveAmount = bool(passiveChoice and passiveChoice[0] == 2)
-    configur.set('Boss', 'scalePassiveAmount', str(configSettings.scalePassiveAmount).lower())
-    configSettings.scalePassiveLevelGap = bool(passiveChoice and passiveChoice[0] == 2)
-    configur.set('Boss', 'scalePassiveAmount', str(configSettings.scalePassiveAmount).lower())
+    configSettings.bossNoEarlyPhysImmunity = bossFlags[7]
+    configur.set('Boss', 'BossNoEarlyPhysImmunity', str(bossFlags[7]).lower())
 
     configSettings.selfRandomizeNormalBosses = bool(normalBossChoice and normalBossChoice[0] == 1)
     configur.set('Boss', 'NormalBossesSelf', str(configSettings.selfRandomizeNormalBosses).lower())
@@ -1044,9 +1039,14 @@ def createGUI(configSettings: Settings):
     configur.set('Boss', 'allowContemptOfGod', str(bossSkillFlags[3]).lower())
     configSettings.elementCountConsistency = bossSkillFlags[4]
     configur.set('Boss', 'elementCountConsistency', str(bossSkillFlags[4]).lower())
-    configSettings.fillEmptySlotsWithPassives = bossSkillFlags[5]
-    configur.set('Boss', 'fillEmptySlotsWithPassives', str(bossSkillFlags[5]).lower())
 
+    configSettings.fillEmptySlotsWithPassives = bool(passiveChoice and passiveChoice[0] == 1)
+    configur.set('Boss', 'fillEmptySlotsWithPassives', str(configSettings.fillEmptySlotsWithPassives).lower())
+    configSettings.scalePassiveAmount = bool(passiveChoice and passiveChoice[0] == 2)
+    configur.set('Boss', 'scalePassiveAmount', str(configSettings.scalePassiveAmount).lower())
+    configSettings.scalePassiveLevelGap = bool(passiveChoice and passiveChoice[0] == 2)
+    configur.set('Boss', 'scalePassiveAmount', str(configSettings.scalePassiveAmount).lower())
+    
     configSettings.alwaysCritical = bool(magatsuhiHarvestChoice and magatsuhiHarvestChoice[0] == 1)
     configur.set('Boss', 'alwaysCritical', str(configSettings.alwaysCritical).lower())
     configSettings.alwaysPierce = bool(magatsuhiHarvestChoice and magatsuhiHarvestChoice[0] == 2)

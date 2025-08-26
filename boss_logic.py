@@ -386,6 +386,7 @@ def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonRefe
         else:
             replacementDemon.experience = 0
             replacementDemon.money = 0
+        ogLevel = replacementDemon.level
         replacementDemon.level = referenceDemon.level
         replacementDemon.damageMultiplier = referenceDemon.damageMultiplier
         #TODO: Consider Resist Sum penalty if more demons in new encounter (or bonus if less?)
@@ -393,7 +394,7 @@ def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonRefe
             replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
             replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
-        changeBossSkills(replacementDemon, skillReplacementMap, configSettings)
+        changeBossSkills(replacementDemon, skillReplacementMap, configSettings, ogLevel)
         adjustForResistSkills(replacementDemon)
 
 
