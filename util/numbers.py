@@ -491,7 +491,7 @@ VIRTUAL_MARA_DEMON = 893
 VIRTUAL_MARA_ENCOUNTER = 45
 
 #Event Encounter Ids of bosses that appear up until and including Hydra
-EARLY_STORY_EVENT_ENCOUNTERS = [87, 134, 33] #Glasya-Labolas, 3 Pretas, Hydra
+EARLY_STORY_EVENT_ENCOUNTERS = [135, 134, 33] #Glasya-Labolas, 3 Pretas, Hydra
 
 #Lilith, Tehom, and Mastema's music starts playing in a cutscene, so their track is set to 255 instead of their actual music
 BOSS_TRACK_FIX_MAP = {
