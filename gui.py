@@ -474,8 +474,18 @@ def createGUI(configSettings: Settings):
     listBossSkills.insert(2, "Allow Magatsuhi Skills")
     listBossSkills.insert(3, "Allow Contempt of God")
     listBossSkills.insert(4, "Preserve Elemental Slots per Boss")
-    listBossSkills.insert(5, "Fill Empty Slots with Passives")
     listBossSkills.pack()
+
+    passiveLabel = tk.Label(page3FrameLeft, text="Additional Passive Skills on Bosses")
+    passiveLabel.pack()
+
+    listPassive = tk.Listbox(page3FrameLeft,selectmode= "single",height=4, width = 50,exportselection=False, selectbackground = VENGEANCE_PURPLE)
+    listPassive.insert(0, "None")
+    listPassive.insert(1, "Fill Up All Empty Slots")
+    listPassive.insert(2, "Game Progression Scaling")
+    listPassive.insert(3, "Level Gap Scaling")
+    listPassive.selection_set(0)
+    listPassive.pack()
 
     magatsuhiHarvestLabel = tk.Label(page3FrameRight, text="Generic Boss Magatsuhi")
     magatsuhiHarvestLabel.pack()
@@ -692,7 +702,10 @@ def createGUI(configSettings: Settings):
                'allowBossMagatsuhiSkill': ('Listbox', listBossSkills, 2),
                'allowContemptOfGod': ('Listbox', listBossSkills, 3),
                'elementCountConsistency': ('Listbox', listBossSkills, 4),
-               'fillEmptySlotsWithPassives': ('Listbox', listBossSkills, 5),
+
+               'fillEmptySlotsWithPassives': ('Listbox_single', listPassive, 1),
+               'scalePassiveAmount': ('Listbox_single', listPassive, 2),
+               'scalePassiveLevelGap': ('Listbox_single', listPassive, 3),
 
                'alwaysCritical': ('Listbox_single', listMagatsuhiHarvest, 1),
                'alwaysPierce': ('Listbox_single', listMagatsuhiHarvest, 2), 
@@ -729,6 +742,7 @@ def createGUI(configSettings: Settings):
         listPunishing.selection_set(0)
         listSuperboss.selection_set(0)
         listMiniboss.selection_set(0)
+        listPassive.selection_set(0)
         listMagatsuhiHarvest.selection_set(0)
         listRankViolation.selection_set(0)
         toggleMiracleListboxes(None)
@@ -825,6 +839,7 @@ def createGUI(configSettings: Settings):
         bossSkillFlags = [False for i in range(listBossSkills.size())]
         for i in listBossSkills.curselection():
             bossSkillFlags[i] = True
+        passiveChoice = listPassive.curselection()
         magatsuhiHarvestChoice = listMagatsuhiHarvest.curselection()
         ishtarRandomizeChoice = randomIshtarPressTurnsVar.get()
         miracleFlags = [False for i in range(listMiracle.size())]
@@ -968,8 +983,13 @@ def createGUI(configSettings: Settings):
     configur.set('Boss', 'NerfBossHealing', str(bossFlags[5]).lower())
     configSettings.scaleBossInstakillRates = bossFlags[6]
     configur.set('Boss', 'ScaleInstakillRates', str(bossFlags[6]).lower())
-    configSettings.bossNoEarlyPhysImmunity = bossFlags[7]
-    configur.set('Boss', 'bossNoEarlyPhysImmunity', str(bossFlags[7]).lower())
+
+    configSettings.bossNoEarlyPhysImmunity = bool(passiveChoice and passiveChoice[0] == 1)
+    configur.set('Boss', 'bossNoEarlyPhysImmunity', str(configSettings.bossNoEarlyPhysImmunity).lower())
+    configSettings.scalePassiveAmount = bool(passiveChoice and passiveChoice[0] == 2)
+    configur.set('Boss', 'scalePassiveAmount', str(configSettings.scalePassiveAmount).lower())
+    configSettings.scalePassiveLevelGap = bool(passiveChoice and passiveChoice[0] == 2)
+    configur.set('Boss', 'scalePassiveAmount', str(configSettings.scalePassiveAmount).lower())
 
     configSettings.selfRandomizeNormalBosses = bool(normalBossChoice and normalBossChoice[0] == 1)
     configur.set('Boss', 'NormalBossesSelf', str(configSettings.selfRandomizeNormalBosses).lower())
@@ -1142,7 +1162,7 @@ def createConfigFile(configur):
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
                                  'ScaleInstakillRates': False, 'bossNoEarlyPhysImmunity': False, 'BossPressTurnChance': 0.0, 'RandomizeBossSkills': False,
                                  'alwaysCritical': False,'alwaysPierce': False,'randomMagatsuhi': False,'similiarBossSkillRank':False,'allowBossMagatsuhiSkill':False,
-                                 'allowContemptOfGod':False, 'elementCountConsistency': False, 'fillEmptySlotsWithPassives':False}
+                                 'allowContemptOfGod':False, 'elementCountConsistency': False, 'fillEmptySlotsWithPassives':False, 'scalePassiveAmount': False, 'scalePassiveLevelGap': False}
     configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.0, 'UnlockFusions': False, 'swapCutsceneModels': False,
                            'SkipCutscenes': False, 'OnlySkipTutorials': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,
