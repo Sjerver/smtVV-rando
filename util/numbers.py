@@ -503,7 +503,9 @@ EARLY_BOSS_LEVEL_LIMIT = 16 #Hydra+1
 PHYS_IMMUNE_BOSSES = [630,827,626,928,890,828,932,621] #Siegfried(Abcess),Giri,Rangda,Mother Harlot,Gogmagog,Arahabaki,Mephisto,Slime(Abcess)
 
 #IDs of enemy only healing skills that heal more than the player versions
-ENEMY_HEALING_SKILL_IDS = [103, 104, 105, 106, 352, 353, 354, 355, 381, 382, 383, 384, 385, 386, 850, 852, 856, 887, 888]
+ENEMY_HEALING_SKILL_IDS = [103, 104, 105, 106, 352, 353, 354, 355, 381, 382, 383, 384, 385, 386, 850, 852, 856, 887, 888,
+                            890 #Healing Part of Qadistu Entropy Boss Version
+]
 
 #Skill ID of Lunation Flux which should be restricted more than other unique skills
 LUNATION_FLUX_ID = 927
