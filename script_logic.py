@@ -1067,6 +1067,8 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
             #Miman Tutorial
             "MAP_FLAG_P_EM0018","script_m061_mm_009",
 
+            #TODO: Move Triple Preta Hint to Post Talk Tutorial to be able to skip SkyView Tutorial
+
             #Tutorials (Slash, UniqueSymbol,AogamiDebris)
             "script_m061_mm_011","script_m061_mm_030","MAP_FLAG_E2006",
 
@@ -1142,6 +1144,10 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
         "script_m061_mm_013", "MAP_FLAG_P_EM0012", "scriptflagp0514_Magatsuro", "scriptflagp0518_Magatsuro_P",
         "scriptflagp0516_MagaDevil","scriptflagp0520_MagaDevil_P",
         "script_m061_mm_005","MAP_FLAG_P_EM0013",
+        "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock","sflag0012_CampQuestLock",
+        "sflag0021_JakyoLock","sflag0020_RyuketsuWarpLock","sflag0093_CoasterLock",
+        "sflag0030_GardenLock","sflag0109_GardenTutorial",
+        "pflag0018_NaviTutorial_Outer","pflag0019_NaviTutorial_Inner","MAP_FLAG_MagatsuhiDevilLock",
     ]
 
     for script,hookFuncs in SCRIPTS_TO_INSERT_INTO.items():
@@ -1210,33 +1216,33 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
         scriptFiles.writeFile(script,file)
 
     #Modify Event where Amanozako joins to not start Haunt Tutorial
-    script = "MM_M061_EM0182"
-    file = scriptFiles.getFile(script)
-
-
-    file.jsonReverseFlagSetting("sflag0109_GardenTutorial")
-
-    #file.updateFileWithJson(jsonData)
-    scriptFiles.setFile(script,file)
-
-
-    #Modify Event that stops you from moving past wihout entering Cadaver's Hollow 
-    mimanTutorialScripts = ["LV_MainMission_M061_P","LV_MainMission_M061","EM_M061_MimanTutorial_Stop"]
-    for script in mimanTutorialScripts:
-        #script = "BP_ShopEvent"
+    if configSettings.skipTutorials:
+        script = "MM_M061_EM0182"
         file = scriptFiles.getFile(script)
-        jsonData = file.json
 
-        flag = "sflag0018_FirstShop" #Doesn't really matter which flag as long as it is guaranteed to be true
-        if flag not in  jsonData["NameMap"]:
-            jsonData["NameMap"].append(flag)
 
-        file.jsonReplaceFlag("script_m061_mm_014_2",flag,modifyCheck = True)
+        file.jsonReverseFlagSetting("sflag0109_GardenTutorial")
+
         #file.updateFileWithJson(jsonData)
         scriptFiles.setFile(script,file)
+ 
+        #Modify Event that stops you from moving past wihout entering Cadaver's Hollow 
+        mimanTutorialScripts = ["LV_MainMission_M061_P","LV_MainMission_M061","EM_M061_MimanTutorial_Stop"]
+        for script in mimanTutorialScripts:
+            #script = "BP_ShopEvent"
+            file = scriptFiles.getFile(script)
+            jsonData = file.json
+
+            flag = "sflag0018_FirstShop" #Doesn't really matter which flag as long as it is guaranteed to be true
+            if flag not in  jsonData["NameMap"]:
+                jsonData["NameMap"].append(flag)
+
+            file.jsonReplaceFlag("script_m061_mm_014_2",flag,modifyCheck = True)
+            #file.updateFileWithJson(jsonData)
+            scriptFiles.setFile(script,file)
 
     return scriptFiles
 
-#TODO: Can increase skip step by 1 for LV_EXXX files so movie events skip to choices immediately instead of the line before them
+#TODO: Can increase skip step by 1 for LV_EXXX files so movie events skip to choices immediately instead of the line before them, though akward to look at
 #TODO: Add code that makes the needed modification to route choice cutscene, instaed of using preedited file
     
