@@ -1067,7 +1067,8 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
             #Miman Tutorial
             "MAP_FLAG_P_EM0018","script_m061_mm_009",
 
-            #TODO: Move Triple Preta Hint to Post Talk Tutorial to be able to skip SkyView Tutorial
+            #Skyview Tutorial
+            "scriptflagp0513_SkyView","scriptflagp0517_SkyView_P",
 
             #Tutorials (Slash, UniqueSymbol,AogamiDebris)
             "script_m061_mm_011","script_m061_mm_030","MAP_FLAG_E2006",
@@ -1148,6 +1149,7 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
         "sflag0021_JakyoLock","sflag0020_RyuketsuWarpLock","sflag0093_CoasterLock",
         "sflag0030_GardenLock","sflag0109_GardenTutorial",
         "pflag0018_NaviTutorial_Outer","pflag0019_NaviTutorial_Inner","MAP_FLAG_MagatsuhiDevilLock",
+        "scriptflagp0513_SkyView","scriptflagp0517_SkyView_P",
     ]
 
     for script,hookFuncs in SCRIPTS_TO_INSERT_INTO.items():
