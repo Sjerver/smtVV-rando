@@ -9,7 +9,7 @@ Balance:
 Bugfixes:
 * Fixed Glasya-Labolas encounter not counting as an early boss encounter
 * Fixed the healing of the boss version of Qadistu Entropy not being nerfed as part of "Nerf bosses' healing skills"
-* Fixed magatushi gauge being locked permanently if Tutorials are skipped but not other cutscenes
+* Fixed magatsuhi gauge being locked permanently if Tutorials are skipped but not other cutscenes
 
 Version 1.05
 Features:
