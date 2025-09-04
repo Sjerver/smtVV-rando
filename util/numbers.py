@@ -491,7 +491,7 @@ VIRTUAL_MARA_DEMON = 893
 VIRTUAL_MARA_ENCOUNTER = 45
 
 #Event Encounter Ids of bosses that appear up until and including Hydra
-EARLY_STORY_EVENT_ENCOUNTERS = [87, 134, 33] #Glasya-Labolas, 3 Pretas, Hydra
+EARLY_STORY_EVENT_ENCOUNTERS = [135, 134, 33] #Glasya-Labolas, 3 Pretas, Hydra
 
 #Lilith, Tehom, and Mastema's music starts playing in a cutscene, so their track is set to 255 instead of their actual music
 BOSS_TRACK_FIX_MAP = {
@@ -503,7 +503,9 @@ EARLY_BOSS_LEVEL_LIMIT = 16 #Hydra+1
 PHYS_IMMUNE_BOSSES = [630,827,626,928,890,828,932,621] #Siegfried(Abcess),Giri,Rangda,Mother Harlot,Gogmagog,Arahabaki,Mephisto,Slime(Abcess)
 
 #IDs of enemy only healing skills that heal more than the player versions
-ENEMY_HEALING_SKILL_IDS = [103, 104, 105, 106, 352, 353, 354, 355, 381, 382, 383, 384, 385, 386, 850, 852, 856, 887, 888]
+ENEMY_HEALING_SKILL_IDS = [103, 104, 105, 106, 352, 353, 354, 355, 381, 382, 383, 384, 385, 386, 850, 852, 856, 887, 888,
+                            890 #Healing Part of Qadistu Entropy Boss Version
+]
 
 #Skill ID of Lunation Flux which should be restricted more than other unique skills
 LUNATION_FLUX_ID = 927

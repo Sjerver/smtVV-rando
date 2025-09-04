@@ -625,7 +625,7 @@ EVENT_CHECKS_ORIGINAL_IDS = {
     'e0715': [(2, 467, 0)],#Creation Abdiel
     'e0825': [(7, 477, 0)],#Metatron
     'e1001': [(3, 537, 9), (10, 537, 19), (11, 529, 20)],#Lucifer
-    'e2005': [(1, 431, 0)],#Triple Preta
+    'em0015': [(26, 431, 0)],#Triple Preta
     'em0181': [(2, 552, 21)],#Labolas 1
     'e2019': [(3, 553, 27)],#Naamah 1
     'e2060': [(8, 554, 28)],#Naamah 2
