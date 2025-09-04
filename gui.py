@@ -1044,8 +1044,8 @@ def createGUI(configSettings: Settings):
     configur.set('Boss', 'fillEmptySlotsWithPassives', str(configSettings.fillEmptySlotsWithPassives).lower())
     configSettings.scalePassiveAmount = bool(passiveChoice and passiveChoice[0] == 2)
     configur.set('Boss', 'scalePassiveAmount', str(configSettings.scalePassiveAmount).lower())
-    configSettings.scalePassiveLevelGap = bool(passiveChoice and passiveChoice[0] == 2)
-    configur.set('Boss', 'scalePassiveAmount', str(configSettings.scalePassiveAmount).lower())
+    configSettings.scalePassiveLevelGap = bool(passiveChoice and passiveChoice[0] == 3)
+    configur.set('Boss', 'scalePassiveLevelGap', str(configSettings.scalePassiveLevelGap).lower())
     
     configSettings.alwaysCritical = bool(magatsuhiHarvestChoice and magatsuhiHarvestChoice[0] == 1)
     configur.set('Boss', 'alwaysCritical', str(configSettings.alwaysCritical).lower())

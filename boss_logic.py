@@ -1474,7 +1474,8 @@ def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Setti
             maxSkillAmount += (demon.level) // 16
             # every 16 levels is chosen because that is after Hydra
         elif configSettings.scalePassiveLevelGap:
-            maxSkillAmount += max(0,(demon.level - ogLevel) // 16)
+            # every 12 levels so that the 3 Preta have a full skill list when replacing a level 99 boss
+            maxSkillAmount += max(0,(demon.level - ogLevel) // 12)
         maxSkillAmount = min(8,maxSkillAmount)
 
         while len(demon.skills) < maxSkillAmount:
