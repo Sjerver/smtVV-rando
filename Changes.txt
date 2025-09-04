@@ -2,6 +2,9 @@ Version 1.05.01
 Features:
 * Additional boss passives now have more options to control the amount
 
+Balance:
+* Bosses can no longer receive Enduring Soul as an additional passive
+
 Bugfixes:
 * Fixed Glasya-Labolas encounter not counting as an early boss encounter
 * Fixed the healing of the boss version of Qadistu Entropy not being nerfed as part of "Nerf bosses' healing skills"

@@ -175,7 +175,8 @@ UNCHANGEABLE_SKILLS = [
 
 #List of passives banned from being added to bosses
 BANNED_PASSIVES = [
-    429,430,431,432,439,440,441,442,464,465,477,511 #Life Aid x2, Mana Aid x2, Mana Spring x2, Curse Siphon x2, Restore x2, Inspiring Leader, Lightning Pulse
+    429,430,431,432,439,440,441,442,464,465,477,511, #Life Aid x2, Mana Aid x2, Mana Spring x2, Curse Siphon x2, Restore x2, Inspiring Leader, Lightning Pulse
+    444 #Enduring Soul
 ]
 
 #Ids of passives that manipulate poison damage
