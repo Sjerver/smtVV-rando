@@ -1245,7 +1245,6 @@ Change the skills of a boss demon, including randomization and extra passives.
         refDemon(Enemy_Demon): the demon who is the reference for a duplicate revival demon
 '''                    
 def changeBossSkills(demon, skillReplacementMap, configSettings: Settings,ogLevel, refDemon = None):
-
     if configSettings.randomizeBossSkills:
         randomizeSkills(demon, skillReplacementMap, configSettings)
     if configSettings.fillEmptySlotsWithPassives or configSettings.scalePassiveAmount or configSettings.scalePassiveLevelGap:

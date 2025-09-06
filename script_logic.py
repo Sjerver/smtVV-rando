@@ -993,13 +993,15 @@ def aiUpdate(skillReplacementMap, bossArr, scriptFiles):
         #print(demon.name + " " + ai)
 
         for fileName in fileNames:
+            #print(bossArr[demonID].name + " [" + str(demonID) + "]")
             if fileName in scriptFiles.fileNames:
+                #print("Skippd" + bossArr[demonID].name + " [" + str(demonID) + "]")
                 #To prevent chain replacements for bosses that use the same AI (example: Abdiel in CoC/CoV)
                 continue
             file = scriptFiles.getFile(fileName)
             infoDict.update({demon.name + "(" + str(demon.ind) + ")" + " " + fileName  : updateSkillsInAIScript(file,skillReplacementMap[demonID],fileName)})
             scriptFiles.setFile(fileName,file)
-            scriptFiles.writeFile(fileName,file)
+            #scriptFiles.writeFile(fileName,file)
 
     for fileName, replacements in storeNkm.items():
         file = scriptFiles.getFile(fileName)
