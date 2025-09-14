@@ -7323,10 +7323,8 @@ class Randomizer:
             self.patchMissingBossMusic()
         self.removeIshtarCopies()
         self.syncMaras()
-
-        if self.configSettings.randomizeBossSkills:
-            bossLogic.prepareSkillRando(self.skillArr,self.passiveSkillArr, self.innateSkillArr,self.configSettings)
-
+       
+        bossLogic.prepareSkillRando(self.skillArr,self.passiveSkillArr, self.innateSkillArr,self.configSettings)
         self.randomizeBosses()
 
         #pprint(bossLogic.resistProfiles)
