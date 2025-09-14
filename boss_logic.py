@@ -901,9 +901,9 @@ def randomizeBossResistances(replacementDemon, referenceDemon, checkSums, config
         endResist = replacementDemon.resist
     elif configSettings.playerResistSync and replacementDemon.ind in BOSS_PLAYER_MAP.keys():
         if BOSS_PLAYER_MAP[replacementDemon.ind] > len(compendium):
-            endResist = playerBossArr[BOSS_PLAYER_MAP[replacementDemon.ind]].resist
+            endResist = copy.deepcopy(playerBossArr[BOSS_PLAYER_MAP[replacementDemon.ind]].resist)
         else:
-            endResist = compendium[BOSS_PLAYER_MAP[replacementDemon.ind]].resist
+            endResist = copy.deepcopy(compendium[BOSS_PLAYER_MAP[replacementDemon.ind]].resist)
     else:
     
         if len(TOTAL_BOSS_RESIST_MAP) == 0:
