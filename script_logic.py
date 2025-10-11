@@ -1034,41 +1034,35 @@ Set certain event flags early in order to skip events/tutorials.
 '''
 def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSettings: Settings):
 
-    FLAGLIST = {
-        "MM_M0082_E0171_First": [        
-            #School NPC Events
+    #TODO: Maybe move these somewhere else?
+    FLAGGROUPS = {
+        "npc_school": [
             "MAP_FLAG_P_E0171","MAP_FLAG_P_E0172","MAP_FLAG_P_E0173","MAP_FLAG_P_E0170_Finish",
             "MAP_FLAG_E0171","MAP_FLAG_E0172","MAP_FLAG_E0173","MAP_FLAG_E0170_Finish",
             #These Do not change anything, maybe something missing to trigger Yuzuru Meeting event automatically? If even possible this way
             # "MAP_FLAG_E0171_Finish","MAP_FLAG_P_E0171_Finish",
             # "MAP_FLAG_P_E0174","MAP_FLAG_E0174",
-            #Events between leaving School and entering Dazai Tunnel
+        ],
+        "pre_dazai_tunnel": [
             "MAP_FLAG_E0186",
             "MAP_FLAG_P_E0186",
             "MAP_FLAG_E0190","MAP_FLAG_E0190_npc", "MAP_FLAG_E0192", "MAP_FLAG_E0191","MAP_FLAG_E0195",
             "MAP_FLAG_P_E0190","MAP_FLAG_P_E0191","MAP_FLAG_P_E0192","MAP_FLAG_P_E0195",
-        
-
-            #Early Tutorials in Minato up to after the Treasure
+        ],
+        "first_stretch_tutorials": [
             "script_m061_mm_018",
             "script_m061_mm_019", #Magatsuhi Crystal Tutorial
             "script_m061_mm_020","script_m061_mm_021","script_m061_mm_026",
-            #Early Tutorials in Minato up to after the Treasure (CoV)
             "MAP_FLAG_P_EM0002",#Magatsuhi Crystal Tutorial
             "MAP_FLAG_P_EM0001","MAP_FLAG_P_EM0003","MAP_FLAG_P_EM0004","MAP_FLAG_P_EM0005",
-
-            #Lay of the Land Start Event
-            "script_m061_mm_001","MAP_FLAG_P_EM0010",
-
-            #First Shop, Leyline Fount Tutorial 
-            "sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014",
-
-            #Miman Tutorial Stop  
+        ],
+        "lay_of_the_land": ["script_m061_mm_001","MAP_FLAG_P_EM0010",],
+        "first_leyline": ["sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014",],
+        "miman_tutorial": [
             "script_m061_mm_014",#"script_m061_mm_014_2", #This one is also responsible for the 1 miman reward scene, by not skipping it the first visit to Gustave gives reward immediately
-
-            #Miman Tutorial
             "MAP_FLAG_P_EM0018","script_m061_mm_009",
-
+            ],
+        "tutorial_group_2": [
             #Skyview Tutorial
             "scriptflagp0513_SkyView","scriptflagp0517_SkyView_P",
 
@@ -1077,49 +1071,43 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
 
             #Tutorials CoV (Slash, UniqueSymbol,AogamiDebris)
             "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020","MAP_FLAG_P_E2006",
-
-            #Mita Leyline Fount
-            "MAP_FLAG_P_E0250","MAP_FLAG_P_E0251","MAP_FLAG_P_E0243",
-            "script_m061_mm_012","script_m061_mm_016","MAP_FLAG_E0243",
-
             #Abcess Tutorial, Magatsu Rail (Vengeance too)
             "script_m061_mm_013", "MAP_FLAG_P_EM0012", "scriptflagp0514_Magatsuro", "scriptflagp0518_Magatsuro_P",
-
-            #CoC Yuzuru Train Event
-            "MAP_FLAG_E0260","script_m061_mm_004",
-            
             #Magatsuhi Demon Tutorial
             "scriptflagp0516_MagaDevil","scriptflagp0520_MagaDevil_P",
-
-            #Demon of the Tower
-            "script_m061_mm_031","MAP_FLAG_P_EM0021",
-            
-            #Various Tutorial Pop-ups #TODO I think these just decide which Tutorial to play? So no point?
-            "sflag0089_AmuletTutorial","sflag0090_AmuletTutorial",
-
             #Subquest Tutorial
             "script_m061_mm_005","MAP_FLAG_P_EM0013",
+            #Various Tutorial Pop-ups #TODO I think these just decide which Tutorial to play? So no point?
+            "sflag0089_AmuletTutorial","sflag0090_AmuletTutorial",
         ],
-        "MM_M061_EM0026": [ #EVent immediately after Hydra
+        "mita_leyline": ["MAP_FLAG_P_E0250","MAP_FLAG_P_E0251","MAP_FLAG_P_E0243",
+            "script_m061_mm_012","script_m061_mm_016","MAP_FLAG_E0243",
+            ],
+        "yuzuru_train": [
+            #CoC Yuzuru Train Event
+            "MAP_FLAG_E0260","script_m061_mm_004",
+        ],
+        "demon_of_tower": [
+            #Demon of the Tower
+            "script_m061_mm_031","MAP_FLAG_P_EM0021",
+        ],
+        "meeting_goko": [
             #Goko Meeting Movie
             "MAP_FLAG_E0300","MAP_FLAG_P_E0300",
             "MAP_FLAG_P_EM0027","script_m061_mm_024",
-
+        ],
+        "post_nuwa_1":[
             #Post Nuwa Dazai Scene
             #"MAP_FLAG_P_E0345","MAP_FLAG_E0345",
 
             #Zako Leaves Should not be skipped, but is triggered by  Post Nuwa Dazai Scene anyway
             #"script_m061_mm_002","MAP_FLAG_P_EM0019",
-
             #Arriving in Tokyo after Abdiel Scene
             #Re-investigate this since this way the simulator battles do not become available
             #"MAP_FLAG_E0360_es605",
             #"MAP_FLAG_E0360_0","MAP_FLAG_E0360","MAP_FLAG_E0360_es611","MAP_FLAG_E0360_es609",
-        ]
-    }
-
-    FALSE_FLAGS = {
-        "MM_M0082_E0171_First": [
+        ],
+        "false_tutorials_and_locks":[
             "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock","sflag0012_CampQuestLock",
             #Cathedral of Shadows, Leyline Travel, Rails
             "sflag0021_JakyoLock","sflag0020_RyuketsuWarpLock","sflag0093_CoasterLock",
@@ -1127,32 +1115,33 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
             "sflag0030_GardenLock","sflag0109_GardenTutorial",
             #Navi Tutorial, Magatsuhi Devil
             "pflag0018_NaviTutorial_Outer","pflag0019_NaviTutorial_Inner","MAP_FLAG_MagatsuhiDevilLock",
-        ],
-        "MM_M061_EM0026": [
-
-        ],
+        ]
     }
 
+    #Assining groups of flags to event scripts
+    EVENTGROUPS = {
+        "MM_M0082_E0171_First": [
+            "npc_school","pre_dazai_tunnel","first_stretch_tutorials","lay_of_the_land","first_leyline",
+            "miman_tutorial","tutorial_group_2","mita_leyline","yuzuru_train","demon_of_tower","false_tutorials_and_locks",
+            ],
+        "MM_M061_EM0026": [
+            "meeting_goko","post_nuwa_1"
+            ],
+    }
+
+    #Scripts and in which functions we can insert safely
     SCRIPTS_TO_INSERT_INTO = {
         "MM_M0082_E0171_First": ["ReceiveBeginPlay"],
         "MM_M061_EM0026": ["E2019_Event","EvtDis_Finish_Complete"],
         }
     
-    TUTORIAL_RELATED_FLAGS = [
-        "script_m061_mm_018","script_m061_mm_019","script_m061_mm_020","script_m061_mm_021","script_m061_mm_026","MAP_FLAG_P_EM0002",
-        "MAP_FLAG_P_EM0001","MAP_FLAG_P_EM0003","MAP_FLAG_P_EM0004","MAP_FLAG_P_EM0005",
-        "sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014","script_m061_mm_014",
-        "MAP_FLAG_P_EM0018","script_m061_mm_009","script_m061_mm_011","script_m061_mm_030","MAP_FLAG_E2006",
-        "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020","MAP_FLAG_P_E2006",
-        "script_m061_mm_013", "MAP_FLAG_P_EM0012", "scriptflagp0514_Magatsuro", "scriptflagp0518_Magatsuro_P",
-        "scriptflagp0516_MagaDevil","scriptflagp0520_MagaDevil_P",
-        "script_m061_mm_005","MAP_FLAG_P_EM0013",
-        "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock","sflag0012_CampQuestLock",
-        "sflag0021_JakyoLock","sflag0020_RyuketsuWarpLock","sflag0093_CoasterLock",
-        "sflag0030_GardenLock","sflag0109_GardenTutorial",
-        "pflag0018_NaviTutorial_Outer","pflag0019_NaviTutorial_Inner","MAP_FLAG_MagatsuhiDevilLock",
-        "scriptflagp0513_SkyView","scriptflagp0517_SkyView_P",
+    #Groups that are relevant for tutorials
+    TUTORIAL_GROUPS = [
+        "false_tutorials_and_locks","tutorial_group_2","miman_tutorial","first_stretch_tutorials","mita_leyline"
     ]
+
+    #TODO: Remove and instead check for tutorial groups later
+    TUTORIAL_RELATED_FLAGS = [flag for group in TUTORIAL_GROUPS for flag in FLAGGROUPS[group] ]
 
     for script,hookFuncs in SCRIPTS_TO_INSERT_INTO.items():
 
@@ -1172,7 +1161,6 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
         
         
         jsonData = file.json
-        
 
 
         for hookFunc in hookFuncs:
@@ -1184,8 +1172,8 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
             imp = "SetEventFlagValue"
             stackNode = -1 * file.importNameList.index(imp) -1
             
-
-            for flag in FLAGLIST[script]:
+            flaglist = [(flag,group) for group in EVENTGROUPS[script] for flag in FLAGGROUPS[group] ]
+            for flag,group in flaglist:
                 if flag not in eventFlagNames.keys():
                     continue
                 if not configSettings.skipTutorials and flag in TUTORIAL_RELATED_FLAGS or flag not in TUTORIAL_RELATED_FLAGS and not configSettings.removeCutscenes:
@@ -1197,22 +1185,10 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
                 nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
                 nameConst["Value"] = eventFlagNames[flag]
 
-                localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen()])
-                bytecode.json.insert(0,localFinalFunction)
-            
-            for flag in FALSE_FLAGS[script]:
-                if flag not in eventFlagNames.keys():
-                    continue
-                if not configSettings.skipTutorials and flag in TUTORIAL_RELATED_FLAGS or flag not in TUTORIAL_RELATED_FLAGS and not configSettings.removeCutscenes:
-                    continue
-
-                # if flag not in  jsonData["NameMap"]:
-                #     jsonData["NameMap"].append(flag)
-
-                nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
-                nameConst["Value"] = eventFlagNames[flag]
-
-                localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen(False)])
+                if "false" in group:
+                    localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen(False)])
+                else:
+                    localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen()])
                 bytecode.json.insert(0,localFinalFunction)
         
         file.updateFileWithJson(jsonData)
@@ -1247,6 +1223,6 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
 
     return scriptFiles
 
-#TODO: Can increase skip step by 1 for LV_EXXX files so movie events skip to choices immediately instead of the line before them, though akward to look at
+#TODO: Could increase skip step by 1 for LV_EXXX files so movie events skip to choices immediately instead of the line before them, though akward to look at
 #TODO: Add code that makes the needed modification to route choice cutscene, instaed of using preedited file
     
