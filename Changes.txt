@@ -1,6 +1,6 @@
 Version 1.052
 Bugfixes:
-* Fixed Cathedral of Shadows not being available if tutorials but not cutscenes are removed
+* Fixed certain leyline functions (Cathedral of Shadows, Leyline Crossing) not being available if tutorials but not cutscenes are removed
 * Fixed one of the two boss Abdiel's skills being incorrectly randomized showing the wrong skills in the menu
 * Fixed additional passives and boss magatsuhi skill requiring boss skills to be randomized
 * Fixed boss resist player sync not working correctly for demons that show up as part of multiple bosses
