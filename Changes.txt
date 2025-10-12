@@ -1,4 +1,7 @@
 Version 1.052
+Balance:
+* Updated potential weights in skill randomization so that negative potentials have an actual effect on it
+
 Bugfixes:
 * Fixed certain leyline functions (Cathedral of Shadows, Leyline Crossing) not being available if tutorials but not cutscenes are removed
 * Fixed one of the two boss Abdiel's skills being incorrectly randomized showing the wrong skills in the menu

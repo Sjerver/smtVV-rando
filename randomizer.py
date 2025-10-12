@@ -2600,9 +2600,19 @@ class Randomizer:
                         potentialType = realSkill.potentialType.translation
                         potentialValue = self.obtainPotentialByName(potentialType, potentials)
                         if potentialType == "Phys":
-                            probability *= (1 + math.ceil(potentialValue / (numbers.POTENTIAL_WEIGHT_MULITPLIER * 2)))
+                            bonus = (1 + (potentialValue / (numbers.POTENTIAL_WEIGHT_MULITPLIER * 1.5)))
+                            if potentialValue > 0:
+                                bonus += 0.55
+                            elif potentialValue < 0:
+                                bonus -= 0.25
+                            probability *= bonus
                         else:
-                            probability *= (1 + math.ceil(potentialValue / numbers.POTENTIAL_WEIGHT_MULITPLIER ))
+                            bonus = (1 + (potentialValue / numbers.POTENTIAL_WEIGHT_MULITPLIER ))
+                            if potentialValue > 0:
+                                bonus += 0.55
+                            elif potentialValue < 0:
+                                bonus -= 0.25
+                            probability *= bonus
                         if realSkill.skillType.value == 0 and demon.stats.str.start < demon.stats.mag.start:
                             probability = probability * numbers.SKILL_STAT_PENALTY_MULTIPLIER
                         elif realSkill.skillType.value == 1 and demon.stats.str.start > demon.stats.mag.start:
@@ -7295,7 +7305,8 @@ class Randomizer:
                 self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
         if self.configSettings.forceAllSkills:
             self.debugPrintUnassignedSkills(levelSkillList)
-        self.outputSkillSets() 
+        self.outputSkillSets()
+        #self.outputSkillPotentialDist()
 
         if config.randomInnates:
             self.assignRandomInnates(newComp)
@@ -7687,7 +7698,45 @@ class Randomizer:
                         skillString = skillString + translation.translateSkillID(skill.value, self.skillNames)+ "(" + str(skill.level) + ")" + "/"
                     file.write(skillString + "\n")
 
-
+    def outputSkillPotentialDist(self):
+        skillDist = {}
+        n = [-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9]
+        for g in n:
+            skillDist[g] = 0
+        sortedDemons = sorted(self.compendiumArr, key=lambda demon: demon.level.value)
+        for demon in sortedDemons:
+            potentials = demon.potential
+            if "NOT USED" in demon.name or demon.ind in numbers.INACCESSIBLE_DEMONS:
+                continue
+            for skill in demon.skills:
+                if skill.ind == 0:
+                    continue
+                realSkill = self.obtainSkillFromID(skill.ind)
+                skillStructure = self.determineSkillStructureByID(skill.ind)
+                if skillStructure == "Active":
+                    potentialType = realSkill.potentialType.translation
+                    potentialValue = self.obtainPotentialByName(potentialType, potentials)
+                    skillDist[potentialValue] += 1
+                else:
+                    skillDist[0] += 1
+            for skill in demon.learnedSkills:
+                if skill.ind == 0:
+                    continue
+                realSkill = self.obtainSkillFromID(skill.ind)
+                skillStructure = self.determineSkillStructureByID(skill.ind)
+                if skillStructure == "Active":
+                    potentialType = realSkill.potentialType.translation
+                    potentialValue = self.obtainPotentialByName(potentialType, potentials)
+                    skillDist[potentialValue] += 1
+                else:
+                    skillDist[0] += 1
+        total = 0
+        for p,v in skillDist.items():
+            total += v
+        for p,v in skillDist.items():
+            trueValue = v / total
+            skillDist[p] = format(trueValue,'.2%')
+        print(skillDist)
 
                     
 if __name__ == '__main__':
