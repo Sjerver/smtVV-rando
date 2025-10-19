@@ -7742,7 +7742,7 @@ class Randomizer:
 if __name__ == '__main__':
     rando = Randomizer()
     print('Warning: This is an early build of the randomizer and some things may not work as intended. Performance will be somewhat worse than vanilla SMTVV')
-    print('Welcome to the SMTVV Rando v1.05. This version was created with game version 1.03 and will likely not work with other versions of SMTVV')
+    print('Welcome to the SMTVV Rando v1.052. This version was created with game version 1.03 and will likely not work with other versions of SMTVV')
     try:
         rando.configSettings, rando.textSeed = gui.createGUI(rando.configSettings)
         if rando.configSettings.swapCutsceneModels:
