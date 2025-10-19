@@ -67,6 +67,8 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
     umapList = scriptFiles
     totalScripts = len(EVENT_SCRIPT_MODELS.keys())
     currentScriptIndex = 0
+    #TODO: If the director randomizes into huang long you get softlocked at the summit because there is no way to talk to him and therefore you can't progress.
+    #Not Replicable as of now.
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
         currentScriptIndex += 1
         replacementMap = {}

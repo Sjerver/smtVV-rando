@@ -196,3 +196,10 @@ BossID,BossName,SkillID,SkillName,ReplacementSkill,ReplacementName,SyncSkill,Syn
 937,Legion,139,Tetrakarn,0,Unused,0,Unused,939,Legion,
 937,Legion,119,Matarukaja,0,Unused,0,Unused,939,Legion,
 937,Legion,161,Heat Wave,0,Unused,0,Unused,939,Legion,
+467,Abdiel, 269, LightsDescent,0,Unused,0,Unused,564, Abdiel
+467,Abdiel, 173, PierceArmor,0,Unused,0,Unused,564, Abdiel
+467,Abdiel, 188, DarkSword,0,Unused,0,Unused,564, Abdiel
+467,Abdiel, 185, MyriadSlashes,0,Unused,0,Unused,564, Abdiel
+467,Abdiel, 5, Agidyne,0,Unused,0,Unused,564, Abdiel
+467,Abdiel, 11, Maragidyne,0,Unused,0,Unused,564, Abdiel
+467,Abdiel, 243, MightyCleave,0,Unused,0,Unused,564, Abdiel

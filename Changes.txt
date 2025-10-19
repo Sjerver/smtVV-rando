@@ -1,3 +1,13 @@
+Version 1.052
+Balance:
+* Updated potential weights in skill randomization so that negative potentials have an actual effect on it
+
+Bugfixes:
+* Fixed certain leyline functions (Cathedral of Shadows, Leyline Crossing) not being available if tutorials but not cutscenes are removed
+* Fixed one of the two boss Abdiel's skills being incorrectly randomized showing the wrong skills in the menu
+* Fixed additional passives and boss magatsuhi skill requiring boss skills to be randomized
+* Fixed boss resist player sync not working correctly for demons that show up as part of multiple bosses
+
 Version 1.051
 Features:
 * Additional boss passives now have more options to control the amount
@@ -9,7 +19,7 @@ Balance:
 Bugfixes:
 * Fixed Glasya-Labolas encounter not counting as an early boss encounter
 * Fixed the healing of the boss version of Qadistu Entropy not being nerfed as part of "Nerf bosses' healing skills"
-* Fixed magatushi gauge being locked permanently if Tutorials are skipped but not other cutscenes
+* Fixed magatsuhi gauge being locked permanently if Tutorials are skipped but not other cutscenes
 
 Version 1.05
 Features:
