@@ -2,7 +2,7 @@ from base_classes.script import Script_Function_Type,Script_Uasset,Bytecode,Seri
 from base_classes.file_lists import Script_File, Script_File_List
 from base_classes.demon_assets import Demon_Model, Position
 from util.binary_table import readBinaryTable
-from base_classes.model_swap_data import *
+from util.model_swap_data import *
 import util.paths as paths
 import util.numbers as numbers
 import util.jsonExports as jsonExports
