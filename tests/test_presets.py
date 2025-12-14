@@ -28,6 +28,8 @@ def setConfigSettings(configur):
     configSettings.randomDemonStats = obtainBooleanValue(configur.get('Demon', 'RandomDemonStats'))
     configSettings.reduceCompendiumCosts = obtainBooleanValue(configur.get('Demon', 'ReduceCompendiumCost'))
     configSettings.betterSpecialFusions = obtainBooleanValue(configur.get('Demon', 'BetterSpecialFusions'))
+    configSettings.swapGuestsWithDemons = obtainBooleanValue(configur.get('Demon', 'swapGuestsWithDemons'))
+
 
     configSettings.randomInnates = obtainBooleanValue(configur.get('Demon', 'RandomInnates'))
     configSettings.randomSkills = obtainBooleanValue(configur.get('Demon', 'RandomSkills'))
@@ -113,6 +115,8 @@ def setConfigSettings(configur):
     configSettings.allowContemptOfGod = obtainBooleanValue(configur.get('Boss', 'allowContemptOfGod'))
     configSettings.elementCountConsistency = obtainBooleanValue(configur.get('Boss', 'elementCountConsistency'))
     configSettings.fillEmptySlotsWithPassives = obtainBooleanValue(configur.get('Boss', 'fillEmptySlotsWithPassives'))
+    configSettings.scalePassiveAmount = obtainBooleanValue(configur.get('Boss', 'scalePassiveAmount'))
+    configSettings.scalePassiveLevelGap = obtainBooleanValue(configur.get('Boss', 'scalePassiveLevelGap'))
 
     configSettings.alwaysCritical = obtainBooleanValue(configur.get('Boss', 'alwaysCritical'))
     configSettings.alwaysPierce = obtainBooleanValue(configur.get('Boss', 'alwaysPierce'))
@@ -139,7 +143,7 @@ def setConfigSettings(configur):
     configSettings.buffGuestYuzuru = obtainBooleanValue(configur.get('Patches', 'BuffGuestYuzuru'))
     configSettings.unlockFusions = obtainBooleanValue(configur.get('Patches', 'UnlockFusions'))
     configSettings.removeCutscenes = obtainBooleanValue(configur.get('Patches', 'SkipCutscenes'))
-    configSettings.skipTutorials = obtainBooleanValue(configur.get('Patches', 'OnlySkipTutorials'))
+    configSettings.skipTutorials = obtainBooleanValue(configur.get('Patches', 'SkipTutorials'))
 
     configSettings.expMultiplier = float(configur.get('Patches', 'EXPMultiplier'))
     configSettings.pressTurnChance = float(configur.get('Patches', 'PressTurnChance'))

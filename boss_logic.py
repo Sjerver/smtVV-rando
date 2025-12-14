@@ -314,8 +314,9 @@ Balances the stats of boss demons, including summoned adds to their new location
         compendium (List(Compendium_Demon)): list of compendium demons
         playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
         skillReplacementMap (Dict): map of bosses and their skills and replacement skills
+        guestReplacements(Dict): map of guest and their replacments
 '''
-def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr, oldEncounterID, newEncounterID, configSettings, compendium, playerBossArr, skillReplacementMap):
+def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr, oldEncounterID, newEncounterID, configSettings, compendium, playerBossArr, skillReplacementMap, guestReplacements):
     balanceInstakillRates = configSettings.scaleBossInstakillRates
     
     oldEncounterData = Boss_Metadata(oldEncounter,oldEncounterID)
@@ -347,11 +348,11 @@ def balanceBossEncounter(oldEncounter, newEncounter, demonReferenceArr, bossArr,
         adjustInstakillRatesToCheck(oldEncounterData, newEncounterData, demonReferenceArr, bossArr)
     
     if oldEncounterData.minionType and newEncounterData.minionType:
-        balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr, skillReplacementMap)
+        balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr, skillReplacementMap, guestReplacements)
     elif oldEncounterData.partnerType and newEncounterData.partnerType:
-        balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr, skillReplacementMap)
+        balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr, skillReplacementMap, guestReplacements)
     else:
-        balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr, skillReplacementMap)
+        balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr, skillReplacementMap, guestReplacements)
 
 '''
 Balances two boss encoutners that don't meet any special cases like both having minions
@@ -368,8 +369,9 @@ If the old encounter has multiple 'strong' demons, stats for new demons will be 
             compendium (List(Compendium_Demon)): list of compendium demons
             playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
             skillReplacementMap (Dict): map of bosses and their skills and replacement skills
+            guestReplacements(Dict): map of guest and their replacments
 '''
-def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings , compendium, playerBossArr, skillReplacementMap):
+def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings , compendium, playerBossArr, skillReplacementMap, guestReplacements):
     oldHPPool = calculateHPPool(oldEncounterData, newEncounterData)
     newDemons = newEncounterData.getAllUniqueDemonsInEncounter()
     oldDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
@@ -392,9 +394,9 @@ def balanceMismatchedBossEncounter(oldEncounterData, newEncounterData, demonRefe
         replacementDemon.damageMultiplier = referenceDemon.damageMultiplier
         #TODO: Consider Resist Sum penalty if more demons in new encounter (or bonus if less?)
         if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
-            replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
+            replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr, guestReplacements)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
-            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr) 
+            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr, guestReplacements) 
         changeBossSkills(replacementDemon, skillReplacementMap, configSettings, ogLevel)
         adjustForResistSkills(replacementDemon)
 
@@ -412,8 +414,9 @@ Minion HP and stats will be taken from random old minions
             compendium (List(Compendium_Demon)): list of compendium demons
             playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
             skillReplacementMap (Dict): map of bosses and their skills and replacement skills
+            guestReplacements(Dict): map of guest and their replacments
 '''
-def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings: Settings, compendium, playerBossArr, skillReplacementMap):
+def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings: Settings, compendium, playerBossArr, skillReplacementMap, guestReplacements):
     newDemons = newEncounterData.getAllUniqueDemonsInEncounter()
     oldDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
     if oldEncounterData.ind != newEncounterData.ind:
@@ -439,9 +442,9 @@ def balanceMinionToMinion(oldEncounterData, newEncounterData, demonReferenceArr,
         replacementDemon.level = referenceDemon.level
         replacementDemon.damageMultiplier = referenceDemon.damageMultiplier
         if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
-            replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
+            replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr, guestReplacements)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
-            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr)      
+            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr, guestReplacements)      
         changeBossSkills(replacementDemon, skillReplacementMap, configSettings, ogLevel)
         adjustForResistSkills(replacementDemon)
 
@@ -458,8 +461,9 @@ If the number of demons is equal between the two encounters, HP will be transfer
             compendium (List(Compendium_Demon)): list of compendium demons
             playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
             skillReplacementMap (Dict): map of bosses and their skills and replacement skills
+            guestReplacements(Dict): map of guest and their replacments
 '''
-def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr, skillReplacementMap):
+def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceArr, bossArr, configSettings, compendium, playerBossArr, skillReplacementMap, guestReplacements):
     oldHPPool = calculateHPPool(oldEncounterData, newEncounterData)
     newDemons = newEncounterData.getAllUniqueDemonsInEncounter()
     oldDemons = oldEncounterData.getAllUniqueDemonsInEncounter()
@@ -490,9 +494,9 @@ def balancePartnerToPartner(oldEncounterData, newEncounterData, demonReferenceAr
         replacementDemon.level = referenceDemon.level
         replacementDemon.damageMultiplier = referenceDemon.damageMultiplier
         if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
-            replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr)
+            replacementDemon.resist = randomizeBossResistances(replacementDemon, copy.deepcopy(referenceDemon),oldEncounterData.resistTotals[referenceIndex],configSettings, compendium, playerBossArr, guestReplacements)
         elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
-            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr)         
+            replacementDemon.resist = randomizeBossResistances(replacementDemon,copy.deepcopy(referenceDemon),newEncounterData.resistTotals[ind],configSettings, compendium, playerBossArr , guestReplacements)         
         changeBossSkills(replacementDemon, skillReplacementMap, configSettings, ogLevel)
        
         adjustForResistSkills(replacementDemon)
@@ -556,8 +560,9 @@ True Lucifer's phase 2 and phase 3 versions need to be synced as well, and their
         compendium (List(Compendium_Demon)): list of compendium demons
         playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons
         skillReplacementMap (Dict): map of bosses and their skills and replacement skills
+        guestReplacements(Dict): map of guest and their replacments
 '''
-def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr, skillReplacementMap):
+def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr, skillReplacementMap, guestReplacements):
     for base, duplicates in REVIVED_DEMON_DUPLICATE_MAP.items():
         referenceDemon = bossArr[base]
         for duplicate in duplicates:
@@ -599,10 +604,10 @@ def patchSpecialBossDemons(bossArr, configSettings, compendium, playerBossArr, s
     luciferPhase3 = bossArr[LUCIFER_PHASES[2]]
     
     if configSettings.randomizeBossResistances and configSettings.scaleResistToCheck:
-        luciferPhase2.resist = randomizeBossResistances(luciferPhase2, copy.deepcopy(luciferPhase1),LUCIFER_PHASE_2_RESIST_TOTALS,configSettings, compendium, playerBossArr)
+        luciferPhase2.resist = randomizeBossResistances(luciferPhase2, copy.deepcopy(luciferPhase1),LUCIFER_PHASE_2_RESIST_TOTALS,configSettings, compendium, playerBossArr, guestReplacements)
     elif configSettings.randomizeBossResistances and not configSettings.scaleResistToCheck:
         resistTotalSubDict = calculateResistTotals(LUCIFER_PHASES[2],luciferPhase2)
-        luciferPhase2.resist = randomizeBossResistances(luciferPhase2,copy.deepcopy(luciferPhase1),resistTotalSubDict[LUCIFER_PHASES[2]],configSettings, compendium, playerBossArr) 
+        luciferPhase2.resist = randomizeBossResistances(luciferPhase2,copy.deepcopy(luciferPhase1),resistTotalSubDict[LUCIFER_PHASES[2]],configSettings, compendium, playerBossArr, guestReplacements) 
     changeBossSkills(luciferPhase2, skillReplacementMap, configSettings, ogLevel)
     changeBossSkills(luciferPhase3, skillReplacementMap, configSettings, ogLevel)
 
@@ -883,9 +888,10 @@ The outcome is changed depending on what resistance settings are chosen.
         configSettings(Settings): settings to use to modify how resistances are randomized
         compendium (List(Compendium_Demon)): list of compendium demons, used to reference player version of boss
         playerBossArr (List(Compendium_Demon)): list of compendium version of bosses and other demons, used to reference player version of boss
+        guestReplacements(Dict): map of guest and their replacments
     Returns: a resistance profile for the replacement demon to use
 '''
-def randomizeBossResistances(replacementDemon, referenceDemon, checkSums, configSettings: Settings, compendium, playerBossArr):
+def randomizeBossResistances(replacementDemon, referenceDemon, checkSums, configSettings: Settings, compendium, playerBossArr, guestReplacements):
     if configSettings.playerResistSync:
         if len(BOSS_PLAYER_MAP) == 0:
             #initialize boss player map if needed
@@ -894,7 +900,12 @@ def randomizeBossResistances(replacementDemon, referenceDemon, checkSums, config
             for _ , row in df.iterrows():
                 boss_id = row['BossID']
                 comp_id = row['CompID']
+                if comp_id in guestReplacements.keys(): #Guests need to be in the boss player map
+                    comp_id = guestReplacements[comp_id]
+                    #print("Boss " + str(boss_id) + " player version " +str(row['CompID']) + " is now "+ str(comp_id))
+                
                 BOSS_PLAYER_MAP[boss_id] = comp_id
+                
     
     endResist = None
     if replacementDemon.ind in STANDARD_RESIST_BOSSES:
@@ -1426,7 +1437,11 @@ Fill up the empty slots in a demon's skill list with additional passives.
         #TODO: Progress Based aka Level based?
 ''' 
 def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Settings, ogLevel, refDemon = None):
-    if refDemon:
+    if demon.ind not in skillReplacementMap.keys():
+        skillReplacementMap[demon.ind] = {}
+    
+    
+    if refDemon: #If a demon is a duplicate revival demon, copy passives from original demon
         while len(refDemon.skills) > len(demon.skills):
             skill = refDemon.skills[len(demon.skills)]
             demon.skills.append(skill)

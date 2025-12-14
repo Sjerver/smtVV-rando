@@ -321,9 +321,9 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 517,gurr_big,Gurulu,-1,FALSE
 518,gogmagog_big,Gogmagog,-1,FALSE
 519,glasyalabolas_big,Glasya-Labolas,-1,FALSE
-605,lawko,Tao,-1,FALSE
+605,lawko,Tao,1152,FALSE
 606,lawko_bag,Tao Schoolbag,-1,FALSE
-607,chaoko,Yoko,-1,FALSE
+607,chaoko,Yoko,1157,FALSE
 609,tomoo,Yuzuru,561,TRUE
 610,tomoo_bag,Yuzuru Schoolbag,-1,FALSE
 611,karuo,Dazai,1151,TRUE
@@ -331,8 +331,8 @@ Number,folderName,DemonName,MainDemonID,HasSimpleBP
 617,sori,Koshimizu,-617,FALSE
 618,kichio,Yakumo,465,TRUE
 621,lawko_megami_1st,Tao Panagia JP,-1,FALSE
-622,lawko_megami_2nd,Tao Panagia,-1,FALSE
-624,chaoko_megami_2nd,Yoko Panagia,-1,FALSE
+622,lawko_megami_2nd,Tao Panagia,365,FALSE
+624,chaoko_megami_2nd,Yoko Panagia,366,FALSE
 625,tomoo_union,Tsukuyomi Nahobino,528,FALSE
 626,karuo_union,Abdiel Nahobino,-1,FALSE
 627,kichio_union,Nuwa Nahobino,-1,FALSE

@@ -43,7 +43,7 @@ class Randomizer:
         self.maccaMod = numbers.getMaccaValues()
         self.expMod = numbers.getExpValues()
 
-        self.compendiumNames = []
+        self.compendiumNames = [] #TODO: Remove
         self.skillNames = []
         self.itemNames = []
 
@@ -112,6 +112,7 @@ class Randomizer:
 
         self.elementals = [155,156,157,158]
         self.specialFusionDemonIDs = []
+        self.guestReplacements = {}
 
         self.dummyEventIndex = 0
     
@@ -121,6 +122,7 @@ class Randomizer:
             The buffer containing CharacterNames
     '''
     def readDemonNames(self):
+        #TODO: No longer needed!
         with open(paths.CHARACTER_NAME_IN, 'r') as file:
             fileContents = file.read()   
             tempArray = fileContents.split("MessageLabel=")
@@ -182,6 +184,18 @@ class Randomizer:
             name = row['Flag']
             ind = row['ID']
             self.eventFlagNames[name] = ind
+
+    '''
+    Returns the demons current Name from their ID.
+    Parameters:
+        demonID (Integer): the id of the demon
+    '''
+    def getDemonsCurrentNameByID(self,demonID):
+        if demonID >= len(self.compendiumArr):
+            name = self.compendiumNames[self.playerBossArr[demonID].nameID]
+        else:
+            name = self.compendiumNames[self.compendiumArr[demonID].nameID]
+        return name
             
     '''
     Fills the array compendiumArr with data extracted from the Buffer NKMBaseTable.
@@ -225,10 +239,9 @@ class Randomizer:
             'tone': offset + 0x58,
             'innate': offset + 0x100,
             'potential': offset + 0X174,
-            'encounterSpawn': offset + 0x1AC
+            'encounterSpawn': offset + 0x1AC,
+            'descriptionID': offset + 0x3C
         }
-        if isBoss:
-            locations['encounterSpawn'] = offset + 0x1CA #I'm not sure if one was a typo but there was a difference in how the player boss arr reads this
         #Then read the list of initial skills learned
         listOfSkills = []
         for i in range(8):
@@ -249,10 +262,9 @@ class Randomizer:
         if demon.nameID == 58 and index != 58:
             # Placeholder Jack Frosts
             demon.name = "NOT USED"
-        elif isBoss:
-            demon.name = self.enemyNames[demon.nameID]
         else:
-            demon.name = self.compendiumNames[demon.nameID]
+            demon.name = self.enemyNames[demon.ind]
+        demon.descriptionID = NKMBaseTable.readWord(locations['descriptionID'] )
         demon.offsetNumbers = locations
         demon.race = Translated_Value(NKMBaseTable.readByte(locations['race']), RACE_ARRAY[NKMBaseTable.readByte(locations['race'])])
         demon.alignment = NKMBaseTable.readByte(locations['alignment'] +1)
@@ -659,7 +671,7 @@ class Randomizer:
             # Placeholder Jack Frosts
             demon.name = "NOT USED"
         else:
-            demon.name = self.compendiumNames[demon.nameID]
+            demon.name = self.enemyNames[demon.nameID]
         demon.offsetNumbers = locations
         demon.level = enemyData.readWord(locations['level'])
         demon.stats = Stats(enemyData.readWord(locations['HP']), enemyData.readWord(locations['HP'] + 4), enemyData.readWord(locations['HP'] + 8),
@@ -870,7 +882,7 @@ class Randomizer:
         for index in range(304):
             offset = start + size * index
             essence = Essence()
-            essence.demon = Translated_Value(items.readWord(offset),self.compendiumNames[items.readWord(offset)])
+            essence.demon = Translated_Value(items.readWord(offset),self.getDemonsCurrentNameByID(items.readWord(offset)))
             essence.price = items.readWord(offset +12)
             essence.offset = offset
             essence.ind = 311 + index
@@ -1431,6 +1443,20 @@ class Randomizer:
             #Add the level the demons learns a skill at to the skills level list
             for skill in demon.learnedSkills:
                 skillLevels[skill.ind].level.append(skill.level)
+        for demonID in numbers.GUEST_GROUPS.keys():
+            if demonID > numbers.NORMAL_ENEMY_COUNT:
+                demon = self.playerBossArr[demonID]
+            else:
+                demon = self.compendiumArr[demonID]
+            #Add the demons level to the array of its Innate Skill
+            skillLevels[demon.innate.ind].level.append(demon.level.value)
+            #Add the demons level to their initially learned skills
+            for skill in demon.skills:
+                skillLevels[skill.ind].level.append(demon.level.value)
+            #Add the level the demons learns a skill at to the skills level list
+            for skill in demon.learnedSkills:
+                skillLevels[skill.ind].level.append(skill.level)
+
                 
         #For every skill determine the minimum and maximum level it is obtained at
         def mapSkillLevels(skill):
@@ -1963,7 +1989,10 @@ class Randomizer:
                     skill.owner.name = "Nahobino"
                 else:
                     skill.owner.ind = demon.ind
-                    skill.owner.name = demon.name  
+                    skill.owner.name = demon.name
+            elif lunationCondition and demon.ind in numbers.PROTOFIEND_IDS:
+                # Lunation Flux can only be inherited by protofiends in vanilla inheritance when restrictLunationFlux is set
+                return True
             elif skill.owner.original != demon.ind:
                 # Vanilla inheritance and demon is not the original demon
                 return False
@@ -2686,6 +2715,8 @@ class Randomizer:
     '''
     def updateCompendiumBuffer(self, buffer, newComp):
         for demon in newComp:
+            buffer.writeWord(demon.nameID,demon.offsetNumbers['nameID'])
+            buffer.writeWord(demon.descriptionID,demon.offsetNumbers['descriptionID'])
             #Write stats of the demon to the buffer
             buffer.writeWord(demon.stats.HP.start,demon.offsetNumbers['HP'] + 4 * 0)
             buffer.writeWord(demon.stats.MP.start,demon.offsetNumbers['HP'] + 4 * 1)
@@ -2819,6 +2850,7 @@ class Randomizer:
     def updateBasicEnemyBuffer(self, buffer, foes):
         for foe in foes:
             offsets = foe.offsetNumbers
+            buffer.writeWord(foe.nameID,offsets['nameID'])
             #Write stats of the enemy demon to the buffer
             buffer.writeWord(foe.stats.HP, offsets['HP'] + 4 * 0)
             buffer.writeWord(foe.stats.MP,offsets['HP'] + 4 * 1)
@@ -3550,6 +3582,7 @@ class Randomizer:
             replaced = self.specialFusionArr[index]
             comp[replaced.result.ind].fusability = 0 
 
+        finalString = ""
         for index, fusion in enumerate(fusions):
             replaced = self.specialFusionArr[index]
             #Set new result demons fusability to 0
@@ -3561,6 +3594,20 @@ class Randomizer:
             replaced.demon3 = fusion.demon3
             replaced.demon4 = fusion.demon4
             replaced.result = fusion.result
+        
+            finalString = finalString + self.compendiumArr[fusion.demon1.value].name
+            if fusion.demon2.value > 0:
+                finalString = finalString + " + "+ self.compendiumArr[fusion.demon2.value].name
+            if fusion.demon3.value > 0:
+                finalString = finalString + " + " + self.compendiumArr[fusion.demon3.value].name
+            if fusion.demon4.value > 0:
+                finalString = finalString + " + " + self.compendiumArr[fusion.demon4.value].name
+            finalString = finalString + "-> " + self.compendiumArr[fusion.result.value].name + "\n"
+        
+        with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
+            file.write("----- Special Fusions -----\n")
+            file.write(finalString)
+            file.write("----- Normal Fusions -----\n")
         return expBuffer
 
     '''
@@ -4028,7 +4075,8 @@ class Randomizer:
             
             newFoe = copy.deepcopy(enemy)
             #newFoe.ind = enemy.ind
-            #newFoe.name = enemy.name
+            newFoe.name = playableEqu.name
+            newFoe.nameID = playableEqu.nameID
             #newFoe.offsetNumbers = enemy.offsetNumbers
             newFoe.level = newLevel
             newFoe.originalLevel = enemy.level
@@ -4077,7 +4125,6 @@ class Randomizer:
         '''
         def getEnemiesAtLevel(lv):
             return list(filter(lambda e: e.level == lv, foes))
-
         '''
         Returns the enemy with the specified id from the filtered enemy arrray
             Parameters:
@@ -4097,11 +4144,13 @@ class Randomizer:
                 newSymbolArr.append(encount)
                 continue
             replaceEnc = encount
+            #ogEnc = copy.deepcopy(encount)
             symbolFoe = None
             currentLV = getFoeWithID(encount.symbol.ind, foes).originalLevel
             #get enemies at level which have not been featured as a replacement
             #ensures 1:1 replacement
-            possibilities = [p for p in getEnemiesAtLevel(currentLV) if not any(r[1] == p.ind for r in replacements)]
+            enemyAtLevel = getEnemiesAtLevel(currentLV)
+            possibilities = [p for p in enemyAtLevel if not any(r[1] == p.ind for r in replacements)]
             '''
             Should not be needed with 1:1 replacements
             leeway = 1
@@ -4121,6 +4170,7 @@ class Randomizer:
                 symbolFoe = getFoeWithID(next(r for x, r in enumerate(replacements) if r[0] == encount.symbol.ind)[1], foes)
             replaceEnc.symbol.ind = symbolFoe.ind
             replaceEnc.symbol.translation = symbolFoe.name
+            #print("Replaced " + str(ogEnc.symbol.ind)  +" " +self.enemyNames[ogEnc.symbol.ind] + " with " + str(symbolFoe.ind)  +" " +symbolFoe.name + " at level " + str(currentLV))
 
             newSymbolArr.append(replaceEnc)
 
@@ -4148,7 +4198,9 @@ class Randomizer:
          
         with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
             for replaced, replacement in replacementDict.items():
-                spoilerLog.write(self.enemyNames[replaced] + " replaced by " + self.enemyNames[replacement] + "\n")
+                spoilerLog.write(self.enemyNames[replaced] + " replaced by " + self.getDemonsCurrentNameByID(replacement) + "\n")
+            for replacement, replaced in self.guestReplacements.items():
+                spoilerLog.write(self.enemyNames[replaced] + " swapped with " + self.enemyNames[replacement] + "\n") #Use enemy names hre since we need the old name
                   
         self.encounterReplacements = replacementDict
 
@@ -4284,7 +4336,7 @@ class Randomizer:
                             self.bossReplacements[encounter.demons[2]] = self.bossReplacements[encounter.demons[1]]
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     
-                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings, self.compendiumArr, self.playerBossArr, self.skillReplacementMap)
+                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings, self.compendiumArr, self.playerBossArr, self.skillReplacementMap, self.guestReplacements)
                     #print("Old hp " + str(self.staticBossArr[encounter.demons[0]].stats.HP) + " of " + self.enemyNames[encounter.demons[0]] + " now is "  +
                     #      self.enemyNames[shuffledEncounters[index].demons[0]] + " with " + str(self.bossArr[shuffledEncounters[index].demons[0]].stats.HP) + " HP")
                     self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
@@ -4801,7 +4853,7 @@ class Randomizer:
             for key, value in numbers.CONSUMABLE_MAP_SCALING.items(): #Go through maps and valid items per map
                 validItems[key] = value #Copy valid items per map 
                 validEssences[key] = []
-                #Gather all essences of dmeons in the level range for the map
+                #Gather all essences of demons in the level range for the map #TOOD: Rewrite?
                 currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[key][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[key][1]]
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
                     if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[key] and itemName in currentDemonNames:
@@ -5822,6 +5874,58 @@ class Randomizer:
             fusionCombo.append(["Jaki","Lady","Qadistu"]) #Jaki had open fusions
             fusionCombo.append(["Wilder","Femme","Qadistu"]) #only availabe femme fusion
             fusionCombo.append(["Tyrant","Lady","Qadistu"]) #Tyrant (Vile)
+        
+        
+        if self.configSettings.swapGuestsWithDemons:
+            fusionCombo.append(["Genma","Jaki","Human"])
+            fusionCombo.append(["Haunt","Holy","Human"])
+            fusionCombo.append(["Chaos","Fairy","Human"])
+            fusionCombo.append(["Panagia","Qadistu","Human"])
+            fusionCombo.append(["Foul","Herald","Human"])
+            fusionCombo.append(["Kunitsu","Human","Panagia"])
+            fusionCombo.append(["Qadistu","Human","Panagia"])
+            fusionCombo.append(["Megami","Human","Panagia"])
+            fusionCombo.append(["Holy","Snake","Panagia"])
+            fusionCombo.append(["Fiend","Human","Chaos"])
+            fusionCombo.append(["Devil","Human","Chaos"])
+            fusionCombo.append(["Devil","Fury","Chaos"])
+
+            #These are addeed so that Guest races can fuse into something more easily
+            fusionCombo.append(["Human","Deity","Divine"])
+            fusionCombo.append(["Human","Kishin","Divine"])
+            fusionCombo.append(["Human","Holy","Divine"])
+            fusionCombo.append(["Human","Herald","Divine"])
+            fusionCombo.append(["Human","Avatar","Divine"])
+            fusionCombo.append(["Human","Jirae","Yoma"])
+            fusionCombo.append(["Human","Avian","Yoma"])
+            fusionCombo.append(["Human","Enigma","Yoma"])
+            fusionCombo.append(["Human","Fallen","Vile"])
+            fusionCombo.append(["Human","Snake","Vile"])
+            fusionCombo.append(["Human","Brute","Vile"])
+            fusionCombo.append(["Human","Wargod","Vile"])
+            fusionCombo.append(["Human","Raptor","Vile"])
+
+            fusionCombo.append(["Chaos","Fury","Fiend"])
+            fusionCombo.append(["Chaos","Kishin","Fiend"])
+            fusionCombo.append(["Chaos","Wargod","Fiend"])
+            fusionCombo.append(["Chaos","Devil","Fiend"])
+            fusionCombo.append(["Chaos","Lady","Fairy"])
+            fusionCombo.append(["Chaos","Night","Fairy"])
+            fusionCombo.append(["Chaos","Femme","Fairy"])
+            fusionCombo.append(["Chaos","Panagia","Fairy"])
+            fusionCombo.append(["Chaos","Herald","Fallen"])
+            fusionCombo.append(["Chaos","Divine","Fallen"])
+
+            fusionCombo.append(["Panagia","Megami","Deity"])
+            fusionCombo.append(["Panagia","Lady","Deity"])
+            fusionCombo.append(["Panagia","Kunitsu","Deity"])
+            fusionCombo.append(["Panagia","Genma","Deity"])
+            fusionCombo.append(["Panagia","Human","Deity"])
+            fusionCombo.append(["Panagia","Night","Femme"])
+            fusionCombo.append(["Panagia","Herald","Femme"])
+            fusionCombo.append(["Panagia","Drake","Femme"])
+            fusionCombo.append(["Panagia","UMA","Kunitsu"])
+            fusionCombo.append(["Panagia","Yoma","Kunitsu"])
 
 
         for fc in fusionCombo:
@@ -5866,7 +5970,7 @@ class Randomizer:
         #Valid demons are all demons whose level can be unconditionally randomized
         validDemons = list(filter(lambda demon:  demon.race.translation != 'Element' and not demon.name.startswith('NOT') and demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name, comp))
         #elements contain all 4 demons of the element race
-        elements = list(filter(lambda d: d.race.translation == 'Element', comp))
+        elements = list(filter(lambda d: d.race.translation == 'Element' and d.ind not in numbers.BAD_IDS, comp))
         #Contains all demons who can only be fused after their fusion is unlocked via flag 
         flaggedDemons = list(filter(lambda demon: demon.unlockFlags[0] > 0, comp))
         flaggedDemons.sort(key = lambda a: a.minUnlock, reverse=True)
@@ -6180,29 +6284,41 @@ class Randomizer:
     def adjustStatsToLevel(self, comp):
         for demon in comp:
             #Get Nahobinos base stats at original and new level
-            nahoOGLevel = self.nahobino.stats[demon.level.original]
-            nahoNewLevel = self.nahobino.stats[demon.level.value]
-
-            #Define multipliers from nahobino stats at original level to og stats
-            modifiers = Stats(
-                demon.stats.HP.og / nahoOGLevel.HP,
-                demon.stats.MP.og / nahoOGLevel.MP,
-                demon.stats.str.og / nahoOGLevel.str,
-                demon.stats.vit.og / nahoOGLevel.vit,
-                demon.stats.mag.og / nahoOGLevel.mag,
-                demon.stats.agi.og / nahoOGLevel.agi,
-                demon.stats.luk.og / nahoOGLevel.luk
-            )
-            #Apply these multipliers to the nahobinos stats at new level to gain new level
-            demon.stats.HP.start = math.floor(nahoNewLevel.HP * modifiers.HP)
-            demon.stats.MP.start = math.floor(nahoNewLevel.MP * modifiers.MP)
-            demon.stats.str.start = math.floor(nahoNewLevel.str * modifiers.str)
-            demon.stats.vit.start = math.floor(nahoNewLevel.vit * modifiers.vit)
-            demon.stats.mag.start = math.floor(nahoNewLevel.mag * modifiers.mag)
-            demon.stats.agi.start = math.floor(nahoNewLevel.agi * modifiers.agi)
-            demon.stats.luk.start = math.floor(nahoNewLevel.luk * modifiers.luk)
+            demon = self.recalculateDemonStatsToLevel(demon,demon.level.original,demon.level.value)
         return comp
 
+    '''
+    Adjusts the stats of demons to their new level based on multipliers of the nahobinos stats at the original and new level
+        Parameters:
+            demon (Compendium_Demon): the demon to calculate new stats for
+            oldLevel (Integer): the demons original level
+            newLevel (Integer): the demons new level
+        Returns the demon with recalculated stats
+    '''
+    def recalculateDemonStatsToLevel(self,demon,oldLevel, newLevel):
+        nahoOGLevel = self.nahobino.stats[oldLevel]
+        nahoNewLevel = self.nahobino.stats[newLevel]
+
+
+        #Define multipliers from nahobino stats at original level to og stats
+        modifiers = Stats(
+            demon.stats.HP.og / nahoOGLevel.HP,
+            demon.stats.MP.og / nahoOGLevel.MP,
+            demon.stats.str.og / nahoOGLevel.str,
+            demon.stats.vit.og / nahoOGLevel.vit,
+            demon.stats.mag.og / nahoOGLevel.mag,
+            demon.stats.agi.og / nahoOGLevel.agi,
+            demon.stats.luk.og / nahoOGLevel.luk
+        )
+        #Apply these multipliers to the nahobinos stats at new level to gain new level
+        demon.stats.HP.start = math.floor(nahoNewLevel.HP * modifiers.HP)
+        demon.stats.MP.start = math.floor(nahoNewLevel.MP * modifiers.MP)
+        demon.stats.str.start = math.floor(nahoNewLevel.str * modifiers.str)
+        demon.stats.vit.start = math.floor(nahoNewLevel.vit * modifiers.vit)
+        demon.stats.mag.start = math.floor(nahoNewLevel.mag * modifiers.mag)
+        demon.stats.agi.start = math.floor(nahoNewLevel.agi * modifiers.agi)
+        demon.stats.luk.start = math.floor(nahoNewLevel.luk * modifiers.luk)
+        return demon
         
     
     '''
@@ -6920,7 +7036,11 @@ class Randomizer:
             entry["Value"][16]["Value"] = 50
             entry["Value"][17]["Value"] = 100
             #print(str(scaleFactor) + " for " + str(replacementID) + " to hit target size " + str(targetSize))
-            replacementVoiceID = message_logic.normalVoiceIDForBoss(replacementID, self.enemyNames).zfill(3) #Replace voices
+            if replacementID in self.guestReplacements.keys():
+                #TODO: check this if levels are randomized and if not
+                replacementVoiceID = message_logic.normalVoiceIDForBoss(self.guestReplacements[replacementID], self.enemyNames).zfill(3) #Replace voices
+            else:
+                replacementVoiceID = message_logic.normalVoiceIDForBoss(replacementID, self.enemyNames).zfill(3) #Replace voices
             nameMap.append(message.getCuePath(replacementVoiceID, message_logic.DEMON_FILENAMES, isNameMap=True)[0])
             if replacementVoiceID in self.navigatorVoiceIDs:
                 goVoice = "dev" + replacementVoiceID + "_vo_14" #There is also a find voice but that is a common sound effect to all navigators
@@ -6931,7 +7051,7 @@ class Randomizer:
             self.naviReplacementMap[navi.demonID] = replacementID
             navi.demonID = replacementID
             tableIndex += 1
-        message_logic.updateNavigatorVoiceAndText(self.naviReplacementMap, self.enemyNames)
+        message_logic.updateNavigatorVoiceAndText(self.naviReplacementMap, self.enemyNames, self.playerBossArr, self.compendiumArr, self.guestReplacements, self.configSettings)
 
     '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
@@ -7068,6 +7188,190 @@ class Randomizer:
                 self.enemyNames[newID] = self.enemyNames[source]
                 self.validBossDemons.add(newID) #Add new duplicate demons to the list of boss demons
                 self.essenceBannedBosses.add(newID) #These are all duplicates of another boss demon so they shouldn't drop their essence
+    '''
+    Swap a guest with a demon, swapping asset assignments, and most demon data.
+        Parameters:
+            demonID (Integer): id of the demon
+            guestID (Integer): id of the guest
+    '''
+    def swapDemonWithGuest(self, demonID, guestID):
+        #Get correct demon/guest
+        if demonID > numbers.NORMAL_ENEMY_COUNT:
+            demon = self.playerBossArr[demonID]
+        else:
+            demon = self.compendiumArr[demonID]
+        
+        if guestID > numbers.NORMAL_ENEMY_COUNT:
+            guest = self.playerBossArr[guestID]
+        else:
+            guest = self.compendiumArr[guestID]
+
+        guestCopy = copy.deepcopy(guest)
+        
+
+        #print("Guest " + str(guestID) +" "+ guest.name +" <-> Demon " + str(demonID) + " " + demon.name )
+
+
+        #TODO: Physical skill restrictions for guests and other things that need to update in comparison to how guests have been handled prviously
+        #TODO: Tao (Guest) is weird, since demons always get her textures??
+        #TODO: CoV Cutscenes are not yet tested for model swaps / messages
+
+        
+        '''
+        Copy demon data and other attributes from the donor to the recipient demon.
+            Parameters:
+                recipient: demon to receive the attributes
+                donor: demon to donate the attributes
+        '''
+        def obtainAttributes(recipient,donor):
+
+            #Rename Essence
+            self.itemNames = [f"{donor.name}'s Essence" if recipient.name in itemName else itemName for itemName in self.itemNames]
+
+            recipient.name = donor.name
+            recipient.nameID = donor.nameID
+            recipient.descriptionID = donor.ind
+            recipient.race = donor.race
+            #recipient.tone = donor.tone
+            recipient.resist = donor.resist
+            recipient.potential = donor.potential
+            recipient.innate = donor.innate
+
+            recipient.stats = donor.stats
+            self.recalculateDemonStatsToLevel(recipient,donor.level.original,recipient.level.original)
+
+            recipient.skills = donor.skills
+            learnedLevel = [skill.level for skill in recipient.learnedSkills]
+            recipient.learnedSkills = copy.deepcopy(donor.learnedSkills)
+            for index,skill in enumerate(recipient.learnedSkills):
+                if index < len(learnedLevel):
+                    skill.level = learnedLevel[index]
+                elif learnedLevel:
+                    skill.level = learnedLevel[-1] + 1 + index - len(learnedLevel)
+                else:
+                    skill.level = recipient.level.value + index +1
+            recipient.alignment = donor.alignment
+            recipient.tendency = donor.tendency
+
+            
+
+            
+        '''
+        Copy the assets from one demonID slot to another.
+            Parameters:
+                recipient: demon to receive the assets
+                donor: demon to donate the assets
+        '''
+        def obtainAssets(recipient,donor):
+            newID = recipient.ind
+            source = donor.ind
+            self.devilAssetArr[newID] = self.copyAssetsToSlot(self.devilAssetArr[newID], self.devilAssetArr[source])
+            self.devilUIArr[newID].assetID = self.devilUIArr[source].assetID
+            self.devilUIArr[newID].assetString = self.devilUIArr[source].assetString
+            self.talkCameraOffsets[newID].demonID = self.talkCameraOffsets[source].demonID
+            self.talkCameraOffsets[newID].eyeOffset = self.talkCameraOffsets[source].eyeOffset
+            self.talkCameraOffsets[newID].lookOffset = self.talkCameraOffsets[source].lookOffset
+            self.talkCameraOffsets[newID].dyingOffset = self.talkCameraOffsets[source].dyingOffset
+
+            # if donor.ind in message_logic.SPECIAL_SPEAKER_IDS.keys():
+            #     #If the donor has a special speaker id, copy it over
+            #     message_logic.SPECIAL_SPEAKER_IDS[recipient.ind] = message_logic.SPECIAL_SPEAKER_IDS[donor.ind]
+            # else:
+            #     #Otherwise, add entry refererring to the donor id
+            #     message_logic.SPECIAL_SPEAKER_IDS[recipient.ind] = donor.ind
+            # if donor.ind in message_logic.SPECIAL_VOICE_IDS.keys():
+            #     #If the donor has a special voice id, copy it over
+            #     message_logic.SPECIAL_VOICE_IDS[recipient.ind] = message_logic.SPECIAL_VOICE_IDS[donor.ind]
+            # else:
+            #     #Otherwise, add entry refererring to the donor id
+            #     message_logic.SPECIAL_VOICE_IDS[recipient.ind] = donor.ind
+        
+        #To temporarily store the guest data
+        copyover = self.playerBossArr[numbers.COPYOVER_DEMON]
+        obtainAssets(copyover,guest)
+
+        #Copy from demon to guest
+        obtainAttributes(guest,demon)
+        obtainAssets(guest,demon)
+
+        #Also copy demon data to other guest slots that are the same person
+        for guestSyncID in numbers.GUEST_GROUPS.get(guestID):
+            if guestID > numbers.NORMAL_ENEMY_COUNT:
+                guestSync = self.playerBossArr[guestSyncID]
+            else:
+                guestSync = self.compendiumArr[guestSyncID]
+
+            obtainAttributes(guestSync,demon)
+            obtainAssets(guestSync,demon)
+
+        #Copy from the holdover/guestCopy to the demon 
+        obtainAttributes(demon,guestCopy)
+        obtainAssets(demon,copyover)
+        
+    '''
+    Swap guests with demons (or other guests), swapping data from their demon ids (including name) and asset assignments.
+    '''
+    def swapGuestsWithDemons(self):
+        validInds = [demon.ind for demon in self.compendiumArr if demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name and not demon.name.startswith('NOT USED')]
+        validInds.extend(numbers.GUEST_GROUPS.keys())
+
+        #Determine random pairing replacements
+        swapPairings = {}
+        guestList = copy.deepcopy(list(numbers.GUEST_GROUPS.keys()))
+        random.shuffle(guestList)
+        required = [] #For Debug Purposes! To force certain replacements
+        for guest in guestList:
+            if guest in validInds:
+                validInds.remove(guest)
+            
+            choice = random.choice(validInds)
+            if len(required) > 0:
+                choice = required.pop(0)
+            validInds.remove(choice)
+            swapPairings[choice] = guest
+            
+            
+        #Swap lore entries
+        profileFile = General_UAsset("DevilProfile",paths.CAMP_LN10_STATUS_FOLDER_OUT, readPath=paths.PROFILE_ASSET_IN)
+
+        profileList = profileFile.json['Exports'][0]['Data'][0]['Value']
+        originalList = profileFile.originalJson['Exports'][0]['Data'][0]['Value']
+
+        for demonID, guestID in swapPairings.items():
+            self.swapDemonWithGuest(demonID,guestID)
+            ogProfile = profileList[demonID]
+            guestProfile = profileList[guestID]
+
+            demonString = originalList[demonID]['Value'][2]['Value'][0]['CultureInvariantString']
+            guestString = originalList[guestID]['Value'][2]['Value'][0]['CultureInvariantString']
+            guestStringCopy = copy.deepcopy(guestString)
+
+            for guestSyncID in numbers.GUEST_GROUPS.get(guestID):
+                syncProfile =profileList[guestSyncID]
+                syncProfile['Value'][2]['Value'][0]['CultureInvariantString'] = demonString
+
+            guestProfile['Value'][2]['Value'][0]['CultureInvariantString'] = demonString
+            ogProfile['Value'][2]['Value'][0]['CultureInvariantString'] = guestStringCopy 
+
+        profileFile.write()
+        del profileFile
+
+        self.guestReplacements = copy.deepcopy(swapPairings)
+
+        swapPairings = {**swapPairings, **{v: k for k, v in swapPairings.items()}}
+
+        for guest, guestGroup in numbers.GUEST_GROUPS.items():
+            for syncedGuest in guestGroup:
+                swapPairings[syncedGuest] = swapPairings[guest]
+
+        #Update Unique skill ownership to new ids
+        for skill in self.skillArr:
+
+            if skill.owner and skill.owner.ind in swapPairings.keys():
+
+                skill.owner = Skill_Owner(swapPairings[skill.owner.ind],self.getDemonsCurrentNameByID(swapPairings[skill.owner.ind]))
+        
+            
 
     
     '''
@@ -7181,6 +7485,11 @@ class Randomizer:
         self.fillPlayerBossArr(compendiumBuffer)
         self.fillBossFlagArr(bossFlagBuffer)
         self.fillNahobino(playGrowBuffer)
+
+        if config.swapGuestsWithDemons:
+            #This needs to haappen after playerBossArr and before essence Arr
+            self.swapGuestsWithDemons()
+
         self.fillEssenceArr(itemBuffer)
         self.fillShopArr(shopBuffer)
         self.fillMissionArr(missionBuffer)
@@ -7238,13 +7547,13 @@ class Randomizer:
             while not newComp and attempts < 10:
                 newComp = self.shuffleLevel(self.compendiumArr, config,otherFusionBuffer)
                 if not newComp:
+                    print("Lével resetting and retrying...")
                     self.resetLevelToOriginal(self.compendiumArr)
                     attempts += 1
             if attempts >= 10:
                 print('Major issue with generating demon levels and fusions')
                 return False
         else: newComp = self.compendiumArr
-
         
         if config.scaledPotentials:
             self.scalePotentials(newComp)
@@ -7324,6 +7633,7 @@ class Randomizer:
                 if demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name and 'NOT_USED' not in demon.name:
                     self.encounterReplacements[demon.ind] = demon.ind
         
+        
         if config.randomDemonLevels or config.randomRaces:
             self.adjustFusionTableToLevels(self.compendiumArr)
 
@@ -7338,12 +7648,20 @@ class Randomizer:
         bossLogic.prepareSkillRando(self.skillArr,self.passiveSkillArr, self.innateSkillArr,self.configSettings)
         self.randomizeBosses()
 
+        
+        if self.configSettings.swapGuestsWithDemons:
+            for demon, guestID in self.guestReplacements.items():
+                if guestID < numbers.NORMAL_ENEMY_COUNT:
+                    self.encounterReplacements[guestID] = demon
+                else:
+                    self.bossReplacements[guestID] = demon
+
         #pprint(bossLogic.resistProfiles)
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
-            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap)
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap, self.guestReplacements)
         elif config.randomizeBossResistances or config.randomizeBossSkills:
-            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap)
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap, self.guestReplacements)
         
         self.updateUniqueSymbolDemons()
         if config.scaleBossDamage:
@@ -7418,10 +7736,10 @@ class Randomizer:
             self.randomizeNavigatorAbilities()
         if self.configSettings.navigatorModelSwap: #Create naviReplacementMap before updating event and mission text
             self.changeNavigatorDemons()
-        message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings)
-        message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
-        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap)
-        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames)
+        message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings, self.playerBossArr)
+        message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr],self.compendiumArr,self.enemyNames,self.configSettings)
+        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap, self.playerBossArr, self.compendiumArr)
+        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames, self.playerBossArr, self.compendiumArr)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
 
         if self.configSettings.swapCutsceneModels:
@@ -7570,9 +7888,9 @@ class Randomizer:
     def printOutFusions(self, fusions):
         finalString = ""
         for fusion in fusions:
-            #finalString = finalString + self.compendiumArr[fusion.firstDemon.ind].race.translation + " " + fusion.firstDemon.translation + " + " + self.compendiumArr[fusion.secondDemon.ind].race.translation + " " + fusion.secondDemon.translation + " = " + self.compendiumArr[fusion.result.ind].race.translation + " " + fusion.result.translation + '\n'
-            finalString = finalString + fusion.firstDemon.translation + " + " + fusion.secondDemon.translation + " = " + fusion.result.translation + '\n'
-        with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
+            finalString = finalString + self.compendiumArr[fusion.firstDemon.ind].race.translation + " " + fusion.firstDemon.translation + " + " + self.compendiumArr[fusion.secondDemon.ind].race.translation + " " + fusion.secondDemon.translation + " = " + self.compendiumArr[fusion.result.ind].race.translation + " " + fusion.result.translation + '\n'
+            #finalString = finalString +fusion.firstDemon.translation + " + " + fusion.secondDemon.translation + " = " + fusion.result.translation + '\n'
+        with open(paths.FUSION_DEBUG, 'a', encoding="utf-8") as file:
             file.write(finalString)
     
     '''

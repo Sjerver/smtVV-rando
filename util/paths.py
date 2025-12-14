@@ -37,6 +37,7 @@ MAP_EVENT_DATA_IN = 'base/MapEventData.uexp'
 NAVIGATOR_DATA_IN = 'base/NaviDevilData.uexp'
 PRE_MODIFIED_FILES= 'base/Modified Files' #TODO: maybe modify via rando program instead of using pre modified files so any potential future patches to the game cannot really break it
 EVENT_FLAG_NAMES = 'base/EventFlagTable.csv'
+PROFILE_ASSET_IN = 'base/LN10/'
 
 PRE_MODIFIED_FILES_OUT = 'rando/Project/Content'
 NKM_BASE_TABLE_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uexp'
@@ -99,6 +100,8 @@ TITLE_TEXTURE_OUT = 'rando/Project/Content/L10N/en/Design/UI/Title/SSProjects/ti
 TITLE_TEXTURE_UASSET_OUT = 'rando/Project/Content/L10N/en/Design/UI/Title/SSProjects/title_menu/title_menu01.uasset'
 MAP_EVENT_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Map/MapEventData.uexp'
 NAVIGATOR_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Map/NaviDevilData.uexp'
+CAMP_LN10_STATUS_FOLDER_OUT = 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Camp/Status/'
+
 
 DEBUG_FOLDER = 'debug'
 SEED_FILE = 'debug/currentSeed.txt'

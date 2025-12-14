@@ -3,6 +3,7 @@ class Compendium_Demon:
         self.ind = None
         self.name = None
         self.nameID = None
+        self.descriptionID = None
         self.offsetNumbers = {}
         self.race = None
         self.level = None

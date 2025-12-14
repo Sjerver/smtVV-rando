@@ -10,10 +10,12 @@ import pandas as pd
 import copy
 import datetime
 import random
+from System.IO import FileNotFoundException # type: ignore
 
 DEBUG_SWAP_PRINT = False
 DEBUG_BIG_MODEL_TEST = False
 DEBUG_MODELS = [565,525,520]
+SKIP_EVENTS = [] #For debugging #'MM_M085_E0690','MM_M085_E0730' might be problematic to resize but also need to respect large demons?
 
 NPC_MODEL_START = 600
 LAHMU_2ND_FORM_ID = 236
@@ -68,10 +70,12 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
     totalScripts = len(EVENT_SCRIPT_MODELS.keys())
     currentScriptIndex = 0
     #TODO: If the director randomizes into huang long you get softlocked at the summit because there is no way to talk to him and therefore you can't progress.
-    #Not Replicable as of now.
+    #Not Replicable as of now Could replicate it with one of the Four Kings after area 3 CoC MM_M085_E0690.
     for script, syncDemons in EVENT_SCRIPT_MODELS.items():
         currentScriptIndex += 1
         replacementMap = {}
+        if script in SKIP_EVENTS:
+            continue
         for syncDemon in syncDemons:
             originalDemonID = syncDemon.ind
             syncDemonID = syncDemon.sync
@@ -87,13 +91,15 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
                     try:
                         replacementID = bossReplacements[syncDemonID]
                     except KeyError:
-                        #print("Key Error: " + str(syncDemonID))
+                        if DEBUG_SWAP_PRINT:
+                            print("Key Error" + str(syncDemonID) + " in boss replacements")
                         continue
                 else: #else it is a normal demon
                     try:
                         replacementID = encounterReplacements[syncDemonID]
                     except KeyError:
-                        #print("Key Error: " + str(syncDemonID))
+                        if DEBUG_SWAP_PRINT:
+                            print("Key Error: " + str(syncDemonID) + " in encounter replacements")
                         continue
             if replacementID == originalDemonID: #do not need to swap models if replacement is the same as originalDemonID
                 continue
@@ -113,10 +119,16 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
             #     print("Causes Chain replacement: " + str(originalDemonID) + " " + str(replacementID) )
             replacementMap[originalDemonID] = replacementID
         
-        file = scriptFiles.getFile(script)
+        try:
+            file = scriptFiles.getFile(script)
+        except FileNotFoundException as ex:
+            print("File missing " + script)
+            continue
         hitboxUpdated = False
         rawCode = prepareScriptFileForModelReplacement(script, file)
         if rawCode: #script does not have byte code so continue with next one (Debug print happens elsewhere)
+            if DEBUG_SWAP_PRINT:
+                print("SKIPPING MODEL SWAP FOR SCRIPT WITHOUT BYTECODE: " + script)
             continue
         scale = 1
         currentScale = 1
@@ -147,7 +159,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
                 scale = 1.5 #Increase by 50%
                 if file.relevantFunctionExps[0] == [] and script in REQUIRES_HIT_UPDATE:
                     # if is never scaled to symbol scale and no valid scaling found skip model replacement
-                    print("CANNOT CALCULATE SCALING AND NO SYMBOL SCALE ADJUSTED IN :" + script + " for replacment " + str(replacementID))
+                    #print("CANNOT CALCULATE SCALING AND NO SYMBOL SCALE ADJUSTED IN :" + script + " for replacment " + str(replacementID))
                     continue
             if (scale > 6 and script in REQUIRES_HIT_UPDATE) or (scale > 3 and file.relevantFunctionExps[0] == [] and script in REQUIRES_HIT_UPDATE): #do not update hitbox size if scale would be smaller
                 #TODO: Number values could maybe be fine tuned
@@ -176,7 +188,8 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
         
         scriptFiles.setFile(script,file)
         scriptFiles.writeFile(script,file)
-        print("Swapped Models for " + str(currentScriptIndex) + " of " + str(totalScripts) + " Scripts", end='\r')
+        if not DEBUG_SWAP_PRINT:    
+            print("Swapped Models for " + str(currentScriptIndex) + " of " + str(totalScripts) + " Scripts", end='\r')
     endTime = datetime.datetime.now()
     print(endTime - startTime)
     
@@ -271,7 +284,7 @@ def replaceDemonModelInScript(script, file: Script_File, demonsToUse):
         else:
             modelSwapDemon.lahmuSuffix = ""
         if DEBUG_SWAP_PRINT:
-            print("SWAP: " + modelSwapDemon.oldPrefix +"/" +  modelSwapDemon.oldName + " -> " + modelSwapDemon.newPrefix +"/"+ modelSwapDemon.newName + " in " + script)
+            print("SWAP: " + modelSwapDemon.oldPrefix +"/"+ modelSwapDemon.oldIDString+ "/" +  modelSwapDemon.oldName + " -> " + modelSwapDemon.newPrefix +"/"+ modelSwapDemon.newIDString+ "/"+ modelSwapDemon.newName + " in " + script)
 
         #There are some special cases for these class blueprints
         modelSwapDemon.classOldFolderPrefix = copy.deepcopy(modelSwapDemon.oldFolderPrefix)
@@ -297,10 +310,11 @@ def replaceDemonModelInScript(script, file: Script_File, demonsToUse):
             breakDemon = False
             if "DevilBaseLight" in name and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] :
                 #Applies to CoC Nuwa Gate, Kunitsukami Fight, Dagda, 4 Heavenly Kings, Pisaca Quest Anahita Event, Konohana Sakuya, Nozuchi, Huang Long
-                #print("DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
+                
                 #return file # since we might run into softlocks otherwise
                 breakDemon = True
         if breakDemon:
+            #print("DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
             continue
 
         #print("NO DEVIL BASE LIGHT CRASH POSSIBLE FOR:" + script)
@@ -413,6 +427,9 @@ def replaceDemonModelInScript(script, file: Script_File, demonsToUse):
                 continue
             if imp == 'PrintString' or imp == "TargetBinding": 
                 stringValue = exp['Parameters'][1].get('Value')
+                if stringValue is None or not isinstance(stringValue, str):
+                    #print("In file" + script + " a PrintString/TargetBinding does not behave as expected")
+                    continue
                 if stringValue[:3] in ["dev","Dev","npc","Npc"]:
                     stringValue = replaceOldIDinString(stringValue)
                     newExpression = bytecode.json[bytecode.getIndex(exp)]
@@ -424,8 +441,8 @@ def replaceDemonModelInScript(script, file: Script_File, demonsToUse):
                     skipSbexp = True
                     continue
                 if modelSwapDemon.oldIDString not in stringValue and modelSwapDemon.oldName not in stringValue:
-                    #if neither oldID or oldName are in the string go to next exp
-                    skipSbexp = True
+                    #if neither oldID or oldName are found, go to the next demon
+                    #skipSbexp = True
                     continue
                 if 'MAP_FLAG_NaviDev' in stringValue:
                     skipSbexp = True
@@ -507,7 +524,7 @@ def replaceDemonModelInScript(script, file: Script_File, demonsToUse):
                 else: #oldName not in String, save id swaps
                     newExpression = bytecode.json[bytecode.getIndex(exp)]
                     newExpression['Parameters'][1]['Value']['Value'] = stringValue
-                
+
     file.updateFileWithJson(jsonData)
     return file
 '''
@@ -682,8 +699,12 @@ def updateCutsceneModels(encounterReplacements, bossReplacements, config, naviga
             if replacementID not in replacementMap.values(): #This is because if two different models get replaced by the same, they cannot be differentiated in sequences. TODO: Figure out a way to to what events with multiple copies do aka DevXXX_Y for the variable/export names
                 replacementMap[originalDemonID] = replacementID
 
-
-        file = cutsceneFiles.getFile(event)
+        try:
+            file = cutsceneFiles.getFile(event)
+        except FileNotFoundException as ex:
+            print("File missing " + event)
+            continue
+        
         
         demonsToUse = {}
         rawCode = prepareScriptFileForModelReplacement(event, file)
@@ -763,7 +784,7 @@ def replaceDemonInSequence(seq, file:Script_File, demonsToUse,event):
         else:
             modelSwapDemon.lahmuSuffix = ""
         if DEBUG_SWAP_PRINT:
-            print("SWAP: " + modelSwapDemon.oldPrefix +"/" +  modelSwapDemon.oldName + " -> " + modelSwapDemon.newPrefix +"/"+ modelSwapDemon.newName + " in " + seq)
+            print("SWAP: " + modelSwapDemon.oldPrefix +"/"+ modelSwapDemon.oldIDString+ "/" +  modelSwapDemon.oldName + " -> " + modelSwapDemon.newPrefix +"/"+ modelSwapDemon.newIDString+ "/"+ modelSwapDemon.newName + " in " + seq)
 
         #There are some special cases for these class blueprints
         modelSwapDemon.classOldFolderPrefix = copy.deepcopy(modelSwapDemon.oldFolderPrefix)
@@ -849,8 +870,15 @@ def replaceDemonInSequence(seq, file:Script_File, demonsToUse,event):
                 demonChosen = True
     if seq == 'SEQ_E2297_C20':
         file.exportIndex = file.exportNameList.index('SEQ_E2297_c20')
+    elif seq == "SEQ_E2180_C20":
+        file.exportIndex = file.exportNameList.index('SEQ_E2180_c20')
     else:
-        file.exportIndex = file.exportNameList.index(seq)
+        try:
+            file.exportIndex = file.exportNameList.index(seq)
+        except ValueError: 
+            print("Could not find " + seq + " in exportList")
+            return file
+            
     bindList = file.uasset.Exports[file.exportIndex].Data[1].Value[0].Value
     for i,entry in enumerate(bindList):
         for modelSwapDemon in changes:

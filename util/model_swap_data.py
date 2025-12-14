@@ -1,4 +1,7 @@
 from base_classes.message import Demon_Sync
+from pathlib import Path
+from collections import defaultdict
+import re
 
 class Anim_Sync():
     def __init__(self,ind, sync=None):
@@ -93,12 +96,16 @@ EVENT_CUTSCENES = {
     'LV_E0630': [Demon_Sync(467)], #Abdiel dialogue before DKC (Abdiel) 
     'LV_E0660': [Demon_Sync(82,463)], #UMAP Arioch Cutscene
     'LV_E0736': [Demon_Sync(467)],#Dazai/Abdiel talk after summit
+    'LV_E0750': [Demon_Sync(365)], #Tao reveals herself as goddes in CoC (Tao Panagia) #TODO: Tao appears shortly but otherwise Cerberus worked
+    'LV_E0760': [Demon_Sync(365)], #Tao talking about area 4 (Tao Panagia)
+    'LV_E0830': [Demon_Sync(365)], #Top floor of Empyrean Warning (Tao Panagia)
     'LV_E0775': [Demon_Sync(468)], #UMAP Vasuki Cutscene
     'LV_E0785': [Demon_Sync(469)], #UMAP Zeus CoC Cutscene
     'LV_E0805': [Demon_Sync(470)], #UMAP Odin CoC Cutscene
     'LV_E0841': [Demon_Sync(-617,528)], #Chaos rep overview pre-empyrean (Tsukuyomi) 
-    'LV_E0842': [Demon_Sync(240, 525)], #Law rep overview pre-empyrean (Abdiel) 
-    'LV_E0850': [Demon_Sync(240, 467),Demon_Sync(264, 525),Demon_Sync(75, 520),Demon_Sync(465),Demon_Sync(-617,528)], #Argument before Empyrean (Abdiel as Summit Boss, Abdiel Fallen, Nuwa as Naho, Yakumo, Tsukuyomi)
+    'LV_E0842': [Demon_Sync(240, 467)], #Law rep overview pre-empyrean (Abdiel (Summit Boss)) 
+    'LV_E0850': [Demon_Sync(240, 467),Demon_Sync(264, 525),Demon_Sync(75, 520),Demon_Sync(465),Demon_Sync(-617,528),Demon_Sync(365)], #Argument before Empyrean (Abdiel as Summit Boss, Abdiel Fallen, Nuwa as Naho, Yakumo, Tsukuyomi, Tao(Panagia))
+    'LV_E0860': [Demon_Sync(365)], #Tao upon entering Empyrean (Tao Panagia)
     'LV_E0870': [Demon_Sync(264, 525)], #Joining Dazai in Empyrean (Abdiel)
     'LV_E0880': [Demon_Sync(-617,528),Demon_Sync(152)], #Joining Tsukuyomi in Empyrean (Tsukuyomi, Hayataro)
     'LV_E0900': [Demon_Sync(264, 525),Demon_Sync(528)],#Dazai/Abdiel lose to Tsukuyomi (koshimizu form unchanged) 
@@ -120,127 +127,166 @@ EVENT_CUTSCENES = {
 
     'LV_E1100': [Demon_Sync(934)],#Demi-fiend Pre Fight I think
    
-    'LV_E2010': [Demon_Sync(552),Demon_Sync(561)],#Labolas 1 pre-fight (Labolas, Yuzuru, Dazai)
-    'LV_E2015': [Demon_Sync(552),Demon_Sync(561)],#Labolas 1 post-fight (Labolas, Yuzuru, Dazai)
-    'LV_E2020': [Demon_Sync(393, 553)],#Naamah pre-fight dialogue 1 (Naamah)
-    'LV_E2022': [Demon_Sync(393, 553)],#Naamah pre-fight dialogue 2 (Naamah)
-    'LV_E2025': [Demon_Sync(393, 553),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(-395, 569)],#Naamah post-fight dialogue (Naamah,Agrat,Eisheth,Lilith)
-    'LV_E2029': [Demon_Sync(567),Demon_Sync(75,550),Demon_Sync(435)],#Nuwa post-fight dialogue vengeance
-    'LV_E2030': [Demon_Sync(1151,578),Demon_Sync(561)],#Dazai in diet building vengeance (Dazai, Yuzuru)
-    'LV_E2035': [Demon_Sync(1151,578),Demon_Sync(561)],#Returning to Tokyo from area 1 vengeance (Dazai, Yuzuru)
-    'LV_E2040': [Demon_Sync(240, 564),Demon_Sync(1151,578),Demon_Sync(561)],#Meeting Abdiel vengeance (Abdiel, Dazai, Yuzuru)
-    'LV_E2043': [Demon_Sync(1151,578),Demon_Sync(561)],#Tao meeting after area 1 vengeance (Dazai,Yuzuru)
+    'LV_E2000': [Demon_Sync(1157)], #Creation choice cutscene (Yoko)
+    'LV_E2010': [Demon_Sync(552),Demon_Sync(561,1150),Demon_Sync(1157)],#Labolas 1 pre-fight (Labolas, Yuzuru, Yoko)
+    'LV_E2015': [Demon_Sync(552),Demon_Sync(561,1150),Demon_Sync(1157)],#Labolas 1 post-fight (Labolas, Yuzuru, Yoko)
+    'LV_E2020': [Demon_Sync(393, 553),Demon_Sync(1157)],#Naamah pre-fight dialogue 1 (Naamah,Yoko)
+    'LV_E2022': [Demon_Sync(393, 553),Demon_Sync(1157)],#Naamah pre-fight dialogue 2 (Naamah,Yoko)
+    'LV_E2025': [Demon_Sync(393, 553),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(-395, 569),Demon_Sync(1157)],#Naamah post-fight dialogue (Naamah,Agrat,Eisheth,Lilith,Yoko)
+    'LV_E2029': [Demon_Sync(567),Demon_Sync(75,550),Demon_Sync(435),Demon_Sync(1157)],#Nuwa post-fight dialogue vengeance (Yoko)
+    'LV_E2030': [Demon_Sync(1151),Demon_Sync(561,1150),Demon_Sync(1157)],#Dazai in diet building vengeance (Dazai, Yuzuru,Yoko)
+    'LV_E2035': [Demon_Sync(1151),Demon_Sync(561,1150),Demon_Sync(1157)],#Returning to Tokyo from area 1 vengeance (Dazai, Yuzuru,Yoko)
+    'LV_E2040': [Demon_Sync(240, 564),Demon_Sync(1151),Demon_Sync(561,1150),Demon_Sync(1152),Demon_Sync(1157)],#Meeting Abdiel vengeance (Abdiel, Dazai, Yuzuru, Tao,Yoko)
+    'LV_E2043': [Demon_Sync(1151),Demon_Sync(561,1150),Demon_Sync(1152),Demon_Sync(1157)],#Tao meeting after area 1 vengeance (Dazai,Yuzuru, Tao,Yoko)
     'LV_E2051': [Demon_Sync(393, 554),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(391, 569)],#Qadistu Dream (Naamah II ,Agrat,Eisheth,Lilith)
+    'LV_E2060': [Demon_Sync(1152),Demon_Sync(1157)], #Yoko joining as transfer student (Tao,Yoko)
+    'LV_E2130': [Demon_Sync(1152),Demon_Sync(1157)], #Tao on dorm roof Vengenace (Tao,Yoko)
     'LV_E2160': [Demon_Sync(393, 554),Demon_Sync(555)], #Labolas 2 pre-fight dialogue (Naamah,Labolas)
     'LV_E2164': [Demon_Sync(393, 554)],#Labolas 2 post-fight dialogue (Naamah)
-    'LV_E2210': [Demon_Sync(152, 562), Demon_Sync(561)],#Meeting Hayataro vengeance (Hayataro, Yuzuru)
-    'LV_E2250': [Demon_Sync(236,556)], #Vengeance Lahmu pre-fight dialogue (Lahmu)
-    'LV_E2255': [Demon_Sync(236,556),Demon_Sync(391, 569)], #Lilith kills Sahori (Lahmu, Lilith)
-    'LV_E2260': [Demon_Sync(1151,578),Demon_Sync(561)], #Dazai/Yuzuru first argument (Dazai,Yuzuru )
-    'LV_E2270': [Demon_Sync(1151,578),Demon_Sync(561),Demon_Sync(152, 562)], #Arriving in area 2 vengeance (Dazai,Yuzuru, Hayataro)
-    'LV_E2290': [Demon_Sync(394, 559)],#Eisheth pre-fight dialogue (Eisheth)
-    'LV_E2297': [Demon_Sync(451)],#Fionn pre(?)-fight vengeance
-    'LV_E2310': [Demon_Sync(1151,578)],#Dazai loses to Eisheth (Dazai)
-    'LV_E2320': [Demon_Sync(561),Demon_Sync(394, 559),Demon_Sync(152, 562)],#Yuzuru pre-fight dialogue (Yuzuru, Eisheth, Hayataro)
-    'LV_E2325': [Demon_Sync(561),Demon_Sync(394, 559),Demon_Sync(152, 562),Demon_Sync(1151,578),Demon_Sync(-396, 568),Demon_Sync(7,566)], #Yuzuru post-fight dialogue (Yuzuru,Eisheth,Hayataro, Dazai, Agrat, Khonsu)
-    'LV_E2330': [Demon_Sync(1151,578),Demon_Sync(561), Demon_Sync(57, isNavi=True)],#Discovering Salted Village (Dazai, Yuzuru, navi Pyro Jack)
+    'LV_E2180': [Demon_Sync(1157)], #Yoko in front of school invasion
+    'LV_E2210': [Demon_Sync(152, 562), Demon_Sync(561,1150),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)],#Meeting Hayataro vengeance (Hayataro, Yuzuru, Tao,Yoko)
+    'LV_E2250': [Demon_Sync(236,556),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Vengeance Lahmu pre-fight dialogue (Lahmu, Tao,Yoko)
+    'LV_E2255': [Demon_Sync(236,556),Demon_Sync(391, 569),Demon_Sync(1152),Demon_Sync(1157)], #Lilith kills Sahori (Lahmu, Lilith, Tao)
+    'LV_E2260': [Demon_Sync(1151),Demon_Sync(561,1150),Demon_Sync(1152),Demon_Sync(1157)], #Dazai/Yuzuru first argument (Dazai,Yuzuru, Tao, Yoko)
+    'LV_E2270': [Demon_Sync(1151),Demon_Sync(561,1150),Demon_Sync(152, 562),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Arriving in area 2 vengeance (Dazai,Yuzuru, Hayataro, Tao,Yoko)
+    'LV_E2290': [Demon_Sync(394, 559),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)],#Eisheth pre-fight dialogue (Eisheth, Tao, Yoko)
+    #'LV_E2295': [Demon_Sync(394, 559),Demon_Sync(1152)], #Eisheth post-fight (Tao) #TODO:Test (has no LV file???)
+    'LV_E2297': [Demon_Sync(451),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)],#Fionn pre(?)-fight vengeance (Tao,Yoko)
+    #'LV_E2306': [Demon_Sync(1157)], #Unknown (Yoko)
+    'LV_E2310': [Demon_Sync(1151),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)],#Dazai loses to Eisheth (Dazai, Tao,Yoko)
+    'LV_E2320': [Demon_Sync(561),Demon_Sync(394, 559),Demon_Sync(152, 562),Demon_Sync(1152),Demon_Sync(1157)],#Yuzuru pre-fight dialogue (Yuzuru, Eisheth, Hayataro, Tao,Yoko)
+    'LV_E2325': [Demon_Sync(561),Demon_Sync(394, 559),Demon_Sync(152, 562),Demon_Sync(1151),Demon_Sync(-396, 568),Demon_Sync(7,566),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Yuzuru post-fight dialogue (Yuzuru,Eisheth,Hayataro, Dazai, Agrat, Khonsu, Tao,Yoko)
+    'LV_E2330': [Demon_Sync(1151),Demon_Sync(561), Demon_Sync(57, isNavi=True),Demon_Sync(1152),Demon_Sync(1157)],#Discovering Salted Village (Dazai, Yuzuru, navi Pyro Jack,Tao,Yoko)
     'LV_E2440': [Demon_Sync(393, 554),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(391, 569)], #Qadistu Dream ??? (Naamah II ,Agrat,Eisheth,Lilith)
-    'LV_E2519': [Demon_Sync(550), Demon_Sync(567)],#First Nuwa/Yakumo scene in Shinjuku(Nuwa, Yakumo)
-    'LV_E2560': [Demon_Sync(550), Demon_Sync(567)],#Nuwa/Yakumo talk at Mastema's hill 1(Nuwa, Yakumo)
-    'LV_E2605': [Demon_Sync(1151,578),Demon_Sync(561)],#Dazai and Yuzuru become friends (Dazai, Yuzuru)
-    'LV_E2623': [Demon_Sync(7,566),Demon_Sync(1151,578),Demon_Sync(561)], #Khonsu pre-fight dialogue vengeance part 2 (Khonsu, Yuzuru, Dazai)
-    'LV_E2640': [Demon_Sync(596),Demon_Sync(1151,578)],#Arriving at Mastema's hill (Mastema,Dazai)
-    'LV_E2643': [Demon_Sync(596),Demon_Sync(1151,578)],#Dazai turns to salt (Mastema,Dazai)
-    'LV_E2645': [Demon_Sync(596),Demon_Sync(1151,578)], #Mastema brainwashes Dazai (Mastema, Dazai)
-    'LV_E2648': [Demon_Sync(393, 554)],#Naamah in Shinjuku (Naamah)
-    'LV_E2680': [Demon_Sync(561),Demon_Sync(567), Demon_Sync(550)],#Yakumo COV pre-fight dialogue (Yuzuru, Yakumo, Nuwa)
-    'LV_E2685': [Demon_Sync(561),Demon_Sync(567), Demon_Sync(550)],#Yakumo COV post-fight dialogue (Yuzuru, Yakumo, Nuwa)
-    'LV_E2700': [Demon_Sync(-396,568)],#Meeting Agrat
-    'LV_E2703': [Demon_Sync(568)],#Agrat pre-fight
-    'LV_E2705': [Demon_Sync(568),Demon_Sync(394, 559),Demon_Sync(393, 554)],#Agrat post-fight dialogue (Agrat, Eisheth, Naamah)
-    'LV_E2713': [Demon_Sync(393, 554),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(-395, 569)],#Lilith pre-fight dialogue (Naamah II ,Agrat,Eisheth,Lilith)
-    'LV_E2717': [Demon_Sync(393, 554),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(-395, 569)],#Lilith post-fight dialogue (Naamah II ,Agrat,Eisheth,Lilith)
-    'LV_E2720': [Demon_Sync(596),Demon_Sync(-459,565),Demon_Sync(550),Demon_Sync(564),Demon_Sync(1151,578),Demon_Sync(561),Demon_Sync(550)],#Timat Unleashed (Mastema,Tiamat,Nuwa,Abdiel,Dazai,Yuzuru,Yakumo)
-    'LV_E2740': [Demon_Sync(578),Demon_Sync(561),Demon_Sync(564)],#Dazai hat cutscene vengeance (Dazai (Hatless), Yuzuru, Abdiel) 
-    'LV_E2920': [Demon_Sync(564)], #Abdiel in Shakan pre-fight dialogue 
+    'LV_E2500': [Demon_Sync(1152),Demon_Sync(1157)], #After Hayataro has location of crow (Tao,Yoko)
+    #'LV_E2514': [Demon_Sync(1152),Demon_Sync(1157)], #Powers detect intruders (Tao,Yoko) #TODO: Has no LV file??
+    'LV_E2519': [Demon_Sync(550), Demon_Sync(567),Demon_Sync(1152),Demon_Sync(1157)],#First Nuwa/Yakumo scene in Shinjuku(Nuwa, Yakumo, Tao,Yoko)
+    'LV_E2560': [Demon_Sync(550), Demon_Sync(567),Demon_Sync(1152),Demon_Sync(1157)],#Nuwa/Yakumo talk at Mastema's hill 1(Nuwa, Yakumo, Tao, Yoko)
+    'LV_E2605': [Demon_Sync(1151),Demon_Sync(561,1150),Demon_Sync(1152),Demon_Sync(1157)],#Dazai and Yuzuru become friends (Dazai, Yuzuru, Tao, Yoko)
+    'LV_E2623': [Demon_Sync(7,566),Demon_Sync(1151),Demon_Sync(561,1150),Demon_Sync(1152),Demon_Sync(1157)], #Khonsu pre-fight dialogue vengeance part 2 (Khonsu, Yuzuru, Dazai, Tao, Yoko)
+    'LV_E2633': [Demon_Sync(1157)], #Yoko dialogue if demons can be trusted (Yoko)
+    'LV_E2640': [Demon_Sync(596),Demon_Sync(1151),Demon_Sync(1152),Demon_Sync(1157)],#Arriving at Mastema's hill (Mastema,Dazai,Tao,Yoko)
+    'LV_E2643': [Demon_Sync(596),Demon_Sync(1151),Demon_Sync(1152),Demon_Sync(1157)],#Dazai turns to salt (Mastema,Dazai,Tao,Yoko)
+    'LV_E2645': [Demon_Sync(596),Demon_Sync(1151),Demon_Sync(1152),Demon_Sync(1157)], #Mastema brainwashes Dazai (Mastema, Dazai,Tao,Yoko)
+    'LV_E2648': [Demon_Sync(393, 554),Demon_Sync(1152),Demon_Sync(1157)],#Naamah in Shinjuku (Naamah, Tao, Yoko)
+    'LV_E2680': [Demon_Sync(561,1150),Demon_Sync(567), Demon_Sync(550),Demon_Sync(1152),Demon_Sync(1157)],#Yakumo COV pre-fight dialogue (Yuzuru, Yakumo, Nuwa, Tao, Yoko)
+    'LV_E2685': [Demon_Sync(561,1150),Demon_Sync(567), Demon_Sync(550),Demon_Sync(1152),Demon_Sync(1157)],#Yakumo COV post-fight dialogue (Yuzuru, Yakumo, Nuwa, Tao,Yoko)
+    'LV_E2700': [Demon_Sync(-396,568),Demon_Sync(1152),Demon_Sync(1157)],#Meeting Agrat (Agrat(Copy), Tao,Yoko)
+    'LV_E2703': [Demon_Sync(568),Demon_Sync(1152),Demon_Sync(1157)],#Agrat pre-fight (Agrat, Tao, Yoko)
+    'LV_E2705': [Demon_Sync(568),Demon_Sync(394, 559),Demon_Sync(393, 554),Demon_Sync(1152),Demon_Sync(1157)],#Agrat post-fight dialogue (Agrat, Eisheth, Naamah, Tao, Yoko)
+    'LV_E2710': [Demon_Sync(1152),Demon_Sync(1157)], #Arriving at Government Building (Tao, Yoko)
+    'LV_E2713': [Demon_Sync(393, 554),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(-395, 569),Demon_Sync(1152),Demon_Sync(1157)],#Lilith pre-fight dialogue (Naamah II ,Agrat,Eisheth,Lilith, Tao,Yoko)
+    'LV_E2717': [Demon_Sync(393, 554),Demon_Sync(392, 568),Demon_Sync(559),Demon_Sync(-395, 569),Demon_Sync(1152),Demon_Sync(1157)],#Lilith post-fight dialogue (Naamah II ,Agrat,Eisheth,Lilith,Tao,Yoko)
+    'LV_E2720': [Demon_Sync(596),Demon_Sync(-459,565),Demon_Sync(550),Demon_Sync(564),Demon_Sync(1151),Demon_Sync(561,1150),Demon_Sync(550)],#Timat Unleashed (Mastema,Tiamat,Nuwa,Abdiel,Dazai,Yuzuru,Yakumo)
+    'LV_E2730': [Demon_Sync(1152)], #After being killed by Lilith (Tao)
+    'LV_E2735': [Demon_Sync(1152)], #Tao reviving Nahobino (Tao)
+    'LV_E2740': [Demon_Sync(578),Demon_Sync(561,1150),Demon_Sync(564)],#Dazai hat cutscene vengeance (Dazai (Hatless), Yuzuru, Abdiel) 
+    'LV_E2920': [Demon_Sync(564),Demon_Sync(1157)], #Abdiel in Shakan pre-fight dialogue (Abdiel, Yoko)
+    'LV_E2970': [Demon_Sync(1152),Demon_Sync(365)], #Tao at dorm roof after Shakan (Tao(Guest), Tao(Panagia))
+    'LV_E2980': [Demon_Sync(365)], #Panagia Tao talking to Koshimizu (Tao Panagia)
+    'LV_E3000': [Demon_Sync(365)], #Tao talking about keys (Tao Panagia)
     'LV_E3040': [Demon_Sync(567)], #Yakumo in Jojozi (Yakumo)
     'LV_E3100': [Demon_Sync(483),Demon_Sync(468)], #Beelzebub pre-fight dialogue(Beelzebub, Vasuki)
     'LV_E3120': [Demon_Sync(482),Demon_Sync(481)], #Zeus + Odin pre-fight dialogue (Odin,Zeus)
-    'LV_E3300': [Demon_Sync(578),Demon_Sync(577)], #Dazai pre-fight dialogue (Dazai, Abdiel)
-    'LV_E3310': [Demon_Sync(578),Demon_Sync(577)],#Dazai post-fight dialogue (Dazai, Abdiel)
-    'LV_E3350': [Demon_Sync(-459,565)], #Yoko uses Tiamat on you (Tiamat)
-    'LV_E3352': [Demon_Sync(-459,565)], #Tiamat post-fight (Tiamat)
-    'LV_E3355': [Demon_Sync(597)],#Tehom pre-fight dialogue (Tehom)
-    'LV_E3358': [Demon_Sync(597)],#Tehom post?-fight dialogue (Tehom)
-    'LV_E3390': [Demon_Sync(596)],#Siding with Yoko (Mastema)
-    'LV_E3400': [Demon_Sync(596)],#Siding with Yoko (Mastema)
-    'LV_E3410': [Demon_Sync(596),Demon_Sync(-459,565)],#Mastema uses Tiamat on you (Mastema,Tiamat)
-    'LV_E3415': [Demon_Sync(596),Demon_Sync(-459,565)],#Tiamat post-fight chaos (Mastema,Tiamat)
-    'LV_E3420': [Demon_Sync(596)],#Mastema pre-fight dialogue (Mastema)
-    'LV_E3425': [Demon_Sync(596)],#Mastema post-fight dialogue (Mastema)
-    'LV_E3480': [Demon_Sync(391, 569)], #Some CoV Chaos Ending Cutscene (Lilith)
+    'LV_E3250': [Demon_Sync(365)], #Tao at top floor of TOE (Tao Panagia)
+    'LV_E3300': [Demon_Sync(578),Demon_Sync(577),Demon_Sync(365)], #Dazai pre-fight dialogue (Dazai, Abdiel, Tao(Panagia))
+    'LV_E3310': [Demon_Sync(578),Demon_Sync(577),Demon_Sync(365)],#Dazai post-fight dialogue (Dazai, Abdiel, Tao(Panagia))
+    'LV_E3320': [Demon_Sync(365)], #Tao upon entering Empyrean (Tao Panagia)
+    'LV_E3330': [Demon_Sync(365),Demon_Sync(366)], #Tao at the Throne of Creation when Yoko shows up (Tao Panagia, Yoko Panagia)
+    'LV_E3340': [Demon_Sync(365),Demon_Sync(366)], #Siding with Tao (Tao Panagia, Yoko Panagia)
+    'LV_E3350': [Demon_Sync(-459,565),Demon_Sync(365),Demon_Sync(366)], #Yoko uses Tiamat on you (Tiamat, Tao Panagia, Yoko Panagia)
+    'LV_E3352': [Demon_Sync(-459,565),Demon_Sync(365),Demon_Sync(366)], #Tiamat post-fight (Tiamat, Tao Panagia, Yoko Panagia)
+    'LV_E3355': [Demon_Sync(597),Demon_Sync(365),Demon_Sync(366)],#Tehom pre-fight dialogue (Tehom, Tao Panagia, Yoko Panagia)
+    'LV_E3358': [Demon_Sync(597),Demon_Sync(365)],#Tehom post?-fight dialogue (Tehom, Tao Panagia)
+    'LV_E3360': [Demon_Sync(365)], #CoV Law Ending (Tao Panagia)
+    'LV_E3390': [Demon_Sync(596),Demon_Sync(1157)],#Siding with Yoko (Mastema, Yoko)
+    'LV_E3400': [Demon_Sync(596),Demon_Sync(365),Demon_Sync(366)],#Siding with Yoko (Mastema, Tao Panagia, Yoko Panagia)
+    'LV_E3410': [Demon_Sync(596),Demon_Sync(-459,565),Demon_Sync(366)],#Mastema uses Tiamat on you (Mastema,Tiamat, Yoko Panagia)
+    'LV_E3415': [Demon_Sync(596),Demon_Sync(-459,565),Demon_Sync(366)],#Tiamat post-fight chaos (Mastema,Tiamat, Yoko Panagia)
+    'LV_E3420': [Demon_Sync(596),Demon_Sync(366)],#Mastema pre-fight dialogue (Mastema, Yoko Panagia)
+    'LV_E3425': [Demon_Sync(596),Demon_Sync(366)],#Mastema post-fight dialogue (Mastema,Yoko Panagia)
+    'LV_E3450': [Demon_Sync(366)], #Amitaba calling for world recreation Yoko Side (Yoko Panagia)
+    'LV_E3480': [Demon_Sync(391, 569),Demon_Sync(1157)], #Some CoV Chaos Ending Cutscene (Lilith, Yoko)
 
 }   
 
 #Script files for events and what demon models need to be updated in htem
 #Demon_Sync(demonID in file, if different from demonID in file: demonID to take replacement from)
 EVENT_SCRIPT_MODELS = {
+    #Battle Event
+    'EB_GAKUEN_LAHMU2_BattleStart': [Demon_Sync(1152),Demon_Sync(1157)], #CoV Lahmu Battle Event (Tao,Yoko)
     #Initial & Mainmission M061 (Minato)
     'EM_M061_DevilTalk': [Demon_Sync(59)], #Talk Tutorial (Pixie)
-    'MM_M061_E2610' : [Demon_Sync(193,579),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Isis Event Bethel Egypt (Isis, Yuzuru,Dazai)
-    'MM_M061_E2620': [Demon_Sync(561),Demon_Sync(1151,578),Demon_Sync(7,566)], #CoV Khonsu Event Bethel Egypt (Khonsu,Yuzuru,Dazai)
-    'MM_M061_E2625_Direct': [Demon_Sync(193,579),Demon_Sync(7,566),Demon_Sync(561),Demon_Sync(1151,578)], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai)
+    'MM_M061_E2610' : [Demon_Sync(193,579),Demon_Sync(561,1150),Demon_Sync(1151),Demon_Sync(1152),Demon_Sync(1157)], #CoV Isis Event Bethel Egypt (Isis, Yuzuru,Dazai, Tao,Yoko)
+    'MM_M061_E2620': [Demon_Sync(561,1150),Demon_Sync(1151),Demon_Sync(7,566),Demon_Sync(1152),Demon_Sync(1157)], #CoV Khonsu Event Bethel Egypt (Khonsu,Yuzuru,Dazai, Tao,Yoko)
+    'MM_M061_E2625_Direct': [Demon_Sync(193,579),Demon_Sync(7,566),Demon_Sync(561,1150),Demon_Sync(1151),Demon_Sync(1152),Demon_Sync(1157)], #CoV Khonsu Event Post Fight Bethel Egypt (Isis,Khonsu,Yuzuru,Dazai,Tao,Yoko)
+    'MM_M061_EM0026': [Demon_Sync(1157)], #After beating Hydra (Yoko)
     'MM_M061_EM0181': [Demon_Sync(38, isNavi=True)], #Amanozako gives you a bead
     'MM_M061_EM0182': [Demon_Sync(38, isNavi=True)], #Amanozako becomes your navigator
     'EM_M061_Q0019': [Demon_Sync(38, isNavi=True)], #Amanozako leaves in area 1
-    'EM_M061_TutorialNavi02': [Demon_Sync(38, isNavi=True)], #Amanazako first partner spot
+    'EM_M061_TutorialNavi02': [Demon_Sync(38, isNavi=True),Demon_Sync(1157)], #Amanazako first partner spot (Yoko)
+    'EM_M061_TutorialGuest2': [Demon_Sync(1157)], #Yoko dialogue after Glasya-Labolas (Yoko)
+    'MM_M200_EN0100': [Demon_Sync(1157)], #Yoko after Naamah fight (Yoko)
     #Mainmission M016 (Empyrean)
     'MM_M016_E0885': [Demon_Sync(152)], #CoC Chaos Route Empyrean Hayataro Joins After Stock is Full (Hayataro)
     'MM_M016_E0885_Direct': [Demon_Sync(152)], #CoC Chaos Route Empyrean Hayataro Joins Stock is Full so wait (Hayataro)
+    'MM_M016_E0890_Direct': [Demon_Sync(365)], #Tao rewarding you in CoC for picking an ending according to your alignment (Tao Panagia)
     'MM_M016_E0891': [Demon_Sync(249,471)], #Empyrean Melchizedek
     'MM_M016_E0892': [Demon_Sync(244,472)], #Empyrean Sraosha
     'MM_M016_E0893': [Demon_Sync(198,473)], #Empyrean Alilat
+    'MM_M016_E0906': [Demon_Sync(365)], #Some Tao dialogue (Tao Panagaia) #TODO where is this
     #Mainmission M035 & 36 (Temple of Eternity & DKC)
     'MM_M035_E0825': [Demon_Sync(241,477)], #Temple of Eternity Metatron
     'MM_M036_E0644': [Demon_Sync(182,466)], #DKC Pre Chernobog
     'MM_M036_E0650': [Demon_Sync(240,467)], #DKC Abdiel & Dazai Event
     'MM_M036_E0670': [Demon_Sync(465),Demon_Sync(82,463),Demon_Sync(240,467),Demon_Sync(75,435)], #DKC Post Arioch(Yakumo,Arioch,Abdiel)
+    'MM_M035_E3220': [Demon_Sync(365)], #Temple of Eternity Tao Scene before entering Empyrean (Tao Panagia)
     #Mainmission M038 (Shakan)
     'MM_M038_E2912': [Demon_Sync(256,484),Demon_Sync(255,485)], #Shakan Dark Block Bros
     'MM_M038_E2917': [Demon_Sync(260,486)], #Shakan Cherub
     'MM_M038_E2930_Direct': [Demon_Sync(240,564)], #Shakan Abdiel Post Fight
     #Mainmission M060 (Taito)
     'MM_M060_E0762': [Demon_Sync(75,520),Demon_Sync(465)], #Nuwa in area 4 at the gate (Uses Replacement for Nahobino Nuwa, Yakumo)
-    'MM_M060_E0778': [Demon_Sync(468),Demon_Sync(37,878)], #Vasuki Post Fight Event (Vasuki, Kurama Tengu)
+    'MM_M060_E0763': [Demon_Sync(365)], #Tao joining you in area 4 creation (Tao Panagia)
+    'MM_M060_E0764': [Demon_Sync(365)], #Tao joining you in area 4 creation (If slots were filled previously) (Tao Panagia)
+    'MM_M060_E0778': [Demon_Sync(468),Demon_Sync(37,878),Demon_Sync(365)], #Vasuki Post Fight Event (Vasuki, Kurama Tengu, Tao (Panagia))
     'MM_M060_E0785': [Demon_Sync(8,469)], #CoC Taito Zeus Appears
-    'MM_M060_E0790': [Demon_Sync(8,469),Demon_Sync(37,878)],#CoC Taito Zeus PostFight (Zeus, Kurama Tengu)
-    'MM_M060_E0810': [Demon_Sync(9,470),Demon_Sync(37,878)],#CoC Odin PostFight (Odin, Kurama Tengu)
-    'MM_M060_E3010': [Demon_Sync(465,567)], #Yakumo in area 4 vengeance
-    'MM_M060_E3020': [Demon_Sync(465,567)], #Yakumo in area 4 vengeance part 2
-    'MM_M060_E3110_Direct': [Demon_Sync(81,483)], #CoV Beelzebub
-    'MM_M060_E3130_Direct': [Demon_Sync(482),Demon_Sync(481)], #CoV Zeus + Odin
+    'MM_M060_E0790': [Demon_Sync(8,469),Demon_Sync(37,878),Demon_Sync(365)],#CoC Taito Zeus PostFight (Zeus, Kurama Tengu, Tao (Panagia))#TODO: Tao did not work here either
+    'MM_M060_E0810': [Demon_Sync(9,470),Demon_Sync(37,878),Demon_Sync(365)],#CoC Odin PostFight (Odin, Kurama Tengu, Tao (Panagia))
+    'MM_M060_E0820': [Demon_Sync(365)], # Tao before entering Temple of eternity (Tao Panagia)
+    'MM_M060_E3001_Direct': [Demon_Sync(365)], #Tao joining you in area 4 vengeance (Tao Panagia)
+    'MM_M060_E3002': [Demon_Sync(365)], #Tao joining you in area 4 vengeance (If slots were filled previously) (Tao Panagia)
+    'MM_M060_E3010': [Demon_Sync(465,567),Demon_Sync(365)], #Yakumo in area 4 vengeance (Yakumo, Tao (Panagia))
+    'MM_M060_E3020': [Demon_Sync(465,567),Demon_Sync(365)], #Yakumo in area 4 vengeance part 2 (Yakumo, Tao (Panagia))
+    'MM_M060_E3110_Direct': [Demon_Sync(81,483),Demon_Sync(365)], #CoV Beelzebub (Beelzebub, Tao (Panagia))
+    'MM_M060_E3130_Direct': [Demon_Sync(482),Demon_Sync(481),Demon_Sync(365)], #CoV Zeus + Odin (Zeus, Odin, Tao (Panagia))
+    'MM_M060_E3200': [Demon_Sync(365)], #Tao before entering Temple of eternity vengeance (Tao Panagia)
     'MM_M060_Npc609Talk': [Demon_Sync(152)], #CoC Yuzuru Hayataro NPC Event? (Hayataro)
-    'MM_M060_EM0140': [Demon_Sync(38, isNavi=True)], #Amanozako rejoins in area 4 creation
-    #Mainmission M062 (Shinagawa)
+    'MM_M060_EM0140': [Demon_Sync(38, isNavi=True),Demon_Sync(365)], #Amanozako rejoins in area 4 creation (Amanozako, Tao (Panagia)) #Tao did not work here????
+    #Mainmission M062 (Shinagawa)  
     'MM_M062_EM0050': [Demon_Sync(57, isNavi=True)], #Golden Apple Quest part 1 creation (Pyro Jack)
     'MM_M062_EM0051': [Demon_Sync(23, isNavi=True)], #Idun in Golden Apple Quest creation (Idun)
     'MM_M062_EM0120_Direct': [Demon_Sync(38, isNavi=True)], #Amanozako rejoins in area 2
-    'MM_M062_EM0122': [Demon_Sync(38, isNavi=True)], #Amanozako car event
-    'MM_M062_EM0123': [Demon_Sync(38, isNavi=True)], #Amanozako railroad event
-    'MM_M062_EM0124': [Demon_Sync(38, isNavi=True)], #Amanozako container event
+    'MM_M062_EM0122': [Demon_Sync(38, isNavi=True),Demon_Sync(1157),Demon_Sync(-606,1152)], #Amanozako car event (Amanozako, Yoko,Tao (Guest))
+    'MM_M062_EM0123': [Demon_Sync(38, isNavi=True),Demon_Sync(1157),Demon_Sync(-606,1152)], #Amanozako railroad event (Amanozako, Yoko,Tao(Guest))
+    'MM_M062_EM0124': [Demon_Sync(38, isNavi=True),Demon_Sync(1157),Demon_Sync(-606,1152)], #Amanozako container event (Amanozako, Yoko,Tao(Guest))
     'MM_M062_EM0125': [Demon_Sync(38, isNavi=True)], #Amanozako leaves in area 2
     'MM_M062_E0378': [Demon_Sync(467)], #Dazai/Abdiel talk in area 2 creation (Abdiel)
     'MM_M062_E0380': [Demon_Sync(35,451)], #Fionn 1 Post-fight (Fionn)
     'MM_M062_E0492': [Demon_Sync(453)], #Final Lahmu (Lahmu Phase 2)
     'MM_M062_EM0041': [Demon_Sync(450)], #Loup-garous Event
-    'MM_M062_E2275': [Demon_Sync(564),Demon_Sync(1151,578)], #Dazai/Abdiel talk in area 2 vengeance (Abdiel,Dazai)
-    'MM_M062_E2295_Direct': [Demon_Sync(559)], #Eisheth pre-fight
-    'MM_M062_E2298_Direct': [Demon_Sync(451)], #Fionn post-fight Vengeance
-    'MM_M062_E2300': [Demon_Sync(1151,578)], #Dazai Pre-Blocker Vengeance
-    'MM_M062_E2302': [Demon_Sync(561),Demon_Sync(1151,578)], #Arriving in fairy village vengeance (Yuzuru,Dazai)
-    'MM_M062_E2305': [Demon_Sync(57, isNavi=True)], #Golden Apple Quest part 1 vengeance (Pyro Jack)
-    'MM_M062_E2305_2': [Demon_Sync(23, isNavi=True)], #Idun in Golden Apple Quest vengeance (Idun)
-    'MM_M062_E2326_Direct': [Demon_Sync(57, isNavi=True)], #Dialogue when fairy village is salted (Pyro Jack)
+    'MM_M062_E2271_Direct': [Demon_Sync(-606,1152),Demon_Sync(1157)], #Arriving in area 2 vengeance (Tao, Yoko)
+    'MM_M062_E2272_Hit': [Demon_Sync(-606,1152),Demon_Sync(1157)], #Sensing other students Vengeance (Tao, Yoko)
+    'MM_M062_E2275': [Demon_Sync(564),Demon_Sync(1151)], #Dazai/Abdiel talk in area 2 vengeance (Abdiel,Dazai)
+    'MM_M062_E228x': [Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Rescuing Students Vengeance (Tao, Yoko) #TODO: Test Tao school bag working?
+    'MM_M062_E2295_Direct': [Demon_Sync(559),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Eisheth pre-fight (Eisheth, Tao,Yoko)
+    'MM_M062_E2298_Direct': [Demon_Sync(451),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Fionn post-fight Vengeance (Fionn, Tao, Yoko)
+    'MM_M062_E2300': [Demon_Sync(1151)], #Dazai Pre-Blocker Vengeance
+    'MM_M062_E2302': [Demon_Sync(561,1150),Demon_Sync(1151),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Arriving in fairy village vengeance (Yuzuru,Dazai,Tao,Yoko)
+    'MM_M062_E2305': [Demon_Sync(57, isNavi=True),Demon_Sync(-606,1152),Demon_Sync(1157)], #Golden Apple Quest part 1 vengeance (Pyro Jack, Tao(Bag),Yoko)
+    'MM_M062_E2305_2': [Demon_Sync(23, isNavi=True),Demon_Sync(-606,1152),Demon_Sync(1157)], #Idun in Golden Apple Quest vengeance (Idun, Tao(Bag),Yoko)
+    'MM_M062_E2312_Direct': [Demon_Sync(-606,1152),Demon_Sync(1157)], #After Dazai reporting Miyazu's Capture (Tao(Bag),Yoko)
+    'MM_M062_E2326_Direct': [Demon_Sync(57, isNavi=True),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Dialogue when fairy village is salted (Pyro Jack, Tao, Yoko)
     #Mainmission M063 (Chiyoda)
     'MM_M063_E0625': [Demon_Sync(465),Demon_Sync(75,435)], #Yakumo post-fight Chiyoda (Yakumo, Nuwa)
     'MM_M063_EM0061': [Demon_Sync(822),Demon_Sync(823),Demon_Sync(824)], #Hellfire Highway (Okuninushi, Sukuna Hikona, Minakata)
@@ -249,41 +295,56 @@ EVENT_SCRIPT_MODELS = {
     'MM_M063_EM0130': [Demon_Sync(38, isNavi=True)], #Amanozako in Chiyoda
     'MM_M063_M0680': [Demon_Sync(467)],#Abdiel celebrates Arioch's death (Abdiel)
     #Mainmission M064 (Shinjuku)
-    'MM_M064_E2510_Direct': [Demon_Sync(503)], #First Power Fight in Shinjuku 
-    'MM_M064_E2512': [Demon_Sync(504)], #Second Power Fight in Shinjuku
-    'MM_M064_E2514': [Demon_Sync(505)], #Powers detecting other intruders (uses Triple Power Fight Replacement)
-    'MM_M064_E2520_Direct': [Demon_Sync(550),Demon_Sync(567)], #First Nuwa/Yakumo scene in Shinjuku 
-    'MM_M064_E2540': [Demon_Sync(506)], #Power Gauntlet (uses last Power Fight Replacement)
-    'MM_M064_E2550': [Demon_Sync(486)], #Cherub Blocker in Shinjuku (?)
-    'MM_M064_E2560': [Demon_Sync(550),Demon_Sync(567)], #Nuwa/Yakumo talk at Mastema's hill
-    'MM_M064_E2562_Direct': [Demon_Sync(550),Demon_Sync(567)], #Nuwa/Yakumo talk at Mastema's hill 2 
-    'MM_M064_E2638': [Demon_Sync(1151,578)], #Dazai joins to see Mastema 2 (?)
-    'MM_M064_E2642_Direct': [Demon_Sync(1151,578),Demon_Sync(596)], #Meeting Mastema (Dazai,Mastema)
-    'MM_M064_E2644_Direct': [Demon_Sync(596)], #Dazai got salted (Mastema)
+    'MM_M064_E2510_Direct': [Demon_Sync(503),Demon_Sync(1152),Demon_Sync(1157)], #First Power Fight in Shinjuku (Power,Tao,Yoko)
+    'MM_M064_E2512': [Demon_Sync(504),Demon_Sync(1152),Demon_Sync(1157)], #Second Power Fight in Shinjuku (PowerII,Tao,Yoko)
+    'MM_M064_E2514': [Demon_Sync(505),Demon_Sync(1152),Demon_Sync(1157)], #Powers detecting other intruders (uses Triple Power Fight Replacement,Tao,Yoko)
+    'MM_M064_E2516': [Demon_Sync(1152),Demon_Sync(1157)], #Talking to Sandman after seeing Powers (Tao,Yoko)
+    'MM_M064_E2520_Direct': [Demon_Sync(550),Demon_Sync(567),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #First Nuwa/Yakumo scene in Shinjuku (Nuwa,Yakumo,Tao,Yoko)
+    'MM_M064_E2540': [Demon_Sync(506),Demon_Sync(1152),Demon_Sync(1157)], #Power Gauntlet (uses last Power Fight Replacement,Tao,Yoko)
+    'MM_M064_E2550': [Demon_Sync(486),Demon_Sync(1152),Demon_Sync(1157)], #Cherub Blocker in Shinjuku (Cherub,Tao,Yoko)
+    'MM_M064_E2560': [Demon_Sync(550),Demon_Sync(567),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Nuwa/Yakumo talk at Mastema's hill (Nuwa,Yakuma,Tao,Yoko)
+    'MM_M064_E2562_Direct': [Demon_Sync(550),Demon_Sync(567),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Nuwa/Yakumo talk at Mastema's hill 2 
+    'MM_M064_E2638': [Demon_Sync(1151),Demon_Sync(1152),Demon_Sync(1157)], #Dazai joins to see Mastema 2 (Dazai,Tao,Yoko)
+    'MM_M064_E2642_Direct': [Demon_Sync(1151),Demon_Sync(596),Demon_Sync(1152),Demon_Sync(1157)], #Meeting Mastema (Dazai,Mastema,Tao,Yoko)
+    'MM_M064_E2644_Direct': [Demon_Sync(596),Demon_Sync(1152),Demon_Sync(1157)], #Dazai got salted (Mastema,Tao,Yoko)
+    'MM_M064_E2646_Direct': [Demon_Sync(1152),Demon_Sync(1157)], #Tao/Yoko talking about Angels salting people
     'MM_M064_E2647': [Demon_Sync(38, isNavi=True)], #Amanozako in Shinjuku
-    'MM_M064_E2650_Direct': [Demon_Sync(550),Demon_Sync(567)], #Nuwa/Yakumo talk after seeing Naamah (Nuwa, Yakumo)
+    'MM_M064_E2650_Direct': [Demon_Sync(550),Demon_Sync(567),Demon_Sync(1152),Demon_Sync(1157)], #Nuwa/Yakumo talk after seeing Naamah (Nuwa, Yakumo,Tao,Yoko)
+    'MM_M064_E2709': [Demon_Sync(1157)], #Yoko asking metaphorial question
     'MM_M064_E2690': [Demon_Sync(486)], #Dead Cherubim
     'MM_M064_E2900': [Demon_Sync(596)],#Mastema sends you to Shakan
     'MM_M064_E2950_Direct': [Demon_Sync(596)],#Mastema after Shakan
     #Mainmission M080 (Dorm Roof) 
-    'MM_M080_E2670_Direct': [Demon_Sync(561)], #Yuzuru wants to be a Nahobino
+    'MM_M080_E2670_Direct': [Demon_Sync(561,1150)], #Yuzuru wants to be a Nahobino
     #Mainmission M082 (School Outside)
-    'MM_M082_E3030_Direct': [Demon_Sync(561)],#Yakumo saves a student
+    'MM_M082_E3030_Direct': [Demon_Sync(561,1150)],#Yakumo saves a student
     #Mainmission M083 (Shinagawa Station Real Tokyo ) 
     'MM_M083_E2160_Direct': [Demon_Sync(75,435),Demon_Sync(567)], #Labolas 2 post-fight (Yakumo,Nuwa)
+    'MM_M083_EM2434': [Demon_Sync(1152),Demon_Sync(1157)], #Salt investigation Station Attendant (Tao;Yoko)
     #Mainmission M085 (Top Room of Tokyo Building whose name I do not remember)
+    'MM_M085_E0360': [Demon_Sync(1157)], #Koshimizu meeting after area 1 (Yoko)
+    'MM_M085_E0360Simple': [Demon_Sync(1152),Demon_Sync(1157)], #Koshimizu meeting after area 1 (Tao,Yoko) #TODO Does this affect only vengeance? If yes only do Yoko!
+    'MM_M085_E0360_Yoko': [Demon_Sync(1157)], #Yoko at Koshimizu meeting after Area 1(Yoko)
     'MM_M085_E0690': [Demon_Sync(-617,528)], #Koshimizu meeting after area 3 CoC (Koshimizu using Tsukuyomi Replacement)
     'MM_M085_E0730': [Demon_Sync(-617,528)], #Regarding the war of the gods scene CoC (Koshimizu using Tsukuyomi Replacement)
     'MM_M085_E0730_ready': [Demon_Sync(-617,528)], #End of Regarding the war of the gods scene CoC (Koshimizu using Tsukuyomi Replacement)
-    'MM_M085_E2420': [Demon_Sync(561)],#Yuzuru apologizes for attacking you (Yuzuru) (NOT YET TESTED IN GAME)
-    'MM_M085_E2445': [Demon_Sync(152,562)],#Koshimizu meeting after salt investigation (Hayataro) (NOT YET TESTED IN GAME)
-    'MM_M085_E2575_Direct': [Demon_Sync(1151,578)], #Dazai talk when Miyazu goes to Khonsu (Dazai) (NOT YET TESTED IN GAME)
-    'MM_M085_E2630_Direct': [Demon_Sync(1151,578),Demon_Sync(561)],#Yuzuru talk after Khonsu incident (Yuzuru, Dazai)
-    'MM_M085_E2635_Direct': [Demon_Sync(1151,578)], #Dazai joins to see Mastema 1 
-    'MM_M085_E2660': [Demon_Sync(561)], #Koshimizu meeting before Yakumo fight(Yuzuru)
-    'MM_M085_E2688': [Demon_Sync(561)], #Koshimizu meeting after Yakumo fight (Yuzuru)
+    'MM_M085_E2410': [Demon_Sync(561,1150),Demon_Sync(1152),Demon_Sync(1157)], #Koshimizu meeting after area 2 CoV (Yuzuru,Tao,Yoko)
+    'MM_M085_E2420': [Demon_Sync(561,1150)],#Yuzuru apologizes for attacking you (Yuzuru) (NOT YET TESTED IN GAME)
+    'MM_M085_E2435': [Demon_Sync(1152),Demon_Sync(1157)], #Koshimizu meeting during salt investigation (Tao,Yoko)
+    'MM_M085_E2445': [Demon_Sync(152,562),Demon_Sync(1157)],#Koshimizu meeting after salt investigation (Hayataro,Yoko) (NOT YET TESTED IN GAME)
+    'MM_M085_E2575_Direct': [Demon_Sync(1151),Demon_Sync(-606,1152),Demon_Sync(1157)], #Dazai talk when Miyazu goes to Khonsu (Dazai, Tao(Bag),Yoko) (NOT YET TESTED IN GAME)
+    'MM_M085_E2600': [Demon_Sync(1152),Demon_Sync(1157)], #Koshimizu meeting Miyazu kidnapped (Tao,Yoko)
+    'MM_M085_E2630_Direct': [Demon_Sync(1151),Demon_Sync(561,1150),Demon_Sync(1152),Demon_Sync(1157)],#Yuzuru talk after Khonsu incident (Yuzuru, Dazai,Tao,Yoko)
+    'MM_M085_E2635_Direct': [Demon_Sync(1151),Demon_Sync(1152),Demon_Sync(1157)], #Dazai joins to see Mastema 1 (Dazai,Tao,Yoko)
+    'MM_M085_E2660': [Demon_Sync(561,1150),Demon_Sync(1152),Demon_Sync(1157)], #Koshimizu meeting before Yakumo fight(Yuzuru,Tao,Yoko)
+    'MM_M085_E2688': [Demon_Sync(561,1150),Demon_Sync(1152),Demon_Sync(1157)], #Koshimizu meeting after Yakumo fight (Yuzuru,Tao,Yoko)
     #Mainmission M087 (Shrine Vengeance (Normal Lightning)) (NOT YET TESTED)
-    'MM_M087_E2450_Direct': [Demon_Sync(1151,578)],#Dazai goes to Chiyoda 
+    'MM_M087_E2430_Direct': [Demon_Sync(1152),Demon_Sync(1157)], #Salt investigation female researcher (Tao,Yoko)
+    'MM_M087_E2431': [Demon_Sync(1152),Demon_Sync(1157)], #Salt investigation Frantic Woman (Tao,Yoko)
+    'MM_M087_E2432': [Demon_Sync(1152),Demon_Sync(1157)], #Salt investigation Female Worker (Tao,Yoko)
+    'MM_M087_E2433': [Demon_Sync(1152),Demon_Sync(1157)], #Salt investigation concluded (Tao,Yoko)
+    'MM_M087_E2450_Direct': [Demon_Sync(1151)],#Dazai goes to Chiyoda 
+    'MM_M087_E2490': [Demon_Sync(1152),Demon_Sync(1157)], #Tao wants to go to Shinjuku (Tao,Yoko)
     #Mainmission M088 (Summit)
     'MM_M088_E0602_Abdiel': [Demon_Sync(467)], #Summmit (Abdiel)
     'MM_M088_E0602_Khons': [Demon_Sync(516)], #Summmit (Khonsu)
@@ -292,21 +353,26 @@ EVENT_SCRIPT_MODELS = {
     'MM_M088_E0602_Odin': [Demon_Sync(470)], #Summmit (Odin)
     'MM_M088_E0602_Zeus': [Demon_Sync(469)], #Summmit (Zeus)
     #Mainmission M092 (School Attacked)
+    'MM_M092_E0476': [Demon_Sync(1157),Demon_Sync(1152)], #Yoko after Dazai scene (Tao,Yoko) #TODO: Has dazai(likely not cause creation)
     'MM_M092_EM101_': [Demon_Sync(446)], #School Oni [63] (Down in the Direction where Jack is looking)
-    'MM_M092_EM102_': [Demon_Sync(488),Demon_Sync(491)], #School Andras + Rakshasa [56] (First Floor Hallway)
-    'MM_M092_EM104': [Demon_Sync(496)], #School Incubus [58] (Fake School Girl)
-    'MM_M092_EM105_1': [Demon_Sync(449)], #School Tsuchigumo [62] (Second Floor Hallway)
+    'MM_M092_EM102_': [Demon_Sync(488),Demon_Sync(491),Demon_Sync(-606,1152),Demon_Sync(1157)], #School Andras + Rakshasa [56] (First Floor Hallway) (Tao with Bag,Yoko)
+    'MM_M092_EM104': [Demon_Sync(496),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #School Incubus [58] (Fake School Girl) (Tao,Yoko)
+    'MM_M092_EM105_1': [Demon_Sync(449),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #School Tsuchigumo [62] (Second Floor Hallway) (Tao,Yoko)
     'MM_M092_EM106_': [Demon_Sync(501),Demon_Sync(448)], #School Manananggal +Shiki Ouji [66] (CoV 3rd Floor Corner from Far 2nd Floor Staircase, CoC 3rd Floor Hallway)
-    'MM_M092_EM107_': [Demon_Sync(492),Demon_Sync(495)], #School Rakshasa + Incubus [57] (Left at the Entrance)
+    'MM_M092_EM107_': [Demon_Sync(492),Demon_Sync(495),Demon_Sync(-606,1152),Demon_Sync(1157)], #School Rakshasa + Incubus [57] (Left at the Entrance) (Tao,Yoko)
     'MM_M092_EM108_': [Demon_Sync(493)], #School Rakshasa [59] (2nd Floor Corner)
     'MM_M092_EM109_a': [Demon_Sync(500)], #School Save Jack Frost (Manananggal) [64]
     'MM_M092_EM110': [Demon_Sync(497)], #School Incubus [61] (CoV 3rd Floor Hallway, CoC  3rd Floor Corner from Far 2nd Floor Staircase)
     'MM_M092_EM111': [Demon_Sync(487),Demon_Sync(502)], #School Aitvaras + Shiki Ouji [61][65] (4th Floor, Encounter depends on choice)
     'MM_M092_EM112_': [Demon_Sync(502),Demon_Sync(447),Demon_Sync(443)], #School Optional Multiple Fights [65][129][60] (Manananggal,Shiki Ouji,Andras) (4th Floor Far Corner)
+    'MM_M092_E2186_Direct': [Demon_Sync(1157)], #Yoko after Lahmu takes out Students (Yoko)
+    'MM_M092_E2190_hit': [Demon_Sync(-606,1152),Demon_Sync(1157)], #Tao joins during school attack (Tao with Bag, Yoko)
+    'MM_M092_Npc_0': [Demon_Sync(-606,1152),Demon_Sync(1157)], # Tao learns that Sahori attacked students (Tao with Bag, Yoko)
     #Mainmission M115 (Dorm Room) 
-    'MM_M115_E2603_Direct': [Demon_Sync(1151,578), Demon_Sync(561)], #Dazai/Yuzuru in dorm room
+    'MM_M115_E2405_Direct': [Demon_Sync(1157)], #Yoko in dorm room (Yoko)
+    'MM_M115_E2603_Direct': [Demon_Sync(1151), Demon_Sync(561,1150)], #Dazai/Yuzuru in dorm room
     #Mainmission M203 (Qadistu Dimension)
-    'MM_M203_E2718_Direct': [Demon_Sync(569)], #Lilith post-fight lecture
+    'MM_M203_E2718_Direct': [Demon_Sync(569),Demon_Sync(1152),Demon_Sync(1157)], #Lilith post-fight lecture (Lilith, Tao, Yoko)
 
     #SubMission M016 (Empyrean)
     'MM_M016_EM1450': [Demon_Sync(8, 838), Demon_Sync(19)], # A Plot Unveiled (Zeus, Demeter)
@@ -343,7 +409,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M107_EM1824': [Demon_Sync(934)], #Demi-Fiend
     'MM_M107_EM1825_Dev651': [Demon_Sync(934)], #Demi-Fiend (Post Fight)
     'MM_M107_EM1825_Direct': [Demon_Sync(934)], #Demi-Fiend (End of Fight)
-    'MM_M107_EM1825_Hit': [Demon_Sync(934)], #Demi-Fiend (Fight/Join Prompt)
+    'MM_M107_EM1825_Hit': [Demon_Sync(934,1161)], #Demi-Fiend (Fight/Join Prompt) (Seemingly Boss Replacement Anyway)
 
     #SubMission M035 & M036 (Empyrean & DKC)
     'MM_M035_EM1480': [Demon_Sync(242)], # The Seraph's Return (Michael)
@@ -355,7 +421,8 @@ EVENT_SCRIPT_MODELS = {
     'MM_M201_EM2411': [Demon_Sync(754)], #Turbo Granny Quest (Turbo Granny)
 
     #SubMission M061 (Minato)
-    'MM_M061_EM0021': [Demon_Sync(433),Demon_Sync(434)], #Eligor and Andras Event
+    'MM_M061_EM0021': [Demon_Sync(433),Demon_Sync(434),Demon_Sync(1157)], #Eligor and Andras Event
+    'MM_M061_EM1010': [Demon_Sync(1157)], #No Stone Unturned (Yoko)
     'MM_M061_EM1020': [Demon_Sync(114, isNavi=True)], #The Ultimate Omelet (Aitvaras)
     'MM_M061_EM1030': [Demon_Sync(304, isNavi=True)], #The Cursed Mermaids Mermaid Part
     'MM_M061_EM1031': [Demon_Sync(801)], #Pazuzu Event Mermaid Quest
@@ -363,9 +430,9 @@ EVENT_SCRIPT_MODELS = {
     'MM_M061_EM1050_New': [Demon_Sync(820)], #Talisman Hunt (Shiki Ouji)
     'MM_M061_EM1360': [Demon_Sync(861)], #Koumokuten Event Battle Dialogue
     'MM_M061_EM1383': [Demon_Sync(870)], #Seth Event Battle Dialogue
-    'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43)], # The Water Nymph (Leanan (also Apsaras maybe??))
+    'MM_M061_EM1630': [Demon_Sync(305),Demon_Sync(43),Demon_Sync(1157)], # The Water Nymph (Leanan (also Apsaras maybe??),Yoko)
     'MM_M061_EM1631': [Demon_Sync(316,867)], # The Water Nymph (Ippon-Datara)
-    'MM_M061_EM1640': [Demon_Sync(43),Demon_Sync(44,869)], # The Spirit of Love (Apsaras, Agathion)
+    'MM_M061_EM1640': [Demon_Sync(43),Demon_Sync(44,869),Demon_Sync(1157)], # The Spirit of Love (Apsaras, Agathion,Yoko)
     'MM_M061_EM1640_Hit': [Demon_Sync(43)], # The Spirit of Love First Area Entry (Apsaras)
     'MM_M061_EM2190': [Demon_Sync(888)], #Halphas Quest (Oni) 
     'MM_M061_EM2531': [Demon_Sync(751)], #Dormarth Quest (Dormarth)
@@ -392,19 +459,20 @@ EVENT_SCRIPT_MODELS = {
 
     #SubMission M062 (Shinagawa)
     'MM_M062_EM1141': [Demon_Sync(809)], #Kumbhanda Bottle Quest (Kumbhanda)
-    'MM_M062_EM1150': [Demon_Sync(23, isNavi=True)], #A Goddess Stolen part 1 (Idun)
+    'MM_M062_EM1150': [Demon_Sync(23, isNavi=True),Demon_Sync(1157),Demon_Sync(-606,1152)], #A Goddess Stolen part 1 (Idun,Yoko,Tao) #TODO:Check Tao Creation?
     'MM_M062_EM1151_Hit': [Demon_Sync(810), Demon_Sync(23, isNavi=True)], #A Goddess Stolen (Loki, Idun)
     'MM_M062_EM1160': [Demon_Sync(19)], #The Tyrant of Tennozu (Demeter)
     'MM_M062_EM1161_A': [Demon_Sync(804)], #The Tyrant of Tennozu  (Belphegor)
+    'MM_M062_EM1180': [Demon_Sync(-606,1152),Demon_Sync(1157)], #King Frost Quest Nekomata(Tao with Bag) #TODO: Affects CoC?
     'MM_M062_EM1181': [Demon_Sync(821)], #King Frost Quest (King Frost) 
     'MM_M062_EM1331': [Demon_Sync(828)],#Lord's Sword Quest (Arahabaki)  
     'MM_M062_EM1340': [Demon_Sync(860)], #Zouchouten Event Battle  
     'MM_M062_EM1401': [Demon_Sync(519),Demon_Sync(516)], #Khonsu Ra CoC Quest (Khonsu Ra, Khonsu)  
     'MM_M062_EM1402': [Demon_Sync(519),Demon_Sync(516)], #Khonsu Ra CoC Quest (Khonsu Ra, Khonsu)  
-    'MM_M062_EM1650': [Demon_Sync(67)], # Lilim/Principality Quest (Lilim)
-    'MM_M062_EM1660': [Demon_Sync(257)], # Lilim/Principality Quest (Principality)
+    'MM_M062_EM1650': [Demon_Sync(67),Demon_Sync(-606,1152),Demon_Sync(1157)], # Lilim/Principality Quest (Lilim, Tao with bag,Yoko)
+    'MM_M062_EM1660': [Demon_Sync(257),Demon_Sync(-606,1152),Demon_Sync(1157)], # Lilim/Principality Quest (Principality, Tao with bag,Yoko)
     'MM_M062_EM2040': [Demon_Sync(803)], #Pisaca Quest part 1 (Anahita)  #TODO: where is this event even?
-    'MM_M062_EM2090': [Demon_Sync(561),Demon_Sync(562)],  #Yuzuru Supply Run Quest (Yuzuru, Hayataro) 
+    'MM_M062_EM2090': [Demon_Sync(561,1150),Demon_Sync(562)],  #Yuzuru Supply Run Quest (Yuzuru, Hayataro) 
     'MM_M062_EM2490': [Demon_Sync(122)], #Brawny Ambitions II (Xiezhai)
     'esNPC_em1650_01': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) 
     'esNPC_em1650_02': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) 
@@ -412,7 +480,7 @@ EVENT_SCRIPT_MODELS = {
     'esNPC_em1650_04': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim)
     'esNPC_em1650_05': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim) 
     'esNPC_em1650_06': [Demon_Sync(880)], # Lilim/Principality Quest NPCs (Lilim)
-    'MM_M062_EM2110_Enemy': [Demon_Sync(769)], #Vouivre Quest (Vouivre) 
+    'MM_M062_EM2110_Enemy': [Demon_Sync(769),Demon_Sync(-606,1152),Demon_Sync(1157)], #Vouivre Quest (Vouivre, Tao with bag,Yoko) 
     'MM_M062_EM2430': [Demon_Sync(59, isNavi=True)], #Pixie on the Case (Pixie)
     'MM_M062_EM2432': [Demon_Sync(59, isNavi=True)], #Pixie on the Case npc Pixies (Pixie)
     'MM_M062_EM2440': [Demon_Sync(768), Demon_Sync(38, isNavi=True)], #Amanozako Control Quest(Yakshini, Amanozako)
@@ -444,15 +512,15 @@ EVENT_SCRIPT_MODELS = {
     'MM_M063_EM2580': [Demon_Sync(776)], #Yoshitsune Haunt Quest (Atavaka)
 
     #SubMission M064 (Shinjuku)
-    'MM_M064_EM1260': [Demon_Sync(19)], #Demeter Defeat Chimera Shinjuku (Demeter)
+    'MM_M064_EM1260': [Demon_Sync(19),Demon_Sync(-606,1152),Demon_Sync(1157)], #Demeter Defeat Chimera Shinjuku (Demeter, Tao with Bag,Yoko)
     'MM_M064_EM1261': [Demon_Sync(812)], #Demeter Defeat Chimera Shinjuku (Chimera)
     'MM_M064_EM1281': [Demon_Sync(814)], #The Archangel of Destruction Shinjuku(Camael)
     'MM_M064_EM1291': [Demon_Sync(816)], #Roar of Hatred Shinjuku(Moloch)
     'MM_M064_EM1391': [Demon_Sync(829),Demon_Sync(830)], #Winged Sun (Mithras, Asura) 
     'MM_M064_EM2130': [Demon_Sync(41), Demon_Sync(386)], #Basilisk Hunt Quest (Anansi, Onyankopon)
     'MM_M064_EM2131': [Demon_Sync(41)], #Basilisk Hunt Quest (Anansi)
-    'MM_M064_EM2270': [Demon_Sync(40)], #Kresnik Kudlak Quest (Kresnik) 
-    'MM_M064_EM2280': [Demon_Sync(346)], #Kresnik Kudlak Quest (Kudlak)
+    'MM_M064_EM2270': [Demon_Sync(40),Demon_Sync(-606,1152),Demon_Sync(1157)], #Kresnik Kudlak Quest (Kresnik, Tao with Bag,Yoko) 
+    'MM_M064_EM2280': [Demon_Sync(346),Demon_Sync(-606,1152),Demon_Sync(1157)], #Kresnik Kudlak Quest (Kudlak, Tao with Bag,Yoko)
     'MM_M064_EM2306': [Demon_Sync(387, isNavi=True)], #Amabie in Macabre Quest (Amabie)
     'MM_M064_EM2360': [Demon_Sync(355, isNavi=True)], #Alice Quest (Alice)
     'MM_M064_EM2360_Event': [Demon_Sync(355, isNavi=True)], #Alice Quest Event (Alice)
@@ -460,15 +528,16 @@ EVENT_SCRIPT_MODELS = {
     'MM_M064_EM2363': [Demon_Sync(355, isNavi=True)], #Alice Quest part 4 (Alice)
     'MM_M064_EM2364': [Demon_Sync(355, isNavi=True)], #Alice Quest part 5 (Alice)
     'MM_M064_EM2366': [Demon_Sync(355, isNavi=True)], #Alice Quest part 7 (Alice)
-    'MM_M064_EM2310': [Demon_Sync(386, 770), Demon_Sync(41)], #Onyakopon Anansi Quest (Onyakopon Side)
-    'MM_M064_EM2320': [Demon_Sync(41, 771), Demon_Sync(386)], #Onyakopon Anansi Quest (Anansi Side)
+    'MM_M064_EM2310': [Demon_Sync(386, 770), Demon_Sync(41),Demon_Sync(-606,1152),Demon_Sync(1157)], #Onyakopon Anansi Quest (Onyakopon Side) (Tao with Bag,Yoko)
+    'MM_M064_EM2320': [Demon_Sync(41, 771), Demon_Sync(386),Demon_Sync(-606,1152),Demon_Sync(1157)], #Onyakopon Anansi Quest (Anansi Side) (Tao with Bag,Yoko)
     'MM_M064_EM2400': [Demon_Sync(596)], #Samael Quest (Mastema) 
     'MM_M064_EM2402': [Demon_Sync(760)], #Samael Quest (Samael) 
     'MM_M064_EM2421_Direct': [Demon_Sync(681)], #Satan Quest (Satan) 
-    'MM_M064_EM2461': [Demon_Sync(892)], #Mara Quest (Mara) 
+    'MM_M064_EM2461': [Demon_Sync(892),Demon_Sync(-606,1152),Demon_Sync(1157)], #Mara Quest (Mara, Tao with Bag,Yoko) 
     'MM_M064_EM2500': [Demon_Sync(215)], #Brawny Ambitions III (Okuninushi) 
     'MM_M064_EM2521_Navi': [Demon_Sync(273, isNavi=True)], #Shinjuku Gem Quest (Decarabia)
     'MM_M064_EM2552': [Demon_Sync(509)], #MadGasser Quest (Zhen (3xCopy))
+    'MM_M064_EM2620': [Demon_Sync(365)], #Orochi Quest Kushinada & Co Part (Tao Panagia)
     'MM_M064_EM2621': [Demon_Sync(775)], #Orochi Quest (Orochi) 
 
     #SubMission M060 (Taito)
@@ -486,17 +555,21 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_EM1600': [Demon_Sync(878)],  #Final Amanozako Quest (Kurama Tengu) 
     'MM_M060_EM1601': [Demon_Sync(878),Demon_Sync(38),Demon_Sync(877)], #Final Amanozako Quest (Kurama Tengu,Amanozako, Zaou Gongen)
     'MM_M060_EM1602': [Demon_Sync(38)],  #Final Amanozako Quest (Amanozako) 
-    'MM_M060_EM1690': [Demon_Sync(265)],  #Adramelech Futsunushi Quest (Adramalech) 
-    'MM_M060_EM1700': [Demon_Sync(201)],  #Adramelech Futsunushi Quest (Futsunushi) 
+    'MM_M060_EM1690': [Demon_Sync(265),Demon_Sync(365)],  #Adramelech Futsunushi Quest (Adramalech, Tao Panagia) 
+    'MM_M060_EM1700': [Demon_Sync(201),Demon_Sync(365)],  #Adramelech Futsunushi Quest (Futsunushi, Tao Panagia) 
     'MM_M060_EM2371': [Demon_Sync(865)],  #Garuda Quest (Garuda) 
     'MM_M060_EM2480': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest (Nahobiho)
     'MM_M060_EM2481': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 2 (Nahobiho)
     'MM_M060_EM2482': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 3 (Nahobiho)
     'MM_M060_EM2483': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 4 (Nahobiho)
     'MM_M060_EM2484': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 5 (Nahobiho)
-    'MM_M060_EM2570': [Demon_Sync(22, 779)], #Moirae Haunt Quest (Norn)
+    'MM_M060_EM2570': [Demon_Sync(22, 779),Demon_Sync(365)], #Moirae Haunt Quest (Norn, Tao Panagia)
     'MM_M060_EM2630': [Demon_Sync(782)],  #Saturnus Quest(Saturnus) 
     'MM_M061_EM2705': [Demon_Sync(207)], # The Guardian of Light (Marici)
+
+    #Submission M082 (Outside School)
+    'MM_M082_EM2053': [Demon_Sync(1152)], #Give Amabie Photo to Tao (Tao)
+    'MM_M082_EM2055': [Demon_Sync(1157)], #Give Amabie Photo to Yoko
 
     #Garden SubMission
     'MM_M060_EM2351': [Demon_Sync(778)],  #Idun Haunt Quest (Thor)
@@ -520,6 +593,7 @@ EVENT_SCRIPT_MODELS = {
     'esNPC_m060_08_Navi': [Demon_Sync(144, isNavi=True)], #Navi Bugs
     'esNPC_m060_14_Navi': [Demon_Sync(77, isNavi=True)], #Navi Mara
     'esNPC_m060_15_Navi': [Demon_Sync(35, isNavi=True)], #Navi Fionn
+    'esNPC_m083_10': [Demon_Sync(1157)], #Yoko in Station? #TODO: Where and what?
 
     #Playable Demons
     'Pla038': [Demon_Sync(38, isNavi=True)], #Player Amanozako
@@ -911,118 +985,33 @@ MODEL_SYNC = {
     526: 525, # Depraved Arm (use Nahobino Abdiel)
     527: 525, # Depraved Wing (use Nahobino Abdiel)
     576: 392, # Agrat Illusion
-
+    1161: 934, #Demi-fiend (Guest)
 }
 
+'''
+Creates a dictionary of all LV event files and their SEQ files.
 
-LV_SEQUENCES = {
-    'LV_E0180': ['SEQ_E0180_c01','SEQ_E0180_c02','SEQ_E0180_c03','SEQ_E0180_c04','SEQ_E0180_c05','SEQ_E0180_c06','SEQ_E0180_c07','SEQ_E0180_c08','SEQ_E0180_c09'], #Triple Preta Cutscene
-    'LV_E0181': ['SEQ_E0181_c01','SEQ_E0181_c02','SEQ_E0181_c03','SEQ_E0181_c04','SEQ_E0181_c05','SEQ_E0181_c06','SEQ_E0181_c07'], #Post Triple Preta Cutscene
-    'LV_E0310': ['SEQ_E0310_c01', 'SEQ_E0310_c02', 'SEQ_E0310_c03', 'SEQ_E0310_c05', 'SEQ_E0310_c06', 'SEQ_E0310_c07', 'SEQ_E0310_c08', 'SEQ_E0310_c09'],
-    'LV_E0330': ['SEQ_E0330_c01','SEQ_E0330_c02','SEQ_E0330_c03','SEQ_E0330_c04','SEQ_E0330_c06','SEQ_E0330_c08','SEQ_E0330_c09','SEQ_E0330_c10','SEQ_E0330_c10B','SEQ_E0330_c11','SEQ_E0330_c13','SEQ_E0330_c14','SEQ_E0330_c15','SEQ_E0330_c16','SEQ_E0330_c17','SEQ_E0330_c20'], #UMAP Snake Nuwa Pre-fight Cutscene (Nuwa, Snake Nuwa)
-    'LV_E0340': ['SEQ_E0340_c01','SEQ_E0340_c02','SEQ_E0340_c02B','SEQ_E0340_c04','SEQ_E0340_c04B','SEQ_E0340_c05','SEQ_E0340_c06','SEQ_E0340_c07','SEQ_E0340_c08','SEQ_E0340_c09','SEQ_E0340_c11','SEQ_E0340_c12','SEQ_E0340_c13',], #UMAP Snake Nuwa Post-fight Cutscene (Yakumo, Nuwa, Snake Nuwa)
-    'LV_E0350': ['SEQ_E0350_c01','SEQ_E0350_c02','SEQ_E0350_c03','SEQ_E0350_c04','SEQ_E0350_c06','SEQ_E0350_c07','SEQ_E0350_c08','SEQ_E0350_c09B','SEQ_E0350_c10','SEQ_E0350_c11','SEQ_E0350_c12','SEQ_E0350_c13','SEQ_E0350_c14','SEQ_E0350_c14A','SEQ_E0350_c14B','SEQ_E0350_c15','SEQ_E0350_c16','SEQ_E0350_c16B','SEQ_E0350_c17','SEQ_E0350_c18','SEQ_E0350_c19'], #UMAP Meeting Abdiel Cutscene
-    'LV_E0375': ['SEQ_E0375_c01','SEQ_E0375_c01B','SEQ_E0375_c02','SEQ_E0375_c03','SEQ_E0375_c04','SEQ_E0375_c05','SEQ_E0375_c06','SEQ_E0375_c07','SEQ_E0375_c08','SEQ_E0375_c09','SEQ_E0375_c10','SEQ_E0375_c11','SEQ_E0375_c12','SEQ_E0375_c13','SEQ_E0375_c14','SEQ_E0375_c15',], #UMAP Hayataro in Beginning of Shinagawa Cutscene
-    'LV_E0379': ['SEQ_E0379_c01','SEQ_E0379_c02','SEQ_E0379_c03','SEQ_E0379_c04','SEQ_E0379_c05','SEQ_E0379_c06','SEQ_E0379_c07','SEQ_E0379_c08','SEQ_E0379_c08B','SEQ_E0379_c09','SEQ_E0379_c10',], #UMAP Fionn 1 Cutscene
-    'LV_E0431': ['SEQ_E0431_c01', 'SEQ_E0431_c02', 'SEQ_E0431_c02B', 'SEQ_E0431_c03', 'SEQ_E0431_c04', 'SEQ_E0431_c04B', 'SEQ_E0431_c04C', 'SEQ_E0431_c05', 'SEQ_E0431_c05B', 'SEQ_E0431_c05C', 'SEQ_E0431_c07', 'SEQ_E0431_c08', 'SEQ_E0431_c09', 'SEQ_E0431_c10'],
-    'LV_E0432': ['SEQ_E0432_c03', 'SEQ_E0432_c05', 'SEQ_E0432_c06', 'SEQ_E0432_c08', 'SEQ_E0432_c10'],
-    'LV_E0470': ['SEQ_E0470_c01', 'SEQ_E0470_c02', 'SEQ_E0470_c03', 'SEQ_E0470_c04', 'SEQ_E0470_c04B', 'SEQ_E0470_c05', 'SEQ_E0470_c06A', 'SEQ_E0470_c07', 'SEQ_E0470_c08', 'SEQ_E0470_c09', 'SEQ_E0470_c10', 'SEQ_E0470_c11', 'SEQ_E0470_c12', 'SEQ_E0470_c13', 'SEQ_E0470_c14', 'SEQ_E0470_c15'],
-    'LV_E0473': ['SEQ_E0473_c01', 'SEQ_E0473_c02', 'SEQ_E0473_c03', 'SEQ_E0473_c04', 'SEQ_E0473_c05', 'SEQ_E0473_c06', 'SEQ_E0473_c07'],
-    'LV_E0480': ['SEQ_E0480_c01', 'SEQ_E0480_c02', 'SEQ_E0480_c04', 'SEQ_E0480_c05', 'SEQ_E0480_c06', 'SEQ_E0480_c07', 'SEQ_E0480_c07B', 'SEQ_E0480_c08', 'SEQ_E0480_c10', 'SEQ_E0480_c11', 'SEQ_E0480_c12', 'SEQ_E0480_c12B', 'SEQ_E0480_c13', 'SEQ_E0480_c14', 'SEQ_E0480_c14B', 'SEQ_E0480_c15', 'SEQ_E0480_c16', 'SEQ_E0480_c17', 'SEQ_E0480_c17B', 'SEQ_E0480_c18', 'SEQ_E0480_c19', 'SEQ_E0480_c20', 'SEQ_E0480_c20B', 'SEQ_E0480_c20C', 'SEQ_E0480_c20D', 'SEQ_E0480_c21', 'SEQ_E0480_c21B', 'SEQ_E0480_c22', 'SEQ_E0480_c23', 'SEQ_E0480_c24B', 'SEQ_E0480_c27'],
-    'LV_E0490': ['SEQ_E0490_c01', 'SEQ_E0490_c02', 'SEQ_E0490_c02B', 'SEQ_E0490_c03', 'SEQ_E0490_c04', 'SEQ_E0490_c05', 'SEQ_E0490_c06', 'SEQ_E0490_c07', 'SEQ_E0490_c08', 'SEQ_E0490_c09A', 'SEQ_E0490_c09B', 'SEQ_E0490_c10', 'SEQ_E0490_c11', 'SEQ_E0490_c12', 'SEQ_E0490_c13', 'SEQ_E0490_c14', 'SEQ_E0490_c15', 'SEQ_E0490_c16', 'SEQ_E0490_c17'],
-    'LV_E0530': ['SEQ_E0530_c01', 'SEQ_E0530_c02', 'SEQ_E0530_c03', 'SEQ_E0530_c04', 'SEQ_E0530_c05', 'SEQ_E0530_c07', 'SEQ_E0530_c08', 'SEQ_E0530_c09', 'SEQ_E0530_c10', 'SEQ_E0530_c10B', 'SEQ_E0530_c10C', 'SEQ_E0530_c10D', 'SEQ_E0530_c10E', 'SEQ_E0530_c11', 'SEQ_E0530_c12'],
-    'LV_E0580': ['SEQ_E0580_c01', 'SEQ_E0580_c02', 'SEQ_E0580_c03', 'SEQ_E0580_c08', 'SEQ_E0580_c09', 'SEQ_E0580_c10', 'SEQ_E0580_c11', 'SEQ_E0580_c12', 'SEQ_E0580_c13', 'SEQ_E0580_c14', 'SEQ_E0580_c15'],
-    'LV_E0595': ['SEQ_E0595_c01', 'SEQ_E0595_c01A', 'SEQ_E0595_c01C', 'SEQ_E0595_c02', 'SEQ_E0595_c03', 'SEQ_E0595_c04'],
-    'LV_E0598': ['SEQ_E0598_c01', 'SEQ_E0598_c02', 'SEQ_E0598_c03', 'SEQ_E0598_c04', 'SEQ_E0598_c05', 'SEQ_E0598_c06'],
-    'LV_E0600': ['SEQ_E0600_c00', 'SEQ_E0600_c00B', 'SEQ_E0600_c01', 'SEQ_E0600_c01B', 'SEQ_E0600_c02', 'SEQ_E0600_c03', 'SEQ_E0600_c04', 'SEQ_E0600_c05', 'SEQ_E0600_c06', 'SEQ_E0600_c08', 'SEQ_E0600_c08B', 'SEQ_E0600_c09'],
-    'LV_E0603': ['SEQ_E0603_c01', 'SEQ_E0603_c02', 'SEQ_E0603_c03', 'SEQ_E0603_c04', 'SEQ_E0603_c05', 'SEQ_E0603_c06', 'SEQ_E0603_c06B', 'SEQ_E0603_c07', 'SEQ_E0603_c08', 'SEQ_E0603_c09', 'SEQ_E0603_c10', 'SEQ_E0603_c10B', 'SEQ_E0603_c10C', 'SEQ_E0603_c10D', 'SEQ_E0603_c11', 'SEQ_E0603_c12'],
-    'LV_E0604': ['SEQ_E0604_c01', 'SEQ_E0604_c02', 'SEQ_E0604_c03', 'SEQ_E0604_c04', 'SEQ_E0604_c05', 'SEQ_E0604_c06', 'SEQ_E0604_c07', 'SEQ_E0604_c08', 'SEQ_E0604_c09', 'SEQ_E0604_c10', 'SEQ_E0604_c11', 'SEQ_E0604_c12', 'SEQ_E0604_c16'],
-    'LV_E0620': ['SEQ_E0620_c01', 'SEQ_E0620_c01B', 'SEQ_E0620_c02', 'SEQ_E0620_c03', 'SEQ_E0620_c04', 'SEQ_E0620_c05', 'SEQ_E0620_c05A', 'SEQ_E0620_c05B', 'SEQ_E0620_c06', 'SEQ_E0620_c07', 'SEQ_E0620_c08', 'SEQ_E0620_c09', 'SEQ_E0620_c10', 'SEQ_E0620_c12', 'SEQ_E0620_c13', 'SEQ_E0620_c14'],
-    'LV_E0630': ['SEQ_E0630_c01', 'SEQ_E0630_c02', 'SEQ_E0630_c03', 'SEQ_E0630_c04', 'SEQ_E0630_c05', 'SEQ_E0630_c06', 'SEQ_E0630_c07', 'SEQ_E0630_c08', 'SEQ_E0630_c09A', 'SEQ_E0630_c09B', 'SEQ_E0630_c10', 'SEQ_E0630_c11'],
-    'LV_E0660': ['SEQ_E0660_c01', 'SEQ_E0660_c03', 'SEQ_E0660_c04', 'SEQ_E0660_c05', 'SEQ_E0660_c06', 'SEQ_E0660_c07', 'SEQ_E0660_c08'],
-    'LV_E0736': ['SEQ_E0736_c01', 'SEQ_E0736_c02', 'SEQ_E0736_c03', 'SEQ_E0736_c04', 'SEQ_E0736_c04B', 'SEQ_E0736_c05', 'SEQ_E0736_c06', 'SEQ_E0736_c07', 'SEQ_E0736_c07B', 'SEQ_E0736_c08', 'SEQ_E0736_c08B', 'SEQ_E0736_c09', 'SEQ_E0736_c10', 'SEQ_E0736_c11', 'SEQ_E0736_c12', 'SEQ_E0736_c12B', 'SEQ_E0736_c13', 'SEQ_E0736_c14', 'SEQ_E0736_c14B', 'SEQ_E0736_c14C'],
-    'LV_E0775': ['SEQ_E0775_c01', 'SEQ_E0775_c02', 'SEQ_E0775_c03', 'SEQ_E0775_c04', 'SEQ_E0775_c05'],
-    'LV_E0785': ['SEQ_E0785_c01', 'SEQ_E0785_c02', 'SEQ_E0785_c02B', 'SEQ_E0785_c03', 'SEQ_E0785_c04', 'SEQ_E0785_c05'],
-    'LV_E0805': ['SEQ_E0805_c01', 'SEQ_E0805_c02', 'SEQ_E0805_c03', 'SEQ_E0805_c03A', 'SEQ_E0805_c03B', 'SEQ_E0805_c03s', 'SEQ_E0805_c04', 'SEQ_E0805_c05'],
-    'LV_E0841': ['SEQ_E0841_c01', 'SEQ_E0841_c02a', 'SEQ_E0841_c02b', 'SEQ_E0841_c03', 'SEQ_E0841_c04', 'SEQ_E0841_c05'],
-    'LV_E0842': ['SEQ_E0842_c01', 'SEQ_E0842_c03', 'SEQ_E0842_c04', 'SEQ_E0842_c05', 'SEQ_E0842_c07', 'SEQ_E0842_c08', 'SEQ_E0842_c09'],
-    'LV_E0850': ['SEQ_E0850_c01', 'SEQ_E0850_c02', 'SEQ_E0850_c03', 'SEQ_E0850_c04', 'SEQ_E0850_c05', 'SEQ_E0850_c06', 'SEQ_E0850_c07', 'SEQ_E0850_c08', 'SEQ_E0850_c09', 'SEQ_E0850_c10', 'SEQ_E0850_c11', 'SEQ_E0850_c12', 'SEQ_E0850_c13', 'SEQ_E0850_c14', 'SEQ_E0850_c15', 'SEQ_E0850_c19', 'SEQ_E0850_c20', 'SEQ_E0850_c21', 'SEQ_E0850_c23', 'SEQ_E0850_c23B', 'SEQ_E0850_c25', 'SEQ_E0850_c26', 'SEQ_E0850_c27', 'SEQ_E0850_c29', 'SEQ_E0850_c30', 'SEQ_E0850_c30B', 'SEQ_E0850_c30C', 'SEQ_E0850_c33', 'SEQ_E0850_c34', 'SEQ_E0850_c49', 'SEQ_E0850_c50', 'SEQ_E0850_c50B', 'SEQ_E0850_c50C', 'SEQ_E0850_c51', 'SEQ_E0850_c52', 'SEQ_E0850_c53', 'SEQ_E0850_c53B', 'SEQ_E0850_c54', 'SEQ_E0850_c54C'],
-    'LV_E0870': ['SEQ_E0870_c01', 'SEQ_E0870_c02', 'SEQ_E0870_c03', 'SEQ_E0870_c04', 'SEQ_E0870_c05', 'SEQ_E0870_c06', 'SEQ_E0870_c06B', 'SEQ_E0870_c07', 'SEQ_E0870_c08', 'SEQ_E0870_c09', 'SEQ_E0870_c10', 'SEQ_E0870_c11', 'SEQ_E0870_c12'],
-    'LV_E0880': ['SEQ_E0880_c01', 'SEQ_E0880_c02', 'SEQ_E0880_c03', 'SEQ_E0880_c04', 'SEQ_E0880_c05', 'SEQ_E0880_c05B', 'SEQ_E0880_c06', 'SEQ_E0880_c07', 'SEQ_E0880_c08'],
-    'LV_E0900': ['SEQ_E0900_c01', 'SEQ_E0900_c02', 'SEQ_E0900_c02B', 'SEQ_E0900_c03', 'SEQ_E0900_c04', 'SEQ_E0900_c05', 'SEQ_E0900_c05D', 'SEQ_E0900_c06', 'SEQ_E0900_c07', 'SEQ_E0900_c08C', 'SEQ_E0900_c10', 'SEQ_E0900_c11', 'SEQ_E0900_c12', 'SEQ_E0900_c13', 'SEQ_E0900_c14', 'SEQ_E0900_c15', 'SEQ_E0900_c16', 'SEQ_E0900_c17', 'SEQ_E0900_c18', 'SEQ_E0900_c19', 'SEQ_E0900_c20', 'SEQ_E0900_c21'],
-    'LV_E0905': ['SEQ_E0905_c01', 'SEQ_E0905_c02', 'SEQ_E0905_c03', 'SEQ_E0905_c04', 'SEQ_E0905_c05'],
-    'LV_E0910': ['SEQ_E0910_c01', 'SEQ_E0910_c02', 'SEQ_E0910_c03', 'SEQ_E0910_c04', 'SEQ_E0910_c05', 'SEQ_E0910_c05B', 'SEQ_E0910_c06', 'SEQ_E0910_c07', 'SEQ_E0910_c07B', 'SEQ_E0910_c08', 'SEQ_E0910_c08B', 'SEQ_E0910_c08C', 'SEQ_E0910_c10', 'SEQ_E0910_c11', 'SEQ_E0910_c12', 'SEQ_E0910_c13', 'SEQ_E0910_c14', 'SEQ_E0910_c16', 'SEQ_E0910_c17', 'SEQ_E0910_c18', 'SEQ_E0910_c19', 'SEQ_E0910_c20', 'SEQ_E0910_c21'],
-    'LV_E0915': ['SEQ_E0915_c01', 'SEQ_E0915_c02', 'SEQ_E0915_c03', 'SEQ_E0915_c04', 'SEQ_E0915_c05'],
-    'LV_E0920': ['SEQ_E0920_c01', 'SEQ_E0920_c02', 'SEQ_E0920_c03', 'SEQ_E0920_c04', 'SEQ_E0920_c04B', 'SEQ_E0920_c04C', 'SEQ_E0920_c05', 'SEQ_E0920_c05B', 'SEQ_E0920_c06', 'SEQ_E0920_c07', 'SEQ_E0920_c08', 'SEQ_E0920_c08C', 'SEQ_E0920_c09', 'SEQ_E0920_c10', 'SEQ_E0920_c11', 'SEQ_E0920_c110', 'SEQ_E0920_c116', 'SEQ_E0920_c12', 'SEQ_E0920_c13', 'SEQ_E0920_c14', 'SEQ_E0920_c15', 'SEQ_E0920_c16', 'SEQ_E0920_c17', 'SEQ_E0920_c18', 'SEQ_E0920_c19', 'SEQ_E0920_c20', 'SEQ_E0920_c21'],
-    'LV_E0930': ['SEQ_E0930_c01', 'SEQ_E0930_c01B', 'SEQ_E0930_c02', 'SEQ_E0930_c03', 'SEQ_E0930_c04', 'SEQ_E0930_c05', 'SEQ_E0930_c06', 'SEQ_E0930_c06B', 'SEQ_E0930_c07', 'SEQ_E0930_c08'],
-    'LV_E0940': ['SEQ_E0940_c00', 'SEQ_E0940_c01', 'SEQ_E0940_c02', 'SEQ_E0940_c03', 'SEQ_E0940_c04', 'SEQ_E0940_c05', 'SEQ_E0940_c06', 'SEQ_E0940_c07', 'SEQ_E0940_c08', 'SEQ_E0940_c09', 'SEQ_E0940_c10', 'SEQ_E0940_c11', 'SEQ_E0940_c12', 'SEQ_E0940_c13', 'SEQ_E0940_c14', 'SEQ_E0940_c15', 'SEQ_E0940_c16', 'SEQ_E0940_c17', 'SEQ_E0940_c17B', 'SEQ_E0940_c18', 'SEQ_E0940_c18B', 'SEQ_E0940_c20', 'SEQ_E0940_c21', 'SEQ_E0940_c22'],
-    'LV_E0945': ['SEQ_E0945_c01', 'SEQ_E0945_c02', 'SEQ_E0945_c03', 'SEQ_E0945_c04', 'SEQ_E0945_c05'],
-    'LV_E0955': ['SEQ_E0955_c01', 'SEQ_E0955_c02', 'SEQ_E0955_c03', 'SEQ_E0955_c04', 'SEQ_E0955_c05', 'SEQ_E0955_c06', 'SEQ_E0955_c07', 'SEQ_E0955_c08', 'SEQ_E0955_c10', 'SEQ_E0955_c15', 'SEQ_E0955_c16'],
-    'LV_E0957': ['SEQ_E0957_c01', 'SEQ_E0957_c02', 'SEQ_E0957_c03', 'SEQ_E0957_c04', 'SEQ_E0957_c05', 'SEQ_E0957_c06', 'SEQ_E0957_c07', 'SEQ_E0957_c08', 'SEQ_E0957_c10', 'SEQ_E0957_c15', 'SEQ_E0957_c16'],
-    'LV_E0960': ['SEQ_E0960_c00', 'SEQ_E0960_c01', 'SEQ_E0960_c02', 'SEQ_E0960_c03', 'SEQ_E0960_c04', 'SEQ_E0960_c05', 'SEQ_E0960_c06', 'SEQ_E0960_c07', 'SEQ_E0960_c08', 'SEQ_E0960_c09', 'SEQ_E0960_c10', 'SEQ_E0960_c11', 'SEQ_E0960_c12', 'SEQ_E0960_c13', 'SEQ_E0960_c13B', 'SEQ_E0960_c14', 'SEQ_E0960_c14B', 'SEQ_E0960_c15', 'SEQ_E0960_c16', 'SEQ_E0960_c17', 'SEQ_E0960_c18', 'SEQ_E0960_c19', 'SEQ_E0960_c20'],
-    'LV_E0965': ['SEQ_E0965_c01', 'SEQ_E0965_c02', 'SEQ_E0965_c03', 'SEQ_E0965_c04', 'SEQ_E0965_c05'],
-    'LV_E0975': ['SEQ_E0975_c01', 'SEQ_E0975_c02', 'SEQ_E0975_c03', 'SEQ_E0975_c04', 'SEQ_E0975_c05', 'SEQ_E0975_c06', 'SEQ_E0975_c07', 'SEQ_E0975_c08', 'SEQ_E0975_c10', 'SEQ_E0975_c15', 'SEQ_E0975_c16'],
-    'LV_E1000': ['SEQ_E1000_c01', 'SEQ_E1000_c02', 'SEQ_E1000_c03', 'SEQ_E1000_c04', 'SEQ_E1000_c05'],
-    'LV_E1010': ['SEQ_E1010_c01', 'SEQ_E1010_c01B', 'SEQ_E1010_c01C', 'SEQ_E1010_c01D', 'SEQ_E1010_c02', 'SEQ_E1010_c02B', 'SEQ_E1010_c03', 'SEQ_E1010_c04', 'SEQ_E1010_c05B', 'SEQ_E1010_c07', 'SEQ_E1010_c08', 'SEQ_E1010_c09'],
-    'LV_E1015': ['SEQ_E1015_c01', 'SEQ_E1015_c02', 'SEQ_E1015_c02B', 'SEQ_E1015_c03', 'SEQ_E1015_c05', 'SEQ_E1015_c06', 'SEQ_E1015_c07'],
-    'LV_E1100': ['SEQ_E1100_c01', 'SEQ_E1100_c01B', 'SEQ_E1100_c02', 'SEQ_E1100_c02B', 'SEQ_E1100_c03', 'SEQ_E1100_c04', 'SEQ_E1100_c04B', 'SEQ_E1100_c04C', 'SEQ_E1100_c05', 'SEQ_E1100_c06'],
-    'LV_E2015': ['SEQ_E2015_c01', 'SEQ_E2015_c02', 'SEQ_E2015_c03', 'SEQ_E2015_c04', 'SEQ_E2015_c06', 'SEQ_E2015_c07', 'SEQ_E2015_c08', 'SEQ_E2015_c09', 'SEQ_E2015_c10', 'SEQ_E2015_c11', 'SEQ_E2015_c12', 'SEQ_E2015_c13', 'SEQ_E2015_c14', 'SEQ_E2015_c15'],
-    'LV_E2010': ['SEQ_E2010_c01', 'SEQ_E2010_c02', 'SEQ_E2010_c03', 'SEQ_E2010_c04', 'SEQ_E2010_c05', 'SEQ_E2010_c06', 'SEQ_E2010_c07', 'SEQ_E2010_c07B', 'SEQ_E2010_c08a', 'SEQ_E2010_c08b', 'SEQ_E2010_c09', 'SEQ_E2010_c09B', 'SEQ_E2010_c10', 'SEQ_E2010_c11B', 'SEQ_E2010_c12', 'SEQ_E2010_c20', 'SEQ_E2010_c21', 'SEQ_E2010_c21B', 'SEQ_E2010_c22B', 'SEQ_E2010_c23', 'SEQ_E2010_c24', 'SEQ_E2010_c25', 'SEQ_E2010_c26'],
-    'LV_E2020': ['SEQ_E2020_c01', 'SEQ_E2020_c02', 'SEQ_E2020_c03', 'SEQ_E2020_c04B', 'SEQ_E2020_c05', 'SEQ_E2020_c05B', 'SEQ_E2020_c06', 'SEQ_E2020_c08', 'SEQ_E2020_c09', 'SEQ_E2020_c09B'],
-    'LV_E2022': ['SEQ_E2022_c01', 'SEQ_E2022_c02', 'SEQ_E2022_c03', 'SEQ_E2022_c03B', 'SEQ_E2022_c04', 'SEQ_E2022_c05', 'SEQ_E2022_c06', 'SEQ_E2022_c07', 'SEQ_E2022_c07B', 'SEQ_E2022_c08', 'SEQ_E2022_c09', 'SEQ_E2022_c10'],
-    'LV_E2025': ['SEQ_E2025_c01', 'SEQ_E2025_c02', 'SEQ_E2025_c03', 'SEQ_E2025_c04', 'SEQ_E2025_c05', 'SEQ_E2025_c06', 'SEQ_E2025_c07', 'SEQ_E2025_c08', 'SEQ_E2025_c09', 'SEQ_E2025_c10', 'SEQ_E2025_c11'],
-    'LV_E2029': ['SEQ_E2029_c01', 'SEQ_E2029_c02', 'SEQ_E2029_c02B', 'SEQ_E2029_c04', 'SEQ_E2029_c04B', 'SEQ_E2029_c05', 'SEQ_E2029_c06', 'SEQ_E2029_c07', 'SEQ_E2029_c08', 'SEQ_E2029_c08B', 'SEQ_E2029_c09', 'SEQ_E2029_c11', 'SEQ_E2029_c12', 'SEQ_E2029_c13'],
-    'LV_E2030': ['SEQ_E2030_C00', 'SEQ_E2030_C01', 'SEQ_E2030_C02', 'SEQ_E2030_C03', 'SEQ_E2030_C03B', 'SEQ_E2030_C04', 'SEQ_E2030_C05', 'SEQ_E2030_C06', 'SEQ_E2030_C06B', 'SEQ_E2030_C07', 'SEQ_E2030_C08', 'SEQ_E2030_C09', 'SEQ_E2030_C10', 'SEQ_E2030_C11', 'SEQ_E2030_C20', 'SEQ_E2030_C21', 'SEQ_E2030_C22'],
-    'LV_E2035': ['SEQ_E2035_c01', 'SEQ_E2035_c01B', 'SEQ_E2035_c01C', 'SEQ_E2035_c02', 'SEQ_E2035_c03', 'SEQ_E2035_c04', 'SEQ_E2035_c05'],
-    'LV_E2040': ['SEQ_E2040_c01', 'SEQ_E2040_c02', 'SEQ_E2040_c03', 'SEQ_E2040_c04', 'SEQ_E2040_c06', 'SEQ_E2040_c07', 'SEQ_E2040_c08', 'SEQ_E2040_c09B', 'SEQ_E2040_c10', 'SEQ_E2040_c11', 'SEQ_E2040_c12', 'SEQ_E2040_c13', 'SEQ_E2040_c14', 'SEQ_E2040_c14A', 'SEQ_E2040_c14B', 'SEQ_E2040_c15', 'SEQ_E2040_c16', 'SEQ_E2040_c16B', 'SEQ_E2040_c17', 'SEQ_E2040_c18', 'SEQ_E2040_c19', 'SEQ_E2040_c31', 'SEQ_E2040_c32'],
-    'LV_E2043': ['SEQ_E2043_c01a', 'SEQ_E2043_c01b', 'SEQ_E2043_c01c', 'SEQ_E2043_c02', 'SEQ_E2043_c03a', 'SEQ_E2043_c05', 'SEQ_E2043_c06', 'SEQ_E2043_c07', 'SEQ_E2043_c08', 'SEQ_E2043_c09', 'SEQ_E2043_c10', 'SEQ_E2043_c11', 'SEQ_E2043_c12a'],
-    'LV_E2051': ['SEQ_E2051_c01', 'SEQ_E2051_c02', 'SEQ_E2051_c03', 'SEQ_E2051_c04', 'SEQ_E2051_c05'],
-    'LV_E2160': ['SEQ_E2160_c01', 'SEQ_E2160_c02', 'SEQ_E2160_c03', 'SEQ_E2160_c04', 'SEQ_E2160_c05', 'SEQ_E2160_c06', 'SEQ_E2160_c07', 'SEQ_E2160_c10', 'SEQ_E2160_c12', 'SEQ_E2160_c13', 'SEQ_E2160_c14', 'SEQ_E2160_c15', 'SEQ_E2160_c18', 'SEQ_E2160_c19', 'SEQ_E2160_c20', 'SEQ_E2160_c21', 'SEQ_E2160_c22', 'SEQ_E2160_c23', 'SEQ_E2160_c24', 'SEQ_E2160_c25', 'SEQ_E2160_c26', 'SEQ_E2160_c27', 'SEQ_E2160_c28', 'SEQ_E2160_c29', 'SEQ_E2160_c30', 'SEQ_E2160_c31', 'SEQ_E2160_c32', 'SEQ_E2160_c33', 'SEQ_E2160_c33B', 'SEQ_E2160_c34'],
-    'LV_E2164': ['SEQ_E2164_c01', 'SEQ_E2164_c02', 'SEQ_E2164_c03', 'SEQ_E2164_c04', 'SEQ_E2164_c05', 'SEQ_E2164_c06', 'SEQ_E2164_c07'],
-    'LV_E2210': ['SEQ_E2210_c11', 'SEQ_E2210_c12', 'SEQ_E2210_c13', 'SEQ_E2210_c14', 'SEQ_E2210_c15', 'SEQ_E2210_c16', 'SEQ_E2210_c17', 'SEQ_E2210_c28', 'SEQ_E2210_c29', 'SEQ_E2210_c30', 'SEQ_E2210_c31'],
-    'LV_E2250': ['SEQ_E2250_c01', 'SEQ_E2250_c01B', 'SEQ_E2250_c01C', 'SEQ_E2250_c02', 'SEQ_E2250_c04', 'SEQ_E2250_c05', 'SEQ_E2250_c06', 'SEQ_E2250_c07', 'SEQ_E2250_c07B', 'SEQ_E2250_c08', 'SEQ_E2250_c10', 'SEQ_E2250_c11', 'SEQ_E2250_c11B', 'SEQ_E2250_c12B', 'SEQ_E2250_c12C', 'SEQ_E2250_c12D', 'SEQ_E2250_c12E', 'SEQ_E2250_c13', 'SEQ_E2250_c13B', 'SEQ_E2250_c14', 'SEQ_E2250_c15', 'SEQ_E2250_c15B', 'SEQ_E2250_c16', 'SEQ_E2250_c16B', 'SEQ_E2250_c17', 'SEQ_E2250_c18', 'SEQ_E2250_c19', 'SEQ_E2250_c20', 'SEQ_E2250_c21', 'SEQ_E2250_c21B', 'SEQ_E2250_c22', 'SEQ_E2250_c22B', 'SEQ_E2250_c23', 'SEQ_E2250_c23B', 'SEQ_E2250_c23C', 'SEQ_E2250_c24'],
-    'LV_E2255': ['SEQ_E2255_c01', 'SEQ_E2255_c02', 'SEQ_E2255_c03', 'SEQ_E2255_c04', 'SEQ_E2255_c04B', 'SEQ_E2255_c05', 'SEQ_E2255_c06', 'SEQ_E2255_c07', 'SEQ_E2255_c08', 'SEQ_E2255_c09', 'SEQ_E2255_c10', 'SEQ_E2255_c11', 'SEQ_E2255_c12', 'SEQ_E2255_c13', 'SEQ_E2255_c14', 'SEQ_E2255_c15', 'SEQ_E2255_c16', 'SEQ_E2255_c16B', 'SEQ_E2255_c16C', 'SEQ_E2255_c17', 'SEQ_E2255_c18', 'SEQ_E2255_c19', 'SEQ_E2255_c20', 'SEQ_E2255_c30', 'SEQ_E2255_c31', 'SEQ_E2255_c32'],
-    'LV_E2260': ['SEQ_E2260_c01C', 'SEQ_E2260_c03', 'SEQ_E2260_c03B', 'SEQ_E2260_c04', 'SEQ_E2260_c04B', 'SEQ_E2260_c07', 'SEQ_E2260_c07B', 'SEQ_E2260_c08', 'SEQ_E2260_c09', 'SEQ_E2260_c10', 'SEQ_E2260_c12', 'SEQ_E2260_c13', 'SEQ_E2260_c14', 'SEQ_E2260_c15', 'SEQ_E2260_c16', 'SEQ_E2260_c17', 'SEQ_E2260_c18', 'SEQ_E2260_c20'],
-    'LV_E2270': ['SEQ_E2270_c01', 'SEQ_E2270_c02', 'SEQ_E2270_c03', 'SEQ_E2270_c04', 'SEQ_E2270_c05', 'SEQ_E2270_c20', 'SEQ_E2270_c21', 'SEQ_E2270_c22'],
-    'LV_E2290': ['SEQ_E2290_c01', 'SEQ_E2290_c02B', 'SEQ_E2290_c03', 'SEQ_E2290_c04', 'SEQ_E2290_c04B', 'SEQ_E2290_c05', 'SEQ_E2290_c06', 'SEQ_E2290_c06B', 'SEQ_E2290_c06C', 'SEQ_E2290_c07', 'SEQ_E2290_c07B', 'SEQ_E2290_c07C', 'SEQ_E2290_c08'],
-    'LV_E2297': ['SEQ_E2297_C20', 'SEQ_E2297_c01', 'SEQ_E2297_c02', 'SEQ_E2297_c03', 'SEQ_E2297_c04', 'SEQ_E2297_c05', 'SEQ_E2297_c06', 'SEQ_E2297_c07', 'SEQ_E2297_c08', 'SEQ_E2297_c08B', 'SEQ_E2297_c09', 'SEQ_E2297_c10', 'SEQ_E2297_c21', 'SEQ_E2297_c22'],
-    'LV_E2310': ['SEQ_E2310_c01', 'SEQ_E2310_c02', 'SEQ_E2310_c03', 'SEQ_E2310_c04', 'SEQ_E2310_c05', 'SEQ_E2310_c20', 'SEQ_E2310_c20A', 'SEQ_E2310_c20B'],
-    'LV_E2320': ['SEQ_E2320_c01', 'SEQ_E2320_c01B', 'SEQ_E2320_c02', 'SEQ_E2320_c03', 'SEQ_E2320_c04', 'SEQ_E2320_c04B', 'SEQ_E2320_c04C', 'SEQ_E2320_c04D', 'SEQ_E2320_c05', 'SEQ_E2320_c06', 'SEQ_E2320_c06B', 'SEQ_E2320_c06C', 'SEQ_E2320_c08', 'SEQ_E2320_c08B', 'SEQ_E2320_c09', 'SEQ_E2320_c10', 'SEQ_E2320_c11', 'SEQ_E2320_c12B', 'SEQ_E2320_c13'],
-    'LV_E2325': ['SEQ_E2325_c01', 'SEQ_E2325_c01B', 'SEQ_E2325_c02', 'SEQ_E2325_c02B', 'SEQ_E2325_c03', 'SEQ_E2325_c03B', 'SEQ_E2325_c03C', 'SEQ_E2325_c04', 'SEQ_E2325_c05', 'SEQ_E2325_c05B', 'SEQ_E2325_c05C', 'SEQ_E2325_c05D', 'SEQ_E2325_c06', 'SEQ_E2325_c07', 'SEQ_E2325_c08', 'SEQ_E2325_c09', 'SEQ_E2325_c11', 'SEQ_E2325_c11B', 'SEQ_E2325_c11C', 'SEQ_E2325_c11D', 'SEQ_E2325_c12', 'SEQ_E2325_c12C', 'SEQ_E2325_c13', 'SEQ_E2325_c13B', 'SEQ_E2325_c13C', 'SEQ_E2325_c15', 'SEQ_E2325_c15B', 'SEQ_E2325_c16', 'SEQ_E2325_c17', 'SEQ_E2325_c18', 'SEQ_E2325_c19', 'SEQ_E2325_c20', 'SEQ_E2325_c21', 'SEQ_E2325_c21B', 'SEQ_E2325_c22', 'SEQ_E2325_c30', 'SEQ_E2325_c31', 'SEQ_E2325_c32', 'SEQ_E2325_c33', 'SEQ_E2325_c33B', 'SEQ_E2325_c33C', 'SEQ_E2325_c34', 'SEQ_E2325_c34B', 'SEQ_E2325_c34C', 'SEQ_E2325_c34D', 'SEQ_E2325_c35', 'SEQ_E2325_c35B'],
-    'LV_E2330': ['SEQ_E2330_c01', 'SEQ_E2330_c02', 'SEQ_E2330_c03', 'SEQ_E2330_c04', 'SEQ_E2330_c06', 'SEQ_E2330_c07', 'SEQ_E2330_c08', 'SEQ_E2330_c09', 'SEQ_E2330_c10'],
-    'LV_E2440': ['SEQ_E2440_c01', 'SEQ_E2440_c02', 'SEQ_E2440_c03', 'SEQ_E2440_c04', 'SEQ_E2440_c05'],
-    'LV_E2519': ['SEQ_E2519_c01', 'SEQ_E2519_c02', 'SEQ_E2519_c02B', 'SEQ_E2519_c03', 'SEQ_E2519_c04'],
-    'LV_E2560': ['SEQ_E2560_c01', 'SEQ_E2560_c02', 'SEQ_E2560_c02B', 'SEQ_E2560_c03', 'SEQ_E2560_c04'],
-    'LV_E2605': ['SEQ_E2605_c01', 'SEQ_E2605_c02', 'SEQ_E2605_c03', 'SEQ_E2605_c04', 'SEQ_E2605_c05', 'SEQ_E2605_c05B', 'SEQ_E2605_c06', 'SEQ_E2605_c06B', 'SEQ_E2605_c07', 'SEQ_E2605_c07B', 'SEQ_E2605_c08', 'SEQ_E2605_c08A', 'SEQ_E2605_c08B', 'SEQ_E2605_c09'],
-    'LV_E2623': ['SEQ_E2623_c01', 'SEQ_E2623_c02', 'SEQ_E2623_c03', 'SEQ_E2623_c04', 'SEQ_E2623_c05', 'SEQ_E2623_c07', 'SEQ_E2623_c08', 'SEQ_E2623_c09', 'SEQ_E2623_c09B', 'SEQ_E2623_c10', 'SEQ_E2623_c11', 'SEQ_E2623_c13'],
-    'LV_E2640': ['SEQ_E2640_c01', 'SEQ_E2640_c02', 'SEQ_E2640_c03', 'SEQ_E2640_c03A', 'SEQ_E2640_c03B', 'SEQ_E2640_c04', 'SEQ_E2640_c05', 'SEQ_E2640_c06'],
-    'LV_E2643': ['SEQ_E2643_c01A', 'SEQ_E2643_c01B', 'SEQ_E2643_c01C', 'SEQ_E2643_c02A', 'SEQ_E2643_c02B', 'SEQ_E2643_c03', 'SEQ_E2643_c03A', 'SEQ_E2643_c03B', 'SEQ_E2643_c03C', 'SEQ_E2643_c04A', 'SEQ_E2643_c04B'],
-    'LV_E2645': ['SEQ_E2645_c01', 'SEQ_E2645_c01A', 'SEQ_E2645_c01B', 'SEQ_E2645_c01C', 'SEQ_E2645_c01D', 'SEQ_E2645_c02', 'SEQ_E2645_c03', 'SEQ_E2645_c03A', 'SEQ_E2645_c03B', 'SEQ_E2645_c03C', 'SEQ_E2645_c03D', 'SEQ_E2645_c04', 'SEQ_E2645_c05', 'SEQ_E2645_c06', 'SEQ_E2645_c06B', 'SEQ_E2645_c06C', 'SEQ_E2645_c06D', 'SEQ_E2645_c07', 'SEQ_E2645_c08', 'SEQ_E2645_c09', 'SEQ_E2645_c10', 'SEQ_E2645_c11', 'SEQ_E2645_c12', 'SEQ_E2645_c13', 'SEQ_E2645_c14', 'SEQ_E2645_c14B', 'SEQ_E2645_c14C'],
-    'LV_E2648': ['SEQ_E2648_c01', 'SEQ_E2648_c01A', 'SEQ_E2648_c01B', 'SEQ_E2648_c02', 'SEQ_E2648_c03', 'SEQ_E2648_c04', 'SEQ_E2648_c05', 'SEQ_E2648_c06', 'SEQ_E2648_c07', 'SEQ_E2648_c08', 'SEQ_E2648_c08B', 'SEQ_E2648_c09', 'SEQ_E2648_c10', 'SEQ_E2648_c11', 'SEQ_E2648_c12', 'SEQ_E2648_c13', 'SEQ_E2648_c14'],
-    'LV_E2680': ['SEQ_E2680_c01', 'SEQ_E2680_c02', 'SEQ_E2680_c03', 'SEQ_E2680_c04', 'SEQ_E2680_c06', 'SEQ_E2680_c06B', 'SEQ_E2680_c07', 'SEQ_E2680_c08', 'SEQ_E2680_c09', 'SEQ_E2680_c10', 'SEQ_E2680_c10B', 'SEQ_E2680_c11', 'SEQ_E2680_c12', 'SEQ_E2680_c13', 'SEQ_E2680_c14', 'SEQ_E2680_c15', 'SEQ_E2680_c16', 'SEQ_E2680_c17', 'SEQ_E2680_c18', 'SEQ_E2680_c19', 'SEQ_E2680_c20', 'SEQ_E2680_c21', 'SEQ_E2680_c23', 'SEQ_E2680_c24', 'SEQ_E2680_c25', 'SEQ_E2680_c26', 'SEQ_E2680_c27', 'SEQ_E2680_c28', 'SEQ_E2680_c29', 'SEQ_E2680_c30', 'SEQ_E2680_c30B'],
-    'LV_E2685': ['SEQ_E2685_c01', 'SEQ_E2685_c02', 'SEQ_E2685_c04', 'SEQ_E2685_c05', 'SEQ_E2685_c05B', 'SEQ_E2685_c06', 'SEQ_E2685_c07', 'SEQ_E2685_c08', 'SEQ_E2685_c09', 'SEQ_E2685_c10', 'SEQ_E2685_c11', 'SEQ_E2685_c12', 'SEQ_E2685_c13', 'SEQ_E2685_c14', 'SEQ_E2685_c15', 'SEQ_E2685_c16', 'SEQ_E2685_c17', 'SEQ_E2685_c18', 'SEQ_E2685_c18B', 'SEQ_E2685_c19', 'SEQ_E2685_c20', 'SEQ_E2685_c21', 'SEQ_E2685_c22', 'SEQ_E2685_c23', 'SEQ_E2685_c23A', 'SEQ_E2685_c24', 'SEQ_E2685_c25', 'SEQ_E2685_c25A', 'SEQ_E2685_c25B', 'SEQ_E2685_c26', 'SEQ_E2685_c27'],
-    'LV_E2700': ['SEQ_E2700_c01', 'SEQ_E2700_c02', 'SEQ_E2700_c03', 'SEQ_E2700_c04', 'SEQ_E2700_c04B', 'SEQ_E2700_c05', 'SEQ_E2700_c06', 'SEQ_E2700_c07', 'SEQ_E2700_c07B', 'SEQ_E2700_c08', 'SEQ_E2700_c10', 'SEQ_E2700_c11', 'SEQ_E2700_c12', 'SEQ_E2700_c13', 'SEQ_E2700_c14', 'SEQ_E2700_c15', 'SEQ_E2700_c16', 'SEQ_E2700_c17'],
-    'LV_E2703': ['SEQ_E2703_c01', 'SEQ_E2703_c02', 'SEQ_E2703_c03', 'SEQ_E2703_c04', 'SEQ_E2703_c05', 'SEQ_E2703_c06'],
-    'LV_E2705': ['SEQ_E2705_c01', 'SEQ_E2705_c02', 'SEQ_E2705_c03', 'SEQ_E2705_c04', 'SEQ_E2705_c04B', 'SEQ_E2705_c04C', 'SEQ_E2705_c04D', 'SEQ_E2705_c05', 'SEQ_E2705_c06', 'SEQ_E2705_c07', 'SEQ_E2705_c08', 'SEQ_E2705_c11', 'SEQ_E2705_c11A', 'SEQ_E2705_c11B'],
-    'LV_E2713': ['SEQ_E2713_c01', 'SEQ_E2713_c02', 'SEQ_E2713_c03', 'SEQ_E2713_c04', 'SEQ_E2713_c05', 'SEQ_E2713_c06', 'SEQ_E2713_c07', 'SEQ_E2713_c08', 'SEQ_E2713_c09', 'SEQ_E2713_c10', 'SEQ_E2713_c10B', 'SEQ_E2713_c11', 'SEQ_E2713_c11B', 'SEQ_E2713_c12', 'SEQ_E2713_c13', 'SEQ_E2713_c14', 'SEQ_E2713_c15', 'SEQ_E2713_c16', 'SEQ_E2713_c17', 'SEQ_E2713_c18', 'SEQ_E2713_c19', 'SEQ_E2713_c20', 'SEQ_E2713_c21', 'SEQ_E2713_c22', 'SEQ_E2713_c23', 'SEQ_E2713_c24', 'SEQ_E2713_c25', 'SEQ_E2713_c26', 'SEQ_E2713_c27', 'SEQ_E2713_c28', 'SEQ_E2713_c29', 'SEQ_E2713_c30'],
-    'LV_E2717': ['SEQ_E2717_c01', 'SEQ_E2717_c02', 'SEQ_E2717_c03', 'SEQ_E2717_c04', 'SEQ_E2717_c07', 'SEQ_E2717_c08', 'SEQ_E2717_c09', 'SEQ_E2717_c10', 'SEQ_E2717_c11', 'SEQ_E2717_c13', 'SEQ_E2717_c14', 'SEQ_E2717_c15', 'SEQ_E2717_c16', 'SEQ_E2717_c19', 'SEQ_E2717_c20', 'SEQ_E2717_c20B', 'SEQ_E2717_c21', 'SEQ_E2717_c22', 'SEQ_E2717_c23A', 'SEQ_E2717_c23B', 'SEQ_E2717_c23C', 'SEQ_E2717_c23D', 'SEQ_E2717_c24', 'SEQ_E2717_c25', 'SEQ_E2717_c26', 'SEQ_E2717_c27', 'SEQ_E2717_c28', 'SEQ_E2717_c29', 'SEQ_E2717_c30', 'SEQ_E2717_c31', 'SEQ_E2717_c32', 'SEQ_E2717_c33', 'SEQ_E2717_c35', 'SEQ_E2717_c36', 'SEQ_E2717_c36B', 'SEQ_E2717_c37'],
-    'LV_E2720': ['SEQ_E2720_c01', 'SEQ_E2720_c02', 'SEQ_E2720_c03', 'SEQ_E2720_c04', 'SEQ_E2720_c05', 'SEQ_E2720_c05B', 'SEQ_E2720_c06', 'SEQ_E2720_c07', 'SEQ_E2720_c08', 'SEQ_E2720_c09', 'SEQ_E2720_c10', 'SEQ_E2720_c11', 'SEQ_E2720_c12', 'SEQ_E2720_c13', 'SEQ_E2720_c14', 'SEQ_E2720_c15', 'SEQ_E2720_c16', 'SEQ_E2720_c17', 'SEQ_E2720_c18', 'SEQ_E2720_c19', 'SEQ_E2720_c20', 'SEQ_E2720_c21', 'SEQ_E2720_c22', 'SEQ_E2720_c23', 'SEQ_E2720_c24', 'SEQ_E2720_c25', 'SEQ_E2720_c26', 'SEQ_E2720_c27', 'SEQ_E2720_c27B', 'SEQ_E2720_c28', 'SEQ_E2720_c29', 'SEQ_E2720_c30'],
-    'LV_E2740': ['SEQ_E2740_c01', 'SEQ_E2740_c02', 'SEQ_E2740_c02B', 'SEQ_E2740_c03', 'SEQ_E2740_c03B', 'SEQ_E2740_c04', 'SEQ_E2740_c04B', 'SEQ_E2740_c05', 'SEQ_E2740_c06', 'SEQ_E2740_c07', 'SEQ_E2740_c08', 'SEQ_E2740_c09', 'SEQ_E2740_c10', 'SEQ_E2740_c11', 'SEQ_E2740_c12', 'SEQ_E2740_c13', 'SEQ_E2740_c14', 'SEQ_E2740_c14B', 'SEQ_E2740_c15', 'SEQ_E2740_c15A', 'SEQ_E2740_c15B', 'SEQ_E2740_c16', 'SEQ_E2740_c17', 'SEQ_E2740_c18', 'SEQ_E2740_c19', 'SEQ_E2740_c19B', 'SEQ_E2740_c21', 'SEQ_E2740_c22', 'SEQ_E2740_c23', 'SEQ_E2740_c24', 'SEQ_E2740_c24A', 'SEQ_E2740_c24B', 'SEQ_E2740_c25'],
-    'LV_E2920': ['SEQ_E2920_c01', 'SEQ_E2920_c01B', 'SEQ_E2920_c01C', 'SEQ_E2920_c02', 'SEQ_E2920_c03', 'SEQ_E2920_c04', 'SEQ_E2920_c05', 'SEQ_E2920_c05B', 'SEQ_E2920_c06', 'SEQ_E2920_c07', 'SEQ_E2920_c07B', 'SEQ_E2920_c08', 'SEQ_E2920_c09', 'SEQ_E2920_c10', 'SEQ_E2920_c10B', 'SEQ_E2920_c11', 'SEQ_E2920_c12', 'SEQ_E2920_c13', 'SEQ_E2920_c13B', 'SEQ_E2920_c14', 'SEQ_E2920_c15', 'SEQ_E2920_c16', 'SEQ_E2920_c17', 'SEQ_E2920_c18', 'SEQ_E2920_c19', 'SEQ_E2920_c20'],
-    'LV_E3040': ['SEQ_E3040_c01', 'SEQ_E3040_c02', 'SEQ_E3040_c03', 'SEQ_E3040_c04', 'SEQ_E3040_c04A', 'SEQ_E3040_c05A', 'SEQ_E3040_c05B', 'SEQ_E3040_c05C', 'SEQ_E3040_c06A', 'SEQ_E3040_c06B', 'SEQ_E3040_c06C', 'SEQ_E3040_c07', 'SEQ_E3040_c08', 'SEQ_E3040_c08A', 'SEQ_E3040_c10', 'SEQ_E3040_c11', 'SEQ_E3040_c12', 'SEQ_E3040_c13', 'SEQ_E3040_c14', 'SEQ_E3040_c15', 'SEQ_E3040_c15A', 'SEQ_E3040_c16'],
-    'LV_E3100': ['SEQ_E3100_c01', 'SEQ_E3100_c01B', 'SEQ_E3100_c02', 'SEQ_E3100_c02B', 'SEQ_E3100_c03', 'SEQ_E3100_c03B', 'SEQ_E3100_c04', 'SEQ_E3100_c04B', 'SEQ_E3100_c04C', 'SEQ_E3100_c04D', 'SEQ_E3100_c05', 'SEQ_E3100_c06', 'SEQ_E3100_c06B', 'SEQ_E3100_c06C', 'SEQ_E3100_c07', 'SEQ_E3100_c08', 'SEQ_E3100_c08B', 'SEQ_E3100_c09', 'SEQ_E3100_c09A', 'SEQ_E3100_c09B'],
-    'LV_E3120': ['SEQ_E3120_c01', 'SEQ_E3120_c02', 'SEQ_E3120_c02B', 'SEQ_E3120_c03', 'SEQ_E3120_c03A', 'SEQ_E3120_c04', 'SEQ_E3120_c04B', 'SEQ_E3120_c04C', 'SEQ_E3120_c04D', 'SEQ_E3120_c05', 'SEQ_E3120_c05B', 'SEQ_E3120_c06'],
-    'LV_E3300': ['SEQ_E3300_c01', 'SEQ_E3300_c02', 'SEQ_E3300_c03', 'SEQ_E3300_c04', 'SEQ_E3300_c05', 'SEQ_E3300_c05A', 'SEQ_E3300_c05B', 'SEQ_E3300_c05C', 'SEQ_E3300_c06', 'SEQ_E3300_c07', 'SEQ_E3300_c08', 'SEQ_E3300_c10', 'SEQ_E3300_c10A', 'SEQ_E3300_c11', 'SEQ_E3300_c12', 'SEQ_E3300_c12B', 'SEQ_E3300_c13', 'SEQ_E3300_c13A', 'SEQ_E3300_c14'],
-    'LV_E3310': ['SEQ_E3310_c01', 'SEQ_E3310_c02', 'SEQ_E3310_c03', 'SEQ_E3310_c03B', 'SEQ_E3310_c04', 'SEQ_E3310_c04A', 'SEQ_E3310_c04B', 'SEQ_E3310_c05', 'SEQ_E3310_c06', 'SEQ_E3310_c06A', 'SEQ_E3310_c07', 'SEQ_E3310_c07A', 'SEQ_E3310_c08', 'SEQ_E3310_c08A', 'SEQ_E3310_c08B'],
-    'LV_E3350': ['SEQ_E3350_c01', 'SEQ_E3350_c02', 'SEQ_E3350_c03', 'SEQ_E3350_c04', 'SEQ_E3350_c05', 'SEQ_E3350_c06', 'SEQ_E3350_c07', 'SEQ_E3350_c08'],
-    'LV_E3352': ['SEQ_E3352_c01', 'SEQ_E3352_c02', 'SEQ_E3352_c02B', 'SEQ_E3352_c03', 'SEQ_E3352_c05', 'SEQ_E3352_c06', 'SEQ_E3352_c07', 'SEQ_E3352_c08', 'SEQ_E3352_c10', 'SEQ_E3352_c11', 'SEQ_E3352_c12', 'SEQ_E3352_c13', 'SEQ_E3352_c14', 'SEQ_E3352_c15', 'SEQ_E3352_c16', 'SEQ_E3352_c16B', 'SEQ_E3352_c16C', 'SEQ_E3352_c17', 'SEQ_E3352_c19', 'SEQ_E3352_c20', 'SEQ_E3352_c22', 'SEQ_E3352_c23', 'SEQ_E3352_c24', 'SEQ_E3352_c25', 'SEQ_E3352_c25B', 'SEQ_E3352_c26', 'SEQ_E3352_c28', 'SEQ_E3352_c28A', 'SEQ_E3352_c28B', 'SEQ_E3352_c28C', 'SEQ_E3352_c29', 'SEQ_E3352_c30', 'SEQ_E3352_c30A', 'SEQ_E3352_c30B', 'SEQ_E3352_c31', 'SEQ_E3352_c32', 'SEQ_E3352_c33', 'SEQ_E3352_c35', 'SEQ_E3352_c37', 'SEQ_E3352_c39', 'SEQ_E3352_c40', 'SEQ_E3352_c41', 'SEQ_E3352_c42', 'SEQ_E3352_c43', 'SEQ_E3352_c44', 'SEQ_E3352_c45', 'SEQ_E3352_c45A', 'SEQ_E3352_c45B', 'SEQ_E3352_c45C', 'SEQ_E3352_c46', 'SEQ_E3352_c47', 'SEQ_E3352_c48', 'SEQ_E3352_c49', 'SEQ_E3352_c50', 'SEQ_E3352_c51', 'SEQ_E3352_c52', 'SEQ_E3352_c53', 'SEQ_E3352_c54', 'SEQ_E3352_c55', 'SEQ_E3352_c56', 'SEQ_E3352_c57', 'SEQ_E3352_c58', 'SEQ_E3352_c59', 'SEQ_E3352_c60', 'SEQ_E3352_c60A', 'SEQ_E3352_c60B', 'SEQ_E3352_c61', 'SEQ_E3352_c62'],
-    'LV_E3355': ['SEQ_E3355_c02', 'SEQ_E3355_c03', 'SEQ_E3355_c03A', 'SEQ_E3355_c06', 'SEQ_E3355_c07', 'SEQ_E3355_c08', 'SEQ_E3355_c08A', 'SEQ_E3355_c10', 'SEQ_E3355_c11', 'SEQ_E3355_c13', 'SEQ_E3355_c15', 'SEQ_E3355_c15B', 'SEQ_E3355_c16', 'SEQ_E3355_c17', 'SEQ_E3355_c18', 'SEQ_E3355_c20', 'SEQ_E3355_c21', 'SEQ_E3355_c22', 'SEQ_E3355_c23', 'SEQ_E3355_c23B', 'SEQ_E3355_c24'],
-    'LV_E3358': ['SEQ_E3358_c01', 'SEQ_E3358_c01A', 'SEQ_E3358_c01B', 'SEQ_E3358_c02', 'SEQ_E3358_c03', 'SEQ_E3358_c04', 'SEQ_E3358_c05'],
-    'LV_E3390': ['SEQ_E3390_c01', 'SEQ_E3390_c02', 'SEQ_E3390_c03', 'SEQ_E3390_c04', 'SEQ_E3390_c05', 'SEQ_E3390_c06'],
-    'LV_E3400': ['SEQ_E3400_c01', 'SEQ_E3400_c02', 'SEQ_E3400_c03', 'SEQ_E3400_c05', 'SEQ_E3400_c06', 'SEQ_E3400_c07', 'SEQ_E3400_c08', 'SEQ_E3400_c09', 'SEQ_E3400_c10', 'SEQ_E3400_c11', 'SEQ_E3400_c12', 'SEQ_E3400_c14', 'SEQ_E3400_c15', 'SEQ_E3400_c16', 'SEQ_E3400_c17', 'SEQ_E3400_c18', 'SEQ_E3400_c19', 'SEQ_E3400_c20', 'SEQ_E3400_c21', 'SEQ_E3400_c22', 'SEQ_E3400_c23', 'SEQ_E3400_c24', 'SEQ_E3400_c25', 'SEQ_E3400_c26'],
-    'LV_E3410': ['SEQ_E3410_c01', 'SEQ_E3410_c02', 'SEQ_E3410_c03', 'SEQ_E3410_c04', 'SEQ_E3410_c05', 'SEQ_E3410_c06', 'SEQ_E3410_c07', 'SEQ_E3410_c08'],
-    'LV_E3415': ['SEQ_E3415_c01', 'SEQ_E3415_c02', 'SEQ_E3415_c02B', 'SEQ_E3415_c03', 'SEQ_E3415_c05', 'SEQ_E3415_c06', 'SEQ_E3415_c07', 'SEQ_E3415_c08', 'SEQ_E3415_c10', 'SEQ_E3415_c11', 'SEQ_E3415_c12', 'SEQ_E3415_c13', 'SEQ_E3415_c14', 'SEQ_E3415_c15', 'SEQ_E3415_c16', 'SEQ_E3415_c16B', 'SEQ_E3415_c16C', 'SEQ_E3415_c17', 'SEQ_E3415_c19', 'SEQ_E3415_c20', 'SEQ_E3415_c22', 'SEQ_E3415_c23', 'SEQ_E3415_c24', 'SEQ_E3415_c25', 'SEQ_E3415_c25B', 'SEQ_E3415_c26', 'SEQ_E3415_c28', 'SEQ_E3415_c28A', 'SEQ_E3415_c28B', 'SEQ_E3415_c28C', 'SEQ_E3415_c29', 'SEQ_E3415_c30', 'SEQ_E3415_c30A', 'SEQ_E3415_c30B', 'SEQ_E3415_c31', 'SEQ_E3415_c32', 'SEQ_E3415_c33', 'SEQ_E3415_c35', 'SEQ_E3415_c37', 'SEQ_E3415_c39', 'SEQ_E3415_c40', 'SEQ_E3415_c41', 'SEQ_E3415_c42', 'SEQ_E3415_c43', 'SEQ_E3415_c44', 'SEQ_E3415_c45', 'SEQ_E3415_c45A', 'SEQ_E3415_c45B', 'SEQ_E3415_c45C', 'SEQ_E3415_c46', 'SEQ_E3415_c47', 'SEQ_E3415_c48', 'SEQ_E3415_c49', 'SEQ_E3415_c50', 'SEQ_E3415_c51', 'SEQ_E3415_c52', 'SEQ_E3415_c53', 'SEQ_E3415_c54', 'SEQ_E3415_c55', 'SEQ_E3415_c56', 'SEQ_E3415_c57', 'SEQ_E3415_c58', 'SEQ_E3415_c59', 'SEQ_E3415_c60', 'SEQ_E3415_c60A', 'SEQ_E3415_c60B', 'SEQ_E3415_c61', 'SEQ_E3415_c62', 'SEQ_E3415_c63'],
-    'LV_E3420': ['SEQ_E3420_c01', 'SEQ_E3420_c01A', 'SEQ_E3420_c01B', 'SEQ_E3420_c02'],
-    'LV_E3425': ['SEQ_E3425_c01', 'SEQ_E3425_c02', 'SEQ_E3425_c03'],
-    'LV_E3480': ['SEQ_E3480_c01', 'SEQ_E3480_c02', 'SEQ_E3480_c03', 'SEQ_E3480_c04', 'SEQ_E3480_c05', 'SEQ_E3480_c06'],
-}
+'''
+def build_lv_sequences(script_dir: Path):
+    lv_sequences = defaultdict(list)
+
+    for file in script_dir.iterdir():
+        if not file.is_file() or file.suffix != ".uasset":
+            continue
+
+        name = file.stem
+        SEQ_RE = re.compile(r"^SEQ_(E\d{4})_*")
+        match = SEQ_RE.match(name)
+        if not match:
+            continue
+
+        event_id = match.group(1)        
+        lv_key = f"LV_{event_id}"        
+
+        lv_sequences[lv_key].append(name)
+
+    for lv in lv_sequences:
+        lv_sequences[lv].sort()
+
+    return dict(lv_sequences)
+LV_SEQUENCES = build_lv_sequences(Path('base/Design Event/'))

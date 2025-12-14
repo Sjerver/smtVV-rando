@@ -19,6 +19,8 @@ DUPLICATE_SOURCES = {442 : [61 ,65], #School Aitvaras
 }
 #Selection of dummy demons to be overwritten with overlapping demons
 DUMMY_DEMONS= [487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511]
+#Unused demon id used to temporarily store data
+COPYOVER_DEMON = 1149
 
 #List of demons with a name that cannot be accessed by the player
 INACCESSIBLE_DEMONS = [71,364] #Old Lilith, Tao
@@ -31,7 +33,7 @@ TOTAL_DEMON_COUNT = 1201
 
 SPECIAL_FUSION_COUNT = 62
 #Races that cannot be downfused with an element
-NO_DOWNFUSE_RACES = ["Enigma","Fiend","UMA","Qadistu","Devil","Primal",""]
+NO_DOWNFUSE_RACES = ["Enigma","Fiend","UMA","Qadistu","Devil","Primal","","Chaos","Human","Panagia"]
 
 #Obtained by creating a linear trend function for the potential of compendium demons
 POTENTIAL_SCALING_FACTOR = 0.167
@@ -476,6 +478,17 @@ GUEST_IDS = [1150, 1151, 1152, 1153, 1154, 1157, 1158, 1159, 1161, 1162]
 
 #IDs of guest party members excluding Yuzuru and Dazai who have glitchy animations for physical skills
 GUEST_IDS_WORKING_ANIMS_ONLY = [1152, 1154, 1157, 1158, 1159, 1161]
+
+#Guests and special demons and which ids they additionally occupy
+GUEST_GROUPS = {
+    1150: [1153,1162], #Yuzuru Atsuta
+    1151: [], # Ichiro Dazai
+    1152: [1154], #Tao Isonokami
+    1157: [1158,1159], #Yoko Hiromine
+    1161: [], #Demi-fiend
+    365: [], #Tao (Panagia)
+    366: [], #Yoko (Panagia)
+}
 
 #Event encounter IDs of Ishtar except one
 EXTRA_ISHTAR_ENCOUNTERS = [76, 77, 78, 79, 80, 81, 82]

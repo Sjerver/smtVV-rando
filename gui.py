@@ -269,6 +269,7 @@ def createGUI(configSettings: Settings):
     listDemon.insert(6, "Randomize Stat Modifiers")
     listDemon.insert(7, "Reduce Compendium Cost Drastically")
     listDemon.insert(8, "Improved Special Fusions")
+    listDemon.insert(9, "Swap Guests with Demons")
     listDemon.pack()
 
     voiceLabel = tk.Label(page1FrameTopLeft, text="Demon Voice Randomizer")
@@ -616,6 +617,7 @@ def createGUI(configSettings: Settings):
                 'RandomDemonStats': ('Listbox', listDemon, 6),
                 'ReduceCompendiumCost': ('Listbox', listDemon, 7),
                 'BetterSpecialFusions': ('Listbox', listDemon, 8),
+                'swapGuestsWithDemons': ('Listbox', listDemon, 9),
 
                 'RandomSkills': ('Listbox', listSkills, 1),
                 'RandomInnates': ('Listbox', listSkills, 0),
@@ -883,6 +885,8 @@ def createGUI(configSettings: Settings):
     configur.set('Demon', 'ReduceCompendiumCost', str(demonFlags[7]).lower())
     configSettings.betterSpecialFusions = demonFlags[8]
     configur.set('Demon', 'BetterSpecialFusions', str(demonFlags[8]).lower())
+    configSettings.swapGuestsWithDemons = demonFlags[9]
+    configur.set('Demon', 'swapGuestsWithDemons', str(demonFlags[9]).lower())
     
     configSettings.randomInnates = skillFlags[0]
     configur.set('Demon', 'RandomInnates', str(skillFlags[0]).lower())
@@ -1148,7 +1152,7 @@ def createConfigFile(configur):
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
                                 'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False, 
                                 'EnemyOnlySkills':False, 'MagatsuhiSkills': False, 'ForceUniqueSkills': False, 'BetterSpecialFusions': False, 'WeightSkillsToLevels': False,
-                                'LimitSkillMPCost': False}
+                                'LimitSkillMPCost': False, 'swapGuestsWithDemons': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
                         'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False,
                         'RandomizeGiftItems': False, 'CombineKeyItemPools': False, 'IncludeTsukuyomiTalisman': False
