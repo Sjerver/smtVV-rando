@@ -46,6 +46,7 @@ ITEM_NAME_SYNC_DEMON_IDS = {
     "Girimekhala's Head" : 827,#Punishing Foe Girimekhala
     "Inugami's Head" : 138,#Inugami
     "Horus's Head" : 864,#Punishing Foe Horus
+    "Amabie's Bromide Photo": 387, #Amabie
 }
 
 #IDs of demons that show up in Item Descriptions

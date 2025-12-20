@@ -151,7 +151,7 @@ SCRIPT_FOLDERS = {
     'MM_M063_EM2170': M063_FOLDER, # Guardian of Tokyo
     'MM_M061_EM2705': M060_EM2700_FODLER, #Guardian of Light
     'MM_M061_EM1030': M061_FOLDER, # Cursed Mermaids
-    'MM_M061_EM2050': M050_FOLDER, # Picture-Perfect Debut
+    'MM_M061_EM2050': M061_FOLDER, # Picture-Perfect Debut
     'MM_M060_EM1310': M060_FOLDER, # Downtown Rock 'n Roll
     'MM_M060_EM1370': M060_FOLDER, # Keeper of the North
     'MM_M061_EM1360': M061_FOLDER, # Keeper of the West

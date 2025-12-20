@@ -419,6 +419,7 @@ EVENT_SCRIPT_MODELS = {
 
     #SubMission M050 (Tokyo Map)
     'MM_M201_EM2411': [Demon_Sync(754)], #Turbo Granny Quest (Turbo Granny)
+    'MM_M061_EM2050': [Demon_Sync(387, isNavi=True)], #Picture-Perfect Debut (Amabie??
 
     #SubMission M061 (Minato)
     'MM_M061_EM0021': [Demon_Sync(433),Demon_Sync(434),Demon_Sync(1157)], #Eligor and Andras Event
