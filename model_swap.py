@@ -404,6 +404,9 @@ def replaceDemonModelInScript(script, file: Script_File, demonsToUse):
     # for imp,stackNode2 in file.relevantImports.items():
     #     expressions = file.relevantImportExps[stackNode2]
     #     for expIndex, exp in enumerate(expressions):
+
+    #TODO:Check Usage of skipSbexp: I think it should only be used once we are done with sbexp. But not 100% sure that that happens after the first demon that successfully results in a change.
+    # But that sounds right, and continue is to get to the next demon
     for sbexp in statementIndeces:
         skipSbexp = False
         for modelSwapDemon in changes:
@@ -524,6 +527,7 @@ def replaceDemonModelInScript(script, file: Script_File, demonsToUse):
                 else: #oldName not in String, save id swaps
                     newExpression = bytecode.json[bytecode.getIndex(exp)]
                     newExpression['Parameters'][1]['Value']['Value'] = stringValue
+                #skipSbexp = True #TODO Maybe ???
 
     file.updateFileWithJson(jsonData)
     return file
@@ -725,8 +729,9 @@ def updateCutsceneModels(encounterReplacements, bossReplacements, config, naviga
                 for originalDemonID, replacementID in replacementMap.items():
                     demonsToUse.update({originalDemonID: replacementID})
                 fileSeq = replaceDemonInSequence(seq,fileSeq,demonsToUse,event)
-            cutsceneFiles.setFile(seq,fileSeq)
-            cutsceneFiles.writeFile(seq,fileSeq)
+                cutsceneFiles.setFile(seq,fileSeq)
+                cutsceneFiles.writeFile(seq,fileSeq)
+                del fileSeq
         
         print("Swapped Models for " + str(currentFileIndex) + " of " + str(totalFiles) + " Cutscenes", end='\r')
         cutsceneFiles.writeFile(event,file)
@@ -881,6 +886,7 @@ def replaceDemonInSequence(seq, file:Script_File, demonsToUse,event):
             
     bindList = file.uasset.Exports[file.exportIndex].Data[1].Value[0].Value
     for i,entry in enumerate(bindList):
+        demonChosen = False
         for modelSwapDemon in changes:
             if demonChosen:
                 continue

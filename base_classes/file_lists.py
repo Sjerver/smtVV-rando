@@ -562,7 +562,7 @@ class Script_File_List:
     '''
     Writes a specific uasset and uexp for every file in the list to their respective folder.
     '''
-    def writeFile(self,name,file):
+    def writeFile(self,name,file,deleteFile = True):
         folderKey = name
         if 'BtlAI' in name:
             folderKey = 'Btl_AI'
@@ -576,7 +576,7 @@ class Script_File_List:
         if 'SEQ' not in name:
             stringy = json.dumps(file.json)
             file.uasset = file.uasset.DeserializeJson(stringy)
-        if 'LV_E' in folderKey:
+        if 'LV_E' in folderKey and name[5].isnumeric():
             writeFolder(DESIGN_EVENT_FOLDER)
         else:
             writeFolder(SCRIPT_FOLDERS[folderKey])
@@ -584,6 +584,9 @@ class Script_File_List:
             subFolder = folderKey.split("_")[1]
             writeFolder(DESIGN_EVENT_FOLDER + '/'  + subFolder)
             file.uasset.Write(DESIGN_EVENT_FOLDER + '/'  + subFolder + '/' + name + '.umap')
+        elif 'LV_' in folderKey and 'Mission' in folderKey:
+            file.uasset = file.uasset.DeserializeJson(stringy)
+            file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.umap')
         elif 'SEQ' in name:
             subFolder = name.split("_")[1]
             writeFolder(DESIGN_EVENT_FOLDER + '/'  + subFolder)
@@ -591,9 +594,10 @@ class Script_File_List:
         else:
             file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset')
         index = self.fileNames.index(name)
-        self.fileNames.pop(index)
-        self.files.pop(index)
-        del file
+        if deleteFile:
+            self.fileNames.pop(index)
+            self.files.pop(index)
+            del file
         
 
     '''
@@ -602,38 +606,8 @@ class Script_File_List:
     def writeFiles(self):
         #TODO: Rewrite so it calls writeFile (optional argument in writeFile to not delete the file there, since it needs to be deleted with this list to prevent mutation in iteration)
         for index, name in enumerate(self.fileNames):
-            folderKey = name
-            if 'BtlAI' in name:
-                folderKey = 'Btl_AI'
-            elif 'SEQ' in name:
-                subFolder = name.split("_")[1]
-                folderKey = "LV_" + subFolder
-            elif folderKey not in SCRIPT_FOLDERS.keys() and 'LV_E' not in folderKey:
-                raise KeyError(f"No folder mapping found for '{name}' (folderKey = '{folderKey}')")
-            
             file = self.files[index]
-            if 'SEQ' not in name:
-                stringy = json.dumps(file.json)
-                file.uasset = file.uasset.DeserializeJson(stringy)
-            if 'LV_E' in folderKey and name[5].isnumeric():
-                writeFolder(DESIGN_EVENT_FOLDER)
-            else:
-                writeFolder(SCRIPT_FOLDERS[folderKey])
-            if 'LV_E' in folderKey and name[5].isnumeric() and 'SEQ' not in name:
-                subFolder = folderKey.split("_")[1]
-                writeFolder(DESIGN_EVENT_FOLDER + '/'  + subFolder)
-                file.uasset.Write(DESIGN_EVENT_FOLDER + '/'  + subFolder + '/' + name + '.umap')
-            elif 'LV_' in folderKey and 'Mission' in folderKey:
-                file.uasset = file.uasset.DeserializeJson(stringy)
-                file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.umap')
-            elif 'SEQ' in name:
-                subFolder = name.split("_")[1]
-                writeFolder(DESIGN_EVENT_FOLDER + '/'  + subFolder)
-                file.uasset.Write(DESIGN_EVENT_FOLDER + '/'  + subFolder + '/' + name + '.uasset')
-            else:
-                file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset')
-            #writeBinaryTable(file.uexp.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uexp', SCRIPT_FOLDERS[folderKey])
-            #writeBinaryTable(file.uasset.binaryTable.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset', SCRIPT_FOLDERS[folderKey])
+            self.writeFile(name, file, deleteFile = False)
     
     '''
     Read the file belonging to the script of the given name and create a Script_File and add it to the list.
@@ -672,6 +646,8 @@ class Script_File_List:
         #uassetData = Script_Uasset(readBinaryTable('base/Scripts/' +scriptPath + name + '.uasset'))
             filePath ='base/Scripts/' + scriptPath + name + '.uasset'
            #assetobject = UAsset('base/Scripts/' + scriptPath + name + '.uasset', EngineVersion.VER_UE4_27)
+        if name == "LV_E2000": #TODO: Current special exception, not final
+            filePath = 'base/Modified Files/Design/Event/E2000/' + name + '.umap'
 
         try:
             assetobject = UAsset(filePath,EngineVersion.VER_UE4_27)
