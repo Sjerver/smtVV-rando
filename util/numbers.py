@@ -3,7 +3,7 @@ import math
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 
-PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,110,1111,1112,1113,1114,1115,1116,1117,1118]
+PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118]
 
 #Demons that overlap in Event Encounters and in which ones they do
 DUPLICATE_SOURCES = {442 : [61 ,65], #School Aitvaras
@@ -225,7 +225,7 @@ VENGEANCE_EXLUSIVE_MISSIONS = [157,152,159,177,171,194,203,178,202,184,200,210,1
         #Disgraced Bird God, Alice's Wonderland, Shinjuku Jewel Hunt, Heroes of Heaven and Earth, Rite of Resurrection, 'God of Old, Devourer of Kin', The Heartbroken, Special Training: Army of Chaos
         #The Serpent King, The Great Adversary, Investigate the Anomalies in Tokyo, Investigate the Salt Incidents, Rescue Miyazu Atsuta, Investigate Jozoji Temple, Qadištu Showdown
 
-#Mutually exclusive missions that should never reward a key item
+#Mutually exclusive missions that should never reward a key item #TODO: Add the limited quests Miyazu dream and Dazai/Amanozako as well as Supply Run
 MUTUALLY_EXCLUSIVE_MISSIONS = [
     176,175,#Vampire in Black/Hunter in White
     70,71, #The Water Nymph/Spirit of Love
