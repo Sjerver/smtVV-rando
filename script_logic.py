@@ -78,7 +78,7 @@ EXTRA_MISSION_IDS = {
     'MM_M035_EM1480': [-2], # The Seraph's Return
     'MM_M036_EM1490': [-3], # The Red Dragon's Invitation
     'MM_M061_EM1030': [-4], # Cursed Mermaids
-    'MM_M061_EM2050': [-5], # Picture-Perfect Debut #TODO Test this gift
+    'MM_M061_EM2050': [-5], # Picture-Perfect Debut
     'MM_M060_EM1310': [-6], # Downtown Rock 'n Roll
     'MM_M060_EM1370': [-7,-18], # Keeper of the North
     'MM_M061_EM1360': [-8], # Keeper of the West
@@ -1115,9 +1115,8 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
             "sflag0030_GardenLock","sflag0109_GardenTutorial",
             #Navi Tutorial, Magatsuhi Devil
             "pflag0018_NaviTutorial_Outer","pflag0019_NaviTutorial_Inner","MAP_FLAG_MagatsuhiDevilLock",
-            #Fusion Cutscene Skips #TODO: Are these flags off by default and belong here or do they need to be turned off
-            "#pflag0024_FirstUnite","pflag0025_FirstUniteAccident",
-            #Make E:\emulator\Unreal moddiing\Kismet\Output JSON\Game\Design\Event\EventUnite2\LV_EventUnite2.umap.json into a KMS to check how it works really
+            #Fusion Cutscene Skips #TODO: Maybe these always?
+            "pflag0024_FirstUnite","pflag0025_FirstUniteAccident",
         ]
     }
 
@@ -1181,6 +1180,8 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
                     continue
                 if not configSettings.skipTutorials and flag in TUTORIAL_RELATED_FLAGS or flag not in TUTORIAL_RELATED_FLAGS and not configSettings.removeCutscenes:
                     continue
+
+                #print(flag + "(" + group + ") updated")
 
                 # if flag not in  jsonData["NameMap"]:
                 #     jsonData["NameMap"].append(flag)

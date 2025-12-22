@@ -7037,7 +7037,6 @@ class Randomizer:
             entry["Value"][17]["Value"] = 100
             #print(str(scaleFactor) + " for " + str(replacementID) + " to hit target size " + str(targetSize))
             if replacementID in self.guestReplacements.keys():
-                #TODO: check this if levels are randomized and if not
                 replacementVoiceID = message_logic.normalVoiceIDForBoss(self.guestReplacements[replacementID], self.enemyNames).zfill(3) #Replace voices
             else:
                 replacementVoiceID = message_logic.normalVoiceIDForBoss(replacementID, self.enemyNames).zfill(3) #Replace voices
@@ -7212,7 +7211,6 @@ class Randomizer:
         #print("Guest " + str(guestID) +" "+ guest.name +" <-> Demon " + str(demonID) + " " + demon.name )
 
 
-        #TODO: Physical skill restrictions for guests and other things that need to update in comparison to how guests have been handled prviously
         #TODO: Tao (Guest) is weird, since demons always get her textures??
         #TODO: CoV Cutscenes are not yet tested for model swaps / messages
 
@@ -7328,7 +7326,7 @@ class Randomizer:
             if len(required) > 0:
                 choice = required.pop(0)
             validInds.remove(choice)
-            swapPairings[choice] = guest
+            swapPairings[choice] = guest   
             
             
         #Swap lore entries
@@ -7370,8 +7368,7 @@ class Randomizer:
             if skill.owner and skill.owner.ind in swapPairings.keys():
 
                 skill.owner = Skill_Owner(swapPairings[skill.owner.ind],self.getDemonsCurrentNameByID(swapPairings[skill.owner.ind]))
-        
-            
+          
 
     
     '''
@@ -7487,7 +7484,7 @@ class Randomizer:
         self.fillNahobino(playGrowBuffer)
 
         if config.swapGuestsWithDemons:
-            #This needs to haappen after playerBossArr and before essence Arr
+            #This needs to happen after playerBossArr and before essence Arr
             self.swapGuestsWithDemons()
 
         self.fillEssenceArr(itemBuffer)
@@ -7522,11 +7519,12 @@ class Randomizer:
         levelSkillList = self.generateLevelSkillList(skillLevels)
        
         if config.randomPotentials:
+            # if config.fixUniqueSkillAnimations:
+            #     self.randomizePotentials(self.compendiumArr, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
+            #     self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
+            # else:
             self.randomizePotentials(self.compendiumArr)
-            if config.fixUniqueSkillAnimations:
-                self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
-            else:
-                self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS)
+            self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS)
         
         if self.configSettings.randomDemonStats:
             self.randomizeDemonStats(self.compendiumArr, foes=self.enemyArr)
@@ -7608,10 +7606,10 @@ class Randomizer:
             self.assignRandomStartingSkill(self.nahobino, levelSkillList, config)
             newComp = self.assignRandomSkills(newComp,levelSkillList, config)
             self.assignRandomSkills(self.playerBossArr,levelSkillList, config, mask=numbers.PROTOFIEND_IDS)
-            if config.fixUniqueSkillAnimations:
-                self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
-            else:
-                self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
+            # if config.fixUniqueSkillAnimations:
+            #     self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
+            # else:
+            self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
         if self.configSettings.forceAllSkills:
             self.debugPrintUnassignedSkills(levelSkillList)
         self.outputSkillSets()
@@ -7742,6 +7740,10 @@ class Randomizer:
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames, self.playerBossArr, self.compendiumArr)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
 
+        if self.configSettings.removeCutscenes or self.configSettings.skipTutorials:
+            #Needs to be before cutsceneswap to handle scripts that get edited in both
+            self.scriptFiles = scriptLogic.setCertainFlagsEarly(self.scriptFiles, self.mapEventArr, self.eventFlagNames, self.configSettings)
+
         if self.configSettings.swapCutsceneModels:
             model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings, self.naviReplacementMap)
 
@@ -7763,8 +7765,6 @@ class Randomizer:
             for skill in numbers.PHYSICAL_RATE_SKILLS:
                 self.obtainSkillFromID(skill).skillType = Translated_Value(14,'')
         
-        if self.configSettings.removeCutscenes or self.configSettings.skipTutorials:
-            self.scriptFiles = scriptLogic.setCertainFlagsEarly(self.scriptFiles, self.mapEventArr, self.eventFlagNames, self.configSettings)
         
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)

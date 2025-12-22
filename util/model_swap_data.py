@@ -96,7 +96,7 @@ EVENT_CUTSCENES = {
     'LV_E0630': [Demon_Sync(467)], #Abdiel dialogue before DKC (Abdiel) 
     'LV_E0660': [Demon_Sync(82,463)], #UMAP Arioch Cutscene
     'LV_E0736': [Demon_Sync(467)],#Dazai/Abdiel talk after summit
-    'LV_E0750': [Demon_Sync(365)], #Tao reveals herself as goddes in CoC (Tao Panagia) #TODO: Tao appears shortly but otherwise Cerberus worked
+    'LV_E0750': [Demon_Sync(365)], #Tao reveals herself as goddes in CoC (Tao Panagia)
     'LV_E0760': [Demon_Sync(365)], #Tao talking about area 4 (Tao Panagia)
     'LV_E0830': [Demon_Sync(365)], #Top floor of Empyrean Warning (Tao Panagia)
     'LV_E0775': [Demon_Sync(468)], #UMAP Vasuki Cutscene
@@ -234,7 +234,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M016_E0891': [Demon_Sync(249,471)], #Empyrean Melchizedek
     'MM_M016_E0892': [Demon_Sync(244,472)], #Empyrean Sraosha
     'MM_M016_E0893': [Demon_Sync(198,473)], #Empyrean Alilat
-    'MM_M016_E0906': [Demon_Sync(365)], #Some Tao dialogue (Tao Panagaia) #TODO where is this
+    'MM_M016_E0906': [Demon_Sync(365)], #Some Tao dialogue (Tao Panagaia)
     #Mainmission M035 & 36 (Temple of Eternity & DKC)
     'MM_M035_E0825': [Demon_Sync(241,477)], #Temple of Eternity Metatron
     'MM_M036_E0644': [Demon_Sync(182,466)], #DKC Pre Chernobog
@@ -251,7 +251,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_E0764': [Demon_Sync(365)], #Tao joining you in area 4 creation (If slots were filled previously) (Tao Panagia)
     'MM_M060_E0778': [Demon_Sync(468),Demon_Sync(37,878),Demon_Sync(365)], #Vasuki Post Fight Event (Vasuki, Kurama Tengu, Tao (Panagia))
     'MM_M060_E0785': [Demon_Sync(8,469)], #CoC Taito Zeus Appears
-    'MM_M060_E0790': [Demon_Sync(8,469),Demon_Sync(37,878),Demon_Sync(365)],#CoC Taito Zeus PostFight (Zeus, Kurama Tengu, Tao (Panagia))#TODO: Tao did not work here either
+    'MM_M060_E0790': [Demon_Sync(8,469),Demon_Sync(37,878),Demon_Sync(365)],#CoC Taito Zeus PostFight (Zeus, Kurama Tengu, Tao (Panagia))
     'MM_M060_E0810': [Demon_Sync(9,470),Demon_Sync(37,878),Demon_Sync(365)],#CoC Odin PostFight (Odin, Kurama Tengu, Tao (Panagia))
     'MM_M060_E0820': [Demon_Sync(365)], # Tao before entering Temple of eternity (Tao Panagia)
     'MM_M060_E3001_Direct': [Demon_Sync(365)], #Tao joining you in area 4 vengeance (Tao Panagia)
@@ -464,7 +464,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M062_EM1151_Hit': [Demon_Sync(810), Demon_Sync(23, isNavi=True)], #A Goddess Stolen (Loki, Idun)
     'MM_M062_EM1160': [Demon_Sync(19)], #The Tyrant of Tennozu (Demeter)
     'MM_M062_EM1161_A': [Demon_Sync(804)], #The Tyrant of Tennozu  (Belphegor)
-    'MM_M062_EM1180': [Demon_Sync(-606,1152),Demon_Sync(1157)], #King Frost Quest Nekomata(Tao with Bag) #TODO: Affects CoC?
+    'MM_M062_EM1180': [Demon_Sync(-606,1152),Demon_Sync(1157)], #King Frost Quest Nekomata(Tao with Bag)
     'MM_M062_EM1181': [Demon_Sync(821)], #King Frost Quest (King Frost) 
     'MM_M062_EM1331': [Demon_Sync(828)],#Lord's Sword Quest (Arahabaki)  
     'MM_M062_EM1340': [Demon_Sync(860)], #Zouchouten Event Battle  

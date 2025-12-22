@@ -225,7 +225,7 @@ VENGEANCE_EXLUSIVE_MISSIONS = [157,152,159,177,171,194,203,178,202,184,200,210,1
         #Disgraced Bird God, Alice's Wonderland, Shinjuku Jewel Hunt, Heroes of Heaven and Earth, Rite of Resurrection, 'God of Old, Devourer of Kin', The Heartbroken, Special Training: Army of Chaos
         #The Serpent King, The Great Adversary, Investigate the Anomalies in Tokyo, Investigate the Salt Incidents, Rescue Miyazu Atsuta, Investigate Jozoji Temple, Qadištu Showdown
 
-#Mutually exclusive missions that should never reward a key item #TODO: Add the limited quests Miyazu dream and Dazai/Amanozako as well as Supply Run
+#Mutually exclusive missions (or timed availability missions) that should never reward a key item 
 MUTUALLY_EXCLUSIVE_MISSIONS = [
     176,175,#Vampire in Black/Hunter in White
     70,71, #The Water Nymph/Spirit of Love
@@ -235,6 +235,10 @@ MUTUALLY_EXCLUSIVE_MISSIONS = [
     75,76, #Those Seeking Sanctuary, Holding the Line
     51,50 #The Red Dragon's Invitation/The Seraphs Return
     -2, -3, #Additional Rewards from The Red Dragon's Invitation/The Seraphs Return
+    156, #Prince of her Dream (Missable)
+    157, #Supply Run (Missable)
+    162, #In Pursuit of Knowledge (Missable according to the Wiki)
+    192, #Infiltrate the Demon Feast (Missable)
 ]
 
 #Reward cannot be randomized, due to Quest Progression Issues or too strong reward(True Demon) or mission is unused
@@ -477,6 +481,7 @@ AREA_SHOP_UNLOCKS= {
 GUEST_IDS = [1150, 1151, 1152, 1153, 1154, 1157, 1158, 1159, 1161, 1162]
 
 #IDs of guest party members excluding Yuzuru and Dazai who have glitchy animations for physical skills
+#TODO: Decide if we should try to keep track of Yuzuru/Dazai but since you can just give them normal phys skills via fusion seems unnecessary
 GUEST_IDS_WORKING_ANIMS_ONLY = [1152, 1154, 1157, 1158, 1159, 1161]
 
 #Guests and special demons and which ids they additionally occupy

@@ -259,7 +259,7 @@ def createGUI(configSettings: Settings):
     demonLabel.pack()
     #demonLabel.grid(row=0, column=0, sticky='nsew', columnspan= 2, padx = [10,0])
 
-    listDemon = tk.Listbox(page1FrameTopLeft, selectmode = "multiple", width=75, height = 9, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listDemon = tk.Listbox(page1FrameTopLeft, selectmode = "multiple", width=75, height = 10, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listDemon.insert(0, "Randomize Levels & Encounters")
     listDemon.insert(1, "Randomize Potentials")
     listDemon.insert(2, "Scale Potentials to Level")
@@ -269,13 +269,13 @@ def createGUI(configSettings: Settings):
     listDemon.insert(6, "Randomize Stat Modifiers")
     listDemon.insert(7, "Reduce Compendium Cost Drastically")
     listDemon.insert(8, "Improved Special Fusions")
-    listDemon.insert(9, "Swap Guests with Demons")
+    listDemon.insert(9, "Swap Guests/Panagia with Demons")
     listDemon.pack()
 
-    voiceLabel = tk.Label(page1FrameTopLeft, text="Demon Voice Randomizer")
+    voiceLabel = tk.Label(page1FrameLeft, text="Demon Voice Randomizer")
     voiceLabel.pack()
 
-    listVoice = tk.Listbox(page1FrameTopLeft, selectmode = "single", width=50, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listVoice = tk.Listbox(page1FrameLeft, selectmode = "single", width=50, height=3, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listVoice.insert(0, "Disabled")
     listVoice.insert(1, "Shuffle Demons' Voices")
     listVoice.insert(2, "Shuffle Voice Lines Individually (Chaotic)")
@@ -293,7 +293,7 @@ def createGUI(configSettings: Settings):
     demonResLabel = tk.Label(page1FrameLeft, text="Demon Resistances")
     demonResLabel.pack()
 
-    listDemonResistances = tk.Listbox(page1FrameLeft, selectmode = "multiple", width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listDemonResistances = tk.Listbox(page1FrameLeft, selectmode = "multiple", height=6,width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listDemonResistances.insert(0, "Randomize Resistances")
     listDemonResistances.insert(1, "Always at least one Weakness/Resistance")
     listDemonResistances.insert(2, "Scale Elemental Resistances To Level")

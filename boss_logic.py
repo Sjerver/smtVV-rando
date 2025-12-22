@@ -149,8 +149,6 @@ ADDITIONAL_BOSS_SKILLS = {}
 BASIC_ENEMY_MAGATSUHI = 380
 GODBORN_ENEMY_MAGATSUHI = 950
 
-#TODO: Sync Formless Arrow in Marici Fight?
-
 #List of skills that cannot be chosen as result of randomization
 BANNED_SKILLS = [834,835, #Unused Uniques from Pixie/High Pixie,
                  371, #Demi-fiend Gaea Rage

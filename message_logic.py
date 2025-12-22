@@ -326,7 +326,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e0730': [Demon_Sync(837), Demon_Sync(537), Demon_Sync(510, 528)],#Regarding the war of the gods dialogue (Baal, Lucifer, Tsukuyomi)
     'e0735': [Demon_Sync(467)],#Dazai dialogue after summit (Abdiel)
     'e0736': [Demon_Sync(467)],#Dazai/Abdiel talk after summit (Abdiel)
-    'e0750': [Demon_Sync(365)],#Tao Goddess Reveal creation (Tao(Panagia)) #TODO: Maybe figure out how to keep "Tao Isonokami" the same
+    'e0750': [Demon_Sync(365)],#Tao Goddess Reveal creation (Tao(Panagia))
     'e0760': [Demon_Sync(365)], #Tao explaining the 3 Keys CoC (Tao(Panagia))
     'e0762': [Demon_Sync(512, 465, nameVariant='Yakumo'), Demon_Sync(75, 520)],#Nuwa in area 4 (Yakumo, Nuwa) Note: I guess start referencing nahobino nuwa/abdiel in area 4?
     'e0763': [Demon_Sync(365)],#Tao joins Area 4 CoC (Tao(Panagia))

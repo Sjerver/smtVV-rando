@@ -604,7 +604,6 @@ class Script_File_List:
     Writes the uasset and uexp for every file in the list to their respective folder.
     '''
     def writeFiles(self):
-        #TODO: Rewrite so it calls writeFile (optional argument in writeFile to not delete the file there, since it needs to be deleted with this list to prevent mutation in iteration)
         for index, name in enumerate(self.fileNames):
             file = self.files[index]
             self.writeFile(name, file, deleteFile = False)
