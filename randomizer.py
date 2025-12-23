@@ -7222,6 +7222,7 @@ class Randomizer:
                 donor: demon to donate the attributes
         '''
         def obtainAttributes(recipient,donor):
+            donor = copy.deepcopy(donor)
 
             #Rename Essence
             self.itemNames = [f"{donor.name}'s Essence" if recipient.name in itemName else itemName for itemName in self.itemNames]
@@ -7236,11 +7237,11 @@ class Randomizer:
             recipient.innate = donor.innate
 
             recipient.stats = donor.stats
-            self.recalculateDemonStatsToLevel(recipient,donor.level.original,recipient.level.original)
+            recipient = self.recalculateDemonStatsToLevel(recipient,donor.level.original,recipient.level.original)
 
             recipient.skills = donor.skills
             learnedLevel = [skill.level for skill in recipient.learnedSkills]
-            recipient.learnedSkills = copy.deepcopy(donor.learnedSkills)
+            recipient.learnedSkills = donor.learnedSkills
             for index,skill in enumerate(recipient.learnedSkills):
                 if index < len(learnedLevel):
                     skill.level = learnedLevel[index]
