@@ -71,6 +71,7 @@ M061_EM2040_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M
 M061_EM2240_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2240'
 M061_EM2380_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2380'
 M062_EM1650_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM1650'
+M062_EM2060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2060'
 M062_EM2110_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2110'
 M062_EM2430_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2430'
 M062_EM2440_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2440'
@@ -490,7 +491,8 @@ SCRIPT_FOLDERS = {
     'MM_M064_EM2620': M064_EM2620_FOLDER, #Orochi Quest Kushinada & Co Part
     'MM_M082_EM2053': M082_FOLDER, #Give Amabie Photo to Tao
     'MM_M082_EM2055': M082_FOLDER, #Give Amabie Photo to Yoko
-    
+    'MM_M062_EM2060': M062_EM2060_FOLDER, #"Nice Terekke" Koropokkur in Area 2
+
     'esNPC_m083_10': STATION_NPC_FOLDER, #Yoko in Station?
 
     'BP_es035_m063_01': ES035_M063_FOLDER,#Fionn area 3 (Fionn)

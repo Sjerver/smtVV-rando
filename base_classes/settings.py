@@ -97,4 +97,4 @@ class Settings(object):
         self.skipTutorials = False                  # Removes as many tutorials as possible
         self.scalePassiveAmount = False             # Scale passive amount with boss level
         self.scalePassiveLevelGap = False           # Scale passive count based on level difference
-        self.swapGuestsWithDemons = True            # Swaps the assets of guest characters with playable demons
+        self.swapGuestsWithDemons = False            # Swaps the assets of guest characters with playable demons
