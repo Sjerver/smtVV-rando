@@ -301,10 +301,24 @@ FLAGGROUPS = {
 
         #Zako Leaves Should not be skipped, but is triggered by  Post Nuwa Dazai Scene anyway
         #"script_m061_mm_002","MAP_FLAG_P_EM0019",
-        #Arriving in Tokyo after Abdiel Scene
-        #Re-investigate this since this way the simulator battles do not become available
-        #"MAP_FLAG_E0360_es605",
-        #"MAP_FLAG_E0360_0","MAP_FLAG_E0360","MAP_FLAG_E0360_es611","MAP_FLAG_E0360_es609",
+        #Arriving in Tokyo after Abdiel Scene (Allows you to enter Tokyo without going up to meeting)
+        # CoV
+        "MAP_FLAG_P_E0360", "MAP_FLAG_P_E0360_4", "mis_m085_em2180_0","BossRush_1_Open", 
+        "MAP_FLAG_P_E0360_5", "MAP_FLAG_P_E0360_3", "MAP_FLAG_P_E0360_2", 
+        "MAP_FLAG_P_E0360_Finish","MAP_FLAG_P_E0360_End",
+
+        #Tokyo "normal" school section CoV #TODO: This does skip the best opp to activate dorm leyline maybe we do it instead
+        "MAP_FLAG_E2049", # entering dorm room
+        "MAP_FLAG_EN0152","MAP_FLAG_EN0155","MAP_FLAG_E2051",
+        "MAP_FLAG_EN0155_EX", # entering school
+        "MAP_FLAG_EN0155_2","script_m082_Npc606_off", # itsukishima event 1
+        "MAP_FLAG_EN0155_4","mis_m061_em1400_miya05","mis_m082_em2080","mis_m082_em2082","mis_m080_em2080_1","mis_m080_em2080_2", #miyazu quest start
+        "MAP_FLAG_EN0155_3", # dazai school stop
+        "MAP_FLAG_EN0160","MAP_FLAG_EN0160_EX","mis_m082_em2080_NPC", # yoko school transfer
+        "MAP_FLAG_EN0160_2", # tao school stop
+        "MAP_FLAG_EN0160_3", # nurse
+        "MAP_FLAG_EN0161", # yuzuru school stop
+        "mis_m082_em2081", # required to complete Miyazu quest instantly
     ],
     "false_tutorials_and_locks":[
         "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock","sflag0012_CampQuestLock",
