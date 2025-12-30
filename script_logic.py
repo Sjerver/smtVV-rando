@@ -236,17 +236,18 @@ ALLY_SCRIPTS = {
 
 FLAGGROUPS = {
     "npc_school": [
-        "MAP_FLAG_P_E0171","MAP_FLAG_P_E0172","MAP_FLAG_P_E0173","MAP_FLAG_P_E0170_Finish",
-        "MAP_FLAG_E0171","MAP_FLAG_E0172","MAP_FLAG_E0173","MAP_FLAG_E0170_Finish",
+        "MAP_FLAG_P_E0171","MAP_FLAG_P_E0172","MAP_FLAG_P_E0173","MAP_FLAG_P_E0170_Finish","MAP_FLAG_P_E0171_Finish",
+        "MAP_FLAG_E0171","MAP_FLAG_E0172","MAP_FLAG_E0173","MAP_FLAG_E0170_Finish","MAP_FLAG_E0171_Finish"
         #These Do not change anything, maybe something missing to trigger Yuzuru Meeting event automatically? If even possible this way
         # "MAP_FLAG_E0171_Finish","MAP_FLAG_P_E0171_Finish",
         # "MAP_FLAG_P_E0174","MAP_FLAG_E0174",
     ],
     "pre_dazai_tunnel": [
-        "MAP_FLAG_E0186",
+        "MAP_FLAG_E0186", #Overworld Tutorial
         "MAP_FLAG_P_E0186",
-        "MAP_FLAG_E0190","MAP_FLAG_E0190_npc", "MAP_FLAG_E0192", "MAP_FLAG_E0191","MAP_FLAG_E0195",
-        "MAP_FLAG_P_E0190","MAP_FLAG_P_E0191","MAP_FLAG_P_E0192","MAP_FLAG_P_E0195",
+        "MAP_FLAG_E0190", "MAP_FLAG_E0192", "MAP_FLAG_E0191","MAP_FLAG_E0195",
+        "MAP_FLAG_P_E0190","MAP_FLAG_P_E0191","MAP_FLAG_P_E0192","MAP_FLAG_P_E0195", "script_NPC_m083_10",
+        "script_m083_E0195_02",
     ],
     "first_stretch_tutorials": [
         "script_m061_mm_018",
@@ -257,6 +258,7 @@ FLAGGROUPS = {
     ],
     "lay_of_the_land": ["script_m061_mm_001","MAP_FLAG_P_EM0010",],
     "first_leyline": ["sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014",],
+    #"MAP_FLAG_P_E0035","MAP_FLAG_P_E0031","MAP_FLAG_RyuketsuOpen_Tamachi","MAP_FLAG_Daath1_OneWay"
     "miman_tutorial": [
         "script_m061_mm_014",#"script_m061_mm_014_2", #This one is also responsible for the 1 miman reward scene, by not skipping it the first visit to Gustave gives reward immediately
         "MAP_FLAG_P_EM0018","script_m061_mm_009",
@@ -306,8 +308,16 @@ FLAGGROUPS = {
         "MAP_FLAG_P_E0360", "MAP_FLAG_P_E0360_4", "mis_m085_em2180_0","BossRush_1_Open", 
         "MAP_FLAG_P_E0360_5", "MAP_FLAG_P_E0360_3", "MAP_FLAG_P_E0360_2", 
         "MAP_FLAG_P_E0360_Finish","MAP_FLAG_P_E0360_End",
-
-        #Tokyo "normal" school section CoV #TODO: This does skip the best opp to activate dorm leyline maybe we do it instead
+        #CoC
+        "MAP_FLAG_E0360_es605","MAP_FLAG_E0360_es609","MAP_FLAG_E0360_es611"
+        "MAP_FLAG_E0360","MAP_FLAG_E0361","MAP_FLAG_E0360_0","MAP_FLAG_E0361_2"
+        
+        #Tokyo "normal" school section 
+        # CoC
+        "MAP_FLAG_E0362","MAP_FLAG_E0363","MAP_FLAG_E0364","MAP_FLAG_E0365","MAP_FLAG_E0366",
+        "MAP_FLAG_E0367","MAP_FLAG_E0363_2","MAP_FLAG_E0364_2",
+        "MAP_FLAG_EN0155_Old"
+        # CoV #TODO: This does skip the best opp to activate dorm leyline maybe we do it instead
         "MAP_FLAG_E2049", # entering dorm room
         "MAP_FLAG_EN0152","MAP_FLAG_EN0155","MAP_FLAG_E2051",
         "MAP_FLAG_EN0155_EX", # entering school
@@ -1201,6 +1211,7 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
                 nameConst["Value"] = eventFlagNames[flag]
 
                 if "false" in group:
+                    #Set flag to false
                     localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen(False)])
                 else:
                     localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen()])
