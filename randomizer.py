@@ -6542,6 +6542,7 @@ class Randomizer:
         spyscopeDrop = Item_Drop(79, 'Spyscope', 100, 0) #Drop spyscope and chakra drop x2
         chakraDrop = Item_Drop(2, 'Chakra Drop', 100, 0)
         daemon.drops = Item_Drops(spyscopeDrop, chakraDrop, chakraDrop)
+        daemon.damageMultiplier *= 0.5
     
     '''
     Sets the drops of bosses which are quest relevant to their replacements and in cases where a quest drop boss replaces a quest drop boss makes sure that the drops of all bosses are not lost in conversion.
