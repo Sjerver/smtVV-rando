@@ -630,6 +630,13 @@ def createGUI(configSettings: Settings):
                     break
             
             target.insert(trueIndex, item)
+            
+    def resetItemCheckLists():
+        listItemsOrder = ["Treasures","Miman Rewards","Mission Rewards","NPC/Story Gifts"]
+        for index, item in enumerate(listItemsOrder):
+            listItemVanilla.insert(index,item)
+        listItemSelf.delete(0,tk.END)
+        listItemShared.delete(0,tk.END)
 
     moveToSelfButton = tk.Button(itemVanillaFrame, text="→ Independent", command=lambda: moveItemsBetweenLists(listItemVanilla, listItemSelf))
     moveToSelfButton.pack()
@@ -733,6 +740,7 @@ def createGUI(configSettings: Settings):
     page1Frame.tkraise()
     
     def ApplySettings(configur):
+        resetItemCheckLists()
         UI_MAP = {
             'Patches': {
                 'swapCutsceneModels': ('Checkbutton',swapCutsceneModelCheckbox),
