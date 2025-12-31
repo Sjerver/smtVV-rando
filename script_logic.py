@@ -121,16 +121,17 @@ EXTRA_MISSION_MISSION_INFO_IDS = {
 
 #List of which areas rewards of fake missions are scaled after
 EXTRA_MISSION_REWARD_AREAS = {
-  16: [-2, -3, -11], #Empyrean
+  16: [-2, -3, -11,-15], #Empyrean
   35: [], #Temple of Eternity
   36: [], #Demon Kings Castle / Shakan
   38: [], #Demon Kings Castle / Shakan
-  60: [-1,-6,-7,-8,-9,-10,-13, -15, -17, -18,-19], #Taito
+  60: [-6,-7,-8,-9,-10,-13, -17, -18,-19], #Taito
   61: [-4,-12,-21], #Minato
   62: [-5], #Shinagawa
   63: [-14, -16], #Chiyoda
   64: [-20], #Shinjuku
-  107: [] #Demi-Fiend Area: same as Empyrean
+  107: [], #Demi-Fiend Area: same as Empyrean
+  960: [-1], #Taito (Post Keys)
 }
 
 #Items being gifted in each script
@@ -156,14 +157,28 @@ BASE_GIFT_ITEMS = {
     'MM_M087_E2450_Direct': 4, #Bead (Dazai Gift Temple CoV)
     'MM_M061_EM0181': 4, #Bead (Amanozako Event)
     'MM_M062_EM2060': 7, #Revival Bead ("Nice Terekke" Koropokkur in Area 2)
+
+    'MM_M060_E0778': 658, #Key of Austerity (Vasuki Post Fight Event)
+    'MM_M060_E0790': 659, #Key of Benevolence (Coc Zeus Post Fight)
+    'MM_M060_E0810': 660, #Key of Harmony (CoC Odin Post Fight)
+
+    # 'MM_M060_E3110_Direct': 658, #Key of Austerity (Beelzebub Post Fight Event)
+    # 'MM_M060_E3130_Direct': 659, #Key of Benevolence (CoV Zeus/Odin Post Fight Event)
+    # 'MM_M060_E3130_Direct_HARMONY': 660, #Key of Harmony (CoV Zeus/Odin Post Fight Event)
 }
+#TODO: Translation table for scripts for understandable debug output?
+
+#TODO: List of scripts that are in two places so technically duplicated
+#Not mandatory but makes checks a tad cleaner to understand what needs duplication
+#Snake Talisman script is just one script which is used for Chiyoda and Shinjuku for example
+
 # Areas the gifts are scaled after if they are not containing a key item
 GIFT_AREAS = {
   16: ['esNPC_m016_02a','BP_JakyoEvent','BP_JakyoEvent_Comp_Complete'], #Empyrean
   35: [], #Temple of Eternity
   36: ['MM_M064_E2797','MM_M064_E2797_PERIAPT','MM_M064_E2795_Direct'], #Demon Kings Castle / Shakan
   38: [], #Demon Kings Castle / Shakan
-  60: ['esNPC_m060_10a','MM_M060_E0763'], #Taito
+  60: ['esNPC_m060_10a','MM_M060_E0763','MM_M060_E0778','MM_M060_E0790','MM_M060_E0810'], #Taito
   61: ['esNPC_m061_31a','esNPC_m061_30a','esNPC_m061_34a','MM_M061_EM0181'], #Minato
   62: ['esNPC_m062_32a','esNPC_m062_33a','esNPC_m062_40a','MM_M062_EM1132','MM_M062_EM2060'], #Shinagawa
   63: ['BP_esNPC_TokyoMap_15b','esNPC_m063_20a','esNPC_m063_21a','MM_M087_E2450_Direct'], #Chiyoda
@@ -179,6 +194,9 @@ GIFT_EQUIVALENT_SCRIPTS = {
     'BP_esNPC_TokyoMap_15b' : ['BP_esNPC_TokyoMap_15b2','BP_esNPC_TokyoMap_15c'],
     'esNPC_m016_02a' : ['esNPC_m016_02b'],
     'MM_M060_E0763' : ['MM_M060_E3001_Direct'],
+    'MM_M060_E0778': ['MM_M060_E3110_Direct'],
+    'MM_M060_E0790': ['MM_M060_E3130_Direct'],
+    'MM_M060_E0810': ['MM_M060_E3130_Direct']
 }
 # Scripts that use the same script file, for different rewards
 # Extra -> Original
@@ -191,13 +209,17 @@ GIFT_EXTRA_SCRIPTS = {
 GIFT_ESSENCE_ODDS = 0.7 #Completely made up, but essence should be more likely for now since amount is fixed currently
 
 #List of gifts only obtainable in canon of vengeance
+#The Empyrean keys do not count as exclusive cause their reward is shared with a duplicate
 VENGEANCE_EXCLUSIVE_GIFTS = ['MM_M064_E2797','MM_M064_E2797_PERIAPT','MM_M064_E2795_Direct','MM_M087_E2450_Direct']
 #List of gifts that require a cleared game file
 NEWGAMEPLUS_GIFTS = ['BP_JakyoEvent_Comp_Complete', 'BP_JakyoEvent']
 #List of gifts that can be missed
-MISSABLE_GIFTS = ['MM_M061_EM0181']
+MISSABLE_GIFTS = []
+#List of gift that can be repeated
+REPEATABLE_GIFTS = ['MM_M062_EM2060']
 #Script for the Tsukuyomi Talisman
 TSUKUYOMI_TALISMAN_SCRIPT = 'MM_M064_E2795_Direct'
+EMPYREAN_KEY_SCRIPTS = ['MM_M060_E0778','MM_M060_E0790','MM_M060_E0810']
 
 #Message files for the event in which item names need to be replaced
 ITEM_MESSAGE_REPLACEMENTS = {
@@ -487,7 +509,7 @@ def updateDemonJoinInScript(file, oldDemonID, newDemonID, joinType,scriptName):
     file.updateFileWithJson(jsonData)                    
 
 '''
-Changes the reward for collecting the first miman which is rewarded via an reward.
+Changes the reward for collecting the first miman to the return Pillar.
     Parameters:
         config (Settings): randomization settings
         itemNames (List(String)): list of names of items
@@ -495,25 +517,11 @@ Changes the reward for collecting the first miman which is rewarded via an rewar
         essenceArr (List(Essence)): list of essences
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
-def adjustFirstMimanEventReward(config, itemNames, replacements, essenceArr, scriptFiles):
+def adjustFirstMimanEventReward(scriptFiles):
     #Grab file from file list
     file = scriptFiles.getFile('BP_ShopEvent')
 
     ogEssenceID = 496 #Id for Onmoraki's Essence
-    # essenceID = 496 #Start with Onmoraki's Essence and change value later
-    # if config.randomizeMimanRewards and not config.scaleItemsToArea:
-    #     #Grab random essence if item rewards not scaling
-    #     validEssences = []
-    #     for itemID, itemName in enumerate(itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-    #         if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES:
-    #             validEssences.append(itemID)
-    #     essenceID = random.choice(validEssences)
-    # elif (config.randomDemonLevels or config.randomizeMimanRewards) and config.scaleItemsToArea:
-    #     #Grab essence for Onmoraki's Replacement
-    #     demonID = replacements[290]
-    #     for essence in essenceArr:
-    #         if essence.demon.value == demonID:
-    #             essenceID = essence.ind
     essenceID = 70 #Return Pillar
 
     updateItemRewardInScript(file, ogEssenceID, essenceID, 'BP_ShopEvent')
@@ -629,6 +637,7 @@ def createFakeMissionsForEventRewards(scriptFiles):
             fakeMission.ind = index
             fakeMission.reward = EXTRA_MISSION_REWARDS[fakeMission.ind]
             fakeMission.originalReward = copy.deepcopy(fakeMission.reward)
+            fakeMission.name = script
 
             file = scriptFiles.getFile(script)
             jsonData = file.json

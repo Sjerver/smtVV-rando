@@ -703,7 +703,7 @@ EVENT_CHECKS_ORIGINAL_IDS = {
     'em0015': [(26, 431, 0)],#Triple Preta
     'em0181': [(2, 552, 21)],#Labolas 1
     'e2019': [(3, 553, 27)],#Naamah 1
-    'e2060': [(8, 554, 28)],#Naamah 2
+    'e2060': [(8, 554, 28)],#Naamah 2 #TODO: Move this to Tao on roof but CoV only so need to think?
     'e2245': [(1, 556, 22)],#Vengeance Lahmu
     'e2288': [(13, 559, 30)],#Eisheth
     'e2296': [(3, 451, 29)],#Fionn 1 (Vengeance route)

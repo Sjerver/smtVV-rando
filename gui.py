@@ -32,8 +32,11 @@ def createGUI(configSettings: Settings):
     page4Frame = tk.Frame(window, width=1000, height=500, background="#cccccc")
     page4Frame.grid(row=1, column=0)
     page4Frame.pack_propagate(False)
-    pages = [page1Frame, page2Frame,page3Frame, page4Frame]
-    buttonControlsFrame = tk.Frame(window, width=480, height=30)
+    page5Frame = tk.Frame(window, width=1000, height=500, background="#cccccc")
+    page5Frame.grid(row=1, column=0)
+    page5Frame.pack_propagate(False)
+    pages = [page1Frame, page2Frame,page3Frame, page4Frame,page5Frame]
+    buttonControlsFrame = tk.Frame(window, width=560, height=30)
     buttonControlsFrame.grid(row=2, column=0)
     buttonControlsFrame.pack_propagate(False)
     persistentFrameLeft = tk.Frame(persistentFrame, width=500, height=170)
@@ -80,6 +83,13 @@ def createGUI(configSettings: Settings):
     page4FrameBottomRight = tk.Frame(page4Frame, width=500, height=300, background="#cccccc")
     page4FrameBottomRight.grid(row=1, column=1)
     page4FrameBottomRight.pack_propagate(False)
+
+    page5FrameTop = tk.Frame(page5Frame, width=1000, height=250, background="#cccccc")
+    page5FrameTop.grid(row=0, column=0)
+    page5FrameTop.pack_propagate(False)
+    page5FrameBottom= tk.Frame(page5Frame, width=1000, height=250, background="#cccccc")
+    page5FrameBottom.grid(row=1, column=0)
+    page5FrameBottom.pack_propagate(False)
         
     def randomizeClick():
         window.quit()
@@ -191,6 +201,17 @@ def createGUI(configSettings: Settings):
         command=lambda pageIndex=3: switchPage(pageIndex),
     )
     page4Button.pack(side=tk.RIGHT)
+
+    page5Button = tk.Button( #Button to go to page 3
+        buttonControlsFrame,
+        text="Items",
+        width=10,
+        height=3,
+        bg=NAHOBINO_BLUE,
+        fg="black",
+        command=lambda pageIndex=4: switchPage(pageIndex),
+    )
+    page5Button.pack(side=tk.RIGHT)
     
     page3Button = tk.Button( #Button to go to page 3
         buttonControlsFrame,
@@ -214,7 +235,7 @@ def createGUI(configSettings: Settings):
     )
     page2Button.pack(side=tk.RIGHT)
     
-    pageButtons = [page1Button, page2Button,page3Button, page4Button]
+    pageButtons = [page1Button, page2Button,page3Button, page4Button,page5Button]
        
     currentPage = tk.IntVar(window, 0)
 
@@ -499,6 +520,136 @@ def createGUI(configSettings: Settings):
     listMagatsuhiHarvest.selection_set(0)
     listMagatsuhiHarvest.pack()
 
+    itemSmallFrame2 = tk.Frame(page5FrameBottom,width=333, height=250,background="#cccccc")
+    itemSmallFrame2.grid(row=0, column=0)
+    itemSmallFrame2.pack_propagate(False)
+
+    itemSmallFrame = tk.Frame(page5FrameBottom,width=333, height=250,background="#cccccc")
+    itemSmallFrame.grid(row=0, column=1)
+    itemSmallFrame.pack_propagate(False)
+
+
+    itemLabel = tk.Label(itemSmallFrame2, text="Item Randomizer")
+    itemLabel.pack()
+
+    listItem = tk.Listbox(itemSmallFrame2, selectmode = "multiple", height= 5, width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listItem.insert(0, "Randomize Shop Items")
+    listItem.insert(1, "Randomize Shop Essences")
+    listItem.insert(2, "Randomize Enemy Drops")
+    #TODO:"Vending Machines","Navigator Spots"
+    listItem.pack()
+
+    itemRedoableCheckLabel = tk.Label(itemSmallFrame, text="Allow Item in Repeatable Check\n(Shop Items, Drops, Vending Machines, Navigator Spots)")
+    itemRedoableCheckLabel.pack()
+    
+    listRedoableOrder = ["Gospel","Grimoire","Whittled Goat","Essences (except fixed ones)","Incenses / Balms / Sutras",]
+    listItemRedoable = tk.Listbox(itemSmallFrame, selectmode="multiple", width=45, height=len(listRedoableOrder), exportselection=False, selectbackground=NAHOBINO_BLUE)
+    for index, item in enumerate(listRedoableOrder):
+        listItemRedoable.insert(index,item)
+    listItemRedoable.pack()
+
+    
+    
+
+    itemVanillaFrame = tk.Frame(page5FrameTop,width=200, height=250,background="#cccccc")
+    itemVanillaFrame.grid(row=0, column=0)
+    itemVanillaFrame.pack_propagate(False)
+
+    itemSelfFrame = tk.Frame(page5FrameTop,width=200, height=250,background="#cccccc")
+    itemSelfFrame.grid(row=0, column=1)
+    itemSelfFrame.pack_propagate(False)
+
+    itemSharedFrame = tk.Frame(page5FrameTop,width=200, height=250,background="#cccccc")
+    itemSharedFrame.grid(row=0, column=2)
+    itemSharedFrame.pack_propagate(False)
+
+    itemOtherFrame = tk.Frame(page5FrameTop,width=400, height=250,background="#cccccc")
+    itemOtherFrame.grid(row=0, column=3)
+    itemOtherFrame.pack_propagate(False)
+
+    itemInclusionLabel = tk.Label(itemOtherFrame, text="Include Specific Items/Checks")
+    itemInclusionLabel.pack()
+
+    listItemInclusionOrder = ["Tsukuyomi Talisman as Gift","Empyrean Keys as Gifts","Mitama Drops as Enemy Drops"]
+    itemInclusionList = tk.Listbox(itemOtherFrame, selectmode = "multiple", width = 30,height=len(listItemInclusionOrder), exportselection=False, selectbackground = NAHOBINO_BLUE)
+    for index, item in enumerate(listItemInclusionOrder):
+        itemInclusionList.insert(index,item)
+    itemInclusionList.pack()
+
+    itemScaleLabel = tk.Label(itemOtherFrame, text="Item Scaling Modes")
+    itemScaleLabel.pack()
+
+    itemScaleList = tk.Listbox(itemOtherFrame, selectmode = "multiple", width = 30, height=2, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    itemScaleList.insert(0, "Scale Macca per Area")
+    itemScaleList.insert(1, "Scale Items per Area") #TODO: Maybe Weight Items per Area
+    itemScaleList.pack()
+
+    itemRandomLabel = tk.Label(itemOtherFrame, text="Item Random Modes")
+    itemRandomLabel.pack()
+
+    listRandomItem = tk.Listbox(itemOtherFrame, selectmode = "single", width = 50,height=2, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listRandomItem.insert(0, "Shuffle all existing item rewards")
+    listRandomItem.insert(1, "Shuffle important items, generate the rest randomly")
+    listRandomItem.selection_set(0)
+    listRandomItem.pack()
+
+    itemVanillaLabel = tk.Label(itemVanillaFrame, text="Vanilla Item Pools")
+    itemVanillaLabel.pack()
+
+    listItemsOrder = ["Treasures","Miman Rewards","Mission Rewards","NPC/Story Gifts"]
+    listItemVanilla = tk.Listbox(itemVanillaFrame, selectmode="multiple",width=30, height=len(listItemsOrder), exportselection=False, selectbackground=NAHOBINO_BLUE)
+    for index, item in enumerate(listItemsOrder):
+        listItemVanilla.insert(index,item)
+    listItemVanilla.pack()
+
+    itemSelfLabel = tk.Label(itemSelfFrame, text="Independent Item Pools")
+    itemSelfLabel.pack()
+
+    listItemSelf = tk.Listbox(itemSelfFrame, selectmode="multiple", width=30, height=len(listItemsOrder), exportselection=False, selectbackground=NAHOBINO_BLUE)
+    listItemSelf.pack()
+
+    itemSharedLabel = tk.Label(itemSharedFrame, text="Mixed Item Pools")
+    itemSharedLabel.pack()
+
+    listItemShared = tk.Listbox(itemSharedFrame, selectmode="multiple", width=30, height=len(listItemsOrder), exportselection=False, selectbackground=NAHOBINO_BLUE)
+    listItemShared.pack()
+
+    def moveItemsBetweenLists(source, target):
+        selected_indices = sorted(source.curselection(), reverse=True)
+        for index in selected_indices:
+            item = source.get(index)
+            source.delete(index)
+            
+            trueIndex = tk.END
+            itemIndex = listItemsOrder.index(item)
+            
+            for i in range(target.size()):
+                targetItem = target.get(i)
+                if listItemsOrder.index(targetItem) > itemIndex:
+                    trueIndex = i
+                    break
+            
+            target.insert(trueIndex, item)
+
+    moveToSelfButton = tk.Button(itemVanillaFrame, text="→ Independent", command=lambda: moveItemsBetweenLists(listItemVanilla, listItemSelf))
+    moveToSelfButton.pack()
+
+    moveToSharedButton = tk.Button(itemVanillaFrame, text="→ Mixed", command=lambda: moveItemsBetweenLists(listItemVanilla, listItemShared))
+    moveToSharedButton.pack()
+
+    moveToVanillaFromSelfButton = tk.Button(itemSelfFrame, text="← Vanilla", command=lambda: moveItemsBetweenLists(listItemSelf, listItemVanilla))
+    moveToVanillaFromSelfButton.pack()
+
+    moveToSharedFromSelfButton = tk.Button(itemSelfFrame, text="→ Mixed", command=lambda: moveItemsBetweenLists(listItemSelf, listItemShared))
+    moveToSharedFromSelfButton.pack()
+
+    moveToVanillaFromSharedButton = tk.Button(itemSharedFrame, text="← Vanilla", command=lambda: moveItemsBetweenLists(listItemShared, listItemVanilla))
+    moveToVanillaFromSharedButton.pack()
+
+    moveToSelfFromSharedButton = tk.Button(itemSharedFrame, text="← Independent", command=lambda: moveItemsBetweenLists(listItemShared, listItemSelf))
+    moveToSelfFromSharedButton.pack()
+
+
     miracleLabel = tk.Label(page4FrameTopLeft, text="Miracle Randomizer")
     miracleLabel.pack()
 
@@ -570,22 +721,6 @@ def createGUI(configSettings: Settings):
     pressTurnScale = tk.Scale(page4FrameBottomLeft, from_=0, to=1, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
     pressTurnScale.set(0.0)
     pressTurnScale.pack()
-
-    itemLabel = tk.Label(page4FrameBottomRight, text="Item Randomizer")
-    itemLabel.pack()
-
-    listItem = tk.Listbox(page4FrameBottomRight, selectmode = "multiple", width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
-    listItem.insert(0, "Randomize Shop Items")
-    listItem.insert(1, "Randomize Shop Essences")
-    listItem.insert(2, "Randomize Enemy Drops")
-    listItem.insert(3, "Randomize Chests")
-    listItem.insert(4, "Scale Items To Area")
-    listItem.insert(5, "Randomize Miman Rewards ")
-    listItem.insert(6, "Randomize Mission Rewards ")
-    listItem.insert(7, "Randomize NPC/Story Item Gifts")
-    listItem.insert(8, "Combine Unique Item Pools")
-    listItem.insert(9, "Include Tsukuyomi Talisman as Item Gift")
-    listItem.pack()
 
     naviLabel = tk.Label(page4FrameBottomRight, text="Demon Navigators")
     naviLabel.pack()
@@ -668,13 +803,28 @@ def createGUI(configSettings: Settings):
                 'RandomShopItems': ('Listbox', listItem, 0),
                 'RandomShopEssences': ('Listbox', listItem, 1),
                 'RandomEnemyDrops': ('Listbox', listItem, 2),
-                'RandomChests': ('Listbox', listItem, 3),
-                'ScaleItemsToArea': ('Listbox', listItem, 4),
-                'RandomizeMimanRewards': ('Listbox', listItem, 5),
-                'RandomizeMissionRewards': ('Listbox', listItem, 6),
-                'RandomizeGiftItems': ('Listbox', listItem, 7),
-                'CombineKeyItemPools': ('Listbox', listItem, 8),
-                'IncludeTsukuyomiTalisman': ('Listbox', listItem, 9),
+
+                'ScaleMaccaPerArea': ('Listbox', itemScaleList, 0),
+                'ScaleItemsPerArea': ('Listbox', itemScaleList, 1),
+                'ShuffleExistingItems': ('Listbox_single', listRandomItem, 0),
+                'TrulyRandomizeItems': ('Listbox_single', listRandomItem, 1),
+                
+                'IncludeTsukuyomiTalismanAsGift': ('Listbox', itemInclusionList, 0),
+                'IncludeEmpyreanKeysAsGifts': ('Listbox', itemInclusionList, 1),
+                'RandomizeMitamaDrops': ('Listbox', itemInclusionList, 2),
+
+                
+                
+                'SelfItems': ('Listbox_Item_Move', listItemSelf),
+                'SharedItems': ('Listbox_Item_Move', listItemShared),
+
+
+                'RedoableGospel': ('Listbox', listItemRedoable, 0),
+                'RedoableGrimoire': ('Listbox', listItemRedoable, 1),
+                'RedoableWhittledGoat': ('Listbox', listItemRedoable, 2),   
+                'RedoableEssences': ('Listbox', listItemRedoable, 3),
+                'RedoableIncensesBalmsSutras': ('Listbox', listItemRedoable, 4),
+
             },
             'Boss': {
                 'NormalBossesSelf': ('Listbox_single', listBoss, 1),
@@ -747,10 +897,11 @@ def createGUI(configSettings: Settings):
         listPassive.selection_set(0)
         listMagatsuhiHarvest.selection_set(0)
         listRankViolation.selection_set(0)
+        listRandomItem.selection_set(0)
         toggleMiracleListboxes(None)
         toggleSkillScalingListbox(None)
 
-        def applyUISetting(config, section, key, element, elementType, index=None):
+        def applyUISetting(config, section, key, element, elementType, index=None, element2=None):
             value = config.get(section, key) == 'true'
             if section == "Miracle":
                 toggleMiracleListboxes(None)
@@ -772,10 +923,20 @@ def createGUI(configSettings: Settings):
                     element.selection_set(index)
                 else:
                     element.selection_clear(index)
+            elif elementType =="Listbox_Item_Move":
+                itemList = config.get(section, key).split(',')
+                for i in range(element2.size()):
+                    if element2.get(i) in itemList:
+                        element2.selection_set(i)
+                moveItemsBetweenLists(element2,element)
+                
 
         for section, keys in UI_MAP.items():
             for key, (elementType, element, *index) in keys.items():
-                applyUISetting(configur, section, key, element, elementType, index[0] if index else None)
+                if elementType == 'Listbox_Item_Move':
+                    applyUISetting(configur, section, key, element, elementType, element2 = listItemVanilla)
+                else:
+                    applyUISetting(configur, section, key, element, elementType, index[0] if index else None)
         
         toggleIshtarCheckbox()
         ishtarScale.set(configur.get('Boss', 'IshtarPressTurns'))
@@ -794,7 +955,8 @@ def createGUI(configSettings: Settings):
 
         try:
             ApplySettings(configur)
-        except (NoOptionError, NoSectionError):
+        except (NoOptionError, NoSectionError) as e:
+            print(f"Error: {e}")
             createConfigFile(configur)
             ApplySettings(configur)
     else:
@@ -844,6 +1006,19 @@ def createGUI(configSettings: Settings):
         passiveChoice = listPassive.curselection()
         magatsuhiHarvestChoice = listMagatsuhiHarvest.curselection()
         ishtarRandomizeChoice = randomIshtarPressTurnsVar.get()
+        itemScaleFlags = [False for i in range(itemScaleList.size())]
+        for i in itemScaleList.curselection():
+            itemScaleFlags[i] = True
+        itemRandomChoice = listRandomItem.curselection()
+        itemInclusionFlags = [False for i in range(itemInclusionList.size())]
+        for i in itemInclusionList.curselection():
+            itemInclusionFlags[i] = True
+        itemsSelfChoice = listItemSelf.get(0,tk.END)
+        itemsSharedChoice = listItemShared.get(0,tk.END)
+        redoableItemFlags = [False for i in range(listItemRedoable.size())]
+        for i in listItemRedoable.curselection():
+            redoableItemFlags[i] = True
+        
         miracleFlags = [False for i in range(listMiracle.size())]
         for i in listMiracle.curselection():
             miracleFlags[i] = True
@@ -953,20 +1128,41 @@ def createGUI(configSettings: Settings):
     configur.set('Item', 'RandomShopEssences', str(itemFlags[1]).lower())    
     configSettings.randomEnemyDrops = itemFlags[2]
     configur.set('Item', 'RandomEnemyDrops', str(itemFlags[2]).lower())
-    configSettings.randomChests = itemFlags[3]
-    configur.set('Item', 'RandomChests', str(itemFlags[3]).lower())
-    configSettings.scaleItemsToArea = itemFlags[4]
-    configur.set('Item', 'ScaleItemsToArea',str(itemFlags[4]).lower())    
-    configSettings.randomizeMimanRewards = itemFlags[5]
-    configur.set('Item', 'RandomizeMimanRewards', str(itemFlags[5]).lower())
-    configSettings.randomizeMissionRewards = itemFlags[6]
-    configur.set('Item', 'RandomizeMissionRewards', str(itemFlags[6]).lower())
-    configSettings.randomizeGiftItems = itemFlags[7]
-    configur.set('Item', 'RandomizeGiftItems', str(itemFlags[7]).lower())
-    configSettings.combineKeyItemPools = itemFlags[8]
-    configur.set('Item', 'CombineKeyItemPools', str(itemFlags[8]).lower())
-    configSettings.includeTsukuyomiTalisman = itemFlags[9]
-    configur.set('Item', 'IncludeTsukuyomiTalisman',str(itemFlags[9]).lower() )
+
+    configSettings.scaleMaccaPerArea = itemScaleFlags[0]
+    configur.set('Item', 'ScaleMaccaPerArea', str(itemScaleFlags[0]).lower())
+    configSettings.scaleItemsPerArea = itemScaleFlags[1]
+    configur.set('Item', 'ScaleItemsPerArea', str(itemScaleFlags[1]).lower())
+    configSettings.shuffleExistingItems = bool(itemRandomChoice and itemRandomChoice[0] == 0)
+    configur.set('Item', 'ShuffleExistingItems', str(configSettings.shuffleExistingItems).lower())
+    configSettings.trulyRandomizeItems = bool(itemRandomChoice and itemRandomChoice[0] == 1)
+    configur.set('Item', 'TrulyRandomizeItems', str(configSettings.trulyRandomizeItems).lower())
+
+    configSettings.includeTsukuyomiTalismanAsGift = itemInclusionFlags[0]
+    configur.set('Item', 'IncludeTsukuyomiTalismanAsGift', str(itemInclusionFlags[0]).lower())
+    configSettings.includeEmpyreanKeysAsGifts = itemInclusionFlags[1]
+    configur.set('Item', 'IncludeEmpyreanKeysAsGifts', str(itemInclusionFlags[1]).lower())
+    configSettings.randomizeMitamaDrops = itemInclusionFlags[2]
+    configur.set('Item', 'RandomizeMitamaDrops', str(itemInclusionFlags[2]).lower())
+
+    configSettings.redoableGospel = redoableItemFlags[0]
+    configur.set('Item', 'RedoableGospel', str(redoableItemFlags[0]).lower())
+    configSettings.redoableGrimoire = redoableItemFlags[1]
+    configur.set('Item', 'RedoableGrimoire', str(redoableItemFlags[1]).lower())
+    configSettings.redoableWhittledGoat = redoableItemFlags[2]
+    configur.set('Item', 'RedoableWhittledGoat', str(redoableItemFlags[2]).lower())
+    configSettings.redoableEssences = redoableItemFlags[3]
+    configur.set('Item', 'RedoableEssences', str(redoableItemFlags[3]).lower())
+    configSettings.redoableIncensesBalmsSutras = redoableItemFlags[4]
+    configur.set('Item', 'RedoableIncensesBalmsSutras', str(redoableItemFlags[4]).lower())
+
+    for item in itemsSelfChoice:
+        configSettings.selfItemPools.append(item)
+    configur.set('Item', 'SelfItems', ','.join(itemsSelfChoice))
+    for item in itemsSharedChoice:
+        configSettings.sharedItemPools.append(item)
+    configur.set('Item', 'SharedItems', ','.join(itemsSharedChoice))
+    
 
     configSettings.randomizeNavigatorStats = naviFlags[0]
     configur.set('Navigators', 'RandomNavigatorStats', str(naviFlags[0]).lower())
@@ -1154,8 +1350,11 @@ def createConfigFile(configur):
                                 'EnemyOnlySkills':False, 'MagatsuhiSkills': False, 'ForceUniqueSkills': False, 'BetterSpecialFusions': False, 'WeightSkillsToLevels': False,
                                 'LimitSkillMPCost': False, 'swapGuestsWithDemons': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
-                        'RandomChests': False, 'ScaleItemsToArea': False, 'RandomizeMimanRewards': False, 'RandomizeMissionRewards': False,
-                        'RandomizeGiftItems': False, 'CombineKeyItemPools': False, 'IncludeTsukuyomiTalisman': False
+                        'ScaleMaccaPerArea': False, 'ScaleItemsPerArea': False, 'ShuffleExistingItems': False, 'TrulyRandomizeItems': False,
+                        'IncludeTsukuyomiTalismanAsGift': False,'IncludeEmpyreanKeysAsGifts': False, 'RandomizeMitamaDrops': False, 
+                        'SelfItems': [], 'SharedItems': [],
+                        'RedoableGospel': False,'RedoableGrimoire': False, 'RedoableWhittledGoat': False, 'RedoableEssences': False,
+                        'RedoableIncensesBalmsSutras': False,
                         }
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
     configur['Magatsuhi'] = {'RandomRequirements': False,'IncludeCritical': False,'IncludeSuccession': False}

@@ -79,10 +79,37 @@ TUTORIAL_DAEMON_ID = 430
 
 FIRST_GUEST_YUZURU_ID = 1150
 
-#ChestIDs that are banned from containing key items
-CHEST_BANNED_KEY_ITEM = [29, #Very first Chest, cannot be obtained if it is not picked up at the beginning of the game
-    0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 #The vanilla content of theses chests seems dubious, so to be safe
+#List of chests that are not used in the game
+UNUSED_CHESTS = [
+    #Credit to CTOBN: https://docs.google.com/spreadsheets/d/1MOWJL29_geEw5w7X2gTmNBx_bQiKnb4xVMxY2nI34PY/edit?gid=1095877054#gid=1095877054 
+    3859, 3860, 3861, 3862, 3863, 3864, 3865, 3866, 3867, 3868,
+    3869, 3870, 3871, 3872, 3873, 3874, 3875, 3876, 3877, 3878,
+    3879, 3880, 3881, 3882, 3883, 3884, 3885, 3886, 3887, 3888,
+    3889, 3890, 3891, 3892, 3893, 3894, 3895, 3896, 3897, 3898,
+    3899, 3900, 3901, 3902, 3903, 3904, 3905, 3906, 3907, 3908,
+    3909, 3910, 3911, 3912, 3913, 3914, 3915, 3916, 3917, 3918,
+    3919, 3920, 3921, 3922, 3923, 3924,
+    3927, 3928, 3929, 3930, 3931, 3932, 3933, 3934, 3935, 3936,
+    3937, 3938, 3939, 3940, 3941, 3942, 3943, 3944, 3945, 3946,
+    3947, 3948, 3949, 3950, 3951, 3952,
+    0,1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+    11, 12, 13, 14, 15, 16, 17, 18, 19,
+    38, 59, 68, 80, 106, 107, 131, 183, 208, 227, 230, 248, 264, 361, 407, 428,
+    511, 512, 513, 514, 515, 516, 517, 518, 519, 520,
+    530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540,
+    547, 548, 549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 560, 561, 562, 563, 564, 565, 566, 567, 568, 569, 570, 571, 572, 573, 574, 575, 576, 577, 578, 579, 580,
+    612, 613, 614, 615, 616, 617, 618, 619, 620,
+    635, 636, 637, 638, 639, 640,
+    654, 655, 656, 657, 658, 659, 660,
+    743, 744, 745, 746, 747, 748, 749, 750,
+    766, 767, 768, 769, 770,
+    784, 785, 786, 787, 788, 789, 790,
+    793, 794, 795, 796, 797, 798, 799, 800,
+    # These are technically not unused, but contain quest related key-items that we dont wanna mess with currently
+    76,77, 78, 79, 142, 231, 232, 233, 254
 ]
+#The very first chest is unfortunately missable
+MISSABLE_CHESTS = [29]
 
 CHEST_MACCA_MIN = 500
 CHEST_MACCA_MAX = 60000
@@ -91,6 +118,11 @@ CHEST_MACCA_ODDS = 0.035
 
 #Chance of a chest containing an essence instead of an item
 CHEST_ESSENCE_ODDS = 0.42
+#Map of Areas that need to duplicate their rewards to another area
+AREA_MIRRORS = {
+    63: 64, 64: 63, #Chiyoda / Shinjuku
+    36: 38, 38: 36, #Demon Kings Castle / Shakan
+}
 
 #Chance that a boss demon will drop their essence
 BOSS_ESSENCE_ODDS = 0.30
@@ -129,8 +161,8 @@ CHEST_QUANTITY_WEIGHTS = {
 #The number of different consumable items (including some DUMMY items), from indices 0-113
 CONSUMABLE_ITEM_COUNT = 114
 
-#Any chest with an item index 611 or higher contains a key item and should not be randomized
-KEY_ITEM_CUTOFF = 611
+#Any chest with an item index 657 or higher contains a key item and should not be randomized
+KEY_ITEM_CUTOFF = 657
 
 #Item indices that correspond to reusable items like the return pillar or gleam grenade and spyglass(spyscope is given by tutorial daemon)
 BANNED_ITEMS = [70, 73, 74, 75, 76, 77, 78, 79, 80, 81, 55]
@@ -158,11 +190,28 @@ MIMAN_ITEM_AMOUNT_WEIGHTS = {
     8: 1
 }
 
-#Item IDs of Key items in Miman Rewards in the normal game
-MIMAN_BASE_KEY_ITEMS = [819,816,810,829,818,823,817]#Talismans: Element, Avatar, Avian, Kishin, Genma, Fiend, Holy
+#Map of key item ids and in which areas they are only allowed in
+KEY_ITEM_AREA_RESTRICTIONS = {
+    658: [60,61,62,63,64,36,38], #Key of Austerity
+    659: [60,61,62,63,64,36,38], #Key of Benevolence
+    660: [60,61,62,63,64,36,38], #Key of Harmony
 
-#List of key item ids obtained via events
-GIFT_BASE_KEY_ITEMS = []
+}
+
+# Names belonging to areas
+AREA_NAMES = {
+  16: 'Empyrean',
+  35: 'TempleOfEternity',
+  36: 'DemonKingsCastle',
+  38: 'Shakan',
+  60: 'Taito',
+  61: 'Minato',
+  62: 'Shinagawa',
+  63: 'Chiyoda',
+  64: 'Shinjuku',
+  107: 'DemiFiend Area',
+  960: 'Taito Post KeyLock'
+}
 
 #Chance a mission rewards macca
 MISSION_MACCA_ODDS= 0.1717
@@ -210,16 +259,17 @@ MISSION_DUPLICATES = {
 #Missions that cannot receive macca as a reward
 MACCALESS_MISSIONS = [72] #Falcon's Head cannot get macca as reward due to being synced with Additional reward in CoV Rescue Miyazu Atsuta
 
-#List of exclusive key item rewards from both canons
+#List of exclusive key item rewards from both canons #TODO: what even is the purpose here?? for potential exclusive progression items
 CREATION_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 VENGEANCE_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 
 #List of banned key rewards
+#TODO: How does this work in new logic??
 BANNED_KEY_REWARDS = [79] #Spyscope (dropped by tutorial daemon)
 
 #Exclusive mission from both canons to give potential exclusive rewards to (excluding missions whose rewards are not randomized or are not allowed to receive key item rewards)
-CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93,-7,-8,-9-10] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
-        #He of a Hundred Hands, Hellfire Highway, Search for Oyamatsumi, Glitter in Ginza, Netherworld Relay Racing, Will of the Samurai, Trial of the Seven Stars, Defeat the Demon Kings Armies
+CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93,-7,-8,-9-10,169] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
+        #He of a Hundred Hands, Hellfire Highway, Search for Oyamatsumi, Glitter in Ginza, Netherworld Relay Racing, Will of the Samurai, Trial of the Seven Stars, Defeat the Demon Kings Armies, The One I (Still) Love
         #Keeper of South/North/West/East Secondary Rewards
 VENGEANCE_EXLUSIVE_MISSIONS = [157,152,159,177,171,194,203,178,202,184,200,210,172,211,193,174,188,190,108,109,110,111,112,113] #Supply Run, Guide to the Lost, Heart of Garnet, As God Wills, A Self of my Own, Devotion To Order, Part-time Gasser, A Star is Born
         #Disgraced Bird God, Alice's Wonderland, Shinjuku Jewel Hunt, Heroes of Heaven and Earth, Rite of Resurrection, 'God of Old, Devourer of Kin', The Heartbroken, Special Training: Army of Chaos
@@ -396,6 +446,7 @@ CONSUMABLE_MAP_SCALING = {
   36: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] +CONSUMABLE_PROGRESSION[4]+CONSUMABLE_PROGRESSION[2]+ CONSUMABLE_PROGRESSION[3] +[13], #Demon Kings Castle / Shakan: Ambrosia,
   38: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] +CONSUMABLE_PROGRESSION[4]+CONSUMABLE_PROGRESSION[2]+ CONSUMABLE_PROGRESSION[3] +[13], #Demon Kings Castle / Shakan: same as above
   107: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] +CONSUMABLE_PROGRESSION[4]+ CONSUMABLE_PROGRESSION[3] +[], #Demi-Fiend Area: same as Empyrean
+  960: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] + CONSUMABLE_PROGRESSION[3] + CONSUMABLE_PROGRESSION[4] + [13], #Taito Post Keys: Ambrosia,
 }
 
 # Describes what level essences rewards can be in areas
@@ -411,6 +462,7 @@ ESSENCE_MAP_SCALING = {
   36: [50,54], #Demon Kings Castle / Shakan
   38: [50,54], #Demon Kings Castle / Shakan,
   107: [86,95], #Demi-Fiend Area: same as Empyrean
+  960: [52,71], #Taito Post Keys
 }
 
 #Defines the missions that are scaled on the area
@@ -419,12 +471,13 @@ REWARD_AREA_MISSIONS = {
   35: [81,95],
   36: [212,114,174],
   38: [212,114,174],
-  60: [33,35,36,37,38,39,40,42,43,44,45,46,49,63,64,65,66,67,74,79,80,82,87,94,165,172,181,183,185,193,196,198,205,209,211,41,218],
+  60: [33,35,36,37,38,39,40,42,43,44,46,49,63,64,65,66,67,79,80,82,87,94,165,172,181,183,185,193,196,198,205,209,211,41,218],
   61: [6,7,8,9,13,56,57,58,61,68,69,70,71,86,150,151,166,167,170,201],
   62: [12,92,14,15,16,17,18,19,20,21,75,76,83,91,152,155,156,157,160,161,162,189,191,192,197],
   63: [73,34,139,59,22,24,25,26,27,28,138,30,48,32,72,62,77,78,93,31,159,164,186,187,204,206,208,29],
   64: [108,109,111,112,113,153,169,171,173,175,176,177,178,184,194,200,202,203,210],
-  107: [84]
+  107: [84],
+  960: [45,74], #The Holy Ring, Destined Leader (Post Taito KeyLock)
 }
 
 #Defines the amount of macca missions can reward in an area
@@ -438,7 +491,8 @@ MISSION_REWARD_AREA_MACCA_RANGES = {
     62: [4000, 15000], #Jojozi Temple, Eliminate Lahmu
     63: [6000, 22000], #Investigate Anomalies in Tokyo, Defeat the Demon King's Armies
     64: [6000, 22000], #Same as Chiyoda
-    107: [666666,666666] #Return of True Demon
+    107: [666666,666666], #Return of True Demon
+    960: [25000, 85000],#Escort the Prime Minister ,To The Empyrean
 }
 
 #Defines the amount of macca chest can contain in an area
@@ -452,8 +506,14 @@ CHEST_AREA_MACCA_RANGES = {
     62: [5000, 10000], 
     63: [6000, 22000], 
     64: [10000, 20000], 
-    107: [50000, 60000] #same as taito
+    107: [50000, 60000], #same as taito
+    960: [50000, 60000],
 
+}
+#Combined maps for macca reward ranges
+COMBINED_MACCA_AREA_RANGES = {
+    "mission": MISSION_REWARD_AREA_MACCA_RANGES,
+    "chest": CHEST_AREA_MACCA_RANGES,
 }
 
 #Odds that the first drop of an enemy is a lifestone
