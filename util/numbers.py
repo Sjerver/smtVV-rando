@@ -550,10 +550,11 @@ GUEST_GROUPS = {
     1151: [], # Ichiro Dazai
     1152: [1154], #Tao Isonokami
     1157: [1158,1159], #Yoko Hiromine
-    1161: [], #Demi-fiend
     365: [], #Tao (Panagia)
     366: [], #Yoko (Panagia)
 }
+
+GUEST_DEMIFIEND = 1161
 
 #Event encounter IDs of Ishtar except one
 EXTRA_ISHTAR_ENCOUNTERS = [76, 77, 78, 79, 80, 81, 82]

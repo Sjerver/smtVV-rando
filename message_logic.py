@@ -703,7 +703,7 @@ EVENT_CHECKS_ORIGINAL_IDS = {
     'em0015': [(26, 431, 0)],#Triple Preta
     'em0181': [(2, 552, 21)],#Labolas 1
     'e2019': [(3, 553, 27)],#Naamah 1
-    'e2060': [(8, 554, 28)],#Naamah 2 #TODO: Move this to Tao on roof but CoV only so need to think?
+    'e2130': [(1, 554, 28)],#Naamah 2
     'e2245': [(1, 556, 22)],#Vengeance Lahmu
     'e2288': [(13, 559, 30)],#Eisheth
     'e2296': [(3, 451, 29)],#Fionn 1 (Vengeance route)
@@ -751,7 +751,7 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "Naturally, those of Bethel stand with Archangel <BOSSNAME>.", #25 - Abdiel mentioned by Dominion in Empyrean because vengeance Abdiel is in the same file
                  "But one day, <BOSSNAME> arrived.", #26 - Mermaid dialogue in Pazuzu quest
                  "Next we will have to face <BOSSNAME>.\nShe's one of the Qadistu.", #27 - Yoko dialogue after Hydra
-                 "Tomorrow morning, you will encounter <BOSSNAME>\non the way to school.", #28 - Yoko dialogue when she transfers to Jouin
+                 "Tomorrow morning, you will encounter <BOSSNAME>\non the way to school.", #28 - CoV Tao meeting you on the roof
                  "<BOSSNAME> detected.\nIt's distant, but I've marked its location.", #29 - Marking Fionn's location on the map
                  "Sounded like they were all\nattacked by <BOSSNAME>.", #30 - Yoko/Tao dialogue after rescuing students attacked by Eisheth
                  "A shame you will never reach\ndemon king <BOSSNAME>...", #31 - Chernobog dialogue

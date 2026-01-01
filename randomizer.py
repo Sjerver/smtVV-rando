@@ -1454,7 +1454,7 @@ class Randomizer:
             #Add the level the demons learns a skill at to the skills level list
             for skill in demon.learnedSkills:
                 skillLevels[skill.ind].level.append(skill.level)
-        for demonID in numbers.GUEST_GROUPS.keys():
+        for demonID in numbers.GUEST_IDS:
             if demonID > numbers.NORMAL_ENEMY_COUNT:
                 demon = self.playerBossArr[demonID]
             else:
@@ -5936,17 +5936,6 @@ class Randomizer:
             fusionCombo.append(["Human","Wargod","Vile"])
             fusionCombo.append(["Human","Raptor","Vile"])
 
-            fusionCombo.append(["Chaos","Fury","Fiend"])
-            fusionCombo.append(["Chaos","Kishin","Fiend"])
-            fusionCombo.append(["Chaos","Wargod","Fiend"])
-            fusionCombo.append(["Chaos","Devil","Fiend"])
-            fusionCombo.append(["Chaos","Lady","Fairy"])
-            fusionCombo.append(["Chaos","Night","Fairy"])
-            fusionCombo.append(["Chaos","Femme","Fairy"])
-            fusionCombo.append(["Chaos","Panagia","Fairy"])
-            fusionCombo.append(["Chaos","Herald","Fallen"])
-            fusionCombo.append(["Chaos","Divine","Fallen"])
-
             fusionCombo.append(["Panagia","Megami","Deity"])
             fusionCombo.append(["Panagia","Lady","Deity"])
             fusionCombo.append(["Panagia","Kunitsu","Deity"])
@@ -5957,6 +5946,17 @@ class Randomizer:
             fusionCombo.append(["Panagia","Drake","Femme"])
             fusionCombo.append(["Panagia","UMA","Kunitsu"])
             fusionCombo.append(["Panagia","Yoma","Kunitsu"])
+        if self.configSettings.swapDemifiend:
+            fusionCombo.append(["Chaos","Fury","Fiend"])
+            fusionCombo.append(["Chaos","Kishin","Fiend"])
+            fusionCombo.append(["Chaos","Wargod","Fiend"])
+            fusionCombo.append(["Chaos","Devil","Fiend"])
+            fusionCombo.append(["Chaos","Lady","Fairy"])
+            fusionCombo.append(["Chaos","Night","Fairy"])
+            fusionCombo.append(["Chaos","Femme","Fairy"])
+            fusionCombo.append(["Chaos","Panagia","Fairy"])
+            fusionCombo.append(["Chaos","Herald","Fallen"])
+            fusionCombo.append(["Chaos","Divine","Fallen"])
 
 
         for fc in fusionCombo:
@@ -7343,7 +7343,8 @@ class Randomizer:
     Swap guests with demons (or other guests), swapping data from their demon ids (including name) and asset assignments.
     '''
     def swapGuestsWithDemons(self):
-        #TODO: Seperate Demi:fiend into his own setting!!!
+        if self.configSettings.swapDemifiend:
+            numbers.GUEST_GROUPS[numbers.GUEST_DEMIFIEND] = []
         validInds = [demon.ind for demon in self.compendiumArr if demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name and not demon.name.startswith('NOT USED')]
         validInds.extend(numbers.GUEST_GROUPS.keys())
 
@@ -7393,8 +7394,9 @@ class Randomizer:
         swapPairings = {**swapPairings, **{v: k for k, v in swapPairings.items()}}
 
         for guest, guestGroup in numbers.GUEST_GROUPS.items():
-            for syncedGuest in guestGroup:
-                swapPairings[syncedGuest] = swapPairings[guest]
+            if guest in guestList: #Add to safeguard if only demi-fiend is swapped
+                for syncedGuest in guestGroup:
+                    swapPairings[syncedGuest] = swapPairings[guest]
 
         #Update Unique skill ownership to new ids
         for skill in self.skillArr:
@@ -7516,6 +7518,10 @@ class Randomizer:
         self.fillPlayerBossArr(compendiumBuffer)
         self.fillBossFlagArr(bossFlagBuffer)
         self.fillNahobino(playGrowBuffer)
+            
+        #These should be before guest swaps so their skills get assigned the correct level ranges
+        skillLevels = self.generateSkillLevelList()
+        levelSkillList = self.generateLevelSkillList(skillLevels)
 
         if config.swapGuestsWithDemons:
             #This needs to happen after playerBossArr and before essence Arr
@@ -7547,10 +7553,6 @@ class Randomizer:
         magatsuhiSkillsRaces = [self.obtainSkillFromID(skill) for skill in filter(lambda skill: 800 > skill or skill > 900, numbers.MAGATSUHI_SKILLS)]
         if self.configSettings.randomizeMagatsuhiSkillReq:
             magatsuhiSkillsRaces = self.randomizeMagatsuhiSkillReqs()
-            
-
-        skillLevels = self.generateSkillLevelList()
-        levelSkillList = self.generateLevelSkillList(skillLevels)
        
         if config.randomPotentials:
             # if config.fixUniqueSkillAnimations:

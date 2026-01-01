@@ -91,6 +91,7 @@ class Settings(object):
         self.scalePassiveAmount = False             # Scale passive amount with boss level
         self.scalePassiveLevelGap = False           # Scale passive count based on level difference
         self.swapGuestsWithDemons = False           # Swaps the assets of guest characters with playable demons
+        self.swapDemifiend = False                  # Swaps the assets of guest Demi-fiend with playable demons
 
         self.scaleMaccaPerArea = False              # Macca rewards are scaled per area
         self.scaleItemsPerArea = False              # Scales items to be similiar to original progression wise

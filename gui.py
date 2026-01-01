@@ -280,7 +280,7 @@ def createGUI(configSettings: Settings):
     demonLabel.pack()
     #demonLabel.grid(row=0, column=0, sticky='nsew', columnspan= 2, padx = [10,0])
 
-    listDemon = tk.Listbox(page1FrameTopLeft, selectmode = "multiple", width=75, height = 10, exportselection=False, selectbackground = NAHOBINO_BLUE)
+    listDemon = tk.Listbox(page1FrameTopLeft, selectmode = "multiple", width=75, height = 11, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listDemon.insert(0, "Randomize Levels & Encounters")
     listDemon.insert(1, "Randomize Potentials")
     listDemon.insert(2, "Scale Potentials to Level")
@@ -291,6 +291,7 @@ def createGUI(configSettings: Settings):
     listDemon.insert(7, "Reduce Compendium Cost Drastically")
     listDemon.insert(8, "Improved Special Fusions")
     listDemon.insert(9, "Swap Guests/Panagia with Demons")
+    listDemon.insert(10, "Include Demi-Fiend as Guest Swap")
     listDemon.pack()
 
     voiceLabel = tk.Label(page1FrameLeft, text="Demon Voice Randomizer")
@@ -630,7 +631,7 @@ def createGUI(configSettings: Settings):
                     break
             
             target.insert(trueIndex, item)
-            
+
     def resetItemCheckLists():
         listItemsOrder = ["Treasures","Miman Rewards","Mission Rewards","NPC/Story Gifts"]
         for index, item in enumerate(listItemsOrder):
@@ -761,6 +762,7 @@ def createGUI(configSettings: Settings):
                 'ReduceCompendiumCost': ('Listbox', listDemon, 7),
                 'BetterSpecialFusions': ('Listbox', listDemon, 8),
                 'swapGuestsWithDemons': ('Listbox', listDemon, 9),
+                'swapDemifiend': ('Listbox', listDemon, 10),
 
                 'RandomSkills': ('Listbox', listSkills, 1),
                 'RandomInnates': ('Listbox', listSkills, 0),
@@ -1070,6 +1072,8 @@ def createGUI(configSettings: Settings):
     configur.set('Demon', 'BetterSpecialFusions', str(demonFlags[8]).lower())
     configSettings.swapGuestsWithDemons = demonFlags[9]
     configur.set('Demon', 'swapGuestsWithDemons', str(demonFlags[9]).lower())
+    configSettings.swapDemifiend = demonFlags[10]
+    configur.set('Demon', 'swapDemifiend', str(demonFlags[10]).lower())
     
     configSettings.randomInnates = skillFlags[0]
     configur.set('Demon', 'RandomInnates', str(skillFlags[0]).lower())
@@ -1356,7 +1360,7 @@ def createConfigFile(configur):
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
                                 'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False, 
                                 'EnemyOnlySkills':False, 'MagatsuhiSkills': False, 'ForceUniqueSkills': False, 'BetterSpecialFusions': False, 'WeightSkillsToLevels': False,
-                                'LimitSkillMPCost': False, 'swapGuestsWithDemons': False}
+                                'LimitSkillMPCost': False, 'swapGuestsWithDemons': False,'swapDemifiend': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
                         'ScaleMaccaPerArea': False, 'ScaleItemsPerArea': False, 'ShuffleExistingItems': False, 'TrulyRandomizeItems': False,
                         'IncludeTsukuyomiTalismanAsGift': False,'IncludeEmpyreanKeysAsGifts': False, 'RandomizeMitamaDrops': False, 
