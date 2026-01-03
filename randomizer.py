@@ -20,7 +20,7 @@ import script_logic as scriptLogic
 import message_logic as message_logic
 import model_swap
 import util.numbers as numbers
-from util.numbers import RACE_ARRAY
+from util.numbers import RACE_ARRAY, Canon
 import util.paths as paths
 import util.translation as translation
 import boss_logic as bossLogic
@@ -116,6 +116,7 @@ class Randomizer:
 
         self.dummyEventIndex = 0
         self.itemDebugList = []
+        self.progressionItemNewChecks = {}
         self.nonRedoableItemIDs = []
     
     '''
@@ -5102,6 +5103,8 @@ class Randomizer:
                     if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in self.essenceValidityMap[area] and itemName in currentDemonNames:
                         self.essenceValidityMap[area].append(itemID)
         else:
+            self.itemValidityMap[0] = []
+            self.essenceValidityMap[0] = []
             #TODO: Am I happy with this? This is just copied from old code
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
                 if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in self.essenceValidityMap[0]:
@@ -5180,7 +5183,7 @@ class Randomizer:
                 raise RuntimeError('Incorrect check type which should be impossible')
         
         if "Mission Rewards" in relevantPools:
-            self.updateDuplicateMissionRewards()
+            self.updateDuplicateMissionRewards(missionRewardAreas)
         if "NPC/Story Gifts" in relevantPools:
             scriptLogic.updateGiftScripts(giftPool,self.scriptFiles,self.itemReplacementMap)
 
@@ -5264,6 +5267,13 @@ class Randomizer:
                                 item.calculateValidChecks(relevantChecks)
 
                     #print(chosenItem.name + " in " + chosenCheck.name)
+                    if chosenItem.ind in numbers.KEY_ITEM_AREA_RESTRICTIONS.keys():
+                        if chosenItem.ind in self.progressionItemNewChecks:
+                            self.progressionItemNewChecks[chosenItem.ind].append(chosenCheck)
+                        else:
+                            self.progressionItemNewChecks[chosenItem.ind] = []
+                            self.progressionItemNewChecks[chosenItem.ind].append(chosenCheck)
+
                     self.itemDebugList.append("Category [" +Check_Type.getCheckString(chosenCheck.type) +"] CheckName ["+str(chosenCheck.name) + "] Item [" +chosenItem.name + "] Amount [" +str(chosenItem.amount) +"] Area [" + numbers.AREA_NAMES[chosenCheck.area] +"]")
                 else:
                     print("Is this even possible?")
@@ -5405,7 +5415,8 @@ class Randomizer:
     '''
     Assigns the updated rewards to missions which are duplicates and therefore share rewards.
     '''
-    def updateDuplicateMissionRewards(self):
+    def updateDuplicateMissionRewards(self,rewardAreaMissions):
+        #TODO: Add info to log list
         for missionID, duplicateIDs in numbers.MISSION_DUPLICATES.items(): #set rewards of duplicates to be the same as the one they duplicate
             for duplicateID in duplicateIDs:
                 if missionID < 0 or duplicateID < 0: #if mission or duplicate are fake missions
@@ -5420,13 +5431,28 @@ class Randomizer:
                         if duplicateID == mission.ind:
                             correctDuplicateInd = index
                             duplicateFound = True
-                    self.missionArr[correctDuplicateInd].reward.ind = self.missionArr[correctMissionInd].reward.ind
-                    self.missionArr[correctDuplicateInd].reward.amount = self.missionArr[correctMissionInd].reward.amount
-                    self.missionArr[correctDuplicateInd].macca = self.missionArr[correctMissionInd].macca
+                    dupMission = self.missionArr[correctDuplicateInd]
+                    realMission = self.missionArr[correctMissionInd]
                 else:
-                    self.missionArr[duplicateID].reward.ind = self.missionArr[missionID].reward.ind
-                    self.missionArr[duplicateID].reward.amount = self.missionArr[missionID].reward.amount
-                    self.missionArr[duplicateID].macca = self.missionArr[missionID].macca
+                    dupMission = self.missionArr[duplicateID]
+                    realMission = self.missionArr[missionID]
+                dupMission.reward.ind = realMission.reward.ind
+                dupMission.reward.amount = realMission.reward.amount
+                dupMission.macca = realMission.macca
+
+                check = Item_Check(Check_Type.MISSION,duplicateID,dupMission.name,rewardAreaMissions[duplicateID]) #For the reward area always use duplicate id
+                if dupMission.macca >0:
+                    itemReward = self.generateNewItem(0,dupMission.macca)
+                else:
+                    itemReward = self.generateNewItem(dupMission.reward.ind,dupMission.reward.amount)
+                check.inputItem(itemReward, forced = True)
+                if itemReward.ind > 0 and itemReward.ind in numbers.KEY_ITEM_AREA_RESTRICTIONS.keys():
+                    if itemReward.ind in self.progressionItemNewChecks:
+                        self.progressionItemNewChecks[itemReward.ind].append(check)
+                    else:
+                        self.progressionItemNewChecks[itemReward.ind] = []
+                        self.progressionItemNewChecks[itemReward.ind].append(check)
+                self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] Item [" +itemReward.name + "] Amount [" +str(itemReward.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]")
     
     '''
     Randomizes the drops of basic enemies, excluding key items and essences.
@@ -7539,6 +7565,8 @@ class Randomizer:
         self.fillMapEventArr(mapEventBuffer)
         self.fillNavigatorArr(navigatorBuffer)
         
+        scriptLogic.modifyEmpyreanKeyEvents(self.scriptFiles)
+        
         #self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
         eventEncountPosFile = self.addPositionsToEncountArr(self.eventEncountArr,"EventEncountPostDataTable",paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT)
         encountPosFile = self.addPositionsToEncountArr(self.encountArr,"EncountPostDataTable",paths.ENCOUNT_POST_DATA_TABLE_UASSET_OUT)
@@ -7779,10 +7807,10 @@ class Randomizer:
             self.changeNavigatorDemons()
         message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings, self.playerBossArr)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr],self.compendiumArr,self.enemyNames,self.configSettings)
-        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap, self.playerBossArr, self.compendiumArr)
-        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames, self.playerBossArr, self.compendiumArr)
+        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap, self.playerBossArr, self.compendiumArr,self.progressionItemNewChecks)
+        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames, self.playerBossArr, self.compendiumArr,self.progressionItemNewChecks)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
-
+        
         if self.configSettings.removeCutscenes or self.configSettings.skipTutorials:
             #Needs to be before cutsceneswap to handle scripts that get edited in both
             self.scriptFiles = scriptLogic.setCertainFlagsEarly(self.scriptFiles, self.mapEventArr, self.eventFlagNames, self.configSettings)
@@ -8015,7 +8043,8 @@ class Randomizer:
                     if skill.ind in allSkillIDs:
                         allSkillIDs.remove(skill.ind)
 
-
+        if len(allSkillIDs) > 0:
+            print("At least one skill was not assigned to a demon")
         for skillID in allSkillIDs:
             print(translation.translateSkillID(skillID,self.skillNames) + " " + str(skillID))
 

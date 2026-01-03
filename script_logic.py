@@ -196,13 +196,14 @@ GIFT_EQUIVALENT_SCRIPTS = {
     'MM_M060_E0763' : ['MM_M060_E3001_Direct'],
     'MM_M060_E0778': ['MM_M060_E3110_Direct'],
     'MM_M060_E0790': ['MM_M060_E3130_Direct'],
-    'MM_M060_E0810': ['MM_M060_E3130_Direct']
+    'MM_M060_E0810': ['MM_M060_E3130_Direct_2']
 }
 # Scripts that use the same script file, for different rewards
 # Extra -> Original
 GIFT_EXTRA_SCRIPTS = {
     'MM_M064_E2797_PERIAPT' : 'MM_M064_E2797',
     'BP_JakyoEvent_Comp_Complete': 'BP_JakyoEvent',
+    'MM_M060_E3130_Direct_2': 'MM_M060_E3130_Direct'
 }
 
 #Odds that a non key gift contains an essence
@@ -362,7 +363,23 @@ FLAGGROUPS = {
         "pflag0018_NaviTutorial_Outer","pflag0019_NaviTutorial_Inner","MAP_FLAG_MagatsuhiDevilLock",
         #Fusion Cutscene Skips #TODO: Maybe these always?
         "pflag0024_FirstUnite","pflag0025_FirstUniteAccident",
-    ]
+    ],
+    #These are not tested yet, just on the fly noting them down
+    # "pre_taito_creation": [
+    #     "MAP_FLAG_E0700","MAP_FLAG_E0701" #Dorm roof with Yuzuru and Dazai
+    #     "MAP_FLAG_E0730","MAP_FLAG_E0735", #War of the Gods (second maybe not?)
+    #     "MAP_FLAG_E0736", #Dazai/Abdiel post summit
+
+    #     
+    # ],
+    # "taito_creation": [
+    #     "MAP_FLAG_E0761", #Aogami asks alignement question?
+
+    #     "script_m062_em0145", #Zako greek area
+    #     "script_m062_em0147", #Zako nordic area
+
+    #     "MAP_FLAG_E0765", #Dazai hat scene
+    # ]
 }
 
 #Assining groups of flags to event scripts
@@ -1257,6 +1274,193 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
             scriptFiles.setFile(script,file)
 
     return scriptFiles
+
+'''
+Modifies the main events in Taito so owning all 3 keys is required, instead of depending on the flags set.
+    Parameters:
+        scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+#TODO: Clean this code up more
+'''
+def modifyEmpyreanKeyEvents(scriptFiles):
+    #Start by modyfing CoC/CoV "Wall" Event
+    script = "MM_M060_E0815"
+    file = scriptFiles.getFile(script)
+    file: Script_File
+    jsonData = file.json
+    file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+
+    if "BPL_EventFlag" not in file.importNameList: #Adding classes/functions we need
+        stackNode = file.importNameList.index("/Script/Project") * -1 -1
+        file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_EventFlag", False)
+        file.importNameList.append("BPL_EventFlag")
+    if "SetEventFlagValue" not in file.importNameList:
+        stackNode = file.importNameList.index("BPL_EventFlag") * -1 -1
+        file.addImport("/Script/CoreUObject", "Function",stackNode , "SetEventFlagValue", False)
+        file.importNameList.append("SetEventFlagValue")
+
+    if "BPL_MissionData" not in file.importNameList: #Adding classes/functions we need
+        stackNode = file.importNameList.index("/Script/Project") * -1 -1
+        file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_MissionData", False)
+        file.importNameList.append("BPL_MissionData")
+    if "CheckMissionCompleteCond" not in file.importNameList:
+        stackNode = file.importNameList.index("BPL_MissionData") * -1 -1
+        file.addImport("/Script/CoreUObject", "Function",stackNode , "CheckMissionCompleteCond", False)
+        file.importNameList.append("CheckMissionCompleteCond")
+
+
+    jsonData = file.json
+    file.exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
+    file.exportIndex = file.exportNameList.index("CheckActive") #CheckActive was chosen because it is regularly called as long as player is in Taito
+    bytecode = Bytecode(jsonData["Exports"][file.exportIndex]['ScriptBytecode'])
+
+    #Add variable to properties of CheckActive
+    boolVarName = "Temp_bool_Variable"
+    loadedProperties = jsonData["Exports"][file.exportIndex]["LoadedProperties"]
+    loadedProperties.append({
+          "$type": "UAssetAPI.FieldTypes.FBoolProperty, UAssetAPI",
+          "ArrayDim": "TArray",
+          "BlueprintReplicationCondition": "COND_None",
+          "ByteMask": 1,
+          "ByteOffset": 0,
+          "ElementSize": 1,
+          "FieldMask": 255,
+          "FieldSize": 1,
+          "Flags": "RF_Public",
+          "MetaDataMap": None,
+          "Name": boolVarName,
+          "NativeBool": True,
+          "PropertyFlags": "CPF_None",
+          "RawValue": None,
+          "RepIndex": 0,
+          "RepNotifyFunc": "None",
+          "SerializedType": "BoolProperty",
+          "UsmapPropertyTypeOverrides": {
+            "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[UAssetAPI.Unversioned.EPropertyType, UAssetAPI]], System.Private.CoreLib",
+            "ClassProperty": "ObjectProperty",
+            "MulticastInlineDelegateProperty": "MulticastDelegateProperty",
+            "SoftClassProperty": "SoftObjectProperty"
+          },
+          "Value": True
+        })
+
+    file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+    stackNodeSetFlag = -1 * file.importNameList.index("SetEventFlagValue") -1
+    stackNodeMissionCheck = -1 * file.importNameList.index("CheckMissionCompleteCond") -1
+
+    
+    #First insert MissionCheck
+    missionCheckInsert = {
+        "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_LetBool, UAssetAPI",
+        "AssignmentExpression": {
+            "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath, UAssetAPI",
+            "Parameters": [
+                {
+                  "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_IntConst, UAssetAPI",
+                  "Value": 88 # Mission ID
+                },
+                {
+                    "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_True, UAssetAPI"
+                }
+            ],
+            "StackNode": stackNodeMissionCheck
+        },
+        "VariableExpression": {
+            "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVariable, UAssetAPI",
+            "Variable": {
+                "$type": "UAssetAPI.Kismet.Bytecode.KismetPropertyPointer, UAssetAPI",
+                "New": {
+                    "$type": "UAssetAPI.UnrealTypes.FFieldPath, UAssetAPI",
+                    "Path": [
+                        boolVarName #Question where to store it?
+                    ],
+                    "ResolvedOwner": 1
+                }
+            }
+        }
+    }
+    #If condition
+    jumpIfNot = {
+        "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_JumpIfNot, UAssetAPI",
+        "BooleanExpression": {
+            "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVariable, UAssetAPI",
+            "Variable": {
+                "$type": "UAssetAPI.Kismet.Bytecode.KismetPropertyPointer, UAssetAPI",
+                "New": {
+                    "$type": "UAssetAPI.UnrealTypes.FFieldPath, UAssetAPI",
+                    "Path": [
+                        boolVarName #Edit the name of the variable here!
+                    ],
+                    "ResolvedOwner": 1
+                }
+            }
+        },
+        "CodeOffset": 56 #Calculated manually and is the size of missionCheck+JumpIfnot+SetEventFlagValue call
+    }
+
+    nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
+    nameConst["Value"] = 104 #MAP_FLAG_820_Start
+    localFinalFunction = jsonExports.getImportedFunctionCall(stackNodeSetFlag, [nameConst,jsonExports.getBytecodeBoolen()])
+
+    bytecode.json.insert(0, missionCheckInsert)
+    bytecode.json.insert(1, jumpIfNot)
+    bytecode.json.insert(2, localFinalFunction)
+
+    missionCheckInsert2 = copy.deepcopy(missionCheckInsert)
+    missionCheckInsert2["AssignmentExpression"]["Parameters"][0]["Value"] = 115
+    jumpIfNot2 = copy.deepcopy(jumpIfNot)
+    jumpIfNot2["CodeOffset"] += 56
+    nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
+    nameConst["Value"] = 416 #MAP_FLAG_820_Star
+    localFinalFunction = jsonExports.getImportedFunctionCall(stackNodeSetFlag, [nameConst,jsonExports.getBytecodeBoolen()])
+
+
+    bytecode.json.insert(3, missionCheckInsert2)
+    bytecode.json.insert(4, jumpIfNot2)
+    bytecode.json.insert(5, localFinalFunction)
+
+    # file.updateFileWithJson(jsonData)
+    # serializedByteCode = file.getSerializedScriptBytecode(file.exportIndex,jsonData)
+    scriptFiles.setFile(script,file)
+    scriptFiles.writeFile(script,file) #Because file does not get used again
+
+    '''
+    Edit the boss creation events.
+    '''
+    scripts = ["MM_M060_E0810","MM_M060_E0790","MM_M060_E0778"]
+    for script in scripts:
+        file = scriptFiles.getFile(script)
+        jsonData = file.json
+
+        oldFlagName = "MAP_FLAG_E0820_Start"
+        newFlagName = "MAP_FLAG_E3200_Start" #Use the Vengeance Flag instead to prevent access to ToE
+
+        jsonString = json.dumps(jsonData)
+        jsonString = jsonString.replace(oldFlagName,newFlagName)
+        jsonData = json.loads(jsonString)
+
+        file.json = jsonData
+
+        scriptFiles.setFile(script,file)
+
+    '''
+    Edit the boss vengeance events.
+    '''
+
+    scripts = ["MM_M060_E3110_Direct","MM_M060_E3130_Direct"]
+    for script in scripts:
+        file = scriptFiles.getFile(script)
+        jsonData = file.json
+
+        oldFlagName = "MAP_FLAG_E3200_Start" #Use the Vengeance Flag instead to prevent access to ToE
+        newFlagName = "MAP_FLAG_E0820_Start" 
+
+        jsonString = json.dumps(jsonData)
+        jsonString = jsonString.replace(oldFlagName,newFlagName)
+        jsonData = json.loads(jsonString)
+
+        file.json = jsonData
+
+        scriptFiles.setFile(script,file)
 
 
 #TODO: Add code that makes the needed modification to route choice cutscene, instaed of using preedited file

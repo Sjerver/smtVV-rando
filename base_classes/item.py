@@ -101,10 +101,6 @@ class Check_Type(Enum):
             case Check_Type.MISSION:
                 return "Mission Rewards"
 
-class Canon(Enum):
-    CREATION = 0
-    VENGEANCE = 1
-
 class Item_Check:
     def __init__(self, type, ind, name, area, repeatable = False, missable = False, duplicate = False, maxAdditionalItems = 0):
         self.type = type
@@ -146,9 +142,15 @@ class Item_Check:
     
     '''
     Checks if the item can be in the check and adds it to the check if possible.
+        Parameters:
+            item(Base_Item): the item in question
+            forced(Boolean): if the item is forced into the main slot, ignoring everything else
     Returns whether the item can be assigned to the check.
     '''
-    def inputItem(self,item):
+    def inputItem(self,item, forced = False):
+        if forced:
+            self.item = item
+            return True
         if item.itemAllowedInCheck(self):
             if self.item == None:
                 self.item = item
@@ -201,6 +203,7 @@ class Base_Item():
 class Macca_Item(Base_Item):
     def __init__(self, amount,allowedAreas = [], scaling = False):
         super().__init__("Macca " + str(amount), amount, allowedAreas)
+        self.ind = 0 #Macca ind is always 0, because it is just easier to handle for most things
         if scaling:
             allowedAreas = self.calculateAllowedAreasForMacca(self.amount)
 

@@ -492,6 +492,7 @@ SCRIPT_FOLDERS = {
     'MM_M082_EM2053': M082_FOLDER, #Give Amabie Photo to Tao
     'MM_M082_EM2055': M082_FOLDER, #Give Amabie Photo to Yoko
     'MM_M062_EM2060': M062_EM2060_FOLDER, #"Nice Terekke" Koropokkur in Area 2
+    'MM_M060_E0815': MAIN_M060_FOLDER, #Tao stopping Player from going to ToE
 
     'esNPC_m083_10': STATION_NPC_FOLDER, #Yoko in Station?
 

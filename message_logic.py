@@ -4,7 +4,7 @@ import util.numbers as numbers
 import copy
 import re
 from base_classes.message import Message_File, Demon_Sync
-from util.numbers import RACE_ARRAY
+from util.numbers import RACE_ARRAY, Canon
 
 from System.IO import FileNotFoundException # type: ignore
 
@@ -723,7 +723,7 @@ HINT_BOSS_PLACEHOLDER = '<BOSSNAME>'
 HINT_BOSS_PLACEHOLDER_PLAIN_TEXT = '<BOSSNAMEPLAINTEXT>' #For hint messages that should not use colored text
 
 #Various hint messages that include <BOSSNAME> where the replacement boss name will go
-HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should proceed with caution.", #0 - Generic Aogami Warning
+BOSS_HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should proceed with caution.", #0 - Generic Aogami Warning
                  "Us <BOSSNAME>s are always hungry,\nno matter how much we put away.", #1 - A Preta Predicament
                  "<BOSSNAME> has appeared there,\ndwelling at <c look_begin>the peak of a mountain<c look_end>.", #2 - The Tyrant of Tennozu
                  "I have a hunch there might be\n<BOSSNAME> in there.", #3 - Nekomata dialogue for king frost quest
@@ -758,7 +758,30 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "We may even encounter <BOSSNAME>, the lord of the flies.", #32 - Tsukuyomi dialogue about the 3 keys
                  "You have squandered the mercy\ngranted by my fellow archangel, <BOSSNAME>.", #33 - Camael dialogue vengeance
                  "You leave me no choice. As the angel of\ndestruction, I shall slay you in <BOSSNAME>'s stead.", #34 - Camael dialogue vengeance part 2
-                 "Speak to me and face <BOSSNAME>."] #35 - Goko dialogue in Marici quest
+                 "Speak to me and face <BOSSNAME>.", #35 - Goko dialogue in Marici quest                
+]
+
+#Message files for story events containing item check infos, which message is the hint message, what item id it should hint, and which canon is focused
+#Value format: [(messageIndex, originalItemID, hintMessageID, canon), ...]
+EVENT_ITEM_CHECKS_ORIGINAL_IDS  = {
+    'e0775': [(7,658,1,Canon.CREATION)], #CoC Vasuki giving Hints for Key of Austerity
+    'e0785': [(7,659,2,Canon.CREATION)], #CoC Zeus giving Hints for Key of Benelevolance 
+    'e0805': [(14,660,3,Canon.CREATION)], #CoC Odin giving Hints for Key of Harmony
+    #'e3100': [(8,658,4),(12,658,4)], #CoV Beelzebub Pre-Fight giving Hitns for Key of Austerity
+    'e3110': [(2,658,4,Canon.VENGEANCE)], #CoV Beelzebub Post-Fight Key of Austerity Hint
+    'e3130': [(1,659,5,Canon.VENGEANCE),(2,660,6,Canon.VENGEANCE)], #CoV Zeus+Odin giving hints for Key of Benelevolance and Key of Harmony
+}
+
+#Various hint messages that include <CHECKINFO> where the check info will go
+ITEM_CHECK_HINT_MESSAGES = [
+    "You can find <ITEMNAME> at\n>CHECKINFO>.", #0 - Generic Hint
+    "Such strength... I've been keeping watch over the key at \n<CHECKINFO>.", #1 - CoC Vasuki giving hint for Key of Austerity
+    "Bah, fine. Let no man call me\nungracious. The key is at \n<CHECKINFO>.", #2 - CoC Zeus giving Hints for Key of Benelevolance
+    "...But I suppose it is no longer my place to say.\nVictory is yours... and so is the Key of Harmony.\n<CHECKINFO>.",#3 -CoC Odin giving Hints for Key of Harmony
+    "As promised, the location of the Key of Austerity is yours.\n<CHECKINFO>.", #4- CoV Beelzebub Post-Fight Key of Austerity Hint
+    "Hell of a fight, boy... That's a loss I can accept.\n The Key of Benelevolance is at\n<CHECKINFO>.", #5 - CoV Zeus giving hint for Key of Benelevolance
+    "More readily than Bethel will, I suspect. Much as they'll\nobject, the Key of Harmony is at\n<CHECKINFO>.", #6 - CoV Odin giving hints for Key of Harmony
+]
 
 MISSION_INFO_DEMON_IDS = {
     4: [Demon_Sync(38, isNavi=True)], # The Angel's Trail (Navi Amanozako)
@@ -888,6 +911,20 @@ MISSION_INFO_DEMON_IDS = {
 #Lists of missions without reward page
 MISSIONS_WITHOUT_REWARD_PAGE = [147,148]
 
+#For an item id, which mission infos need to be updated and where do we add the update / what do we replace
+#Value format: itemID: [(missionInfo, originalText, replacementText), ...]
+PROGRESSION_ITEMS_MISSION_IDS = {
+    658: [(88,"the\n<c item_begin><mission_cond_name 88 0><c item_end>.","the\nlocation of the <c item_begin><mission_cond_name 88 0><c item_end>:\n<CHECKINFO>\n"),
+        (115,"the\n<c item_begin><mission_cond_name 115 0><c item_end>.","the\nlocation of the <c item_begin><mission_cond_name 115 0><c item_end>:\n<CHECKINFO>\n")
+    ], #Key of Austerity
+    659: [(88,"the\n<c item_begin><mission_cond_name 88 1><c item_end>.","the\nlocation of the <c item_begin><mission_cond_name 88 1><c item_end>:\n<CHECKINFO>\n"),
+        (115,"the\n<c item_begin><mission_cond_name 115 1><c item_end>","the\nlocation of the <c item_begin><mission_cond_name 115 1><c item_end>:\n<CHECKINFO>\n")
+    ], #Key of Benevolence
+    660: [(88,"the\n<c item_begin><mission_cond_name 88 2><c item_end>.","the\nlocation of the <c item_begin><mission_cond_name 88 2><c item_end>:\n<CHECKINFO>\n"),
+        (115," and <c item_begin><mission_cond_name 115 2><c item_end>.","and the location of the <c item_begin><mission_cond_name 115 2><c item_end>:\n<CHECKINFO>\n")
+    ], #Key of Harmony
+}
+
 COLOR_PATTERN = '<c.*?>'
 MISSION_CONDITION_DATA_PATTERN = '<mission_cond_name.*?>'
 FLAG_PATTERN = "<flag.*?>"
@@ -904,6 +941,8 @@ ALIGNMENT_PATTERN = "<ALIGNMENT>"
 TALISMAN_PATTERN = "Allows you to use the <RACE> Magatsuhi Skill <MAGATSUHI_SKILL>."
 PERIAPT_DEMON_PATTERN = "Enables the Magatsuhi Skill <MAGATSUHI_SKILL> when <DEMONS> are brought together."
 PERIAPT_ALIGNMENT_PATTERN = "Enables the Magatsuhi Skill <MAGATSUHI_SKILL> when two demons of the <ALIGNMENT> alignment are brought together"
+PROGRESSION_CHECK_PATTERN = "<CHECKINFO>"
+ITEM_NAME_PATTERN = "<ITEMNAME>"
 
 ALIGNMENT_NAMES = {
     1: "NEUTRAL",
@@ -1263,10 +1302,11 @@ Update the mention of demon names in mission events.
         itemNames(list(String)): list of item names
         playerBossArr (List(Compendium_Demon)): list of player boss demons
         comp (List(Compendium_Demon)): list of compendium demons
+        progessItemChecks(Dict(Int: Item_Check)): map of item ids to new check for progression items
 '''
-def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, brawnyAmbitions2SkillName, navigatorMap,itemReplacements,itemNames, playerBossArr, comp):
+def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, brawnyAmbitions2SkillName, navigatorMap,itemReplacements,itemNames, playerBossArr, comp,progessItemChecks):
     updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp)
-    updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, itemReplacements,itemNames, playerBossArr, comp)
+    updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, itemReplacements,itemNames, playerBossArr, comp,progessItemChecks)
     for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
@@ -1317,8 +1357,9 @@ Update the mention of demon names in story event messages.
         itemNames(list(String)): list of item names
         playerBossArr (List(Compendium_Demon)): list of player boss demons
         comp (List(Compendium_Demon)): list of compendium demons
+        progessItemChecks(Dict(Int: Item_Check)): map of item ids to new check for progression items
 '''
-def updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,itemReplacements,itemNames, playerBossArr, comp):
+def updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,itemReplacements,itemNames, playerBossArr, comp,progessItemChecks):
     for missionEvent,syncDemons in EVENT_MESSAGE_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/EventMessage/',OUTPUT_FOLDERS['EventMessage'])
@@ -1334,6 +1375,9 @@ def updateEventMessages(encounterReplacements, bossReplacements, demonNames, ran
             if missionEvent in EVENT_CHECKS_ORIGINAL_IDS.keys():
                 hints = EVENT_CHECKS_ORIGINAL_IDS[missionEvent]
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames, playerBossArr, comp)
+            if missionEvent in EVENT_ITEM_CHECKS_ORIGINAL_IDS.keys(): #TODO: Setting to show hints?
+                hints = EVENT_ITEM_CHECKS_ORIGINAL_IDS[missionEvent]
+                addHintItemMessagesInFile(missionText, hints, progessItemChecks)
             if missionEvent in EVENT_MESSAGE_ITEM_IDS.keys() and missionEvent in itemReplacements.keys():
                 syncItems = EVENT_MESSAGE_ITEM_IDS[missionEvent]
                 updateItemsInTextFile(missionText,originalMissionText,syncItems,itemReplacements,itemNames,missionEvent)
@@ -1640,7 +1684,7 @@ def addHintMessagesInFile(missionText, hints, bossReplacements, demonNames, play
 Returns a hint message using a direct string by replacing <BOSSNAME> in a placeholder hint message
 '''
 def createHintMessage(bossName, hintIndex):
-    message = HINT_MESSAGES[hintIndex]
+    message = BOSS_HINT_MESSAGES[hintIndex]
     message = message.replace(HINT_BOSS_PLACEHOLDER, bossName)
     message = message.replace(HINT_BOSS_PLACEHOLDER_PLAIN_TEXT, bossName)
     return message
@@ -1649,10 +1693,69 @@ def createHintMessage(bossName, hintIndex):
 Returns a hint message using a direct string by replacing <BOSSNAME> in a placeholder hint message
 '''
 def createHintMessageWithID(bossID, hintIndex):
-    message = HINT_MESSAGES[hintIndex]
+    message = BOSS_HINT_MESSAGES[hintIndex]
     message = message.replace(HINT_BOSS_PLACEHOLDER, '<c look_begin><enemy ' + str(bossID) + '><c look_end>')
     message = message.replace(HINT_BOSS_PLACEHOLDER_PLAIN_TEXT, '<enemy ' + str(bossID) + '>')
     return message
+
+'''
+Adds hint messages for a single text file
+Parameters:
+        missionText(List(String)): List of all text boxes in the file to update
+        hints(List((messageIndex, originalItemID, hintMessageID, canon))): List of all hints for the file including the item ids the hint depends on
+        progessItemChecks(Dict(Int: Item_Check)): map of item ids to new check for progression items
+'''
+def addHintItemMessagesInFile(missionText, hints, progessItemChecks):
+    for hintInfo in hints:
+        messageIndex = hintInfo[0]
+        itemID = hintInfo[1]
+        hintIndex = hintInfo[2]
+        canon = hintInfo[3]
+
+        checks = progessItemChecks.get(itemID)
+        if checks:
+            hintBox = missionText[messageIndex]
+            match = re.search(VOICE_REGEX, hintBox)
+            boxMetadata = ""
+            if match:
+                splitIndex = match.span()[1]
+                boxMetadata = hintBox[:splitIndex]
+            else:
+                match = re.search(NAME_REGEX, hintBox)
+                if match:
+                    splitIndex = match.span()[1]
+                    boxMetadata = hintBox[:splitIndex]
+
+            checkInfo = ""
+            if canon == Canon.CREATION:
+                preferredAreas = {36, 63} #In Creation prefer checks from DKC, Chiyoda
+            else:
+                preferredAreas = {38, 64} #In Vengeance from Shakan, Shinjuku
+
+            preferredChecks = []
+            fallbackChecks = []
+            for check in checks:
+                if check.area in preferredAreas:
+                    preferredChecks.append(check)
+                else:
+                    fallbackChecks.append(check)
+
+            #We can only choose on check due to limited space here, but all checks will be written to mission info file instead
+            if preferredChecks:
+                chosenCheck = preferredChecks[0]
+            else:
+                chosenCheck = fallbackChecks[0]
+                
+            checkInfo =checkInfo+ chosenCheck.name + " in " + numbers.AREA_NAMES[chosenCheck.area]
+            itemName = chosenCheck.item.name
+            
+           
+            message = ITEM_CHECK_HINT_MESSAGES[hintIndex]
+            message = message.replace(ITEM_NAME_PATTERN,itemName)
+            message = message.replace(PROGRESSION_CHECK_PATTERN,checkInfo)
+
+            hintMessage = boxMetadata + message
+            missionText[messageIndex] = hintMessage
 
 '''
 Updates the mission info file with randomized demon replacements and adds additional rewards to description.
@@ -1666,14 +1769,17 @@ Updates the mission info file with randomized demon replacements and adds additi
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
         playerBossArr (List(Compendium_Demon)): list of player boss demons
         comp (List(Compendium_Demon)): list of compendium demons
+        progessItemChecks(Dict(Int: Item_Check)): map of item ids to new check for progression items
 '''
-def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawnyAmbition2Skill, fakeMissions, itemNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp):
+def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawnyAmbition2Skill, fakeMissions, itemNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, progessItemChecks):
     file = Message_File('MissionInfo','/',OUTPUT_FOLDERS['MissionInfo'])
 
     missionText = file.getMessageStrings()
     
     commonEntries = 3 #first 3 are common for all missions
     missionTextCount = 7 #Name,Client, Reward, Explain, Help, Report, Completed
+
+    missionText = addProgressionItemMissionInfoHints(missionText,progessItemChecks)
     
     for missionIndex, syncDemons in MISSION_INFO_DEMON_IDS.items():
         for syncDemon in syncDemons:
@@ -1757,6 +1863,7 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
                 missionText[commonEntries + index + 7 * (missionIndex)] = messageComponent
     
     missionText = addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames)
+    
 
     try:
         file.setMessageStrings(missionText)
@@ -1785,6 +1892,31 @@ def addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames):
             explainText = addOn + explainText
             missionText[explainIndex] = explainText
     return missionText
+
+'''
+Adds item check hints to the missions description.
+    Parameters:
+        missionText(List(String)): list of mission info data
+        progessItemChecks(Dict(Int: Item_Check)): map of item ids to new check for progression items
+'''
+def addProgressionItemMissionInfoHints(missionText, progressItemChecks):
+    for item, checks in progressItemChecks.items():
+        missionTuple = PROGRESSION_ITEMS_MISSION_IDS[item]
+        for missionID,searchText,replacementText  in missionTuple:
+                explainIndex = missionText.index('NOT USED:mis_info_' + str(missionID).zfill(4) +'_report') -2
+                explainText = missionText[explainIndex]
+
+                checkInfo = ""
+                for checkIndex, check in enumerate(checks):
+                    checkInfo =checkInfo+ check.name + " in " + numbers.AREA_NAMES[check.area]
+                    if checkIndex+1< len(checks): #Append info for more than one check in new line
+                        checkInfo = checkInfo + "\nOR: "
+                #TODO: How to handle checks whose RewardArea does not match physical location? (mostly mission / gifts)
+
+                explainText = explainText.replace(searchText,replacementText).replace(PROGRESSION_CHECK_PATTERN,checkInfo)
+                missionText[explainIndex] = explainText
+    return missionText
+
           
 '''
 Finds the earliest ID of a demon's name that is used for dialogue box speaker names in 'chara' tags'
