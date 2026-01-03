@@ -633,11 +633,13 @@ def createGUI(configSettings: Settings):
             target.insert(trueIndex, item)
 
     def resetItemCheckLists():
+        listItemVanilla.delete(0,tk.END)
+        listItemSelf.delete(0,tk.END)
+        listItemShared.delete(0,tk.END)
         listItemsOrder = ["Treasures","Miman Rewards","Mission Rewards","NPC/Story Gifts"]
         for index, item in enumerate(listItemsOrder):
             listItemVanilla.insert(index,item)
-        listItemSelf.delete(0,tk.END)
-        listItemShared.delete(0,tk.END)
+        
 
     moveToSelfButton = tk.Button(itemVanillaFrame, text="→ Independent", command=lambda: moveItemsBetweenLists(listItemVanilla, listItemSelf))
     moveToSelfButton.pack()
