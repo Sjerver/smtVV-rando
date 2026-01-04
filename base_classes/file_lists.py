@@ -1,4 +1,3 @@
-from base_classes.uasset_custom import UAsset_Custom
 from util.binary_table import readBinaryTable, writeBinaryTable, Table, writeFolder
 import json
 import os

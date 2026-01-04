@@ -3,9 +3,8 @@ import os
 from util.binary_table import Table, readBinaryTable, writeBinaryTable, writeFolder
 import util.paths as paths
 import util.numbers as numbers
-from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join_Type, Bytecode
+from base_classes.script import Script_Join_Type, Bytecode
 from base_classes.quests import Mission_Reward, Fake_Mission
-from base_classes.uasset_custom import UAsset_Custom
 from base_classes.file_lists import Script_File, Script_File_List
 from base_classes.settings import Settings
 import util.jsonExports as jsonExports
@@ -1238,9 +1237,9 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
 
                 if "false" in group:
                     #Set flag to false
-                    localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen(False)])
+                    localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolean(False)])
                 else:
-                    localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen()])
+                    localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolean()])
                 bytecode.json.insert(0,localFinalFunction)
         
         file.updateFileWithJson(jsonData)
@@ -1279,7 +1278,6 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
 Modifies the main events in Taito so owning all 3 keys is required, instead of depending on the flags set.
     Parameters:
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
-#TODO: Clean this code up more
 '''
 def modifyEmpyreanKeyEvents(scriptFiles):
     #Start by modyfing CoC/CoV "Wall" Event
@@ -1316,32 +1314,7 @@ def modifyEmpyreanKeyEvents(scriptFiles):
     #Add variable to properties of CheckActive
     boolVarName = "Temp_bool_Variable"
     loadedProperties = jsonData["Exports"][file.exportIndex]["LoadedProperties"]
-    loadedProperties.append({
-          "$type": "UAssetAPI.FieldTypes.FBoolProperty, UAssetAPI",
-          "ArrayDim": "TArray",
-          "BlueprintReplicationCondition": "COND_None",
-          "ByteMask": 1,
-          "ByteOffset": 0,
-          "ElementSize": 1,
-          "FieldMask": 255,
-          "FieldSize": 1,
-          "Flags": "RF_Public",
-          "MetaDataMap": None,
-          "Name": boolVarName,
-          "NativeBool": True,
-          "PropertyFlags": "CPF_None",
-          "RawValue": None,
-          "RepIndex": 0,
-          "RepNotifyFunc": "None",
-          "SerializedType": "BoolProperty",
-          "UsmapPropertyTypeOverrides": {
-            "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[UAssetAPI.Unversioned.EPropertyType, UAssetAPI]], System.Private.CoreLib",
-            "ClassProperty": "ObjectProperty",
-            "MulticastInlineDelegateProperty": "MulticastDelegateProperty",
-            "SoftClassProperty": "SoftObjectProperty"
-          },
-          "Value": True
-        })
+    loadedProperties.append(jsonExports.getBooleanPropertyVar(boolVarName,True))
 
     file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
     stackNodeSetFlag = -1 * file.importNameList.index("SetEventFlagValue") -1
@@ -1349,57 +1322,16 @@ def modifyEmpyreanKeyEvents(scriptFiles):
 
     
     #First insert MissionCheck
-    missionCheckInsert = {
-        "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_LetBool, UAssetAPI",
-        "AssignmentExpression": {
-            "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath, UAssetAPI",
-            "Parameters": [
-                {
-                  "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_IntConst, UAssetAPI",
-                  "Value": 88 # Mission ID
-                },
-                {
-                    "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_True, UAssetAPI"
-                }
-            ],
-            "StackNode": stackNodeMissionCheck
-        },
-        "VariableExpression": {
-            "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVariable, UAssetAPI",
-            "Variable": {
-                "$type": "UAssetAPI.Kismet.Bytecode.KismetPropertyPointer, UAssetAPI",
-                "New": {
-                    "$type": "UAssetAPI.UnrealTypes.FFieldPath, UAssetAPI",
-                    "Path": [
-                        boolVarName #Question where to store it?
-                    ],
-                    "ResolvedOwner": 1
-                }
-            }
-        }
-    }
+    missionCheckInsert = jsonExports.getLetBool(
+        jsonExports.getImportedFunctionCall(stackNodeMissionCheck,[jsonExports.getIntConst(88),jsonExports.getBytecodeBoolean(True)]),
+        jsonExports.getLocalVar(boolVarName)
+        )
     #If condition
-    jumpIfNot = {
-        "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_JumpIfNot, UAssetAPI",
-        "BooleanExpression": {
-            "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVariable, UAssetAPI",
-            "Variable": {
-                "$type": "UAssetAPI.Kismet.Bytecode.KismetPropertyPointer, UAssetAPI",
-                "New": {
-                    "$type": "UAssetAPI.UnrealTypes.FFieldPath, UAssetAPI",
-                    "Path": [
-                        boolVarName #Edit the name of the variable here!
-                    ],
-                    "ResolvedOwner": 1
-                }
-            }
-        },
-        "CodeOffset": 56 #Calculated manually and is the size of missionCheck+JumpIfnot+SetEventFlagValue call
-    }
+    jumpIfNot = jsonExports.getJumpIfNot(jsonExports.getLocalVar(boolVarName),56)
 
     nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
     nameConst["Value"] = 104 #MAP_FLAG_820_Start
-    localFinalFunction = jsonExports.getImportedFunctionCall(stackNodeSetFlag, [nameConst,jsonExports.getBytecodeBoolen()])
+    localFinalFunction = jsonExports.getImportedFunctionCall(stackNodeSetFlag, [nameConst,jsonExports.getBytecodeBoolean()])
 
     bytecode.json.insert(0, missionCheckInsert)
     bytecode.json.insert(1, jumpIfNot)
@@ -1411,15 +1343,12 @@ def modifyEmpyreanKeyEvents(scriptFiles):
     jumpIfNot2["CodeOffset"] += 56
     nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
     nameConst["Value"] = 416 #MAP_FLAG_820_Star
-    localFinalFunction = jsonExports.getImportedFunctionCall(stackNodeSetFlag, [nameConst,jsonExports.getBytecodeBoolen()])
-
+    localFinalFunction = jsonExports.getImportedFunctionCall(stackNodeSetFlag, [nameConst,jsonExports.getBytecodeBoolean()])
 
     bytecode.json.insert(3, missionCheckInsert2)
     bytecode.json.insert(4, jumpIfNot2)
     bytecode.json.insert(5, localFinalFunction)
 
-    # file.updateFileWithJson(jsonData)
-    # serializedByteCode = file.getSerializedScriptBytecode(file.exportIndex,jsonData)
     scriptFiles.setFile(script,file)
     scriptFiles.writeFile(script,file) #Because file does not get used again
 

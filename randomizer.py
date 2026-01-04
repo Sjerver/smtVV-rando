@@ -5026,14 +5026,13 @@ class Randomizer:
                 check = Item_Check(Check_Type.MISSION,mission.ind,mission.name,missionRewardAreas[mission.ind])
                 if mission.ind in numbers.REPEAT_MISSIONS:
                     check.repeatable = True
-                
                 if mission.ind in numbers.CREATION_EXLUSIVE_MISSIONS:
                     check.allowedCanons = [Canon.CREATION]
                 elif mission.ind in numbers.VENGEANCE_EXLUSIVE_MISSIONS:
                     check.allowedCanons = [Canon.VENGEANCE]
                 
                 if mission.ind in numbers.MUTUALLY_EXCLUSIVE_MISSIONS:
-                    check.missable = True #Maybe needs their own thing?
+                    check.missable = True
                 
                 if mission.ind in numbers.MACCALESS_MISSIONS or mission.ind < 0:#To indicate Fake-Mission additional reward
                     check.maccaAllowed = False
@@ -5046,6 +5045,9 @@ class Randomizer:
                     item = self.generateNewItem(0, mission.macca)
                 else:
                     item = self.generateNewItem(mission.reward.ind, mission.reward.amount)
+
+                if item.ind in numbers.BANNED_KEY_REWARDS:
+                    item = self.generateRandomItemRewards(check)[0]
 
                 check.inputVanillaItem(item)
                 items.append(item)
@@ -5299,7 +5301,7 @@ class Randomizer:
                     relevantItems.extend(check.vanillaAdditionalItems)
                 else:
                     #Generate new items instead
-                    relevantItems.extend(self.generateRandomItemReward(check))
+                    relevantItems.extend(self.generateRandomItemRewards(check))
 
         # Reset check counts before calculating per-item valid checks (avoid double-counting)
         for check in relevantChecks:
@@ -5325,7 +5327,7 @@ class Randomizer:
         check(Item_Check): check to generate items for
     Returns a list of items for the check
     '''
-    def generateRandomItemReward(self,check):
+    def generateRandomItemRewards(self,check):
         check: Item_Check
         newItems = []
         oldItems = [check.vanillaItem]
@@ -5375,7 +5377,7 @@ class Randomizer:
             itemAmount = random.choices(list(numbers.CHEST_QUANTITY_WEIGHTS.keys()), list(numbers.CHEST_QUANTITY_WEIGHTS.values()))[0]
         
         #Now for all items that were in the check, generate a new one
-        for item in oldItems:
+        for _ in oldItems:
             if random.random() < maccaOdds:
                 itemID = 0 #Macca needs ID 0
                 amount = random.randint(maccaMin // 100, maccaMax // 100) * 100
@@ -8143,7 +8145,7 @@ if __name__ == '__main__':
         if not rando.configSettings.fixUniqueSkillAnimations:
             print('"Fix unique skill animations" patch not applied. If the game appears to hang during a battle animation, press the skip animations button')
         print('\nRandomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
-        print('CurrentSeed, bossSpoilerLog, encounterResults and fusionResults can be found in the debug folder')
+        print('CurrentSeed, bossSpoilerLog, encounterResults, fusionResults and itemLog can be found in the debug folder')
        
     except RuntimeError:
         print('GUI closed - randomization was canceled')

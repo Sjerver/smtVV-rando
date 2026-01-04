@@ -265,7 +265,6 @@ CREATION_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 VENGEANCE_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 
 #List of banned key rewards
-#TODO: How does this work in new logic??
 BANNED_KEY_REWARDS = [79] #Spyscope (dropped by tutorial daemon)
 
 #Exclusive mission from both canons to give potential exclusive rewards to (excluding missions whose rewards are not randomized or are not allowed to receive key item rewards)

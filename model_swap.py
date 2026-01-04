@@ -1,4 +1,4 @@
-from base_classes.script import Script_Function_Type,Script_Uasset,Bytecode,Serialized_Bytecode_Expression
+from base_classes.script import Bytecode,Serialized_Bytecode_Expression
 from base_classes.file_lists import Script_File, Script_File_List
 from base_classes.demon_assets import Demon_Model, Position
 from util.binary_table import readBinaryTable
