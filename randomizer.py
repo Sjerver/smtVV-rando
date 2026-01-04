@@ -5064,7 +5064,7 @@ class Randomizer:
 
                 item = self.generateNewItem(itemID, 1)
 
-                check = Item_Check(Check_Type.GIFT,giftIndex,script + " " + self.itemNames[itemID],giftRewardAreas[script])
+                check = Item_Check(Check_Type.GIFT,giftIndex,scriptLogic.GIFT_NAMES[script],giftRewardAreas[script])
 
                 if "NPC/Story Gifts" in self.configSettings.selfItemPools:
                     if script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS or script in scriptLogic.NEWGAMEPLUS_GIFTS or script in scriptLogic.MISSABLE_GIFTS:
@@ -5418,7 +5418,6 @@ class Randomizer:
     Assigns the updated rewards to missions which are duplicates and therefore share rewards.
     '''
     def updateDuplicateMissionRewards(self,rewardAreaMissions):
-        #TODO: Add info to log list
         for missionID, duplicateIDs in numbers.MISSION_DUPLICATES.items(): #set rewards of duplicates to be the same as the one they duplicate
             for duplicateID in duplicateIDs:
                 if missionID < 0 or duplicateID < 0: #if mission or duplicate are fake missions

@@ -94,6 +94,30 @@ EXTRA_MISSION_IDS = {
     'MM_M061_E2610' : [-20], #Isis Story Event in CoV (Part of Quest: Rescue Miyazu Atsuta)
     'MM_M061_EM0020': [-21], #The Angel's Request
 }
+
+EXTRA_MISSION_NAMES = {
+    'MM_M060_EM1601': "The Destined Leader (Bonus Reward)", # The Destined Leader
+    'MM_M035_EM1480': "The Seraph's Return (Bonus Reward)", # The Seraph's Return
+    'MM_M036_EM1490': "The Red Dragon's Invitation (Bonus Reward)", # The Red Dragon's Invitation
+    'MM_M061_EM1030': "Cursed Mermaids (Bonus Reward)", # Cursed Mermaids
+    'MM_M061_EM2050': "Picture-Perfect Debut (Bonus Reward)", # Picture-Perfect Debut
+    'MM_M060_EM1310': "Downtown Rock 'n Roll (Bonus Reward)", # Downtown Rock 'n Roll
+    'MM_M060_EM1370': "Keeper of the North (Bonus Reward)", # Keeper of the North
+    'MM_M061_EM1360': "Keeper of the West (Bonus Reward)", # Keeper of the West
+    'MM_M062_EM1340': "Keeper of the South (Bonus Reward)", # Keeper of the South
+    'MM_M063_EM1350': "Keeper of the East (Bonus Reward)", # Keeper of the East
+    'MM_M016_EM1450': "A Plot Revealed (Bonus Reward)", # A Plot Revealed
+    'MM_M061_EM1715': "Movin' on Up (Bonus Reward)", # Movin' on Up
+    'MM_M060_EM1460': "Gold Dragon's Arrival (Bonus Reward)", # Gold Dragon's Arrival
+    'MM_M063_EM1592': "A Power Beyond Control (Bonus Reward)", # A Power Beyond Control
+    'MM_M030_EM2610': "Holy Will and Profane Dissent (Bonus Reward)", # Holy Will and Profane Dissent
+    'MM_M030_EM2600': "Sakura Cinders of the East (Periapt Event) (Bonus Reward)", # Sakura Cinders of the East (Periapt Event)
+    'MM_M060_EM2351': "Rascal of the Norse (Bonus Reward)", # Rascal of the Norse
+    'MM_M060_EM1370_Direct': "Punishing Bishamonten Check", # Fighting Bishamonten without Quest(shares reward with quest)
+    'MM_M061_E2610' : "Rescue Miyazu Atsuta (Bonus Reward)", #Isis Story Event in CoV (Part of Quest: Rescue Miyazu Atsuta)
+    'MM_M061_EM0020': "The Angel's Request (Bonus Reward)", #The Angel's Request
+}
+
 #Ids of missions where the reward of fake mission should be added to info screen
 EXTRA_MISSION_MISSION_INFO_IDS = {
     -1: [74], # The Destined Leader
@@ -161,11 +185,35 @@ BASE_GIFT_ITEMS = {
     'MM_M060_E0790': 659, #Key of Benevolence (Coc Zeus Post Fight)
     'MM_M060_E0810': 660, #Key of Harmony (CoC Odin Post Fight)
 
-    # 'MM_M060_E3110_Direct': 658, #Key of Austerity (Beelzebub Post Fight Event)
-    # 'MM_M060_E3130_Direct': 659, #Key of Benevolence (CoV Zeus/Odin Post Fight Event)
-    # 'MM_M060_E3130_Direct_HARMONY': 660, #Key of Harmony (CoV Zeus/Odin Post Fight Event)
 }
-#TODO: Translation table for scripts for understandable debug output?
+GIFT_NAMES = {
+    'esNPC_m061_31a' : "NPC Rakshasa (Jaki Talisman)",
+    'esNPC_m061_30a': "NPC Slime (Foul Talisman)",
+    'esNPC_m061_34a': "NPC Pixie (Pixie Periapt)", 
+    'BP_esNPC_TokyoMap_15b': "NPC Jack Frost (Mischievous Mascot Periapt)", 
+    'esNPC_m062_32a': "NPC Nue (Wilder Talisman)", 
+    'esNPC_m062_33a': "NPC Angel (Divine Talisman)", 
+    'esNPC_m062_40a': "NPC Slime (Amorphous Periapt)", 
+    'esNPC_m063_20a': "NPC Yurlungur (Snake Talisman)", 
+    'esNPC_m063_21a': "NPC Setanta (Shadow Warrior Periapt)", 
+    'esNPC_m060_10a': "NPC Orthrus (Children of Echidna Periapt)", 
+    'esNPC_m016_02a': "NPC Ongyo-Ki (Elemental Oni Periapt)", 
+    'MM_M062_EM1132': "NPC Cait Sith (Grimalkin Periapt)", 
+    'MM_M060_E0763': "Story Entering Taito (Panagia Talisman)", 
+    'MM_M064_E2797': "Government Building (Qadistu Talisman)", 
+    'MM_M064_E2797_PERIAPT': "Government Building (Qadistu Periapt)", 
+    'MM_M064_E2795_Direct': "Story Tsukuyomi Fusion (Tsukuyomi Talisman)", 
+    'BP_JakyoEvent': "Unlock Lucifer (Devil Talisman)", 
+    'BP_JakyoEvent_Comp_Complete': "100% Compendium (Twinned Throne Periapt)", 
+    'MM_M087_E2450_Direct': "Story Gift from Dazai (Bead)", 
+    'MM_M061_EM0181': "Story Amanozako Gift (Bead)", 
+    'MM_M062_EM2060': "Koropokkur Jump (Revival Bead)",
+
+    'MM_M060_E0778': "Story Beating Vasuki/Beelzebub (Key of Austerity)", 
+    'MM_M060_E0790': "Story Beating Zeus (Key of Benevolence)", 
+    'MM_M060_E0810': "Story Beating Odin (Key of Harmony)", 
+
+}
 
 #TODO: List of scripts that are in two places so technically duplicated
 #Not mandatory but makes checks a tad cleaner to understand what needs duplication
@@ -653,7 +701,7 @@ def createFakeMissionsForEventRewards(scriptFiles):
             fakeMission.ind = index
             fakeMission.reward = EXTRA_MISSION_REWARDS[fakeMission.ind]
             fakeMission.originalReward = copy.deepcopy(fakeMission.reward)
-            fakeMission.name = script
+            fakeMission.name = EXTRA_MISSION_NAMES[script]
 
             file = scriptFiles.getFile(script)
             jsonData = file.json
