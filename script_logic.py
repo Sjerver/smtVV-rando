@@ -255,6 +255,7 @@ GIFT_EXTRA_SCRIPTS = {
 
 #Odds that a non key gift contains an essence
 GIFT_ESSENCE_ODDS = 0.7 #Completely made up, but essence should be more likely for now since amount is fixed currently
+GIFT_RELIC_ODDS = 0.0025 #Really low chance, completely made up
 
 #List of gifts only obtainable in canon of vengeance
 #The Empyrean keys do not count as exclusive cause their reward is shared with a duplicate

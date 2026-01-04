@@ -4945,6 +4945,8 @@ class Randomizer:
             essence = next(e for e in self.essenceArr if e.ind == itemID)
             demon = self.compendiumArr[essence.demon.value]
             return Essence_Item(self.itemNames[itemID],itemID,demon, scaling = self.configSettings.scaleItemsPerArea,allowRepeatable =self.configSettings.redoableEssencesAllowed)
+        elif (itemID > 615 and itemID < 655) or itemID > 855:
+            return Relic_Item(self.itemNames[itemID],itemID,amount,scaling = self.configSettings.scaleItemsPerArea) 
         else: #If all special condition fails the item is a Generic Item
             if itemID in self.nonRedoableItemIDs:
                 allowRepeatable = False
@@ -5090,12 +5092,12 @@ class Randomizer:
         #Assemble "Validity" maps which show which areas allow which items
         self.itemValidityMap = {}
         self.essenceValidityMap = {}
-        #self.relicValidityMap = {}
+        self.relicValidityMap = {}
         if self.configSettings.scaleItemsPerArea:
             for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
                 self.itemValidityMap[key] = value
-            # for key,value in numbers.RELIC_MAP_SCALING.items():
-            #     self.relicValidityMap[key] = value
+            for key,value in numbers.RELIC_MAP_SCALING.items():
+                self.relicValidityMap[key] = value
             for area in numbers.AREA_NAMES.keys():
                 #TODO: Am I happy with this? This is just copied from old code
                 self.essenceValidityMap[area] = []
@@ -5107,14 +5109,15 @@ class Randomizer:
         else:
             self.itemValidityMap[0] = []
             self.essenceValidityMap[0] = []
+            self.relicValidityMap[0] = []
             #TODO: Am I happy with this? This is just copied from old code
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
                 if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in self.essenceValidityMap[0]:
                     self.essenceValidityMap[0].append(itemID)
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     self.itemValidityMap[0].append(itemID)
-                #elif (itemID > 615 and itemID < 655) or itemID > 856 and 'NOT USED' not in itemName:
-                #    self.relicValidityMap[0].append(itemID)
+                elif (itemID > 615 and itemID < 655) or itemID > 855 and 'NOT USED' not in itemName:
+                    self.relicValidityMap[0].append(itemID)
 
 
         #Independent randomization for categories
@@ -5146,6 +5149,7 @@ class Randomizer:
         for check in checks:
             if not check.item:
                 continue
+            self.logItemCheck(check)
             if check.type == Check_Type.MIMAN:
                 mimanReward = self.mimanRewardsArr[check.ind]
                 mimanReward.items = []
@@ -5276,9 +5280,9 @@ class Randomizer:
                             self.progressionItemNewChecks[chosenItem.ind] = []
                             self.progressionItemNewChecks[chosenItem.ind].append(chosenCheck)
 
-                    self.itemDebugList.append("Category [" +Check_Type.getCheckString(chosenCheck.type) +"] CheckName ["+str(chosenCheck.name) + "] Item [" +chosenItem.name + "] Amount [" +str(chosenItem.amount) +"] Area [" + numbers.AREA_NAMES[chosenCheck.area] +"]")
                 else:
                     print("Is this even possible?")
+        
     
     '''
     Assembles pools of item, a key item pool and a normal item pool.
@@ -5343,7 +5347,7 @@ class Randomizer:
                 maccaMin = maccaRange[0]
                 
             essenceOdds = numbers.CHEST_ESSENCE_ODDS
-            relicOdds = 0
+            relicOdds = numbers.CHEST_RELIC_ODDS 
             itemAmount = random.choices(list(numbers.CHEST_QUANTITY_WEIGHTS.keys()), list(numbers.CHEST_QUANTITY_WEIGHTS.values()))[0]
         elif check.type == Check_Type.MIMAN:
             maccaOdds = 0 #Can't have money
@@ -5351,7 +5355,7 @@ class Randomizer:
             maccaMin = 0
 
             essenceOdds = numbers.MIMAN_ESSENCE_ODDS
-            relicOdds = 0
+            relicOdds = numbers.MIMAN_RELIC_ODDS
             itemAmount = random.choices(list(numbers.MIMAN_ITEM_AMOUNT_WEIGHTS.keys()),list(numbers.MIMAN_ITEM_AMOUNT_WEIGHTS.values()))[0]
 
         elif check.type == Check_Type.MISSION:
@@ -5364,7 +5368,7 @@ class Randomizer:
                 maccaMin = maccaRange[0]
 
             essenceOdds = numbers.MISSION_ESSENCE_ODDS
-            relicOdds = 0
+            relicOdds = numbers.MISSION_RELIC_ODDS 
             itemAmount = random.choices(list(numbers.MISSION_QUANTITY_WEIGHTS.keys()), list(numbers.MISSION_QUANTITY_WEIGHTS.values()))[0]
         elif check.type == Check_Type.GIFT:
             maccaOdds = 0#Can't have money
@@ -5372,17 +5376,18 @@ class Randomizer:
             maccaMin = 0
 
             essenceOdds = scriptLogic.GIFT_ESSENCE_ODDS
-            relicOdds = 0
+            relicOdds = scriptLogic.GIFT_RELIC_ODDS 
             #Uses chest quantity weights since not enough data to make own one
             itemAmount = random.choices(list(numbers.CHEST_QUANTITY_WEIGHTS.keys()), list(numbers.CHEST_QUANTITY_WEIGHTS.values()))[0]
         
         #Now for all items that were in the check, generate a new one
         for _ in oldItems:
-            if random.random() < maccaOdds:
+            randomNumber = random.random()
+            if randomNumber < maccaOdds:
                 itemID = 0 #Macca needs ID 0
                 amount = random.randint(maccaMin // 100, maccaMax // 100) * 100
                 
-            elif random.random() < essenceOdds:
+            elif randomNumber < essenceOdds + maccaOdds:
                 #TODO: Decide if we still want to prevent essences from existing more than once?
                 if self.configSettings.scaleItemsPerArea:
                     validItems = self.essenceValidityMap[check.area]
@@ -5391,14 +5396,13 @@ class Randomizer:
                 itemID = random.choice(validItems)
                 amount = 1
             
-            elif random.random() < relicOdds:
-                #TODO: Relic need to be done, for now odds  are always 0
+            elif randomNumber < relicOdds + essenceOdds + maccaOdds:
                 if self.configSettings.scaleItemsPerArea:
                     validItems = self.relicValidityMap[check.area]
                 else:
                     validItems = self.relicValidityMap[0]
-                itemID = 0
-                amount = 5
+                itemID = random.choice(validItems)
+                amount = random.choices(list(numbers.VENDING_MACHINE_RELIC_QUANTITY_WEIGHTS.keys()), list(numbers.VENDING_MACHINE_RELIC_QUANTITY_WEIGHTS.values()))[0]
             else: #Generic Item aka Consumables
                 if self.configSettings.scaleItemsPerArea:
                     validItems = self.itemValidityMap[check.area]
@@ -5453,7 +5457,7 @@ class Randomizer:
                     else:
                         self.progressionItemNewChecks[itemReward.ind] = []
                         self.progressionItemNewChecks[itemReward.ind].append(check)
-                self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] Item [" +itemReward.name + "] Amount [" +str(itemReward.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]")
+                self.logItemCheck(check)
     
     '''
     Randomizes the drops of basic enemies, excluding key items and essences.
@@ -7284,7 +7288,7 @@ class Randomizer:
             donor = copy.deepcopy(donor)
 
             #Rename Essence
-            self.itemNames = [f"{donor.name}'s Essence" if recipient.name in itemName else itemName for itemName in self.itemNames]
+            self.itemNames = [f"{donor.name}'s Essence" if recipient.name in itemName and 'Essence' in itemName else itemName for itemName in self.itemNames]
 
             recipient.name = donor.name
             recipient.nameID = donor.nameID
@@ -7431,8 +7435,14 @@ class Randomizer:
             if skill.owner and skill.owner.ind in swapPairings.keys():
 
                 skill.owner = Skill_Owner(swapPairings[skill.owner.ind],self.getDemonsCurrentNameByID(swapPairings[skill.owner.ind]))
-          
-
+    '''
+    Adds the items of a check to the item debug log.
+    '''
+    def logItemCheck(self,check):
+        items = [check.item] + check.additionalItems
+        for item in items:
+            #self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] ItemType [" + type(item).__name__ +"] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]")
+            self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]")
     
     '''
     Generates a random seed if none was provided by the user and sets the random seed

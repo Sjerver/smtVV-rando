@@ -116,7 +116,7 @@ CHEST_MACCA_MIN = 500
 CHEST_MACCA_MAX = 60000
 #Chance of a chest containing macca instead of an item/essence
 CHEST_MACCA_ODDS = 0.035
-
+CHEST_RELIC_ODDS = 0.00347
 #Chance of a chest containing an essence instead of an item
 CHEST_ESSENCE_ODDS = 0.42
 #Map of Areas that need to duplicate their rewards to another area
@@ -159,6 +159,34 @@ CHEST_QUANTITY_WEIGHTS = {
     5: 4
 }
 
+#Based on Vending machines for now
+RELIC_MAP_SCALING = {
+    60: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #['Hologram Trading Card', 'Vinyl Umbrella', 'Soda', 'Time Capsule', 'Balloon Value Pack', 'Sealed Magazine', 'Antique Shirt', 'Game Console with Handle', 'Mysterious Mummy', 'Golden Triangle', 'Cardboard Cap Bottle', 'Rubber Duck', 'Can of Jelly', 'Marble Bottle'], 
+    61: [616, 640, 644, 617, 648, 652, 618, 619, 620, 621, 653, 642, 623, 635, 643, 629], #['Fortune', 'Black Tape Set', 'Powder Box', 'Soda', 'Old Newspaper', 'Cardboard Cap Bottle', 'Melted Doll', 'Cloth Mask', 'Cartridge Game Console', 'Shabby Building Material', 'Marble Bottle', 'High-Capacity Bottle', 'Can of Jelly', 'Time Capsule', 'Vinyl Umbrella', 'Can of Oden']
+    62: [622, 653, 652, 623, 624, 625, 626, 627, 617, 645, 649, 648, 650, 641], #['Hexagram Trading Card', 'Marble Bottle', 'Cardboard Cap Bottle', 'Can of Jelly', 'Anime Paperweight', 'Simple Undershirt', 'Segata III Game Console', 'Mouse Mummy', 'Soda', 'Bottle Container', 'Old Magazine', 'Old Newspaper', 'Novel', 'Ripped Manga'],
+    63: [628, 617, 629, 630, 631, 646, 632, 623, 633, 642, 654, 616], #['Telephone Card', 'Soda', 'Can of Oden', 'Electronic Music Box', 'School Swimsuit', 'Radio-yaki', 'Tablet Game Console', 'Can of Jelly', 'Crow Mummy', 'High-Capacity Bottle', 'Maid Costume', 'Fortune'], 
+    64: [856, 617, 857, 861, 865, 862, 623, 858, 642, 859, 866, 860, 648, 864, 863, 649, 616, 644], # 64: ['Soup Can', 'Soda', 'Dry Cell Battery', 'Crowned Bottle', 'Western Game Console', 'Chipped Decoration', 'Can of Jelly', 'Disposable Camera', 'High-Capacity Bottle', 'Mini Cartridge', 'Monstrous Mummy', "Traveler's Check", 'Old Newspaper', 'Dazzling Dress', 'Floral Painting', 'Old Magazine', 'Fortune', 'Powder Box']
+    16: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #Copy of Taito 60
+    35: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #Copy of Taito 60
+    36: [628, 617, 629, 630, 631, 646, 632, 623, 633, 642, 654, 616], #Copy of Chiyoda 63
+    38: [856, 617, 857, 861, 865, 862, 623, 858, 642, 859, 866, 860, 648, 864, 863, 649, 616, 644], #Copy of Shinjuku 64
+    107: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #Copy of Taito 60
+    960: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #Copy of Taito 60
+}
+
+VENDING_MACHINE_RELIC_QUANTITY_WEIGHTS = {
+    1: 284, 
+    2: 29, 
+    3: 11,
+    4: 8,  
+    5: 12, 
+    6: 6,
+    7: 5, 
+    8: 5,
+    12: 8, 
+    24: 4,
+}
+
 #The number of different consumable items (including some DUMMY items), from indices 0-113
 CONSUMABLE_ITEM_COUNT = 114
 
@@ -172,6 +200,7 @@ BANNED_ESSENCES = [359,555,545,546,547,548,549,550,551,552,553,554,556,557,558,5
 
 #Chance that a miman reward is an essence
 MIMAN_ESSENCE_ODDS = 0.27272727
+MIMAN_RELIC_ODDS = 0.005 #Completely made up
 #Odds of how many different items a miman reward has
 MIMAN_ITEM_NUMBER_WEIGHTS = {
     1: 8,
@@ -218,6 +247,8 @@ AREA_NAMES = {
 MISSION_MACCA_ODDS= 0.1717
 #Chance a mission rewards an essence instead of an consumable item
 MISSION_ESSENCE_ODDS= 0.09090
+#Chance a mission rewards rewards a relic
+MISSION_RELIC_ODDS = 0.013
 MISSION_MACCA_MAX= 150000
 MISSION_MACCA_MIN= 4000
 

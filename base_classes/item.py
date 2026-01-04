@@ -1,5 +1,5 @@
 from enum import Enum
-from util.numbers import COMBINED_MACCA_AREA_RANGES, ESSENCE_MAP_SCALING, CONSUMABLE_MAP_SCALING
+from util.numbers import COMBINED_MACCA_AREA_RANGES, ESSENCE_MAP_SCALING, CONSUMABLE_MAP_SCALING, RELIC_MAP_SCALING
 from base_classes.demons import Compendium_Demon
 
 '''
@@ -17,6 +17,7 @@ def buildConsumableAllowedAreas(consumableMapScaling):
     return itemAllowedAreas
 
 CONSUMABLE_ALLOWED_AREAS = buildConsumableAllowedAreas(CONSUMABLE_MAP_SCALING)
+RELIC_ALLOWED_AREAS = buildConsumableAllowedAreas(RELIC_MAP_SCALING)
 
 
 class Essence:
@@ -318,4 +319,24 @@ class Generic_Item(Base_Item):
             if area == check.area:
                 return True
         return False
+    
+class Relic_Item(Base_Item):
+    def __init__(self,name,ind, amount,scaling = False,allowedAreas = []):
+        super().__init__(name, amount, allowedAreas)
+        self.ind = ind
+        if scaling:
+            self.allowedAreas = RELIC_ALLOWED_AREAS.get(ind, [])
+
+    '''
+    Returns true if the item is allowed in the check.
+    '''
+    def itemAllowedInCheck(self,check):
+        if len(self.allowedAreas) == 0:
+            return True
+        for area in self.allowedAreas:
+            if area == check.area:
+                return True
+        return False
+
+
     
