@@ -62,6 +62,20 @@ class Consumable_Item:
         self.offset = None
         self.name = None
 
+class Vending_Machine:
+    def __init__(self):
+        self.offset = None
+        self.area = None
+        self.ind = None
+        self.relicID = None
+        self.items = []
+
+class Vending_Machine_Item:
+    def __init__(self):
+        self.ind = None
+        self.amount = None
+        self.rate = None
+
 class Gift_Item:
     def __init__(self):
         self.script = None

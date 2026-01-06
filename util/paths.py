@@ -35,6 +35,7 @@ TITLE_TEXTURE_IN = 'base/title_menu01.uexp'
 TITLE_TEXTURE_UASSET_IN = 'base/title_menu01.uasset'
 MAP_EVENT_DATA_IN = 'base/MapEventData.uexp'
 NAVIGATOR_DATA_IN = 'base/NaviDevilData.uexp'
+VENDING_MACHINE_IN = 'base/RelicData.uexp'
 PRE_MODIFIED_FILES= 'base/Modified Files' #TODO: maybe modify via rando program instead of using pre modified files so any potential future patches to the game cannot really break it
 EVENT_FLAG_NAMES = 'base/EventFlagTable.csv'
 PROFILE_ASSET_IN = 'base/LN10/'
@@ -100,6 +101,7 @@ TITLE_TEXTURE_OUT = 'rando/Project/Content/L10N/en/Design/UI/Title/SSProjects/ti
 TITLE_TEXTURE_UASSET_OUT = 'rando/Project/Content/L10N/en/Design/UI/Title/SSProjects/title_menu/title_menu01.uasset'
 MAP_EVENT_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Map/MapEventData.uexp'
 NAVIGATOR_DATA_OUT = 'rando/Project/Content/Blueprints/Gamedata/BinTable/Map/NaviDevilData.uexp'
+VENDING_MACHINE_OUT ='rando/Project/Content/Blueprints/Gamedata/BinTable/Map/RelicData.uexp'
 CAMP_LN10_STATUS_FOLDER_OUT = 'rando/Project/Content/L10N/en/Blueprints/Gamedata/BinTable/Camp/Status/'
 
 

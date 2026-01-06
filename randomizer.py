@@ -69,6 +69,7 @@ class Randomizer:
         self.bossFlagArr = []
         self.bossDuplicateMap = {}
         self.mimanRewardsArr = []
+        self.vendingMachineArr = []
         self.battleEventArr = []
         self.devilAssetArr = []
         self.overlapCopies = []
@@ -929,6 +930,31 @@ class Randomizer:
                 item = Reward_Item(shopData.readHalfword(offset + 8 + 4*i),shopData.readHalfword(offset + 10+4*i))
                 entry.items.append(item)
             self.mimanRewardsArr.append(entry)
+    
+    def fillVendingMachineArr(self, buffer):
+        start = 0x55
+        size = 24
+
+        for index in range(124):
+            offset = start + size * index
+            entry = Vending_Machine()
+            entry.offset = offset
+
+            entry.area = buffer.readHalfword(offset)
+            entry.ind = index
+            entry.relicID = buffer.readHalfword(offset +2)
+
+            for i in range(3):
+                item = Vending_Machine_Item()
+                item.ind = buffer.readHalfword(offset +8 + i * 4)
+                item.amount = buffer.readByte(offset +8 + 2 + i*4)
+                item.rate = buffer.readByte(offset +8 + 3 + i * 4)
+                item.name = self.itemNames[item.ind]
+                entry.items.append(item)
+            self.vendingMachineArr.append(entry)
+
+
+
     
     '''
     Fills the array eventEncountArr with data on all event (boss) encounters.
@@ -3332,6 +3358,16 @@ class Randomizer:
             buffer.writeHalfword(navi.itemBonus, navi.offset + 2)
             buffer.writeByte(navi.itemType, navi.offset + 4)
             buffer.writeHalfword(navi.openFlag, navi.offset + 8)
+        return buffer
+    
+    def updateVendingMachineBuffer(self,buffer):
+        for vm in self.vendingMachineArr:
+            offset = vm.offset
+            for i, item in enumerate(vm.items):
+                buffer.writeHalfword(item.ind, offset +8 + i * 4)
+                buffer.writeByte(item.amount, offset +8 + 2+i * 4)
+                buffer.writeByte(item.rate, offset +8 + 3+ i * 4)
+
         return buffer
 
     '''
@@ -7522,6 +7558,7 @@ class Randomizer:
         mapSymbolParamBuffer = readBinaryTable(paths.MAP_SYMBOL_PARAM_IN)
         mapEventBuffer = readBinaryTable(paths.MAP_EVENT_DATA_IN)
         navigatorBuffer = readBinaryTable(paths.NAVIGATOR_DATA_IN)
+        vendingMachineBuffer = readBinaryTable(paths.VENDING_MACHINE_IN)
         message_logic.initDemonModelData()
         bossLogic.initAdditionalBossSkillData()
         self.readDemonNames()
@@ -7570,6 +7607,7 @@ class Randomizer:
         self.fillUniqueSymbolArr(uniqueSymbolBuffer)
         self.fillChestArr(chestBuffer)
         self.fillMimanRewardArr(shopBuffer)
+        self.fillVendingMachineArr(vendingMachineBuffer)
         self.fillMapSymbolArr(mapSymbolParamBuffer)
         self.fillConsumableArr(itemBuffer)
         self.fillFusionSkillReqs(skillBuffer)
@@ -7877,6 +7915,7 @@ class Randomizer:
         itemBuffer = self.updateConsumableData(itemBuffer, self.consumableArr)        
         mapEventBuffer = self.updateMapEventBuffer(mapEventBuffer)
         navigatorBuffer = self.updateNavigatorBuffer(navigatorBuffer)
+        vendingMachineBuffer = self.updateVendingMachineBuffer(vendingMachineBuffer)
 
         #self.printOutEncounters(newSymbolArr)
         #self.findUnlearnableSkills(skillLevels)
@@ -7923,6 +7962,7 @@ class Randomizer:
         writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
         writeBinaryTable(mapEventBuffer.buffer, paths.MAP_EVENT_DATA_OUT, paths.MAP_FOLDER_OUT)
         writeBinaryTable(navigatorBuffer.buffer, paths.NAVIGATOR_DATA_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(vendingMachineBuffer.buffer,paths.VENDING_MACHINE_OUT, paths.MAP_FOLDER_OUT)
         #copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         copyFile(paths.TITLE_TEXTURE_IN, paths.TITLE_TEXTURE_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
