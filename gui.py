@@ -497,6 +497,7 @@ def createGUI(configSettings: Settings):
     listBossSkills.insert(2, "Allow Magatsuhi Skills")
     listBossSkills.insert(3, "Allow Contempt of God")
     listBossSkills.insert(4, "Preserve Elemental Slots per Boss")
+    listBossSkills.insert(5, "Add Impaler's Revenge if possible")
     listBossSkills.pack()
 
     passiveLabel = tk.Label(page3FrameLeft, text="Additional Passive Skills on Bosses")
@@ -866,6 +867,7 @@ def createGUI(configSettings: Settings):
                'allowBossMagatsuhiSkill': ('Listbox', listBossSkills, 2),
                'allowContemptOfGod': ('Listbox', listBossSkills, 3),
                'elementCountConsistency': ('Listbox', listBossSkills, 4),
+               'addImpalersRevenge': ('Listbox', listBossSkills, 5),
 
                'fillEmptySlotsWithPassives': ('Listbox_single', listPassive, 1),
                'scalePassiveAmount': ('Listbox_single', listPassive, 2),
@@ -1253,6 +1255,8 @@ def createGUI(configSettings: Settings):
     configur.set('Boss', 'allowContemptOfGod', str(bossSkillFlags[3]).lower())
     configSettings.elementCountConsistency = bossSkillFlags[4]
     configur.set('Boss', 'elementCountConsistency', str(bossSkillFlags[4]).lower())
+    configSettings.addImpalersRevenge = bossSkillFlags[5]
+    configur.set('Boss', 'addImpalersRevenge', str(bossSkillFlags[5]).lower())
 
     configSettings.fillEmptySlotsWithPassives = bool(passiveChoice and passiveChoice[0] == 1)
     configur.set('Boss', 'fillEmptySlotsWithPassives', str(configSettings.fillEmptySlotsWithPassives).lower())
@@ -1379,7 +1383,8 @@ def createConfigFile(configur):
                                  'RandomizeIshtarPressTurns': False, 'PreventEarlyAmbush': False, 'BossDependentAmbush': False, 'NerfBossHealing': False,
                                  'ScaleInstakillRates': False, 'bossNoEarlyPhysImmunity': False, 'BossPressTurnChance': 0.0, 'RandomizeBossSkills': False,
                                  'alwaysCritical': False,'alwaysPierce': False,'randomMagatsuhi': False,'similiarBossSkillRank':False,'allowBossMagatsuhiSkill':False,
-                                 'allowContemptOfGod':False, 'elementCountConsistency': False, 'fillEmptySlotsWithPassives':False, 'scalePassiveAmount': False, 'scalePassiveLevelGap': False}
+                                 'allowContemptOfGod':False, 'elementCountConsistency': False, 'fillEmptySlotsWithPassives':False, 'addImpalersRevenge': False,
+                                 'scalePassiveAmount': False, 'scalePassiveLevelGap': False}
     configur['Patches'] = {'FixUniqueSkillAnimations': False, 'BuffGuestYuzuru': False, 'EXPMultiplier': 1, 'PressTurnChance': 0.0, 'UnlockFusions': False, 'swapCutsceneModels': False,
                            'SkipCutscenes': False, 'SkipTutorials': False}
     configur['Miracle'] = {'RandomMiracleUnlocks': False, 'RandomMiracleCosts': False, 'ReverseDivineGarrisons': False, 'VanillaRankViolation': False, 'EarlyForestall': False,

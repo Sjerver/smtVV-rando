@@ -119,6 +119,9 @@ class Randomizer:
         self.itemDebugList = []
         self.progressionItemNewChecks = {}
         self.nonRedoableItemIDs = []
+        self.itemValidityMap = {}
+        self.essenceValidityMap = {}
+        self.relicValidityMap = {}
     
     '''
     Reads the text file containing Character Names and filters out just the names and saves all names in array compendiumNames.
@@ -4990,6 +4993,34 @@ class Randomizer:
                 allowRepeatable = True
             return Generic_Item(self.itemNames[itemID],itemID,amount,scaling = self.configSettings.scaleItemsPerArea, allowRepeatable = allowRepeatable)
 
+    def assembleValidityMaps(self):
+        #Assemble "Validity" maps which show which areas allow which items
+        if self.configSettings.scaleItemsPerArea:
+            for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
+                self.itemValidityMap[key] = value
+            for key,value in numbers.RELIC_MAP_SCALING.items():
+                self.relicValidityMap[key] = value
+            for area in numbers.AREA_NAMES.keys():
+                #TODO: Am I happy with this? This is just copied from old code
+                self.essenceValidityMap[area] = []
+                #Grab all essences in the predefined level range for the area
+                currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]]
+                for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in self.essenceValidityMap[area] and itemName in currentDemonNames:
+                        self.essenceValidityMap[area].append(itemID)
+        else:
+            self.itemValidityMap[0] = []
+            self.essenceValidityMap[0] = []
+            self.relicValidityMap[0] = []
+            #TODO: Am I happy with this? This is just copied from old code
+            for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in self.essenceValidityMap[0]:
+                    self.essenceValidityMap[0].append(itemID)
+                elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                    self.itemValidityMap[0].append(itemID)
+                elif (itemID > 615 and itemID < 655) or itemID > 855 and 'NOT USED' not in itemName:
+                    self.relicValidityMap[0].append(itemID)
+
     '''
     Randomizes the rewards for everything that can be considered a check (Treasure,Mission,Miman,Gift).
     The items can either be shuffled independtly, mixed or made up completely except key items which are always shuffled.
@@ -5125,35 +5156,6 @@ class Randomizer:
                 items.append(item)
                 checks.append(check)
 
-        #Assemble "Validity" maps which show which areas allow which items
-        self.itemValidityMap = {}
-        self.essenceValidityMap = {}
-        self.relicValidityMap = {}
-        if self.configSettings.scaleItemsPerArea:
-            for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
-                self.itemValidityMap[key] = value
-            for key,value in numbers.RELIC_MAP_SCALING.items():
-                self.relicValidityMap[key] = value
-            for area in numbers.AREA_NAMES.keys():
-                #TODO: Am I happy with this? This is just copied from old code
-                self.essenceValidityMap[area] = []
-                #Grab all essences in the predefined level range for the area
-                currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]]
-                for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in self.essenceValidityMap[area] and itemName in currentDemonNames:
-                        self.essenceValidityMap[area].append(itemID)
-        else:
-            self.itemValidityMap[0] = []
-            self.essenceValidityMap[0] = []
-            self.relicValidityMap[0] = []
-            #TODO: Am I happy with this? This is just copied from old code
-            for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in self.essenceValidityMap[0]:
-                    self.essenceValidityMap[0].append(itemID)
-                elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                    self.itemValidityMap[0].append(itemID)
-                elif (itemID > 615 and itemID < 655) or itemID > 855 and 'NOT USED' not in itemName:
-                    self.relicValidityMap[0].append(itemID)
 
 
         #Independent randomization for categories
@@ -7819,6 +7821,7 @@ class Randomizer:
 
         
         self.assembleNonRedoableItemIDs()
+        self.assembleValidityMaps()
         fakeMissions = self.randomizeItemRewards()
         scriptLogic.adjustFirstMimanEventReward(self.scriptFiles)  
 

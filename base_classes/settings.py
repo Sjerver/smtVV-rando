@@ -85,6 +85,7 @@ class Settings(object):
         self.allowBossMagatsuhiSkill = False        # Allows magatsuhi skills to be in bosses skill pools
         self.allowContemptOfGod = False             # Allows Contempt of God to be randomized and show up on bosses
         self.elementCountConsistency = False        # Bosses have the same amount of element and only replace skills of one element with one other element
+        self.addImpalersRevenge = False             # Adds Impaler's Revenge to bosses if possible
         self.fillEmptySlotsWithPassives = False     # Fills all empty skill slots of bosses with additional passives              
         self.removeCutscenes = False                # Remove cutscenes (that do not affect gameplay) (currently only Minato)
         self.skipTutorials = False                  # Removes as many tutorials as possible

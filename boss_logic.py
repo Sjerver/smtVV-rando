@@ -17,6 +17,8 @@ SKILL_ARR = []
 PASSIVE_ARR = []
 INNATE_ARR = []
 
+IMPALER_REVENGE_ID = 510
+
 #Filled with ids of bosses and which comp demon they represent
 BOSS_PLAYER_MAP = {}
 #Encounter IDs that should not be randomized
@@ -1256,6 +1258,8 @@ Change the skills of a boss demon, including randomization and extra passives.
 def changeBossSkills(demon, skillReplacementMap, configSettings: Settings,ogLevel, refDemon = None):
     if configSettings.randomizeBossSkills:
         randomizeSkills(demon, skillReplacementMap, configSettings)
+    if configSettings.addImpalersRevenge:
+        addImpalersRevenge(demon,skillReplacementMap)
     if configSettings.fillEmptySlotsWithPassives or configSettings.scalePassiveAmount or configSettings.scalePassiveLevelGap:
         fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings, ogLevel, refDemon = refDemon)
 
@@ -1425,6 +1429,22 @@ def randomizeSkills(demon, skillReplacementMap, configSettings: Settings):
     demon.skills = [Translated_Value(skill_id, "") for skill_id in localReplacements.values() if skill_id not in [GODBORN_ENEMY_MAGATSUHI,BASIC_ENEMY_MAGATSUHI]][0:ogLen]
 
 '''
+Adds Impaler's Revenge to the demon's skill list if possible.
+    Parameters:
+        demon(Enemy_Demon): the demon to in question
+        skillReplacementMap (Dict): map of bosses and their skills and replacement skills
+'''
+def addImpalersRevenge(demon,skillReplacementMap):
+    if demon.ind not in skillReplacementMap.keys():
+        skillReplacementMap[demon.ind] = {}
+
+    if len(demon.skills) < 8:
+        skill = obtainSkillFromID(IMPALER_REVENGE_ID)
+        demon.skills.append(Translated_Value(skill.ind,skill.name))
+        skillReplacementMap[demon.ind].update({len(demon.skills)+999:skill.ind})
+ 
+
+'''
 Fill up the empty slots in a demon's skill list with additional passives.
     Parameters:
         demon(Enemy_Demon): the demon to in question
@@ -1491,7 +1511,7 @@ def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Setti
         maxSkillAmount = min(8,maxSkillAmount)
 
         while len(demon.skills) < maxSkillAmount:
-            validChoices = [skill for skill in allPassives if skill.ind not in skillReplacementMap[demon.ind].values() and skill.ind not in invalidChoices]
+            validChoices = [skill for skill in allPassives if skill.ind not in demon.skills and skill.ind not in skillReplacementMap[demon.ind].values() and skill.ind not in invalidChoices]
 
             newSkill = random.choice(validChoices)
             trueNewSkill = obtainSkillFromID(newSkill.ind)
