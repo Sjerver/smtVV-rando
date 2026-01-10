@@ -100,7 +100,7 @@ class Settings(object):
         self.trulyRandomizeItems = False            # Swaps only key items and generates random rewards for other checks
         self.includeTsukuyomiTalismanAsGift = False # Includes the Tsukuyomi Talisman in gift randomization
         self.includeEmpyreanKeysAsGifts = False     # Includes the Empyrean Keys in gift randomization
-        self.randomizeMitamaDrops = False           #TODO
+        self.randomizeMitamaDrops = False           #TODO: Implement
 
         self.selfItemPools = []                     # List of check types randomized independently
         self.sharedItemPools = []                   # List of check types randomized together

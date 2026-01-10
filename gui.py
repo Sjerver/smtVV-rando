@@ -13,6 +13,8 @@ PRESS_TURN_RED = "#831530"
 PRESS_TURN_BRIGHT_RED = "#ab1d33"
 DISABLED_GRAY = "#333333"
 
+VANILLA_LIST_ITEMS_ORDER = ["Treasures","Miman Rewards","Mission Rewards","NPC/Story Gifts","Vending Machines"]
+
 #Creates page system with important information like randomize button always visible
 def createGUI(configSettings: Settings):
     window = tk.Tk()
@@ -538,10 +540,10 @@ def createGUI(configSettings: Settings):
     listItem.insert(0, "Randomize Shop Items")
     listItem.insert(1, "Randomize Shop Essences")
     listItem.insert(2, "Randomize Enemy Drops")
-    #TODO:"Vending Machines","Navigator Spots"
+    #TODO:"Navigator Spots" maybe at some point
     listItem.pack()
 
-    itemRedoableCheckLabel = tk.Label(itemSmallFrame, text="Allow Item in Repeatable Check\n(Shop Items, Drops, Vending Machines, Navigator Spots)")
+    itemRedoableCheckLabel = tk.Label(itemSmallFrame, text="Allow Item in Repeatable Check\n(Shop Items, Drops, Vending Machines)") #, Navigator Spots
     itemRedoableCheckLabel.pack()
     
     listRedoableOrder = ["Gospel","Grimoire","Whittled Goat","Essences (except fixed ones)","Incenses / Balms / Sutras",]
@@ -598,7 +600,7 @@ def createGUI(configSettings: Settings):
     itemVanillaLabel = tk.Label(itemVanillaFrame, text="Vanilla Item Pools")
     itemVanillaLabel.pack()
 
-    listItemsOrder = ["Treasures","Miman Rewards","Mission Rewards","NPC/Story Gifts"]
+    listItemsOrder = [v for v in VANILLA_LIST_ITEMS_ORDER]
     listItemVanilla = tk.Listbox(itemVanillaFrame, selectmode="multiple",width=30, height=len(listItemsOrder), exportselection=False, selectbackground=NAHOBINO_BLUE)
     for index, item in enumerate(listItemsOrder):
         listItemVanilla.insert(index,item)
@@ -637,7 +639,7 @@ def createGUI(configSettings: Settings):
         listItemVanilla.delete(0,tk.END)
         listItemSelf.delete(0,tk.END)
         listItemShared.delete(0,tk.END)
-        listItemsOrder = ["Treasures","Miman Rewards","Mission Rewards","NPC/Story Gifts"]
+        listItemsOrder = [v for v in VANILLA_LIST_ITEMS_ORDER]
         for index, item in enumerate(listItemsOrder):
             listItemVanilla.insert(index,item)
         

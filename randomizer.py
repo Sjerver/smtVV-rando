@@ -5030,7 +5030,70 @@ class Randomizer:
     def randomizeItemRewards(self):
         #A category/pool is relevant if they are nor Vanilla
         relevantPools = self.configSettings.selfItemPools + self.configSettings.sharedItemPools
+        
+        rewardAreaMissions = copy.deepcopy(numbers.REWARD_AREA_MISSIONS)
+        for key, value in scriptLogic.EXTRA_MISSION_REWARD_AREAS.items():
+            #Add items from script rewards to dictionary
+            rewardAreaMissions[key] = rewardAreaMissions[key] + value
+        
+        missionRewardAreas = {} #Dictionary to know which area should be used to scale the a missions reward
+        for key, value in rewardAreaMissions.items():
+            for id in value:
+                missionRewardAreas[id] = key
+        
+        
         #Assemble "list" of checks and items
+        items, checks = self.gatherItemChecks(relevantPools, missionRewardAreas)
+
+        with open("checkList.csv","w",newline='',encoding='utf-8') as csvfile:
+            checkWriter = csv.writer(csvfile)
+            checkWriter.writerow(["Type","Index","Name","Area","Repeatable","Missable","HasDuplicate","AllowedCanons","MaccaAllowed","HasOdds","ItemOdds"])
+
+            for check in checks:
+                checkWriter.writerow([check.type, check.ind, check.name, check.area, check.repeatable, check.missable, check.hasDuplicate, check.allowedCanons, check.maccaAllowed, check.hasOdds, check.odds])
+
+        #Independent randomization for categories
+        for category in self.configSettings.selfItemPools:
+            if self.configSettings.shuffleExistingItems:
+                currentType = Check_Type.getCheckType(category)
+                relevantChecks = [check for check in checks if check.type == currentType]
+                pools = self.assembleRandomlyGeneratedItemPools(relevantChecks, items, vanillaItems = True)
+                self.shuffleChecks(relevantChecks, pools)
+            else:
+                currentType = Check_Type.getCheckType(category)
+                relevantChecks = [check for check in checks if check.type == currentType]
+                pools = self.assembleRandomlyGeneratedItemPools(relevantChecks, items, vanillaItems = False)
+                self.shuffleChecks(relevantChecks,pools)
+        #Mixed randomization for categories
+        if self.configSettings.sharedItemPools and self.configSettings.shuffleExistingItems:
+            currentCheckTypes = [Check_Type.getCheckType(category) for category in self.configSettings.sharedItemPools]
+            relevantChecks = [check for check in checks if check.type in currentCheckTypes]
+            pools = self.assembleRandomlyGeneratedItemPools(relevantChecks, items, vanillaItems = True)
+            self.shuffleChecks(relevantChecks,pools)
+        elif self.configSettings.sharedItemPools:
+            currentCheckTypes = [Check_Type.getCheckType(category) for category in self.configSettings.sharedItemPools]
+            relevantChecks = [check for check in checks if check.type in currentCheckTypes]
+            pools = self.assembleRandomlyGeneratedItemPools(relevantChecks, items, vanillaItems = False)
+            self.shuffleChecks(relevantChecks, pools)
+        
+        giftPool = self.setChecks(checks)
+        
+        if "Mission Rewards" in relevantPools:
+            self.updateDuplicateMissionRewards(missionRewardAreas)
+        if "NPC/Story Gifts" in relevantPools:
+            scriptLogic.updateGiftScripts(giftPool,self.scriptFiles,self.itemReplacementMap)
+
+
+        return scriptLogic.updateAndRemoveFakeMissions(self.missionArr, self.scriptFiles)
+
+    '''
+    Collect all item checks from various lists along with their items.
+        Parameters:
+            relevantPools(List(String)): Which item lists should the checks be gathered from
+            missionRewardAreas(Dict()): dictionary that returns the reward area of a mission id
+    Returns a list of items, and a list of checks
+    '''
+    def gatherItemChecks(self, relevantPools, missionRewardAreas):
         items = []
         checks = []
 
@@ -5073,17 +5136,7 @@ class Randomizer:
         
         if "Mission Rewards" in relevantPools:
             self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards(self.scriptFiles)
-            
-            rewardAreaMissions = copy.deepcopy(numbers.REWARD_AREA_MISSIONS)
-            for key, value in scriptLogic.EXTRA_MISSION_REWARD_AREAS.items():
-                #Add items from script rewards to dictionary
-                rewardAreaMissions[key] = rewardAreaMissions[key] + value
-            
-            missionRewardAreas = {} #Dictionary to know which area should be used to scale the a missions reward
-            for key, value in rewardAreaMissions.items():
-                for id in value:
-                    missionRewardAreas[id] = key
-            
+
             for mission in self.missionArr:
                 if mission.ind in numbers.BANNED_MISSIONS:
                     continue
@@ -5155,85 +5208,31 @@ class Randomizer:
                 check.inputVanillaItem(item)
                 items.append(item)
                 checks.append(check)
-
-
-
-        #Independent randomization for categories
-        for category in self.configSettings.selfItemPools:
-            if self.configSettings.shuffleExistingItems:
-                currentType = Check_Type.getCheckType(category)
-                relevantChecks = [check for check in checks if check.type == currentType]
-                pools = self.assembleItemPools(relevantChecks, items, vanillaItems = True)
-                self.shuffleChecks(relevantChecks, pools)
-            else:
-                currentType = Check_Type.getCheckType(category)
-                relevantChecks = [check for check in checks if check.type == currentType]
-                pools = self.assembleItemPools(relevantChecks, items, vanillaItems = False)
-                self.shuffleChecks(relevantChecks,pools)
-        #Mixed randomization for categories
-        if self.configSettings.sharedItemPools and self.configSettings.shuffleExistingItems:
-            currentCheckTypes = [Check_Type.getCheckType(category) for category in self.configSettings.sharedItemPools]
-            relevantChecks = [check for check in checks if check.type in currentCheckTypes]
-            pools = self.assembleItemPools(relevantChecks, items, vanillaItems = True)
-            self.shuffleChecks(relevantChecks,pools)
-        elif self.configSettings.sharedItemPools:
-            currentCheckTypes = [Check_Type.getCheckType(category) for category in self.configSettings.sharedItemPools]
-            relevantChecks = [check for check in checks if check.type in currentCheckTypes]
-            pools = self.assembleItemPools(relevantChecks, items, vanillaItems = False)
-            self.shuffleChecks(relevantChecks, pools)
-        
-        #Put items from checks back into old format
-        giftPool = []
-        for check in checks:
-            if not check.item:
-                continue
-            self.logItemCheck(check)
-            if check.type == Check_Type.MIMAN:
-                mimanReward = self.mimanRewardsArr[check.ind]
-                mimanReward.items = []
-                mimanReward.items.append(Reward_Item(check.item.ind,check.item.amount))
-                for item in check.additionalItems:
-                    mimanReward.items.append(Reward_Item(item.ind,item.amount))
             
-            elif check.type == Check_Type.TREASURE:
-                chest = self.chestArr[check.ind]
-                if check.ind != chest.chestID:
-                    raise ValueError('Chest Index Issue')
-                if isinstance(check.item, Macca_Item):
-                    chest.item = Translated_Value(0, "Macca")
-                    chest.amount = 0
-                    chest.macca = check.item.amount
-                else:
-                    chest.item = Translated_Value(check.item.ind, check.item.name)
-                    chest.amount = check.item.amount
-                    chest.macca = 0
-            
-            elif check.type == Check_Type.MISSION:
-                mission = next(m for m in self.missionArr if m.ind == check.ind)
-                if isinstance(check.item, Macca_Item):
-                    mission.macca = check.item.amount
-                    mission.reward.ind = 0
-                    mission.reward.amount = 0
-                else:
-                    mission.macca = 0
-                    mission.reward.ind = check.item.ind
-                    mission.reward.amount = check.item.amount
-            elif check.type == Check_Type.GIFT:
-                check.script = list(scriptLogic.BASE_GIFT_ITEMS.keys())[check.ind]
-                giftPool.append(check)
-                pass
+        if "Vending Machines" in relevantPools:
+            for vm in self.vendingMachineArr:
+                vmItems = []
+                odds = []
+                for vmItem in vm.items:
+                    
+                    item = self.generateNewItem(vmItem.ind, vmItem.amount)
 
-            else:
-                raise RuntimeError('Incorrect check type which should be impossible')
-        
-        if "Mission Rewards" in relevantPools:
-            self.updateDuplicateMissionRewards(missionRewardAreas)
-        if "NPC/Story Gifts" in relevantPools:
-            scriptLogic.updateGiftScripts(giftPool,self.scriptFiles,self.itemReplacementMap)
+                    vmItems.append(item)
+                    odds.append(vmItem.rate)
 
 
-        return scriptLogic.updateAndRemoveFakeMissions(self.missionArr, self.scriptFiles)
+                check = Item_Check(Check_Type.VENDING_MACHINE, vm.ind, "Vending Machine " + str(vm.ind), vm.area, True, False, False, 2, True, odds)
 
+                if check.ind in numbers.MISSABLE_VENDING_MACHINE:
+                    check.missable = True
+
+                for item in vmItems:
+                    check.inputVanillaItem(item)
+                    items.append(item)
+                checks.append(check)
+
+        return items, checks
+    
     '''
     Shuffle the items from the relevantItemPools into the relevantChecks respecting rules.
     Parameters:
@@ -5275,7 +5274,7 @@ class Randomizer:
                         #Reduce valid items for check by 1
                         check.validItemAmount = max(0, check.validItemAmount -1)
                     
-                    if isinstance(chosenItem, Key_Item) and chosenCheck.type in [Check_Type.TREASURE] and not chosenItem.hasBeenDuplicated and not chosenCheck.hasDuplicate and chosenCheck.area in numbers.AREA_MIRRORS:
+                    if isinstance(chosenItem, Key_Item) and chosenCheck.type in [Check_Type.TREASURE, Check_Type.VENDING_MACHINE] and not chosenItem.hasBeenDuplicated and not chosenCheck.hasDuplicate and chosenCheck.area in numbers.AREA_MIRRORS:
                         #Duplicate item if necessary (Example: Chest that is route-locked)
                         duplicateItem = self.generateNewItem(chosenItem.ind, 1)
                         duplicateItem.allowedAreas = [numbers.AREA_MIRRORS[chosenCheck.area]]
@@ -5289,6 +5288,12 @@ class Randomizer:
                         pass
                         #print(chosenCheck.name + " and " + chosenItem.name + " would meet area restrictions but are skipped")
                     
+                    if isinstance(chosenItem, Key_Item) and chosenCheck.hasOdds and chosenCheck.odds[0]!= 100:
+                        #If the check has odds but first item is now key item set odds for everything else to 0
+                        chosenCheck.odds = [100] + [0 for i in chosenCheck.vanillaAdditionalItems]
+                        chosenCheck.maxAdditionalItems = 0
+
+
                     #Remove item from item pool
                     relevantItemPool.remove(chosenItem)
                     chosenItem.validChecks = []
@@ -5330,7 +5335,7 @@ class Randomizer:
         vanillaItems(Boolean): whether we should use the vanilla items from the checks or make up our own
     Returns a list of item pools [keyItemPool, otherItemPool]
     '''
-    def assembleItemPools(self, relevantChecks, totalItems, vanillaItems = True):
+    def assembleRandomlyGeneratedItemPools(self, relevantChecks, totalItems, vanillaItems = True):
         relevantItems = []
         relevantKeyItems = []
 
@@ -5417,7 +5422,14 @@ class Randomizer:
             relicOdds = scriptLogic.GIFT_RELIC_ODDS 
             #Uses chest quantity weights since not enough data to make own one
             itemAmount = random.choices(list(numbers.CHEST_QUANTITY_WEIGHTS.keys()), list(numbers.CHEST_QUANTITY_WEIGHTS.values()))[0]
-        
+        elif check.type == Check_Type.VENDING_MACHINE:
+            maccaOdds = 0#Can't have money
+            maccaMax = 0
+            maccaMin = 0
+
+            essenceOdds = 0
+            relicOdds = 1 #Vending Machines always have relic generated by default
+            itemAmount = 1#Does not matter for now since relic logic is used 
         #Now for all items that were in the check, generate a new one
         for _ in oldItems:
             randomNumber = random.random()
@@ -5440,6 +5452,7 @@ class Randomizer:
                 else:
                     validItems = self.relicValidityMap[0]
                 itemID = random.choice(validItems)
+                #Relics have their own quantity weights!
                 amount = random.choices(list(numbers.VENDING_MACHINE_RELIC_QUANTITY_WEIGHTS.keys()), list(numbers.VENDING_MACHINE_RELIC_QUANTITY_WEIGHTS.values()))[0]
             else: #Generic Item aka Consumables
                 if self.configSettings.scaleItemsPerArea:
@@ -5455,6 +5468,84 @@ class Randomizer:
             #print(check.name +" New Item: " + newItems[-1].name + " x" + str(newItems[-1].amount))
         return newItems
 
+    '''
+    For every check sets the item in their correct list.
+        Parameters:
+            checks(List(Item_Check)): a list of item_checks
+    Returns a list of check from type Check_Type.GIFT
+    '''
+    def setChecks(self,checks):
+        #Put items from checks back into old format
+        giftPool = []
+        for check in checks:
+            if not check.item:
+                continue
+            self.logItemCheck(check)
+            if check.type == Check_Type.MIMAN:
+                mimanReward = self.mimanRewardsArr[check.ind]
+                mimanReward.items = []
+                mimanReward.items.append(Reward_Item(check.item.ind,check.item.amount))
+                for item in check.additionalItems:
+                    mimanReward.items.append(Reward_Item(item.ind,item.amount))
+            
+            elif check.type == Check_Type.TREASURE:
+                chest = self.chestArr[check.ind]
+                if check.ind != chest.chestID:
+                    raise ValueError('Chest Index Issue')
+                if isinstance(check.item, Macca_Item):
+                    chest.item = Translated_Value(0, "Macca")
+                    chest.amount = 0
+                    chest.macca = check.item.amount
+                else:
+                    chest.item = Translated_Value(check.item.ind, check.item.name)
+                    chest.amount = check.item.amount
+                    chest.macca = 0
+            
+            elif check.type == Check_Type.MISSION:
+                mission = next(m for m in self.missionArr if m.ind == check.ind)
+                if isinstance(check.item, Macca_Item):
+                    mission.macca = check.item.amount
+                    mission.reward.ind = 0
+                    mission.reward.amount = 0
+                else:
+                    mission.macca = 0
+                    mission.reward.ind = check.item.ind
+                    mission.reward.amount = check.item.amount
+            elif check.type == Check_Type.GIFT:
+                check.script = list(scriptLogic.BASE_GIFT_ITEMS.keys())[check.ind]
+                giftPool.append(check)
+            elif check.type == Check_Type.VENDING_MACHINE:
+                vm = next(vm for vm in self.vendingMachineArr if vm.ind == check.ind)
+                vmItemList = []
+                vmItem = Vending_Machine_Item()
+                vmItem.ind = check.item.ind
+                vmItem.amount = check.item.amount
+                vmItem.rate = check.odds[0]
+                vmItem.name = check.item.name
+                vmItemList.append(vmItem)
+
+                for index, item in enumerate(check.additionalItems):
+                    vmItem = Vending_Machine_Item()
+                    vmItem.ind = item.ind
+                    vmItem.amount = item.amount
+                    vmItem.rate = check.odds[index+1]
+                    vmItem.name = item.name
+                    vmItemList.append(vmItem)
+
+                while len(vmItemList) < 1+check.originalMaxAddItems:
+                    vmItem = Vending_Machine_Item()
+                    vmItem.ind = 0
+                    vmItem.amount = 0
+                    vmItem.rate = 0
+                    vmItem.name = "Filler Slot"
+                    vmItemList.append(vmItem)
+                
+                vm.items = vmItemList
+
+            else:
+                raise RuntimeError('Incorrect check type which should be impossible')
+
+        return giftPool
     
     '''
     Assigns the updated rewards to missions which are duplicates and therefore share rewards.
@@ -7478,9 +7569,12 @@ class Randomizer:
     '''
     def logItemCheck(self,check):
         items = [check.item] + check.additionalItems
-        for item in items:
-            #self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] ItemType [" + type(item).__name__ +"] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]")
-            self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]")
+        for index, item in enumerate(items):
+            if check.hasOdds:
+                self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"] Odds [" +str(check.odds[index])+"]")
+            else:
+                #self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] ItemType [" + type(item).__name__ +"] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]")
+                self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]")
     
     '''
     Generates a random seed if none was provided by the user and sets the random seed

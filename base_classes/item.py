@@ -75,6 +75,7 @@ class Vending_Machine_Item:
         self.ind = None
         self.amount = None
         self.rate = None
+        self.name = ""
 
 class Gift_Item:
     def __init__(self):
@@ -91,6 +92,7 @@ class Check_Type(Enum):
     MIMAN = 1
     MISSION = 2
     GIFT = 3
+    VENDING_MACHINE = 4
 
     @staticmethod
     def getCheckType(stringValue):
@@ -103,6 +105,8 @@ class Check_Type(Enum):
                 return Check_Type.TREASURE
             case "Mission Rewards":
                 return Check_Type.MISSION
+            case "Vending Machines":
+                return Check_Type.VENDING_MACHINE
 
     @staticmethod
     def getCheckString(Check_Type):
@@ -115,9 +119,11 @@ class Check_Type(Enum):
                 return "Treasures"
             case Check_Type.MISSION:
                 return "Mission Rewards"
+            case Check_Type.VENDING_MACHINE:
+                return "Vending Machines"
 
 class Item_Check:
-    def __init__(self, type, ind, name, area, repeatable = False, missable = False, duplicate = False, maxAdditionalItems = 0):
+    def __init__(self, type, ind, name, area, repeatable = False, missable = False, duplicate = False, maxAdditionalItems = 0, hasOdds = False, odds = []):
         self.type = type
         self.ind = ind
         self.name = name
@@ -128,6 +134,7 @@ class Item_Check:
         self.vanillaAdditionalItems = []
         self.additionalItems = []
         self.maxAdditionalItems = maxAdditionalItems
+        self.originalMaxAddItems = maxAdditionalItems
 
         self.repeatable = repeatable
         self.missable = missable
@@ -140,6 +147,9 @@ class Item_Check:
             self.maccaAllowed = False
         
         self.validItemAmount = 0
+
+        self.hasOdds = hasOdds
+        self.odds = odds
 
 
     '''
@@ -226,8 +236,8 @@ class Macca_Item(Base_Item):
     Returns true if the item is allowed in the check.
     '''
     def itemAllowedInCheck(self,check):
-            #Macca cannot be repeatable nor have more than one reward
-            if check.maxAdditionalItems > 0 or check.repeatable:
+            #Macca cannot have more than one reward
+            if check.maxAdditionalItems > 0:
                 return False
             if check.maccaAllowed: #Additionally macca needs to be allowed in the check
                 if len(self.allowedAreas) == 0:
@@ -263,8 +273,11 @@ class Key_Item(Base_Item):
     Returns true if the item is allowed in the check.
     '''
     def itemAllowedInCheck(self,check):
-        #Do not allow missable, repeatable, canon-exclusive or checks with more than one item
-        if check.missable or check.repeatable or len(check.allowedCanons) > 0 or check.maxAdditionalItems > 0:
+        #Do not allow missable or canon-exclusive 
+        if check.missable or len(check.allowedCanons) > 0:
+            return False
+        #Do not allow checks with more than one item
+        if (check.hasOdds and check.item != None) or (not check.hasOdds and check.maxAdditionalItems > 0):
             return False
         #If we have a check type limitation follow it
         if len(self.allowedCheckTypes) > 0 and check.type not in self.allowedCheckTypes:

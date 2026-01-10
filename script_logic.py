@@ -388,7 +388,7 @@ FLAGGROUPS = {
         "MAP_FLAG_E0362","MAP_FLAG_E0363","MAP_FLAG_E0364","MAP_FLAG_E0365","MAP_FLAG_E0366",
         "MAP_FLAG_E0367","MAP_FLAG_E0363_2","MAP_FLAG_E0364_2",
         "MAP_FLAG_EN0155_Old"
-        # CoV #TODO: This does skip the best opp to activate dorm leyline maybe we do it instead
+        # CoV
         "MAP_FLAG_E2049", # entering dorm room
         "MAP_FLAG_EN0152","MAP_FLAG_EN0155","MAP_FLAG_E2051",
         "MAP_FLAG_EN0155_EX", # entering school

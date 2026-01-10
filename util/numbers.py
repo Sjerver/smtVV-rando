@@ -186,6 +186,8 @@ VENDING_MACHINE_RELIC_QUANTITY_WEIGHTS = {
     12: 8, 
     24: 4,
 }
+#This Vending Machine is missable because it only activates later after you are well past it making it unlikely that players will pick it up
+MISSABLE_VENDING_MACHINE = [50]
 
 #The number of different consumable items (including some DUMMY items), from indices 0-113
 CONSUMABLE_ITEM_COUNT = 114
@@ -197,6 +199,8 @@ KEY_ITEM_CUTOFF = 657
 BANNED_ITEMS = [70, 73, 74, 75, 76, 77, 78, 79, 80, 81, 55]
 
 BANNED_ESSENCES = [359,555,545,546,547,548,549,550,551,552,553,554,556,557,558,559,606,607,608] #Old Lilith's Essence, Demi-fiends Essence, Aogami & Tsukuyomi Essences
+#TODO: We need a way to keep track of demi-fiend essence if demi-fiend is swapped but not resistance randomized
+
 
 #Chance that a miman reward is an essence
 MIMAN_ESSENCE_ODDS = 0.27272727
@@ -289,7 +293,10 @@ MISSION_DUPLICATES = {
 }
 
 #Missions that cannot receive macca as a reward
-MACCALESS_MISSIONS = [72] #Falcon's Head cannot get macca as reward due to being synced with Additional reward in CoV Rescue Miyazu Atsuta
+MACCALESS_MISSIONS = [
+    72, #Falcon's Head cannot get macca as reward due to being synced with Additional reward in CoV Rescue Miyazu Atsuta
+    58,59,62,64,65,66,67 #Missions whose reward can be gained repeatedly and cannot be macca due to repeat being given via event
+]
 
 #List of exclusive key item rewards from both canons #TODO: what even is the purpose here?? for potential exclusive progression items
 CREATION_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
@@ -299,12 +306,13 @@ VENGEANCE_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 BANNED_KEY_REWARDS = [79] #Spyscope (dropped by tutorial daemon)
 
 #Exclusive mission from both canons to give potential exclusive rewards to (excluding missions whose rewards are not randomized or are not allowed to receive key item rewards)
-CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93,-7,-8,-9-10,169] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
+CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93,-7,-8,-9-10,169,77,78] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
         #He of a Hundred Hands, Hellfire Highway, Search for Oyamatsumi, Glitter in Ginza, Netherworld Relay Racing, Will of the Samurai, Trial of the Seven Stars, Defeat the Demon Kings Armies, The One I (Still) Love
-        #Keeper of South/North/West/East Secondary Rewards
-VENGEANCE_EXLUSIVE_MISSIONS = [157,152,159,177,171,194,203,178,202,184,200,210,172,211,193,174,188,190,108,109,110,111,112,113] #Supply Run, Guide to the Lost, Heart of Garnet, As God Wills, A Self of my Own, Devotion To Order, Part-time Gasser, A Star is Born
+        #Keeper of South/North/West/East Secondary Rewards, Black Frost Strikes Back/Sobering Standoff
+VENGEANCE_EXLUSIVE_MISSIONS = [157,152,159,177,171,194,203,178,202,184,200,210,172,211,193,174,188,190,108,109,110,111,112,113,176,175] #Supply Run, Guide to the Lost, Heart of Garnet, As God Wills, A Self of my Own, Devotion To Order, Part-time Gasser, A Star is Born
         #Disgraced Bird God, Alice's Wonderland, Shinjuku Jewel Hunt, Heroes of Heaven and Earth, Rite of Resurrection, 'God of Old, Devourer of Kin', The Heartbroken, Special Training: Army of Chaos
         #The Serpent King, The Great Adversary, Investigate the Anomalies in Tokyo, Investigate the Salt Incidents, Rescue Miyazu Atsuta, Investigate Jozoji Temple, Qadištu Showdown
+        #Vampire in Black/Hunter in White
 
 #Mutually exclusive missions (or timed availability missions) that should never reward a key item 
 MUTUALLY_EXCLUSIVE_MISSIONS = [
@@ -314,7 +322,7 @@ MUTUALLY_EXCLUSIVE_MISSIONS = [
     77,78, #Black Frost Strikes Back/Sobering Standoff
     138,139, #Reclaim/Liberate the Golden Stool (Have duplicates but not needed here)
     75,76, #Those Seeking Sanctuary, Holding the Line
-    51,50 #The Red Dragon's Invitation/The Seraphs Return
+    51,50, #The Red Dragon's Invitation/The Seraphs Return
     -2, -3, #Additional Rewards from The Red Dragon's Invitation/The Seraphs Return
     156, #Prince of her Dream (Missable)
     157, #Supply Run (Missable)
