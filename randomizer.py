@@ -5045,12 +5045,13 @@ class Randomizer:
         #Assemble "list" of checks and items
         items, checks = self.gatherItemChecks(relevantPools, missionRewardAreas)
 
-        with open("checkList.csv","w",newline='',encoding='utf-8') as csvfile:
-            checkWriter = csv.writer(csvfile)
-            checkWriter.writerow(["Type","Index","Name","Area","Repeatable","Missable","HasDuplicate","AllowedCanons","MaccaAllowed","HasOdds","ItemOdds"])
+        if DEV_CHEATS: 
+            with open(paths.CHECK_LIST_CSV,"w",newline='',encoding='utf-8') as csvfile:
+                checkWriter = csv.writer(csvfile)
+                checkWriter.writerow(["Type","Index","Name","Area","Repeatable","Missable","HasDuplicate","AllowedCanons","MaccaAllowed","HasOdds","ItemOdds"])
 
-            for check in checks:
-                checkWriter.writerow([check.type, check.ind, check.name, check.area, check.repeatable, check.missable, check.hasDuplicate, check.allowedCanons, check.maccaAllowed, check.hasOdds, check.odds])
+                for check in checks:
+                    checkWriter.writerow([check.type, check.ind, check.name, check.area, check.repeatable, check.missable, check.hasDuplicate, check.allowedCanons, check.maccaAllowed, check.hasOdds, check.odds])
 
         #Independent randomization for categories
         for category in self.configSettings.selfItemPools:
