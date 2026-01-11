@@ -100,6 +100,13 @@ class Item_Drops:
         self.item1 = item1
         self.item2 = item2
         self.item3 = item3
+    def __iter__(self):
+        return iter([self.item1, self.item2, self.item3])
+    def __getitem__(self, index):
+        return [self.item1, self.item2, self.item3][index]
+
+    def __len__(self):
+        return 3
         
 class Item_Drop:
     def __init__(self, value, translation, chance, quest):

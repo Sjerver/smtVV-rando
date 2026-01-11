@@ -93,6 +93,7 @@ class Check_Type(Enum):
     MISSION = 2
     GIFT = 3
     VENDING_MACHINE = 4
+    BASIC_ENEMY_DROP = 5
 
     @staticmethod
     def getCheckType(stringValue):
@@ -107,6 +108,8 @@ class Check_Type(Enum):
                 return Check_Type.MISSION
             case "Vending Machines":
                 return Check_Type.VENDING_MACHINE
+            case "Basic Enemy Drops":
+                return Check_Type.BASIC_ENEMY_DROP
 
     @staticmethod
     def getCheckString(Check_Type):
@@ -121,6 +124,8 @@ class Check_Type(Enum):
                 return "Mission Rewards"
             case Check_Type.VENDING_MACHINE:
                 return "Vending Machines"
+            case Check_Type.BASIC_ENEMY_DROP:
+                return "Basic Enemy Drops"
 
 class Item_Check:
     def __init__(self, type, ind, name, area, repeatable = False, missable = False, duplicate = False, maxAdditionalItems = 0, hasOdds = False, odds = []):
@@ -135,6 +140,10 @@ class Item_Check:
         self.additionalItems = []
         self.maxAdditionalItems = maxAdditionalItems
         self.originalMaxAddItems = maxAdditionalItems
+
+        self.maxItemQuantity = 999999999999
+        if type in [Check_Type.BASIC_ENEMY_DROP]:
+            self.maxItemQuantity = 1
 
         self.repeatable = repeatable
         self.missable = missable
@@ -208,6 +217,8 @@ class Base_Item():
     Returns true if the item is allowed in the check.
     '''
     def itemAllowedInCheck(self,check):
+        if self.amount > check.maxItemQuantity:
+            return False
         if len(self.allowedAreas) == 0:
             return True
         for area in self.allowedAreas:
@@ -230,12 +241,14 @@ class Macca_Item(Base_Item):
         super().__init__("Macca " + str(amount), amount, allowedAreas)
         self.ind = 0 #Macca ind is always 0, because it is just easier to handle for most things
         if scaling:
-            allowedAreas = self.calculateAllowedAreasForMacca(self.amount)
+            self.allowedAreas = self.calculateAllowedAreasForMacca(self.amount)
 
     '''
     Returns true if the item is allowed in the check.
     '''
     def itemAllowedInCheck(self,check):
+            if self.amount > check.maxItemQuantity:
+                return False
             #Macca cannot have more than one reward
             if check.maxAdditionalItems > 0:
                 return False
@@ -273,6 +286,8 @@ class Key_Item(Base_Item):
     Returns true if the item is allowed in the check.
     '''
     def itemAllowedInCheck(self,check):
+        if self.amount > check.maxItemQuantity:
+            return False
         #Do not allow missable or canon-exclusive 
         if check.missable or len(check.allowedCanons) > 0:
             return False
@@ -296,14 +311,16 @@ class Essence_Item(Base_Item):
         self.ind = ind
         self.allowRepeatable = allowRepeatable
         if scaling:
-            allowedAreas = self.calculateAllowedAreasForLevel()
+            self.allowedAreas = self.calculateAllowedAreasForLevel()
         else:
-            allowedAreas = allowedAreas
+            self.allowedAreas = allowedAreas
     
     '''
     Returns true if the item is allowed in the check.
     '''
     def itemAllowedInCheck(self,check):
+        if self.amount > check.maxItemQuantity:
+            return False
         if not self.allowRepeatable and check.repeatable:
             return False
         if len(self.allowedAreas) == 0:
@@ -338,6 +355,8 @@ class Generic_Item(Base_Item):
     Returns true if the item is allowed in the check.
     '''
     def itemAllowedInCheck(self,check):
+        if self.amount > check.maxItemQuantity:
+            return False
         if not self.allowRepeatable and check.repeatable:
             return False
         if len(self.allowedAreas) == 0:
@@ -358,6 +377,8 @@ class Relic_Item(Base_Item):
     Returns true if the item is allowed in the check.
     '''
     def itemAllowedInCheck(self,check):
+        if self.amount > check.maxItemQuantity:
+            return False
         if len(self.allowedAreas) == 0:
             return True
         for area in self.allowedAreas:

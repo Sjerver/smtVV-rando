@@ -557,6 +557,10 @@ COMBINED_MACCA_AREA_RANGES = {
     "mission": MISSION_REWARD_AREA_MACCA_RANGES,
     "chest": CHEST_AREA_MACCA_RANGES,
 }
+#IDs for Mitamas that are Canon Locked
+SHINJUKU_MITAMAS = [159,160,161,162]
+CHIYODA_MITAMAS = [168,372,375,378]
+
 
 #Odds that the first drop of an enemy is a lifestone
 DROP1_LIFESTONE_ODDS = 0.97

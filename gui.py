@@ -13,7 +13,7 @@ PRESS_TURN_RED = "#831530"
 PRESS_TURN_BRIGHT_RED = "#ab1d33"
 DISABLED_GRAY = "#333333"
 
-VANILLA_LIST_ITEMS_ORDER = ["Treasures","Miman Rewards","Mission Rewards","NPC/Story Gifts","Vending Machines"]
+VANILLA_LIST_ITEMS_ORDER = ["Treasures","Miman Rewards","Mission Rewards","NPC/Story Gifts","Vending Machines","Basic Enemy Drops"]
 
 #Creates page system with important information like randomize button always visible
 def createGUI(configSettings: Settings):
@@ -539,21 +539,21 @@ def createGUI(configSettings: Settings):
     listItem = tk.Listbox(itemSmallFrame2, selectmode = "multiple", height= 5, width = 75, exportselection=False, selectbackground = NAHOBINO_BLUE)
     listItem.insert(0, "Randomize Shop Items")
     listItem.insert(1, "Randomize Shop Essences")
-    listItem.insert(2, "Randomize Enemy Drops")
+    listItem.insert(2, "Randomize Boss Drops")
+    listItem.insert(3, "Include Mitama Drops as Basic Enemy Drops")
+    listItem.insert(4, "Basic Enemies always drop Lifestone or Chakra Drop")
+    listItem.insert(5, "Vending Machines have a higher chance for relics") 
     #TODO:"Navigator Spots" maybe at some point
     listItem.pack()
 
-    itemRedoableCheckLabel = tk.Label(itemSmallFrame, text="Allow Item in Repeatable Check\n(Shop Items, Drops, Vending Machines)") #, Navigator Spots
+    itemRedoableCheckLabel = tk.Label(itemSmallFrame, text="Allow Item in Repeatable Check\n(Drops, Vending Machines)") #, Navigator Spots
     itemRedoableCheckLabel.pack()
     
     listRedoableOrder = ["Gospel","Grimoire","Whittled Goat","Essences (except fixed ones)","Incenses / Balms / Sutras",]
     listItemRedoable = tk.Listbox(itemSmallFrame, selectmode="multiple", width=45, height=len(listRedoableOrder), exportselection=False, selectbackground=NAHOBINO_BLUE)
     for index, item in enumerate(listRedoableOrder):
         listItemRedoable.insert(index,item)
-    listItemRedoable.pack()
-
-    
-    
+    listItemRedoable.pack()    
 
     itemVanillaFrame = tk.Frame(page5FrameTop,width=200, height=250,background="#cccccc")
     itemVanillaFrame.grid(row=0, column=0)
@@ -571,15 +571,6 @@ def createGUI(configSettings: Settings):
     itemOtherFrame.grid(row=0, column=3)
     itemOtherFrame.pack_propagate(False)
 
-    itemInclusionLabel = tk.Label(itemOtherFrame, text="Include Specific Items/Checks")
-    itemInclusionLabel.pack()
-
-    listItemInclusionOrder = ["Tsukuyomi Talisman as Gift","Empyrean Keys as Gifts","Mitama Drops as Enemy Drops"]
-    itemInclusionList = tk.Listbox(itemOtherFrame, selectmode = "multiple", width = 30,height=len(listItemInclusionOrder), exportselection=False, selectbackground = NAHOBINO_BLUE)
-    for index, item in enumerate(listItemInclusionOrder):
-        itemInclusionList.insert(index,item)
-    itemInclusionList.pack()
-
     itemScaleLabel = tk.Label(itemOtherFrame, text="Item Scaling Modes")
     itemScaleLabel.pack()
 
@@ -596,6 +587,15 @@ def createGUI(configSettings: Settings):
     listRandomItem.insert(1, "Shuffle important items, generate the rest randomly")
     listRandomItem.selection_set(0)
     listRandomItem.pack()
+
+    itemInclusionLabel = tk.Label(itemOtherFrame, text="Include Specific Items/Checks")
+    itemInclusionLabel.pack()
+
+    listItemInclusionOrder = ["Tsukuyomi Talisman as Gift","Empyrean Keys as Gifts"]
+    itemInclusionList = tk.Listbox(itemOtherFrame, selectmode = "multiple", width = 30,height=len(listItemInclusionOrder), exportselection=False, selectbackground = NAHOBINO_BLUE)
+    for index, item in enumerate(listItemInclusionOrder):
+        itemInclusionList.insert(index,item)
+    itemInclusionList.pack()
 
     itemVanillaLabel = tk.Label(itemVanillaFrame, text="Vanilla Item Pools")
     itemVanillaLabel.pack()
@@ -818,6 +818,9 @@ def createGUI(configSettings: Settings):
                 'RandomShopItems': ('Listbox', listItem, 0),
                 'RandomShopEssences': ('Listbox', listItem, 1),
                 'RandomEnemyDrops': ('Listbox', listItem, 2),
+                'RandomizeMitamaDrops': ('Listbox', listItem, 3),
+                'LifestoneOrChakraDrop': ('Listbox', listItem, 4),
+                'relicBiasVendingMachine': ('Listbox', listItem, 5),
 
                 'ScaleMaccaPerArea': ('Listbox', itemScaleList, 0),
                 'ScaleItemsPerArea': ('Listbox', itemScaleList, 1),
@@ -826,7 +829,7 @@ def createGUI(configSettings: Settings):
                 
                 'IncludeTsukuyomiTalismanAsGift': ('Listbox', itemInclusionList, 0),
                 'IncludeEmpyreanKeysAsGifts': ('Listbox', itemInclusionList, 1),
-                'RandomizeMitamaDrops': ('Listbox', itemInclusionList, 2),
+                
 
                 
                 
@@ -1146,6 +1149,12 @@ def createGUI(configSettings: Settings):
     configur.set('Item', 'RandomShopEssences', str(itemFlags[1]).lower())    
     configSettings.randomEnemyDrops = itemFlags[2]
     configur.set('Item', 'RandomEnemyDrops', str(itemFlags[2]).lower())
+    configSettings.randomizeMitamaDrops = itemFlags[3]
+    configur.set('Item', 'RandomizeMitamaDrops', str(itemFlags[3]).lower())
+    configSettings.lifestoneOrChakraDrop = itemFlags[4]
+    configur.set('Item', 'LifestoneOrChakraDrop', str(itemFlags[4]).lower())
+    configSettings.relicBiasVendingMachine = itemFlags[5]
+    configur.set('Item', 'relicBiasVendingMachine', str(itemFlags[5]).lower()) 
 
     configSettings.scaleMaccaPerArea = itemScaleFlags[0]
     configur.set('Item', 'ScaleMaccaPerArea', str(itemScaleFlags[0]).lower())
@@ -1160,8 +1169,7 @@ def createGUI(configSettings: Settings):
     configur.set('Item', 'IncludeTsukuyomiTalismanAsGift', str(itemInclusionFlags[0]).lower())
     configSettings.includeEmpyreanKeysAsGifts = itemInclusionFlags[1]
     configur.set('Item', 'IncludeEmpyreanKeysAsGifts', str(itemInclusionFlags[1]).lower())
-    configSettings.randomizeMitamaDrops = itemInclusionFlags[2]
-    configur.set('Item', 'RandomizeMitamaDrops', str(itemInclusionFlags[2]).lower())
+    
 
     configSettings.redoableGospel = redoableItemFlags[0]
     configur.set('Item', 'RedoableGospel', str(redoableItemFlags[0]).lower())
@@ -1371,8 +1379,8 @@ def createConfigFile(configur):
                                 'LimitSkillMPCost': False, 'swapGuestsWithDemons': False,'swapDemifiend': False}
     configur['Item'] = {'RandomShopItems': False, 'RandomShopEssences': False, 'RandomEnemyDrops': False,
                         'ScaleMaccaPerArea': False, 'ScaleItemsPerArea': False, 'ShuffleExistingItems': False, 'TrulyRandomizeItems': False,
-                        'IncludeTsukuyomiTalismanAsGift': False,'IncludeEmpyreanKeysAsGifts': False, 'RandomizeMitamaDrops': False, 
-                        'SelfItems': [], 'SharedItems': [],
+                        'IncludeTsukuyomiTalismanAsGift': False,'IncludeEmpyreanKeysAsGifts': False, 'RandomizeMitamaDrops': False, "LifestoneOrChakraDrop":False,
+                        'relicBiasVendingMachine': False, 'SelfItems': [], 'SharedItems': [],
                         'RedoableGospel': False,'RedoableGrimoire': False, 'RedoableWhittledGoat': False, 'RedoableEssences': False,
                         'RedoableIncensesBalmsSutras': False,
                         }

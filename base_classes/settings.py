@@ -100,7 +100,9 @@ class Settings(object):
         self.trulyRandomizeItems = False            # Swaps only key items and generates random rewards for other checks
         self.includeTsukuyomiTalismanAsGift = False # Includes the Tsukuyomi Talisman in gift randomization
         self.includeEmpyreanKeysAsGifts = False     # Includes the Empyrean Keys in gift randomization
-        self.randomizeMitamaDrops = False           #TODO: Implement
+        self.randomizeMitamaDrops = False           # Also randomizes the drops of mitamas
+        self.lifestoneOrChakraDrop = False          # Basic enemies always can drop a lifestone or a chakra drop
+        self.relicBiasVendingMachine = False        # Vending Machines have a higher chance to contain relics
 
         self.selfItemPools = []                     # List of check types randomized independently
         self.sharedItemPools = []                   # List of check types randomized together
