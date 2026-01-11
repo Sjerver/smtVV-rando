@@ -46,6 +46,7 @@ class Randomizer:
         self.compendiumNames = [] #TODO: Remove
         self.skillNames = []
         self.itemNames = []
+        self.originalItemNames = []
 
         self.compendiumArr = []
         self.skillArr = []
@@ -121,6 +122,7 @@ class Randomizer:
         self.nonRedoableItemIDs = []
         self.itemValidityMap = {}
         self.essenceValidityMap = {}
+        self.originalEssenceValidityMap = {}
         self.relicValidityMap = {}
     
     '''
@@ -169,6 +171,7 @@ class Randomizer:
                 sliceStart = element.find("MessageTextPages_3=")
                 sliceEnd = element.find("Voice=")
                 self.itemNames.append(element[sliceStart + 19:sliceEnd - 7])
+        self.originalItemNames =copy.deepcopy(self.itemNames)
         return fileContents
     
     '''
@@ -1437,6 +1440,15 @@ class Randomizer:
             return self.innateSkillArr[ind - 531]
         else:
             return self.skillArr[ind - 400]
+    
+    '''
+    Returns the correct player demon object for a demon ID.
+    '''
+    def getPlayerDemon(self, ind):
+        if ind >= len(self.compendiumArr):
+            return self.playerBossArr[ind]
+        else:
+            return self.compendiumArr[ind]
     
     '''
     Generate a list of the levels each skill is obtained at
@@ -4982,7 +4994,7 @@ class Randomizer:
             return Key_Item(self.itemNames[itemID],itemID, allowedAreas = numbers.KEY_ITEM_AREA_RESTRICTIONS.get(itemID,[]))
         elif itemID > 310 and itemID < 616: #Essence Range
             essence = next(e for e in self.essenceArr if e.ind == itemID)
-            demon = self.compendiumArr[essence.demon.value]
+            demon = self.getPlayerDemon(essence.demon.value)
             return Essence_Item(self.itemNames[itemID],itemID,demon, scaling = self.configSettings.scaleItemsPerArea,allowRepeatable =self.configSettings.redoableEssencesAllowed)
         elif (itemID > 615 and itemID < 655) or itemID > 855:
             return Relic_Item(self.itemNames[itemID],itemID,amount,scaling = self.configSettings.scaleItemsPerArea) 
@@ -5006,7 +5018,7 @@ class Randomizer:
                 #Grab all essences in the predefined level range for the area
                 currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]]
                 for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in self.essenceValidityMap[area] and itemName in currentDemonNames:
+                    if 'Essence' in itemName and itemID not in numbers.getBannedEssences() and itemID not in self.essenceValidityMap[area] and itemName in currentDemonNames:
                         self.essenceValidityMap[area].append(itemID)
         else:
             self.itemValidityMap[0] = []
@@ -5014,12 +5026,13 @@ class Randomizer:
             self.relicValidityMap[0] = []
             #TODO: Am I happy with this? This is just copied from old code
             for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in self.essenceValidityMap[0]:
+                if 'Essence' in itemName and itemID not in numbers.getBannedEssences() and itemID not in self.essenceValidityMap[0]:
                     self.essenceValidityMap[0].append(itemID)
                 elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
                     self.itemValidityMap[0].append(itemID)
                 elif (itemID > 615 and itemID < 655) or itemID > 855 and 'NOT USED' not in itemName:
                     self.relicValidityMap[0].append(itemID)
+        self.originalEssenceValidityMap = copy.deepcopy(self.essenceValidityMap)
 
     '''
     Randomizes the rewards for everything that can be considered a check (Treasure,Mission,Miman,Gift).
@@ -5441,10 +5454,15 @@ class Randomizer:
             elif randomNumber < essenceOdds + maccaOdds:
                 #TODO: Decide if we still want to prevent essences from existing more than once?
                 if self.configSettings.scaleItemsPerArea:
-                    validItems = self.essenceValidityMap[check.area]
+                    cArea = check.area
                 else:
-                    validItems = self.essenceValidityMap[0]
+                    cArea = 0
+                validItems = self.essenceValidityMap[cArea]
                 itemID = random.choice(validItems)
+                self.essenceValidityMap[cArea].remove(itemID)
+                if len(self.essenceValidityMap[cArea]) == 0:
+                    self.essenceValidityMap[cArea] = copy.deepcopy(self.originalEssenceValidityMap[cArea])
+                
                 amount = 1
             
             elif randomNumber < relicOdds + essenceOdds + maccaOdds:
@@ -5664,7 +5682,7 @@ class Randomizer:
                 numDrops = random.choices(list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.keys()), list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.values()))[0]
                 if demonID not in self.essenceBannedBosses and random.random() < numbers.BOSS_ESSENCE_ODDS: #Boss will drop its own essence
                     try:
-                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.BANNED_ESSENCES)
+                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.getBannedEssences())
                         drop.item1 = Item_Drop(essence.ind, essence.name, 100, 0)
                     except StopIteration:
                         item = random.choice(validItems[rewardArea])
@@ -5686,7 +5704,7 @@ class Randomizer:
                 numDrops = random.choices(list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.keys()), list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.values()))[0]
                 if demonID not in self.essenceBannedBosses and random.random() < numbers.BOSS_ESSENCE_ODDS: #Boss will drop its own essence
                     try:
-                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.BANNED_ESSENCES)
+                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.getBannedEssences())
                         drop.item1 = Item_Drop(essence.ind, essence.name, 100, 0)
                     except StopIteration:
                         item = random.choice(validItems)
@@ -7418,7 +7436,7 @@ class Randomizer:
             donor = copy.deepcopy(donor)
 
             #Rename Essence
-            self.itemNames = [f"{donor.name}'s Essence" if recipient.name in itemName and 'Essence' in itemName else itemName for itemName in self.itemNames]
+            #self.itemNames = [f"{donor.name}'s Essence" if recipient.name in itemName and 'Essence' in itemName else itemName for itemName in self.itemNames]
 
             recipient.name = donor.name
             recipient.nameID = donor.nameID
@@ -7465,18 +7483,6 @@ class Randomizer:
             self.talkCameraOffsets[newID].lookOffset = self.talkCameraOffsets[source].lookOffset
             self.talkCameraOffsets[newID].dyingOffset = self.talkCameraOffsets[source].dyingOffset
 
-            # if donor.ind in message_logic.SPECIAL_SPEAKER_IDS.keys():
-            #     #If the donor has a special speaker id, copy it over
-            #     message_logic.SPECIAL_SPEAKER_IDS[recipient.ind] = message_logic.SPECIAL_SPEAKER_IDS[donor.ind]
-            # else:
-            #     #Otherwise, add entry refererring to the donor id
-            #     message_logic.SPECIAL_SPEAKER_IDS[recipient.ind] = donor.ind
-            # if donor.ind in message_logic.SPECIAL_VOICE_IDS.keys():
-            #     #If the donor has a special voice id, copy it over
-            #     message_logic.SPECIAL_VOICE_IDS[recipient.ind] = message_logic.SPECIAL_VOICE_IDS[donor.ind]
-            # else:
-            #     #Otherwise, add entry refererring to the donor id
-            #     message_logic.SPECIAL_VOICE_IDS[recipient.ind] = donor.ind
         
         #To temporarily store the guest data
         copyover = self.playerBossArr[numbers.COPYOVER_DEMON]
@@ -7505,6 +7511,7 @@ class Randomizer:
     '''
     def swapGuestsWithDemons(self):
         if self.configSettings.swapDemifiend:
+            demiFiendEssenceName = self.itemNames[numbers.DEMIFIEND_ESSENCE_ID]
             numbers.GUEST_GROUPS[numbers.GUEST_DEMIFIEND] = []
         validInds = [demon.ind for demon in self.compendiumArr if demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name and not demon.name.startswith('NOT USED')]
         validInds.extend(numbers.GUEST_GROUPS.keys())
@@ -7552,12 +7559,30 @@ class Randomizer:
 
         self.guestReplacements = copy.deepcopy(swapPairings)
 
+        #Contains Guest -> Demon and Demon -> Guest
         swapPairings = {**swapPairings, **{v: k for k, v in swapPairings.items()}}
 
         for guest, guestGroup in numbers.GUEST_GROUPS.items():
-            if guest in guestList: #Add to safeguard if only demi-fiend is swapped
+            if guest in guestList:
                 for syncedGuest in guestGroup:
                     swapPairings[syncedGuest] = swapPairings[guest]
+
+        for r,d in self.guestReplacements.items():
+            recipient = self.getPlayerDemon(r)
+            donor = self.getPlayerDemon(d)
+
+            for index,itemName in enumerate(self.originalItemNames):
+                if itemName == f"{donor.name}'s Essence":
+                    #print("Renaming " + itemName + " to " + f"{recipient.name}'s Essence")
+                    self.itemNames[index] = f"{recipient.name}'s Essence"
+                elif itemName == f"{recipient.name}'s Essence":
+                    #print("Renaming " + itemName + " to " + f"{donor.name}'s Essence")
+                    self.itemNames[index] = f"{donor.name}'s Essence"
+
+
+
+        if self.configSettings.swapDemifiend:
+            numbers.DEMIFIEND_ESSENCE_ID = self.itemNames.index(demiFiendEssenceName)
 
         #Update Unique skill ownership to new ids
         for skill in self.skillArr:
@@ -7767,6 +7792,9 @@ class Randomizer:
             self.scalePotentials(newComp)
 
         if config.randomResists:
+            #If we have random resists, we dont need to block demifiend's essence
+            numbers.DEMIFIEND_ESSENCE_ID = 1 #Is Medicine ID
+
             self.randomizeResistances(newComp)
             self.randomizeResistances(self.playerBossArr, mask=numbers.GUEST_IDS)
             self.randomizeResistances(self.playerBossArr, mask=numbers.PROTOFIEND_IDS)
@@ -7952,7 +7980,7 @@ class Randomizer:
             self.randomizeNavigatorAbilities()
         if self.configSettings.navigatorModelSwap: #Create naviReplacementMap before updating event and mission text
             self.changeNavigatorDemons()
-        message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings, self.playerBossArr)
+        message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings, self.playerBossArr, self.itemNames)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr],self.compendiumArr,self.enemyNames,self.configSettings)
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap, self.playerBossArr, self.compendiumArr,self.progressionItemNewChecks)
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames, self.playerBossArr, self.compendiumArr,self.progressionItemNewChecks)

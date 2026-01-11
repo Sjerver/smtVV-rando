@@ -1096,12 +1096,20 @@ Also adjust the descriptions of talismans and periapts.
         magatsuhiRaceSkills (List(Active_Skill)): list of skills that are magatsuhi race skills
         config (Config_Settings): object containing chosen settings of the randomizer
         playerBossArr (List(Compendium_Demon)): list of player boss demons
+        txtItemNames(List(String)): list of item names originally read from a txt file
         TODO: Add Code comments
 '''
-def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fusionSkillIDs, fusionSkillReqs, skillNames, magatsuhiRaceSkills, config, playerBossArr):  
+def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fusionSkillIDs, fusionSkillReqs, skillNames, magatsuhiRaceSkills, config, playerBossArr, txtItemNames):  
     itemFile = Message_File('ItemName','',OUTPUT_FOLDERS['ItemName'])
 
     itemNames = itemFile.getMessageStrings()
+    
+    
+    for index, itemName in enumerate(txtItemNames):
+        if itemNames[index] != itemName:
+            #print("Rename " + itemNames[index] + " to " + itemName)
+            itemNames[index]= itemName
+
     
     for itemName,originalDemonID in ITEM_NAME_SYNC_DEMON_IDS.items():
         if itemName in itemNames:
@@ -1124,7 +1132,7 @@ def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fus
             index = itemNames.index(itemName)
             itemNames[index] = itemNames[index].replace(originalName, replacementName)
             #print(str(index) + " " + itemNames[index])
-    
+       
     itemFile.setMessageStrings(itemNames)
     itemFile.writeToFiles()
 

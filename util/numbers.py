@@ -198,9 +198,12 @@ KEY_ITEM_CUTOFF = 657
 #Item indices that correspond to reusable items like the return pillar or gleam grenade and spyglass(spyscope is given by tutorial daemon)
 BANNED_ITEMS = [70, 73, 74, 75, 76, 77, 78, 79, 80, 81, 55]
 
-BANNED_ESSENCES = [359,555,545,546,547,548,549,550,551,552,553,554,556,557,558,559,606,607,608] #Old Lilith's Essence, Demi-fiends Essence, Aogami & Tsukuyomi Essences
-#TODO: We need a way to keep track of demi-fiend essence if demi-fiend is swapped but not resistance randomized
+BANNED_ESSENCES = [359,545,546,547,548,549,550,551,552,553,554,556,557,558,559,606,607,608] #Old Lilith's Essence, Aogami & Tsukuyomi Essences
 
+DEMIFIEND_ESSENCE_ID = 555 #Demi-fiends Essence normal ID
+
+def getBannedEssences():
+    return BANNED_ESSENCES + [DEMIFIEND_ESSENCE_ID]
 
 #Chance that a miman reward is an essence
 MIMAN_ESSENCE_ODDS = 0.27272727
