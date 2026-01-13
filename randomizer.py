@@ -5396,7 +5396,14 @@ class Randomizer:
                             self.progressionItemNewChecks[chosenItem.ind].append(chosenCheck)
 
                 else:
-                    print("Is this even possible?")
+                    if chosenCheck.isFull():
+                        # if Check is full remove it
+                        relevantChecks.remove(chosenCheck)
+                        for pool in relevantItemPools:
+                            for item in pool:
+                                if chosenCheck in item.validChecks:
+                                    item.validChecks.remove(chosenCheck)
+                        chosenCheck.validItemAmount = 0
         
     
     '''
