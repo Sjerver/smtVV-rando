@@ -94,6 +94,7 @@ class Check_Type(Enum):
     GIFT = 3
     VENDING_MACHINE = 4
     BASIC_ENEMY_DROP = 5
+    BOSS_DROP = 6
 
     @staticmethod
     def getCheckType(stringValue):
@@ -110,6 +111,8 @@ class Check_Type(Enum):
                 return Check_Type.VENDING_MACHINE
             case "Basic Enemy Drops":
                 return Check_Type.BASIC_ENEMY_DROP
+            case "Boss Drops":
+                return Check_Type.BOSS_DROP
 
     @staticmethod
     def getCheckString(Check_Type):
@@ -126,6 +129,8 @@ class Check_Type(Enum):
                 return "Vending Machines"
             case Check_Type.BASIC_ENEMY_DROP:
                 return "Basic Enemy Drops"
+            case Check_Type.BOSS_DROP:
+                return "Boss Drops"
 
 class Item_Check:
     def __init__(self, type, ind, name, area, repeatable = False, missable = False, duplicate = False, maxAdditionalItems = 0, hasOdds = False, odds = []):
@@ -142,7 +147,7 @@ class Item_Check:
         self.originalMaxAddItems = maxAdditionalItems
 
         self.maxItemQuantity = 999999999999
-        if type in [Check_Type.BASIC_ENEMY_DROP]:
+        if type in [Check_Type.BASIC_ENEMY_DROP,Check_Type.BOSS_DROP]:
             self.maxItemQuantity = 1
 
         self.repeatable = repeatable
@@ -217,6 +222,8 @@ class Base_Item():
     Returns true if the item is allowed in the check.
     '''
     def itemAllowedInCheck(self,check):
+        if check.isFull():
+            return False
         if self.amount > check.maxItemQuantity:
             return False
         if len(self.allowedAreas) == 0:

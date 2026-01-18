@@ -13,7 +13,6 @@ class Settings(object):
         self.checkBasedMusic = False                # Boss music is based on check rather than boss demon
         self.randomShopItems = False                # Randomizes what items are sold in the shop
         self.randomShopEssences = False             # Randomizes what essences are sold in the shop
-        self.randomEnemyDrops = False               # Randomizes items that enemies drop
         self.randomMiracleUnlocks = False           # Shuffles what miracles are unlocked at each abscess
         self.randomMiracleCosts = False             # Randomizes the glory cost of miracles
         self.reverseDivineGarrisons = False         # Reverses the order in which you learn divine garrison miracles so you get +3 stock upgrades early

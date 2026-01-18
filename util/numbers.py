@@ -248,7 +248,7 @@ AREA_NAMES = {
   64: 'Shinjuku',
   107: 'DemiFiend Area',
   960: 'Taito Post KeyLock'
-}
+} #TODO: Add Minato Egypt
 
 #Chance a mission rewards macca
 MISSION_MACCA_ODDS= 0.1717
@@ -1217,4 +1217,13 @@ def compareResistValues(a, b):
 class Canon(Enum):
     CREATION = 0
     VENGEANCE = 1
+
+    @staticmethod
+    def getCanonFromString(stringValue):
+        match stringValue:
+            case "Creation":
+                return Canon.CREATION
+            case "Vengeance":
+                return Canon.VENGEANCE 
+            
     

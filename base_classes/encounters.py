@@ -81,6 +81,7 @@ class Mixed_Boss_Encounter(object):
         self.eventEncounter = None
         self.demons = None
         self.track = None
+        self.uniqueID = None
 
 class Ambush_Type(IntEnum):
     UNKNOWN = 0

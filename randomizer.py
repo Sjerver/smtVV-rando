@@ -4454,6 +4454,10 @@ class Randomizer:
     def updateShuffledEncounterInformation(self, encounterToUpdate, referenceEncounter):
         if not self.configSettings.checkBasedMusic and not self.configSettings.randomMusic:
                     encounterToUpdate.track = referenceEncounter.track
+        for demon in referenceEncounter.demons: #Save bosses new Encounter ID
+            if demon not in self.checkBossInfo.keys():
+                self.checkBossInfo[demon] = []
+            self.checkBossInfo[demon].append(encounterToUpdate.uniqueID)
         if encounterToUpdate.isEvent:
             if referenceEncounter.isEvent:
                 # both encounters event encounters
@@ -5008,31 +5012,34 @@ class Randomizer:
 
     def assembleValidityMaps(self):
         #Assemble "Validity" maps which show which areas allow which items
-        if self.configSettings.scaleItemsPerArea:
-            for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
-                self.itemValidityMap[key] = value
-            for key,value in numbers.RELIC_MAP_SCALING.items():
-                self.relicValidityMap[key] = value
-            for area in numbers.AREA_NAMES.keys():
-                #TODO: Am I happy with this? This is just copied from old code
-                self.essenceValidityMap[area] = []
-                #Grab all essences in the predefined level range for the area
-                currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]]
-                for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and itemID not in numbers.getBannedEssences() and itemID not in self.essenceValidityMap[area] and itemName in currentDemonNames:
-                        self.essenceValidityMap[area].append(itemID)
-        else:
-            self.itemValidityMap[0] = []
-            self.essenceValidityMap[0] = []
-            self.relicValidityMap[0] = []
+        
+        for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
+            self.itemValidityMap[key] = value
+        for key,value in numbers.RELIC_MAP_SCALING.items():
+            self.relicValidityMap[key] = value
+        for area in numbers.AREA_NAMES.keys():
             #TODO: Am I happy with this? This is just copied from old code
-            for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and itemID not in numbers.getBannedEssences() and itemID not in self.essenceValidityMap[0]:
-                    self.essenceValidityMap[0].append(itemID)
-                elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                    self.itemValidityMap[0].append(itemID)
-                elif (itemID > 615 and itemID < 655) or itemID > 855 and 'NOT USED' not in itemName:
-                    self.relicValidityMap[0].append(itemID)
+            #TODO: Does not work because cannot differentiate between two Nuwa Essences for example
+            self.essenceValidityMap[area] = []
+            #Grab all essences in the predefined level range for the area
+            for essence in self.essenceArr:
+                if essence.ind  in numbers.getBannedEssences():
+                    continue
+                demon = self.getPlayerDemon(essence.demon.value)
+                if demon in self.compendiumArr and demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]:
+                    self.essenceValidityMap[area].append(essence.ind)
+        #Assemble a list with all items
+        self.itemValidityMap[0] = []
+        self.essenceValidityMap[0] = []
+        self.relicValidityMap[0] = []
+        #TODO: Am I happy with this? This is just copied from old code
+        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+            if 'Essence' in itemName and itemID not in numbers.getBannedEssences() and itemID not in self.essenceValidityMap[0]:
+                self.essenceValidityMap[0].append(itemID)
+            elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                self.itemValidityMap[0].append(itemID)
+            elif (itemID > 615 and itemID < 655) or itemID > 855 and 'NOT USED' not in itemName:
+                self.relicValidityMap[0].append(itemID)
         self.originalEssenceValidityMap = copy.deepcopy(self.essenceValidityMap)
 
     '''
@@ -5071,23 +5078,23 @@ class Randomizer:
         for category in self.configSettings.selfItemPools:
             if self.configSettings.shuffleExistingItems:
                 currentType = Check_Type.getCheckType(category)
-                relevantChecks = [check for check in checks if check.type == currentType]
+                relevantChecks = [check for check in checks if check.type == currentType and not check.isFull()]
                 pools = self.assembleRandomlyGeneratedItemPools(relevantChecks, items, vanillaItems = True)
                 self.shuffleChecks(relevantChecks, pools)
             else:
                 currentType = Check_Type.getCheckType(category)
-                relevantChecks = [check for check in checks if check.type == currentType]
+                relevantChecks = [check for check in checks if check.type == currentType and not check.isFull()]
                 pools = self.assembleRandomlyGeneratedItemPools(relevantChecks, items, vanillaItems = False)
                 self.shuffleChecks(relevantChecks,pools)
         #Mixed randomization for categories
         if self.configSettings.sharedItemPools and self.configSettings.shuffleExistingItems:
             currentCheckTypes = [Check_Type.getCheckType(category) for category in self.configSettings.sharedItemPools]
-            relevantChecks = [check for check in checks if check.type in currentCheckTypes]
+            relevantChecks = [check for check in checks if check.type in currentCheckTypes and not check.isFull()]
             pools = self.assembleRandomlyGeneratedItemPools(relevantChecks, items, vanillaItems = True)
             self.shuffleChecks(relevantChecks,pools)
         elif self.configSettings.sharedItemPools:
             currentCheckTypes = [Check_Type.getCheckType(category) for category in self.configSettings.sharedItemPools]
-            relevantChecks = [check for check in checks if check.type in currentCheckTypes]
+            relevantChecks = [check for check in checks if check.type in currentCheckTypes and not check.isFull()]
             pools = self.assembleRandomlyGeneratedItemPools(relevantChecks, items, vanillaItems = False)
             self.shuffleChecks(relevantChecks, pools)
         
@@ -5265,7 +5272,6 @@ class Randomizer:
                         elif isinstance(item,Essence_Item):
                             #Making sure enemy drops their own essence happens elsewhere
                             continue
-
                         odds.append(drop.chance)
                         area = numbers.ENCOUNTER_LEVEL_AREAS[enemy.level]
                         allowedCanons = []
@@ -5290,6 +5296,85 @@ class Randomizer:
                         check.inputVanillaItem(item)
                         checks.append(check)
                         items.append(item)
+        if "Boss Drops" in relevantPools:
+            #Read the data for encounter IDs
+            df = pd.read_csv(paths.BOSS_ENCOUNTER_INFO_CSV)
+            bossEncData = {}
+            for index, row in df.iterrows():
+                canonString = str(row['Canon']).strip()
+                canon = Canon.getCanonFromString(canonString) if canonString else None
+                canons = [canon] if canon else []
+                bossEncData[int(row['ID'])] = {
+                    'Name': row['Name'],
+                    'Area': int(row['Area']),
+                    'Repeatable': bool(row['Repeatable']),
+                    'Missable': bool(row['Missable']),
+                    'Canons': canons
+                }
+
+
+            for demonID in self.validBossDemons:
+                enemy = self.bossArr[demonID]
+                drops = enemy.drops
+                enemyName = self.enemyNames[demonID]
+                for index, drop in enumerate(drops):
+                    odds = []
+                    if drop.value > 0 and drop.chance > 0:
+                        item = self.generateNewItem(drop.value, 1)
+
+                        if isinstance(item,Key_Item):
+                            #Do not change Key_Items as they are quest related
+                            continue
+                        elif isinstance(item,Essence_Item) and self.configSettings.shuffleExistingItems:
+                            #Skip drop slots that usually drop their own essence when shuffled
+                            continue
+                        
+                        
+                        if demonID not in self.checkBossInfo.keys():
+                            #print(str(demonID) +" " +enemyName + " is not in checkBossInfo? but drops " + self.itemNames[drop.value])
+                            #If the boss in not in the list, see if the boss has a main demon that might be in the list
+                            if demonID in bossLogic.MAIN_BOSS.keys():
+                                mainDemonID = bossLogic.MAIN_BOSS[demonID]
+                                if mainDemonID not in self.checkBossInfo.keys():
+                                    continue
+                                else:
+                                    encID = self.checkBossInfo[mainDemonID][0]
+                            else:
+                                continue  
+                        else:  
+                            encID = self.checkBossInfo[demonID][0]
+                        if encID not in bossEncData:
+                            #print(str(encID) + " not in encounter data"+" " +enemyName)
+                            continue
+                        encData = bossEncData[encID]
+                        allowedCanons = encData["Canons"]
+                        area = encData["Area"]
+
+                        odds.append(100) #Should always be 100 I think instead of drop.chance
+
+                        check = Item_Check(Check_Type.BOSS_DROP,index*10000 + enemy.ind,encData["Name"] + " {" + enemyName + " Drop " +str(index)+"}",area,False,False,False,0,True,odds)
+                        check.allowedCanons = allowedCanons
+
+                        if encData['Missable'] or demonID in bossLogic.MAIN_BOSS.keys():#The second condition is for bosses who are not necessary to kill to end the fight, but still have a drop
+                            check.missable = True
+                        if encData['Repeatable']:
+                            check.repeatable = True
+
+                        if index == 0 and demonID not in self.essenceBannedBosses and not self.configSettings.shuffleExistingItems:
+                            #Attempt for the boss to drop their own essence
+                            if random.random() < numbers.BOSS_ESSENCE_ODDS:
+                                try:
+                                    essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.getBannedEssences())
+                                    item = self.generateNewItem(essence.ind, 1)
+                                    check.inputItem(item,forced = True)
+                                except StopIteration:
+                                    pass
+
+                            check.inputItem(item,forced = True)
+
+                        check.inputVanillaItem(item)
+                        checks.append(check)
+                        items.append(item)
 
         return items, checks
     
@@ -5303,43 +5388,53 @@ class Randomizer:
         checkPower = 2 #To which power valid checks are weight, used to make checks/items with low valid amounts even stronger weight-wise
         for relevantItemPool in relevantItemPools:
             while relevantItemPool and relevantChecks:
+                forceItem = False
                 filteredRelevantItems = [i for i in relevantItemPool if i.validChecks]
                 if not filteredRelevantItems:
-                    print("Hopefully does not happen. Otherwise consider strengthening checkPower?")
-                    break
-                
-                #Inverse weight of amount of valid checks for item to the power of checkPower
-                wItem = [1 / (len(i.validChecks) ** checkPower) for i in filteredRelevantItems]
-                chosenItem = random.choices(
-                    filteredRelevantItems,
-                    wItem
-                )[0]
+                    chosenItem = random.choice(relevantItemPool)
+                    if isinstance(chosenItem, Key_Item):
+                        print("WARNING: KEY ITEM has been forced")
+                    forceItem = True
+                    print("Forced Item " + chosenItem.name + "had no naturally available checks")
+                else:
+                    #Inverse weight of amount of valid checks for item to the power of checkPower
+                    #wItem = [1 / (len(i.validChecks) ** checkPower) for i in filteredRelevantItems]
+                    wItem = []
+                    for i in filteredRelevantItems:
+                        baseWeight =1 / (len(i.validChecks) ** checkPower)
+                        wItem.append(baseWeight)
+                    chosenItem = random.choices(
+                        filteredRelevantItems,
+                        wItem
+                    )[0]
 
                 filteredRelevantChecks = [c for c in chosenItem.validChecks if c.validItemAmount > 0]
                 if not filteredRelevantChecks:
-                    print("Hopefully does not happen. Otherwise consider strengthening checkPower?")
-                    break
+                    chosenCheck = random.choice(relevantChecks)
+                    forceItem = True
+                else:
                 
-                #Is there any check that desperately needs an item
-                validItemAmounts = [check.validItemAmount for check in filteredRelevantChecks]
-                desperateCheck = any(a < 10 for a in validItemAmounts)
+                
+                    #Is there any check that desperately needs an item
+                    validItemAmounts = [check.validItemAmount for check in filteredRelevantChecks]
+                    desperateCheck = any(a < 10 for a in validItemAmounts)
 
-                #Inverse weight of amount of valid items for check to the power of checkPower
-                wChecks = []
-                for check in filteredRelevantChecks:
-                    baseWeight = 1 / (check.validItemAmount ** checkPower)
-                    if not desperateCheck and self.configSettings.relicBiasVendingMachine and isinstance(chosenItem,Relic_Item) and check.type == Check_Type.VENDING_MACHINE:
-                        #TODO: Make stronger now that we have a safeguard condition
-                        baseWeight = baseWeight*4 #Treats check as if it only has half the amount of validItems
-                    wChecks.append(baseWeight)
+                    #Inverse weight of amount of valid items for check to the power of checkPower
+                    wChecks = []
+                    for check in filteredRelevantChecks:
+                        baseWeight = 1 / (check.validItemAmount ** checkPower)
+                        if not desperateCheck and self.configSettings.relicBiasVendingMachine and isinstance(chosenItem,Relic_Item) and check.type == Check_Type.VENDING_MACHINE:
+                            #TODO: Make stronger now that we have a safeguard condition
+                            baseWeight = baseWeight*4 #Treats check as if it only has half the amount of validItems
+                        wChecks.append(baseWeight)
                 
-                chosenCheck = random.choices(
-                    filteredRelevantChecks,
-                    wChecks
-                )[0]
+                    chosenCheck = random.choices(
+                        filteredRelevantChecks,
+                        wChecks
+                    )[0]
 
                 duplicateItem = None
-                if chosenCheck.inputItem(chosenItem):
+                if chosenCheck.inputItem(chosenItem,forceItem):
                     #Item succesfully placed
 
                     for check in chosenItem.validChecks[:]:
@@ -5517,6 +5612,14 @@ class Randomizer:
             essenceOdds = 0 #Cant drop additional Essences
             relicOdds = numbers.CHEST_RELIC_ODDS #TODO: Calculate odds to use instead
             itemAmount = 1
+        elif check.type == Check_Type.BOSS_DROP:
+            maccaOdds = 0#Money drops are not a check!
+            maccaMax = 0
+            maccaMin = 0
+
+            essenceOdds = 0 #Cant drop additional Essences
+            relicOdds = numbers.CHEST_RELIC_ODDS #TODO: Calculate odds to use instead
+            itemAmount = 1
 
         #Now for all items that were in the check, generate a new one
         for _ in oldItems:
@@ -5552,6 +5655,9 @@ class Randomizer:
                     validItems = self.itemValidityMap[check.area]
                 else:
                     validItems = self.itemValidityMap[0]
+                if check.repeatable:
+                    validItems = [i for i in validItems if i not in self.nonRedoableItemIDs]
+
                 itemID = random.choice(validItems)
                 amount = itemAmount
                 if itemID in numbers.ITEM_QUANTITY_LIMITS.keys():
@@ -5643,6 +5749,15 @@ class Randomizer:
                 drop.value = check.item.ind
                 drop.translation = check.item.name
                 drop.chance = check.odds[0]
+            elif check.type == Check_Type.BOSS_DROP:
+                dropIndex = check.ind // 10000 #Check index is calculated like this: index*10000 + enemy.ind with index being the drop index
+                enemyIndex = check.ind - dropIndex * 10000
+
+                enemy = self.bossArr[enemyIndex]
+                drop = enemy.drops[dropIndex]
+                drop.value = check.item.ind
+                drop.translation = check.item.name
+                drop.chance = check.odds[0]
 
 
             else:
@@ -5691,121 +5806,6 @@ class Randomizer:
                         self.progressionItemNewChecks[itemReward.ind].append(check)
                 self.logItemCheck(check)
     
-    '''
-    Randomizes the drops of basic enemies, excluding key items and essences.
-        Parameters:
-            scaling (Boolean): whether the items are scaled to the level of the encounter
-    '''
-    def randomizeBasicEnemyDrops(self, scaling):
-        validItems = []
-        if scaling: #Rewards should scale on area
-            validItems = {}
-            for key, values in numbers.CONSUMABLE_MAP_SCALING.items():
-                validItems[key] = values
-        else: #Rewards are truly random
-            for itemID, itemName in enumerate(self.itemNames): 
-                if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                    validItems.append(itemID)
-
-        #Gather all non mitama basic enemies with drops
-        dropEnemies = list(filter(lambda e: 'Mitama' not in e.name and e.drops.item1.value > 0, self.enemyArr))
-
-        for enemy in dropEnemies: #For all enemies
-            drop = enemy.drops
-            if scaling: #Drops should scale based on area
-                rewardArea = numbers.ENCOUNTER_LEVEL_AREAS[enemy.level] #Area to scale rewards with
-                if drop.item1.value < numbers.CONSUMABLE_ITEM_COUNT: 
-                    if random.random() < numbers.DROP1_LIFESTONE_ODDS: #First Drop has a chance to be forced life stone as per original game
-                        drop.item1.value = 1
-                    else:
-                        drop.item1.value = random.choice(validItems[rewardArea])
-                    drop.item1.chance = random.randrange(3,12)
-                if drop.item2.value < numbers.CONSUMABLE_ITEM_COUNT:
-                    drop.item1.value = random.choice(validItems[rewardArea])
-                    drop.item2.chance = random.randrange(3,12)
-                if drop.item3.value < numbers.CONSUMABLE_ITEM_COUNT:
-                    drop.item1.value = random.choice(validItems[rewardArea])
-                    drop.item3.chance = random.randrange(3,12)
-            else: #non scaling random drops
-                #Edit all drops that are not key items or essences
-                if drop.item1.value < numbers.CONSUMABLE_ITEM_COUNT:
-                    drop.item1.value = random.choice(validItems)
-                    drop.item1.chance = random.randrange(3,12)
-                if drop.item2.value < numbers.CONSUMABLE_ITEM_COUNT:
-                    drop.item2.value = random.choice(validItems)
-                    drop.item2.chance = random.randrange(3,12)
-                if drop.item3.value < numbers.CONSUMABLE_ITEM_COUNT:
-                    drop.item3.value = random.choice(validItems)
-                    drop.item3.chance = random.randrange(3,12) 
-                    
-    '''
-    Randomizes the drops of bosses, excluding key items.
-        Parameters:
-            scaling (Boolean): whether the items are scaled to the level of the encounter
-    '''
-    def randomizeBossDrops(self, scaling):
-        validItems = []
-        if scaling: #Rewards should scale on area
-            validItems = {}
-            for key, values in numbers.CONSUMABLE_MAP_SCALING.items():
-                validItems[key] = values
-        else: #Rewards are truly random
-            for itemID, itemName in enumerate(self.itemNames): 
-                if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                    validItems.append(itemID)
-
-        for demonID in self.validBossDemons: #For all bosses
-            enemy = self.bossArr[demonID]
-            drop = enemy.drops
-            if drop.item1.value >= numbers.KEY_ITEM_CUTOFF or drop.item2.value >= numbers.KEY_ITEM_CUTOFF or drop.item3.value >= numbers.KEY_ITEM_CUTOFF:
-                continue #Don't mess with key items
-            if drop.item1.chance <= 0 and drop.item2.chance <= 0 and drop.item3.chance <= 0:
-                continue #Bosses that drop nothing will continue to drop nothing (mostly minions and summons)
-            if scaling: #Drops should scale based on area
-                rewardArea = numbers.ENCOUNTER_LEVEL_AREAS[enemy.level] #Area to scale rewards with
-                numDrops = random.choices(list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.keys()), list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.values()))[0]
-                if demonID not in self.essenceBannedBosses and random.random() < numbers.BOSS_ESSENCE_ODDS: #Boss will drop its own essence
-                    try:
-                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.getBannedEssences())
-                        drop.item1 = Item_Drop(essence.ind, essence.name, 100, 0)
-                    except StopIteration:
-                        item = random.choice(validItems[rewardArea])
-                        drop.item1 = Item_Drop(item, self.itemNames[item], 100, 0)
-                else:
-                    item = random.choice(validItems[rewardArea])
-                    drop.item1 = Item_Drop(item, self.itemNames[item], 100, 0)
-                if numDrops > 1:
-                    item = random.choice(validItems[rewardArea])
-                    drop.item2 = Item_Drop(item, self.itemNames[item], 100, 0)
-                else:
-                    drop.item2 = Item_Drop(0, self.itemNames[0], 0, 0)
-                if numDrops > 2:
-                    item = random.choice(validItems[rewardArea])
-                    drop.item3 = Item_Drop(item, self.itemNames[item], 100, 0)
-                else:
-                    drop.item3 = Item_Drop(0, self.itemNames[0], 0, 0)
-            else: #non scaling random drops
-                numDrops = random.choices(list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.keys()), list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.values()))[0]
-                if demonID not in self.essenceBannedBosses and random.random() < numbers.BOSS_ESSENCE_ODDS: #Boss will drop its own essence
-                    try:
-                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.getBannedEssences())
-                        drop.item1 = Item_Drop(essence.ind, essence.name, 100, 0)
-                    except StopIteration:
-                        item = random.choice(validItems)
-                        drop.item1 = Item_Drop(item, self.itemNames[item], 100, 0)
-                else:
-                    item = random.choice(validItems)
-                    drop.item1 = Item_Drop(item, self.itemNames[item], 100, 0)
-                if numDrops > 1:
-                    item = random.choice(validItems)
-                    drop.item2 = Item_Drop(item, self.itemNames[item], 100, 0)
-                else:
-                    drop.item2 = Item_Drop(0, self.itemNames[0], 0, 0)
-                if numDrops > 2:
-                    item = random.choice(validItems)
-                    drop.item3 = Item_Drop(item, self.itemNames[item], 100, 0)
-                else:
-                    drop.item3 = Item_Drop(0, self.itemNames[0], 0, 0)
                     
     '''
         Fills the set validBossDemons with all the demon IDs of bosses that are included in the randomizer
@@ -7716,7 +7716,8 @@ class Randomizer:
 
     '''
         Compresses the output files using Unreal Pak into rando.pak
-        TODO: Determine if this works for non-windows systems
+        TODO: Determine if this works for non-windows systems. Seemingly not.
+        #TODO Create filelist.txt ahead of time
     '''
     def applyUnrealPak(self):
         print("Applying Unreal Pak...")
@@ -8026,7 +8027,6 @@ class Randomizer:
         
         scriptLogic.randomizeDemonJoins(self.encounterReplacements,config.ensureDemonJoinLevel,self.scriptFiles)
 
-        
         self.assembleNonRedoableItemIDs()
         self.assembleValidityMaps()
         fakeMissions = self.randomizeItemRewards()
@@ -8041,9 +8041,6 @@ class Randomizer:
 
         if self.configSettings.selfRandomizeNormalBosses or self.configSettings.mixedRandomizeNormalBosses or self.configSettings.selfRandomizeOverworldBosses or self.configSettings.mixedRandomizeOverworldBosses:
             self.patchQuestBossDrops()
-        if self.configSettings.randomEnemyDrops:
-            #self.randomizeBasicEnemyDrops(self.configSettings.scaleItemsPerArea)
-            self.randomizeBossDrops(self.configSettings.scaleItemsPerArea)
 
         with open(paths.ITEM_DEBUG, 'w', encoding="utf-8") as file:
             self.itemDebugList.sort()
@@ -8070,6 +8067,8 @@ class Randomizer:
         message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames, self.playerBossArr, self.compendiumArr,self.progressionItemNewChecks)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
         
+        #TODO: Maybe we should find a way to only write model swaps after to create two paks?
+        #That way it is easier to switch once issues occur
         if self.configSettings.removeCutscenes or self.configSettings.skipTutorials:
             #Needs to be before cutsceneswap to handle scripts that get edited in both
             self.scriptFiles = scriptLogic.setCertainFlagsEarly(self.scriptFiles, self.mapEventArr, self.eventFlagNames, self.configSettings)
@@ -8145,7 +8144,6 @@ class Randomizer:
         writeFolder(paths.TITLE_TEXTURE_FOLDER_OUT)
 
         
-
         self.scriptFiles.writeFiles()
         del self.scriptFiles
 

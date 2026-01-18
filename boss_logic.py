@@ -53,6 +53,13 @@ BOSS_SUMMONS = {
     783: [784,785,786], #Marici - Conquering Mirage, Stitching Mirage, Warding Mirage
 }
 
+#For Bosses that drop items but are summons / not immediately present in an encounter
+MAIN_BOSS = {
+    570: 569, #Agrat -> Lilith
+    572: 569, #Eisheth -> Lilith
+    574: 569, #Naamah -> Lilith
+}
+
 #Boss IDs (first in the encounter) with multiple enemies of equal strength
 PARTNER_BOSSES = [433, #Eligor(Andras)
     442, 443, 444, 445, 446, 447, 448, 449, #All enemies during the school dungeon
@@ -721,10 +728,12 @@ def formatBossEncounter(encounter):
         formattedEncounter.isEvent = True
         formattedEncounter.eventEncounter = encounter
         formattedEncounter.track = encounter.track
+        formattedEncounter.uniqueID = encounter.ind + 10000
     else:
         formattedEncounter.demons = encounter.demons
         formattedEncounter.normalEncounter = encounter
         formattedEncounter.track = encounter.track
+        formattedEncounter.uniqueID = encounter.ind
     return formattedEncounter
 
 '''
