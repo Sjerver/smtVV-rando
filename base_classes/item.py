@@ -326,6 +326,8 @@ class Essence_Item(Base_Item):
     Returns true if the item is allowed in the check.
     '''
     def itemAllowedInCheck(self,check):
+        if check.type in [Check_Type.BASIC_ENEMY_DROP, Check_Type.BOSS_DROP]:
+            return False
         if self.amount > check.maxItemQuantity:
             return False
         if not self.allowRepeatable and check.repeatable:

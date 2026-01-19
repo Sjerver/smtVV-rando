@@ -112,6 +112,18 @@ UNUSED_CHESTS = [
 #The very first chest is unfortunately missable
 MISSABLE_CHESTS = [29]
 
+#Chests that should be treated as a different area than in the game data
+#Area to Chest IDs
+AREA_CHEST_EXCEPTIONS = {
+    961: [90, 91, 92, 93, 94, 95, 96, 97]
+}
+#Chest ID to area
+CHEST_AREA_EXCEPTIONS = {
+    chestID: area
+    for area, chestIDs in AREA_CHEST_EXCEPTIONS.items()
+    for chestID in chestIDs
+}
+
 CHEST_MACCA_MIN = 500
 CHEST_MACCA_MAX = 60000
 #Chance of a chest containing macca instead of an item/essence
@@ -189,6 +201,19 @@ VENDING_MACHINE_RELIC_QUANTITY_WEIGHTS = {
 #This Vending Machine is missable because it only activates later after you are well past it making it unlikely that players will pick it up
 MISSABLE_VENDING_MACHINE = [50]
 
+#Vending Machines that should be treated as a different area than in the game data
+#Area to Vending Machine IDs
+AREA_VM_EXCEPTIONS = {
+    961: [10,11,12,20,21,22,23]  
+}
+#Vending Machine ID to area
+VM_AREA_EXCEPTIONS = {
+    vmID: area
+    for area, vmIDs in AREA_CHEST_EXCEPTIONS.items()
+    for vmID in vmIDs
+}
+
+
 #The number of different consumable items (including some DUMMY items), from indices 0-113
 CONSUMABLE_ITEM_COUNT = 114
 
@@ -229,9 +254,9 @@ MIMAN_ITEM_AMOUNT_WEIGHTS = {
 
 #Map of key item ids and in which areas they are only allowed in
 KEY_ITEM_AREA_RESTRICTIONS = {
-    658: [60,61,62,63,64,36,38], #Key of Austerity
-    659: [60,61,62,63,64,36,38], #Key of Benevolence
-    660: [60,61,62,63,64,36,38], #Key of Harmony
+    658: [60,61,62,63,64,36,38,961], #Key of Austerity
+    659: [60,61,62,63,64,36,38,961], #Key of Benevolence
+    660: [60,61,62,63,64,36,38,961], #Key of Harmony
 
 }
 
@@ -247,8 +272,14 @@ AREA_NAMES = {
   63: 'Chiyoda',
   64: 'Shinjuku',
   107: 'DemiFiend Area',
-  960: 'Taito Post KeyLock'
-} #TODO: Add Minato Egypt
+  960: 'Taito Post Keys',
+  961: 'Minato (Egypt)',
+}
+# What areas not originally in the game are in game logic
+FAKE_AREA_TRANSLATIONS = {
+    960: 60,
+    961: 61,
+}
 
 #Chance a mission rewards macca
 MISSION_MACCA_ODDS= 0.1717
@@ -489,6 +520,7 @@ CONSUMABLE_MAP_SCALING = {
   38: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] +CONSUMABLE_PROGRESSION[4]+CONSUMABLE_PROGRESSION[2]+ CONSUMABLE_PROGRESSION[3] +[13], #Demon Kings Castle / Shakan: same as above
   107: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] +CONSUMABLE_PROGRESSION[4]+ CONSUMABLE_PROGRESSION[3] +[], #Demi-Fiend Area: same as Empyrean
   960: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] + CONSUMABLE_PROGRESSION[3] + CONSUMABLE_PROGRESSION[4] + [13], #Taito Post Keys: Ambrosia,
+  961: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] + CONSUMABLE_PROGRESSION[3] + CONSUMABLE_PROGRESSION[4] + [13], #Minato (Egypt) copy of taito
 }
 
 # Describes what level essences rewards can be in areas
@@ -505,6 +537,7 @@ ESSENCE_MAP_SCALING = {
   38: [50,54], #Demon Kings Castle / Shakan,
   107: [86,95], #Demi-Fiend Area: same as Empyrean
   960: [52,71], #Taito Post Keys
+  961: [52,71], #Minato Egypt
 }
 
 #Defines the missions that are scaled on the area
@@ -513,13 +546,14 @@ REWARD_AREA_MISSIONS = {
   35: [81,95,116],
   36: [212,114,174],
   38: [212,114,174],
-  60: [33,35,36,37,38,39,40,42,43,44,46,49,63,64,65,66,67,79,80,82,87,94,165,172,181,183,185,193,196,198,205,209,211,41,218,219,143],
+  60: [33,35,36,37,38,39,40,43,44,46,49,63,64,65,66,67,79,80,82,87,94,165,181,183,185,193,196,198,205,209,211,41,218,219,143],
   61: [6,7,8,9,13,56,57,58,61,68,69,70,71,86,150,151,166,167,170,201],
   62: [12,92,14,15,16,17,18,19,20,21,75,76,83,91,106,152,155,156,157,160,161,162,189,191,192,197],
   63: [73,34,139,59,22,24,25,26,27,28,138,30,48,32,72,62,77,78,93,31,159,164,186,187,204,206,208,29],
   64: [108,109,111,112,113,140,141,142,145,146,147,148,153,169,171,173,175,176,177,178,179,180,184,194,200,202,203,210],
   107: [84,144],
   960: [45,74], #The Holy Ring, Destined Leader (Post Taito KeyLock)
+  961: [42,172], #Minato Egypt
 }
 
 #Defines the amount of macca missions can reward in an area
@@ -535,6 +569,7 @@ MISSION_REWARD_AREA_MACCA_RANGES = {
     64: [6000, 22000], #Same as Chiyoda
     107: [666666,666666], #Return of True Demon
     960: [25000, 85000],#Escort the Prime Minister ,To The Empyrean
+    961: [25000, 85000], #Minato Egypt (copy of Taito)
 }
 
 #Defines the amount of macca chest can contain in an area
@@ -550,6 +585,7 @@ CHEST_AREA_MACCA_RANGES = {
     64: [10000, 20000], 
     107: [50000, 60000], #same as taito
     960: [50000, 60000],
+    961: [50000, 60000], #Minato Egypt (available from Taito)
 
 }
 #Combined maps for macca reward ranges

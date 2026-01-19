@@ -5143,7 +5143,13 @@ class Randomizer:
             for chest in self.chestArr:
                 if chest.chestID in numbers.UNUSED_CHESTS:
                     continue
-                check = Item_Check(Check_Type.TREASURE, chest.chestID, "Chest " + str(chest.chestID), chest.map)
+
+                if chest.chestID in numbers.CHEST_AREA_EXCEPTIONS.keys():
+                    area = numbers.CHEST_AREA_EXCEPTIONS[chest.chestID]
+                else:
+                    area = chest.map
+                
+                check = Item_Check(Check_Type.TREASURE, chest.chestID, "Chest " + str(chest.chestID), area)
                 if chest.chestID in numbers.MISSABLE_CHESTS:
                     check.missable = True
                 if chest.macca > 0:
@@ -5242,8 +5248,12 @@ class Randomizer:
                     vmItems.append(item)
                     odds.append(vmItem.rate)
 
+                if vm.ind in numbers.VM_AREA_EXCEPTIONS.keys():
+                    area = numbers.VM_AREA_EXCEPTIONS[vm.ind]
+                else:
+                    area = vm.area
 
-                check = Item_Check(Check_Type.VENDING_MACHINE, vm.ind, "Vending Machine " + str(vm.ind), vm.area, True, False, False, 2, True, odds)
+                check = Item_Check(Check_Type.VENDING_MACHINE, vm.ind, "Vending Machine " + str(vm.ind), area, True, False, False, 2, True, odds)
 
                 if check.ind in numbers.MISSABLE_VENDING_MACHINE:
                     check.missable = True
@@ -5629,7 +5639,6 @@ class Randomizer:
                 amount = random.randint(maccaMin // 100, maccaMax // 100) * 100
                 
             elif randomNumber < essenceOdds + maccaOdds:
-                #TODO: Decide if we still want to prevent essences from existing more than once?
                 if self.configSettings.scaleItemsPerArea:
                     cArea = check.area
                 else:
