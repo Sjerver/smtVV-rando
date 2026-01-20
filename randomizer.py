@@ -118,7 +118,7 @@ class Randomizer:
         self.guestReplacements = {}
 
         self.dummyEventIndex = 0
-        self.itemDebugList = []
+        self.itemDebugList = {}
         self.progressionItemNewChecks = {}
         self.nonRedoableItemIDs = []
         self.itemValidityMap = {}
@@ -5018,8 +5018,6 @@ class Randomizer:
         for key,value in numbers.RELIC_MAP_SCALING.items():
             self.relicValidityMap[key] = value
         for area in numbers.AREA_NAMES.keys():
-            #TODO: Am I happy with this? This is just copied from old code
-            #TODO: Does not work because cannot differentiate between two Nuwa Essences for example
             self.essenceValidityMap[area] = []
             #Grab all essences in the predefined level range for the area
             for essence in self.essenceArr:
@@ -5434,7 +5432,6 @@ class Randomizer:
                     for check in filteredRelevantChecks:
                         baseWeight = 1 / (check.validItemAmount ** checkPower)
                         if not desperateCheck and self.configSettings.relicBiasVendingMachine and isinstance(chosenItem,Relic_Item) and check.type == Check_Type.VENDING_MACHINE:
-                            #TODO: Make stronger now that we have a safeguard condition
                             baseWeight = baseWeight*4 #Treats check as if it only has half the amount of validItems
                         wChecks.append(baseWeight)
                 
@@ -7687,13 +7684,12 @@ class Randomizer:
     Adds the items of a check to the item debug log.
     '''
     def logItemCheck(self,check):
-        items = [check.item] + check.additionalItems
-        for index, item in enumerate(items):
-            if check.hasOdds:
-                self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"] Odds [" +str(check.odds[index])+"]")
-            else:
-                #self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] ItemType [" + type(item).__name__ +"] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]")
-                self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]")
+        category = Check_Type.getCheckString(check.type)
+        if category not in self.itemDebugList.keys():
+            self.itemDebugList[category] = []
+        self.itemDebugList[category].append(check)
+
+            
     
     '''
     Generates a random seed if none was provided by the user and sets the random seed
@@ -8052,10 +8048,17 @@ class Randomizer:
             self.patchQuestBossDrops()
 
         with open(paths.ITEM_DEBUG, 'w', encoding="utf-8") as file:
-            self.itemDebugList.sort()
-            #TODO: Either sort them differently or store/record them differently!!
-            for entry in self.itemDebugList:
-                file.write(entry + "\n")
+            for category, checks in self.itemDebugList.items():
+                sortedChecks = sorted( checks, key = lambda x : x.ind )
+                for check in sortedChecks:
+                    items = [check.item] + check.additionalItems
+                    for index, item in enumerate(items):
+                        if check.hasOdds:
+                            line = "Category [" +category +"] CheckName ["+str(check.name) + "] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"] Odds [" +str(check.odds[index])+"]"
+                        else:
+                            #self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] ItemType [" + type(item).__name__ +"] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]")
+                            line = "Category [" +category +"] CheckName ["+str(check.name) + "] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]"
+                        file.write(line + "\n")
 
         self.addEntriesToMapSymbolScaleTable()
         self.scaleLargeSymbolDemonsDown()

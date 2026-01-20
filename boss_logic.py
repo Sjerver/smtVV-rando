@@ -1461,7 +1461,6 @@ Fill up the empty slots in a demon's skill list with additional passives.
         configSettings (Settings): settings of the current rando run
         ogLevel (Number): the original level of the demon
         refDemon(Enemy_Demon): the demon who is the reference for a duplicate revival demon
-        #TODO: Progress Based aka Level based?
 ''' 
 def fillEmptySlotsWithPassives(demon, skillReplacementMap, configSettings: Settings, ogLevel, refDemon = None):
     if demon.ind not in skillReplacementMap.keys():
