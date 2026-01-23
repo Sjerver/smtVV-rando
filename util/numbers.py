@@ -670,6 +670,7 @@ ENEMY_HEALING_SKILL_IDS = [103, 104, 105, 106, 352, 353, 354, 355, 381, 382, 383
 
 #Skill ID of Lunation Flux which should be restricted more than other unique skills
 LUNATION_FLUX_ID = 927
+REVIVAL_CHANT_ID = 311 #Skil lID of Revival chant which nees to keep restrictions
 
 #Mission ID of Brawny Ambitions II for skill condition
 BRAWNY_AMBITIONS_ID = 197
@@ -1220,13 +1221,14 @@ def getBonusSkills():
             [ 'Lunar Hurricane',925,69,69],
             [ 'Luminescent Mirage',926,80,80],
             [ 'Lunation Flux',927,69,69],
-            [ 'Gaea Rage',830,95,99]
+            [ 'Gaea Rage',830,95,99],
+            [ 'Revival Chant',311,61,61] #Revival Chant but only assignable to nahobino
         ]
 
 
 def getAnimationFixOnlySkills():
     return [
-        [ 'Revival Chant',311,61,61] #Revival Chant can only be used by non-nahobino with the animation fix (though then functions as a revive swap for demons/npcs)
+       
     ]
 
 '''

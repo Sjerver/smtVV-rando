@@ -2001,9 +2001,17 @@ class Randomizer:
     '''
     def checkUniqueSkillConditions(self, skill, demon, comp, settings):
         lunationCondition = (skill.ind == numbers.LUNATION_FLUX_ID) and settings.restrictLunationFlux
+        
         if skill.owner.ind == -2:
             # Demon Only skills should stay Demon only (Inspiring Leader)
             return True
+
+        #Revival Chant should stay nahobino only skill
+        if skill.ind == numbers.REVIVAL_CHANT_ID and demon.ind in numbers.PROTOFIEND_IDS:
+            return True
+        elif skill.ind == numbers.REVIVAL_CHANT_ID:
+            return False
+        
         if settings.multipleUniques and not lunationCondition:
         # Unique skill can appear twice
             # check if skill is unique skill
@@ -7564,15 +7572,16 @@ class Randomizer:
                 donor: demon to donate the assets
         '''
         def obtainAssets(recipient,donor):
-            newID = recipient.ind
-            source = donor.ind
-            self.devilAssetArr[newID] = self.copyAssetsToSlot(self.devilAssetArr[newID], self.devilAssetArr[source])
-            self.devilUIArr[newID].assetID = self.devilUIArr[source].assetID
-            self.devilUIArr[newID].assetString = self.devilUIArr[source].assetString
-            self.talkCameraOffsets[newID].demonID = self.talkCameraOffsets[source].demonID
-            self.talkCameraOffsets[newID].eyeOffset = self.talkCameraOffsets[source].eyeOffset
-            self.talkCameraOffsets[newID].lookOffset = self.talkCameraOffsets[source].lookOffset
-            self.talkCameraOffsets[newID].dyingOffset = self.talkCameraOffsets[source].dyingOffset
+            recID = recipient.ind
+            sourceID = donor.ind
+            
+            self.devilAssetArr[recID] = self.copyAssetsToSlot(self.devilAssetArr[recID], self.devilAssetArr[sourceID])
+            self.devilUIArr[recID].assetID = self.devilUIArr[sourceID].assetID
+            self.devilUIArr[recID].assetString = self.devilUIArr[sourceID].assetString
+            self.talkCameraOffsets[recID].demonID = self.talkCameraOffsets[sourceID].demonID
+            self.talkCameraOffsets[recID].eyeOffset = self.talkCameraOffsets[sourceID].eyeOffset
+            self.talkCameraOffsets[recID].lookOffset = self.talkCameraOffsets[sourceID].lookOffset
+            self.talkCameraOffsets[recID].dyingOffset = self.talkCameraOffsets[sourceID].dyingOffset
 
         
         #To temporarily store the guest data
@@ -7733,7 +7742,6 @@ class Randomizer:
     '''
         Compresses the output files using Unreal Pak into rando.pak
         TODO: Determine if this works for non-windows systems. Seemingly not.
-        #TODO Create filelist.txt ahead of time
     '''
     def applyUnrealPak(self):
         print("Applying Unreal Pak...")
