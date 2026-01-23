@@ -106,7 +106,6 @@ CAMP_LN10_STATUS_FOLDER_OUT = 'rando/Project/Content/L10N/en/Blueprints/Gamedata
 
 
 DEBUG_FOLDER = 'debug'
-SEED_FILE = 'debug/currentSeed.txt'
 ENCOUNTERS_DEBUG = 'debug/encounterResults.txt'
 FUSION_DEBUG = 'debug/fusionResults.txt'
 BOSSES_DEBUG = 'research/bossEncounters.csv'

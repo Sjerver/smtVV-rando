@@ -17,6 +17,7 @@ VANILLA_LIST_ITEMS_ORDER = ["Treasures","Miman Rewards","Mission Rewards","NPC/S
 
 #Creates page system with important information like randomize button always visible
 def createGUI(configSettings: Settings):
+    oldSeed = ""
     window = tk.Tk()
     window.geometry('1000x700+50+50')
     persistentFrame = tk.Frame(window, width=1000, height=170)
@@ -129,12 +130,7 @@ def createGUI(configSettings: Settings):
 
     def reuseLastSeed():
         seedEntry.delete(0,len(seedEntry.get()))
-        try:
-            with open(paths.SEED_FILE, 'r') as file:
-                fileContents = file.read()
-                seedEntry.insert(0,fileContents)
-        except FileNotFoundError:
-            seedEntry.insert(0,"")
+        seedEntry.insert(0,oldSeed)
 
     randomizeButton = tk.Button( #Button to start the randomizer
         persistentFrameLeft,
@@ -913,6 +909,9 @@ def createGUI(configSettings: Settings):
         toggleMiracleListboxes(None)
         toggleSkillScalingListbox(None)
 
+        nonlocal oldSeed
+        oldSeed = configur.get("Seed", "seed")
+
         def applyUISetting(config, section, key, element, elementType, index=None, element2=None):
             value = config.get(section, key) == 'true'
             if section == "Miracle":
@@ -941,8 +940,7 @@ def createGUI(configSettings: Settings):
                     if element2.get(i) in itemList:
                         element2.selection_set(i)
                 moveItemsBetweenLists(element2,element)
-                
-
+  
         for section, keys in UI_MAP.items():
             for key, (elementType, element, *index) in keys.items():
                 if elementType == 'Listbox_Item_Move':
@@ -1354,6 +1352,8 @@ def createGUI(configSettings: Settings):
     configSettings.pressTurnChance = pressTurnChoice
     configur.set('Patches', 'PressTurnChance', str(pressTurnChoice))
 
+    configur.set('Seed','seed', textSeed)
+
     with open('config.ini', 'w') as configfile:
         configur.write(configfile)
 
@@ -1362,6 +1362,7 @@ def createGUI(configSettings: Settings):
 #Initializes the config.ini file with default values if it is missing or there's a version difference
 def createConfigFile(configur):
     configur.read('config.ini')
+    configur['Seed'] = {'seed': ""}
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
                                 'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False, 

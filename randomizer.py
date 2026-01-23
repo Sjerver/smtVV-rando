@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 from util.binary_table import Table, writeBinaryTable, writeFolder, copyFile, readBinaryTable
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate, Encounter_Spawn
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner, Fusion_Requirements
@@ -7695,10 +7696,20 @@ class Randomizer:
     Generates a random seed if none was provided by the user and sets the random seed
     '''
     def createSeed(self):
-         if self.textSeed == "":
-             self.textSeed = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-             print('Your generated seed is: {}\n'.format(self.textSeed))
-         random.seed(self.textSeed)
+        if self.textSeed == "":
+            self.textSeed = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+            print('Your generated seed is: {}\n'.format(self.textSeed))
+
+            # Write seed to config.ini
+            configur = ConfigParser()
+            configur.read('config.ini')
+            configur.set('Seed', 'seed', self.textSeed)
+            with open('config.ini', 'w') as f:
+                configur.write(f)
+        random.seed(self.textSeed)
+         
+         
+
          
     '''
     Makes the game easier for testing purposes. All enemy hp is set to 10 and Nahobino's stats are increased
@@ -7744,8 +7755,6 @@ class Randomizer:
         shutil.copytree(paths.PRE_MODIFIED_FILES, paths.PRE_MODIFIED_FILES_OUT)
 
         writeFolder(paths.DEBUG_FOLDER)
-        with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
-                file.write(self.textSeed)
 
         compendiumBuffer = readBinaryTable(paths.NKM_BASE_TABLE_IN)
         skillBuffer = readBinaryTable(paths.SKILL_DATA_IN)
@@ -8414,7 +8423,7 @@ if __name__ == '__main__':
         if not rando.configSettings.fixUniqueSkillAnimations:
             print('"Fix unique skill animations" patch not applied. If the game appears to hang during a battle animation, press the skip animations button')
         print('\nRandomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
-        print('CurrentSeed, bossSpoilerLog, encounterResults, fusionResults and itemLog can be found in the debug folder')
+        print('BossSpoilerLog, encounterResults, fusionResults and itemLog can be found in the debug folder')
        
     except RuntimeError:
         print('GUI closed - randomization was canceled')
