@@ -305,9 +305,8 @@ def replaceDemonModelInScript(script, file: Script_File, demonsToUse):
             modelSwapDemon.classOldPrefix = "dev"
             modelSwapDemon.classOldPrefixVariant = "Dev"
         
-        
-        for index, name in enumerate(file.originalNameMap):
-            breakDemon = False
+        breakDemon = False
+        for index, name in enumerate(file.originalNameMap):    
             if "DevilBaseLight" in name and 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] :
                 #Applies to CoC Nuwa Gate, Kunitsukami Fight, Dagda, 4 Heavenly Kings, Pisaca Quest Anahita Event, Konohana Sakuya, Nozuchi, Huang Long
                 
