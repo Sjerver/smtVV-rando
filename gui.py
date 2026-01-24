@@ -126,7 +126,7 @@ def createGUI(configSettings: Settings):
             return
         presetConfigur = ConfigParser()
         presetConfigur.read(paths.PRESET_SETTINGS_FOLDER + "/" + dropdownPresetText.get() + ".ini")
-        ApplySettings(presetConfigur)
+        ApplySettings(presetConfigur,preset = True)
 
     def reuseLastSeed():
         seedEntry.delete(0,len(seedEntry.get()))
@@ -736,7 +736,7 @@ def createGUI(configSettings: Settings):
         
     page1Frame.tkraise()
     
-    def ApplySettings(configur):
+    def ApplySettings(configur, preset = False):
         resetItemCheckLists()
         UI_MAP = {
             'Patches': {
@@ -909,8 +909,9 @@ def createGUI(configSettings: Settings):
         toggleMiracleListboxes(None)
         toggleSkillScalingListbox(None)
 
-        nonlocal oldSeed
-        oldSeed = configur.get("Seed", "seed")
+        if not preset:
+            nonlocal oldSeed
+            oldSeed = configur.get("Seed", "lastSeed")
 
         def applyUISetting(config, section, key, element, elementType, index=None, element2=None):
             value = config.get(section, key) == 'true'
@@ -1352,7 +1353,7 @@ def createGUI(configSettings: Settings):
     configSettings.pressTurnChance = pressTurnChoice
     configur.set('Patches', 'PressTurnChance', str(pressTurnChoice))
 
-    configur.set('Seed','seed', textSeed)
+    configur.set('Seed','lastSeed', textSeed)
 
     with open('config.ini', 'w') as configfile:
         configur.write(configfile)
@@ -1362,7 +1363,7 @@ def createGUI(configSettings: Settings):
 #Initializes the config.ini file with default values if it is missing or there's a version difference
 def createConfigFile(configur):
     configur.read('config.ini')
-    configur['Seed'] = {'seed': ""}
+    configur['Seed'] = {'lastSeed': ""}
     configur['Demon'] = {'RandomLevels': False, 'RandomSkills': False, 'ScaledSkills': False, 'RandomInnates': False, 'WeightSkillsToPotentials': False,
                                  'RandomPotentials': False, 'ScaledPotentials': False, 'multipleUniques': False, 'randomRaces': False, 'randomAlignment': False,
                                 'ensureDemonJoinLevel':False, 'RandomDemonStats': False, 'ReduceCompendiumCost': False, 'RestrictLunationFlux': False, 

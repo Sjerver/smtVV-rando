@@ -7712,7 +7712,7 @@ class Randomizer:
             # Write seed to config.ini
             configur = ConfigParser()
             configur.read('config.ini')
-            configur.set('Seed', 'seed', self.textSeed)
+            configur.set('Seed', 'lastSeed', self.textSeed)
             with open('config.ini', 'w') as f:
                 configur.write(f)
         random.seed(self.textSeed)
