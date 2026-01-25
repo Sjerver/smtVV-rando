@@ -5127,6 +5127,7 @@ class Randomizer:
         checks = []
 
         if "Miman Rewards" in relevantPools:
+            #TODO: Maybe something that changes how many miman you need per reward (normally 5)
             MIMAN_AREA_SLOTS = [61,61,61,61,61,61,61,61,61,61,
                                 62,62,62,62,62,62,62,62,62,63,#Last one is 63 because it requires Zako Quest from Area 3
                                 63,63,63,63,63,63,63,63,63,63,
@@ -8093,7 +8094,7 @@ class Randomizer:
         message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings, self.playerBossArr, self.itemNames)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr],self.compendiumArr,self.enemyNames,self.configSettings)
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap, self.playerBossArr, self.compendiumArr,self.progressionItemNewChecks)
-        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames, self.playerBossArr, self.compendiumArr,self.progressionItemNewChecks)
+        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames, self.playerBossArr, self.compendiumArr,self.progressionItemNewChecks, self.guestReplacements)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
         
         #TODO: Maybe we should find a way to only write model swaps after to create two paks?
@@ -8103,7 +8104,7 @@ class Randomizer:
             self.scriptFiles = scriptLogic.setCertainFlagsEarly(self.scriptFiles, self.mapEventArr, self.eventFlagNames, self.configSettings)
 
         if self.configSettings.swapCutsceneModels:
-            model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings, self.naviReplacementMap)
+            model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings, self.naviReplacementMap, self.guestReplacements)
 
         self.removeCalcOnlyMapSymbolScales()
         

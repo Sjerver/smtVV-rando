@@ -144,7 +144,7 @@ EVENT_CUTSCENES = {
     'LV_E2160': [Demon_Sync(393, 554),Demon_Sync(555)], #Labolas 2 pre-fight dialogue (Naamah,Labolas)
     'LV_E2164': [Demon_Sync(393, 554)],#Labolas 2 post-fight dialogue (Naamah)
     'LV_E2180': [Demon_Sync(1157)], #Yoko in front of school invasion
-    'LV_E2210': [Demon_Sync(152, 562), Demon_Sync(561,1150),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)],#Meeting Hayataro vengeance (Hayataro, Yuzuru, Tao,Yoko)
+    'LV_E2210': [Demon_Sync(152, 562), Demon_Sync(561,1150),Demon_Sync(-606,1152),Demon_Sync(1152),Demon_Sync(1157)],#Meeting Hayataro vengeance (Hayataro, Yuzuru, Tao,Yoko)
     'LV_E2250': [Demon_Sync(236,556),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Vengeance Lahmu pre-fight dialogue (Lahmu, Tao,Yoko)
     'LV_E2255': [Demon_Sync(236,556),Demon_Sync(391, 569),Demon_Sync(1152),Demon_Sync(1157)], #Lilith kills Sahori (Lahmu, Lilith, Tao)
     'LV_E2260': [Demon_Sync(1151),Demon_Sync(561,1150),Demon_Sync(1152),Demon_Sync(1157)], #Dazai/Yuzuru first argument (Dazai,Yuzuru, Tao, Yoko)
@@ -278,7 +278,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M062_E2271_Direct': [Demon_Sync(-606,1152),Demon_Sync(1157)], #Arriving in area 2 vengeance (Tao, Yoko)
     'MM_M062_E2272_Hit': [Demon_Sync(-606,1152),Demon_Sync(1157)], #Sensing other students Vengeance (Tao, Yoko)
     'MM_M062_E2275': [Demon_Sync(564),Demon_Sync(1151)], #Dazai/Abdiel talk in area 2 vengeance (Abdiel,Dazai)
-    'MM_M062_E228x': [Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Rescuing Students Vengeance (Tao, Yoko) #TODO: Test Tao school bag working?
+    'MM_M062_E228x': [Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Rescuing Students Vengeance (Tao, Yoko)
     'MM_M062_E2295_Direct': [Demon_Sync(559),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Eisheth pre-fight (Eisheth, Tao,Yoko)
     'MM_M062_E2298_Direct': [Demon_Sync(451),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #Fionn post-fight Vengeance (Fionn, Tao, Yoko)
     'MM_M062_E2300': [Demon_Sync(1151)], #Dazai Pre-Blocker Vengeance
@@ -357,7 +357,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M092_EM101_': [Demon_Sync(446)], #School Oni [63] (Down in the Direction where Jack is looking)
     'MM_M092_EM102_': [Demon_Sync(488),Demon_Sync(491),Demon_Sync(-606,1152),Demon_Sync(1157)], #School Andras + Rakshasa [56] (First Floor Hallway) (Tao with Bag,Yoko)
     'MM_M092_EM104': [Demon_Sync(496),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #School Incubus [58] (Fake School Girl) (Tao,Yoko)
-    'MM_M092_EM105_1': [Demon_Sync(449),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #School Tsuchigumo [62] (Second Floor Hallway) (Tao,Yoko)
+    'MM_M092_EM105_1': [Demon_Sync(449),Demon_Sync(-606,1152),Demon_Sync(1152),Demon_Sync(1157)], #School Tsuchigumo [62] (Second Floor Hallway) (Tao,Yoko)
     'MM_M092_EM106_': [Demon_Sync(501),Demon_Sync(448)], #School Manananggal +Shiki Ouji [66] (CoV 3rd Floor Corner from Far 2nd Floor Staircase, CoC 3rd Floor Hallway)
     'MM_M092_EM107_': [Demon_Sync(492),Demon_Sync(495),Demon_Sync(-606,1152),Demon_Sync(1157)], #School Rakshasa + Incubus [57] (Left at the Entrance) (Tao,Yoko)
     'MM_M092_EM108_': [Demon_Sync(493)], #School Rakshasa [59] (2nd Floor Corner)
@@ -565,7 +565,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M060_EM2483': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 4 (Nahobiho)
     'MM_M060_EM2484': [Demon_Sync(60, isNavi=True)], #Nahobiho Quest part 5 (Nahobiho)
     'MM_M060_EM2570': [Demon_Sync(22, 779),Demon_Sync(365)], #Moirae Haunt Quest (Norn, Tao Panagia)
-    'MM_M060_EM2630': [Demon_Sync(782)],  #Saturnus Quest(Saturnus) 
+    'MM_M060_EM2630': [Demon_Sync(782)],  #Saturnus Quest(Saturnus) #TODO: Has Zeus(Likely  Zeus in party replace?)
     'MM_M061_EM2705': [Demon_Sync(207)], # The Guardian of Light (Marici)
 
     #Submission M082 (Outside School)
@@ -987,6 +987,7 @@ MODEL_SYNC = {
     527: 525, # Depraved Wing (use Nahobino Abdiel)
     576: 392, # Agrat Illusion
     1161: 934, #Demi-fiend (Guest)
+    1150: 561, #Yuzuru (Guest ID to Boss ID)
 }
 
 '''

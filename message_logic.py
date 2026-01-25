@@ -1311,22 +1311,23 @@ Update the mention of demon names in mission events.
         playerBossArr (List(Compendium_Demon)): list of player boss demons
         comp (List(Compendium_Demon)): list of compendium demons
         progessItemChecks(Dict(Int: Item_Check)): map of item ids to new check for progression items
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, brawnyAmbitions2SkillName, navigatorMap,itemReplacements,itemNames, playerBossArr, comp,progessItemChecks):
-    updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp)
-    updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, itemReplacements,itemNames, playerBossArr, comp,progessItemChecks)
+def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, brawnyAmbitions2SkillName, navigatorMap,itemReplacements,itemNames, playerBossArr, comp,progessItemChecks, guestReplacements):
+    updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, guestReplacements)
+    updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, itemReplacements,itemNames, playerBossArr, comp,progessItemChecks,guestReplacements)
     for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
             missionText = file.getMessageStrings()
             originalMissionText = copy.deepcopy(missionText)
-            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp)
+            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, guestReplacements)
             speakerNames = file.getSpeakerNames();
             originalSpeakerNames = copy.deepcopy(speakerNames)
-            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, guestReplacements)
             voices = file.getVoices()
             originalVoices = copy.deepcopy(voices)
-            updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+            updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,guestReplacements)
             if missionEvent in MISSION_CHECKS_ORIGINAL_IDS.keys():
                 hints = MISSION_CHECKS_ORIGINAL_IDS[missionEvent]
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames, playerBossArr, comp)
@@ -1366,20 +1367,21 @@ Update the mention of demon names in story event messages.
         playerBossArr (List(Compendium_Demon)): list of player boss demons
         comp (List(Compendium_Demon)): list of compendium demons
         progessItemChecks(Dict(Int: Item_Check)): map of item ids to new check for progression items
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,itemReplacements,itemNames, playerBossArr, comp,progessItemChecks):
+def updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,itemReplacements,itemNames, playerBossArr, comp,progessItemChecks, guestReplacements):
     for missionEvent,syncDemons in EVENT_MESSAGE_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/EventMessage/',OUTPUT_FOLDERS['EventMessage'])
             missionText = file.getMessageStrings()
             originalMissionText = copy.deepcopy(missionText)
-            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp)
+            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, guestReplacements)
             speakerNames = file.getSpeakerNames();
             originalSpeakerNames = copy.deepcopy(speakerNames)
-            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, guestReplacements)
             voices = file.getVoices()
             originalVoices = copy.deepcopy(voices)
-            updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+            updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,guestReplacements)
             if missionEvent in EVENT_CHECKS_ORIGINAL_IDS.keys():
                 hints = EVENT_CHECKS_ORIGINAL_IDS[missionEvent]
                 addHintMessagesInFile(missionText, hints, bossReplacements, demonNames, playerBossArr, comp)
@@ -1421,12 +1423,13 @@ Update the mention of demon names for the bench in demon haunts.
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
         playerBossArr (List(Compendium_Demon)): list of player boss demons
         comp (List(Compendium_Demon)): list of compendium demons
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp):
+def updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, guestReplacements):
         file = Message_File('GardenMsg_PlayerTalk','',OUTPUT_FOLDERS['Garden'])
         missionText = file.getMessageStrings()
         originalMissionText = copy.deepcopy(missionText)
-        updateDemonsInTextFile(missionText, originalMissionText,HAUNT_BENCH_DEMON_IDS,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp)
+        updateDemonsInTextFile(missionText, originalMissionText,HAUNT_BENCH_DEMON_IDS,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, guestReplacements)
         for syncDemon, index in HAUNT_BENCH_DEMON_IDS_BY_INDEX:
             originalDemonID = syncDemon.ind #id of demon mentionend in text
             syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
@@ -1462,8 +1465,9 @@ Update the mention of demon names in a single event message file
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
         playerBossArr (List(Compendium_Demon)): list of player boss demons
         comp (List(Compendium_Demon)): list of compendium demons
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp):
+def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, guestReplacements):
     for syncDemon in syncDemons:
         originalDemonID = syncDemon.ind #id of demon mentionend in text
         syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
@@ -1488,6 +1492,8 @@ def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encount
                 except KeyError:
                     #print("Key Error: " + str(syncDemonID))
                     continue
+        if replacementID in guestReplacements.keys() and syncDemonID not in guestReplacements.values():
+            replacementID = guestReplacements[replacementID]
         #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
         replacementName = demonNames[replacementID]
         # if replacementID > numbers.NORMAL_ENEMY_COUNT:
@@ -1528,8 +1534,9 @@ Update the mention of text box speaker names in a single event message file
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap):
+def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, guestReplacements):
     for syncDemon in syncDemons:
         originalDemonID = syncDemon.ind #id of demon mentioned in text
         syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
@@ -1552,6 +1559,8 @@ def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, enc
                     replacementID = encounterReplacements[syncDemonID]
                 except KeyError:
                     continue
+        if replacementID in guestReplacements.keys() and syncDemonID not in guestReplacements.values():
+            replacementID = guestReplacements[replacementID]
         #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
         #replacementName = demonNames[replacementID]
         replacementID = normalEnemyIDForBoss(replacementID, demonNames)
@@ -1575,8 +1584,9 @@ Update the mention of text box speaker names in a single event message file
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap):
+def updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,guestReplacements):
     for syncDemon in syncDemons:
         originalDemonID = syncDemon.ind #id of demon mentioned in text
         syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
@@ -1598,6 +1608,8 @@ def updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements
                     replacementID = encounterReplacements[syncDemonID]
                 except KeyError:
                     continue
+        if replacementID in guestReplacements.keys() and syncDemonID not in guestReplacements.values():
+            replacementID = guestReplacements[replacementID]
         replacementID = normalVoiceIDForBoss(replacementID, demonNames)
         for index, voiceID in enumerate(voices): #for every voice
             if originalVoices[index] != None and 'dev' + str(originalDemonID).zfill(3) + '_vo' in originalVoices[index]:

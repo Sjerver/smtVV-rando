@@ -60,8 +60,9 @@ Updates the models used in events.
         mapSymbolArr(List): list of map symbol data
         config (Config_Settings): settings set for the randomizer
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator models
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Script_File_List, mapSymbolFile, config, navigatorMap):
+def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Script_File_List, mapSymbolFile, config, navigatorMap,guestReplacements):
     mapSymbolTable = mapSymbolFile.json["Exports"][0]["Table"]["Data"]
     originalMapSymbolTable = mapSymbolFile.originalJson["Exports"][0]["Table"]["Data"]
     initDemonModelData()
@@ -101,6 +102,8 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
                         if DEBUG_SWAP_PRINT:
                             print("Key Error: " + str(syncDemonID) + " in encounter replacements")
                         continue
+            if replacementID in guestReplacements.keys() and syncDemonID not in guestReplacements.values():
+                replacementID = guestReplacements[replacementID]
             if replacementID == originalDemonID: #do not need to swap models if replacement is the same as originalDemonID
                 continue
             try: #Does replacement boss use a different model that has no tie to their id
@@ -194,7 +197,7 @@ def updateEventModels(encounterReplacements, bossReplacements, scriptFiles: Scri
     print(endTime - startTime)
     
     #umapList.writeFiles()
-    updateCutsceneModels(encounterReplacements, bossReplacements,config, navigatorMap)
+    updateCutsceneModels(encounterReplacements, bossReplacements,config, navigatorMap, guestReplacements)
 
 '''
 Prepares the given script file by preparing data that gets used in the model swap process.
@@ -336,7 +339,7 @@ def replaceDemonModelInScript(script, file: Script_File, demonsToUse):
                 nameEntry = nameEntry.replace(modelSwapDemon.oldFolderPrefix + modelSwapDemon.oldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.newFolderPrefix + modelSwapDemon.newPrefixVariant +modelSwapDemon.newIDString).replace(modelSwapDemon.oldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.newPrefixVariant +modelSwapDemon.newIDString)
                 if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
                     nameEntry = nameEntry.replace("_Simple","")
-            if modelSwapDemon.oldName in name and ("Character" in name or "Anim" in name): #to prevent stuff like replacing set(seth) in LoadAsset
+            if modelSwapDemon.oldName in name and ("Character" in name or "Anim" in name) and f"{modelSwapDemon.oldName}_" not in name: #to prevent stuff like replacing set(seth) in LoadAsset
                 #print(nameEntry)
                 nameEntry = nameEntry.replace(modelSwapDemon.oldName,modelSwapDemon.newName)
             # elif oldName in name:
@@ -652,7 +655,7 @@ def updateEventHitGen(file, scale, script):
     file.updateFileWithJson(file.json)
     return True
 
-def updateCutsceneModels(encounterReplacements, bossReplacements, config, navigatorMap):
+def updateCutsceneModels(encounterReplacements, bossReplacements, config, navigatorMap, guestReplacements):
     startTime = datetime.datetime.now()
     cutsceneFiles = Script_File_List()
     totalFiles = len(EVENT_CUTSCENES.keys())
@@ -683,6 +686,8 @@ def updateCutsceneModels(encounterReplacements, bossReplacements, config, naviga
                     except KeyError:
                         #print("Key Error: " + str(syncDemonID))
                         continue
+            if replacementID in guestReplacements.keys() and syncDemonID not in guestReplacements.values():
+                replacementID = guestReplacements[replacementID]
             if replacementID == originalDemonID: #do not need to swap models if replacement is the same as originalDemonID
                 continue
             try: #Does replacement boss use a different model that has no tie to their id
@@ -837,7 +842,7 @@ def replaceDemonInSequence(seq, file:Script_File, demonsToUse,event):
                 nameEntry = nameEntry.replace(modelSwapDemon.oldFolderPrefix + modelSwapDemon.oldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.newFolderPrefix + modelSwapDemon.newPrefixVariant +modelSwapDemon.newIDString).replace(modelSwapDemon.oldPrefixVariant + modelSwapDemon.oldIDString, modelSwapDemon.newPrefixVariant +modelSwapDemon.newIDString)
                 if 'FALSE' == HAS_SIMPLE_BP[replacementDemonID] and "_Simple" in name: #change bp name if demon does not have simple blueprint
                     nameEntry = nameEntry.replace("_Simple","")
-            if modelSwapDemon.oldName in name and ("Character" in name or "Anim" in name): #to prevent stuff like replacing set(seth) in LoadAsset
+            if modelSwapDemon.oldName in name and ("Character" in name or "Anim" in name) and f"{modelSwapDemon.oldName}_" not in name: #to prevent stuff like replacing set(seth) in LoadAsset
                 #print(nameEntry)
                 nameEntry = nameEntry.replace(modelSwapDemon.oldName,modelSwapDemon.newName)
             # elif oldName in name:
