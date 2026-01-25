@@ -5413,7 +5413,7 @@ class Randomizer:
                     if isinstance(chosenItem, Key_Item):
                         print("WARNING: KEY ITEM has been forced")
                     forceItem = True
-                    print("Forced Item " + chosenItem.name + "had no naturally available checks")
+                    print("Forced Item " + chosenItem.name + " had no naturally available checks")
                 else:
                     #Inverse weight of amount of valid checks for item to the power of checkPower
                     #wItem = [1 / (len(i.validChecks) ** checkPower) for i in filteredRelevantItems]
