@@ -253,6 +253,10 @@ GIFT_EXTRA_SCRIPTS = {
     'MM_M060_E3130_Direct_2': 'MM_M060_E3130_Direct'
 }
 
+DEFAULT_ITEM_VAR = {
+    'MM_M062_EM2060': 'GiftItemID'
+}
+
 #Odds that a non key gift contains an essence
 GIFT_ESSENCE_ODDS = 0.7 #Completely made up, but essence should be more likely for now since amount is fixed currently
 GIFT_RELIC_ODDS = 0.0025 #Really low chance, completely made up
@@ -603,62 +607,73 @@ Updates the old item given through the script to the new item.
 '''
 def updateItemRewardInScript(file, oldItemID, newItemID,scriptName,newItemAmount = 1):
     jsonData = file.json
-    bytecode = None
-    try: #get bytecode if UAssetAPI can parse it
-        exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
-        executeUbergraph = "ExecuteUbergraph_" + scriptName
-        exportIndex = exportNameList.index(executeUbergraph)
+    if scriptName in DEFAULT_ITEM_VAR.keys(): 
+        searchName = DEFAULT_ITEM_VAR[scriptName]
+        relevantExportName = "Default__" + scriptName + "_C" #Export name for script data
+        relevantExport = next(exp for exp in jsonData["Exports"] if exp['ObjectName'] == relevantExportName)
+        
+        for data in relevantExport['Data']:
+            if data['Name'] == searchName: #The value here is unique per script so no need to check for old demon ID
+                if data['Value'] == oldItemID:
+                    data['Value'] = newItemID
 
-        bytecode = Bytecode(jsonData["Exports"][exportIndex]['ScriptBytecode'])
-    except KeyError: #otherwise stop and note error
-        print("Script Byte Code only in raw form")
-        return
-    
-    relevantImportNames = ['ItemGet','ItemGetNum']
-    relevantFunctionNames = ['IItemWindowSetParameter', 'IMsgSetRichTextValueParam']
-
-    #grab original function calls, so that only calls for the original item get replaced to prevent chain replacements
-    if scriptName not in ORIGINAL_SCRIPT_FUNCTION_CALLS.keys():
-        ogFunctionCalls = getOriginalFunctionCalls(jsonData,bytecode, relevantImportNames,relevantFunctionNames)
-        ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName] = ogFunctionCalls
     else:
-        ogFunctionCalls = ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName]
-    importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
-    #These Imports are functions where the demon id to join gets passed as parameter
-    
-    relevantImports = {}
-    for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
-        if imp in importNameList:
-            relevantImports[imp] = -1 * importNameList.index(imp) -1
-    for imp,stackNode in relevantImports.items():
-            expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
-            expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_FinalFunction', stackNode))
-            ogExpressions = ogFunctionCalls[imp]
+        bytecode = None
+        try: #get bytecode if UAssetAPI can parse it
+            exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
+            executeUbergraph = "ExecuteUbergraph_" + scriptName
+            exportIndex = exportNameList.index(executeUbergraph)
+
+            bytecode = Bytecode(jsonData["Exports"][exportIndex]['ScriptBytecode'])
+        except KeyError: #otherwise stop and note error
+            print("Script Byte Code only in raw form")
+            return
+        
+        relevantImportNames = ['ItemGet','ItemGetNum']
+        relevantFunctionNames = ['IItemWindowSetParameter', 'IMsgSetRichTextValueParam']
+
+        #grab original function calls, so that only calls for the original item get replaced to prevent chain replacements
+        if scriptName not in ORIGINAL_SCRIPT_FUNCTION_CALLS.keys():
+            ogFunctionCalls = getOriginalFunctionCalls(jsonData,bytecode, relevantImportNames,relevantFunctionNames)
+            ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName] = ogFunctionCalls
+        else:
+            ogFunctionCalls = ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName]
+        importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+        #These Imports are functions where the demon id to join gets passed as parameter
+        
+        relevantImports = {}
+        for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
+            if imp in importNameList:
+                relevantImports[imp] = -1 * importNameList.index(imp) -1
+        for imp,stackNode in relevantImports.items():
+                expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+                expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_FinalFunction', stackNode))
+                ogExpressions = ogFunctionCalls[imp]
+                for index,exp in enumerate(expressions):
+                    ogItemValue = ogExpressions[index]['Parameters'][0].get('Value')
+                    if ogItemValue == oldItemID:
+                        exp['Parameters'][0]['Value']= newItemID
+                        #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
+                        if imp == 'ItemGet':
+                            exp['Parameters'][1]['Value']= newItemAmount
+        
+        
+        for func in relevantFunctionNames:
+            expressions = bytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
+            ogExpressions = ogFunctionCalls[func]
             for index,exp in enumerate(expressions):
-                ogItemValue = ogExpressions[index]['Parameters'][0].get('Value')
-                if ogItemValue == oldItemID:
-                    exp['Parameters'][0]['Value']= newItemID
-                    #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
-                    if imp == 'ItemGet':
-                        exp['Parameters'][1]['Value']= newItemAmount
-    
-    
-    for func in relevantFunctionNames:
-        expressions = bytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
-        ogExpressions = ogFunctionCalls[func]
-        for index,exp in enumerate(expressions):
-            if func == 'IItemWindowSetParameter':
-                ogItemValue = ogExpressions[index]['Parameters'][0].get('Value')
-                itemValue = exp['Parameters'][0].get('Value')
-                if ogItemValue == oldItemID:
-                    exp['Parameters'][0]['Value']= newItemID
-                    #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
-            if func == 'IMsgSetRichTextValueParam':
-                ogItemValue = ogExpressions[index]['Parameters'][1].get('Value')
-                itemValue = exp['Parameters'][1].get('Value')
-                if ogItemValue == oldItemID:
-                    exp['Parameters'][1]['Value']= newItemID
-                    #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
+                if func == 'IItemWindowSetParameter':
+                    ogItemValue = ogExpressions[index]['Parameters'][0].get('Value')
+                    itemValue = exp['Parameters'][0].get('Value')
+                    if ogItemValue == oldItemID:
+                        exp['Parameters'][0]['Value']= newItemID
+                        #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
+                if func == 'IMsgSetRichTextValueParam':
+                    ogItemValue = ogExpressions[index]['Parameters'][1].get('Value')
+                    itemValue = exp['Parameters'][1].get('Value')
+                    if ogItemValue == oldItemID:
+                        exp['Parameters'][1]['Value']= newItemID
+                        #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
     file.updateFileWithJson(jsonData)
 
 '''
