@@ -230,6 +230,19 @@ DEMIFIEND_ESSENCE_ID = 555 #Demi-fiends Essence normal ID
 def getBannedEssences():
     return BANNED_ESSENCES + [DEMIFIEND_ESSENCE_ID]
 
+'''
+Returns the area at which a certain amount of miman can be acquired.
+'''
+def getMimanRewardArea (miman):
+    if miman <= 50:
+        return 61
+    elif miman <= 99: #Last one is 63 because it requires Zako Quest from Area 3
+        return 62
+    elif miman <= 150:
+        return 63
+    else:
+        return 64
+
 #Chance that a miman reward is an essence
 MIMAN_ESSENCE_ODDS = 0.27272727
 MIMAN_RELIC_ODDS = 0.005 #Completely made up

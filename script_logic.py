@@ -179,7 +179,7 @@ BASE_GIFT_ITEMS = {
     'BP_JakyoEvent_Comp_Complete': 720, #Twinned Throne Periapt
     'MM_M087_E2450_Direct': 4, #Bead (Dazai Gift Temple CoV)
     'MM_M061_EM0181': 4, #Bead (Amanozako Event)
-    'MM_M062_EM2060': 7, #Revival Bead ("Nice Terekke" Koropokkur in Area 2) #TODO: did not work???? Has GiftItemID in Default__MM_M062_EM2060_C
+    'MM_M062_EM2060': 7, #Revival Bead ("Nice Terekke" Koropokkur in Area 2)
 
     'MM_M060_E0778': 658, #Key of Austerity (Vasuki Post Fight Event)
     'MM_M060_E0790': 659, #Key of Benevolence (Coc Zeus Post Fight)

@@ -91,6 +91,8 @@ def setConfigSettings(configur):
     configSettings.selfItemPools.extend(itemList)
     itemList = configur.get('Item', 'SharedItems',).split(',')
     configSettings.sharedItemPools.extend(configur)
+
+    configSettings.expMultiplier = float(configur.get('Item', 'MimanPerReward'))
     
     configSettings.randomizeNavigatorStats = obtainBooleanValue(configur.get('Navigators', 'RandomNavigatorStats'))
     configSettings.navigatorModelSwap = obtainBooleanValue(configur.get('Navigators', 'NavigatorModelSwap'))

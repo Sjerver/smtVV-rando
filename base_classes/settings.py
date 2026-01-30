@@ -111,3 +111,4 @@ class Settings(object):
         self.redoableWhittledGoat = False           # If Whittled Goat can show up as repeatable rewards
         self.redoableEssencesAllowed = False        # If Essences can show up as repeatable rewards
         self.redoableIncensesBalmsSutras = False    # If Stat Boosters can show up as repeatable rewards
+        self.mimanPerReward = 5                     # How many miman are required per miman reward

@@ -5127,15 +5127,12 @@ class Randomizer:
         checks = []
 
         if "Miman Rewards" in relevantPools:
-            #TODO: Maybe something that changes how many miman you need per reward (normally 5)
-            MIMAN_AREA_SLOTS = [61,61,61,61,61,61,61,61,61,61,
-                                62,62,62,62,62,62,62,62,62,63,#Last one is 63 because it requires Zako Quest from Area 3
-                                63,63,63,63,63,63,63,63,63,63,
-                                64,64,64,64,64,64,64,64,64,64]
             for index, entry in enumerate(self.mimanRewardsArr):
                 entry: Miman_Reward
                 nonZeroItems = [i for i in entry.items if i.ind != 0]
-                check = Item_Check(Check_Type.MIMAN, index, "Miman Reward #" + str(entry.miman),MIMAN_AREA_SLOTS[index],maxAdditionalItems=len(nonZeroItems)-1)
+                newMimanAmount = (1+index) * self.configSettings.mimanPerReward
+                newMimanArea = numbers.getMimanRewardArea(newMimanAmount)
+                check = Item_Check(Check_Type.MIMAN, index, "Miman Reward #" + str(newMimanAmount),newMimanArea,maxAdditionalItems=len(nonZeroItems)-1)
 
                 for ogItem in entry.items:
                     if ogItem.ind == 0:
@@ -5370,7 +5367,7 @@ class Randomizer:
 
                         odds.append(100) #Should always be 100 I think instead of drop.chance
 
-                        check = Item_Check(Check_Type.BOSS_DROP,index*10000 + enemy.ind,encData["Name"] + " {" + enemyName + " Drop " +str(index)+"}",area,False,False,False,0,True,odds)
+                        check = Item_Check(Check_Type.BOSS_DROP,index*10000 + enemy.ind,"Boss Check: "+ encData["Name"],area,False,False,False,0,True,odds)
                         check.allowedCanons = allowedCanons
 
                         if encData['Missable'] or demonID in bossLogic.MAIN_BOSS.keys():#The second condition is for bosses who are not necessary to kill to end the fight, but still have a drop
@@ -5698,6 +5695,7 @@ class Randomizer:
             self.logItemCheck(check)
             if check.type == Check_Type.MIMAN:
                 mimanReward = self.mimanRewardsArr[check.ind]
+                mimanReward.miman = (1+check.ind) * self.configSettings.mimanPerReward
                 mimanReward.items = []
                 mimanReward.items.append(Reward_Item(check.item.ind,check.item.amount))
                 for item in check.additionalItems:
@@ -7523,7 +7521,6 @@ class Randomizer:
 
 
         #TODO: Tao (Guest) is weird, since demons always get her textures??
-        #TODO: CoV Cutscenes are not yet tested for model swaps / messages
 
         
         '''

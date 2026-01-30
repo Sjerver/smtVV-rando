@@ -544,7 +544,14 @@ def createGUI(configSettings: Settings):
     listItemRedoable = tk.Listbox(itemSmallFrame, selectmode="multiple", width=45, height=len(listRedoableOrder), exportselection=False, selectbackground=NAHOBINO_BLUE)
     for index, item in enumerate(listRedoableOrder):
         listItemRedoable.insert(index,item)
-    listItemRedoable.pack()    
+    listItemRedoable.pack()
+
+    mimanLabel = tk.Label(itemSmallFrame, text="Miman required per Reward")
+    mimanLabel.pack()
+    
+    mimanScale = tk.Scale(itemSmallFrame, from_=1, to=5, resolution=1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
+    mimanScale.set(5)
+    mimanScale.pack()    
 
     itemVanillaFrame = tk.Frame(page5FrameTop,width=200, height=250,background="#cccccc")
     itemVanillaFrame.grid(row=0, column=0)
@@ -957,6 +964,7 @@ def createGUI(configSettings: Settings):
         
         expScale.set(configur.get('Patches', 'EXPMultiplier'))
         pressTurnScale.set(configur.get('Patches','PressTurnChance'))
+        mimanScale.set(configur.get('Item','MimanPerReward'))
         
         
     #Set starting GUI values based on saved user settings
@@ -1029,6 +1037,7 @@ def createGUI(configSettings: Settings):
         redoableItemFlags = [False for i in range(listItemRedoable.size())]
         for i in listItemRedoable.curselection():
             redoableItemFlags[i] = True
+        mimanChoice = mimanScale.get()
         
         miracleFlags = [False for i in range(listMiracle.size())]
         for i in listMiracle.curselection():
@@ -1177,7 +1186,9 @@ def createGUI(configSettings: Settings):
     for item in itemsSharedChoice:
         configSettings.sharedItemPools.append(item)
     configur.set('Item', 'SharedItems', ','.join(itemsSharedChoice))
-    
+
+    configSettings.mimanPerReward = mimanChoice
+    configur.set('Item', 'MimanPerReward', str(mimanChoice))
 
     configSettings.randomizeNavigatorStats = naviFlags[0]
     configur.set('Navigators', 'RandomNavigatorStats', str(naviFlags[0]).lower())
@@ -1374,7 +1385,7 @@ def createConfigFile(configur):
                         'IncludeTsukuyomiTalismanAsGift': False,'IncludeEmpyreanKeysAsGifts': False, 'RandomizeMitamaDrops': False, "LifestoneOrChakraDrop":False,
                         'relicBiasVendingMachine': False, 'SelfItems': [], 'SharedItems': [],
                         'RedoableGospel': False,'RedoableGrimoire': False, 'RedoableWhittledGoat': False, 'RedoableEssences': False,
-                        'RedoableIncensesBalmsSutras': False,
+                        'RedoableIncensesBalmsSutras': False, 'MimanPerReward': 5
                         }
     configur['Inheritance'] = {'RandomInheritance': False, 'FreeInheritance': False}
     configur['Magatsuhi'] = {'RandomRequirements': False,'IncludeCritical': False,'IncludeSuccession': False}

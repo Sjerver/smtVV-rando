@@ -353,7 +353,7 @@ EVENT_SCRIPT_MODELS = {
     'MM_M088_E0602_Odin': [Demon_Sync(470)], #Summmit (Odin)
     'MM_M088_E0602_Zeus': [Demon_Sync(469)], #Summmit (Zeus)
     #Mainmission M092 (School Attacked)
-    'MM_M092_E0476': [Demon_Sync(1157),Demon_Sync(1152)], #Yoko after Dazai scene (Tao,Yoko) #TODO: Has dazai(likely not cause creation)
+    'MM_M092_E0476': [Demon_Sync(1157),Demon_Sync(1152)], #Yoko after Dazai scene (Tao,Yoko)
     'MM_M092_EM101_': [Demon_Sync(446)], #School Oni [63] (Down in the Direction where Jack is looking)
     'MM_M092_EM102_': [Demon_Sync(488),Demon_Sync(491),Demon_Sync(-606,1152),Demon_Sync(1157)], #School Andras + Rakshasa [56] (First Floor Hallway) (Tao with Bag,Yoko)
     'MM_M092_EM104': [Demon_Sync(496),Demon_Sync(1152),Demon_Sync(-606,1152),Demon_Sync(1157)], #School Incubus [58] (Fake School Girl) (Tao,Yoko)
