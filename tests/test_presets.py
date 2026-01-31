@@ -28,6 +28,9 @@ def setConfigSettings(configur):
     configSettings.randomDemonStats = obtainBooleanValue(configur.get('Demon', 'RandomDemonStats'))
     configSettings.reduceCompendiumCosts = obtainBooleanValue(configur.get('Demon', 'ReduceCompendiumCost'))
     configSettings.betterSpecialFusions = obtainBooleanValue(configur.get('Demon', 'BetterSpecialFusions'))
+    configSettings.swapGuestsWithDemons = obtainBooleanValue(configur.get('Demon', 'swapGuestsWithDemons'))
+    configSettings.swapDemifiend = obtainBooleanValue(configur.get('Demon', 'swapDemifiend'))
+
 
     configSettings.randomInnates = obtainBooleanValue(configur.get('Demon', 'RandomInnates'))
     configSettings.randomSkills = obtainBooleanValue(configur.get('Demon', 'RandomSkills'))
@@ -65,15 +68,32 @@ def setConfigSettings(configur):
 
     configSettings.randomShopItems = obtainBooleanValue(configur.get('Item', 'RandomShopItems'))
     configSettings.randomShopEssences = obtainBooleanValue(configur.get('Item', 'RandomShopEssences'))
-    configSettings.randomEnemyDrops = obtainBooleanValue(configur.get('Item', 'RandomEnemyDrops'))
-    configSettings.randomChests = obtainBooleanValue(configur.get('Item', 'RandomChests'))
-    configSettings.scaleItemsToArea = obtainBooleanValue(configur.get('Item', 'ScaleItemsToArea'))
-    configSettings.randomizeMimanRewards = obtainBooleanValue(configur.get('Item', 'RandomizeMimanRewards'))
-    configSettings.randomizeMissionRewards = obtainBooleanValue(configur.get('Item', 'RandomizeMissionRewards'))
-    configSettings.randomizeGiftItems = obtainBooleanValue(configur.get('Item', 'RandomizeGiftItems'))
-    configSettings.combineKeyItemPools = obtainBooleanValue(configur.get('Item', 'CombineKeyItemPools'))
-    configSettings.includeTsukuyomiTalisman = obtainBooleanValue(configur.get('Item', 'IncludeTsukuyomiTalisman'))
 
+    configSettings.scaleMaccaPerArea = obtainBooleanValue(configur.get('Item','ScaleMaccaPerArea'))
+    configSettings.scaleItemsPerArea = obtainBooleanValue(configur.get('Item','ScaleItemsPerArea'))
+
+    configSettings.shuffleExistingItems = obtainBooleanValue(configur.get('Item','ShuffleExistingItems'))
+    configSettings.trulyRandomizeItems = obtainBooleanValue(configur.get('Item','TrulyRandomizeItems'))
+
+    configSettings.includeTsukuyomiTalismanAsGift = obtainBooleanValue(configur.get('Item','IncludeTsukuyomiTalismanAsGift'))
+    configSettings.includeEmpyreanKeysAsGifts = obtainBooleanValue(configur.get('Item','IncludeEmpyreanKeysAsGifts'))
+    configSettings.randomizeMitamaDrops = obtainBooleanValue(configur.get('Item','RandomizeMitamaDrops'))
+    configSettings.lifestoneOrChakraDrop = obtainBooleanValue(configur.get('Item','LifestoneOrChakraDrop'))
+    configSettings.relicBiasVendingMachine = obtainBooleanValue(configur.get('Item','relicBiasVendingMachine'))
+    
+    configSettings.redoableGospel = obtainBooleanValue(configur.get('Item','RedoableGospel'))
+    configSettings.redoableGrimoire = obtainBooleanValue(configur.get('Item','RedoableGrimoire'))
+    configSettings.redoableWhittledGoat = obtainBooleanValue(configur.get('Item','RedoableWhittledGoat'))
+    configSettings.redoableEssencesAllowed = obtainBooleanValue(configur.get('Item','RedoableEssences'))
+    configSettings.redoableIncensesBalmsSutras = obtainBooleanValue(configur.get('Item','RedoableIncensesBalmsSutras'))
+
+    itemList = configur.get('Item', 'SelfItems',).split(',')
+    configSettings.selfItemPools.extend(itemList)
+    itemList = configur.get('Item', 'SharedItems',).split(',')
+    configSettings.sharedItemPools.extend(configur)
+
+    configSettings.expMultiplier = float(configur.get('Item', 'MimanPerReward'))
+    
     configSettings.randomizeNavigatorStats = obtainBooleanValue(configur.get('Navigators', 'RandomNavigatorStats'))
     configSettings.navigatorModelSwap = obtainBooleanValue(configur.get('Navigators', 'NavigatorModelSwap'))
 
@@ -112,7 +132,11 @@ def setConfigSettings(configur):
     configSettings.allowBossMagatsuhiSkill = obtainBooleanValue(configur.get('Boss', 'allowBossMagatsuhiSkill'))
     configSettings.allowContemptOfGod = obtainBooleanValue(configur.get('Boss', 'allowContemptOfGod'))
     configSettings.elementCountConsistency = obtainBooleanValue(configur.get('Boss', 'elementCountConsistency'))
+    configSettings.addImpalersRevenge = obtainBooleanValue(configur.get('Boss', 'addImpalersRevenge'))
+    
     configSettings.fillEmptySlotsWithPassives = obtainBooleanValue(configur.get('Boss', 'fillEmptySlotsWithPassives'))
+    configSettings.scalePassiveAmount = obtainBooleanValue(configur.get('Boss', 'scalePassiveAmount'))
+    configSettings.scalePassiveLevelGap = obtainBooleanValue(configur.get('Boss', 'scalePassiveLevelGap'))
 
     configSettings.alwaysCritical = obtainBooleanValue(configur.get('Boss', 'alwaysCritical'))
     configSettings.alwaysPierce = obtainBooleanValue(configur.get('Boss', 'alwaysPierce'))
@@ -139,7 +163,7 @@ def setConfigSettings(configur):
     configSettings.buffGuestYuzuru = obtainBooleanValue(configur.get('Patches', 'BuffGuestYuzuru'))
     configSettings.unlockFusions = obtainBooleanValue(configur.get('Patches', 'UnlockFusions'))
     configSettings.removeCutscenes = obtainBooleanValue(configur.get('Patches', 'SkipCutscenes'))
-    configSettings.skipTutorials = obtainBooleanValue(configur.get('Patches', 'OnlySkipTutorials'))
+    configSettings.skipTutorials = obtainBooleanValue(configur.get('Patches', 'SkipTutorials'))
 
     configSettings.expMultiplier = float(configur.get('Patches', 'EXPMultiplier'))
     configSettings.pressTurnChance = float(configur.get('Patches', 'PressTurnChance'))

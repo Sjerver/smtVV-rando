@@ -1,3 +1,34 @@
+Version 1.06
+
+Features:
+* Last used seed is now stored in config.ini for convenient seed reuse
+* Guests/Panagias can now be swapped with demons with an additional setting to also include the Demi-fiend
+* Tutorial Cutscene skips now also enable skipping the first fusion animation
+* Cutscene skips now go up until the school invasion
+* New setting for all bosses to have Impaler's Revenge if possible
+* Rework of item settings: You can now choose if you want item check categories mixed or independently randomized
+* Seperate item scaling of macca and other items
+* Items can now be chosen to completely shuffled, instead of randomly generated
+* New randomizable item categories:  Enemy Drops, Boss Drops, and Vending Machines
+* The keys to the Empyrean can now be randomized. Hints can be found after beating the boss check that would usually reward them, as well as in the quest info screen.
+* Change the amount of miman required per reward
+
+Balance:
+* Tutorial Daemon deals half damage to prevent dying to unlucky critical hits
+* Aogami Type-10 now properly gets their skills randomized 
+* Additional item gifts: Amabie Quest Essence, Koropokkur Jump
+* Guest Dazai/Yuzuru now also get their skills randomized if unique animations are patched
+* Relics can now very rarely appear in regular item checks (Mission, Miman, Chest, Gift)
+
+Bufixes:
+* Fixed additional passives sometimes requiring boss skills to be randomized
+* Model swaps in cutscenes with more than one demon being able to move / play animations
+* Model swaps being applied in situations where they break the game due to demon lightning
+* Revival chants breaks the game when not used by nahobino so will only be allowed for them
+
+Known Issues:
+* Demons replacing Tao (Guest) sometimes use her textures
+
 Version 1.052
 Balance:
 * Updated potential weights in skill randomization so that negative potentials have an actual effect on it

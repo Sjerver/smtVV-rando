@@ -5,7 +5,6 @@
 .txt
 .pak
 .exe
-filelist.txt
 config.ini
 *.pyc
 /.vscode

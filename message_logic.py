@@ -4,7 +4,9 @@ import util.numbers as numbers
 import copy
 import re
 from base_classes.message import Message_File, Demon_Sync
-from util.numbers import RACE_ARRAY
+from util.numbers import RACE_ARRAY, Canon
+
+from System.IO import FileNotFoundException # type: ignore
 
 MAX_LINE_LENGTH = 48 #Arbitray Number ( at least correct for missionInfo Text)
 BRAWNY_AMBITIONS_2 = 'mm_em2490'
@@ -44,6 +46,7 @@ ITEM_NAME_SYNC_DEMON_IDS = {
     "Girimekhala's Head" : 827,#Punishing Foe Girimekhala
     "Inugami's Head" : 138,#Inugami
     "Horus's Head" : 864,#Punishing Foe Horus
+    "Amabie's Bromide Photo": 387, #Amabie
 }
 
 #IDs of demons that show up in Item Descriptions
@@ -90,28 +93,29 @@ SKILL_DESC_CHANGES = {
     917 : 'Summon demon for chance of inflicting <skill_bst 0> to <skill_tgt>.', #Toxic Cloud Dazai
 }
 
+INNATE_SKILL_DESC_UPDATE_NEEDED = {
+    573 : [301,298], #Moirae Measurer : Clotho, Atropos
+    574 : [300,298], #Moirae Cutter : Lachesis, Atropos
+    575 : [301,300], #Moirae Spinner : Clotho, Lachesis
+}
+
 #Message files for mission events and what demon(name/id) needs to be updated in them
 #Demon_Sync(demonID mentioned in text, IF applicable id of demon to use replacement for) since boss mentions just use normal enemy ids
 MISSION_EVENTS_DEMON_IDS = {
-    'mm_em2030': [Demon_Sync(117)],#Brawny Ambitions (Zhu Tun She)
-    'mm_em1300': [Demon_Sync(864),Demon_Sync(453),Demon_Sync(463)],#Falcon's Head (Horus Punishing Foe,Shinagawa Station Lahmu II, Arioch)
-    'mm_em1400': [Demon_Sync(864)],#Isis Dialogue (Either for other quest or in Minato) (Horus Punishing Foe)
-    'mm_em1020': [Demon_Sync(115,432),Demon_Sync(281,802),Demon_Sync(114, isNavi=True)], #The Ultimate Omelet (Hydra, Jatayu, Navi Aitvaras)
-    'mm_em1120': [Demon_Sync(147,nameVariant="Mothmen")], #Can I Keep Them? (Mothman)
     'mm_em0021': [Demon_Sync(537)],#Eligor dialogue (Lucifer)
     'mm_em0041': [Demon_Sync(136, 450)],#Loup Garou dialogue (Loup Garou)
     'mm_em0044': [Demon_Sync(452)],#Saving the Students misc dialogue (Lahmu)
     'mm_em0050': [Demon_Sync(57, isNavi=True), Demon_Sync(23, isNavi=True)],#Golden apple quest creation (Navi Pyro Jack, Navi Idun)
-    'mm_em0050_b': [Demon_Sync(559), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(57, isNavi=True), Demon_Sync(23, isNavi=True)],#Golden apple quest vengeance (Eisheth, Yuzuru, Navi Pyro Jack, Navi Idun)
+    'mm_em0050_b': [Demon_Sync(559), Demon_Sync(1150, nameVariant='Yuzuru'), Demon_Sync(1150, nameVariant='Atsuta'), Demon_Sync(57, isNavi=True), Demon_Sync(23, isNavi=True),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")],#Golden apple quest vengeance (Eisheth, Yuzuru (Guest), Navi Pyro Jack, Navi Idun, Yoko (Guest), Tao (Guest))
     'mm_em0051': [Demon_Sync(810), Demon_Sync(57, isNavi=True), Demon_Sync(23, isNavi=True)],#Golden apple quest Idun dialogue (Loki, Navi Pyro Jack, Navi Idun)
     'mm_em0052': [Demon_Sync(57, isNavi=True)],#Golden apple quest golden apple dialogue (Navi Pyro Jack)
     'mm_em0060': [Demon_Sync(80, 454), Demon_Sync(215, 822), Demon_Sync(214, 823), Demon_Sync(216, 824)],#Hellfire Highway (Surt, Okuninushi, Sukuna Hikona, Minakata)
     'mm_em0070': [Demon_Sync(80, 454), Demon_Sync(25, 455), Demon_Sync(273, isNavi=True)],#Ishtar Quest (Surt, Ishtar, Navi Decarabia)
     'mm_em0120': [Demon_Sync(38, isNavi=True)],#Amanozako rejoins in area 2 (Navi Amanozako)
     'mm_em0121': [Demon_Sync(38, isNavi=True)],#Amanozako dialogue about captured humans (Navi Amanozako)
-    'mm_em0122': [Demon_Sync(38, isNavi=True)],#Amanozako car dialogue (Navi Amanozako)
-    'mm_em0123': [Demon_Sync(38, isNavi=True)],#Amanozako railroad dialogue (Navi Amanozako)
-    'mm_em0124': [Demon_Sync(38, isNavi=True)],#Amanozako container dialogue (Navi Amanozako)
+    'mm_em0122': [Demon_Sync(38, isNavi=True),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")],#Amanozako car dialogue (Navi Amanozako, Yoko (Guest), Tao (Guest))
+    'mm_em0123': [Demon_Sync(38, isNavi=True),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")],#Amanozako railroad dialogue (Navi Amanozako, Yoko (Guest), Tao (Guest))
+    'mm_em0124': [Demon_Sync(38, isNavi=True),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")],#Amanozako container dialogue (Navi Amanozako, Yoko (Guest), Tao (Guest))
     'mm_em0125': [Demon_Sync(38, isNavi=True)],#Amanozako leaves in area 2 (Navi Amanozako)
     'mm_em0130': [Demon_Sync(38, isNavi=True)],#Amanozako in Chiyoda (Navi Amanozako)
     'mm_em0140': [Demon_Sync(38, isNavi=True)],#Amanozako rejoins in area 4 creation (Navi Amanozako)
@@ -132,26 +136,30 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em0172': [Demon_Sync(318, 888)],
     'mm_em0173': [Demon_Sync(318, 888)],
     'mm_em0174': [Demon_Sync(318, 888)],
+    'mm_em1010': [Demon_Sync(1157,nameVariant = "Yoko")], #No Stone Unturned (Yoko (Guest))
+    'mm_em1020': [Demon_Sync(115,432),Demon_Sync(281,802),Demon_Sync(114, isNavi=True)], #The Ultimate Omelet (Hydra, Jatayu, Navi Aitvaras)
     'mm_em1030': [Demon_Sync(304, isNavi=True)],#The Cursed Mermaids part 1 (Navi Mermaid)
     'mm_em1031': [Demon_Sync(233, 801), Demon_Sync(304, nameVariant = 'mermaid', isNavi=True)],#The Cursed Mermaids part 2 (Pazuzu, Navi Mermaid)
     'mm_em1040': [Demon_Sync(20, 803), Demon_Sync(304, isNavi=True)],#Anahita Quest (Anahita, Navi Mermaid, 2 quest files)
     'mm_em1041': [Demon_Sync(20, 803), Demon_Sync(304, isNavi=True)],
     'mm_em1050': [Demon_Sync(311, 820)],#Talisman Hunt (Shiki Ouji)
+    'mm_em1120': [Demon_Sync(147,nameVariant="Mothmen")], #Can I Keep Them? (Mothman)
     'mm_em1140': [Demon_Sync(342, 809)],#Kumbhanda Quest (Kumbhanda)
     'mm_em1150': [Demon_Sync(89, 810), Demon_Sync(23, isNavi=True)],#A Goddess Stolen (Loki, Navi Idun, 2 quest files)
-    'mm_em1151': [Demon_Sync(89, 810), Demon_Sync(23, isNavi=True)],
+    'mm_em1151': [Demon_Sync(89, 810), Demon_Sync(23, isNavi=True),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")], #Additionally: Yoko (Guest), Tao (Guest)
     'mm_em1160': [Demon_Sync(19)],#The Tyrant of Tennozu Demeter lines (Demeter)
     'mm_em1161': [Demon_Sync(86, 804)],#The Tyrant of Tennozu Belphegor lines (Belphegor)
-    'mm_em1180': [Demon_Sync(87, 821)],#King Frost Quest (King Frost, 2 quest files)
+    'mm_em1180': [Demon_Sync(87, 821),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")],#King Frost Quest (King Frost, Yoko(Guest), Tao (Guest) 2 quest files)
     'mm_em1182': [Demon_Sync(87, 821)],
     'mm_em1210': [Demon_Sync(212, 826), Demon_Sync(216, 824), Demon_Sync(80, 454)],#Oyamatsumi Quest (Oyamatsumi, Minakata, Surt)
     'mm_em1230': [Demon_Sync(333, isNavi=True)],#Hua Po Quest (Navi Hua Po)
     'mm_em1240': [Demon_Sync(273, isNavi=True)],#Chiyoda Gem Quest (Navi Decarabia)
     'mm_em1250': [Demon_Sync(215, 822), Demon_Sync(214, 823), Demon_Sync(212, 826)],#Kunitsukami Fight Quest (Okuninushi, Sukuna Hikona, Oyamatsumi)
-    'mm_em1260': [Demon_Sync(19), Demon_Sync(127, 812)], #Chimera Quest (Demeter, Chimera)
+    'mm_em1260': [Demon_Sync(19), Demon_Sync(127, 812),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")], #Chimera Quest (Demeter, Chimera, Yoko (Guest), Tao(Guest))
     'mm_em1270': [Demon_Sync(322, 813)], #Hecaton Quest (Hecaton)
     'mm_em1280': [Demon_Sync(248, 814), Demon_Sync(467)], #The Archangel of Destruction (Camael, Creation Abdiel)
     'mm_em1290': [Demon_Sync(19), Demon_Sync(85, 816), Demon_Sync(86, 804)],#Roar of Hatred (Demeter, Moloch, Belphegor)
+    'mm_em1300': [Demon_Sync(864),Demon_Sync(453),Demon_Sync(463)],#Falcon's Head (Horus Punishing Foe,Shinagawa Station Lahmu II, Arioch)
     'mm_em1320': [Demon_Sync(232, 827)],#Girimehkala Quest (Girimehkala)
     'mm_em1330': [Demon_Sync(211, 828), Demon_Sync(206, 860), Demon_Sync(205, 861), Demon_Sync(204, 862), Demon_Sync(203, 863), Demon_Sync(215, 822)],#Lord's Sword Quest (Arahabaki, Zouchouten, Koumokuten, Jikokuten, Bishamonten, Okuninushi)
     'mm_em1340': [Demon_Sync(206, 860)],#Zouchouten Event Battle Dialogue
@@ -160,6 +168,7 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1370': [Demon_Sync(203, 863)],#Bishamonten Event Battle Dialogue
     'mm_em1380': [Demon_Sync(7, 516), Demon_Sync(82, 463)],#Khonsu CoC Quest (Khonsu, Arioch)
     'mm_em1390': [Demon_Sync(181, 829), Demon_Sync(88, 830), Demon_Sync(76, 831), Demon_Sync(7, 516), Demon_Sync(463)],#The Winged-Sun Crest (Asura, Mithras, Amon, Khonsu, Arioch)
+    'mm_em1400': [Demon_Sync(864)],#Isis Dialogue (Either for other quest or in Minato) (Horus Punishing Foe)
     'mm_em1401': [Demon_Sync(15, 519), Demon_Sync(7, 516), Demon_Sync(13, 864)],#Khonsu Ra CoC Quest (Khonsu Ra, Khonsu, Horus)
     'mm_em1410': [Demon_Sync(84, 832)],#Abbadon's Assault (Abaddon)
     'mm_em1420': [Demon_Sync(35)],#Fionn 2 Quest (Fionn)
@@ -181,17 +190,17 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1601': [Demon_Sync(38)],
     'mm_em1602': [Demon_Sync(38), Demon_Sync(877)], #Zaou-Gongen Mentioned here and in 1603
     'mm_em1603': [Demon_Sync(38), Demon_Sync(877)],
-    'mm_em1630': [Demon_Sync(43, 868), Demon_Sync(305), Demon_Sync(316, 867)], #Side with Leanan (Apsaras, Leanan, Ippon Datara)
+    'mm_em1630': [Demon_Sync(43, 868), Demon_Sync(305), Demon_Sync(316, 867),Demon_Sync(1157,nameVariant = "Yoko")], #Side with Leanan (Apsaras, Leanan, Ippon Datara, Yoko (Guest))
     'mm_em1640': [Demon_Sync(305, 866), Demon_Sync(43)], #Side with Apsaras (Leanan, Apsaras)
     'mm_em1641': [Demon_Sync(43), Demon_Sync(345, 889)], #Apsaras' Followers Dialogue (Apsaras, 2 Quest Files, Preta)
     'mm_em1642': [Demon_Sync(43)],
-    'mm_em1650': [Demon_Sync(257, 879), Demon_Sync(67)], #Side with Lilim (Principality, Lilim)
+    'mm_em1650': [Demon_Sync(257, 879), Demon_Sync(67),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")], #Side with Lilim (Principality, Lilim, Yoko (Guest), Tao(Guest))
     'mm_em1660': [Demon_Sync(67, 880), Demon_Sync(257)], #Side with Principality (Lilim, Principality)
     'mm_em1670': [Demon_Sync(183, 881), Demon_Sync(72)], #Side with Black Frost (Dionysus, Black Frost)
     'mm_em1680': [Demon_Sync(72, 882), Demon_Sync(183)], #Side with Dionysus (Black Frost, Dionysus)
-    'mm_em1690': [Demon_Sync(201, 883), Demon_Sync(265)], #Side with Adramelech (Futsunushi, Adramelech)
+    'mm_em1690': [Demon_Sync(201, 883), Demon_Sync(265),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")], #Side with Adramelech (Futsunushi, Adramelech, Yoko (Guest), Tao(Guest))
     'mm_em1700': [Demon_Sync(265, 884), Demon_Sync(201)], #Side with Futsunushi (Adramelech, Futsunushi)
-    'mm_em1769': [Demon_Sync(78), Demon_Sync(295), Demon_Sync(31), Demon_Sync(4), Demon_Sync(528), Demon_Sync(561)], #Tokyo Diet Building Researcher (Mephisto, Cleopatra, Artemis, Dagda, Tsukuyomi, Yuzuru) TODO: Differentiate between boss and summonable versions.
+    'mm_em1769': [Demon_Sync(78), Demon_Sync(295), Demon_Sync(31), Demon_Sync(4), Demon_Sync(528), Demon_Sync(1150),Demon_Sync(1157)], #Tokyo Diet Building Researcher (Mephisto, Cleopatra, Artemis, Dagda, Tsukuyomi, Yuzuru (Guest), Yoko (Guest)) TODO: Differentiate between boss and summonable versions.
     'mm_em1770': [Demon_Sync(78)], #Mephisto Quest (Mephisto)
     'mm_em1780': [Demon_Sync(295)], #Cleopatra Quest (Cleopatra)
     'mm_em1790': [Demon_Sync(31), Demon_Sync(933), Demon_Sync(432), Demon_Sync(8, 838)], #Artemis Quest (Artemis, Queztalcoatl, Hydra, Zeus 2 for fun) Note: If Artemis's speaker voice is changed the game crashes
@@ -215,21 +224,24 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em1822': [Demon_Sync(350, 929), Demon_Sync(934)], #Demi-Fiend named here as well
     'mm_em1823': [Demon_Sync(934)], #Demi-Fiend, 3 Quest Files
     'mm_em1824': [Demon_Sync(934)],
-    'mm_em1825': [Demon_Sync(934)],
+    'mm_em1825': [Demon_Sync(1161)], #Use guest Demi-Fiend instead here
     'mm_em2020': [Demon_Sync(107, 752, nameVariant='NOZUCHI'), Demon_Sync(336, nameVariant='KODAMA')], #Nozuchi Queset (Nozuchi, Normal Enemy Kodama)
+    'mm_em2030': [Demon_Sync(117)],#Brawny Ambitions (Zhu Tun She)
     'mm_em2040': [Demon_Sync(20, 803)], #Pisaca Quest part 1 (Anahita)
-    'mm_em2050': [Demon_Sync(387, isNavi=True)], #Amabie Quest (Navi Amabie)
-    'mm_em2090': [Demon_Sync(561), Demon_Sync(562)], #Yuzuru Supply Run Quest (Yuzuru, Hayataro)
-    'mm_em2111': [Demon_Sync(108, 769)], #Vouivre Quest (Vouivre)
+    'mm_em2050': [Demon_Sync(387, isNavi=True),Demon_Sync(1151, nameVariant = "Ichiro"),Demon_Sync(1150, nameVariant = "Yuzuru"),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")], #Amabie Quest (Navi Amabie, Ichiro (Guest), Yuzuru (Guest), Yoko (Guest), Tao (Guest))
+    'mm_em2080': [Demon_Sync(1152, nameVariant = "Tao")], #Prince of Her Dreams CoV (Tao Guest)
+    'mm_em2090': [Demon_Sync(1150), Demon_Sync(562)], #Yuzuru Supply Run Quest (Yuzuru, Hayataro)
+    'mm_em2111': [Demon_Sync(108, 769),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao"),Demon_Sync(1152, nameVariant = "Isonokami")], #Vouivre Quest (Vouivre, Yoko (Guest), Tao (Guest))
     'mm_em2130': [Demon_Sync(113), Demon_Sync(41), Demon_Sync(386)], #Basilisk Hunt Quest (Basilisk, Anansi, Onyankopon)
     'mm_em2170': [Demon_Sync(227)], #Masakado Quest (Masakado)
+    'mm_em2180': [Demon_Sync(1151, nameVariant = "Dazai"), Demon_Sync(561)], #Virtual Trainer (Dazai Guest, Yuzuru)
     'mm_em2190': [Demon_Sync(552), Demon_Sync(318, 888)], #Halphas Quest (Glasya-Labolas 1, Oni)
-    'mm_em2240': [Demon_Sync(15, 519), Demon_Sync(7, 566), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(864), Demon_Sync(577), Demon_Sync(578)], #Vengeance Khonsu-Ra Quest (Khonsu Ra, Khonsu, Yuzuru, Horus, Fallen Abdiel, Dazai)
-    'mm_em2270': [Demon_Sync(346, 772), Demon_Sync(40)], #Side with Kresnik (Kudlak, Kresnik)
+    'mm_em2240': [Demon_Sync(15, 519), Demon_Sync(7, 566), Demon_Sync(1150, nameVariant='Yuzuru'), Demon_Sync(864), Demon_Sync(577), Demon_Sync(578)], #Vengeance Khonsu-Ra Quest (Khonsu Ra, Khonsu, Yuzuru (Guest), Horus, Fallen Abdiel, Dazai)
+    'mm_em2270': [Demon_Sync(346, 772), Demon_Sync(40),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")], #Side with Kresnik (Kudlak, Kresnik, Yoko (Guest), Tao(Guest))
     'mm_em2280': [Demon_Sync(40, 774), Demon_Sync(346)], #Side with Kudlak (Kresnik, Kudlak)
     'mm_em2290': [Demon_Sync(890)], #Gogmagog Quest (Gogmagog)
     'mm_em2300': [Demon_Sync(387, isNavi=True)], #Macabre Dance Quest (Navi Amabie)
-    'mm_em2310': [Demon_Sync(386, 770), Demon_Sync(41)], #Side with Onyankopon (Onyankopon, Anansi) - Swapped boss/recruit versions due to the way these 2 join compared to others
+    'mm_em2310': [Demon_Sync(386, 770), Demon_Sync(41),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")], #Side with Onyankopon (Onyankopon, Anansi, Yoko (Guest), Tao(Guest)) - Swapped boss/recruit versions due to the way these 2 join compared to others
     'mm_em2320': [Demon_Sync(41, 771), Demon_Sync(386)], #Side with Anansi (Anansi, Onyankopon)
     'mm_em2350': [Demon_Sync(200, 778)], #Idun Haunt Quest (Thor)
     'mm_em2360': [Demon_Sync(355, isNavi=True)], #Alice Quest (Navi Alice)
@@ -239,8 +251,8 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2400': [Demon_Sync(118, 760), Demon_Sync(537)], #Samael Quest (Samael, Lucifer)
     'mm_em2420': [Demon_Sync(1, 681), Demon_Sync(760), Demon_Sync(537), Demon_Sync(250, 596)], #Satan Quest (Satan, Samael, Lucifer, Mastema)
     'mm_em2430': [Demon_Sync(59, isNavi=True)], #Detective Pixie Quest (Navi Pixie)
-    'mm_em2440': [Demon_Sync(38, isNavi=True)], #Yakshini Quest (Navi Amanozako)
-    'mm_em2460': [Demon_Sync(77, 892)], #Mara Quest (Mara)
+    'mm_em2440': [Demon_Sync(38, isNavi=True),Demon_Sync(1151)], #Yakshini Quest (Navi Amanozako, Dazai (Quest))
+    'mm_em2460': [Demon_Sync(77, 892),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152, nameVariant = "Tao")], #Mara Quest (Mara, Yoko (Guest), Tao(Guest))
     'mm_em2470': [Demon_Sync(175, 754, nameVariant='TURBO GRANNY')], #Turbo Granny Quest (Turbo Granny)
     'mm_em2480': [Demon_Sync(60, isNavi=True)], #Nahobeeho Quest (Navi Nahobeeho)
     'mm_em2490': [Demon_Sync(122)], #Hare of Inaba 2 Quest (Xiezhai)
@@ -249,13 +261,13 @@ MISSION_EVENTS_DEMON_IDS = {
     'mm_em2530': [Demon_Sync(141, 751, nameVariant='DORMARTH')], #Dormarth Quest (Dormarth)
     'mm_em2540': [Demon_Sync(291, 891)], #Gurulu Quest (Gurulu)
     'mm_em2550': [Demon_Sync(509, nameVariant='ZHEn')], #Part Time Quest (Zhen) Optionally add the other 2 encounters you can get here but eh
-    'mm_em2570': [Demon_Sync(22, 779), Demon_Sync(838)], #Moirae Haunt Quest (Norn, Zeus 2 for fun)
+    'mm_em2570': [Demon_Sync(22, 779), Demon_Sync(838), Demon_Sync(365)], #Moirae Haunt Quest (Norn, Zeus 2 for fun, Tao(Panagia))
     'mm_em2580': [Demon_Sync(12, 776, nameVariant='Daigensui Myouou')], #Yoshitsune Haunt Quest (Atavaka)
     'mm_em2600': [Demon_Sync(32), Demon_Sync(826)], #Konohana Sakuya Quest (Konohana Sakuya, Oyamatsumi)
     'mm_em2610': [Demon_Sync(4), Demon_Sync(188, 843)], #Dagda Quest (Dagda, Danu for fun)
-    'mm_em2620': [Demon_Sync(775, nameVariant='Orochi'), Demon_Sync(510, 528)], #Orochi Quest (Orochi, Tsukuyomi)
+    'mm_em2620': [Demon_Sync(775, nameVariant='Orochi'), Demon_Sync(510, 528),Demon_Sync(1152, nameVariant = "Tao")], #Orochi Quest (Orochi, Tsukuyomi, Tao (Panagia))
     'mm_em2630': [Demon_Sync(237, 782), Demon_Sync(481), Demon_Sync(837)], #Saturnus Quest (Saturnus, CoV Zeus, Baal)
-    'mm_em2640': [Demon_Sync(569), Demon_Sync(564)], #Package Delivery Quest (Lilith, Vengeance Abdiel)
+    'mm_em2640': [Demon_Sync(569), Demon_Sync(564),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1157,nameVariant = "Hiromine")], #Package Delivery Quest (Lilith, Vengeance Abdiel, Yoko (Guest)#TODO: Maybe Panagia instead?)
     'mm_em2700': [Demon_Sync(207)], #Marici Quest (Marici)
 }
 
@@ -314,159 +326,220 @@ EVENT_MESSAGE_DEMON_IDS = {
     'e0730': [Demon_Sync(837), Demon_Sync(537), Demon_Sync(510, 528)],#Regarding the war of the gods dialogue (Baal, Lucifer, Tsukuyomi)
     'e0735': [Demon_Sync(467)],#Dazai dialogue after summit (Abdiel)
     'e0736': [Demon_Sync(467)],#Dazai/Abdiel talk after summit (Abdiel)
+    'e0750': [Demon_Sync(365)],#Tao Goddess Reveal creation (Tao(Panagia))
+    'e0760': [Demon_Sync(365)], #Tao explaining the 3 Keys CoC (Tao(Panagia))
     'e0762': [Demon_Sync(512, 465, nameVariant='Yakumo'), Demon_Sync(75, 520)],#Nuwa in area 4 (Yakumo, Nuwa) Note: I guess start referencing nahobino nuwa/abdiel in area 4?
+    'e0763': [Demon_Sync(365)],#Tao joins Area 4 CoC (Tao(Panagia))
     'e0765': [Demon_Sync(525)],#Dazai hat scene (Abdiel)
     'e0770': [Demon_Sync(468), Demon_Sync(845)],#Bethel India demon dialogue (Vasuki, Shiva)
     'e0770_b': [Demon_Sync(468), Demon_Sync(845), Demon_Sync(483)],#Bethel India vengeance demon dialogue (Vasuki, Shiva, Beelzebub)
     'e0775': [Demon_Sync(111, 468), Demon_Sync(845)],#Vasuki pre-fight dialogue (Vasuki, Shiva)
+    'e0778': [Demon_Sync(365)], #Tao after collecting the keys (Tao(Panagia))
     'e0780': [Demon_Sync(469, nameVariant='ZEUS')],#Bethel Greek demon creation? dialogue (Zeus)
     'e0780_b': [Demon_Sync(481, nameVariant='ZEUS')],#Bethel Greek demon vengeance? dialogue (Zeus)
     'e0785': [Demon_Sync(8, 469), Demon_Sync(528)],#Zeus pre-fight dialogue (Zeus, Tsukuyomi)
     'e0800': [Demon_Sync(470)],#Bethel Norse demon creation dialogue (Odin)
     'e0800_b': [Demon_Sync(482), Demon_Sync(481)],#Bethel Norse demon vengeance dialogue (Odin, Zeus)
     'e0805': [Demon_Sync(9, 470)],#Odin pre-fight dialogue (Odin)
+    'e0815': [Demon_Sync(365)], #Trying to go to ToE before gathering all keys (Tao(Panagia))
+    'e0820': [Demon_Sync(365)], #Tao pre entering ToE dialogue (Tao(Panagia))
     'e0825': [Demon_Sync(477)],#Metatron pre-fight dialogue (Metatron)
-    'e0841': [Demon_Sync(510, 528)],#Chaos rep overview pre-empyrean (Tsukuyomi)
+    'e0830': [Demon_Sync(365)], #Tao pre-entering final ToE room (Tao(Panagia))
+    'e0840': [Demon_Sync(365)], #Tao pre rep overview (Tao(Panagia))
+    'e0841': [Demon_Sync(510, 528),Demon_Sync(365)],#Chaos rep overview pre-empyrean (Tsukuyomi, Tao(Panagia))
     'e0842': [Demon_Sync(240, 525)],#Law rep overview pre-empyrean (Abdiel)
+    'e0843': [Demon_Sync(365)], #Post rep overview Tao dialogue (Tao(Panagia))
     'e0850': [Demon_Sync(510, 528), Demon_Sync(469), Demon_Sync(470), Demon_Sync(240, 525), Demon_Sync(512, 465), Demon_Sync(75, 520)],#Argument before Empyrean (Tsukuyomi, Zeus, Odin, Abdiel, Yakumo, Nuwa)
+    'e0860': [Demon_Sync(365)], #Entering empyrean Tao dialogue (Tao(Panagia))
     'e0870': [Demon_Sync(528), Demon_Sync(240, 525)],#Joining Dazai in Empyrean (Tsukuyomi, Abdiel) Note: test this specifically
     'e0880': [Demon_Sync(510, 528), Demon_Sync(525), Demon_Sync(152)],#Joining Tsukuyomi in Empyrean (Tsukuyomi, Abdiel, Hayataro) Abdiel spread out text
     'e0885': [Demon_Sync(152)],#Hayataro joins you (Hayataro)
     'e0891': [Demon_Sync(471)],#Empyrean minibosses dialogue (Melchizedek)
     'e0900': [Demon_Sync(240, 525), Demon_Sync(510, 528)],#Dazai/Abdiel lose to Tsukuyomi (Abdiel, Tsukuyomi)
+    'e0906': [Demon_Sync(365)], #Tao ("HAve you resolved to remake this world?") (Tao(Panagia))
     'e0910': [Demon_Sync(240, 525), Demon_Sync(510, 528)],#Tsukuyomi loses to Dazai/Abdiel (Abdiel, Tsukuyomi)
     'e0920': [Demon_Sync(240, 525), Demon_Sync(512, 465, nameVariant='Yakumo'), Demon_Sync(75, 520)],#Yakumo/Nuwa loses to Dazai/Abdiel (Abdiel, Yakumo, Nuwa)
     'e0930': [Demon_Sync(465, nameVariant='Yakumo'), Demon_Sync(75, 520)],#Nuwa true ending dialogue after Abdiel (Yakumo, Nuwa)
     'e0940': [Demon_Sync(512, 465), Demon_Sync(75, 520)],#Nahobino Nuwa pre-fight dialogue (Yakumo, Nuwa)
     'e0945': [Demon_Sync(75, 520)],#Nahobino Nuwa post-fight dialogue (Nuwa)
+    'e0950': [Demon_Sync(365)], #Tao law ending claiming the throne (Tao(Panagia))
     'e0960': [Demon_Sync(510, 528)],#Tsukuyomi neutral route pre-fight dialogue (Tsukuyomi)
+    'e0970': [Demon_Sync(365)], #Tao neutral ending claiming the throne (Tao(Panagia))
     'e0965': [Demon_Sync(530, 528)],#Tsukuyomi neutral route post-fight dialogue (Tsukuyomi)
     'e1000': [Demon_Sync(529, 537)],#Lucifer pre-fight dialogue (Normal Lucifer)
+    'e1001': [Demon_Sync(365),Demon_Sync(366)], #Tao leaves in Empyrean neutral ending (Tao(Panagia),Yoko(Panagia))
     'e1020': [Demon_Sync(529)],#Aogami says goodbye in true neutral ending (True Lucifer)
-    'e2010': [Demon_Sync(552), Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(578, nameVariant='Dazai')],#Labolas 1 pre-fight dialogue (Labolas, Yuzuru, Dazai) Note: For vengeance dialogue replacing mentions of Yuzuru/Dazai, but not Yoko for now
-    'e2015': [Demon_Sync(505, 561, nameVariant='Atsuta')],#Labolas 1 post-fight dialogue (Yuzuru)
-    'e2017': [Demon_Sync(38, isNavi=True)],#Amanazako first partner spot Vengeance (Navi Amanozako)
-    'e2018': [Demon_Sync(43), Demon_Sync(305)],#Possibly unused Yoko dialogue about Apsaras/Leanan (Apsaras, Leanan)
-    'e2019': [Demon_Sync(38, isNavi=True)],#Post Hydra dialogue Vengeance (Navi Amanozako)
+    'e2010': [Demon_Sync(552), Demon_Sync(505, 1150, nameVariant='Yuzuru'), Demon_Sync(1151, nameVariant='Dazai'),Demon_Sync(1157,nameVariant = "Yoko Hiromine")],#Labolas 1 pre-fight dialogue (Labolas, Yuzuru (Guest), Dazai (Guest), Yoko (Guest))
+    'e2015': [Demon_Sync(505, 1150, nameVariant='Atsuta'),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1157,nameVariant = "Hiromine")],#Labolas 1 post-fight dialogue (Yuzuru (Guest), Yoko (Guest))
+    'e2016': [Demon_Sync(1157,nameVariant = "Yoko")], #Yoko Dialogue post Labolas 1 (Yoko (Guest))
+    'e2017': [Demon_Sync(38, isNavi=True),Demon_Sync(1157,nameVariant = "Yoko")],#Amanazako first partner spot Vengeance (Navi Amanozako, Yoko (Guest))
+    'e2018': [Demon_Sync(43), Demon_Sync(305),Demon_Sync(1157,nameVariant = "Yoko")],#Possibly unused Yoko dialogue about Apsaras/Leanan (Apsaras, Leanan, Yoko (Guest))
+    'e2019': [Demon_Sync(38, isNavi=True),Demon_Sync(1157,nameVariant = "Yoko")],#Post Hydra dialogue Vengeance (Navi Amanozako, Yoko (Guest))
     'e2020': [Demon_Sync(393, 553)],#Naamah pre-fight dialogue 1 (Naamah)
-    'e2022': [Demon_Sync(393, 553)],#Naamah pre-fight dialogue 2 (Naamah)
+    'e2022': [Demon_Sync(393, 553),Demon_Sync(1157,nameVariant = "Yoko")],#Naamah pre-fight dialogue 2 (Naamah, Yoko (Guest))
     'e2025': [Demon_Sync(393, 553)],#Naamah post-fight dialogue (Naamah)
-    'e2029': [Demon_Sync(512, 567, nameVariant='Yakumo'), Demon_Sync(75, 435)],#Nuwa post-fight dialogue vengeance (Yakumo, Nuwa)
-    'e2030': [Demon_Sync(506, 578), Demon_Sync(505, 561, nameVariant="Yuzuru freakin' Atsuta"), Demon_Sync(561, nameVariant='Atsuta')],#Dazai in diet building vengeance (Dazai, Yuzuru)
-    'e2035': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta')],#Returning to Tokyo from area 1 vengeance (Yuzuru)
-    'e2040': [Demon_Sync(240, 564), Demon_Sync(506, 578), Demon_Sync(505, 561)],#Meeting Abdiel vengeance (Abdiel, Dazai, Yuzuru)
-    'e2043': [Demon_Sync(505, 561, nameVariant='Atsuta'), Demon_Sync(506, 578, nameVariant='Dazai')],#Tao meeting after area 1 vengeance (Yuzuru, Dazai)
-    'e2046': [Demon_Sync(505, 561)],#Misc Yuzuru/Yoko text after area 1 (Yuzuru)
+    'e2028': [Demon_Sync(1157,nameVariant = "Yoko")], #Yoko talk after Naamah fight (Yoko (Guest))
+    'e2029': [Demon_Sync(512, 567, nameVariant='Yakumo'), Demon_Sync(75, 435),Demon_Sync(1157,nameVariant = "Yoko")],#Nuwa post-fight dialogue vengeance (Yakumo, Nuwa, Yoko (Guest))
+    'e2030': [Demon_Sync(506, 1151), Demon_Sync(505, 1150, nameVariant="Yuzuru freakin' Atsuta"), Demon_Sync(1150, nameVariant='Atsuta'),Demon_Sync(1157,nameVariant = "Yoko")],#Dazai in diet building vengeance (Dazai(Guest), Yuzuru (Guest), Yuzuru (Guest))
+    'e2031': [Demon_Sync(1157,nameVariant = "Yoko")], #Yoko taling about Angels (Yoko (Guest))
+    'e2035': [Demon_Sync(505, 1150, nameVariant='Yuzuru'), Demon_Sync(1150, nameVariant='Atsuta')],#Returning to Tokyo from area 1 vengeance (Yuzuru(Guest))
+    'e2040': [Demon_Sync(240, 564), Demon_Sync(506, 1151), Demon_Sync(505, 1150),Demon_Sync(1152,nameVariant="Tao")],#Meeting Abdiel vengeance (Abdiel, Dazai(Guest), Yuzuru(Guest), Tao(Guest))
+    'e2043': [Demon_Sync(505, 1150, nameVariant='Atsuta'), Demon_Sync(506, 1151, nameVariant='Dazai'),Demon_Sync(1152,nameVariant="Isonokami"),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1157,nameVariant = "Yoko Hiromine"),Demon_Sync(1157,nameVariant = "Hiromine")],#Tao meeting after area 1 vengeance (Yuzuru(Guest), Dazai(Guest), Tao(Guest), Yoko (Guest))
+    'e2046': [Demon_Sync(505, 1150),Demon_Sync(1157,nameVariant = "Yoko")],#Misc Yuzuru/Yoko text after area 1 (Yuzuru (Guest), Yoko (Guest))
+    'e2048': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #Heading back to School after Area 1 (Yoko,Tao (Guest))
+    'e2060': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1157,nameVariant = "Yoko Hiromine")], #Yoko joining class (Yoko (Guest))
+    'e2130': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Hiromine")], #Dorm rooftop Tao/Yoko talk (Yoko,Tao (Guest))
     'e2160': [Demon_Sync(393, 554)],#Labolas 2 pre-fight dialogue (Naamah)
     'e2164': [Demon_Sync(393, 554)],#Labolas 2 post-fight dialogue (Naamah)
     'e2165': [Demon_Sync(554), Demon_Sync(512, 567), Demon_Sync(513, 435)],#Yakumo talk after Labolas 2 (Naamah, Yakumo, Nuwa)
     'e2170': [Demon_Sync(556), Demon_Sync(432, nameVariant='hydra')],#Jojozi temple during invasion vengeance (Lahmu, Hydra)
-    'e2190': [Demon_Sync(556)],#Tao joins you during invasion vengeance (Lahmu)
-    'e2210': [Demon_Sync(152, 562), Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(578, nameVariant='Dazai')],#Meeting Hayataro vengeance (Hayataro, Yuzuru, Dazai)
-    'e2240': [Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(506, 578, nameVariant='Ichiro'), Demon_Sync(578, nameVariant='Dazai')],#Dazai scared during invasion vengeance (Yuzuru, Dazai)
-    'e2250': [Demon_Sync(236, 556)],#Vengeance Lahmu pre-fight dialogue (Lahmu)
-    'e2255': [Demon_Sync(556), Demon_Sync(391, 569)],#Lilith kills Sahori (Lahmu, Lilith)
-    'e2260': [Demon_Sync(505, 561, nameVariant='Atsuta'), Demon_Sync(506, 578, nameVariant='Dazai')],#Dazai/Yuzuru first argument (Yuzuru, Dazai)
-    'e2270': [Demon_Sync(505, 561), Demon_Sync(506, 578), Demon_Sync(562)],#Arriving in area 2 vengeance (Yuzuru, Dazai, Hayataro)
-    'e2275': [Demon_Sync(837), Demon_Sync(511, 564), Demon_Sync(506, 578, nameVariant='Dazai')],#Dazai/Abdiel talk in area 2 vengeance (Baal, Abdiel, Dazai)
-    'e2288': [Demon_Sync(554), Demon_Sync(569)],#Yoko/Tao speculate on Eistheth's identity (Naamah, Lilith)
-    'e2290': [Demon_Sync(394, 559)],#Eisheth pre-fight dialogue (Eisheth)
-    'e2295': [Demon_Sync(394, 559)],#Eisheth post-fight dialogue (Eisheth)
-    'e2298': [Demon_Sync(559), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(517, 451)],#Fionn post-fight dialogue vengeance (Eisheth, Yuzuru, Fionn)
-    'e2300': [Demon_Sync(506, 578), Demon_Sync(561, nameVariant='Atsuta')],#Dazai stops you in area 2 (Dazai, Yuzuru)
-    'e2301': [Demon_Sync(578)],#Aogami talk about Dazai in area 2 (Dazai)
-    'e2305': [Demon_Sync(451, nameVariant='Fionn'), Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(559)],#Arriving in fairy village vengeance (Fionn, Yuzuru, Eisheth)
-    'e2310': [Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Atsuta')],#Dazai loses to Eisheth (Dazai, Yuzuru)
+    'e2180': [Demon_Sync(1157,nameVariant = "Yoko")], #Yoko outside school during invasion (Yoko (Guest))
+    'e2186': [Demon_Sync(1157,nameVariant = "Yoko")], #Yoko during school invasion after Lahmu takes out Angels (Yoko (Guest))
+    'e2190': [Demon_Sync(556),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Hiromine")],#Tao joins you during invasion vengeance (Lahmu, Yoko,Tao (Guest))
+    'e2195': [Demon_Sync(1152,nameVariant="Isonokami"),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Hiromine")],#Post Tsuchigumo school invasion 2F (Tao(Guest),Yoko (Guest))
+    'e2200': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #Yoko concerned about Tao (Yoko (Guest), Tao(Guest))
+    'e2210': [Demon_Sync(152, 562), Demon_Sync(505, 1150, nameVariant='Yuzuru'), Demon_Sync(1151, nameVariant='Dazai'),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Meeting Hayataro vengeance (Hayataro, Yuzuru (Guest), Dazai(Guest), Yoko (Guest), Tao (Guest))
+    'e2230': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Hiromine")], #Yoko talking about Sahori with Tao (Yoko (Guest), Tao (Guest))
+    'e2240': [Demon_Sync(1150, nameVariant='Atsuta'), Demon_Sync(506, 1151, nameVariant='Ichiro'), Demon_Sync(1151, nameVariant='Dazai'),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Dazai scared during invasion vengeance (Yuzuru (Guest), Dazai(Guest), Yoko (Guest), Tao (Guest))
+    'e2245': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #Talking about Sahori after Dazai scared (Yoko (Guest), Tao (Guest)) 
+    'e2250': [Demon_Sync(236, 556),Demon_Sync(1152),Demon_Sync(1152,nameVariant="Tao")],#Vengeance Lahmu pre-fight dialogue (Lahmu, Tao(Guest))
+    'e2254': [Demon_Sync(1152,nameVariant="Isonokami"),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1157,nameVariant = "Hiromine")],#Vengeance Lahmu battle start cutscene (Tao(Guest),Yoko(Guest))
+    'e2255': [Demon_Sync(556), Demon_Sync(391, 569),Demon_Sync(1152, nameVariant = "Tao")],#Lilith kills Sahori (Lahmu, Lilith, Tao(Guest))
+    'e2260': [Demon_Sync(505, 1150, nameVariant='Atsuta'), Demon_Sync(506, 1151, nameVariant='Dazai'),Demon_Sync(1152,nameVariant="Isonokami"),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Dazai/Yuzuru first argument (Yuzuru(Guest), Dazai(Guest),Tao(Guest),Yoko(Guest))
+    'e2270': [Demon_Sync(505, 1150), Demon_Sync(506, 1151), Demon_Sync(562),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Arriving in area 2 vengeance (Yuzuru(Guest), Dazai(Guest), Hayataro, Tao(Guest),Yoko(Guest))
+    'e2275': [Demon_Sync(837), Demon_Sync(511, 564), Demon_Sync(506, 1151, nameVariant='Dazai')],#Dazai/Abdiel talk in area 2 vengeance (Baal, Abdiel, Dazai(Guest))
+    'e2280': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #Rescuing Student in area 2 dialogue (Yoko,Tao (Guest))
+    'e2282': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #Rescuing another student in area 2 dialogue (Yoko,Tao (Guest))
+    'e2284': [Demon_Sync(1152,nameVariant="Tao")], #Tao talking to rescued student (Tao (Guest))
+    'e2286': [Demon_Sync(1152,nameVariant="Tao")], #Tao talking to another rescued student (Tao (Guest))
+    'e2288': [Demon_Sync(554), Demon_Sync(569),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Yoko/Tao speculate on Eistheth's identity (Naamah, Lilith, Tao(Guest),Yoko(Guest))
+    'e2289': [Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Post finding students, Yoko concerned over Tao, Aogami introspection(?) (Tao(Guest),Yoko(Guest))
+    'e2290': [Demon_Sync(394, 559),Demon_Sync(1152,nameVariant="Tao")],#Eisheth pre-fight dialogue (Eisheth, Tao(Guest))
+    'e2295': [Demon_Sync(394, 559),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Eisheth post-fight dialogue (Eisheth, Tao(Guest),Yoko (Guest))
+    'e2298': [Demon_Sync(559), Demon_Sync(1150, nameVariant='Yuzuru'), Demon_Sync(517, 451),Demon_Sync(1152,nameVariant="Tao")],#Fionn post-fight dialogue vengeance (Eisheth, Yuzuru(Guest), Fionn, Tao(Guest))
+    'e2300': [Demon_Sync(506, 1151), Demon_Sync(1150, nameVariant='Atsuta'),Demon_Sync(1157,nameVariant = "Yoko Hiromine")],#Dazai stops you in area 2 (Dazai, Yuzuru (Guest), Yoko(Guest))
+    'e2301': [Demon_Sync(1151)],#Aogami talk about Dazai in area 2 (Dazai)
+    'e2305': [Demon_Sync(451, nameVariant='Fionn'), Demon_Sync(505, 1150, nameVariant='Yuzuru'), Demon_Sync(559),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Arriving in fairy village vengeance (Fionn, Yuzuru (Guest), Eisheth, Yoko,Tao (Guest))
+    'e2310': [Demon_Sync(506, 1151, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Atsuta'),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Dazai loses to Eisheth (Dazai(Guest), Yuzuru, Tao(Guest),Yoko (Guest))
     'e2320': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(394, 559), Demon_Sync(509, 562)],#Yuzuru pre-fight dialogue (Yuzuru, Eisheth, Hayataro)
-    'e2325': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsutaaa'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(394, 559), Demon_Sync(554), Demon_Sync(392, 568)],#Yuzuru post-fight dialogue (Yuzuru, Dazai, Eisheth, Naamah, Agrat)
+    'e2325': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsutaaa'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(506, 1151, nameVariant='Dazai'), Demon_Sync(394, 559), Demon_Sync(554), Demon_Sync(392, 568),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Yuzuru post-fight dialogue (Yuzuru, Dazai(Guest), Eisheth, Naamah, Agrat, Yoko,Tao (Guest))
+    'e2326': [Demon_Sync(1152,nameVariant="Tao")], #Jack O'Lantern reporting on the salt incident (Tao(Guest))
+    'e2330': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #Discovering salted fairy village (Yoko (Guest))
     'e2400': [Demon_Sync(562)],#Aogami talk about Agra after area 2 (Hayataro)
-    'e2410': [Demon_Sync(561, nameVariant='Atsuta')],#Koshimizu meeting after area 2 vengeance (Yuzuru)
-    'e2420': [Demon_Sync(505, 561)],#Yuzuru apologizes for attacking you (Yuzuru)
-    'e2435': [Demon_Sync(562)],#Koshimizu meeting after salt investigation (Hayataro)
-    'e2445': [Demon_Sync(509, 562), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(578, nameVariant='Dazai')],#Koshimizu discovers shinjuku (Hayataro, Yuzuru, Dazai)
-    'e2450': [Demon_Sync(506, 578), Demon_Sync(564)],#Dazai goes to Chiyoda (Dazai, Abdiel)
-    'e2500': [Demon_Sync(562)],#Arriving in Shinjuku (Hayataro)
-    'e2520': [Demon_Sync(513, 550), Demon_Sync(512, 567, nameVariant='Yakumo'), Demon_Sync(486, nameVariant='Cherubim')],#First Nuwa/Yakumo scene in Shinjuku (Nuwa, Yakumo, Cherub)
-    'e2531': [Demon_Sync(486, nameVariant='Cherubim')],#Cherubim are called after Power gauntlet (Cherub)
-    'e2535': [Demon_Sync(567, nameVariant='Yakumo')],#Yoko/Tao talk where Cherub used to be (Yakumo)
-    'e2560': [Demon_Sync(512, 567)],#Nuwa/Yakumo talk at Mastema's hill 1 (Yakumo)
-    'e2562': [Demon_Sync(512, 567, nameVariant='Yakumo'), Demon_Sync(513, 550)],#Nuwa/Yakumo talk at Mastema's hill 2 (Yakumo, Nuwa)
-    'e2575': [Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(564)],#Dazai talk when Miyazu goes to Khonsu (Dazai, Yuzuru, Abdiel)
-    'e2600': [Demon_Sync(566), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(567)],#Koshimizu meeting about Khonsu (Khonsu, Dazai, Yuzuru, Yakumo)
-    'e2603': [Demon_Sync(506, 578), Demon_Sync(505, 561, nameVariant='Atsuta')],#Dazai/Yuzuru in dorm room (Dazai, Yuzuru)
-    'e2605': [Demon_Sync(506, 578, nameVariant='Ichiro'), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(505, 561, nameVariant='Yuzuru')],#Dazai and Yuzuru become friends (Dazai, Yuzuru)
-    'e2608': [Demon_Sync(561, nameVariant='Yuzuru')],#Aogami comments on Yuzuru's distress (Yuzuru)
-    'e2610': [Demon_Sync(193, 579), Demon_Sync(506, 578, nameVariant='Ichiro'), Demon_Sync(505, 561, nameVariant='Yuzuru')],#Isis pre-fight dialogue (Isis, Dazai, Yuzuru)
-    'e2615': [Demon_Sync(193, 579), Demon_Sync(566), Demon_Sync(505, 561)],#Isis post-fight dialogue (Isis, Khonsu, Yuzuru)
-    'e2620': [Demon_Sync(514, 566, nameVariant='Khonsu'), Demon_Sync(505, 561)],#Khonsu pre-fight dialogue vengeance part 1 (Khonsu, Yuzuru)
-    'e2623': [Demon_Sync(514, 566, nameVariant='Khonsu'), Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(506, 578)],#Khonsu pre-fight dialogue vengeance part 2 (Khonsu, Yuzuru, Dazai)
-    'e2625': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(514, 566, nameVariant='Khonsu'), Demon_Sync(564), Demon_Sync(596)],#Khonsu post-fight dialogue vengeance (Yuzuru, Khonsu, Abdiel, Mastema)
-    'e2630': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(506, 578)],#Yuzuru talk after Khonsu incident (Yuzuru, Dazai)
-    'e2631': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(566)],#Aogami discusses Khonsu incident (Yuzuru, Khonsu)
-    'e2633': [Demon_Sync(566)],#Yoko discusses Khonsu incident (Khonsu)
-    'e2635': [Demon_Sync(506, 578)],#Dazai joins to see Mastema 1 (Dazai)
-    'e2638': [Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(596)],#Dazai joins to see Mastema 2 (Dazai, Yuzuru, Mastema)
-    'e2640': [Demon_Sync(566), Demon_Sync(596)],#Arriving at Mastema's hill (Khonsu, Mastema)
-    'e2642': [Demon_Sync(566), Demon_Sync(250, 596)],#Meeting Mastema (Khonsu, Mastema)
-    'e2643': [Demon_Sync(506, 578, nameVariant='Dazai')],#Dazai turns to salt (Dazai)
-    'e2644': [Demon_Sync(250, 596)],#Mastema sends you to Shinjuku (Mastema)
-    'e2645': [Demon_Sync(250, 596), Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(578, nameVariant='Ichiro')],#Mastema brainwashes Dazai (Mastema, Dazai)
-    'e2648': [Demon_Sync(393, 554)],#Naamah in Shinjuku (Naamah)
-    'e2650': [Demon_Sync(512, 567), Demon_Sync(513, 550), Demon_Sync(596)],#Nuwa/Yakumo talk after seeing Naamah (Yakumo, Nuwa, Mastema)
-    'e2660': [Demon_Sync(596), Demon_Sync(505, 561)],#Koshimizu meeting before Yakumo fight (Mastema, Yuzuru)
-    'e2670': [Demon_Sync(528), Demon_Sync(505, 561)],#Yuzuru wants to be a Nahobino (Tsukuyomi, Yuzuru)
-    'e2680': [Demon_Sync(505, 561), Demon_Sync(512, 567), Demon_Sync(513, 550)],#Yakumo pre-fight dialogue (Yuzuru, Yakumo, Nuwa)
-    'e2685': [Demon_Sync(505, 561), Demon_Sync(512, 567, nameVariant='Yakumo'), Demon_Sync(513, 550)],#Yakumo post-fight dialogue (Yuzuru, Yakumo, Nuwa)
-    'e2688': [Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta')],#Koshimizu meeting after Yakumo fight (Yuzuru)
-    'e2700': [Demon_Sync(392, 568), Demon_Sync(567, nameVariant='Yakumo'), Demon_Sync(559), Demon_Sync(554)],#Meeting Agrat (Agrat, Yakumo, Eisheth, Naamah)
+    'e2405': [Demon_Sync(1157,nameVariant = "Yoko")], #Unknown "The next day..." dialogue (Yoko (Guest)) #TODO: Where is this?
+    'e2410': [Demon_Sync(1150, nameVariant='Atsuta'),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Koshimizu meeting after area 2 vengeance (Yuzuru (Guest), Yoko,Tao (Guest))
+    'e2420': [Demon_Sync(505, 1150)],#Yuzuru apologizes for attacking you (Yuzuru (Guest))
+    'e2430': [Demon_Sync(1152, nameVariant='Isonokami')],#Researcher to Tao in salt investigation (Tao(Guest))
+    'e2431': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #Frantic woman salt investigation (Yoko,Tao (Guest))
+    'e2432': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #Female worker salt investigation (Yoko,Tao (Guest))
+    'e2433': [Demon_Sync(1152, nameVariant='Isonokami'),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#School girl NPC to Tao in salt investigation (Tao(Guest), Yoko (Guest))
+    'e2434': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #Station attendant during salt investigation (Yoko,Tao (Guest))
+    'e2435': [Demon_Sync(562),Demon_Sync(1152,nameVariant="Tao")],#Koshimizu meeting after salt investigation (Hayataro, Tao)
+    'e2445': [Demon_Sync(509, 562), Demon_Sync(1150, nameVariant='Atsuta'), Demon_Sync(1151, nameVariant='Dazai')],#Koshimizu discovers shinjuku (Hayataro, Yuzuru, Dazai(Guest))
+    'e2450': [Demon_Sync(506, 1151), Demon_Sync(564)],#Dazai goes to Chiyoda (Dazai(Guest), Abdiel)
+    'e2490': [Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")], #Tao at portal to Shinjuku (Tao,YOko(Guest))
+    'e2500': [Demon_Sync(562),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Arriving in Shinjuku (Hayataro, Yoko (Guest), Tao(Guest)))
+    'e2511': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #After being attacked by Power1 in Shinjuku (Yoko,Tao (Guest))
+    'e2512': [Demon_Sync(1152,nameVariant="Tao")], #Power x2 pre-fight dialogue (Tao(Guest))
+    'e2513': [Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Power x2 post-fight dialogue (Tao(Guest), Yoko (Guest))
+    'e2514': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #Seeing angels hurrying somewhere in Shinjuku (Yoko,Tao (Guest))
+    'e2515': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #Dialogue to prevent you going near Cherubim (Yoko,Tao (Guest))
+    'e2516': [Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")], #Talking to the Sandman in Shinjuku (Yoko,Tao (Guest))
+    'e2520': [Demon_Sync(513, 550), Demon_Sync(512, 567, nameVariant='Yakumo'), Demon_Sync(486, nameVariant='Cherubim'),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#First Nuwa/Yakumo scene in Shinjuku (Nuwa, Yakumo, Cherub, Yoko, Tao (Guest))
+    'e2531': [Demon_Sync(486, nameVariant='Cherubim'),Demon_Sync(1157,nameVariant = "Yoko")],#Cherubim are called after Power gauntlet (Cherub, Yoko (Guest))
+    'e2535': [Demon_Sync(567, nameVariant='Yakumo'),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Yoko/Tao talk where Cherub used to be (Yakumo, Tao(Guest), Yoko(Guest))
+    'e2560': [Demon_Sync(512, 567),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Nuwa/Yakumo talk at Mastema's hill 1 (Yakumo, Yoko, Tao (Guest))
+    'e2562': [Demon_Sync(512, 567, nameVariant='Yakumo'), Demon_Sync(513, 550),Demon_Sync(1152,nameVariant="Tao")],#Nuwa/Yakumo talk at Mastema's hill 2 (Yakumo, Nuwa, Tao(Guest))
+    'e2575': [Demon_Sync(506, 1151, nameVariant='Dazai'), Demon_Sync(1150, nameVariant='Atsuta'), Demon_Sync(564),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Dazai talk when Miyazu goes to Khonsu (Dazai(Guest), Yuzuru (Guest), Abdiel, Yoko, Tao (Guest))
+    'e2600': [Demon_Sync(566), Demon_Sync(1151, nameVariant='Dazai'), Demon_Sync(1150, nameVariant='Yuzuru'), Demon_Sync(567),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Koshimizu meeting about Khonsu (Khonsu, Dazai(Guest), Yuzuru (Guest), Yakumo, Yoko, Tao (Guest))
+    'e2603': [Demon_Sync(506, 1151), Demon_Sync(505, 1150, nameVariant='Atsuta')],#Dazai/Yuzuru in dorm room (Dazai(Guest), Yuzuru(Guest))
+    'e2605': [Demon_Sync(506, 1151, nameVariant='Ichiro'), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(505, 1150, nameVariant='Yuzuru'),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Dazai and Yuzuru become friends (Dazai(Guest), Yuzuru(Guest), Yoko,Tao(Guest))
+    'e2608': [Demon_Sync(1150, nameVariant='Yuzuru')],#Aogami comments on Yuzuru's distress (Yuzuru(Guest))
+    'e2610': [Demon_Sync(193, 579), Demon_Sync(506, 1151, nameVariant='Ichiro'), Demon_Sync(505, 1150, nameVariant='Yuzuru')],#Isis pre-fight dialogue (Isis, Dazai(Guest), Yuzuru(Guest))
+    'e2615': [Demon_Sync(193, 579), Demon_Sync(566), Demon_Sync(505, 1150)],#Isis post-fight dialogue (Isis, Khonsu, Yuzuru(Guest))
+    'e2620': [Demon_Sync(514, 566, nameVariant='Khonsu'), Demon_Sync(505, 1150)],#Khonsu pre-fight dialogue vengeance part 1 (Khonsu, Yuzuru(Guest))
+    'e2623': [Demon_Sync(514, 566, nameVariant='Khonsu'), Demon_Sync(505, 1150, nameVariant='Yuzuru'), Demon_Sync(506, 1151)],#Khonsu pre-fight dialogue vengeance part 2 (Khonsu, Yuzuru(Guest), Dazai(Guest))
+    'e2625': [Demon_Sync(505, 1150, nameVariant='Yuzuru'), Demon_Sync(514, 566, nameVariant='Khonsu'), Demon_Sync(564), Demon_Sync(596),Demon_Sync(1157,nameVariant = "Yoko")],#Khonsu post-fight dialogue vengeance (Yuzuru(Guest), Khonsu, Abdiel, Mastema, Yoko/Guest)
+    'e2630': [Demon_Sync(505, 1150, nameVariant='Yuzuru'), Demon_Sync(506, 1151),Demon_Sync(1152,nameVariant="Tao")],#Yuzuru talk after Khonsu incident (Yuzuru(Guest), Dazai(Guest), Tao(Guest))
+    'e2631': [Demon_Sync(1150, nameVariant='Yuzuru'), Demon_Sync(566)],#Aogami discusses Khonsu incident (Yuzuru(Guest), Khonsu)
+    'e2633': [Demon_Sync(566),Demon_Sync(1157,nameVariant = "Yoko")],#Yoko discusses Khonsu incident (Khonsu, Yoko (Guest))
+    'e2635': [Demon_Sync(506, 1151),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Dazai joins to see Mastema 1 (Dazai(Guest),Yoko(Guest),Tao(Guest))
+    'e2638': [Demon_Sync(506, 1151, nameVariant='Dazai'), Demon_Sync(1150, nameVariant='Yuzuru'), Demon_Sync(596),Demon_Sync(1152,nameVariant="Isonokami"),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Dazai joins to see Mastema 2 (Dazai(Guest), Yuzuru(Guest), Mastema, Tao(Guest),Yoko(Guest))
+    'e2640': [Demon_Sync(566), Demon_Sync(596),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Arriving at Mastema's hill (Khonsu, Mastema, Yoko,Tao (Guest))
+    'e2642': [Demon_Sync(566), Demon_Sync(250, 596),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Meeting Mastema (Khonsu, Mastema, Yoko,Tao (Guest))
+    'e2643': [Demon_Sync(506, 1151, nameVariant='Dazai'),Demon_Sync(1152,nameVariant="Tao")],#Dazai turns to salt (Dazai(Guest), Tao(Guest))
+    'e2644': [Demon_Sync(250, 596),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Mastema sends you to Shinjuku (Mastema, Tao(Guest), Yoko (Guest))
+    'e2645': [Demon_Sync(250, 596), Demon_Sync(506, 1151, nameVariant='Dazai'), Demon_Sync(1151, nameVariant='Ichiro')],#Mastema brainwashes Dazai (Mastema, Dazai(Guest))
+    'e2646': [Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Tao/Yoko talk about Mastema turning people to salt (Tao(Guest), Yoko(Guest))
+    'e2648': [Demon_Sync(393, 554),Demon_Sync(1152,nameVariant="Tao")],#Naamah in Shinjuku (Naamah, Tao(Guest))
+    'e2650': [Demon_Sync(512, 567), Demon_Sync(513, 550), Demon_Sync(596),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Nuwa/Yakumo talk after seeing Naamah (Yakumo, Nuwa, Mastema, Yoko, Tao (Guest))
+    'e2660': [Demon_Sync(596), Demon_Sync(505, 1150),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Koshimizu meeting before Yakumo fight (Mastema, Yuzuru(Guest), Yoko,Tao (Guest))
+    'e2670': [Demon_Sync(528), Demon_Sync(505, 1150)],#Yuzuru wants to be a Nahobino (Tsukuyomi, Yuzuru(Guest))
+    'e2680': [Demon_Sync(505, 1150), Demon_Sync(512, 567), Demon_Sync(513, 550),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Yakumo pre-fight dialogue (Yuzuru(Guest), Yakumo, Nuwa, Tao(Guest), Yoko (Guest))
+    'e2685': [Demon_Sync(505, 1150), Demon_Sync(512, 567, nameVariant='Yakumo'), Demon_Sync(513, 550),Demon_Sync(1152,nameVariant="Isonokami"),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko")],#Yakumo post-fight dialogue (Yuzuru(Guest), Yakumo, Nuwa, Tao(Guest), Yoko (Guest))
+    'e2688': [Demon_Sync(505, 1150, nameVariant='Yuzuru'), Demon_Sync(1150, nameVariant='Atsuta'),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Hiromine")],#Koshimizu meeting after Yakumo fight (Yuzuru(Guest),Tao(Guest))
+    'e2700': [Demon_Sync(392, 568), Demon_Sync(567, nameVariant='Yakumo'), Demon_Sync(559), Demon_Sync(554),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Meeting Agrat (Agrat, Yakumo, Eisheth, Naamah, Yoko, Tao (Guest))
     'e2703': [Demon_Sync(392, 568)],#Agrat pre-fight dialogue (Agrat)
-    'e2705': [Demon_Sync(392, 568), Demon_Sync(394, 559), Demon_Sync(393, 554)],#Agrat post-fight dialogue (Agrat, Eisheth, Naamah)
-    'e2713': [Demon_Sync(391, 569)],#Lilith pre-fight dialogue (Lilith)
-    'e2717': [Demon_Sync(391, 569), Demon_Sync(392, 568), Demon_Sync(394, 559), Demon_Sync(393, 554), Demon_Sync(565)],#Lilith post-fight dialogue (Lilith, Agrat, Eisheth, Naamah, Tiamat)
-    'e2718': [Demon_Sync(391, 569), Demon_Sync(565)],#Lilith lectures Yoko (Lilith, Tiamat)
-    'e2740': [Demon_Sync(506, 578, nameVariant='Ichiro'), Demon_Sync(505, 561, nameVariant='Yuzuru'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(511, 564)],#Dazai hat cutscene vengeance (Dazai, Yuzuru, Abdiel)
-    'e2760': [Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(564)],#Koshimizu mourns Yuzuru (Yuzuru, Abdiel)
+    'e2705': [Demon_Sync(392, 568), Demon_Sync(394, 559), Demon_Sync(393, 554),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao")],#Agrat post-fight dialogue (Agrat, Eisheth, Naamah, Yoko,Tao(Guest))
+    'e2708': [Demon_Sync(1157,nameVariant = "Yoko")], #Aogami before going to Qadistu (Yoko (Guest))
+    'e2709': [Demon_Sync(1157,nameVariant = "Yoko")], #Yoko posing a question about whether to fix or from scratch a "picture" (Yoko (Guest))
+    'e2710': [Demon_Sync(1152,nameVariant="Tao")], #Tao upon going where the qadistu supposedly are (Tao(Guest))
+    'e2713': [Demon_Sync(391, 569),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Yoko Hiromine")],#Lilith pre-fight dialogue (Lilith, Yoko, Tao (Guest))
+    'e2717': [Demon_Sync(391, 569), Demon_Sync(392, 568), Demon_Sync(394, 559), Demon_Sync(393, 554), Demon_Sync(565),Demon_Sync(1157,nameVariant = "Yoko")],#Lilith post-fight dialogue (Lilith, Agrat, Eisheth, Naamah, Tiamat, Yoko (Guest))
+    'e2718': [Demon_Sync(391, 569), Demon_Sync(565),Demon_Sync(1152),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1157,nameVariant = "Yoko Hiromine")],#Lilith lectures Yoko (Lilith, Tiamat, Tao(Guest), Yoko(Guest))
+    'e2730': [Demon_Sync(1152,nameVariant="Tao")], #Tao after being defeated by Qadistu (Tao(Guest))
+    'e2735': [Demon_Sync(1152,nameVariant="Tao")], #Tao wishing Nahobino back to life (Tao(Guest))
+    'e2740': [Demon_Sync(506, 578, nameVariant='Ichiro'), Demon_Sync(505, 1150, nameVariant='Yuzuru'), Demon_Sync(1150, nameVariant='Atsuta'), Demon_Sync(511, 564)],#Dazai hat cutscene vengeance (Dazai, Yuzuru(Guest), Abdiel)
+    'e2760': [Demon_Sync(1150, nameVariant='Atsuta'), Demon_Sync(564)],#Koshimizu mourns Yuzuru (Yuzuru(Guest), Abdiel)
     'e2770': [Demon_Sync(528)],#Koshimizu reveals he's Tsukuyomi (Tsukuyomi)
     'e2790': [Demon_Sync(530, 528)],#Tsukuyomi dialogue after fusing with mc (Tsukuyomi)
     'e2795': [Demon_Sync(530, 528), Demon_Sync(569)],#Qadistu talisman text (Tsukuyomi, Lilith)
-    'e2900': [Demon_Sync(530, 528), Demon_Sync(250, 596), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(564), Demon_Sync(565)],#Mastema sends you to Shakan (Tsukuyomi, Mastema, Dazai, Yuzuru, Abdiel, Tiamat)
+    'e2900': [Demon_Sync(530, 528), Demon_Sync(250, 596), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(1150, nameVariant='Atsuta'), Demon_Sync(564), Demon_Sync(565)],#Mastema sends you to Shakan (Tsukuyomi, Mastema, Dazai, Yuzuru (Guest), Abdiel, Tiamat)
     'e2902': [Demon_Sync(530, 528), Demon_Sync(578, nameVariant='Dazai'), Demon_Sync(596), Demon_Sync(565)],#Tsukuyomi agrees to go to Shakan (Tsukuyomi, Dazai, Mastema, Tiamat)
     'e2910': [Demon_Sync(530, 528)],#Arriving in Shakan (Tsukuyomi)
     'e2912': [Demon_Sync(530, 528), Demon_Sync(578), Demon_Sync(564), Demon_Sync(565)],#Dark block bros pre-fight (Tsukuyomi, Dazai, Abdiel, Tiamat)
-    'e2915': [Demon_Sync(530, 528), Demon_Sync(565), Demon_Sync(569), Demon_Sync(559), Demon_Sync(561, nameVariant='Atsuta')],#Shakan angels gossiping (Tsukuyomi, Tiamat, Lilith, Eisheth, Yuzuru)
+    'e2915': [Demon_Sync(530, 528), Demon_Sync(565), Demon_Sync(569), Demon_Sync(559), Demon_Sync(1150, nameVariant='Atsuta'),Demon_Sync(1152,nameVariant="Isonokami"),Demon_Sync(1157,nameVariant = "Hiromine"),Demon_Sync(1157,nameVariant = "Yoko")],#Shakan angels gossiping (Tsukuyomi, Tiamat, Lilith, Eisheth, Yuzuru(Guest), Tao(Guest))
     'e2917': [Demon_Sync(530, 528)],#Cherub fight dialogue (Tsukuyomi)
-    'e2920': [Demon_Sync(530, 528), Demon_Sync(564), Demon_Sync(561, nameVariant='Atsuta')],#Abdiel in Shakan pre-fight dialogue (Tsukuyomi, Abdiel, Yuzuru)
-    'e2930': [Demon_Sync(530, 528), Demon_Sync(511, 564), Demon_Sync(565), Demon_Sync(596)],#Abdiel in Shakan post-fight dialogue (Tsukuyomi, Abdiel, Tiamat, Mastema)
-    'e2950': [Demon_Sync(530, 528), Demon_Sync(250, 596), Demon_Sync(564)],#Mastema dialogue after Shakan (Tsukuyomi, Mastema, Abdiel)
+    'e2920': [Demon_Sync(530, 528), Demon_Sync(564), Demon_Sync(1150, nameVariant='Atsuta'),Demon_Sync(1157,nameVariant = "Yoko"),Demon_Sync(1157,nameVariant = "Hiromine")],#Abdiel in Shakan pre-fight dialogue (Tsukuyomi, Abdiel, Yuzuru(Guest), Yoko(Guest))
+    'e2930': [Demon_Sync(530, 528), Demon_Sync(511, 564), Demon_Sync(565), Demon_Sync(596),Demon_Sync(1157,nameVariant = "Yoko Hiromine")],#Abdiel in Shakan post-fight dialogue (Tsukuyomi, Abdiel, Tiamat, Mastema, Yoko(Guest))
+    'e2950': [Demon_Sync(530, 528), Demon_Sync(250, 596), Demon_Sync(564),Demon_Sync(1157,nameVariant = "Yoko Hiromine"),Demon_Sync(366,nameVariant = "Yoko")],#Mastema dialogue after Shakan (Tsukuyomi, Mastema, Abdiel, Yoko(Guest/Panagia))
     'e2953': [Demon_Sync(510, 528)],#Tsukuyomi pre-meeting before area 4 vengeance (Tsukuyomi)
     'e2955': [Demon_Sync(837), Demon_Sync(537), Demon_Sync(510, 528)],#Tsukuyomi meeting before area 4 vengeance (Baal, Lucifer, Tsukuyomi)
-    'e2970': [Demon_Sync(528)],#Meeting Goddess Tao vengeance (Tsukuyomi)
-    'e2980': [Demon_Sync(510, 528)],#Tsukuyomi meets Goddess Tao (Tsukuyomi)
-    'e3000': [Demon_Sync(510, 528)],#Arriving in area 4 vengeance (Tsukuyomi)
+    'e2970': [Demon_Sync(528),Demon_Sync(365)],#Meeting Goddess Tao vengeance (Tsukuyomi, Tao(Panagia))
+    'e2980': [Demon_Sync(510, 528),Demon_Sync(365,nameVariant="Isonokami")],#Tsukuyomi meets Goddess Tao (Tsukuyomi, Tao(Panagia))
+    'e3000': [Demon_Sync(510, 528),Demon_Sync(365)],#Arriving in area 4 vengeance (Tsukuyomi, Tao(Panagia))
     'e3005': [Demon_Sync(530, 528)],#Tsukuyomi senses the keys (Tsukuyomi)
-    'e3010': [Demon_Sync(512, 567), Demon_Sync(565)],#Yakumo in area 4 vengeance part 1 (Yakumo, Tiamat)
+    'e3010': [Demon_Sync(512, 567), Demon_Sync(565),Demon_Sync(365)],#Yakumo in area 4 vengeance part 1 (Yakumo, Tiamat, Tao(Panagia))
     'e3015': [Demon_Sync(513, 550)],#Unused? Nuwa line in Yakumo area 4 cutscene (Nuwa)
-    'e3020': [Demon_Sync(550), Demon_Sync(512, 567)],#Yakumo in area 4 vengeance part 2 (Nuwa, Yakumo)
+    'e3020': [Demon_Sync(550), Demon_Sync(512, 567),Demon_Sync(365)],#Yakumo in area 4 vengeance part 2 (Nuwa, Yakumo, Tao(Panagia))
     'e3021': [Demon_Sync(567, nameVariant='Yakumo')],#Yakumo background check (Yakumo) includes spread out text
     'e3022': [Demon_Sync(510, 528), Demon_Sync(567, nameVariant='Yakumo')],#Tsukuyomi comments on Yakumo's past (Tsukuyomi, Yakumo)
     'e3030': [Demon_Sync(510, 528), Demon_Sync(512, 567)],#Yakumo saves a student (Tsukuyomi, Yakumo)
     'e3040': [Demon_Sync(512, 567), Demon_Sync(550), Demon_Sync(568), Demon_Sync(510, 528)],#Yakumo in Jojozi (Yakumo, Nuwa, Agrat, Tsukuyomi)
     'e3100': [Demon_Sync(81, 483), Demon_Sync(111, 468), Demon_Sync(845), Demon_Sync(537)],#Beelzebub pre-fight dialogue (Beelzebub, Vasuki, Shiva, Lucifer)
-    'e3110': [Demon_Sync(81, 483)],#Beelzebub post-fight dialogue (Beelzebub)
+    'e3110': [Demon_Sync(81, 483),Demon_Sync(365)],#Beelzebub post-fight dialogue (Beelzebub, Tao(Panagia))
     'e3120': [Demon_Sync(8, 481), Demon_Sync(9, 482)],#Zeus + Odin pre-fight dialogue (Zeus, Odin)
     'e3130': [Demon_Sync(8, 481), Demon_Sync(9, 482)],#Zeus + Odin post-fight dialogue (Zeus, Odin)
-    'e3300': [Demon_Sync(530, 528), Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(577)],#Dazai pre-fight dialogue (Tsukuyomi, Dazai, Abdiel)
-    'e3310': [Demon_Sync(530, 528), Demon_Sync(561), Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(577)],#Dazai post-fight dialogue (Tsukuyomi, Yuzuru, Dazai, Abdiel)
-    'e3330': [Demon_Sync(565), Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(567, nameVariant='Yakumo'), Demon_Sync(578, nameVariant='Dazai')],#Yoko shows up in Empyrean (Tiamat, Yuzuru, Yakumo, Dazai)
+    'e3160': [Demon_Sync(365)], #Tao upon collecting the keys (after zodin) (Tao(Panagia))
+    'e3200': [Demon_Sync(365)], #Tao before entering Empyrean (Tao(Panagia))
+    'e3220': [Demon_Sync(365,nameVariant="Tao Isonokami"),Demon_Sync(1157,nameVariant = "Yoko")],#Tao talks before entering Empyrean (Tao(Panagia), Yoko (Guest))
+    'e3250': [Demon_Sync(365)], #Tao before offering the three keys (Tao(Panagia))
+    'e3300': [Demon_Sync(530, 528), Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(577), Demon_Sync(365,nameVariant="Isonokami")],#Dazai pre-fight dialogue (Tsukuyomi, Dazai, Abdiel, Tao(Panagia))
+    'e3310': [Demon_Sync(530, 528), Demon_Sync(1150), Demon_Sync(506, 578, nameVariant='Dazai'), Demon_Sync(577),Demon_Sync(365)],#Dazai post-fight dialogue (Tsukuyomi, Yuzuru(Guest), Dazai, Abdiel, Tao(Panagia))
+    'e3320': [Demon_Sync(365,nameVariant="Tao")], #Tao upon entering the Empyrean (Tao(Panagia))
+    'e3330': [Demon_Sync(565), Demon_Sync(1150, nameVariant='Yuzuru'), Demon_Sync(567, nameVariant='Yakumo'), Demon_Sync(578, nameVariant='Dazai'),Demon_Sync(365),Demon_Sync(366)],#Yoko shows up in Empyrean (Tiamat, Yuzuru(Guest), Yakumo, Dazai, Tao(Panagia), Yoko(Panagia)))
+    'e3340': [Demon_Sync(366),Demon_Sync(365)], #Yoko after choosing Law (Yoko(Panagia), Tao(Panagia))
     'e3350': [Demon_Sync(565)],#Yoko uses Tiamat on you (Tiamat)
-    'e3352': [Demon_Sync(510, 528), Demon_Sync(565)],#Tiamat post-fight dialogue law (Tsukuyomi, Tiamat)
-    'e3355': [Demon_Sync(597)],#Tehom pre-fight dialogue (Tehom)
-    'e3400': [Demon_Sync(250, 596), Demon_Sync(565)],#Siding with Yoko (Mastema, Tiamat)
+    'e3352': [Demon_Sync(510, 528), Demon_Sync(565),Demon_Sync(366)],#Tiamat post-fight dialogue law (Tsukuyomi, Tiamat, Yoko(Panagia))
+    'e3355': [Demon_Sync(597),Demon_Sync(366),Demon_Sync(365)],#Tehom pre-fight dialogue (Tehom, Yoko(panagia), Tao(Panagia))
+    'e3400': [Demon_Sync(250, 596), Demon_Sync(565),Demon_Sync(365),Demon_Sync(366)],#Siding with Yoko (Mastema, Tiamat, Tao(Panagaia),Yoko(Panagia))
     'e3410': [Demon_Sync(250, 596)],#Mastema uses Tiamat on you (Mastema)
-    'e3415': [Demon_Sync(530, 528), Demon_Sync(250, 596), Demon_Sync(565)],#Tiamat post-fight dialogue chaos (Tsukuyomi, Mastema, Tiamat)
+    'e3415': [Demon_Sync(530, 528), Demon_Sync(250, 596), Demon_Sync(565),Demon_Sync(366)],#Tiamat post-fight dialogue chaos (Tsukuyomi, Mastema, Tiamat, Yoko(Panagia))
     'e3420': [Demon_Sync(250, 596)],#Mastema pre-fight dialogue (Mastema)
-    'e3425': [Demon_Sync(250, 596)],#Mastema post-fight dialogue (Mastema)
+    'e3425': [Demon_Sync(250, 596),Demon_Sync(366)],#Mastema post-fight dialogue (Mastema, Yoko (Panagia))
+    'e3450': [Demon_Sync(366)], #Yoko after defeating Mastema (Yoko(Panagia))
     'e3475': [Demon_Sync(529, 537)],#Lucifer chaos ending dialogue (Lucifer)
+    'e3480': [Demon_Sync(366)], #Yoko after Lucifer chaos ending (Yoko(Panagia))
     'em0011': [Demon_Sync(38, isNavi=True)],#Amanozako showing where angels are maybe (Navi Amanozako)
     'em0013': [Demon_Sync(38, isNavi=True)],#Amanozako quest tutorial maybe (Navi Amanozako)
     'em0019': [Demon_Sync(38, isNavi=True)],#Amanozako leaves after area 1 (Navi Amanozako)
@@ -482,7 +555,7 @@ EVENT_MESSAGE_DEMON_IDS = {
     'es609_m062_01': [Demon_Sync(452)],#Yuzuru dialogue in fairy village (Lahmu)
     'es611_m063_01': [Demon_Sync(467)],#Dazai dialogue in Chiyoda (Abdiel)
     'es611_m085_01': [Demon_Sync(467)],#Dazai dialogue before Chiyoda (Abdiel)
-    'es617_m085b_01': [Demon_Sync(561, nameVariant='Atsuta'), Demon_Sync(578, nameVariant='Dazai')],#Koshimizu dialogue throughout Shinjuku (Yuzuru, Dazai)
+    'es617_m085b_01': [Demon_Sync(1150, nameVariant='Atsuta'), Demon_Sync(578, nameVariant='Dazai')],#Koshimizu dialogue throughout Shinjuku (Yuzuru(Guest), Dazai)
     'es618_es418': [Demon_Sync(512, 465, nameVariant='Yakumo'), Demon_Sync(513, 435)],#Misc Nuwa/Yakumo dialogue creation (Yakumo, Nuwa)
     'es632_m062_01': [Demon_Sync(452)],#Goko? Area 2 dialogue (Lahmu)
     'es632_m087_01': [Demon_Sync(452), Demon_Sync(837), Demon_Sync(463)],#Unused researcher or Goko dialogue? (Lahmu, Baal, Arioch)
@@ -496,13 +569,15 @@ EVENT_MESSAGE_DEMON_IDS = {
     'npc_m061_b': [Demon_Sync(537), Demon_Sync(432), Demon_Sync(566), Demon_Sync(870), Demon_Sync(193, 579)],#NPC text in Area 1 vengeance (Lucifer, Hydra, Khonsu, Seth, Isis)
     'npc_m061_navi': [Demon_Sync(801), Demon_Sync(295, isNavi=True), Demon_Sync(304, isNavi=True), Demon_Sync(316, isNavi=True), Demon_Sync(356, isNavi=True)],#Navigator text in Area 1 (Pazuzu, Cleopatra, Mermaid, Ippon Datara, Hell Biker)
     'npc_m062': [Demon_Sync(452), Demon_Sync(451, nameVariant='Fionn')],#NPC text in Area 2 creation (Lahmu, Fionn)
-    'npc_m062_b': [Demon_Sync(556), Demon_Sync(827), Demon_Sync(506, 578)],#NPC text in Area 2 vengeance (Lahmu, Fionn, Girimehkala, Dazai)
+    'npc_m062_b': [Demon_Sync(556), Demon_Sync(827), Demon_Sync(506, 1151)],#NPC text in Area 2 vengeance (Lahmu, Fionn, Girimehkala, Dazai(Guest))
     'npc_m062_navi': [Demon_Sync(23, isNavi=True), Demon_Sync(44, isNavi=True), Demon_Sync(147, isNavi=True)],#Navigator text in Area 2 (Idun, Agathion, Mothman)
     'npc_m063': [Demon_Sync(454), Demon_Sync(455), Demon_Sync(467)],#NPC text in Chiyoda (Surt, Ishtar, Abdiel)
-    'npc_m064': [Demon_Sync(463), Demon_Sync(564), Demon_Sync(183, 881), Demon_Sync(775), Demon_Sync(596), Demon_Sync(822), Demon_Sync(772, nameVariant='kuDLaK'), Demon_Sync(505, 561), Demon_Sync(214, isNavi=True)],#NPC text in Shinjuku (Arioch, Abdiel, Dionysus, Orochi, Mastema, Okuninushi, Kudlak, Yuzuru, Sukuna Hikona navi)
+    'npc_m064': [Demon_Sync(463), Demon_Sync(564), Demon_Sync(183, 881), Demon_Sync(775), Demon_Sync(596), Demon_Sync(822), Demon_Sync(772, nameVariant='kuDLaK'), Demon_Sync(505, 1150), Demon_Sync(214, isNavi=True)],#NPC text in Shinjuku (Arioch, Abdiel, Dionysus, Orochi, Mastema, Okuninushi, Kudlak, Yuzuru(Guest), Sukuna Hikona navi)
+    'npc_m082': [Demon_Sync(1152,nameVariant="Isonokami"),Demon_Sync(1152,nameVariant="Tao"),Demon_Sync(1157,nameVariant = "Hiromine")], #NPC text school(?) (Tao(Guest)),
     'npc_m085': [Demon_Sync(578), Demon_Sync(463), Demon_Sync(841)],#NPC text in research lab (Dazai, Arioch, Michael)
+    'npc_m092': [Demon_Sync(1152)], #NPC text school invasion (Tao(Guest)),
     'npc_TokyoMap': [Demon_Sync(465, nameVariant='Yakumo')],#NPC text in world map creation (Yakumo)
-    'npc_TokyoMap_b': [Demon_Sync(561, nameVariant='Yuzuru'), Demon_Sync(567, nameVariant='Yakumo')],#NPC text in world map vengeance (Yuzuru, Yakumo)
+    'npc_TokyoMap_b': [Demon_Sync(1150, nameVariant='Yuzuru'), Demon_Sync(567, nameVariant='Yakumo')],#NPC text in world map vengeance (Yuzuru(guest), Yakumo)
 }
 
 #Message files for mission events and what items need to be updated in them
@@ -628,7 +703,7 @@ EVENT_CHECKS_ORIGINAL_IDS = {
     'em0015': [(26, 431, 0)],#Triple Preta
     'em0181': [(2, 552, 21)],#Labolas 1
     'e2019': [(3, 553, 27)],#Naamah 1
-    'e2060': [(8, 554, 28)],#Naamah 2
+    'e2130': [(1, 554, 28)],#Naamah 2
     'e2245': [(1, 556, 22)],#Vengeance Lahmu
     'e2288': [(13, 559, 30)],#Eisheth
     'e2296': [(3, 451, 29)],#Fionn 1 (Vengeance route)
@@ -648,7 +723,7 @@ HINT_BOSS_PLACEHOLDER = '<BOSSNAME>'
 HINT_BOSS_PLACEHOLDER_PLAIN_TEXT = '<BOSSNAMEPLAINTEXT>' #For hint messages that should not use colored text
 
 #Various hint messages that include <BOSSNAME> where the replacement boss name will go
-HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should proceed with caution.", #0 - Generic Aogami Warning
+BOSS_HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should proceed with caution.", #0 - Generic Aogami Warning
                  "Us <BOSSNAME>s are always hungry,\nno matter how much we put away.", #1 - A Preta Predicament
                  "<BOSSNAME> has appeared there,\ndwelling at <c look_begin>the peak of a mountain<c look_end>.", #2 - The Tyrant of Tennozu
                  "I have a hunch there might be\n<BOSSNAME> in there.", #3 - Nekomata dialogue for king frost quest
@@ -676,16 +751,40 @@ HINT_MESSAGES = ["I'm detecting the presence of <BOSSNAME> ahead.\nWe should pro
                  "Naturally, those of Bethel stand with Archangel <BOSSNAME>.", #25 - Abdiel mentioned by Dominion in Empyrean because vengeance Abdiel is in the same file
                  "But one day, <BOSSNAME> arrived.", #26 - Mermaid dialogue in Pazuzu quest
                  "Next we will have to face <BOSSNAME>.\nShe's one of the Qadistu.", #27 - Yoko dialogue after Hydra
-                 "Tomorrow morning, you will encounter <BOSSNAME>\non the way to school.", #28 - Yoko dialogue when she transfers to Jouin
+                 "Tomorrow morning, you will encounter <BOSSNAME>\non the way to school.", #28 - CoV Tao meeting you on the roof
                  "<BOSSNAME> detected.\nIt's distant, but I've marked its location.", #29 - Marking Fionn's location on the map
                  "Sounded like they were all\nattacked by <BOSSNAME>.", #30 - Yoko/Tao dialogue after rescuing students attacked by Eisheth
                  "A shame you will never reach\ndemon king <BOSSNAME>...", #31 - Chernobog dialogue
                  "We may even encounter <BOSSNAME>, the lord of the flies.", #32 - Tsukuyomi dialogue about the 3 keys
                  "You have squandered the mercy\ngranted by my fellow archangel, <BOSSNAME>.", #33 - Camael dialogue vengeance
                  "You leave me no choice. As the angel of\ndestruction, I shall slay you in <BOSSNAME>'s stead.", #34 - Camael dialogue vengeance part 2
-                 "Speak to me and face <BOSSNAME>."] #35 - Goko dialogue in Marici quest
+                 "Speak to me and face <BOSSNAME>.", #35 - Goko dialogue in Marici quest                
+]
+
+#Message files for story events containing item check infos, which message is the hint message, what item id it should hint, and which canon is focused
+#Value format: [(messageIndex, originalItemID, hintMessageID, canon), ...]
+EVENT_ITEM_CHECKS_ORIGINAL_IDS  = {
+    'e0775': [(7,658,1,Canon.CREATION)], #CoC Vasuki giving Hints for Key of Austerity
+    'e0785': [(7,659,2,Canon.CREATION)], #CoC Zeus giving Hints for Key of Benelevolance 
+    'e0805': [(14,660,3,Canon.CREATION)], #CoC Odin giving Hints for Key of Harmony
+    #'e3100': [(8,658,4),(12,658,4)], #CoV Beelzebub Pre-Fight giving Hitns for Key of Austerity
+    'e3110': [(2,658,4,Canon.VENGEANCE)], #CoV Beelzebub Post-Fight Key of Austerity Hint
+    'e3130': [(1,659,5,Canon.VENGEANCE),(2,660,6,Canon.VENGEANCE)], #CoV Zeus+Odin giving hints for Key of Benelevolance and Key of Harmony
+}
+
+#Various hint messages that include <CHECKINFO> where the check info will go
+ITEM_CHECK_HINT_MESSAGES = [
+    "You can find <ITEMNAME> at\n>CHECKINFO>.", #0 - Generic Hint
+    "Such strength... I've been keeping watch over the key at \n<CHECKINFO>.", #1 - CoC Vasuki giving hint for Key of Austerity
+    "Bah, fine. Let no man call me\nungracious. The key is at \n<CHECKINFO>.", #2 - CoC Zeus giving Hints for Key of Benelevolance
+    "...But I suppose it is no longer my place to say.\nVictory is yours... and so is the Key of Harmony.\n<CHECKINFO>.",#3 -CoC Odin giving Hints for Key of Harmony
+    "As promised, the location of the Key of Austerity is yours.\n<CHECKINFO>.", #4- CoV Beelzebub Post-Fight Key of Austerity Hint
+    "Hell of a fight, boy... That's a loss I can accept.\n The Key of Benelevolance is at\n<CHECKINFO>.", #5 - CoV Zeus giving hint for Key of Benelevolance
+    "More readily than Bethel will, I suspect. Much as they'll\nobject, the Key of Harmony is at\n<CHECKINFO>.", #6 - CoV Odin giving hints for Key of Harmony
+]
 
 MISSION_INFO_DEMON_IDS = {
+    4: [Demon_Sync(38, isNavi=True)], # The Angel's Trail (Navi Amanozako)
     7: [Demon_Sync(281,802), Demon_Sync(114, isNavi=True)], #The Ultimate Omelet (Jatayu, Navi Aitvaras)
     8: [Demon_Sync(233,801), Demon_Sync(304, isNavi=True)], #The Cursed Mermaid (Pazuzu, Navi Mermaid)
     9: [Demon_Sync(20,803), Demon_Sync(304, isNavi=True)], #The Demon of the Spring (Anahita, Navi Mermaid)
@@ -742,19 +841,22 @@ MISSION_INFO_DEMON_IDS = {
             Demon_Sync(350,929),Demon_Sync(934)], #Return of the True Demon (Matador, Daisoujou, Hell Biker, White Rider, Red Rider, Black Rider, Pale Rider, Mother Harlot, Trumpeter, Demi-fiend)
     86: [Demon_Sync(318,888)], #Movin' On Up (Oni)
     87: [Demon_Sync(345,889)], #A Preta Predicament (Preta)
-    88: [Demon_Sync(111,468),Demon_Sync(8,469),Demon_Sync(9,470)], #The Three Keys (Vasuki, Zeus, Odin)
+    88: [Demon_Sync(111,468),Demon_Sync(8,469),Demon_Sync(9,470),Demon_Sync(365)], #The Three Keys (Vasuki, Zeus, Odin, Tao)
     91: [Demon_Sync(441)], #Defending Jozoji Temple (Lahmu)
     92: [Demon_Sync(452)], #Eliminate Lahmu (Lahmu)
     93: [Demon_Sync(25,455),Demon_Sync(80,454),Demon_Sync(82,463)], #Defeat the Demon King's Armies (Surt, Ishtar, Arioch)
     94: [Demon_Sync(240,467)], #Escort the Prime Minister (Abdiel)
+    95: [Demon_Sync(365)], #To the Empyrean (Tao)
+    100: [Demon_Sync(38, isNavi=True)], # The Angel's Trail CoV (Navi Amanozako)
     103: [Demon_Sync(236,556),Demon_Sync(391,569)], #Elimate Lahmu (Lahmu, Lilith) CoV
     106: [Demon_Sync(89,810)], #A Golden Opportunity (Loki) CoV
-    107: [Demon_Sync(561,nameVariant = "Yuzuru"), Demon_Sync(578,nameVariant = "Dazai")], #Go to Yuzuru's Aid (Yuzuru, Ichiro)
-    109: [Demon_Sync(7,566),Demon_Sync(250,596)], #Investigate the Salt Incidents (Khonsu, Mastema)
+    107: [Demon_Sync(561,nameVariant = "Yuzuru"), Demon_Sync(1151,nameVariant = "Dazai"),Demon_Sync(1151,nameVariant = "Ichiro")], #Go to Yuzuru's Aid (Yuzuru, Ichiro (Guest))
+    109: [Demon_Sync(7,566),Demon_Sync(250,596),Demon_Sync(1152, nameVariant = "Tao")], #Investigate the Salt Incidents (Khonsu, Mastema, Tao Guest)
     111: [Demon_Sync(7,566)], #Rescue Miyazu Atsuta (Khonsu)
     113: [Demon_Sync(565)], #Qadistu Showdown (Tiamat)
-    114: [Demon_Sync(565),Demon_Sync(250,596)], #Chase through Shakan (Mastema, Tiamat)
-    115: [Demon_Sync(8,481),Demon_Sync(9, 482),Demon_Sync(81,483)], #The Three Keys (Zeus, Odin, Beelzebub)
+    114: [Demon_Sync(565),Demon_Sync(250,596),Demon_Sync(1157)], #Chase through Shakan (Mastema, Tiamat, Yoko (Guest))
+    115: [Demon_Sync(8,481),Demon_Sync(9, 482),Demon_Sync(81,483),Demon_Sync(365)], #The Three Keys (Zeus, Odin, Beelzebub, Tao)
+    116: [Demon_Sync(365)], #To the Empyrean CoV (Tao)
     138: [Demon_Sync(386), Demon_Sync(41,771)], #Reclaim the Golden Stool (Onyankopon, Anansi Boss)
     139: [Demon_Sync(386,770),Demon_Sync(41)], #Liberate the Golden Stool (Onyankopon Boss, Anansi)
     142: [Demon_Sync(248,814)], #The Angel of Destruction (Camael)
@@ -766,11 +868,12 @@ MISSION_INFO_DEMON_IDS = {
     150: [Demon_Sync(336),Demon_Sync(107,752)], #Beastly Battle of Wits (Nozuchi, Kodama(Not the ones in the boss fight)
     151: [Demon_Sync(117)], #Brawny Ambitions (Zhu Tun She)
     153: [Demon_Sync(387, isNavi=True)], #Picture Perfect-Debut (Navi Amabie)
+    157: [Demon_Sync(1150, nameVariant="Yuzuru")], #Supply Run (Yuzuru(Guest))
     159: [Demon_Sync(108,769)], #Heart of Garnet (Vouivre)
     161: [Demon_Sync(113),Demon_Sync(41), Demon_Sync(386)], #Tough Love (Basilisk, Onyankopon, Anansi)
     165: [Demon_Sync(227)], #Guardian of Tokyo (Masakado)
     167: [Demon_Sync(318,888)], #Home Sweet Home (Oni)
-    172: [Demon_Sync(7,566)], #Rite of Resurrection (Khonsu)
+    172: [Demon_Sync(7,566),Demon_Sync(1150,nameVariant="Yuzuru")], #Rite of Resurrection (Khonsu, Yuzuru (Guest))
     175: [Demon_Sync(40),Demon_Sync(346,772)], #The Hunter in White (Kresnik, Kudlak Boss)
     176: [Demon_Sync(49,774),Demon_Sync(346)], #The Vampire in Black (Kresnik Boss, Kudlak)
     177: [Demon_Sync(337,890)], #As God Wills (Gogmagog)
@@ -786,6 +889,7 @@ MISSION_INFO_DEMON_IDS = {
     189: [Demon_Sync(175,754)], #Supersonic Racing (Turbo Granny)
     190: [Demon_Sync(1,681),Demon_Sync(250,596)], #The Great Adversary (Satan, Mastema)
     191: [Demon_Sync(59, isNavi=True)], #Pixie on the Case (Navi Pixie)
+    192: [Demon_Sync(38, isNavi=True),Demon_Sync(1151),Demon_Sync(1151, nameVariant = "Ichiro")], #Infiltrate the Demon Feast (Navi Amanozako, Ichiro (Guest))
     194: [Demon_Sync(77,892)], #Devotion to Order (Mara)
     196: [Demon_Sync(60, isNavi=True)], #Wannabe-ho Nahobino (Navi Nahobeeho)
     197: [Demon_Sync(122)], #Brawny Ambitions II (Xiezhai)
@@ -807,6 +911,20 @@ MISSION_INFO_DEMON_IDS = {
 #Lists of missions without reward page
 MISSIONS_WITHOUT_REWARD_PAGE = [147,148]
 
+#For an item id, which mission infos need to be updated and where do we add the update / what do we replace
+#Value format: itemID: [(missionInfo, originalText, replacementText), ...]
+PROGRESSION_ITEMS_MISSION_IDS = {
+    658: [(88,"the\n<c item_begin><mission_cond_name 88 0><c item_end>.","the\nlocation of the <c item_begin><mission_cond_name 88 0><c item_end>:\n<CHECKINFO>\n"),
+        (115,"the\n<c item_begin><mission_cond_name 115 0><c item_end>.","the\nlocation of the <c item_begin><mission_cond_name 115 0><c item_end>:\n<CHECKINFO>\n")
+    ], #Key of Austerity
+    659: [(88,"the\n<c item_begin><mission_cond_name 88 1><c item_end>.","the\nlocation of the <c item_begin><mission_cond_name 88 1><c item_end>:\n<CHECKINFO>\n"),
+        (115,"the\n<c item_begin><mission_cond_name 115 1><c item_end>","the\nlocation of the <c item_begin><mission_cond_name 115 1><c item_end>:\n<CHECKINFO>\n")
+    ], #Key of Benevolence
+    660: [(88,"the\n<c item_begin><mission_cond_name 88 2><c item_end>.","the\nlocation of the <c item_begin><mission_cond_name 88 2><c item_end>:\n<CHECKINFO>\n"),
+        (115," and <c item_begin><mission_cond_name 115 2><c item_end>.","and the location of the <c item_begin><mission_cond_name 115 2><c item_end>:\n<CHECKINFO>\n")
+    ], #Key of Harmony
+}
+
 COLOR_PATTERN = '<c.*?>'
 MISSION_CONDITION_DATA_PATTERN = '<mission_cond_name.*?>'
 FLAG_PATTERN = "<flag.*?>"
@@ -823,6 +941,8 @@ ALIGNMENT_PATTERN = "<ALIGNMENT>"
 TALISMAN_PATTERN = "Allows you to use the <RACE> Magatsuhi Skill <MAGATSUHI_SKILL>."
 PERIAPT_DEMON_PATTERN = "Enables the Magatsuhi Skill <MAGATSUHI_SKILL> when <DEMONS> are brought together."
 PERIAPT_ALIGNMENT_PATTERN = "Enables the Magatsuhi Skill <MAGATSUHI_SKILL> when two demons of the <ALIGNMENT> alignment are brought together"
+PROGRESSION_CHECK_PATTERN = "<CHECKINFO>"
+ITEM_NAME_PATTERN = "<ITEMNAME>"
 
 ALIGNMENT_NAMES = {
     1: "NEUTRAL",
@@ -894,7 +1014,18 @@ SPECIAL_SPEAKER_IDS = {
     597: 404, #Tehom
     391: 391, #Lilith otherwise defaults to old lilith
     569: 391,
-    565: 496 #Tiamat
+    565: 496,  #Tiamat
+    1150: 505, #Yuzuru (Guest)
+    1153: 505,
+    1162: 505,
+    1151: 506, #Dazai (Guest)
+    1152: 502, #Tao (Guest)
+    1154: 502,
+    1157: 550, #Yoko (Guest)
+    1158: 550,
+    1159: 550,
+    1161: 536, #Demi-Fiend (Guest)
+    365: 632, #Tao (Panagia)
 }
 
 #Map of demon ID to voice ID for characters without normal enemy demon counterparts
@@ -927,6 +1058,18 @@ SPECIAL_VOICE_IDS = {
     595: 565,
     424: 236, #Lahmu's tentacle should use Lahmu voice
     558: 236,
+    1150: 561, #Yuzuru (Guest)
+    1153: 561,
+    1162: 561,
+    1151: 1151, #Dazai (Guest)
+    1152: 1152, #Tao (Guest)
+    1154: 1152,
+    1157: 1157, #Yoko (Guest)
+    1158: 1157,
+    1159: 1157,
+    1161: 934, #Demi-Fiend (Guest)
+    365: 365, #Tao (Panagia)
+    366: 366, #Yoko (Panagia)
 }
 
 
@@ -952,12 +1095,21 @@ Also adjust the descriptions of talismans and periapts.
         skillNames (List(String)): list of skill names
         magatsuhiRaceSkills (List(Active_Skill)): list of skills that are magatsuhi race skills
         config (Config_Settings): object containing chosen settings of the randomizer
+        playerBossArr (List(Compendium_Demon)): list of player boss demons
+        txtItemNames(List(String)): list of item names originally read from a txt file
         TODO: Add Code comments
 '''
-def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fusionSkillIDs, fusionSkillReqs, skillNames, magatsuhiRaceSkills, config):  
+def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fusionSkillIDs, fusionSkillReqs, skillNames, magatsuhiRaceSkills, config, playerBossArr, txtItemNames):  
     itemFile = Message_File('ItemName','',OUTPUT_FOLDERS['ItemName'])
 
     itemNames = itemFile.getMessageStrings()
+    
+    
+    for index, itemName in enumerate(txtItemNames):
+        if itemNames[index] != itemName:
+            #print("Rename " + itemNames[index] + " to " + itemName)
+            itemNames[index]= itemName
+
     
     for itemName,originalDemonID in ITEM_NAME_SYNC_DEMON_IDS.items():
         if itemName in itemNames:
@@ -974,13 +1126,13 @@ def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fus
                 except KeyError:
                     continue
             if replacementID > numbers.NORMAL_ENEMY_COUNT:
-                replacementName = demonNames[replacementID]
+                replacementName = playerBossArr[replacementID].name
             else:
-                replacementName = demonNames[replacementID]
+                replacementName = comp[replacementID].name
             index = itemNames.index(itemName)
             itemNames[index] = itemNames[index].replace(originalName, replacementName)
             #print(str(index) + " " + itemNames[index])
-    
+       
     itemFile.setMessageStrings(itemNames)
     itemFile.writeToFiles()
 
@@ -1002,9 +1154,9 @@ def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fus
             except KeyError:
                 continue
         if replacementID > numbers.NORMAL_ENEMY_COUNT:
-            replacementName = demonNames[replacementID]
+            replacementName = playerBossArr[replacementID].name
         else:
-            replacementName = demonNames[replacementID]
+            replacementName = comp[replacementID].name
         
         if oldItemID in ITEM_DESC_DEMON_RACE.keys():#if race is also mentioned
             oldRace = ITEM_DESC_DEMON_RACE[oldItemID]
@@ -1024,8 +1176,12 @@ def updateItemText(encounterReplacements, bossReplacements, demonNames, comp,fus
             if reqs.demons[0] > 0: #skill has demon requirement
                 skillDemons = ""
                 for demon in reqs.demons:
+                    if demon > numbers.NORMAL_ENEMY_COUNT:
+                        name = playerBossArr[demon].name
+                    else:
+                        name = comp[demon].name
                     if demon > 0:
-                        skillDemons = skillDemons + demonNames[demon] + ", "
+                        skillDemons = skillDemons + name + ", "
                     else:
                         skillDemons = skillDemons[:-2] + " "
                         break
@@ -1074,11 +1230,35 @@ Updates skill descriptions of skills with the same name and updates the unique s
 Parameters:
     skillData(List(List)): lists of active, passive and innate skills
 '''
-def updateSkillDescriptions(skillData):
+def updateSkillDescriptions(skillData, comp,enemyNames, configSettings):
     file = Message_File('SkillHelpMess','', OUTPUT_FOLDERS['SkillHelpMess'])
     file = changeSkillDescriptions(file)
     file = addSkillOwnershipToDesc(file, skillData)
+    if configSettings.swapGuestsWithDemons:
+        file = updateInnateSkillDescriptions(file, skillData[2],comp,enemyNames)
     file.writeToFiles()
+
+'''
+Updates the descriptions of innate skills whose function changes when the demon is swapped out of their slot. 
+Parameters:
+    file(Message_File): File with skill descriptions
+    innateSkills(List): list of innate skills
+    comp(List): list of all playable demons
+    enemyNames(List): list of the names of enemies
+'''
+def updateInnateSkillDescriptions(file: Message_File, innateSkills, comp,enemyNames):
+    skillDescriptions = file.getMessageStrings()
+    for skillID, demons in INNATE_SKILL_DESC_UPDATE_NEEDED.items():
+        try:
+            skill = next(s for s in innateSkills if s.ind == skillID)
+            for demonID in demons:
+                ogName = enemyNames[demonID]
+                name = comp[demonID].name
+                skillDescriptions[skill.ind -1] = skillDescriptions[skill.ind -1].replace(ogName, name)    
+        except StopIteration:
+            continue
+    file.setMessageStrings(skillDescriptions)
+    return file
 
 '''
 Updates the (Unique) text for skills according to the owner of the skill.
@@ -1128,26 +1308,29 @@ Update the mention of demon names in mission events.
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
         itemReplacements(Dict): Mapping of what items replace what items in events
         itemNames(list(String)): list of item names
-
+        playerBossArr (List(Compendium_Demon)): list of player boss demons
+        comp (List(Compendium_Demon)): list of compendium demons
+        progessItemChecks(Dict(Int: Item_Check)): map of item ids to new check for progression items
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, brawnyAmbitions2SkillName, navigatorMap,itemReplacements,itemNames):
-    updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
-    updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, itemReplacements,itemNames)
+def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, brawnyAmbitions2SkillName, navigatorMap,itemReplacements,itemNames, playerBossArr, comp,progessItemChecks, guestReplacements):
+    updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, guestReplacements)
+    updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, itemReplacements,itemNames, playerBossArr, comp,progessItemChecks,guestReplacements)
     for missionEvent,syncDemons in MISSION_EVENTS_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
             missionText = file.getMessageStrings()
             originalMissionText = copy.deepcopy(missionText)
-            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, guestReplacements)
             speakerNames = file.getSpeakerNames();
             originalSpeakerNames = copy.deepcopy(speakerNames)
-            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, guestReplacements)
             voices = file.getVoices()
             originalVoices = copy.deepcopy(voices)
-            updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+            updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,guestReplacements)
             if missionEvent in MISSION_CHECKS_ORIGINAL_IDS.keys():
                 hints = MISSION_CHECKS_ORIGINAL_IDS[missionEvent]
-                addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+                addHintMessagesInFile(missionText, hints, bossReplacements, demonNames, playerBossArr, comp)
             if missionEvent == BRAWNY_AMBITIONS_2:
                 updateSkillNameInFile(missionText, brawnyAmbitions2SkillName)
             if missionEvent in MISSION_EVENTS_ITEM_IDS.keys():
@@ -1165,7 +1348,7 @@ def updateMissionEvents(encounterReplacements, bossReplacements, demonNames, ran
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
             missionText = file.getMessageStrings()
-            addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+            addHintMessagesInFile(missionText, hints, bossReplacements, demonNames, playerBossArr, comp)
             file.setMessageStrings(missionText)
             file.writeToFiles()
         except AssertionError:
@@ -1181,23 +1364,30 @@ Update the mention of demon names in story event messages.
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
         itemReplacements(Dict): Mapping of what items replace what items in events
         itemNames(list(String)): list of item names
+        playerBossArr (List(Compendium_Demon)): list of player boss demons
+        comp (List(Compendium_Demon)): list of compendium demons
+        progessItemChecks(Dict(Int: Item_Check)): map of item ids to new check for progression items
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,itemReplacements,itemNames):
+def updateEventMessages(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,itemReplacements,itemNames, playerBossArr, comp,progessItemChecks, guestReplacements):
     for missionEvent,syncDemons in EVENT_MESSAGE_DEMON_IDS.items():
         try:
             file = Message_File(missionEvent,'/EventMessage/',OUTPUT_FOLDERS['EventMessage'])
             missionText = file.getMessageStrings()
             originalMissionText = copy.deepcopy(missionText)
-            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+            updateDemonsInTextFile(missionText, originalMissionText, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, guestReplacements)
             speakerNames = file.getSpeakerNames();
             originalSpeakerNames = copy.deepcopy(speakerNames)
-            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+            updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, guestReplacements)
             voices = file.getVoices()
             originalVoices = copy.deepcopy(voices)
-            updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+            updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,guestReplacements)
             if missionEvent in EVENT_CHECKS_ORIGINAL_IDS.keys():
                 hints = EVENT_CHECKS_ORIGINAL_IDS[missionEvent]
-                addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+                addHintMessagesInFile(missionText, hints, bossReplacements, demonNames, playerBossArr, comp)
+            if missionEvent in EVENT_ITEM_CHECKS_ORIGINAL_IDS.keys(): #TODO: Setting to show hints?
+                hints = EVENT_ITEM_CHECKS_ORIGINAL_IDS[missionEvent]
+                addHintItemMessagesInFile(missionText, hints, progessItemChecks)
             if missionEvent in EVENT_MESSAGE_ITEM_IDS.keys() and missionEvent in itemReplacements.keys():
                 syncItems = EVENT_MESSAGE_ITEM_IDS[missionEvent]
                 updateItemsInTextFile(missionText,originalMissionText,syncItems,itemReplacements,itemNames,missionEvent)
@@ -1208,13 +1398,15 @@ def updateEventMessages(encounterReplacements, bossReplacements, demonNames, ran
             file.writeToFiles()
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
+        except FileNotFoundException as ex:
+            print("File missing " + missionEvent)
     for missionEvent,hints in EVENT_CHECKS_ORIGINAL_IDS.items():
         if missionEvent in EVENT_MESSAGE_DEMON_IDS.keys():
             continue
         try:
             file = Message_File(missionEvent,'/EventMessage/',OUTPUT_FOLDERS['EventMessage'])
             missionText = file.getMessageStrings()
-            addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+            addHintMessagesInFile(missionText, hints, bossReplacements, demonNames, playerBossArr, comp)
             file.setMessageStrings(missionText)
             file.writeToFiles()
         except AssertionError:
@@ -1229,12 +1421,15 @@ Update the mention of demon names for the bench in demon haunts.
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
+        playerBossArr (List(Compendium_Demon)): list of player boss demons
+        comp (List(Compendium_Demon)): list of compendium demons
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap):
+def updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, guestReplacements):
         file = Message_File('GardenMsg_PlayerTalk','',OUTPUT_FOLDERS['Garden'])
         missionText = file.getMessageStrings()
         originalMissionText = copy.deepcopy(missionText)
-        updateDemonsInTextFile(missionText, originalMissionText,HAUNT_BENCH_DEMON_IDS,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap)
+        updateDemonsInTextFile(missionText, originalMissionText,HAUNT_BENCH_DEMON_IDS,encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, guestReplacements)
         for syncDemon, index in HAUNT_BENCH_DEMON_IDS_BY_INDEX:
             originalDemonID = syncDemon.ind #id of demon mentionend in text
             syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
@@ -1244,10 +1439,13 @@ def updateHauntBenchText(encounterReplacements, bossReplacements, demonNames, ra
             except KeyError:
                 continue
             #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
-            replacementName = demonNames[replacementID]
+            if replacementID > numbers.NORMAL_ENEMY_COUNT:
+                replacementName = playerBossArr[replacementID].name
+            else:
+                replacementName = comp[replacementID].name
             if originalName in originalMissionText[index]: #Name is plain text
                 box = box.replace(originalName, replacementName)
-            if 'enemy ' + str(originalDemonID).zfill(3) in originalMissionText[index]: #name is talked about via ID
+            if 'enemy ' + str(originalDemonID).zfill(3) in originalMissionText[index] and originalDemonID not in numbers.GUEST_GROUPS: #name is talked about via ID
                 box = box.replace('enemy ' + str(originalDemonID).zfill(3), 'enemy ' + str(replacementID).zfill(3))
             if syncDemon.nameVariant and syncDemon.nameVariant in originalMissionText[index]:#Name is a variant on normal name (Mothmen instead of Mothman)
                 box = box.replace(syncDemon.nameVariant, replacementName)
@@ -1265,8 +1463,11 @@ Update the mention of demon names in a single event message file
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
+        playerBossArr (List(Compendium_Demon)): list of player boss demons
+        comp (List(Compendium_Demon)): list of compendium demons
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap):
+def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, guestReplacements):
     for syncDemon in syncDemons:
         originalDemonID = syncDemon.ind #id of demon mentionend in text
         syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
@@ -1291,18 +1492,25 @@ def updateDemonsInTextFile(missionText, originalMissionText, syncDemons, encount
                 except KeyError:
                     #print("Key Error: " + str(syncDemonID))
                     continue
+        if replacementID in guestReplacements.keys() and syncDemonID not in guestReplacements.values():
+            replacementID = guestReplacements[replacementID]
         #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
         replacementName = demonNames[replacementID]
+        # if replacementID > numbers.NORMAL_ENEMY_COUNT:
+        #     replacementName = playerBossArr[replacementID].name
+        # else:
+        #     replacementName = comp[replacementID].name
 
         #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
         for index, box in enumerate(missionText): #for every dialogue box
             
             if originalName in originalMissionText[index]: #Name is plain text
                 box = box.replace(originalName, replacementName)
-            if 'enemy ' + str(originalDemonID).zfill(3) in originalMissionText[index]: #name is talked about via ID
-                box = box.replace('enemy ' + str(originalDemonID).zfill(3), 'enemy ' + str(replacementID).zfill(3))
-                #box = box.replace('<enemy ' + str(originalDemonID) + '>', replacementName)
-                #print(box)
+            if originalDemonID not in numbers.GUEST_GROUPS:
+                if 'enemy ' + str(originalDemonID).zfill(3) in originalMissionText[index]: #name is talked about via ID
+                    box = box.replace('enemy ' + str(originalDemonID).zfill(3), 'enemy ' + str(replacementID).zfill(3))
+                    #box = box.replace('<enemy ' + str(originalDemonID) + '>', replacementName)
+                    #print(box)
             if syncDemon.nameVariant and syncDemon.nameVariant in originalMissionText[index]:#Name is a variant on normal name (Mothmen instead of Mothman)
                 box = box.replace(syncDemon.nameVariant, replacementName)
             if 'chara ' + str(originalDemonID) + '>' in originalMissionText[index]: #Replace 'speaker' name
@@ -1326,8 +1534,9 @@ Update the mention of text box speaker names in a single event message file
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap):
+def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap, guestReplacements):
     for syncDemon in syncDemons:
         originalDemonID = syncDemon.ind #id of demon mentioned in text
         syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
@@ -1350,13 +1559,18 @@ def updateSpeakerNamesInFile(speakerNames, originalSpeakerNames, syncDemons, enc
                     replacementID = encounterReplacements[syncDemonID]
                 except KeyError:
                     continue
+        if replacementID in guestReplacements.keys() and syncDemonID not in guestReplacements.values():
+            replacementID = guestReplacements[replacementID]
         #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
         #replacementName = demonNames[replacementID]
         replacementID = normalEnemyIDForBoss(replacementID, demonNames)
+        specialSpeakerOG = normalEnemyIDForBoss(originalDemonID, demonNames)
 
         #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
         for index, name in enumerate(speakerNames): #for every text box name
             if str(originalDemonID) == originalSpeakerNames[index]:
+                speakerNames[index] = str(replacementID)
+            elif str(specialSpeakerOG) == originalSpeakerNames[index]:
                 speakerNames[index] = str(replacementID)
 
 '''
@@ -1370,8 +1584,9 @@ Update the mention of text box speaker names in a single event message file
         demonNames(list(String)): list of demon names
         randomizeQuestJoinDemons(bool): Whether demons that join in quests are randomized to a demon with the same level or kept vanilla
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
+        guestReplacements(Dict): Mapping of guest replacements to guest ids
 '''
-def updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap):
+def updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements, bossReplacements, demonNames, randomizeQuestJoinDemons, navigatorMap,guestReplacements):
     for syncDemon in syncDemons:
         originalDemonID = syncDemon.ind #id of demon mentioned in text
         syncDemonID = syncDemon.sync #id of demon that replacement should be gotten for
@@ -1393,6 +1608,8 @@ def updateVoicesInFile(voices, originalVoices, syncDemons, encounterReplacements
                     replacementID = encounterReplacements[syncDemonID]
                 except KeyError:
                     continue
+        if replacementID in guestReplacements.keys() and syncDemonID not in guestReplacements.values():
+            replacementID = guestReplacements[replacementID]
         replacementID = normalVoiceIDForBoss(replacementID, demonNames)
         for index, voiceID in enumerate(voices): #for every voice
             if originalVoices[index] != None and 'dev' + str(originalDemonID).zfill(3) + '_vo' in originalVoices[index]:
@@ -1403,14 +1620,16 @@ Adds hint messages for checks related to mission events
 Parameters:
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
+        playerBossArr (List(Compendium_Demon)): list of player boss demons
+        comp (List(Compendium_Demon)): list of compendium demons
 '''
-def addHintMessages(bossReplacements, demonNames):
-    addStoryHintMessages(bossReplacements, demonNames)
+def addHintMessages(bossReplacements, demonNames, playerBossArr, comp):
+    addStoryHintMessages(bossReplacements, demonNames, playerBossArr, comp)
     for missionEvent,hints in MISSION_CHECKS_ORIGINAL_IDS.items():
         try:
             file = Message_File(missionEvent,'/MissionEvent/',OUTPUT_FOLDERS['MissionFolder'])
             missionText = file.getMessageStrings()
-            addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+            addHintMessagesInFile(missionText, hints, bossReplacements, demonNames, playerBossArr, comp)
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
             
@@ -1419,13 +1638,15 @@ Adds hint messages for checks related to story events
 Parameters:
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
+        playerBossArr (List(Compendium_Demon)): list of player boss demons
+        comp (List(Compendium_Demon)): list of compendium demons
 '''
-def addStoryHintMessages(bossReplacements, demonNames):
+def addStoryHintMessages(bossReplacements, demonNames, playerBossArr, comp):
     for missionEvent,hints in EVENT_CHECKS_ORIGINAL_IDS.items():
         try:
             file = Message_File(missionEvent,'/EventMessage/',OUTPUT_FOLDERS['EventMessage'])
             missionText = file.getMessageStrings()
-            addHintMessagesInFile(missionText, hints, bossReplacements, demonNames)
+            addHintMessagesInFile(missionText, hints, bossReplacements, demonNames, playerBossArr, comp)
         except AssertionError:
             print("Error during message read for mission file " + missionEvent)
             
@@ -1436,8 +1657,10 @@ Parameters:
         hints(List((messageIndex, originalDemonID, hintMessageID))): List of all hints for the file including the boss IDs to replace
         bossReplacements(Dict): map for which boss replaces which boss
         demonNames(list(String)): list of demon names
+        playerBossArr (List(Compendium_Demon)): list of player boss demons
+        comp (List(Compendium_Demon)): list of compendium demons
 '''
-def addHintMessagesInFile(missionText, hints, bossReplacements, demonNames):
+def addHintMessagesInFile(missionText, hints, bossReplacements, demonNames, playerBossArr, comp):
     for hintInfo in hints:
         messageIndex = hintInfo[0]
         originalDemonID = hintInfo[1]
@@ -1448,7 +1671,10 @@ def addHintMessagesInFile(missionText, hints, bossReplacements, demonNames):
         except KeyError:
             continue
         #replacementID = 451 #Fionn is the longes Demon Name so use it as Test Case
-        replacementName = demonNames[replacementID]
+        if replacementID > numbers.NORMAL_ENEMY_COUNT:
+            replacementName = playerBossArr[replacementID].name
+        else:
+            replacementName = comp[replacementID].name
         
         #print(str(originalDemonID) + " " + originalName + " -> " + str(replacementID) + " " + replacementName)
         
@@ -1478,7 +1704,7 @@ def addHintMessagesInFile(missionText, hints, bossReplacements, demonNames):
 Returns a hint message using a direct string by replacing <BOSSNAME> in a placeholder hint message
 '''
 def createHintMessage(bossName, hintIndex):
-    message = HINT_MESSAGES[hintIndex]
+    message = BOSS_HINT_MESSAGES[hintIndex]
     message = message.replace(HINT_BOSS_PLACEHOLDER, bossName)
     message = message.replace(HINT_BOSS_PLACEHOLDER_PLAIN_TEXT, bossName)
     return message
@@ -1487,10 +1713,69 @@ def createHintMessage(bossName, hintIndex):
 Returns a hint message using a direct string by replacing <BOSSNAME> in a placeholder hint message
 '''
 def createHintMessageWithID(bossID, hintIndex):
-    message = HINT_MESSAGES[hintIndex]
+    message = BOSS_HINT_MESSAGES[hintIndex]
     message = message.replace(HINT_BOSS_PLACEHOLDER, '<c look_begin><enemy ' + str(bossID) + '><c look_end>')
     message = message.replace(HINT_BOSS_PLACEHOLDER_PLAIN_TEXT, '<enemy ' + str(bossID) + '>')
     return message
+
+'''
+Adds hint messages for a single text file
+Parameters:
+        missionText(List(String)): List of all text boxes in the file to update
+        hints(List((messageIndex, originalItemID, hintMessageID, canon))): List of all hints for the file including the item ids the hint depends on
+        progessItemChecks(Dict(Int: Item_Check)): map of item ids to new check for progression items
+'''
+def addHintItemMessagesInFile(missionText, hints, progessItemChecks):
+    for hintInfo in hints:
+        messageIndex = hintInfo[0]
+        itemID = hintInfo[1]
+        hintIndex = hintInfo[2]
+        canon = hintInfo[3]
+
+        checks = progessItemChecks.get(itemID)
+        if checks:
+            hintBox = missionText[messageIndex]
+            match = re.search(VOICE_REGEX, hintBox)
+            boxMetadata = ""
+            if match:
+                splitIndex = match.span()[1]
+                boxMetadata = hintBox[:splitIndex]
+            else:
+                match = re.search(NAME_REGEX, hintBox)
+                if match:
+                    splitIndex = match.span()[1]
+                    boxMetadata = hintBox[:splitIndex]
+
+            checkInfo = ""
+            if canon == Canon.CREATION:
+                preferredAreas = {36, 63} #In Creation prefer checks from DKC, Chiyoda
+            else:
+                preferredAreas = {38, 64} #In Vengeance from Shakan, Shinjuku
+
+            preferredChecks = []
+            fallbackChecks = []
+            for check in checks:
+                if check.area in preferredAreas:
+                    preferredChecks.append(check)
+                else:
+                    fallbackChecks.append(check)
+
+            #We can only choose on check due to limited space here, but all checks will be written to mission info file instead
+            if preferredChecks:
+                chosenCheck = preferredChecks[0]
+            else:
+                chosenCheck = fallbackChecks[0]
+                
+            checkInfo =checkInfo+ chosenCheck.name + " in " + numbers.AREA_NAMES[chosenCheck.area]
+            itemName = chosenCheck.item.name
+            
+           
+            message = ITEM_CHECK_HINT_MESSAGES[hintIndex]
+            message = message.replace(ITEM_NAME_PATTERN,itemName)
+            message = message.replace(PROGRESSION_CHECK_PATTERN,checkInfo)
+
+            hintMessage = boxMetadata + message
+            missionText[messageIndex] = hintMessage
 
 '''
 Updates the mission info file with randomized demon replacements and adds additional rewards to description.
@@ -1502,14 +1787,19 @@ Updates the mission info file with randomized demon replacements and adds additi
         fakeMissions(List(Fake_Mission)): list of fake missions to add rewards to description for
         itemNames(List(String)): list of item names
         navigatorMap(Dict): Mapping of original naviagtor IDs to their replacements. If empty, do not replace navigator names
+        playerBossArr (List(Compendium_Demon)): list of player boss demons
+        comp (List(Compendium_Demon)): list of compendium demons
+        progessItemChecks(Dict(Int: Item_Check)): map of item ids to new check for progression items
 '''
-def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawnyAmbition2Skill, fakeMissions, itemNames, randomizeQuestJoinDemons, navigatorMap):
+def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawnyAmbition2Skill, fakeMissions, itemNames, randomizeQuestJoinDemons, navigatorMap, playerBossArr, comp, progessItemChecks):
     file = Message_File('MissionInfo','/',OUTPUT_FOLDERS['MissionInfo'])
 
     missionText = file.getMessageStrings()
     
     commonEntries = 3 #first 3 are common for all missions
     missionTextCount = 7 #Name,Client, Reward, Explain, Help, Report, Completed
+
+    missionText = addProgressionItemMissionInfoHints(missionText,progessItemChecks)
     
     for missionIndex, syncDemons in MISSION_INFO_DEMON_IDS.items():
         for syncDemon in syncDemons:
@@ -1544,7 +1834,7 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
                 #print(str(missionIndex) + "/" + str(index) + " " + messageComponent)
                 if originalName in messageComponent: #Name is plain text
                     messageComponent = messageComponent.replace(originalName, replacementName)
-                if 'enemy ' + str(originalDemonID).zfill(3) in messageComponent: #name is talked about via ID
+                if 'enemy ' + str(originalDemonID).zfill(3) in messageComponent and originalDemonID not in numbers.GUEST_GROUPS: #name is talked about via ID
                     messageComponent = messageComponent.replace('enemy ' + str(originalDemonID).zfill(3), 'enemy ' + str(replacementID).zfill(3))
                 if syncDemon.nameVariant and syncDemon.nameVariant in messageComponent:#Name is a variant on normal name (Mothmen instead of Mothman)
                     messageComponent = messageComponent.replace(syncDemon.nameVariant, replacementName)
@@ -1593,6 +1883,7 @@ def updateMissionInfo(encounterReplacements, bossReplacements, demonNames, brawn
                 missionText[commonEntries + index + 7 * (missionIndex)] = messageComponent
     
     missionText = addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames)
+    
 
     try:
         file.setMessageStrings(missionText)
@@ -1621,6 +1912,31 @@ def addAdditionalRewardsToMissionInfo(fakeMissions, missionText, itemNames):
             explainText = addOn + explainText
             missionText[explainIndex] = explainText
     return missionText
+
+'''
+Adds item check hints to the missions description.
+    Parameters:
+        missionText(List(String)): list of mission info data
+        progessItemChecks(Dict(Int: Item_Check)): map of item ids to new check for progression items
+'''
+def addProgressionItemMissionInfoHints(missionText, progressItemChecks):
+    for item, checks in progressItemChecks.items():
+        missionTuple = PROGRESSION_ITEMS_MISSION_IDS[item]
+        for missionID,searchText,replacementText  in missionTuple:
+                explainIndex = missionText.index('NOT USED:mis_info_' + str(missionID).zfill(4) +'_report') -2
+                explainText = missionText[explainIndex]
+
+                checkInfo = ""
+                for checkIndex, check in enumerate(checks):
+                    checkInfo =checkInfo+ check.name + " in " + numbers.AREA_NAMES[check.area]
+                    if checkIndex+1< len(checks): #Append info for more than one check in new line
+                        checkInfo = checkInfo + "\nOR: "
+                #TODO: How to handle checks whose RewardArea does not match physical location? (mostly mission / gifts)
+
+                explainText = explainText.replace(searchText,replacementText).replace(PROGRESSION_CHECK_PATTERN,checkInfo)
+                missionText[explainIndex] = explainText
+    return missionText
+
           
 '''
 Finds the earliest ID of a demon's name that is used for dialogue box speaker names in 'chara' tags'
@@ -1665,8 +1981,12 @@ Updates the names of Navigators in their text boxes and the voice lines to match
 TODO: Update other navigator related files
     Parameters:
         naviMap (Dict<Int, Int>): keys are the original navigator IDs, values are the replacement demon IDs
+        playerBossArr (List(Compendium_Demon)): list of player boss demons
+        comp (List(Compendium_Demon)): list of compendium demons
+        guestReplacements(Dict): list of guest replacements
+        configSettings (Settings): settings of the current rando run
 '''
-def updateNavigatorVoiceAndText(naviMap, demonNames):
+def updateNavigatorVoiceAndText(naviMap, demonNames, playerBossArr, comp,guestReplacements, configSettings):
     for originalID, replacementID in naviMap.items():
         filename = NAVIDEVILMESSAGE_FILENAME_PREFIX + str(originalID).zfill(3)
         file = Message_File(filename,NAVIDEVILMESSAGE_FOLDER,OUTPUT_FOLDERS['NaviDevilMessage'])
@@ -1674,8 +1994,12 @@ def updateNavigatorVoiceAndText(naviMap, demonNames):
         speakerNames = file.getSpeakerNames();
         voices = file.getVoices();
         #debugger = str(speakerNames[0]) + " to "
-        updatedReplacementID = normalEnemyIDForBoss(replacementID, demonNames)
-        voiceReplacementID = normalVoiceIDForBoss(replacementID, demonNames)
+        if replacementID in guestReplacements.keys():
+            voiceReplacementID = normalVoiceIDForBoss(guestReplacements[replacementID], demonNames)
+            updatedReplacementID = normalEnemyIDForBoss(guestReplacements[replacementID], demonNames)
+        else:
+            voiceReplacementID = normalVoiceIDForBoss(replacementID, demonNames)
+            updatedReplacementID = normalEnemyIDForBoss(replacementID, demonNames)
         for index, name in enumerate(speakerNames): #for every text box name
             if str(originalID) == name:
                 speakerNames[index] = str(updatedReplacementID)
@@ -1687,10 +2011,14 @@ def updateNavigatorVoiceAndText(naviMap, demonNames):
         file.setVoices(voices, DEMON_FILENAMES)
         originalName = demonNames[originalID]
         replacementName = demonNames[replacementID]
+        if not configSettings.randomDemonLevels and originalID in guestReplacements:
+            replacementName = comp[originalID].name
+        elif configSettings.randomDemonLevels and replacementID in guestReplacements:
+            replacementName = comp[replacementID].name
         for index, box in enumerate(fileText): #for every dialogue box
             if originalName in box: #Name is plain text
                 box = box.replace(originalName, replacementName)
-            if 'enemy ' + str(originalID).zfill(3) in box: #name is talked about via ID
+            if 'enemy ' + str(originalID).zfill(3) in box and originalID not in guestReplacements: #name is talked about via ID
                 box = box.replace('enemy ' + str(originalID).zfill(3), 'enemy ' + str(updatedReplacementID).zfill(3))
             if originalID in NAVI_NAME_ALIAS_MAP.keys():
                 for alias in NAVI_NAME_ALIAS_MAP[originalID]:

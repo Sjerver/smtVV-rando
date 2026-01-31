@@ -1,10 +1,10 @@
-from base_classes.uasset_custom import UAsset_Custom
 from util.binary_table import readBinaryTable, writeBinaryTable, Table, writeFolder
 import json
 import os
 import sys
 import copy
 from pythonnet import load
+
 
 base_path = os.path.join(os.getcwd(), r'base')
 
@@ -37,8 +37,10 @@ from UAssetAPI import UAsset, Import # type: ignore
 from UAssetAPI.UnrealTypes import EngineVersion, FString  # type: ignore
 from UAssetAPI.Kismet import KismetSerializer #type:ignore
 from System.Text import Encoding # type: ignore
+from System.IO import FileNotFoundException # type: ignore
 
 BTL_AI_FOLDER = 'rando/Project/Content/Blueprints/Battle/Logic/AI/Enemy'
+BATTLE_EVENT_EB02_FOLDER = 'rando/Project/Content/Blueprints/Battle/Blueprint/BattleEvent/Event/EB_GAKUEN_LAHMU2'
 LV_M061_FOLDER = 'rando/Project/Content/Level/Event/M061'
 EVENT_FOLDER = 'rando/Project/Content/Blueprints/Event'
 SCRIPT_FOLDER = 'rando/Project/Content/Blueprints/Event/Script' 
@@ -51,6 +53,7 @@ M062_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062'
 M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M060'  
 M063_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M063'  
 M064_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M064'
+M082_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M082'
 MAIN_M016_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M016' 
 M016_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M016'
 M035_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M035' 
@@ -67,6 +70,7 @@ M061_EM2040_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M
 M061_EM2240_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2240'
 M061_EM2380_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M061/EM2380'
 M062_EM1650_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM1650'
+M062_EM2060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2060'
 M062_EM2110_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2110'
 M062_EM2430_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2430'
 M062_EM2440_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/SubMission/M062/EM2440'
@@ -84,6 +88,7 @@ SHINJUKU_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m064'
 TAITO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m060'
 TOKYO_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_TokyoMap'
 EMPYREAN_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m016'
+STATION_NPC_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/esNPC_m083_1'
 MAIN_M060_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M060'
 MAIN_M064_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M064'
 MAIN_M035_FOLDER = 'rando/Project/Content/Blueprints/Event/Script/MainMission/M035'
@@ -116,6 +121,7 @@ PLAYER_355_FOLDER = 'rando/Project/Content/Blueprints/Character/Player/Pla355'
 
 #List of which folder each script is in, due to sometimes not being obvious based on file name
 SCRIPT_FOLDERS = {
+    'EB_GAKUEN_LAHMU2_BattleStart': BATTLE_EVENT_EB02_FOLDER, #Battle Event Lahmu CoV
     'Btl_AI': BTL_AI_FOLDER,
     'MM_M061_EM1630': M061_FOLDER, # The Water Nymph 
     'MM_M061_EM1640': M061_FOLDER, # The Spirit of Love
@@ -145,7 +151,7 @@ SCRIPT_FOLDERS = {
     'MM_M063_EM2170': M063_FOLDER, # Guardian of Tokyo
     'MM_M061_EM2705': M060_EM2700_FODLER, #Guardian of Light
     'MM_M061_EM1030': M061_FOLDER, # Cursed Mermaids
-    'MM_M061_EM2050': M050_FOLDER, # Picture-Perfect Debut
+    'MM_M061_EM2050': M061_FOLDER, # Picture-Perfect Debut
     'MM_M060_EM1310': M060_FOLDER, # Downtown Rock 'n Roll
     'MM_M060_EM1370': M060_FOLDER, # Keeper of the North
     'MM_M061_EM1360': M061_FOLDER, # Keeper of the West
@@ -207,6 +213,8 @@ SCRIPT_FOLDERS = {
     'EM_M061_Q0019': MAINMISSION_M061_FOLDER, #Amanozako leaves in area 1
     'EM_M061_TutorialNavi02': MAINMISSION_M061_FOLDER, #Amanazako first partner spot
     'EM_M061_MimanTutorial_Stop': MAINMISSION_M061_FOLDER, #Barrier stopping player for Miman Tutorial
+    'MM_M200_EN0100': MAINMISSION_M061_FOLDER, #Yoko after Naamah fight
+    'EM_M061_TutorialGuest2': MAINMISSION_M061_FOLDER, #Yoko dialogue after Glasya-Labolas
     'MM_M016_E0891': MAIN_M016_FOLDER, #Empyrean Melchizedek
     'MM_M016_E0892': MAIN_M016_FOLDER, #Empyrean Sraosha
     'MM_M016_E0893': MAIN_M016_FOLDER, #Empyrean Alilat
@@ -446,7 +454,47 @@ SCRIPT_FOLDERS = {
     'MM_M060_EM2630': M060_FOLDER,  #Saturnus Quest()
     'MM_M0082_E0171': MAIN_M082_FOLDER,#Event after Naming Protag that handles Students Talking
     'MM_M0082_E0171_First': MAIN_M082_FOLDER,#Event after Naming Protag 
-    
+    'MM_M016_E0890_Direct': MAIN_M016_FOLDER, #Tao rewarding you in CoC for picking an ending according to your alignment
+    'MM_M016_E0906': MAIN_M016_FOLDER, #Some Tao dialogue
+    'MM_M035_E3220': MAIN_M035_FOLDER, #Temple of Eternity Tao Scene before entering Empyrean
+    'MM_M060_E0764': MAIN_M060_FOLDER, #Tao joining you in area 4 creation (If slots were filled previously)
+    'MM_M060_E0820': MAIN_M060_FOLDER, # Tao before entering Temple of eternity
+    'MM_M060_E3002': MAIN_M060_FOLDER, #Tao joining you in area 4 vengeance
+    'MM_M060_E3200': MAIN_M060_FOLDER, #Tao before entering Temple of eternity vengeance
+    'MM_M062_E2271_Direct': M062_PLEIADES_FOLDER,#Arriving in area 2 vengeance
+    'MM_M062_E2272_Hit': M062_PLEIADES_FOLDER, #Sensing other students Vengeance
+    'MM_M062_E228x': M062_PLEIADES_FOLDER, #Rescuing Students Vengeance
+    'MM_M062_E2312_Direct': M062_PLEIADES_FOLDER, #After Dazai reporting Miyazu's Capture
+    'MM_M064_E2516': MAIN_M064_FOLDER, #Talking to Sandman after seeing Powers
+    'MM_M064_E2646_Direct': MAIN_M064_FOLDER, #Tao/Yoko talking about Angels salting people
+    'MM_M064_E2709': MAIN_M064_FOLDER, #Yoko asking metaphorial question
+    'MM_M083_EM2434': MAIN_M083_FOLDER, #Salt investigation Station Attendant
+    'MM_M085_E0360': MAIN_M085_FOLDER, #Koshimizu meeting after area 1
+    'MM_M085_E0360Simple': MAIN_M085_FOLDER,#Koshimizu meeting after area 1
+    'MM_M085_E0360_Yoko':  MAIN_M085_FOLDER, #Yoko at Koshimizu meeting after Area 1
+    'MM_M085_E2410': MAIN_M085_FOLDER, #Koshimizu meeting after area 2 CoV
+    'MM_M085_E2435': MAIN_M085_FOLDER, #Koshimizu meeting during salt investigation
+    'MM_M085_E2600': MAIN_M085_FOLDER, #Koshimizu meeting Miyazu kidnapped
+    'MM_M087_E2430_Direct': MAIN_M087_FOLDER, #Salt investigation female researcher
+    'MM_M087_E2431': MAIN_M087_FOLDER, #Salt investigation Frantic Woman
+    'MM_M087_E2432': MAIN_M087_FOLDER, #Salt investigation Female Worker
+    'MM_M087_E2433': MAIN_M087_FOLDER, #Salt investigation concluded
+    'MM_M087_E2490': MAIN_M087_FOLDER, #Tao wants to go to Shinjuku
+    'MM_M092_E0476': MAIN_M092_FOLDER, #Yoko after Dazai scene
+    'MM_M092_E2186_Direct': MAIN_M092_FOLDER, #Yoko after Lahmu takes out Students
+    'MM_M092_E2190_hit': MAIN_M092_FOLDER, #Tao joins during school attack
+    'MM_M092_Npc_0': MAIN_M092_FOLDER, # Tao learns that Sahori attacked students
+    'MM_M115_E2405_Direct': MAIN_M115_FOLDER,  #Yoko in dorm room
+    'MM_M061_EM1010': M061_FOLDER, #No Stone Unturned
+    'MM_M062_EM1180': M062_FOLDER, #King Frost Quest Nekomata Event
+    'MM_M064_EM2620': M064_EM2620_FOLDER, #Orochi Quest Kushinada & Co Part
+    'MM_M082_EM2053': M082_FOLDER, #Give Amabie Photo to Tao
+    'MM_M082_EM2055': M082_FOLDER, #Give Amabie Photo to Yoko
+    'MM_M062_EM2060': M062_EM2060_FOLDER, #"Nice Terekke" Koropokkur in Area 2
+    'MM_M060_E0815': MAIN_M060_FOLDER, #Tao stopping Player from going to ToE
+
+    'esNPC_m083_10': STATION_NPC_FOLDER, #Yoko in Station?
+
     'BP_es035_m063_01': ES035_M063_FOLDER,#Fionn area 3 (Fionn)
     'BP_es152_m062_01': ES152_M062_FOLDER,#,#Hayataro area 2
     'BP_es152_m063_01': ES152_M063_FOLDER,#,#Hayataro area 3
@@ -486,7 +534,7 @@ SCRIPT_FOLDERS = {
 MAINMISSION_EXCEPTIONS = [
 'MM_M062_EM0041','MM_M062_EM0050','MM_M062_EM0051','MM_M063_EM0061','MM_M063_EM0079','MM_M063_EM0070','MM_M061_EM0181',
 'MM_M061_EM0182','EM_M061_Q0019','EM_M061_TutorialNavi02','MM_M062_EM0120_Direct','MM_M062_EM0122','MM_M062_EM0123','MM_M062_EM0124','MM_M062_EM0125',
-'MM_M063_EM0130','MM_M060_EM0140', "MM_M061_EM0026","EM_M061_MimanTutorial_Stop"
+'MM_M063_EM0130','MM_M060_EM0140', "MM_M061_EM0026","EM_M061_MimanTutorial_Stop",'EM_M061_TutorialGuest2','MM_M200_EN0100','MM_M083_EM2434'
 ]       
 
 class Script_File_List:
@@ -516,7 +564,7 @@ class Script_File_List:
     '''
     Writes a specific uasset and uexp for every file in the list to their respective folder.
     '''
-    def writeFile(self,name,file):
+    def writeFile(self,name,file,deleteFile = True):
         folderKey = name
         if 'BtlAI' in name:
             folderKey = 'Btl_AI'
@@ -530,24 +578,28 @@ class Script_File_List:
         if 'SEQ' not in name:
             stringy = json.dumps(file.json)
             file.uasset = file.uasset.DeserializeJson(stringy)
-        if 'LV_E' in folderKey:
+        if 'LV_E' in folderKey and name[5].isnumeric():
             writeFolder(DESIGN_EVENT_FOLDER)
         else:
             writeFolder(SCRIPT_FOLDERS[folderKey])
-        if 'LV_E' in folderKey:
+        if 'LV_E' in folderKey and name[5].isnumeric() and 'SEQ' not in name:
             subFolder = folderKey.split("_")[1]
             writeFolder(DESIGN_EVENT_FOLDER + '/'  + subFolder)
             file.uasset.Write(DESIGN_EVENT_FOLDER + '/'  + subFolder + '/' + name + '.umap')
+        elif 'LV_' in folderKey and 'Mission' in folderKey:
+            file.uasset = file.uasset.DeserializeJson(stringy)
+            file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.umap')
         elif 'SEQ' in name:
             subFolder = name.split("_")[1]
-            writeFolder(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder)
-            file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder + '/' + name + '.uasset')
+            writeFolder(DESIGN_EVENT_FOLDER + '/'  + subFolder)
+            file.uasset.Write(DESIGN_EVENT_FOLDER + '/'  + subFolder + '/' + name + '.uasset')
         else:
             file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset')
         index = self.fileNames.index(name)
-        self.fileNames.pop(index)
-        self.files.pop(index)
-        del file
+        if deleteFile:
+            self.fileNames.pop(index)
+            self.files.pop(index)
+            del file
         
 
     '''
@@ -555,38 +607,8 @@ class Script_File_List:
     '''
     def writeFiles(self):
         for index, name in enumerate(self.fileNames):
-            folderKey = name
-            if 'BtlAI' in name:
-                folderKey = 'Btl_AI'
-            elif 'SEQ' in name:
-                subFolder = name.split("_")[1]
-                folderKey = "LV_" + subFolder
-            elif folderKey not in SCRIPT_FOLDERS.keys() and 'LV_E' not in folderKey:
-                raise KeyError(f"No folder mapping found for '{name}' (folderKey = '{folderKey}')")
-            
             file = self.files[index]
-            if 'SEQ' not in name:
-                stringy = json.dumps(file.json)
-                file.uasset = file.uasset.DeserializeJson(stringy)
-            if 'LV_E' in folderKey and name[5].isnumeric():
-                writeFolder(DESIGN_EVENT_FOLDER)
-            else:
-                writeFolder(SCRIPT_FOLDERS[folderKey])
-            if 'LV_E' in folderKey and name[5].isnumeric():
-                subFolder = folderKey.split("_")[1]
-                writeFolder(DESIGN_EVENT_FOLDER + '/'  + subFolder)
-                file.uasset.Write(DESIGN_EVENT_FOLDER + '/'  + subFolder + '/' + name + '.umap')
-            elif 'LV_' in folderKey:
-                file.uasset = file.uasset.DeserializeJson(stringy)
-                file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.umap')
-            elif 'SEQ' in name:
-                subFolder = name.split("_")[1]
-                writeFolder(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder)
-                file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/'  + subFolder + '/' + name + '.uasset')
-            else:
-                file.uasset.Write(SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset')
-            #writeBinaryTable(file.uexp.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uexp', SCRIPT_FOLDERS[folderKey])
-            #writeBinaryTable(file.uasset.binaryTable.buffer, SCRIPT_FOLDERS[folderKey] + '/' + name + '.uasset', SCRIPT_FOLDERS[folderKey])
+            self.writeFile(name, file, deleteFile = False)
     
     '''
     Read the file belonging to the script of the given name and create a Script_File and add it to the list.
@@ -602,20 +624,39 @@ class Script_File_List:
             scriptPath = 'Player/'
         elif 'EM' in name and not 'DevilTalk' in name and not 'M092' in name:
             scriptPath = 'SubMission/'
+        elif 'EB_' in name:
+            scriptPath = 'BattleEvent/'
         else:
             scriptPath = 'MainMission/'
+
         if name in MAINMISSION_EXCEPTIONS:
             scriptPath = 'MainMission/'
+
+       
         if 'LV_E' == name[:4] and name[5].isnumeric():
-            assetobject = UAsset('base/Design Event/' + name + '.umap', EngineVersion.VER_UE4_27)
+            filePath = 'base/Design Event/' + name + '.umap'
+            #assetobject = UAsset('base/Design Event/' + name + '.umap', EngineVersion.VER_UE4_27)
         elif 'LV_' == name[:3]:
-            assetobject = UAsset('base/Level/' +  name+ '.umap', EngineVersion.VER_UE4_27)
+            filePath ='base/Level/' +  name+ '.umap'
+            #assetobject = UAsset('base/Level/' +  name+ '.umap', EngineVersion.VER_UE4_27)
         elif 'SEQ' in name:
-            assetobject = UAsset('base/Design Event/' + name + '.uasset', EngineVersion.VER_UE4_27)
+            filePath ='base/Design Event/' + name + '.uasset'
+            #assetobject = UAsset('base/Design Event/' + name + '.uasset', EngineVersion.VER_UE4_27)
         else:
         #uexp = readBinaryTable('base/Scripts/' + scriptPath + name + '.uexp')
         #uassetData = Script_Uasset(readBinaryTable('base/Scripts/' +scriptPath + name + '.uasset'))
-            assetobject = UAsset('base/Scripts/' + scriptPath + name + '.uasset', EngineVersion.VER_UE4_27)
+            filePath ='base/Scripts/' + scriptPath + name + '.uasset'
+           #assetobject = UAsset('base/Scripts/' + scriptPath + name + '.uasset', EngineVersion.VER_UE4_27)
+        if name == "LV_E2000": #TODO: Current special exception, not final
+            filePath = 'base/Modified Files/Design/Event/E2000/' + name + '.umap'
+
+        try:
+            assetobject = UAsset(filePath,EngineVersion.VER_UE4_27)
+        except FileNotFoundException as ex:
+            raise FileNotFoundError(
+                f"Required asset missing: {filePath}"
+            ) from ex
+            
 
         jsonstring = assetobject.SerializeJson()
         jsonobject = json.loads(jsonstring)

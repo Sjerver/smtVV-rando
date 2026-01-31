@@ -1,3 +1,4 @@
+import copy
 #Format for RelativeScale3D Property with 2 for values x,y,z
 RELATIVE_SCALE_3D = {'$type': 'UAssetAPI.PropertyTypes.Structs.StructPropertyData, UAssetAPI', 'StructType': 'Vector', 'SerializeNone': True, 'StructGUID': '{00000000-0000-0000-0000-000000000000}', 'SerializationControl': 'NoExtension', 'Operation': 'None', 'Name': 'RelativeScale3D', 'ArrayIndex': 0, 'IsZero': False, 'PropertyTagFlags': 'None', 'PropertyTagExtensions': 'NoExtension', 'Value': [
     {'$type': 'UAssetAPI.PropertyTypes.Structs.VectorPropertyData, UAssetAPI', 'Name': 'RelativeScale3D', 'ArrayIndex': 0, 'IsZero': False, 'PropertyTagFlags': 'None', 'PropertyTagExtensions': 'NoExtension', 'Value': {'$type': 'UAssetAPI.UnrealTypes.FVector, UAssetAPI', 'X': 2.0, 'Y': 2.0, 'Z': 2.0}}
@@ -381,6 +382,41 @@ VOICEMAP_FIND =  [[
                         }
                       ]]
 
+def getBooleanPropertyVar(name, value):
+   return {
+          "$type": "UAssetAPI.FieldTypes.FBoolProperty, UAssetAPI",
+          "ArrayDim": "TArray",
+          "BlueprintReplicationCondition": "COND_None",
+          "ByteMask": 1,
+          "ByteOffset": 0,
+          "ElementSize": 1,
+          "FieldMask": 255,
+          "FieldSize": 1,
+          "Flags": "RF_Public",
+          "MetaDataMap": None,
+          "Name": name,
+          "NativeBool": True,
+          "PropertyFlags": "CPF_None",
+          "RawValue": None,
+          "RepIndex": 0,
+          "RepNotifyFunc": "None",
+          "SerializedType": "BoolProperty",
+          "UsmapPropertyTypeOverrides": {
+            "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[UAssetAPI.Unversioned.EPropertyType, UAssetAPI]], System.Private.CoreLib",
+            "ClassProperty": "ObjectProperty",
+            "MulticastInlineDelegateProperty": "MulticastDelegateProperty",
+            "SoftClassProperty": "SoftObjectProperty"
+          },
+          "Value": value
+        }
+
+def getLetBool(assignmentExp = {}, varExp = {}):
+   return {
+        "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_LetBool, UAssetAPI",
+        "AssignmentExpression": assignmentExp,
+        "VariableExpression": varExp
+    }
+
 def getImportedFunctionCall(stackNode, parameters):
     return {
           "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath, UAssetAPI",
@@ -388,7 +424,34 @@ def getImportedFunctionCall(stackNode, parameters):
           "Parameters": parameters
         }
 
-def getBytecodeBoolen(value = True):
+def getLocalVar(name):
+   return {
+            "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVariable, UAssetAPI",
+            "Variable": {
+                "$type": "UAssetAPI.Kismet.Bytecode.KismetPropertyPointer, UAssetAPI",
+                "New": {
+                    "$type": "UAssetAPI.UnrealTypes.FFieldPath, UAssetAPI",
+                    "Path": [
+                        name
+                    ],
+                    "ResolvedOwner": 1
+                }
+            }
+        }
+
+def getJumpIfNot(booleanExp, offset):
+   return {
+        "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_JumpIfNot, UAssetAPI",
+        "BooleanExpression": booleanExp,
+        "CodeOffset": offset
+    }
+
+def getIntConst(value):
+   intConst = copy.deepcopy(BYTECODE_EX_INTCONST)
+   intConst["Value"] = value
+   return intConst
+
+def getBytecodeBoolean(value = True):
     if value:
       return {
                 "$type": "UAssetAPI.Kismet.Bytecode.Expressions.EX_True, UAssetAPI"

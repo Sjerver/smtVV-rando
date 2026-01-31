@@ -13,13 +13,11 @@ class Settings(object):
         self.checkBasedMusic = False                # Boss music is based on check rather than boss demon
         self.randomShopItems = False                # Randomizes what items are sold in the shop
         self.randomShopEssences = False             # Randomizes what essences are sold in the shop
-        self.randomEnemyDrops = False               # Randomizes items that enemies drop
         self.randomMiracleUnlocks = False           # Shuffles what miracles are unlocked at each abscess
         self.randomMiracleCosts = False             # Randomizes the glory cost of miracles
         self.reverseDivineGarrisons = False         # Reverses the order in which you learn divine garrison miracles so you get +3 stock upgrades early
         self.forcedEarlyMiracles = []               # The list of miracles that are forced to be available in the first abscess or at the start
         self.vanillaRankViolation = False           # Forces rank violation to be vanilla to avoid breaking the game too easily
-        self.randomChests = False                   # Randomizes the items/macca/essences gained from overworld chests
         self.selfRandomizeNormalBosses = False      # Randomize story and sidequest bosses only with each other
         self.mixedRandomizeNormalBosses = False     # Randomize story and sidequest bosses with all bosses
         self.randomizeLucifer = False               # Include the final boss in randomization (goes into the normal boss pool)
@@ -37,9 +35,6 @@ class Settings(object):
         self.randomRaces = False                    # Randomize normal demons' races
         self.randomAlignment = False                # Randomize the alignment of demons
         self.ensureDemonJoinLevel = False           # Ensures the demons that join after quests have the same level as the original demon from that quest
-        self.scaleItemsToArea = False               # Scales items (drops/rewards/shops) to be similiar to original progression wise
-        self.randomizeMimanRewards = False          # Randomizes the rewards for gathering Miman
-        self.randomizeMissionRewards = False        # Randomizes the rewards of mission
         self.randomDemonStats = False               # Randomizes the stat modifiers for playable demons
         self.fixUniqueSkillAnimations = False       # Replaces unique skill animations with those of normal skills to avoid the game hanging
         self.scaleBossDamage = False                # Bosses' damage dealt multiplier will be based on the level difference of the check they replace
@@ -51,11 +46,8 @@ class Settings(object):
         self.bossDependentAmbush = False            # Ambushes are boss dependent and moved with bosses if possible
         self.nerfBossHealing = False                # Reduces the power of enemy-only healing skills (except diarahan/mediarahan)
         self.scaleBossInstakillRates = False        # Boss instakill susceptibility will be based on check instead of the boss itself
-        self.randomizeGiftItems = False             # Randomizes a plethora of items given through events (mostly talismans and periapts through NPCs or story)
-        self.combineKeyItemPools = False            # Combines the key item pools of Miman, Mission, and Gifts
         self.buffGuestYuzuru = False                # Gives guest yuzuru level 99 and 99 to all stats to help with the first Labolas check
         self.expMultiplier = 1                      # Determines how much exp demons and quests provide
-        self.includeTsukuyomiTalisman = False       # Includes the Tsukuyomi Talisman in gift randomization
         self.includeEnemyOnlySkills = False         # Include Enemy only skills in skill pool
         self.pressTurnChance = 0.0                  # Chance that normal enemies have an additional press turn
         self.unlockFusions = False                  # Unlock all fusions from the beginning
@@ -92,8 +84,31 @@ class Settings(object):
         self.allowBossMagatsuhiSkill = False        # Allows magatsuhi skills to be in bosses skill pools
         self.allowContemptOfGod = False             # Allows Contempt of God to be randomized and show up on bosses
         self.elementCountConsistency = False        # Bosses have the same amount of element and only replace skills of one element with one other element
+        self.addImpalersRevenge = False             # Adds Impaler's Revenge to bosses if possible
         self.fillEmptySlotsWithPassives = False     # Fills all empty skill slots of bosses with additional passives              
         self.removeCutscenes = False                # Remove cutscenes (that do not affect gameplay) (currently only Minato)
         self.skipTutorials = False                  # Removes as many tutorials as possible
         self.scalePassiveAmount = False             # Scale passive amount with boss level
         self.scalePassiveLevelGap = False           # Scale passive count based on level difference
+        self.swapGuestsWithDemons = False           # Swaps the assets of guest characters with playable demons
+        self.swapDemifiend = False                  # Swaps the assets of guest Demi-fiend with playable demons
+
+        self.scaleMaccaPerArea = False              # Macca rewards are scaled per area
+        self.scaleItemsPerArea = False              # Scales items to be similiar to original progression wise
+        self.shuffleExistingItems = False           # Swaps existing item checks with each other
+        self.trulyRandomizeItems = False            # Swaps only key items and generates random rewards for other checks
+        self.includeTsukuyomiTalismanAsGift = False # Includes the Tsukuyomi Talisman in gift randomization
+        self.includeEmpyreanKeysAsGifts = False     # Includes the Empyrean Keys in gift randomization
+        self.randomizeMitamaDrops = False           # Also randomizes the drops of mitamas
+        self.lifestoneOrChakraDrop = False          # Basic enemies always can drop a lifestone or a chakra drop
+        self.relicBiasVendingMachine = False        # Vending Machines have a higher chance to contain relics
+
+        self.selfItemPools = []                     # List of check types randomized independently
+        self.sharedItemPools = []                   # List of check types randomized together
+
+        self.redoableGospel = False                 # If Gospels can show up as repeatable rewards
+        self.redoableGrimoire = False               # If Grimoires can show up as repeatable rewards
+        self.redoableWhittledGoat = False           # If Whittled Goat can show up as repeatable rewards
+        self.redoableEssencesAllowed = False        # If Essences can show up as repeatable rewards
+        self.redoableIncensesBalmsSutras = False    # If Stat Boosters can show up as repeatable rewards
+        self.mimanPerReward = 5                     # How many miman are required per miman reward

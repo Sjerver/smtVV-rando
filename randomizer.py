@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 from util.binary_table import Table, writeBinaryTable, writeFolder, copyFile, readBinaryTable
 from base_classes.demons import Compendium_Demon, Enemy_Demon, Stat, Stats, Item_Drop, Item_Drops, Demon_Level, Boss_Flags, Duplicate, Encounter_Spawn
 from base_classes.skills import Active_Skill, Passive_Skill, Skill_Condition, Skill_Conditions, Skill_Level, Skill_Owner, Fusion_Requirements
@@ -5,7 +6,7 @@ from base_classes.fusions import Normal_Fusion, Special_Fusion, Fusion_Chart_Nod
 from base_classes.encounters import Encounter_Symbol, Encounter, Possible_Encounter, Event_Encounter, Battle_Event, Unique_Symbol_Encounter, Ambush_Type
 from base_classes.base import Translated_Value, Weight_List
 from base_classes.nahobino import Nahobino, LevelStats
-from base_classes.item import Essence, Shop_Entry, Miman_Reward, Reward_Item, Item_Chest, Consumable_Item, Gift_Item, Gift_Pool
+from base_classes.item import *
 from base_classes.quests import Mission, Mission_Reward, Mission_Condition, Mission_Container
 from base_classes.settings import Settings
 from base_classes.miracles import Abscess, Miracle
@@ -20,7 +21,7 @@ import script_logic as scriptLogic
 import message_logic as message_logic
 import model_swap
 import util.numbers as numbers
-from util.numbers import RACE_ARRAY
+from util.numbers import RACE_ARRAY, Canon
 import util.paths as paths
 import util.translation as translation
 import boss_logic as bossLogic
@@ -43,9 +44,10 @@ class Randomizer:
         self.maccaMod = numbers.getMaccaValues()
         self.expMod = numbers.getExpValues()
 
-        self.compendiumNames = []
+        self.compendiumNames = [] #TODO: Remove
         self.skillNames = []
         self.itemNames = []
+        self.originalItemNames = []
 
         self.compendiumArr = []
         self.skillArr = []
@@ -69,6 +71,7 @@ class Randomizer:
         self.bossFlagArr = []
         self.bossDuplicateMap = {}
         self.mimanRewardsArr = []
+        self.vendingMachineArr = []
         self.battleEventArr = []
         self.devilAssetArr = []
         self.overlapCopies = []
@@ -86,6 +89,7 @@ class Randomizer:
         self.bossSymbolReplacementMap = {}
         self.validBossDemons = set()
         self.essenceBannedBosses = set()
+        self.checkBossInfo = {}
         self.updatedMissionConditionIDs = []
         self.encounterReplacements = {}
         self.bossReplacements = {}
@@ -112,8 +116,16 @@ class Randomizer:
 
         self.elementals = [155,156,157,158]
         self.specialFusionDemonIDs = []
+        self.guestReplacements = {}
 
         self.dummyEventIndex = 0
+        self.itemDebugList = {}
+        self.progressionItemNewChecks = {}
+        self.nonRedoableItemIDs = []
+        self.itemValidityMap = {}
+        self.essenceValidityMap = {}
+        self.originalEssenceValidityMap = {}
+        self.relicValidityMap = {}
     
     '''
     Reads the text file containing Character Names and filters out just the names and saves all names in array compendiumNames.
@@ -121,6 +133,7 @@ class Randomizer:
             The buffer containing CharacterNames
     '''
     def readDemonNames(self):
+        #TODO: No longer needed!
         with open(paths.CHARACTER_NAME_IN, 'r') as file:
             fileContents = file.read()   
             tempArray = fileContents.split("MessageLabel=")
@@ -160,6 +173,7 @@ class Randomizer:
                 sliceStart = element.find("MessageTextPages_3=")
                 sliceEnd = element.find("Voice=")
                 self.itemNames.append(element[sliceStart + 19:sliceEnd - 7])
+        self.originalItemNames =copy.deepcopy(self.itemNames)
         return fileContents
     
     '''
@@ -182,6 +196,18 @@ class Randomizer:
             name = row['Flag']
             ind = row['ID']
             self.eventFlagNames[name] = ind
+
+    '''
+    Returns the demons current Name from their ID.
+    Parameters:
+        demonID (Integer): the id of the demon
+    '''
+    def getDemonsCurrentNameByID(self,demonID):
+        if demonID >= len(self.compendiumArr):
+            name = self.compendiumNames[self.playerBossArr[demonID].nameID]
+        else:
+            name = self.compendiumNames[self.compendiumArr[demonID].nameID]
+        return name
             
     '''
     Fills the array compendiumArr with data extracted from the Buffer NKMBaseTable.
@@ -225,10 +251,9 @@ class Randomizer:
             'tone': offset + 0x58,
             'innate': offset + 0x100,
             'potential': offset + 0X174,
-            'encounterSpawn': offset + 0x1AC
+            'encounterSpawn': offset + 0x1AC,
+            'descriptionID': offset + 0x3C
         }
-        if isBoss:
-            locations['encounterSpawn'] = offset + 0x1CA #I'm not sure if one was a typo but there was a difference in how the player boss arr reads this
         #Then read the list of initial skills learned
         listOfSkills = []
         for i in range(8):
@@ -249,10 +274,9 @@ class Randomizer:
         if demon.nameID == 58 and index != 58:
             # Placeholder Jack Frosts
             demon.name = "NOT USED"
-        elif isBoss:
-            demon.name = self.enemyNames[demon.nameID]
         else:
-            demon.name = self.compendiumNames[demon.nameID]
+            demon.name = self.enemyNames[demon.ind]
+        demon.descriptionID = NKMBaseTable.readWord(locations['descriptionID'] )
         demon.offsetNumbers = locations
         demon.race = Translated_Value(NKMBaseTable.readByte(locations['race']), RACE_ARRAY[NKMBaseTable.readByte(locations['race'])])
         demon.alignment = NKMBaseTable.readByte(locations['alignment'] +1)
@@ -659,7 +683,7 @@ class Randomizer:
             # Placeholder Jack Frosts
             demon.name = "NOT USED"
         else:
-            demon.name = self.compendiumNames[demon.nameID]
+            demon.name = self.enemyNames[demon.nameID]
         demon.offsetNumbers = locations
         demon.level = enemyData.readWord(locations['level'])
         demon.stats = Stats(enemyData.readWord(locations['HP']), enemyData.readWord(locations['HP'] + 4), enemyData.readWord(locations['HP'] + 8),
@@ -870,7 +894,7 @@ class Randomizer:
         for index in range(304):
             offset = start + size * index
             essence = Essence()
-            essence.demon = Translated_Value(items.readWord(offset),self.compendiumNames[items.readWord(offset)])
+            essence.demon = Translated_Value(items.readWord(offset),self.getDemonsCurrentNameByID(items.readWord(offset)))
             essence.price = items.readWord(offset +12)
             essence.offset = offset
             essence.ind = 311 + index
@@ -914,6 +938,31 @@ class Randomizer:
                 item = Reward_Item(shopData.readHalfword(offset + 8 + 4*i),shopData.readHalfword(offset + 10+4*i))
                 entry.items.append(item)
             self.mimanRewardsArr.append(entry)
+    
+    def fillVendingMachineArr(self, buffer):
+        start = 0x55
+        size = 24
+
+        for index in range(124):
+            offset = start + size * index
+            entry = Vending_Machine()
+            entry.offset = offset
+
+            entry.area = buffer.readHalfword(offset)
+            entry.ind = index
+            entry.relicID = buffer.readHalfword(offset +2)
+
+            for i in range(3):
+                item = Vending_Machine_Item()
+                item.ind = buffer.readHalfword(offset +8 + i * 4)
+                item.amount = buffer.readByte(offset +8 + 2 + i*4)
+                item.rate = buffer.readByte(offset +8 + 3 + i * 4)
+                item.name = self.itemNames[item.ind]
+                entry.items.append(item)
+            self.vendingMachineArr.append(entry)
+
+
+
     
     '''
     Fills the array eventEncountArr with data on all event (boss) encounters.
@@ -989,6 +1038,11 @@ class Randomizer:
     '''
     def fillMissionArr(self, data):
 
+        df = pd.read_csv(paths.MISSION_REWARDS_CSV)
+        missionNames = {}
+        for index, row in df.iterrows():
+            missionNames[row['ID']] = row['Name']
+
         start = 0x45
         entrySize = 372
 
@@ -1010,6 +1064,10 @@ class Randomizer:
             mission.reward.ind = data.readHalfword(locations['rewardID'])
             mission.macca = data.readWord(locations['rewardMacca'])
             mission.experience = data.readWord(locations['rewardMacca'] + 4)
+            mission.name =missionNames[mission.ind]
+            if mission.name == "nan" or mission.name == "":
+                mission.name = "Name missing " + str(mission.ind)
+            
             for i in range(4):
                 cType = data.readWord(locations['conditions'] + 0x10 * i)
                 cID = data.readWord(locations['conditions'] + 0x10 * i + 4)
@@ -1386,6 +1444,15 @@ class Randomizer:
             return self.skillArr[ind - 400]
     
     '''
+    Returns the correct player demon object for a demon ID.
+    '''
+    def getPlayerDemon(self, ind):
+        if ind >= len(self.compendiumArr):
+            return self.playerBossArr[ind]
+        else:
+            return self.compendiumArr[ind]
+    
+    '''
     Generate a list of the levels each skill is obtained at
         Returns:
             An array containing skill names, ids and the levels they are obtained at
@@ -1431,6 +1498,20 @@ class Randomizer:
             #Add the level the demons learns a skill at to the skills level list
             for skill in demon.learnedSkills:
                 skillLevels[skill.ind].level.append(skill.level)
+        for demonID in numbers.GUEST_IDS:
+            if demonID > numbers.NORMAL_ENEMY_COUNT:
+                demon = self.playerBossArr[demonID]
+            else:
+                demon = self.compendiumArr[demonID]
+            #Add the demons level to the array of its Innate Skill
+            skillLevels[demon.innate.ind].level.append(demon.level.value)
+            #Add the demons level to their initially learned skills
+            for skill in demon.skills:
+                skillLevels[skill.ind].level.append(demon.level.value)
+            #Add the level the demons learns a skill at to the skills level list
+            for skill in demon.learnedSkills:
+                skillLevels[skill.ind].level.append(skill.level)
+
                 
         #For every skill determine the minimum and maximum level it is obtained at
         def mapSkillLevels(skill):
@@ -1920,9 +2001,17 @@ class Randomizer:
     '''
     def checkUniqueSkillConditions(self, skill, demon, comp, settings):
         lunationCondition = (skill.ind == numbers.LUNATION_FLUX_ID) and settings.restrictLunationFlux
+        
         if skill.owner.ind == -2:
             # Demon Only skills should stay Demon only (Inspiring Leader)
             return True
+
+        #Revival Chant should stay nahobino only skill
+        if skill.ind == numbers.REVIVAL_CHANT_ID and demon.ind in numbers.PROTOFIEND_IDS:
+            return True
+        elif skill.ind == numbers.REVIVAL_CHANT_ID:
+            return False
+        
         if settings.multipleUniques and not lunationCondition:
         # Unique skill can appear twice
             # check if skill is unique skill
@@ -1963,7 +2052,10 @@ class Randomizer:
                     skill.owner.name = "Nahobino"
                 else:
                     skill.owner.ind = demon.ind
-                    skill.owner.name = demon.name  
+                    skill.owner.name = demon.name
+            elif lunationCondition and demon.ind in numbers.PROTOFIEND_IDS:
+                # Lunation Flux can only be inherited by protofiends in vanilla inheritance when restrictLunationFlux is set
+                return True
             elif skill.owner.original != demon.ind:
                 # Vanilla inheritance and demon is not the original demon
                 return False
@@ -2686,6 +2778,8 @@ class Randomizer:
     '''
     def updateCompendiumBuffer(self, buffer, newComp):
         for demon in newComp:
+            buffer.writeWord(demon.nameID,demon.offsetNumbers['nameID'])
+            buffer.writeWord(demon.descriptionID,demon.offsetNumbers['descriptionID'])
             #Write stats of the demon to the buffer
             buffer.writeWord(demon.stats.HP.start,demon.offsetNumbers['HP'] + 4 * 0)
             buffer.writeWord(demon.stats.MP.start,demon.offsetNumbers['HP'] + 4 * 1)
@@ -2819,6 +2913,7 @@ class Randomizer:
     def updateBasicEnemyBuffer(self, buffer, foes):
         for foe in foes:
             offsets = foe.offsetNumbers
+            buffer.writeWord(foe.nameID,offsets['nameID'])
             #Write stats of the enemy demon to the buffer
             buffer.writeWord(foe.stats.HP, offsets['HP'] + 4 * 0)
             buffer.writeWord(foe.stats.MP,offsets['HP'] + 4 * 1)
@@ -3289,6 +3384,16 @@ class Randomizer:
             buffer.writeByte(navi.itemType, navi.offset + 4)
             buffer.writeHalfword(navi.openFlag, navi.offset + 8)
         return buffer
+    
+    def updateVendingMachineBuffer(self,buffer):
+        for vm in self.vendingMachineArr:
+            offset = vm.offset
+            for i, item in enumerate(vm.items):
+                buffer.writeHalfword(item.ind, offset +8 + i * 4)
+                buffer.writeByte(item.amount, offset +8 + 2+i * 4)
+                buffer.writeByte(item.rate, offset +8 + 3+ i * 4)
+
+        return buffer
 
     '''
     Check if a certain race of demons contains two demons of the same level
@@ -3550,6 +3655,7 @@ class Randomizer:
             replaced = self.specialFusionArr[index]
             comp[replaced.result.ind].fusability = 0 
 
+        finalString = ""
         for index, fusion in enumerate(fusions):
             replaced = self.specialFusionArr[index]
             #Set new result demons fusability to 0
@@ -3561,6 +3667,20 @@ class Randomizer:
             replaced.demon3 = fusion.demon3
             replaced.demon4 = fusion.demon4
             replaced.result = fusion.result
+        
+            finalString = finalString + self.compendiumArr[fusion.demon1.value].name
+            if fusion.demon2.value > 0:
+                finalString = finalString + " + "+ self.compendiumArr[fusion.demon2.value].name
+            if fusion.demon3.value > 0:
+                finalString = finalString + " + " + self.compendiumArr[fusion.demon3.value].name
+            if fusion.demon4.value > 0:
+                finalString = finalString + " + " + self.compendiumArr[fusion.demon4.value].name
+            finalString = finalString + "-> " + self.compendiumArr[fusion.result.value].name + "\n"
+        
+        with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
+            file.write("----- Special Fusions -----\n")
+            file.write(finalString)
+            file.write("----- Normal Fusions -----\n")
         return expBuffer
 
     '''
@@ -4028,7 +4148,8 @@ class Randomizer:
             
             newFoe = copy.deepcopy(enemy)
             #newFoe.ind = enemy.ind
-            #newFoe.name = enemy.name
+            newFoe.name = playableEqu.name
+            newFoe.nameID = playableEqu.nameID
             #newFoe.offsetNumbers = enemy.offsetNumbers
             newFoe.level = newLevel
             newFoe.originalLevel = enemy.level
@@ -4077,7 +4198,6 @@ class Randomizer:
         '''
         def getEnemiesAtLevel(lv):
             return list(filter(lambda e: e.level == lv, foes))
-
         '''
         Returns the enemy with the specified id from the filtered enemy arrray
             Parameters:
@@ -4097,11 +4217,13 @@ class Randomizer:
                 newSymbolArr.append(encount)
                 continue
             replaceEnc = encount
+            #ogEnc = copy.deepcopy(encount)
             symbolFoe = None
             currentLV = getFoeWithID(encount.symbol.ind, foes).originalLevel
             #get enemies at level which have not been featured as a replacement
             #ensures 1:1 replacement
-            possibilities = [p for p in getEnemiesAtLevel(currentLV) if not any(r[1] == p.ind for r in replacements)]
+            enemyAtLevel = getEnemiesAtLevel(currentLV)
+            possibilities = [p for p in enemyAtLevel if not any(r[1] == p.ind for r in replacements)]
             '''
             Should not be needed with 1:1 replacements
             leeway = 1
@@ -4121,6 +4243,7 @@ class Randomizer:
                 symbolFoe = getFoeWithID(next(r for x, r in enumerate(replacements) if r[0] == encount.symbol.ind)[1], foes)
             replaceEnc.symbol.ind = symbolFoe.ind
             replaceEnc.symbol.translation = symbolFoe.name
+            #print("Replaced " + str(ogEnc.symbol.ind)  +" " +self.enemyNames[ogEnc.symbol.ind] + " with " + str(symbolFoe.ind)  +" " +symbolFoe.name + " at level " + str(currentLV))
 
             newSymbolArr.append(replaceEnc)
 
@@ -4148,7 +4271,9 @@ class Randomizer:
          
         with open(paths.ENCOUNTERS_DEBUG, 'w', encoding="utf-8") as spoilerLog: #Create spoiler log
             for replaced, replacement in replacementDict.items():
-                spoilerLog.write(self.enemyNames[replaced] + " replaced by " + self.enemyNames[replacement] + "\n")
+                spoilerLog.write(self.enemyNames[replaced] + " replaced by " + self.getDemonsCurrentNameByID(replacement) + "\n")
+            for replacement, replaced in self.guestReplacements.items():
+                spoilerLog.write(self.enemyNames[replaced] + " swapped with " + self.enemyNames[replacement] + "\n") #Use enemy names hre since we need the old name
                   
         self.encounterReplacements = replacementDict
 
@@ -4284,7 +4409,7 @@ class Randomizer:
                             self.bossReplacements[encounter.demons[2]] = self.bossReplacements[encounter.demons[1]]
                 for index, encounter in enumerate(filteredEncounters): #Adjust demons and update encounters according to the shuffle
                     
-                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings, self.compendiumArr, self.playerBossArr, self.skillReplacementMap)
+                    bossLogic.balanceBossEncounter(encounter.demons, shuffledEncounters[index].demons, self.staticBossArr, self.bossArr, encounter.ind, shuffledEncounters[index].ind, self.configSettings, self.compendiumArr, self.playerBossArr, self.skillReplacementMap, self.guestReplacements)
                     #print("Old hp " + str(self.staticBossArr[encounter.demons[0]].stats.HP) + " of " + self.enemyNames[encounter.demons[0]] + " now is "  +
                     #      self.enemyNames[shuffledEncounters[index].demons[0]] + " with " + str(self.bossArr[shuffledEncounters[index].demons[0]].stats.HP) + " HP")
                     self.updateShuffledEncounterInformation(encounter, shuffledEncounters[index])
@@ -4338,6 +4463,10 @@ class Randomizer:
     def updateShuffledEncounterInformation(self, encounterToUpdate, referenceEncounter):
         if not self.configSettings.checkBasedMusic and not self.configSettings.randomMusic:
                     encounterToUpdate.track = referenceEncounter.track
+        for demon in referenceEncounter.demons: #Save bosses new Encounter ID
+            if demon not in self.checkBossInfo.keys():
+                self.checkBossInfo[demon] = []
+            self.checkBossInfo[demon].append(encounterToUpdate.uniqueID)
         if encounterToUpdate.isEvent:
             if referenceEncounter.isEvent:
                 # both encounters event encounters
@@ -4788,98 +4917,6 @@ class Randomizer:
         return file
 
     '''
-    Randomizes chest rewards including items, essences, and macca.
-        Parameters:
-            scaling (Boolean): Whether the rewards scale to the map the chest is in.
-    '''
-    def randomizeChests(self, scaling, keyitems):
-        validItems = []
-        validEssences = []
-        if scaling: #Valid Rewards are dependent on map
-            validItems = {}
-            validEssences = {}
-            for key, value in numbers.CONSUMABLE_MAP_SCALING.items(): #Go through maps and valid items per map
-                validItems[key] = value #Copy valid items per map 
-                validEssences[key] = []
-                #Gather all essences of dmeons in the level range for the map
-                currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[key][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[key][1]]
-                for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[key] and itemName in currentDemonNames:
-                        validEssences[key].append(itemID)
-        else:
-            for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
-                    validEssences.append(itemID)
-                elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                    validItems.append(itemID)
-        
-        validChests = [chest for chest in self.chestArr if not ((chest.item.value == 0 and chest.macca == 0) or chest.item.value >= numbers.KEY_ITEM_CUTOFF) and chest.chestID not in numbers.CHEST_BANNED_KEY_ITEM]
-        for item in keyitems:
-            chosenChest = random.choice(validChests)
-            #print(str(chosenChest.map)+ " " + str(chosenChest.chestID) )
-            if chosenChest.map in [63,64]: #if a key item is put in chest in chiyoda or shinjuku it also needs to be in the other
-                try:
-                    subValidChests = [chest for chest in validChests if chest.map in [63,64] and chest.map != chosenChest.map]
-                    chest2 = random.choice(subValidChests)
-                    chest2.item = Translated_Value(item,self.itemNames[item])
-                    chest2.amount = 1
-                    chest2.macca = 0
-                    validChests.remove(chest2)
-                    #pprint("Also:" + str(chest2.map)+ " " + str(chest2.chestID) )
-                except StopIteration: #no valid chest found in other map, use chest from map that is not chiyoda or shinjuku
-                    subValidChests =  [chest for chest in validChests if chest.map not in [63,64]]
-                    chosenChest = random.choice(subValidChests)
-                    #pprint("Instead : " + str(chosenChest.map)+ " " + str(chosenChest.chestID) )
-            chosenChest.item = Translated_Value(item,self.itemNames[item])
-            chosenChest.amount = 1
-            chosenChest.macca = 0
-            validChests.remove(chosenChest)
-
-
-                
-        for chest in self.chestArr:
-            if (chest.item.value == 0 and chest.macca == 0) or chest.item.value >= numbers.KEY_ITEM_CUTOFF: #Skip unused chests and key item 'chests'
-                continue
-            if random.random() < numbers.CHEST_MACCA_ODDS: #Chest will contain macca
-                if scaling: #Scaling makes macca range dependent on map
-                    macca = random.randint(numbers.CHEST_AREA_MACCA_RANGES[chest.map][0] // 100, numbers.CHEST_AREA_MACCA_RANGES[chest.map][1] // 100) * 100 
-                else:
-                    macca = random.randint(numbers.CHEST_MACCA_MIN // 100, numbers.CHEST_MACCA_MAX // 100) * 100 #Completely random macca amount in increments of 100
-                chest.item = Translated_Value(0, self.itemNames[0])
-                chest.amount = 0
-                chest.macca = macca
-            else: #Chest will contain an item or essence
-                if random.random() < numbers.CHEST_ESSENCE_ODDS:
-                    if scaling and len(validEssences[chest.map]) > 1 : #Scaling chooses essence dependent on map
-                        itemID = random.choice(validEssences[chest.map])
-                        if itemID in validEssences[chest.map]:
-                            #remove essence as valid choice for this map (not other maps to make sure Chiyoda/Shinjuku have enough Essences available)
-                            validEssences[chest.map].remove(itemID)
-                    elif scaling: #if no essence are available
-                        emergencyEssences = []
-                        currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[chest.map][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[chest.map][1]]
-                        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                            if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in emergencyEssences and itemName in currentDemonNames:
-                                emergencyEssences.append(itemID)
-                        itemID = random.choice(emergencyEssences)
-                    else:  
-                        itemID = random.choice(validEssences)
-                        validEssences.remove(itemID) #Limit 1 chest per essence for diversity
-                    amount = 1            
-                else:
-                    if scaling:#Scaling makes item dependent on map
-                        itemID = random.choice(validItems[chest.map])
-                    else:
-                        itemID = random.choice(validItems)
-                    amount = random.choices(list(numbers.CHEST_QUANTITY_WEIGHTS.keys()), list(numbers.CHEST_QUANTITY_WEIGHTS.values()))[0]
-                item = Translated_Value(itemID, self.itemNames[itemID])
-                if item.value in numbers.ITEM_QUANTITY_LIMITS.keys():
-                    amount = min(amount, numbers.ITEM_QUANTITY_LIMITS[item.value])
-                chest.item = item
-                chest.amount = amount
-                chest.macca = 0
-
-    '''
     Randomizes all non essence non dampener items in Gustave's Shop.
         Parameters:
             scaling (Boolean): whether the item should be scaled to the area where they unlock
@@ -4944,182 +4981,808 @@ class Randomizer:
         self.consumableArr[98].buyPrice = 500000 #Set battle sutra price to slightly higher than others instead of max
         self.consumableArr[105].buyPrice = 500000 #Set destruction sutra price to slightly higher than others instead of max
 
-            
     '''
-    Randomizes the rewards for collecting Miman. Talismans are shuffled, and all else is replaced with a random number and amount of items.
+    Based on the settings for redoable item check allowance, generate a list that contains item ids that cannot be part of a repeatable item check.
+    '''
+    def assembleNonRedoableItemIDs(self):
+        if not self.configSettings.redoableGospel:
+            self.nonRedoableItemIDs.append(82)
+        if not self.configSettings.redoableGrimoire:
+            self.nonRedoableItemIDs.append(83)
+        if not self.configSettings.redoableWhittledGoat:
+            self.nonRedoableItemIDs.append(60)
+        if not self.configSettings.redoableIncensesBalmsSutras:
+            self.nonRedoableItemIDs.extend([84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108])
+    
+    '''
+    Generates a new "Item" object of a subclass of Base_Item (Macca,Essence,Key).
         Parameters:
-            scaling (Boolean): Whether the items are scaled per area
+            itemID: id of the item, 0 for Macca
+            amount: how many of the many item should be obtained
+    Returns the item as a subclass of Base_Item.
     '''
-    def randomizeMimanRewards(self, scaling, keyItems):
-        validItems = []
-        validEssences = []
-
-        if scaling: #scaling items per area
-            validItems = {}
-            validEssences = {}
-            #copy valid items list
-            validItems[60] = copy.deepcopy(numbers.CONSUMABLE_MAP_SCALING[60])
-            validItems[61] = copy.deepcopy(numbers.CONSUMABLE_MAP_SCALING[61])
-            validItems[62] = copy.deepcopy(numbers.CONSUMABLE_MAP_SCALING[62])
-            validItems[63] = copy.deepcopy(numbers.CONSUMABLE_MAP_SCALING[63])
-
-            for area in [60,61,62,63]: #for each of the 4 main areas, assemble essence list based on pre defined levels
-                validEssences[area] = []
-                currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]]
-                for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[area] and itemName in currentDemonNames:
-                        validEssences[area].append(itemID)
-        else:#no scaling items per area
-            for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
-                    validEssences.append(itemID)
-                elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                    validItems.append(itemID)
-        #Shuffle rewards to shuffle key item slots
-        shuffledRewards = sorted(copy.deepcopy(self.mimanRewardsArr), key=lambda x: random.random())
-        #
-        for index,reward in enumerate(shuffledRewards):
-            if scaling:
-                areaChoices = [61,62,63,60] #Minato, Shinagawa, Chiyoda(same rewards list as Shinjuku), Taito
-                rewardArea = areaChoices[index // 10] #10 miman rewards per area
-            items = []
-            if reward.items[0].ind >= numbers.KEY_ITEM_CUTOFF and len(keyItems) > 0: #originally key items (talismans)
-                itemID = random.choice(keyItems)
-                items.append(Reward_Item(itemID,1))
-                keyItems.remove(itemID)
-                #items.append(reward.items[0])
-            elif random.random() < numbers.MIMAN_ESSENCE_ODDS:
-                if scaling: 
-                    itemID = random.choice(validEssences[rewardArea])
-                    for key in validEssences.keys():
-                        if itemID in validEssences[key]: #Remove essence from all applicable pools
-                            validEssences[key].remove(itemID)
-                else:
-                    itemID = random.choice(validEssences)
-                    validEssences.remove(itemID) #Limit 1 chest per essence for diversity
-                items.append(Reward_Item(itemID,1))
+    def generateNewItem(self,itemID, amount):
+        if itemID == 0:
+            return Macca_Item(amount, scaling = self.configSettings.scaleMaccaPerArea)
+        elif itemID > 656 and itemID < 856 or itemID in numbers.BANNED_ITEMS:
+            return Key_Item(self.itemNames[itemID],itemID, allowedAreas = numbers.KEY_ITEM_AREA_RESTRICTIONS.get(itemID,[]))
+        elif itemID > 310 and itemID < 616: #Essence Range
+            essence = next(e for e in self.essenceArr if e.ind == itemID)
+            demon = self.getPlayerDemon(essence.demon.value)
+            return Essence_Item(self.itemNames[itemID],itemID,demon, scaling = self.configSettings.scaleItemsPerArea,allowRepeatable =self.configSettings.redoableEssencesAllowed)
+        elif (itemID > 615 and itemID < 655) or itemID > 855:
+            return Relic_Item(self.itemNames[itemID],itemID,amount,scaling = self.configSettings.scaleItemsPerArea) 
+        else: #If all special condition fails the item is a Generic Item
+            if itemID in self.nonRedoableItemIDs:
+                allowRepeatable = False
             else:
-                #decide how many items
-                itemNumber = random.choices(list(numbers.MIMAN_ITEM_NUMBER_WEIGHTS.keys()),list(numbers.MIMAN_ITEM_NUMBER_WEIGHTS.values()))[0]
-                itemAmount = random.choices(list(numbers.MIMAN_ITEM_AMOUNT_WEIGHTS.keys()),list(numbers.MIMAN_ITEM_AMOUNT_WEIGHTS.values()))[0]
-                for _ in range(itemNumber):
-                    #decide amount per item
-                    if scaling: #scaling depends on area item list
-                        itemID = random.choice(validItems[rewardArea])
-                    else:
-                        itemID = random.choice(validItems)
-                    if itemID in numbers.ITEM_QUANTITY_LIMITS.keys():
-                        items.append(Reward_Item(itemID,amount = min(itemAmount, numbers.ITEM_QUANTITY_LIMITS[itemID])))
-                    else:
-                       items.append(Reward_Item(itemID,itemAmount)) 
-            while len(items) < 16: #fill rest with empty rewards
-                items.append(Reward_Item(0,0))
-            reward.items = items
-            reward.miman = 5 * (index+1)
-            reward.offset = self.mimanRewardsArr[index].offset
-        shuffledRewards.sort(key=lambda x: x.miman)
-        return shuffledRewards
+                allowRepeatable = True
+            return Generic_Item(self.itemNames[itemID],itemID,amount,scaling = self.configSettings.scaleItemsPerArea, allowRepeatable = allowRepeatable)
 
-    '''
-    Randomizes the rewards of all missions that usually have rewards. Reusable consumable items and key items are classified as unique rewards, and are shuffled around, while all other rewards are completely random.
-    '''
-    def randomizeMissionRewards(self, scaling, missionContainer):
-        validItems = []
-        validEssences = []
+    def assembleValidityMaps(self):
+        #Assemble "Validity" maps which show which areas allow which items
         
-        if scaling: #Rewards scale with map
-            validItems = {}
-            validEssences = {}
-            for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
-                validItems[key] = value #Item list is defined per area
+        for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
+            self.itemValidityMap[key] = value
+        for key,value in numbers.RELIC_MAP_SCALING.items():
+            self.relicValidityMap[key] = value
+        for area in numbers.AREA_NAMES.keys():
+            self.essenceValidityMap[area] = []
+            #Grab all essences in the predefined level range for the area
+            for essence in self.essenceArr:
+                if essence.ind  in numbers.getBannedEssences():
+                    continue
+                demon = self.getPlayerDemon(essence.demon.value)
+                if demon in self.compendiumArr and demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]:
+                    self.essenceValidityMap[area].append(essence.ind)
+        #Assemble a list with all items
+        self.itemValidityMap[0] = []
+        self.essenceValidityMap[0] = []
+        self.relicValidityMap[0] = []
+        #TODO: Am I happy with this? This is just copied from old code
+        for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
+            if 'Essence' in itemName and itemID not in numbers.getBannedEssences() and itemID not in self.essenceValidityMap[0]:
+                self.essenceValidityMap[0].append(itemID)
+            elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
+                self.itemValidityMap[0].append(itemID)
+            elif (itemID > 615 and itemID < 655) or itemID > 855 and 'NOT USED' not in itemName:
+                self.relicValidityMap[0].append(itemID)
+        self.originalEssenceValidityMap = copy.deepcopy(self.essenceValidityMap)
 
-            rewardAreaMissions = copy.deepcopy(numbers.REWARD_AREA_MISSIONS)
-            for key, value in scriptLogic.EXTRA_MISSION_REWARD_AREAS.items():
-                #Add items from script rewards to dictionary
-                rewardAreaMissions[key] = rewardAreaMissions[key] + value
+    '''
+    Randomizes the rewards for everything that can be considered a check (Treasure,Mission,Miman,Gift).
+    The items can either be shuffled independtly, mixed or made up completely except key items which are always shuffled.
+    Also returns the items to their respective data structure.
+    Returns a list of fake missions.
+    '''
+    def randomizeItemRewards(self):
+        #A category/pool is relevant if they are nor Vanilla
+        relevantPools = self.configSettings.selfItemPools + self.configSettings.sharedItemPools
+        
+        rewardAreaMissions = copy.deepcopy(numbers.REWARD_AREA_MISSIONS)
+        for key, value in scriptLogic.EXTRA_MISSION_REWARD_AREAS.items():
+            #Add items from script rewards to dictionary
+            rewardAreaMissions[key] = rewardAreaMissions[key] + value
+        
+        missionRewardAreas = {} #Dictionary to know which area should be used to scale the a missions reward
+        for key, value in rewardAreaMissions.items():
+            for id in value:
+                missionRewardAreas[id] = key
+        
+        
+        #Assemble "list" of checks and items
+        items, checks = self.gatherItemChecks(relevantPools, missionRewardAreas)
+
+        if DEV_CHEATS: 
+            with open(paths.CHECK_LIST_CSV,"w",newline='',encoding='utf-8') as csvfile:
+                checkWriter = csv.writer(csvfile)
+                checkWriter.writerow(["Type","Index","Name","Area","Repeatable","Missable","HasDuplicate","AllowedCanons","MaccaAllowed","HasOdds","ItemOdds"])
+
+                for check in checks:
+                    checkWriter.writerow([check.type, check.ind, check.name, check.area, check.repeatable, check.missable, check.hasDuplicate, check.allowedCanons, check.maccaAllowed, check.hasOdds, check.odds])
+
+        #Independent randomization for categories
+        for category in self.configSettings.selfItemPools:
+            if self.configSettings.shuffleExistingItems:
+                currentType = Check_Type.getCheckType(category)
+                relevantChecks = [check for check in checks if check.type == currentType and not check.isFull()]
+                pools = self.assembleRandomlyGeneratedItemPools(relevantChecks, items, vanillaItems = True)
+                self.shuffleChecks(relevantChecks, pools)
+            else:
+                currentType = Check_Type.getCheckType(category)
+                relevantChecks = [check for check in checks if check.type == currentType and not check.isFull()]
+                pools = self.assembleRandomlyGeneratedItemPools(relevantChecks, items, vanillaItems = False)
+                self.shuffleChecks(relevantChecks,pools)
+        #Mixed randomization for categories
+        if self.configSettings.sharedItemPools and self.configSettings.shuffleExistingItems:
+            currentCheckTypes = [Check_Type.getCheckType(category) for category in self.configSettings.sharedItemPools]
+            relevantChecks = [check for check in checks if check.type in currentCheckTypes and not check.isFull()]
+            pools = self.assembleRandomlyGeneratedItemPools(relevantChecks, items, vanillaItems = True)
+            self.shuffleChecks(relevantChecks,pools)
+        elif self.configSettings.sharedItemPools:
+            currentCheckTypes = [Check_Type.getCheckType(category) for category in self.configSettings.sharedItemPools]
+            relevantChecks = [check for check in checks if check.type in currentCheckTypes and not check.isFull()]
+            pools = self.assembleRandomlyGeneratedItemPools(relevantChecks, items, vanillaItems = False)
+            self.shuffleChecks(relevantChecks, pools)
+        
+        giftPool = self.setChecks(checks)
+        
+        if "Mission Rewards" in relevantPools:
+            self.updateDuplicateMissionRewards(missionRewardAreas)
+        if "NPC/Story Gifts" in relevantPools:
+            scriptLogic.updateGiftScripts(giftPool,self.scriptFiles,self.itemReplacementMap)
+
+
+        return scriptLogic.updateAndRemoveFakeMissions(self.missionArr, self.scriptFiles)
+
+    '''
+    Collect all item checks from various lists along with their items.
+        Parameters:
+            relevantPools(List(String)): Which item lists should the checks be gathered from
+            missionRewardAreas(Dict()): dictionary that returns the reward area of a mission id
+    Returns a list of items, and a list of checks
+    '''
+    def gatherItemChecks(self, relevantPools, missionRewardAreas):
+        items = []
+        checks = []
+
+        if "Miman Rewards" in relevantPools:
+            for index, entry in enumerate(self.mimanRewardsArr):
+                entry: Miman_Reward
+                nonZeroItems = [i for i in entry.items if i.ind != 0]
+                newMimanAmount = (1+index) * self.configSettings.mimanPerReward
+                newMimanArea = numbers.getMimanRewardArea(newMimanAmount)
+                check = Item_Check(Check_Type.MIMAN, index, "Miman Reward #" + str(newMimanAmount),newMimanArea,maxAdditionalItems=len(nonZeroItems)-1)
+
+                for ogItem in entry.items:
+                    if ogItem.ind == 0:
+                        continue
+                    item = self.generateNewItem(ogItem.ind, ogItem.amount)
+
+                    check.inputVanillaItem(item)
+                    items.append(item)
+
+                checks.append(check)
+
+        if "Treasures" in relevantPools:
+            for chest in self.chestArr:
+                if chest.chestID in numbers.UNUSED_CHESTS:
+                    continue
+
+                if chest.chestID in numbers.CHEST_AREA_EXCEPTIONS.keys():
+                    area = numbers.CHEST_AREA_EXCEPTIONS[chest.chestID]
+                else:
+                    area = chest.map
+                
+                check = Item_Check(Check_Type.TREASURE, chest.chestID, "Chest " + str(chest.chestID), area)
+                if chest.chestID in numbers.MISSABLE_CHESTS:
+                    check.missable = True
+                if chest.macca > 0:
+                    item = self.generateNewItem(0,chest.macca)
+                else:
+                    item = self.generateNewItem(chest.item.ind,chest.amount)
+                
+                check.inputVanillaItem(item)
+                items.append(item)
+                checks.append(check)
+        
+        
+        if "Mission Rewards" in relevantPools:
+            self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards(self.scriptFiles)
+
+            for mission in self.missionArr:
+                if mission.ind in numbers.BANNED_MISSIONS:
+                    continue
+                if any(mission.ind in dups for dups in numbers.MISSION_DUPLICATES.values()): #Duplicates get reward assigned later
+                    continue
+                if mission.macca <= 0 and mission.reward.ind <= 0:
+                    continue
+
+                check = Item_Check(Check_Type.MISSION,mission.ind,mission.name,missionRewardAreas[mission.ind])
+                if mission.ind in numbers.REPEAT_MISSIONS:
+                    check.repeatable = True
+                if mission.ind in numbers.CREATION_EXLUSIVE_MISSIONS:
+                    check.allowedCanons = [Canon.CREATION]
+                elif mission.ind in numbers.VENGEANCE_EXLUSIVE_MISSIONS:
+                    check.allowedCanons = [Canon.VENGEANCE]
+                
+                if mission.ind in numbers.MUTUALLY_EXCLUSIVE_MISSIONS:
+                    check.missable = True
+                
+                if mission.ind in numbers.MACCALESS_MISSIONS or mission.ind < 0:#To indicate Fake-Mission additional reward
+                    check.maccaAllowed = False
+                
+                if mission.ind in numbers.MISSION_DUPLICATES:
+                    check.hasDuplicate = True
+
+                
+                if mission.macca > 0:
+                    item = self.generateNewItem(0, mission.macca)
+                else:
+                    item = self.generateNewItem(mission.reward.ind, mission.reward.amount)
+
+                if item.ind in numbers.BANNED_KEY_REWARDS:
+                    item = self.generateRandomItemRewards(check)[0]
+
+                check.inputVanillaItem(item)
+                items.append(item)
+                checks.append(check)
+
+        if "NPC/Story Gifts" in relevantPools:
+            giftIndex = 0
+            giftRewardAreas =scriptLogic.getGiftRewardAreas()
+            for script, itemID in scriptLogic.BASE_GIFT_ITEMS.items():
+                if not self.configSettings.includeTsukuyomiTalismanAsGift and script == scriptLogic.TSUKUYOMI_TALISMAN_SCRIPT:
+                    continue
+                if not self.configSettings.includeEmpyreanKeysAsGifts and script in scriptLogic.EMPYREAN_KEY_SCRIPTS:
+                    continue
+
+                item = self.generateNewItem(itemID, 1)
+
+                check = Item_Check(Check_Type.GIFT,giftIndex,scriptLogic.GIFT_NAMES[script],giftRewardAreas[script])
+
+                if "NPC/Story Gifts" in self.configSettings.selfItemPools:
+                    if script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS or script in scriptLogic.NEWGAMEPLUS_GIFTS or script in scriptLogic.MISSABLE_GIFTS:
+                        #No combined pools means that exclusive items stay normal due to otherwise having not enough gift slots
+                        continue
             
-            missionRewardAreas = {} #Dictionary to know which area should be used to scale the a missions reward
-            for key, value in rewardAreaMissions.items():
-                for id in value:
-                    missionRewardAreas[id] = key #Turn this into MissionID -> MapID, for easier use
-                validEssences[key] = []
-                #Grab all essences in the predefined level range for the area
-                currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[key][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[key][1]]
-                for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[key] and itemName in currentDemonNames:
-                        validEssences[key].append(itemID)
+                if script in scriptLogic.MISSABLE_GIFTS:
+                    check.missable = True
+                if script in scriptLogic.REPEATABLE_GIFTS:
+                    check.repeatable = True
+                if script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS:
+                    check.allowedCanons = [Canon.VENGEANCE]
+                if script in scriptLogic.NEWGAMEPLUS_GIFTS:
+                    check.missable = True
+                if script in scriptLogic.GIFT_EQUIVALENT_SCRIPTS:
+                    check.hasDuplicate = True
+                
+                giftIndex += 1
+                check.inputVanillaItem(item)
+                items.append(item)
+                checks.append(check)
+            
+        if "Vending Machines" in relevantPools:
+            for vm in self.vendingMachineArr:
+                vmItems = []
+                odds = []
+                for vmItem in vm.items:
+                    
+                    item = self.generateNewItem(vmItem.ind, vmItem.amount)
 
+                    vmItems.append(item)
+                    odds.append(vmItem.rate)
 
-        else: #Rewards do not scale with map
-            for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
-                    validEssences.append(itemID)
-                elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                    validItems.append(itemID)
-
-        
-        rewardingMissions = missionContainer.rewardingMissions
-        uniqueRewards = missionContainer.uniqueRewards
-        creationRewards = missionContainer.creationRewards
-        vengeanceRewards = missionContainer.vengeanceRewards
-
-        
-        validCreationMissions = list(filter(lambda mission: mission.ind in numbers.CREATION_EXLUSIVE_MISSIONS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind not in numbers.MUTUALLY_EXCLUSIVE_MISSIONS ,rewardingMissions))
-        creationRewardMissions = random.sample(validCreationMissions, len(creationRewards))
-        for index, mission in enumerate(creationRewardMissions):
-            rewardingMissions.remove(mission)
-            mission.macca = 0
-            mission.reward = creationRewards[index]
-        validVengeanceMissions = list(filter(lambda mission: mission.ind in numbers.VENGEANCE_EXLUSIVE_MISSIONS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind not in numbers.MUTUALLY_EXCLUSIVE_MISSIONS ,rewardingMissions))
-        vengeanceRewardMissions = random.sample(validVengeanceMissions, len(vengeanceRewards))
-        for index, mission in enumerate(vengeanceRewardMissions):
-            rewardingMissions.remove(mission)
-            mission.macca = 0
-            mission.reward = vengeanceRewards[index]
-
-        validUniqueMissions = list(filter(lambda mission: mission.ind not in numbers.REPEAT_MISSIONS and mission.ind not in numbers.MUTUALLY_EXCLUSIVE_MISSIONS,rewardingMissions)) #repeat missions shouldn't not reward unique rewards
-        uniqueRewardMissions = random.sample(validUniqueMissions, len(uniqueRewards)) #randomly select missions to reward unique rewards
-        for index, mission in enumerate(uniqueRewardMissions):
-            #remove mission from general mission pool and set unique reward
-            rewardingMissions.remove(mission)
-            mission.macca = 0
-            mission.reward = uniqueRewards[index]
-        
-        for mission in rewardingMissions:
-            if scaling: #Set area if reward should scale
-                rewardArea = missionRewardAreas[mission.ind]
-            if random.random() < numbers.MISSION_MACCA_ODDS and mission.ind not in numbers.REPEAT_MISSIONS and mission.ind >= 0 and mission.ind not in numbers.MACCALESS_MISSIONS: #repeat missions should not have macca
-                if scaling: #Scaled macca ranges depend on area
-                    macca = random.randint(numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][0] // 100, numbers.MISSION_REWARD_AREA_MACCA_RANGES[rewardArea][1] // 100) *100
+                if vm.ind in numbers.VM_AREA_EXCEPTIONS.keys():
+                    area = numbers.VM_AREA_EXCEPTIONS[vm.ind]
                 else:
-                    macca = random.randint(numbers.MISSION_MACCA_MIN // 100, numbers.MISSION_MACCA_MAX // 100) *100#Completely random macca amount in increments of 100
-                mission.reward.ind = 0
-                mission.reward.amount = 0
-                mission.macca = macca
-            elif random.random() < numbers.MISSION_ESSENCE_ODDS:
-                if scaling: #scaled essences depend on area
-                    itemID = random.choice(validEssences[rewardArea])
-                    for value in validEssences.values():
-                        if itemID in value: #remove essence from all applicable areas
-                            value.remove(itemID)
-                else:  
-                    itemID = random.choice(validEssences)
-                    validEssences.remove(itemID) #Limit 1 chest per essence for diversity
+                    area = vm.area
+
+                check = Item_Check(Check_Type.VENDING_MACHINE, vm.ind, "Vending Machine Type " + str(vm.ind), area, True, False, False, 2, True, odds)
+
+                if check.ind in numbers.MISSABLE_VENDING_MACHINE:
+                    check.missable = True
+
+                for item in vmItems:
+                    check.inputVanillaItem(item)
+                    items.append(item)
+                checks.append(check)
+        
+        if "Basic Enemy Drops" in relevantPools:
+            if self.configSettings.randomizeMitamaDrops:
+                dropEnemies = list(filter(lambda e: e.drops.item1.value > 0, self.enemyArr))
+            else:
+                dropEnemies = list(filter(lambda e: 'Mitama' not in e.name and e.drops.item1.value > 0, self.enemyArr))
+            
+            for enemy in dropEnemies:
+                drops = enemy.drops
+                for index, drop in enumerate(drops):
+                    odds = []
+                    if drop.value > 0:
+                        item = self.generateNewItem(drop.value, 1)
+
+                        if isinstance(item,Key_Item):
+                            #Do not change Key_Items as they are quest related
+                            continue
+                        elif isinstance(item,Essence_Item):
+                            #Making sure enemy drops their own essence happens elsewhere
+                            continue
+                        odds.append(drop.chance)
+                        area = numbers.ENCOUNTER_LEVEL_AREAS[enemy.level]
+                        allowedCanons = []
+                        if enemy.ind in numbers.SHINJUKU_MITAMAS:
+                            area = 64
+                            allowedCanons.append(Canon.VENGEANCE)
+                        elif enemy.ind in numbers.CHIYODA_MITAMAS:
+                            area = 63
+                            allowedCanons.append(Canon.CREATION)
+
+                        check = Item_Check(Check_Type.BASIC_ENEMY_DROP,index*10000 + enemy.ind,enemy.name + " Drop " +str(index+1),area,True,False,False,0,True,odds)
+                        check.allowedCanons = allowedCanons
+
+                        
+                        if index == 0 and isinstance(item,Generic_Item) and self.configSettings.lifestoneOrChakraDrop:
+                            possibleIds = [1,2] #Lifestone / Chakra Drop
+                            itemChoice = random.choice(possibleIds)
+                            item = self.generateNewItem(itemChoice, 1)
+
+                            check.inputItem(item,forced = True)
+                        
+                        check.inputVanillaItem(item)
+                        checks.append(check)
+                        items.append(item)
+        if "Boss Drops" in relevantPools:
+            #Read the data for encounter IDs
+            df = pd.read_csv(paths.BOSS_ENCOUNTER_INFO_CSV)
+            bossEncData = {}
+            for index, row in df.iterrows():
+                canonString = str(row['Canon']).strip()
+                canon = Canon.getCanonFromString(canonString) if canonString else None
+                canons = [canon] if canon else []
+                bossEncData[int(row['ID'])] = {
+                    'Name': row['Name'],
+                    'Area': int(row['Area']),
+                    'Repeatable': bool(row['Repeatable']),
+                    'Missable': bool(row['Missable']),
+                    'Canons': canons
+                }
+
+
+            for demonID in self.validBossDemons:
+                enemy = self.bossArr[demonID]
+                drops = enemy.drops
+                enemyName = self.enemyNames[demonID]
+                for index, drop in enumerate(drops):
+                    odds = []
+                    if drop.value > 0 and drop.chance > 0:
+                        item = self.generateNewItem(drop.value, 1)
+
+                        if isinstance(item,Key_Item):
+                            #Do not change Key_Items as they are quest related
+                            continue
+                        elif isinstance(item,Essence_Item) and self.configSettings.shuffleExistingItems:
+                            #Skip drop slots that usually drop their own essence when shuffled
+                            continue
+                        
+                        
+                        if demonID not in self.checkBossInfo.keys():
+                            #print(str(demonID) +" " +enemyName + " is not in checkBossInfo? but drops " + self.itemNames[drop.value])
+                            #If the boss in not in the list, see if the boss has a main demon that might be in the list
+                            if demonID in bossLogic.MAIN_BOSS.keys():
+                                mainDemonID = bossLogic.MAIN_BOSS[demonID]
+                                if mainDemonID not in self.checkBossInfo.keys():
+                                    continue
+                                else:
+                                    encID = self.checkBossInfo[mainDemonID][0]
+                            else:
+                                continue  
+                        else:  
+                            encID = self.checkBossInfo[demonID][0]
+                        if encID not in bossEncData:
+                            #print(str(encID) + " not in encounter data"+" " +enemyName)
+                            continue
+                        encData = bossEncData[encID]
+                        allowedCanons = encData["Canons"]
+                        area = encData["Area"]
+
+                        odds.append(100) #Should always be 100 I think instead of drop.chance
+
+                        check = Item_Check(Check_Type.BOSS_DROP,index*10000 + enemy.ind,"Boss Check: "+ encData["Name"],area,False,False,False,0,True,odds)
+                        check.allowedCanons = allowedCanons
+
+                        if encData['Missable'] or demonID in bossLogic.MAIN_BOSS.keys():#The second condition is for bosses who are not necessary to kill to end the fight, but still have a drop
+                            check.missable = True
+                        if encData['Repeatable']:
+                            check.repeatable = True
+
+                        if index == 0 and demonID not in self.essenceBannedBosses and not self.configSettings.shuffleExistingItems:
+                            #Attempt for the boss to drop their own essence
+                            if random.random() < numbers.BOSS_ESSENCE_ODDS:
+                                try:
+                                    essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.getBannedEssences())
+                                    item = self.generateNewItem(essence.ind, 1)
+                                    check.inputItem(item,forced = True)
+                                except StopIteration:
+                                    pass
+
+                            check.inputItem(item,forced = True)
+
+                        check.inputVanillaItem(item)
+                        checks.append(check)
+                        items.append(item)
+
+        return items, checks
+    
+    '''
+    Shuffle the items from the relevantItemPools into the relevantChecks respecting rules.
+    Parameters:
+        relevantChecks(List(Item_Check)): list of item checks to assign items to
+        relevantItemPools(list(Base_Item)): list of items to assign to checks
+    '''
+    def shuffleChecks(self,relevantChecks, relevantItemPools):
+        checkPower = 2 #To which power valid checks are weight, used to make checks/items with low valid amounts even stronger weight-wise
+        for relevantItemPool in relevantItemPools:
+            while relevantItemPool and relevantChecks:
+                forceItem = False
+                filteredRelevantItems = [i for i in relevantItemPool if i.validChecks]
+                if not filteredRelevantItems:
+                    chosenItem = random.choice(relevantItemPool)
+                    if isinstance(chosenItem, Key_Item):
+                        print("WARNING: KEY ITEM has been forced")
+                    forceItem = True
+                    print("Forced Item " + chosenItem.name + " had no naturally available checks")
+                else:
+                    #Inverse weight of amount of valid checks for item to the power of checkPower
+                    #wItem = [1 / (len(i.validChecks) ** checkPower) for i in filteredRelevantItems]
+                    wItem = []
+                    for i in filteredRelevantItems:
+                        baseWeight =1 / (len(i.validChecks) ** checkPower)
+                        wItem.append(baseWeight)
+                    chosenItem = random.choices(
+                        filteredRelevantItems,
+                        wItem
+                    )[0]
+
+                filteredRelevantChecks = [c for c in chosenItem.validChecks if c.validItemAmount > 0]
+                if not filteredRelevantChecks:
+                    chosenCheck = random.choice(relevantChecks)
+                    forceItem = True
+                else:
+                
+                
+                    #Is there any check that desperately needs an item
+                    validItemAmounts = [check.validItemAmount for check in filteredRelevantChecks]
+                    desperateCheck = any(a < 10 for a in validItemAmounts)
+
+                    #Inverse weight of amount of valid items for check to the power of checkPower
+                    wChecks = []
+                    for check in filteredRelevantChecks:
+                        baseWeight = 1 / (check.validItemAmount ** checkPower)
+                        if not desperateCheck and self.configSettings.relicBiasVendingMachine and isinstance(chosenItem,Relic_Item) and check.type == Check_Type.VENDING_MACHINE:
+                            baseWeight = baseWeight*4 #Treats check as if it only has half the amount of validItems
+                        wChecks.append(baseWeight)
+                
+                    chosenCheck = random.choices(
+                        filteredRelevantChecks,
+                        wChecks
+                    )[0]
+
+                duplicateItem = None
+                if chosenCheck.inputItem(chosenItem,forceItem):
+                    #Item succesfully placed
+
+                    for check in chosenItem.validChecks[:]:
+                        #Reduce valid items for check by 1
+                        check.validItemAmount = max(0, check.validItemAmount -1)
+                    
+                    if isinstance(chosenItem, Key_Item) and chosenCheck.type in [Check_Type.TREASURE, Check_Type.VENDING_MACHINE] and not chosenItem.hasBeenDuplicated and not chosenCheck.hasDuplicate and chosenCheck.area in numbers.AREA_MIRRORS:
+                        #Duplicate item if necessary (Example: Chest that is route-locked)
+                        duplicateItem = self.generateNewItem(chosenItem.ind, 1)
+                        duplicateItem.allowedAreas = [numbers.AREA_MIRRORS[chosenCheck.area]]
+                        duplicateItem.hasBeenDuplicated = True
+                        duplicateItem.allowedCheckTypes = [chosenCheck.type]
+                        
+                        relevantItemPool.append(duplicateItem)
+                        #print(chosenItem.name + " has been duplicated for " + chosenCheck.name + "in area " + numbers.AREAS[chosenCheck.area])
+                    elif isinstance(chosenItem, Key_Item) and not chosenItem.hasBeenDuplicated and not chosenCheck.hasDuplicate and chosenCheck.area in numbers.AREA_MIRRORS:
+                        #Debug to check duplication criteria
+                        pass
+                        #print(chosenCheck.name + " and " + chosenItem.name + " would meet area restrictions but are skipped")
+                    
+                    if isinstance(chosenItem, Key_Item) and chosenCheck.hasOdds and chosenCheck.odds[0]!= 100:
+                        #If the check has odds but first item is now key item set odds for everything else to 0
+                        chosenCheck.odds = [100] + [0 for i in chosenCheck.vanillaAdditionalItems]
+                        chosenCheck.maxAdditionalItems = 0
+
+
+                    #Remove item from item pool
+                    relevantItemPool.remove(chosenItem)
+                    chosenItem.validChecks = []
+                    
+                    if chosenCheck.isFull():
+                        # if Check is full remove it
+                        relevantChecks.remove(chosenCheck)
+                        for pool in relevantItemPools:
+                            for item in pool:
+                                if chosenCheck in item.validChecks:
+                                    item.validChecks.remove(chosenCheck)
+                        chosenCheck.validItemAmount = 0
+
+                    if duplicateItem:
+                        #If a duplicate item has been made, need re-calculate valid checks
+                        for check in relevantChecks:
+                            check.validItemAmount = 0
+                        for pool in relevantItemPools:
+                            for item in pool:
+                                item.calculateValidChecks(relevantChecks)
+
+                    #print(chosenItem.name + " in " + chosenCheck.name)
+                    if chosenItem.ind in numbers.KEY_ITEM_AREA_RESTRICTIONS.keys():
+                        if chosenItem.ind in self.progressionItemNewChecks:
+                            self.progressionItemNewChecks[chosenItem.ind].append(chosenCheck)
+                        else:
+                            self.progressionItemNewChecks[chosenItem.ind] = []
+                            self.progressionItemNewChecks[chosenItem.ind].append(chosenCheck)
+
+                else:
+                    if chosenCheck.isFull():
+                        # if Check is full remove it
+                        relevantChecks.remove(chosenCheck)
+                        for pool in relevantItemPools:
+                            for item in pool:
+                                if chosenCheck in item.validChecks:
+                                    item.validChecks.remove(chosenCheck)
+                        chosenCheck.validItemAmount = 0
+        
+    
+    '''
+    Assembles pools of item, a key item pool and a normal item pool.
+    Parameters:
+        relevantChecks(List(Item_Check)): list of item checks
+        totalItems(list(Base_Item)): list of all items across total randomization effort
+        vanillaItems(Boolean): whether we should use the vanilla items from the checks or make up our own
+    Returns a list of item pools [keyItemPool, otherItemPool]
+    '''
+    def assembleRandomlyGeneratedItemPools(self, relevantChecks, totalItems, vanillaItems = True):
+        relevantItems = []
+        relevantKeyItems = []
+
+        for check in relevantChecks:
+            if check.vanillaItem:
+                if isinstance(check.vanillaItem, Key_Item):
+                    relevantKeyItems.append(check.vanillaItem)
+                elif vanillaItems:
+                    relevantItems.append(check.vanillaItem)
+                    relevantItems.extend(check.vanillaAdditionalItems)
+                else:
+                    #Generate new items instead
+                    relevantItems.extend(self.generateRandomItemRewards(check))
+
+        # Reset check counts before calculating per-item valid checks (avoid double-counting)
+        for check in relevantChecks:
+            check.validItemAmount = 0
+
+        for item in relevantItems:
+            if item in totalItems:
+                #TODO: Maybe remove after placement instead?
+                totalItems.remove(item)
+            item.calculateValidChecks(relevantChecks)
+        for keyItem in relevantKeyItems:
+            if keyItem in totalItems:
+                #TODO: Maybe remove after placement instead?
+                totalItems.remove(keyItem)
+            keyItem.calculateValidChecks(relevantChecks) 
+        
+        relevantItemPools =[relevantKeyItems,relevantItems]
+        return relevantItemPools
+    
+    '''
+    Generate new items based on the given check.
+    Parameters:
+        check(Item_Check): check to generate items for
+    Returns a list of items for the check
+    '''
+    def generateRandomItemRewards(self,check):
+        check: Item_Check
+        newItems = []
+        oldItems = [check.vanillaItem]
+        oldItems.extend(check.vanillaAdditionalItems)
+        #CheckType decides what items could have been in the check
+        if check.type == Check_Type.TREASURE:
+            maccaOdds = numbers.CHEST_MACCA_ODDS
+            maccaMax = numbers.CHEST_MACCA_MAX
+            maccaMin = numbers.CHEST_MACCA_MIN
+            if self.configSettings.scaleMaccaPerArea:
+                maccaRange = numbers.CHEST_AREA_MACCA_RANGES[check.area]
+                maccaMax = maccaRange[1]
+                maccaMin = maccaRange[0]
+                
+            essenceOdds = numbers.CHEST_ESSENCE_ODDS
+            relicOdds = numbers.CHEST_RELIC_ODDS 
+            itemAmount = random.choices(list(numbers.CHEST_QUANTITY_WEIGHTS.keys()), list(numbers.CHEST_QUANTITY_WEIGHTS.values()))[0]
+        elif check.type == Check_Type.MIMAN:
+            maccaOdds = 0 #Can't have money
+            maccaMax = 0
+            maccaMin = 0
+
+            essenceOdds = numbers.MIMAN_ESSENCE_ODDS
+            relicOdds = numbers.MIMAN_RELIC_ODDS
+            itemAmount = random.choices(list(numbers.MIMAN_ITEM_AMOUNT_WEIGHTS.keys()),list(numbers.MIMAN_ITEM_AMOUNT_WEIGHTS.values()))[0]
+
+        elif check.type == Check_Type.MISSION:
+            maccaOdds = numbers.MISSION_MACCA_ODDS
+            maccaMax = numbers.MISSION_MACCA_MAX
+            maccaMin = numbers.MISSION_MACCA_MIN
+            if self.configSettings.scaleMaccaPerArea:
+                maccaRange = numbers.MISSION_REWARD_AREA_MACCA_RANGES[check.area]
+                maccaMax = maccaRange[1]
+                maccaMin = maccaRange[0]
+
+            essenceOdds = numbers.MISSION_ESSENCE_ODDS
+            relicOdds = numbers.MISSION_RELIC_ODDS 
+            itemAmount = random.choices(list(numbers.MISSION_QUANTITY_WEIGHTS.keys()), list(numbers.MISSION_QUANTITY_WEIGHTS.values()))[0]
+        elif check.type == Check_Type.GIFT:
+            maccaOdds = 0#Can't have money
+            maccaMax = 0
+            maccaMin = 0
+
+            essenceOdds = scriptLogic.GIFT_ESSENCE_ODDS
+            relicOdds = scriptLogic.GIFT_RELIC_ODDS 
+            #Uses chest quantity weights since not enough data to make own one
+            itemAmount = random.choices(list(numbers.CHEST_QUANTITY_WEIGHTS.keys()), list(numbers.CHEST_QUANTITY_WEIGHTS.values()))[0]
+        elif check.type == Check_Type.VENDING_MACHINE:
+            maccaOdds = 0#Can't have money
+            maccaMax = 0
+            maccaMin = 0
+
+            essenceOdds = 0
+            relicOdds = 1 #Vending Machines always have relic generated by default
+            itemAmount = 1#Does not matter for now since relic logic is used 
+        elif check.type == Check_Type.BASIC_ENEMY_DROP:
+            maccaOdds = 0#Money drops are not a check!
+            maccaMax = 0
+            maccaMin = 0
+
+            essenceOdds = 0 #Cant drop additional Essences
+            relicOdds = numbers.CHEST_RELIC_ODDS #TODO: Calculate odds to use instead
+            itemAmount = 1
+        elif check.type == Check_Type.BOSS_DROP:
+            maccaOdds = 0#Money drops are not a check!
+            maccaMax = 0
+            maccaMin = 0
+
+            essenceOdds = 0 #Cant drop additional Essences
+            relicOdds = numbers.CHEST_RELIC_ODDS #TODO: Calculate odds to use instead
+            itemAmount = 1
+
+        #Now for all items that were in the check, generate a new one
+        for _ in oldItems:
+            randomNumber = random.random()
+            if randomNumber < maccaOdds:
+                itemID = 0 #Macca needs ID 0
+                amount = random.randint(maccaMin // 100, maccaMax // 100) * 100
+                
+            elif randomNumber < essenceOdds + maccaOdds:
+                if self.configSettings.scaleItemsPerArea:
+                    cArea = check.area
+                else:
+                    cArea = 0
+                validItems = self.essenceValidityMap[cArea]
+                itemID = random.choice(validItems)
+                self.essenceValidityMap[cArea].remove(itemID)
+                if len(self.essenceValidityMap[cArea]) == 0:
+                    self.essenceValidityMap[cArea] = copy.deepcopy(self.originalEssenceValidityMap[cArea])
+                
                 amount = 1
-                mission.reward.ind = itemID
-                mission.reward.amount = amount
-                mission.macca =0
-            else: #no essence and no macca means consumable item
-                if scaling: #scaled items depend on area
-                    itemID = random.choice(validItems[rewardArea])
+            
+            elif randomNumber < relicOdds + essenceOdds + maccaOdds:
+                if self.configSettings.scaleItemsPerArea:
+                    validItems = self.relicValidityMap[check.area]
                 else:
-                    itemID = random.choice(validItems)
-                amount = random.choices(list(numbers.MISSION_QUANTITY_WEIGHTS.keys()), list(numbers.MISSION_QUANTITY_WEIGHTS.values()))[0]
-                if itemID in numbers.ITEM_QUANTITY_LIMITS.keys(): #apply inventory limit to item amount
-                    amount = min(amount, numbers.ITEM_QUANTITY_LIMITS[itemID])
-                mission.reward.ind = itemID
-                mission.reward.amount = amount
-                mission.macca = 0
+                    validItems = self.relicValidityMap[0]
+                itemID = random.choice(validItems)
+                #Relics have their own quantity weights!
+                amount = random.choices(list(numbers.VENDING_MACHINE_RELIC_QUANTITY_WEIGHTS.keys()), list(numbers.VENDING_MACHINE_RELIC_QUANTITY_WEIGHTS.values()))[0]
+            else: #Generic Item aka Consumables
+                if self.configSettings.scaleItemsPerArea:
+                    validItems = self.itemValidityMap[check.area]
+                else:
+                    validItems = self.itemValidityMap[0]
+                if check.repeatable:
+                    validItems = [i for i in validItems if i not in self.nonRedoableItemIDs]
+
+                itemID = random.choice(validItems)
+                amount = itemAmount
+                if itemID in numbers.ITEM_QUANTITY_LIMITS.keys():
+                    amount = min(itemAmount, numbers.ITEM_QUANTITY_LIMITS[itemID])
+            amount = min(check.maxItemQuantity,amount)
+            newItems.append(self.generateNewItem(itemID, amount))
+            #print(check.name +" New Item: " + newItems[-1].name + " x" + str(newItems[-1].amount))
+        return newItems
+
+    '''
+    For every check sets the item in their correct list.
+        Parameters:
+            checks(List(Item_Check)): a list of item_checks
+    Returns a list of check from type Check_Type.GIFT
+    '''
+    def setChecks(self,checks):
+        #Put items from checks back into old format
+        giftPool = []
+        for check in checks:
+            if not check.item:
+                continue
+            self.logItemCheck(check)
+            if check.type == Check_Type.MIMAN:
+                mimanReward = self.mimanRewardsArr[check.ind]
+                mimanReward.miman = (1+check.ind) * self.configSettings.mimanPerReward
+                mimanReward.items = []
+                mimanReward.items.append(Reward_Item(check.item.ind,check.item.amount))
+                for item in check.additionalItems:
+                    mimanReward.items.append(Reward_Item(item.ind,item.amount))
+            
+            elif check.type == Check_Type.TREASURE:
+                chest = self.chestArr[check.ind]
+                if check.ind != chest.chestID:
+                    raise ValueError('Chest Index Issue')
+                if isinstance(check.item, Macca_Item):
+                    chest.item = Translated_Value(0, "Macca")
+                    chest.amount = 0
+                    chest.macca = check.item.amount
+                else:
+                    chest.item = Translated_Value(check.item.ind, check.item.name)
+                    chest.amount = check.item.amount
+                    chest.macca = 0
+            
+            elif check.type == Check_Type.MISSION:
+                mission = next(m for m in self.missionArr if m.ind == check.ind)
+                if isinstance(check.item, Macca_Item):
+                    mission.macca = check.item.amount
+                    mission.reward.ind = 0
+                    mission.reward.amount = 0
+                else:
+                    mission.macca = 0
+                    mission.reward.ind = check.item.ind
+                    mission.reward.amount = check.item.amount
+            elif check.type == Check_Type.GIFT:
+                check.script = list(scriptLogic.BASE_GIFT_ITEMS.keys())[check.ind]
+                giftPool.append(check)
+            elif check.type == Check_Type.VENDING_MACHINE:
+                vm = next(vm for vm in self.vendingMachineArr if vm.ind == check.ind)
+                vmItemList = []
+                vmItem = Vending_Machine_Item()
+                vmItem.ind = check.item.ind
+                vmItem.amount = check.item.amount
+                vmItem.rate = check.odds[0]
+                vmItem.name = check.item.name
+                vmItemList.append(vmItem)
+
+                for index, item in enumerate(check.additionalItems):
+                    vmItem = Vending_Machine_Item()
+                    vmItem.ind = item.ind
+                    vmItem.amount = item.amount
+                    vmItem.rate = check.odds[index+1]
+                    vmItem.name = item.name
+                    vmItemList.append(vmItem)
+
+                while len(vmItemList) < 1+check.originalMaxAddItems:
+                    vmItem = Vending_Machine_Item()
+                    vmItem.ind = 0
+                    vmItem.amount = 0
+                    vmItem.rate = 0
+                    vmItem.name = "Filler Slot"
+                    vmItemList.append(vmItem)
+                
+                vm.items = vmItemList
+            elif check.type == Check_Type.BASIC_ENEMY_DROP:
+                dropIndex = check.ind // 10000 #Check index is calculated like this: index*10000 + enemy.ind with index being the drop index
+                enemyIndex = check.ind - dropIndex * 10000 #So this just reverses the information
+
+                enemy = self.enemyArr[enemyIndex]
+                drop = enemy.drops[dropIndex]
+                drop.value = check.item.ind
+                drop.translation = check.item.name
+                drop.chance = check.odds[0]
+            elif check.type == Check_Type.BOSS_DROP:
+                dropIndex = check.ind // 10000 #Check index is calculated like this: index*10000 + enemy.ind with index being the drop index
+                enemyIndex = check.ind - dropIndex * 10000
+
+                enemy = self.bossArr[enemyIndex]
+                drop = enemy.drops[dropIndex]
+                drop.value = check.item.ind
+                drop.translation = check.item.name
+                drop.chance = check.odds[0]
+
+
+            else:
+                raise ValueError('Incorrect check type which should be impossible')
+
+        return giftPool
+    
+    '''
+    Assigns the updated rewards to missions which are duplicates and therefore share rewards.
+    '''
+    def updateDuplicateMissionRewards(self,rewardAreaMissions):
         for missionID, duplicateIDs in numbers.MISSION_DUPLICATES.items(): #set rewards of duplicates to be the same as the one they duplicate
             for duplicateID in duplicateIDs:
                 if missionID < 0 or duplicateID < 0: #if mission or duplicate are fake missions
@@ -5134,332 +5797,29 @@ class Randomizer:
                         if duplicateID == mission.ind:
                             correctDuplicateInd = index
                             duplicateFound = True
-                    self.missionArr[correctDuplicateInd].reward.ind = self.missionArr[correctMissionInd].reward.ind
-                    self.missionArr[correctDuplicateInd].reward.amount = self.missionArr[correctMissionInd].reward.amount
-                    self.missionArr[correctDuplicateInd].macca = self.missionArr[correctMissionInd].macca
+                    dupMission = self.missionArr[correctDuplicateInd]
+                    realMission = self.missionArr[correctMissionInd]
                 else:
-                    self.missionArr[duplicateID].reward.ind = self.missionArr[missionID].reward.ind
-                    self.missionArr[duplicateID].reward.amount = self.missionArr[missionID].reward.amount
-                    self.missionArr[duplicateID].macca = self.missionArr[missionID].macca
-    
-    '''
-    Intializes mission pools for missions that have rewards, unique item rewards and rewards unique to a specific route.
-    '''
-    def initializeMissionPools(self):
-        
-        rewardingMissions = []
-        uniqueRewards = []
-        creationRewards = []
-        vengeanceRewards = []
-        for mission in self.missionArr:
-            if (mission.macca > 0 or mission.reward.ind > 0) and not any(mission.ind in duplicates for duplicates in numbers.MISSION_DUPLICATES.values()) and mission.ind not in numbers.BANNED_MISSIONS:
-                rewardingMissions.append(mission) #find missions with rewards that are not banned or a duplicate
-                if mission.reward.ind > numbers.KEY_ITEM_CUTOFF or mission.reward.ind in numbers.BANNED_ITEMS:
-                    if mission.ind not in numbers.CREATION_EXCLUSIVE_KEY_REWARDS and mission.ind not in numbers.VENGEANCE_EXCLUSIVE_KEY_REWARDS:
-                        uniqueRewards.append(copy.deepcopy(mission.reward)) #add key items or reusable consumables to unique rewards
-                    elif mission.ind in numbers.CREATION_EXCLUSIVE_KEY_REWARDS:
-                        creationRewards.append(copy.deepcopy(mission.reward))
+                    dupMission = self.missionArr[duplicateID]
+                    realMission = self.missionArr[missionID]
+                dupMission.reward.ind = realMission.reward.ind
+                dupMission.reward.amount = realMission.reward.amount
+                dupMission.macca = realMission.macca
+
+                check = Item_Check(Check_Type.MISSION,duplicateID,dupMission.name,rewardAreaMissions[duplicateID]) #For the reward area always use duplicate id
+                if dupMission.macca >0:
+                    itemReward = self.generateNewItem(0,dupMission.macca)
+                else:
+                    itemReward = self.generateNewItem(dupMission.reward.ind,dupMission.reward.amount)
+                check.inputItem(itemReward, forced = True)
+                if itemReward.ind > 0 and itemReward.ind in numbers.KEY_ITEM_AREA_RESTRICTIONS.keys():
+                    if itemReward.ind in self.progressionItemNewChecks:
+                        self.progressionItemNewChecks[itemReward.ind].append(check)
                     else:
-                        vengeanceRewards.append(copy.deepcopy(mission.reward))
-
-        #Remove unwanted rewards
-        for reward in uniqueRewards:
-            if reward.ind in numbers.BANNED_KEY_REWARDS:
-                uniqueRewards.remove(reward)
-        
-        missionContainer = Mission_Container()
-        missionContainer.rewardingMissions = rewardingMissions
-        missionContainer.uniqueRewards = uniqueRewards
-        missionContainer.creationRewards = creationRewards
-        missionContainer.vengeanceRewards = vengeanceRewards
-        
-        return missionContainer
-    '''
-    Randomizes gift items using the pool to assign key items.
-        Parameters:
-            pool(Gift_Pool): Contains the pools of all gifts and the unique rewards to assign randomly
-    '''
-    def randomizeGiftItems(self, pool):
-        randomizedGifts = []
-        if not self.configSettings.combineKeyItemPools:#No combined pools means that exclusive items stay normal due to otherwise having not enough gift slots
-            unchangedGifts = list(filter(lambda gift: gift.script in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS or gift.script  in scriptLogic.NEWGAMEPLUS_GIFTS or gift.script in scriptLogic.MISSABLE_GIFTS, pool.allGifts))
-            for gift in unchangedGifts:
-                if gift.item.ind >= numbers.KEY_ITEM_CUTOFF:
-                    pool.uniqueRewards.remove(gift.item)
-                    randomizedGifts.append(gift)
-        #Filter out exclusive gifts that should not contain a unique item
-        possibleGifts = list(filter(lambda gift: gift.script not in scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS and gift.script not in scriptLogic.NEWGAMEPLUS_GIFTS or gift.script in scriptLogic.MISSABLE_GIFTS, pool.allGifts))
-        uniqueGifts = random.sample(possibleGifts, len(pool.uniqueRewards))
-        for gift in uniqueGifts:
-            reward = random.choice(pool.uniqueRewards)
-            gift.item = reward
-            pool.uniqueRewards.remove(reward)
-            randomizedGifts.append(gift)
-        
-        
-
-        
-        #Assemble possible rewards
-        if self.configSettings.scaleItemsToArea: #Rewards scale with map
-            validItems = {}
-            validEssences = {}
-            for key, value in numbers.CONSUMABLE_MAP_SCALING.items():
-                validItems[key] = value #Item list is defined per area
-            
-            scriptToArea = scriptLogic.getGiftRewardAreas()
-            for area in scriptLogic.GIFT_AREAS.keys():
-                validEssences[area] = []
-                #Grab all essences in the predefined level range for the area
-                currentDemonNames = [demon.name + "'s Essence" for demon in self.compendiumArr if demon.level.value >= numbers.ESSENCE_MAP_SCALING[area][0] and demon.level.value <= numbers.ESSENCE_MAP_SCALING[area][1]]
-                for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                    if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences[area] and itemName in currentDemonNames:
-                        validEssences[area].append(itemID)
-        else: #Rewards do not scale with map
-            validItems = []
-            validEssences = []
-            for itemID, itemName in enumerate(self.itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-                if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES and itemID not in validEssences:
-                    validEssences.append(itemID)
-                elif itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                    validItems.append(itemID)
-        
-        #get Gifts that did not receive a unique item
-        nonUniqueGifts = list(filter(lambda gift: gift not in randomizedGifts, pool.allGifts))
-        for gift in nonUniqueGifts:
-            if self.configSettings.scaleItemsToArea:#Set area to scale items after when necessary
-                rewardArea = scriptToArea[gift.script]
-            if random.random() < scriptLogic.GIFT_ESSENCE_ODDS:
-                if self.configSettings.scaleItemsToArea: #scaled essences depend on area
-                    itemID = random.choice(validEssences[rewardArea])
-                    for value in validEssences.values():
-                        if itemID in value: #remove essence from all applicable areas
-                            value.remove(itemID)
-                else:  
-                    itemID = random.choice(validEssences)
-                    validEssences.remove(itemID) #Limit 1 gift per essence for diversity
-                gift.item.ind = itemID
-                amount = 1
-            else:
-                if self.configSettings.scaleItemsToArea: #scaled items depend on area
-                    itemID = random.choice(validItems[rewardArea])
-                else:
-                    itemID = random.choice(validItems)
-                gift.item.ind = itemID
-                amount = random.choices(list(numbers.CHEST_QUANTITY_WEIGHTS.keys()), list(numbers.CHEST_QUANTITY_WEIGHTS.values()))[0]
-            if gift.item.ind in numbers.ITEM_QUANTITY_LIMITS.keys():
-                amount = min(amount, numbers.ITEM_QUANTITY_LIMITS[gift.item.ind])
-            gift.item.amount = amount
-            #print(gift.script + str(gift.item.ind))
-        scriptLogic.updateGiftScripts(pool.allGifts,self.scriptFiles, self.itemReplacementMap)
-
-    '''
-    Initializes the pools of all gifts and unique rewards from gifts.
-    '''
-    def initializeGiftPools(self):
-        giftPool = Gift_Pool()
-        for script,item in scriptLogic.BASE_GIFT_ITEMS.items():
-            if not self.configSettings.includeTsukuyomiTalisman and script == scriptLogic.TSUKUYOMI_TALISMAN_SCRIPT:
-                #Do not include Tsukuyomi Talisman or it's check in pool if setting isn't set
-                continue
-            gift = Gift_Item()
-            gift.script = script
-            reward = Reward_Item(item, 1)
-            gift.item = reward
-            giftPool.allGifts.append(gift)
-            if reward.ind >= numbers.KEY_ITEM_CUTOFF:
-                giftPool.uniqueRewards.append(reward)
-
-        giftPool.uniqueRewardRatio = len(giftPool.uniqueRewards) / len(giftPool.allGifts)
-        return giftPool
-            
-    '''
-    Randomizes the miman, chest, gift and mission rewards, with a combined pool for key items depending on the settings.
-    '''
-    def randomizeItemRewards(self):
-        self.missionArr = self.missionArr + scriptLogic.createFakeMissionsForEventRewards(self.scriptFiles)
-        missionPool = self.initializeMissionPools()
-        giftPool = self.initializeGiftPools()
-        chestKeyItemPool = []
-        if not self.configSettings.combineKeyItemPools:
-            #Mission Pool get initialized regardless so just stays the same
-            mimanPool = copy.deepcopy(numbers.MIMAN_BASE_KEY_ITEMS) #Use base pool
-        else:
-            combinedItemPool = []
-            if self.configSettings.randomizeMissionRewards: #Add mission key item rewards to the combined pool
-                missionKeyItemIDs = []
-                for reward in missionPool.uniqueRewards:
-                    missionKeyItemIDs.append(reward.ind)
-                combinedItemPool = combinedItemPool + missionKeyItemIDs
-            
-            if self.configSettings.randomizeMimanRewards: #Add miman rewards to the combined pool
-                combinedItemPool = numbers.MIMAN_BASE_KEY_ITEMS + combinedItemPool
-            
-            if self.configSettings.randomizeGiftItems: #Add unique gift rewards to the combined pool
-                giftItemIDs = []
-                for reward in giftPool.uniqueRewards:
-                    giftItemIDs.append(reward.ind)
-                combinedItemPool = giftItemIDs + combinedItemPool
-            
-
-            #Distribute combined pool, starting with sub pools of fixed or lower size
-            if self.configSettings.randomizeMimanRewards:#Miman pool has fixed size
-                mimanPool = random.sample(combinedItemPool, len(numbers.MIMAN_BASE_KEY_ITEMS))
-                for itemID in mimanPool:
-                    combinedItemPool.remove(itemID)
-            
-            if self.configSettings.randomizeGiftItems:                                                                              
-                tsukuyomiCorrection = 0 
-                if not self.configSettings.includeTsukuyomiTalisman:
-                    tsukuyomiCorrection = 1 #Increase unique item count by 1 to account for tsukuyomi talisman not being in pool
-                maxSize = tsukuyomiCorrection + len(giftPool.uniqueRewards) - len(scriptLogic.VENGEANCE_EXCLUSIVE_GIFTS) - len(scriptLogic.NEWGAMEPLUS_GIFTS) - len(scriptLogic.MISSABLE_GIFTS)
-                giftPoolSize = random.randrange(maxSize // 2, maxSize) #Half of size was chosen arbitrarily
-                itemIDs = random.sample(combinedItemPool,giftPoolSize)
-                giftPool.uniqueRewards = []
-                for itemID in itemIDs:
-                    giftPool.uniqueRewards.append(Reward_Item(itemID, 1))
-                    combinedItemPool.remove(itemID)
-            
-            if self.configSettings.randomChests:
-                chestPoolSize = random.randrange(0, len(combinedItemPool) // 2) #Half of size was chosen arbitrarily (only 2 pool sizes remaining, mission should be larger)
-                chestKeyItemPool = random.sample(combinedItemPool,chestPoolSize)
-                for itemID in chestKeyItemPool:
-                    combinedItemPool.remove(itemID)
-            
-            if self.configSettings.randomizeMissionRewards:#Largest pool and therefore last
-                missionPool.uniqueRewards = []
-                for itemID in combinedItemPool:
-                    missionPool.uniqueRewards.append(Mission_Reward(itemID,1))
-
-        if(self.configSettings.randomizeMimanRewards):
-            self.mimanRewardsArr = self.randomizeMimanRewards(self.configSettings.scaleItemsToArea, mimanPool)
-        
-        scriptLogic.adjustFirstMimanEventReward(self.configSettings, self.itemNames, self.encounterReplacements, self.essenceArr, self.scriptFiles)   
-
-        if self.configSettings.randomizeGiftItems:
-            self.randomizeGiftItems(giftPool)
-
-        if self.configSettings.randomChests:
-            self.randomizeChests(self.configSettings.scaleItemsToArea, chestKeyItemPool)
-
-        if self.configSettings.randomizeMissionRewards:
-            self.randomizeMissionRewards(self.configSettings.scaleItemsToArea, missionPool)
-        return scriptLogic.updateAndRemoveFakeMissions(self.missionArr, self.scriptFiles)
+                        self.progressionItemNewChecks[itemReward.ind] = []
+                        self.progressionItemNewChecks[itemReward.ind].append(check)
+                self.logItemCheck(check)
     
-    '''
-    Randomizes the drops of basic enemies, excluding key items and essences.
-        Parameters:
-            scaling (Boolean): whether the items are scaled to the level of the encounter
-    '''
-    def randomizeBasicEnemyDrops(self, scaling):
-        validItems = []
-        if scaling: #Rewards should scale on area
-            validItems = {}
-            for key, values in numbers.CONSUMABLE_MAP_SCALING.items():
-                validItems[key] = values
-        else: #Rewards are truly random
-            for itemID, itemName in enumerate(self.itemNames): 
-                if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                    validItems.append(itemID)
-
-        #Gather all non mitama basic enemies with drops
-        dropEnemies = list(filter(lambda e: 'Mitama' not in e.name and e.drops.item1.value > 0, self.enemyArr))
-
-        for enemy in dropEnemies: #For all enemies
-            drop = enemy.drops
-            if scaling: #Drops should scale based on area
-                rewardArea = numbers.ENCOUNTER_LEVEL_AREAS[enemy.level] #Area to scale rewards with
-                if drop.item1.value < numbers.CONSUMABLE_ITEM_COUNT: 
-                    if random.random() < numbers.DROP1_LIFESTONE_ODDS: #First Drop has a chance to be forced life stone as per original game
-                        drop.item1.value = 1
-                    else:
-                        drop.item1.value = random.choice(validItems[rewardArea])
-                    drop.item1.chance = random.randrange(3,12)
-                if drop.item2.value < numbers.CONSUMABLE_ITEM_COUNT:
-                    drop.item1.value = random.choice(validItems[rewardArea])
-                    drop.item2.chance = random.randrange(3,12)
-                if drop.item3.value < numbers.CONSUMABLE_ITEM_COUNT:
-                    drop.item1.value = random.choice(validItems[rewardArea])
-                    drop.item3.chance = random.randrange(3,12)
-            else: #non scaling random drops
-                #Edit all drops that are not key items or essences
-                if drop.item1.value < numbers.CONSUMABLE_ITEM_COUNT:
-                    drop.item1.value = random.choice(validItems)
-                    drop.item1.chance = random.randrange(3,12)
-                if drop.item2.value < numbers.CONSUMABLE_ITEM_COUNT:
-                    drop.item2.value = random.choice(validItems)
-                    drop.item2.chance = random.randrange(3,12)
-                if drop.item3.value < numbers.CONSUMABLE_ITEM_COUNT:
-                    drop.item3.value = random.choice(validItems)
-                    drop.item3.chance = random.randrange(3,12) 
-                    
-    '''
-    Randomizes the drops of bosses, excluding key items.
-        Parameters:
-            scaling (Boolean): whether the items are scaled to the level of the encounter
-    '''
-    def randomizeBossDrops(self, scaling):
-        validItems = []
-        if scaling: #Rewards should scale on area
-            validItems = {}
-            for key, values in numbers.CONSUMABLE_MAP_SCALING.items():
-                validItems[key] = values
-        else: #Rewards are truly random
-            for itemID, itemName in enumerate(self.itemNames): 
-                if itemID < numbers.CONSUMABLE_ITEM_COUNT and itemID not in numbers.BANNED_ITEMS and 'NOT USED' not in itemName: #Include all consumable items
-                    validItems.append(itemID)
-
-        for demonID in self.validBossDemons: #For all bosses
-            enemy = self.bossArr[demonID]
-            drop = enemy.drops
-            if drop.item1.value >= numbers.KEY_ITEM_CUTOFF or drop.item2.value >= numbers.KEY_ITEM_CUTOFF or drop.item3.value >= numbers.KEY_ITEM_CUTOFF:
-                continue #Don't mess with key items
-            if drop.item1.chance <= 0 and drop.item2.chance <= 0 and drop.item3.chance <= 0:
-                continue #Bosses that drop nothing will continue to drop nothing (mostly minions and summons)
-            if scaling: #Drops should scale based on area
-                rewardArea = numbers.ENCOUNTER_LEVEL_AREAS[enemy.level] #Area to scale rewards with
-                numDrops = random.choices(list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.keys()), list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.values()))[0]
-                if demonID not in self.essenceBannedBosses and random.random() < numbers.BOSS_ESSENCE_ODDS: #Boss will drop its own essence
-                    try:
-                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.BANNED_ESSENCES)
-                        drop.item1 = Item_Drop(essence.ind, essence.name, 100, 0)
-                    except StopIteration:
-                        item = random.choice(validItems[rewardArea])
-                        drop.item1 = Item_Drop(item, self.itemNames[item], 100, 0)
-                else:
-                    item = random.choice(validItems[rewardArea])
-                    drop.item1 = Item_Drop(item, self.itemNames[item], 100, 0)
-                if numDrops > 1:
-                    item = random.choice(validItems[rewardArea])
-                    drop.item2 = Item_Drop(item, self.itemNames[item], 100, 0)
-                else:
-                    drop.item2 = Item_Drop(0, self.itemNames[0], 0, 0)
-                if numDrops > 2:
-                    item = random.choice(validItems[rewardArea])
-                    drop.item3 = Item_Drop(item, self.itemNames[item], 100, 0)
-                else:
-                    drop.item3 = Item_Drop(0, self.itemNames[0], 0, 0)
-            else: #non scaling random drops
-                numDrops = random.choices(list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.keys()), list(numbers.BOSS_DROP_QUANTITY_WEIGHTS.values()))[0]
-                if demonID not in self.essenceBannedBosses and random.random() < numbers.BOSS_ESSENCE_ODDS: #Boss will drop its own essence
-                    try:
-                        essence = next(e for e in self.essenceArr if self.enemyNames[demonID] == e.demon.translation and e.ind not in numbers.BANNED_ESSENCES)
-                        drop.item1 = Item_Drop(essence.ind, essence.name, 100, 0)
-                    except StopIteration:
-                        item = random.choice(validItems)
-                        drop.item1 = Item_Drop(item, self.itemNames[item], 100, 0)
-                else:
-                    item = random.choice(validItems)
-                    drop.item1 = Item_Drop(item, self.itemNames[item], 100, 0)
-                if numDrops > 1:
-                    item = random.choice(validItems)
-                    drop.item2 = Item_Drop(item, self.itemNames[item], 100, 0)
-                else:
-                    drop.item2 = Item_Drop(0, self.itemNames[0], 0, 0)
-                if numDrops > 2:
-                    item = random.choice(validItems)
-                    drop.item3 = Item_Drop(item, self.itemNames[item], 100, 0)
-                else:
-                    drop.item3 = Item_Drop(0, self.itemNames[0], 0, 0)
                     
     '''
         Fills the set validBossDemons with all the demon IDs of bosses that are included in the randomizer
@@ -5822,6 +6182,58 @@ class Randomizer:
             fusionCombo.append(["Jaki","Lady","Qadistu"]) #Jaki had open fusions
             fusionCombo.append(["Wilder","Femme","Qadistu"]) #only availabe femme fusion
             fusionCombo.append(["Tyrant","Lady","Qadistu"]) #Tyrant (Vile)
+        
+        
+        if self.configSettings.swapGuestsWithDemons:
+            fusionCombo.append(["Genma","Jaki","Human"])
+            fusionCombo.append(["Haunt","Holy","Human"])
+            fusionCombo.append(["Chaos","Fairy","Human"])
+            fusionCombo.append(["Panagia","Qadistu","Human"])
+            fusionCombo.append(["Foul","Herald","Human"])
+            fusionCombo.append(["Kunitsu","Human","Panagia"])
+            fusionCombo.append(["Qadistu","Human","Panagia"])
+            fusionCombo.append(["Megami","Human","Panagia"])
+            fusionCombo.append(["Holy","Snake","Panagia"])
+            fusionCombo.append(["Fiend","Human","Chaos"])
+            fusionCombo.append(["Devil","Human","Chaos"])
+            fusionCombo.append(["Devil","Fury","Chaos"])
+
+            #These are addeed so that Guest races can fuse into something more easily
+            fusionCombo.append(["Human","Deity","Divine"])
+            fusionCombo.append(["Human","Kishin","Divine"])
+            fusionCombo.append(["Human","Holy","Divine"])
+            fusionCombo.append(["Human","Herald","Divine"])
+            fusionCombo.append(["Human","Avatar","Divine"])
+            fusionCombo.append(["Human","Jirae","Yoma"])
+            fusionCombo.append(["Human","Avian","Yoma"])
+            fusionCombo.append(["Human","Enigma","Yoma"])
+            fusionCombo.append(["Human","Fallen","Vile"])
+            fusionCombo.append(["Human","Snake","Vile"])
+            fusionCombo.append(["Human","Brute","Vile"])
+            fusionCombo.append(["Human","Wargod","Vile"])
+            fusionCombo.append(["Human","Raptor","Vile"])
+
+            fusionCombo.append(["Panagia","Megami","Deity"])
+            fusionCombo.append(["Panagia","Lady","Deity"])
+            fusionCombo.append(["Panagia","Kunitsu","Deity"])
+            fusionCombo.append(["Panagia","Genma","Deity"])
+            fusionCombo.append(["Panagia","Human","Deity"])
+            fusionCombo.append(["Panagia","Night","Femme"])
+            fusionCombo.append(["Panagia","Herald","Femme"])
+            fusionCombo.append(["Panagia","Drake","Femme"])
+            fusionCombo.append(["Panagia","UMA","Kunitsu"])
+            fusionCombo.append(["Panagia","Yoma","Kunitsu"])
+        if self.configSettings.swapDemifiend:
+            fusionCombo.append(["Chaos","Fury","Fiend"])
+            fusionCombo.append(["Chaos","Kishin","Fiend"])
+            fusionCombo.append(["Chaos","Wargod","Fiend"])
+            fusionCombo.append(["Chaos","Devil","Fiend"])
+            fusionCombo.append(["Chaos","Lady","Fairy"])
+            fusionCombo.append(["Chaos","Night","Fairy"])
+            fusionCombo.append(["Chaos","Femme","Fairy"])
+            fusionCombo.append(["Chaos","Panagia","Fairy"])
+            fusionCombo.append(["Chaos","Herald","Fallen"])
+            fusionCombo.append(["Chaos","Divine","Fallen"])
 
 
         for fc in fusionCombo:
@@ -5866,7 +6278,7 @@ class Randomizer:
         #Valid demons are all demons whose level can be unconditionally randomized
         validDemons = list(filter(lambda demon:  demon.race.translation != 'Element' and not demon.name.startswith('NOT') and demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name, comp))
         #elements contain all 4 demons of the element race
-        elements = list(filter(lambda d: d.race.translation == 'Element', comp))
+        elements = list(filter(lambda d: d.race.translation == 'Element' and d.ind not in numbers.BAD_IDS, comp))
         #Contains all demons who can only be fused after their fusion is unlocked via flag 
         flaggedDemons = list(filter(lambda demon: demon.unlockFlags[0] > 0, comp))
         flaggedDemons.sort(key = lambda a: a.minUnlock, reverse=True)
@@ -6180,29 +6592,41 @@ class Randomizer:
     def adjustStatsToLevel(self, comp):
         for demon in comp:
             #Get Nahobinos base stats at original and new level
-            nahoOGLevel = self.nahobino.stats[demon.level.original]
-            nahoNewLevel = self.nahobino.stats[demon.level.value]
-
-            #Define multipliers from nahobino stats at original level to og stats
-            modifiers = Stats(
-                demon.stats.HP.og / nahoOGLevel.HP,
-                demon.stats.MP.og / nahoOGLevel.MP,
-                demon.stats.str.og / nahoOGLevel.str,
-                demon.stats.vit.og / nahoOGLevel.vit,
-                demon.stats.mag.og / nahoOGLevel.mag,
-                demon.stats.agi.og / nahoOGLevel.agi,
-                demon.stats.luk.og / nahoOGLevel.luk
-            )
-            #Apply these multipliers to the nahobinos stats at new level to gain new level
-            demon.stats.HP.start = math.floor(nahoNewLevel.HP * modifiers.HP)
-            demon.stats.MP.start = math.floor(nahoNewLevel.MP * modifiers.MP)
-            demon.stats.str.start = math.floor(nahoNewLevel.str * modifiers.str)
-            demon.stats.vit.start = math.floor(nahoNewLevel.vit * modifiers.vit)
-            demon.stats.mag.start = math.floor(nahoNewLevel.mag * modifiers.mag)
-            demon.stats.agi.start = math.floor(nahoNewLevel.agi * modifiers.agi)
-            demon.stats.luk.start = math.floor(nahoNewLevel.luk * modifiers.luk)
+            demon = self.recalculateDemonStatsToLevel(demon,demon.level.original,demon.level.value)
         return comp
 
+    '''
+    Adjusts the stats of demons to their new level based on multipliers of the nahobinos stats at the original and new level
+        Parameters:
+            demon (Compendium_Demon): the demon to calculate new stats for
+            oldLevel (Integer): the demons original level
+            newLevel (Integer): the demons new level
+        Returns the demon with recalculated stats
+    '''
+    def recalculateDemonStatsToLevel(self,demon,oldLevel, newLevel):
+        nahoOGLevel = self.nahobino.stats[oldLevel]
+        nahoNewLevel = self.nahobino.stats[newLevel]
+
+
+        #Define multipliers from nahobino stats at original level to og stats
+        modifiers = Stats(
+            demon.stats.HP.og / nahoOGLevel.HP,
+            demon.stats.MP.og / nahoOGLevel.MP,
+            demon.stats.str.og / nahoOGLevel.str,
+            demon.stats.vit.og / nahoOGLevel.vit,
+            demon.stats.mag.og / nahoOGLevel.mag,
+            demon.stats.agi.og / nahoOGLevel.agi,
+            demon.stats.luk.og / nahoOGLevel.luk
+        )
+        #Apply these multipliers to the nahobinos stats at new level to gain new level
+        demon.stats.HP.start = math.floor(nahoNewLevel.HP * modifiers.HP)
+        demon.stats.MP.start = math.floor(nahoNewLevel.MP * modifiers.MP)
+        demon.stats.str.start = math.floor(nahoNewLevel.str * modifiers.str)
+        demon.stats.vit.start = math.floor(nahoNewLevel.vit * modifiers.vit)
+        demon.stats.mag.start = math.floor(nahoNewLevel.mag * modifiers.mag)
+        demon.stats.agi.start = math.floor(nahoNewLevel.agi * modifiers.agi)
+        demon.stats.luk.start = math.floor(nahoNewLevel.luk * modifiers.luk)
+        return demon
         
     
     '''
@@ -6426,6 +6850,7 @@ class Randomizer:
         spyscopeDrop = Item_Drop(79, 'Spyscope', 100, 0) #Drop spyscope and chakra drop x2
         chakraDrop = Item_Drop(2, 'Chakra Drop', 100, 0)
         daemon.drops = Item_Drops(spyscopeDrop, chakraDrop, chakraDrop)
+        daemon.damageMultiplier = int(0.5 * daemon.damageMultiplier)
     
     '''
     Sets the drops of bosses which are quest relevant to their replacements and in cases where a quest drop boss replaces a quest drop boss makes sure that the drops of all bosses are not lost in conversion.
@@ -6920,7 +7345,10 @@ class Randomizer:
             entry["Value"][16]["Value"] = 50
             entry["Value"][17]["Value"] = 100
             #print(str(scaleFactor) + " for " + str(replacementID) + " to hit target size " + str(targetSize))
-            replacementVoiceID = message_logic.normalVoiceIDForBoss(replacementID, self.enemyNames).zfill(3) #Replace voices
+            if replacementID in self.guestReplacements.keys():
+                replacementVoiceID = message_logic.normalVoiceIDForBoss(self.guestReplacements[replacementID], self.enemyNames).zfill(3) #Replace voices
+            else:
+                replacementVoiceID = message_logic.normalVoiceIDForBoss(replacementID, self.enemyNames).zfill(3) #Replace voices
             nameMap.append(message.getCuePath(replacementVoiceID, message_logic.DEMON_FILENAMES, isNameMap=True)[0])
             if replacementVoiceID in self.navigatorVoiceIDs:
                 goVoice = "dev" + replacementVoiceID + "_vo_14" #There is also a find voice but that is a common sound effect to all navigators
@@ -6931,7 +7359,7 @@ class Randomizer:
             self.naviReplacementMap[navi.demonID] = replacementID
             navi.demonID = replacementID
             tableIndex += 1
-        message_logic.updateNavigatorVoiceAndText(self.naviReplacementMap, self.enemyNames)
+        message_logic.updateNavigatorVoiceAndText(self.naviReplacementMap, self.enemyNames, self.playerBossArr, self.compendiumArr, self.guestReplacements, self.configSettings)
 
     '''
     Sets tones of bosses to 0 to prevent bosses talking to the player if the battle starts as an ambush.
@@ -7068,16 +7496,230 @@ class Randomizer:
                 self.enemyNames[newID] = self.enemyNames[source]
                 self.validBossDemons.add(newID) #Add new duplicate demons to the list of boss demons
                 self.essenceBannedBosses.add(newID) #These are all duplicates of another boss demon so they shouldn't drop their essence
+    '''
+    Swap a guest with a demon, swapping asset assignments, and most demon data.
+        Parameters:
+            demonID (Integer): id of the demon
+            guestID (Integer): id of the guest
+    '''
+    def swapDemonWithGuest(self, demonID, guestID):
+        #Get correct demon/guest
+        if demonID > numbers.NORMAL_ENEMY_COUNT:
+            demon = self.playerBossArr[demonID]
+        else:
+            demon = self.compendiumArr[demonID]
+        
+        if guestID > numbers.NORMAL_ENEMY_COUNT:
+            guest = self.playerBossArr[guestID]
+        else:
+            guest = self.compendiumArr[guestID]
 
+        guestCopy = copy.deepcopy(guest)
+        
+
+        #print("Guest " + str(guestID) +" "+ guest.name +" <-> Demon " + str(demonID) + " " + demon.name )
+
+
+        #TODO: Tao (Guest) is weird, since demons always get her textures??
+
+        
+        '''
+        Copy demon data and other attributes from the donor to the recipient demon.
+            Parameters:
+                recipient: demon to receive the attributes
+                donor: demon to donate the attributes
+        '''
+        def obtainAttributes(recipient,donor):
+            donor = copy.deepcopy(donor)
+
+            #Rename Essence
+            #self.itemNames = [f"{donor.name}'s Essence" if recipient.name in itemName and 'Essence' in itemName else itemName for itemName in self.itemNames]
+
+            recipient.name = donor.name
+            recipient.nameID = donor.nameID
+            recipient.descriptionID = donor.ind
+            recipient.race = donor.race
+            #recipient.tone = donor.tone
+            recipient.resist = donor.resist
+            recipient.potential = donor.potential
+            recipient.innate = donor.innate
+
+            recipient.stats = donor.stats
+            recipient = self.recalculateDemonStatsToLevel(recipient,donor.level.original,recipient.level.original)
+
+            recipient.skills = donor.skills
+            learnedLevel = [skill.level for skill in recipient.learnedSkills]
+            recipient.learnedSkills = donor.learnedSkills
+            for index,skill in enumerate(recipient.learnedSkills):
+                if index < len(learnedLevel):
+                    skill.level = learnedLevel[index]
+                elif learnedLevel:
+                    skill.level = learnedLevel[-1] + 1 + index - len(learnedLevel)
+                else:
+                    skill.level = recipient.level.value + index +1
+            recipient.alignment = donor.alignment
+            recipient.tendency = donor.tendency
+
+            
+
+            
+        '''
+        Copy the assets from one demonID slot to another.
+            Parameters:
+                recipient: demon to receive the assets
+                donor: demon to donate the assets
+        '''
+        def obtainAssets(recipient,donor):
+            recID = recipient.ind
+            sourceID = donor.ind
+            
+            self.devilAssetArr[recID] = self.copyAssetsToSlot(self.devilAssetArr[recID], self.devilAssetArr[sourceID])
+            self.devilUIArr[recID].assetID = self.devilUIArr[sourceID].assetID
+            self.devilUIArr[recID].assetString = self.devilUIArr[sourceID].assetString
+            self.talkCameraOffsets[recID].demonID = self.talkCameraOffsets[sourceID].demonID
+            self.talkCameraOffsets[recID].eyeOffset = self.talkCameraOffsets[sourceID].eyeOffset
+            self.talkCameraOffsets[recID].lookOffset = self.talkCameraOffsets[sourceID].lookOffset
+            self.talkCameraOffsets[recID].dyingOffset = self.talkCameraOffsets[sourceID].dyingOffset
+
+        
+        #To temporarily store the guest data
+        copyover = self.playerBossArr[numbers.COPYOVER_DEMON]
+        obtainAssets(copyover,guest)
+
+        #Copy from demon to guest
+        obtainAttributes(guest,demon)
+        obtainAssets(guest,demon)
+
+        #Also copy demon data to other guest slots that are the same person
+        for guestSyncID in numbers.GUEST_GROUPS.get(guestID):
+            if guestID > numbers.NORMAL_ENEMY_COUNT:
+                guestSync = self.playerBossArr[guestSyncID]
+            else:
+                guestSync = self.compendiumArr[guestSyncID]
+
+            obtainAttributes(guestSync,demon)
+            obtainAssets(guestSync,demon)
+
+        #Copy from the holdover/guestCopy to the demon 
+        obtainAttributes(demon,guestCopy)
+        obtainAssets(demon,copyover)
+        
+    '''
+    Swap guests with demons (or other guests), swapping data from their demon ids (including name) and asset assignments.
+    '''
+    def swapGuestsWithDemons(self):
+        if self.configSettings.swapDemifiend:
+            demiFiendEssenceName = self.itemNames[numbers.DEMIFIEND_ESSENCE_ID]
+            numbers.GUEST_GROUPS[numbers.GUEST_DEMIFIEND] = []
+        validInds = [demon.ind for demon in self.compendiumArr if demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name and not demon.name.startswith('NOT USED')]
+        #TODO: Currently guests cannot replace each other (essence name swap at least does not work)
+        #validInds.extend(numbers.GUEST_GROUPS.keys())
+
+        #Determine random pairing replacements
+        swapPairings = {}
+        guestList = copy.deepcopy(list(numbers.GUEST_GROUPS.keys()))
+        random.shuffle(guestList)
+        required = [] #For Debug Purposes! To force certain replacements
+        for guest in guestList:
+            if guest in validInds:
+                validInds.remove(guest)
+            
+            choice = random.choice(validInds)
+            if len(required) > 0:
+                choice = required.pop(0)
+            validInds.remove(choice)
+            swapPairings[choice] = guest   
+            
+            
+        #Swap lore entries
+        profileFile = General_UAsset("DevilProfile",paths.CAMP_LN10_STATUS_FOLDER_OUT, readPath=paths.PROFILE_ASSET_IN)
+
+        profileList = profileFile.json['Exports'][0]['Data'][0]['Value']
+        originalList = profileFile.originalJson['Exports'][0]['Data'][0]['Value']
+
+        for demonID, guestID in swapPairings.items():
+            self.swapDemonWithGuest(demonID,guestID)
+            ogProfile = profileList[demonID]
+            guestProfile = profileList[guestID]
+
+            demonString = originalList[demonID]['Value'][2]['Value'][0]['CultureInvariantString']
+            guestString = originalList[guestID]['Value'][2]['Value'][0]['CultureInvariantString']
+            guestStringCopy = copy.deepcopy(guestString)
+
+            for guestSyncID in numbers.GUEST_GROUPS.get(guestID):
+                syncProfile =profileList[guestSyncID]
+                syncProfile['Value'][2]['Value'][0]['CultureInvariantString'] = demonString
+
+            guestProfile['Value'][2]['Value'][0]['CultureInvariantString'] = demonString
+            ogProfile['Value'][2]['Value'][0]['CultureInvariantString'] = guestStringCopy 
+
+        profileFile.write()
+        del profileFile
+
+        self.guestReplacements = copy.deepcopy(swapPairings)
+
+        #Contains Guest -> Demon and Demon -> Guest
+        swapPairings = {**swapPairings, **{v: k for k, v in swapPairings.items()}}
+
+        for guest, guestGroup in numbers.GUEST_GROUPS.items():
+            if guest in guestList:
+                for syncedGuest in guestGroup:
+                    swapPairings[syncedGuest] = swapPairings[guest]
+
+        if self.configSettings.swapDemifiend:
+            numbers.DEMIFIEND_ESSENCE_ID = self.itemNames.index(demiFiendEssenceName)
+        for r,d in self.guestReplacements.items():
+            recipient = self.getPlayerDemon(r)
+            donor = self.getPlayerDemon(d)
+
+            for index,itemName in enumerate(self.originalItemNames):
+                if itemName == f"{donor.name}'s Essence":
+                    #print("Renaming " + itemName + " to " + f"{recipient.name}'s Essence")
+                    self.itemNames[index] = f"{recipient.name}'s Essence"
+                elif itemName == f"{recipient.name}'s Essence":
+                    #print("Renaming " + itemName + " to " + f"{donor.name}'s Essence")
+                    self.itemNames[index] = f"{donor.name}'s Essence"
+
+
+
+        if self.configSettings.swapDemifiend:
+            numbers.DEMIFIEND_ESSENCE_ID = self.itemNames.index(demiFiendEssenceName)
+
+        #Update Unique skill ownership to new ids
+        for skill in self.skillArr:
+
+            if skill.owner and skill.owner.ind in swapPairings.keys():
+
+                skill.owner = Skill_Owner(swapPairings[skill.owner.ind],self.getDemonsCurrentNameByID(swapPairings[skill.owner.ind]))
+    '''
+    Adds the items of a check to the item debug log.
+    '''
+    def logItemCheck(self,check):
+        category = Check_Type.getCheckString(check.type)
+        if category not in self.itemDebugList.keys():
+            self.itemDebugList[category] = []
+        self.itemDebugList[category].append(check)
+
+            
     
     '''
     Generates a random seed if none was provided by the user and sets the random seed
     '''
     def createSeed(self):
-         if self.textSeed == "":
-             self.textSeed = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-             print('Your generated seed is: {}\n'.format(self.textSeed))
-         random.seed(self.textSeed)
+        if self.textSeed == "":
+            self.textSeed = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+            print('Your generated seed is: {}\n'.format(self.textSeed))
+
+            # Write seed to config.ini
+            configur = ConfigParser()
+            configur.read('config.ini')
+            configur.set('Seed', 'lastSeed', self.textSeed)
+            with open('config.ini', 'w') as f:
+                configur.write(f)
+        random.seed(self.textSeed)
+         
+         
+
          
     '''
     Makes the game easier for testing purposes. All enemy hp is set to 10 and Nahobino's stats are increased
@@ -7100,7 +7742,7 @@ class Randomizer:
 
     '''
         Compresses the output files using Unreal Pak into rando.pak
-        TODO: Determine if this works for non-windows systems
+        TODO: Determine if this works for non-windows systems. Seemingly not.
     '''
     def applyUnrealPak(self):
         print("Applying Unreal Pak...")
@@ -7122,8 +7764,6 @@ class Randomizer:
         shutil.copytree(paths.PRE_MODIFIED_FILES, paths.PRE_MODIFIED_FILES_OUT)
 
         writeFolder(paths.DEBUG_FOLDER)
-        with open(paths.SEED_FILE, 'w', encoding="utf-8") as file:
-                file.write(self.textSeed)
 
         compendiumBuffer = readBinaryTable(paths.NKM_BASE_TABLE_IN)
         skillBuffer = readBinaryTable(paths.SKILL_DATA_IN)
@@ -7148,6 +7788,7 @@ class Randomizer:
         mapSymbolParamBuffer = readBinaryTable(paths.MAP_SYMBOL_PARAM_IN)
         mapEventBuffer = readBinaryTable(paths.MAP_EVENT_DATA_IN)
         navigatorBuffer = readBinaryTable(paths.NAVIGATOR_DATA_IN)
+        vendingMachineBuffer = readBinaryTable(paths.VENDING_MACHINE_IN)
         message_logic.initDemonModelData()
         bossLogic.initAdditionalBossSkillData()
         self.readDemonNames()
@@ -7181,17 +7822,29 @@ class Randomizer:
         self.fillPlayerBossArr(compendiumBuffer)
         self.fillBossFlagArr(bossFlagBuffer)
         self.fillNahobino(playGrowBuffer)
+            
+        #These should be before guest swaps so their skills get assigned the correct level ranges
+        skillLevels = self.generateSkillLevelList()
+        levelSkillList = self.generateLevelSkillList(skillLevels)
+
+        if config.swapGuestsWithDemons:
+            #This needs to happen after playerBossArr and before essence Arr
+            self.swapGuestsWithDemons()
+
         self.fillEssenceArr(itemBuffer)
         self.fillShopArr(shopBuffer)
         self.fillMissionArr(missionBuffer)
         self.fillUniqueSymbolArr(uniqueSymbolBuffer)
         self.fillChestArr(chestBuffer)
         self.fillMimanRewardArr(shopBuffer)
+        self.fillVendingMachineArr(vendingMachineBuffer)
         self.fillMapSymbolArr(mapSymbolParamBuffer)
         self.fillConsumableArr(itemBuffer)
         self.fillFusionSkillReqs(skillBuffer)
         self.fillMapEventArr(mapEventBuffer)
         self.fillNavigatorArr(navigatorBuffer)
+        
+        scriptLogic.modifyEmpyreanKeyEvents(self.scriptFiles)
         
         #self.eventEncountArr = self.addPositionsToEventEncountArr(eventEncountPostBuffer, self.eventEncountArr)
         eventEncountPosFile = self.addPositionsToEncountArr(self.eventEncountArr,"EventEncountPostDataTable",paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT)
@@ -7207,17 +7860,14 @@ class Randomizer:
         magatsuhiSkillsRaces = [self.obtainSkillFromID(skill) for skill in filter(lambda skill: 800 > skill or skill > 900, numbers.MAGATSUHI_SKILLS)]
         if self.configSettings.randomizeMagatsuhiSkillReq:
             magatsuhiSkillsRaces = self.randomizeMagatsuhiSkillReqs()
-            
-
-        skillLevels = self.generateSkillLevelList()
-        levelSkillList = self.generateLevelSkillList(skillLevels)
        
         if config.randomPotentials:
+            # if config.fixUniqueSkillAnimations:
+            #     self.randomizePotentials(self.compendiumArr, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
+            #     self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
+            # else:
             self.randomizePotentials(self.compendiumArr)
-            if config.fixUniqueSkillAnimations:
-                self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
-            else:
-                self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS)
+            self.randomizePotentials(self.playerBossArr, mask=numbers.GUEST_IDS)
         
         if self.configSettings.randomDemonStats:
             self.randomizeDemonStats(self.compendiumArr, foes=self.enemyArr)
@@ -7238,18 +7888,21 @@ class Randomizer:
             while not newComp and attempts < 10:
                 newComp = self.shuffleLevel(self.compendiumArr, config,otherFusionBuffer)
                 if not newComp:
+                    print("Lével resetting and retrying...")
                     self.resetLevelToOriginal(self.compendiumArr)
                     attempts += 1
             if attempts >= 10:
                 print('Major issue with generating demon levels and fusions')
                 return False
         else: newComp = self.compendiumArr
-
         
         if config.scaledPotentials:
             self.scalePotentials(newComp)
 
         if config.randomResists:
+            #If we have random resists, we dont need to block demifiend's essence
+            numbers.DEMIFIEND_ESSENCE_ID = 29 #Is Unused Item ID
+
             self.randomizeResistances(newComp)
             self.randomizeResistances(self.playerBossArr, mask=numbers.GUEST_IDS)
             self.randomizeResistances(self.playerBossArr, mask=numbers.PROTOFIEND_IDS)
@@ -7299,10 +7952,10 @@ class Randomizer:
             self.assignRandomStartingSkill(self.nahobino, levelSkillList, config)
             newComp = self.assignRandomSkills(newComp,levelSkillList, config)
             self.assignRandomSkills(self.playerBossArr,levelSkillList, config, mask=numbers.PROTOFIEND_IDS)
-            if config.fixUniqueSkillAnimations:
-                self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
-            else:
-                self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
+            # if config.fixUniqueSkillAnimations:
+            #     self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
+            # else:
+            self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS)
         if self.configSettings.forceAllSkills:
             self.debugPrintUnassignedSkills(levelSkillList)
         self.outputSkillSets()
@@ -7324,11 +7977,10 @@ class Randomizer:
                 if demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name and 'NOT_USED' not in demon.name:
                     self.encounterReplacements[demon.ind] = demon.ind
         
+        
         if config.randomDemonLevels or config.randomRaces:
             self.adjustFusionTableToLevels(self.compendiumArr)
-
-        if config.randomShopEssences:
-            self.adjustShopEssences(self.shopArr, self.essenceArr, newComp, self.configSettings.scaleItemsToArea)
+        
         
         if (config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses) and not (config.randomMusic or config.checkBasedMusic):
             self.patchMissingBossMusic()
@@ -7338,12 +7990,20 @@ class Randomizer:
         bossLogic.prepareSkillRando(self.skillArr,self.passiveSkillArr, self.innateSkillArr,self.configSettings)
         self.randomizeBosses()
 
+        
+        if self.configSettings.swapGuestsWithDemons:
+            for demon, guestID in self.guestReplacements.items():
+                if guestID < numbers.NORMAL_ENEMY_COUNT:
+                    self.encounterReplacements[guestID] = demon
+                else:
+                    self.bossReplacements[guestID] = demon
+
         #pprint(bossLogic.resistProfiles)
         if config.selfRandomizeNormalBosses or config.mixedRandomizeNormalBosses:
             self.patchBossFlags()
-            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap)
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap, self.guestReplacements)
         elif config.randomizeBossResistances or config.randomizeBossSkills:
-            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap)
+            bossLogic.patchSpecialBossDemons(self.bossArr, self.configSettings, self.compendiumArr,self.playerBossArr, self.skillReplacementMap, self.guestReplacements)
         
         self.updateUniqueSymbolDemons()
         if config.scaleBossDamage:
@@ -7369,19 +8029,6 @@ class Randomizer:
         
         if config.unlockFusions:
             self.removeFusionFlags()
-            
-        
-        if self.configSettings.randomShopItems:
-            self.randomizeShopItems(self.configSettings.scaleItemsToArea)
-        self.replaceSpyglassInShop()
-        self.adjustItemPrices()
-
-        
-        if self.configSettings.selfRandomizeNormalBosses or self.configSettings.mixedRandomizeNormalBosses or self.configSettings.selfRandomizeOverworldBosses or self.configSettings.mixedRandomizeOverworldBosses:
-            self.patchQuestBossDrops()
-        if self.configSettings.randomEnemyDrops:
-            self.randomizeBasicEnemyDrops(self.configSettings.scaleItemsToArea)
-            self.randomizeBossDrops(self.configSettings.scaleItemsToArea)
 
         if self.configSettings.reduceCompendiumCosts:
             self.reduceCompendiumCosts()
@@ -7403,7 +8050,33 @@ class Randomizer:
         
         scriptLogic.randomizeDemonJoins(self.encounterReplacements,config.ensureDemonJoinLevel,self.scriptFiles)
 
+        self.assembleNonRedoableItemIDs()
+        self.assembleValidityMaps()
         fakeMissions = self.randomizeItemRewards()
+        scriptLogic.adjustFirstMimanEventReward(self.scriptFiles)  
+
+        if self.configSettings.randomShopItems:
+            self.randomizeShopItems(self.configSettings.scaleItemsPerArea)
+        if config.randomShopEssences:
+            self.adjustShopEssences(self.shopArr, self.essenceArr, newComp, self.configSettings.scaleItemsPerArea)
+        self.replaceSpyglassInShop()
+        self.adjustItemPrices()
+
+        if self.configSettings.selfRandomizeNormalBosses or self.configSettings.mixedRandomizeNormalBosses or self.configSettings.selfRandomizeOverworldBosses or self.configSettings.mixedRandomizeOverworldBosses:
+            self.patchQuestBossDrops()
+
+        with open(paths.ITEM_DEBUG, 'w', encoding="utf-8") as file:
+            for category, checks in self.itemDebugList.items():
+                sortedChecks = sorted( checks, key = lambda x : x.ind )
+                for check in sortedChecks:
+                    items = [check.item] + check.additionalItems
+                    for index, item in enumerate(items):
+                        if check.hasOdds:
+                            line = "Category [" +category +"] CheckName ["+str(check.name) + "] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"] Odds [" +str(check.odds[index])+"]"
+                        else:
+                            #self.itemDebugList.append("Category [" +Check_Type.getCheckString(check.type) +"] CheckName ["+str(check.name) + "] ItemType [" + type(item).__name__ +"] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]")
+                            line = "Category [" +category +"] CheckName ["+str(check.name) + "] Item [" +item.name + "] Amount [" +str(item.amount) +"] Area [" + numbers.AREA_NAMES[check.area] +"]"
+                        file.write(line + "\n")
 
         self.addEntriesToMapSymbolScaleTable()
         self.scaleLargeSymbolDemonsDown()
@@ -7418,14 +8091,20 @@ class Randomizer:
             self.randomizeNavigatorAbilities()
         if self.configSettings.navigatorModelSwap: #Create naviReplacementMap before updating event and mission text
             self.changeNavigatorDemons()
-        message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings)
-        message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr])
-        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap)
-        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames)
+        message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings, self.playerBossArr, self.itemNames)
+        message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr],self.compendiumArr,self.enemyNames,self.configSettings)
+        message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap, self.playerBossArr, self.compendiumArr,self.progressionItemNewChecks)
+        message_logic.updateMissionEvents(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.configSettings.ensureDemonJoinLevel, self.brawnyAmbitions2SkillName, self.naviReplacementMap,self.itemReplacementMap, self.itemNames, self.playerBossArr, self.compendiumArr,self.progressionItemNewChecks, self.guestReplacements)
         #message_logic.addHintMessages(self.bossReplacements, self.enemyNames)
+        
+        #TODO: Maybe we should find a way to only write model swaps after to create two paks?
+        #That way it is easier to switch once issues occur
+        if self.configSettings.removeCutscenes or self.configSettings.skipTutorials:
+            #Needs to be before cutsceneswap to handle scripts that get edited in both
+            self.scriptFiles = scriptLogic.setCertainFlagsEarly(self.scriptFiles, self.mapEventArr, self.eventFlagNames, self.configSettings)
 
         if self.configSettings.swapCutsceneModels:
-            model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings, self.naviReplacementMap)
+            model_swap.updateEventModels(self.encounterReplacements, self.bossReplacements, self.scriptFiles, self.mapSymbolFile, self.configSettings, self.naviReplacementMap, self.guestReplacements)
 
         self.removeCalcOnlyMapSymbolScales()
         
@@ -7445,8 +8124,6 @@ class Randomizer:
             for skill in numbers.PHYSICAL_RATE_SKILLS:
                 self.obtainSkillFromID(skill).skillType = Translated_Value(14,'')
         
-        if self.configSettings.removeCutscenes or self.configSettings.skipTutorials:
-            self.scriptFiles = scriptLogic.setCertainFlagsEarly(self.scriptFiles, self.mapEventArr, self.eventFlagNames, self.configSettings)
         
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
         compendiumBuffer = self.updateBasicEnemyBuffer(compendiumBuffer, self.enemyArr)
@@ -7477,6 +8154,7 @@ class Randomizer:
         itemBuffer = self.updateConsumableData(itemBuffer, self.consumableArr)        
         mapEventBuffer = self.updateMapEventBuffer(mapEventBuffer)
         navigatorBuffer = self.updateNavigatorBuffer(navigatorBuffer)
+        vendingMachineBuffer = self.updateVendingMachineBuffer(vendingMachineBuffer)
 
         #self.printOutEncounters(newSymbolArr)
         #self.findUnlearnableSkills(skillLevels)
@@ -7496,7 +8174,6 @@ class Randomizer:
         writeFolder(paths.TITLE_TEXTURE_FOLDER_OUT)
 
         
-
         self.scriptFiles.writeFiles()
         del self.scriptFiles
 
@@ -7523,6 +8200,7 @@ class Randomizer:
         writeBinaryTable(mapSymbolParamBuffer.buffer, paths.MAP_SYMBOL_PARAM_OUT, paths.MOVER_PARAMTABLE_FOLDER_OUT)
         writeBinaryTable(mapEventBuffer.buffer, paths.MAP_EVENT_DATA_OUT, paths.MAP_FOLDER_OUT)
         writeBinaryTable(navigatorBuffer.buffer, paths.NAVIGATOR_DATA_OUT, paths.MAP_FOLDER_OUT)
+        writeBinaryTable(vendingMachineBuffer.buffer,paths.VENDING_MACHINE_OUT, paths.MAP_FOLDER_OUT)
         #copyFile(paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_IN, paths.EVENT_ENCOUNT_POST_DATA_TABLE_UASSET_OUT, paths.ENCOUNT_POST_TABLE_FOLDER_OUT)
         copyFile(paths.TITLE_TEXTURE_IN, paths.TITLE_TEXTURE_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
         copyFile(paths.TITLE_TEXTURE_UASSET_IN, paths.TITLE_TEXTURE_UASSET_OUT, paths.TITLE_TEXTURE_FOLDER_OUT)
@@ -7570,9 +8248,9 @@ class Randomizer:
     def printOutFusions(self, fusions):
         finalString = ""
         for fusion in fusions:
-            #finalString = finalString + self.compendiumArr[fusion.firstDemon.ind].race.translation + " " + fusion.firstDemon.translation + " + " + self.compendiumArr[fusion.secondDemon.ind].race.translation + " " + fusion.secondDemon.translation + " = " + self.compendiumArr[fusion.result.ind].race.translation + " " + fusion.result.translation + '\n'
-            finalString = finalString + fusion.firstDemon.translation + " + " + fusion.secondDemon.translation + " = " + fusion.result.translation + '\n'
-        with open(paths.FUSION_DEBUG, 'w', encoding="utf-8") as file:
+            finalString = finalString + self.compendiumArr[fusion.firstDemon.ind].race.translation + " " + fusion.firstDemon.translation + " + " + self.compendiumArr[fusion.secondDemon.ind].race.translation + " " + fusion.secondDemon.translation + " = " + self.compendiumArr[fusion.result.ind].race.translation + " " + fusion.result.translation + '\n'
+            #finalString = finalString +fusion.firstDemon.translation + " + " + fusion.secondDemon.translation + " = " + fusion.result.translation + '\n'
+        with open(paths.FUSION_DEBUG, 'a', encoding="utf-8") as file:
             file.write(finalString)
     
     '''
@@ -7654,7 +8332,8 @@ class Randomizer:
                     if skill.ind in allSkillIDs:
                         allSkillIDs.remove(skill.ind)
 
-
+        if len(allSkillIDs) > 0:
+            print("At least one skill was not assigned to a demon")
         for skillID in allSkillIDs:
             print(translation.translateSkillID(skillID,self.skillNames) + " " + str(skillID))
 
@@ -7753,7 +8432,7 @@ if __name__ == '__main__':
         if not rando.configSettings.fixUniqueSkillAnimations:
             print('"Fix unique skill animations" patch not applied. If the game appears to hang during a battle animation, press the skip animations button')
         print('\nRandomization complete! Place rando.pak in the Project/Content/Paks/~mods folder of your SMTVV game directory')
-        print('CurrentSeed, bossSpoilerLog, encounterResults and fusionResults can be found in the debug folder')
+        print('BossSpoilerLog, encounterResults, fusionResults and itemLog can be found in the debug folder')
        
     except RuntimeError:
         print('GUI closed - randomization was canceled')
@@ -7761,5 +8440,4 @@ if __name__ == '__main__':
         traceback.print_exc()
         print(e)
         print('Unexpected error occured, randomization failed.\nPlease retry with different settings or send a screenshot of this error to the SMT Rando Discord\n https://discord.gg/d25ZAha')
-    
     input('Press [Enter] to exit')

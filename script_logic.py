@@ -3,9 +3,8 @@ import os
 from util.binary_table import Table, readBinaryTable, writeBinaryTable, writeFolder
 import util.paths as paths
 import util.numbers as numbers
-from base_classes.script import Script_Function_Type, Script_Uasset, Script_Join_Type, Bytecode
+from base_classes.script import Script_Join_Type, Bytecode
 from base_classes.quests import Mission_Reward, Fake_Mission
-from base_classes.uasset_custom import UAsset_Custom
 from base_classes.file_lists import Script_File, Script_File_List
 from base_classes.settings import Settings
 import util.jsonExports as jsonExports
@@ -78,7 +77,7 @@ EXTRA_MISSION_IDS = {
     'MM_M035_EM1480': [-2], # The Seraph's Return
     'MM_M036_EM1490': [-3], # The Red Dragon's Invitation
     'MM_M061_EM1030': [-4], # Cursed Mermaids
-    #'MM_M061_EM2050': [-5], # Picture-Perfect Debut TODO:Neither the M061 nor the M050 version seem to edit the item correctly
+    'MM_M061_EM2050': [-5], # Picture-Perfect Debut
     'MM_M060_EM1310': [-6], # Downtown Rock 'n Roll
     'MM_M060_EM1370': [-7,-18], # Keeper of the North
     'MM_M061_EM1360': [-8], # Keeper of the West
@@ -95,6 +94,30 @@ EXTRA_MISSION_IDS = {
     'MM_M061_E2610' : [-20], #Isis Story Event in CoV (Part of Quest: Rescue Miyazu Atsuta)
     'MM_M061_EM0020': [-21], #The Angel's Request
 }
+
+EXTRA_MISSION_NAMES = {
+    'MM_M060_EM1601': "The Destined Leader (Bonus Reward)", # The Destined Leader
+    'MM_M035_EM1480': "The Seraph's Return (Bonus Reward)", # The Seraph's Return
+    'MM_M036_EM1490': "The Red Dragon's Invitation (Bonus Reward)", # The Red Dragon's Invitation
+    'MM_M061_EM1030': "Cursed Mermaids (Bonus Reward)", # Cursed Mermaids
+    'MM_M061_EM2050': "Picture-Perfect Debut (Bonus Reward)", # Picture-Perfect Debut
+    'MM_M060_EM1310': "Downtown Rock 'n Roll (Bonus Reward)", # Downtown Rock 'n Roll
+    'MM_M060_EM1370': "Keeper of the North (Bonus Reward)", # Keeper of the North
+    'MM_M061_EM1360': "Keeper of the West (Bonus Reward)", # Keeper of the West
+    'MM_M062_EM1340': "Keeper of the South (Bonus Reward)", # Keeper of the South
+    'MM_M063_EM1350': "Keeper of the East (Bonus Reward)", # Keeper of the East
+    'MM_M016_EM1450': "A Plot Revealed (Bonus Reward)", # A Plot Revealed
+    'MM_M061_EM1715': "Movin' on Up (Bonus Reward)", # Movin' on Up
+    'MM_M060_EM1460': "Gold Dragon's Arrival (Bonus Reward)", # Gold Dragon's Arrival
+    'MM_M063_EM1592': "A Power Beyond Control (Bonus Reward)", # A Power Beyond Control
+    'MM_M030_EM2610': "Holy Will and Profane Dissent (Bonus Reward)", # Holy Will and Profane Dissent
+    'MM_M030_EM2600': "Sakura Cinders of the East (Periapt Event) (Bonus Reward)", # Sakura Cinders of the East (Periapt Event)
+    'MM_M060_EM2351': "Rascal of the Norse (Bonus Reward)", # Rascal of the Norse
+    'MM_M060_EM1370_Direct': "Punishing Bishamonten Check", # Fighting Bishamonten without Quest(shares reward with quest)
+    'MM_M061_E2610' : "Rescue Miyazu Atsuta (Bonus Reward)", #Isis Story Event in CoV (Part of Quest: Rescue Miyazu Atsuta)
+    'MM_M061_EM0020': "The Angel's Request (Bonus Reward)", #The Angel's Request
+}
+
 #Ids of missions where the reward of fake mission should be added to info screen
 EXTRA_MISSION_MISSION_INFO_IDS = {
     -1: [74], # The Destined Leader
@@ -121,16 +144,17 @@ EXTRA_MISSION_MISSION_INFO_IDS = {
 
 #List of which areas rewards of fake missions are scaled after
 EXTRA_MISSION_REWARD_AREAS = {
-  16: [-2, -3, -11], #Empyrean
+  16: [-2, -3, -11,-15], #Empyrean
   35: [], #Temple of Eternity
   36: [], #Demon Kings Castle / Shakan
   38: [], #Demon Kings Castle / Shakan
-  60: [-1,-6,-7,-8,-9,-10,-13, -15, -17, -18,-19], #Taito
+  60: [-6,-7,-8,-9,-10,-13, -17, -18,-19], #Taito
   61: [-4,-12,-21], #Minato
   62: [-5], #Shinagawa
   63: [-14, -16], #Chiyoda
   64: [-20], #Shinjuku
-  107: [] #Demi-Fiend Area: same as Empyrean
+  107: [], #Demi-Fiend Area: same as Empyrean
+  960: [-1], #Taito (Post Keys)
 }
 
 #Items being gifted in each script
@@ -155,16 +179,55 @@ BASE_GIFT_ITEMS = {
     'BP_JakyoEvent_Comp_Complete': 720, #Twinned Throne Periapt
     'MM_M087_E2450_Direct': 4, #Bead (Dazai Gift Temple CoV)
     'MM_M061_EM0181': 4, #Bead (Amanozako Event)
+    'MM_M062_EM2060': 7, #Revival Bead ("Nice Terekke" Koropokkur in Area 2)
+
+    'MM_M060_E0778': 658, #Key of Austerity (Vasuki Post Fight Event)
+    'MM_M060_E0790': 659, #Key of Benevolence (Coc Zeus Post Fight)
+    'MM_M060_E0810': 660, #Key of Harmony (CoC Odin Post Fight)
+
 }
+GIFT_NAMES = {
+    'esNPC_m061_31a' : "NPC Rakshasa (Jaki Talisman)",
+    'esNPC_m061_30a': "NPC Slime (Foul Talisman)",
+    'esNPC_m061_34a': "NPC Pixie (Pixie Periapt)", 
+    'BP_esNPC_TokyoMap_15b': "NPC Jack Frost (Mischievous Mascot Periapt)", 
+    'esNPC_m062_32a': "NPC Nue (Wilder Talisman)", 
+    'esNPC_m062_33a': "NPC Angel (Divine Talisman)", 
+    'esNPC_m062_40a': "NPC Slime (Amorphous Periapt)", 
+    'esNPC_m063_20a': "NPC Yurlungur (Snake Talisman)", 
+    'esNPC_m063_21a': "NPC Setanta (Shadow Warrior Periapt)", 
+    'esNPC_m060_10a': "NPC Orthrus (Children of Echidna Periapt)", 
+    'esNPC_m016_02a': "NPC Ongyo-Ki (Elemental Oni Periapt)", 
+    'MM_M062_EM1132': "NPC Cait Sith (Grimalkin Periapt)", 
+    'MM_M060_E0763': "Story Entering Taito (Panagia Talisman)", 
+    'MM_M064_E2797': "Government Building (Qadistu Talisman)", 
+    'MM_M064_E2797_PERIAPT': "Government Building (Qadistu Periapt)", 
+    'MM_M064_E2795_Direct': "Story Tsukuyomi Fusion (Tsukuyomi Talisman)", 
+    'BP_JakyoEvent': "Unlock Lucifer (Devil Talisman)", 
+    'BP_JakyoEvent_Comp_Complete': "100% Compendium (Twinned Throne Periapt)", 
+    'MM_M087_E2450_Direct': "Story Gift from Dazai (Bead)", 
+    'MM_M061_EM0181': "Story Amanozako Gift (Bead)", 
+    'MM_M062_EM2060': "Koropokkur Jump (Revival Bead)",
+
+    'MM_M060_E0778': "Story Beating Vasuki/Beelzebub (Key of Austerity)", 
+    'MM_M060_E0790': "Story Beating Zeus (Key of Benevolence)", 
+    'MM_M060_E0810': "Story Beating Odin (Key of Harmony)", 
+
+}
+
+#TODO: List of scripts that are in two places so technically duplicated
+#Not mandatory but makes checks a tad cleaner to understand what needs duplication
+#Snake Talisman script is just one script which is used for Chiyoda and Shinjuku for example
+
 # Areas the gifts are scaled after if they are not containing a key item
 GIFT_AREAS = {
   16: ['esNPC_m016_02a','BP_JakyoEvent','BP_JakyoEvent_Comp_Complete'], #Empyrean
   35: [], #Temple of Eternity
   36: ['MM_M064_E2797','MM_M064_E2797_PERIAPT','MM_M064_E2795_Direct'], #Demon Kings Castle / Shakan
   38: [], #Demon Kings Castle / Shakan
-  60: ['esNPC_m060_10a','MM_M062_EM1132','MM_M060_E0763'], #Taito
+  60: ['esNPC_m060_10a','MM_M060_E0763','MM_M060_E0778','MM_M060_E0790','MM_M060_E0810'], #Taito
   61: ['esNPC_m061_31a','esNPC_m061_30a','esNPC_m061_34a','MM_M061_EM0181'], #Minato
-  62: ['esNPC_m062_32a','esNPC_m062_33a','esNPC_m062_40a'], #Shinagawa
+  62: ['esNPC_m062_32a','esNPC_m062_33a','esNPC_m062_40a','MM_M062_EM1132','MM_M062_EM2060'], #Shinagawa
   63: ['BP_esNPC_TokyoMap_15b','esNPC_m063_20a','esNPC_m063_21a','MM_M087_E2450_Direct'], #Chiyoda
   64: [], #Shinjuku
   107: [] #Demi-Fiend Area: same as Empyrean
@@ -178,25 +241,38 @@ GIFT_EQUIVALENT_SCRIPTS = {
     'BP_esNPC_TokyoMap_15b' : ['BP_esNPC_TokyoMap_15b2','BP_esNPC_TokyoMap_15c'],
     'esNPC_m016_02a' : ['esNPC_m016_02b'],
     'MM_M060_E0763' : ['MM_M060_E3001_Direct'],
+    'MM_M060_E0778': ['MM_M060_E3110_Direct'],
+    'MM_M060_E0790': ['MM_M060_E3130_Direct'],
+    'MM_M060_E0810': ['MM_M060_E3130_Direct_2']
 }
 # Scripts that use the same script file, for different rewards
 # Extra -> Original
 GIFT_EXTRA_SCRIPTS = {
     'MM_M064_E2797_PERIAPT' : 'MM_M064_E2797',
     'BP_JakyoEvent_Comp_Complete': 'BP_JakyoEvent',
+    'MM_M060_E3130_Direct_2': 'MM_M060_E3130_Direct'
+}
+
+DEFAULT_ITEM_VAR = {
+    'MM_M062_EM2060': 'GiftItemID'
 }
 
 #Odds that a non key gift contains an essence
 GIFT_ESSENCE_ODDS = 0.7 #Completely made up, but essence should be more likely for now since amount is fixed currently
+GIFT_RELIC_ODDS = 0.0025 #Really low chance, completely made up
 
 #List of gifts only obtainable in canon of vengeance
+#The Empyrean keys do not count as exclusive cause their reward is shared with a duplicate
 VENGEANCE_EXCLUSIVE_GIFTS = ['MM_M064_E2797','MM_M064_E2797_PERIAPT','MM_M064_E2795_Direct','MM_M087_E2450_Direct']
 #List of gifts that require a cleared game file
 NEWGAMEPLUS_GIFTS = ['BP_JakyoEvent_Comp_Complete', 'BP_JakyoEvent']
 #List of gifts that can be missed
-MISSABLE_GIFTS = ['MM_M061_EM0181']
+MISSABLE_GIFTS = []
+#List of gift that can be repeated
+REPEATABLE_GIFTS = ['MM_M062_EM2060']
 #Script for the Tsukuyomi Talisman
 TSUKUYOMI_TALISMAN_SCRIPT = 'MM_M064_E2795_Direct'
+EMPYREAN_KEY_SCRIPTS = ['MM_M060_E0778','MM_M060_E0790','MM_M060_E0810']
 
 #Message files for the event in which item names need to be replaced
 ITEM_MESSAGE_REPLACEMENTS = {
@@ -232,6 +308,153 @@ ALLY_SCRIPTS = {
     "190" : ['BtlAI_TiamatNkmBase'],
     "191" : ['BtlAI_TiamatNkmBase'],
 }
+
+FLAGGROUPS = {
+    "npc_school": [
+        "MAP_FLAG_P_E0171","MAP_FLAG_P_E0172","MAP_FLAG_P_E0173","MAP_FLAG_P_E0170_Finish","MAP_FLAG_P_E0171_Finish",
+        "MAP_FLAG_E0171","MAP_FLAG_E0172","MAP_FLAG_E0173","MAP_FLAG_E0170_Finish","MAP_FLAG_E0171_Finish"
+        #These Do not change anything, maybe something missing to trigger Yuzuru Meeting event automatically? If even possible this way
+        # "MAP_FLAG_E0171_Finish","MAP_FLAG_P_E0171_Finish",
+        # "MAP_FLAG_P_E0174","MAP_FLAG_E0174",
+    ],
+    "pre_dazai_tunnel": [
+        "MAP_FLAG_E0186", #Overworld Tutorial
+        "MAP_FLAG_P_E0186",
+        "MAP_FLAG_E0190", "MAP_FLAG_E0192", "MAP_FLAG_E0191","MAP_FLAG_E0195",
+        "MAP_FLAG_P_E0190","MAP_FLAG_P_E0191","MAP_FLAG_P_E0192","MAP_FLAG_P_E0195", "script_NPC_m083_10",
+        "script_m083_E0195_02",
+    ],
+    "first_stretch_tutorials": [
+        "script_m061_mm_018",
+        "script_m061_mm_019", #Magatsuhi Crystal Tutorial
+        "script_m061_mm_020","script_m061_mm_021","script_m061_mm_026",
+        "MAP_FLAG_P_EM0002",#Magatsuhi Crystal Tutorial
+        "MAP_FLAG_P_EM0001","MAP_FLAG_P_EM0003","MAP_FLAG_P_EM0004","MAP_FLAG_P_EM0005",
+    ],
+    "lay_of_the_land": ["script_m061_mm_001","MAP_FLAG_P_EM0010",],
+    "first_leyline": ["sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014",],
+    #"MAP_FLAG_P_E0035","MAP_FLAG_P_E0031","MAP_FLAG_RyuketsuOpen_Tamachi","MAP_FLAG_Daath1_OneWay"
+    "miman_tutorial": [
+        "script_m061_mm_014",#"script_m061_mm_014_2", #This one is also responsible for the 1 miman reward scene, by not skipping it the first visit to Gustave gives reward immediately
+        "MAP_FLAG_P_EM0018","script_m061_mm_009",
+        ],
+    "tutorial_group_2": [
+        #Skyview Tutorial
+        "scriptflagp0513_SkyView","scriptflagp0517_SkyView_P",
+
+        #Tutorials (Slash, UniqueSymbol,AogamiDebris)
+        "script_m061_mm_011","script_m061_mm_030","MAP_FLAG_E2006",
+
+        #Tutorials CoV (Slash, UniqueSymbol,AogamiDebris)
+        "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020","MAP_FLAG_P_E2006",
+        #Abcess Tutorial, Magatsu Rail (Vengeance too)
+        "script_m061_mm_013", "MAP_FLAG_P_EM0012", "scriptflagp0514_Magatsuro", "scriptflagp0518_Magatsuro_P",
+        #Magatsuhi Demon Tutorial
+        "scriptflagp0516_MagaDevil","scriptflagp0520_MagaDevil_P",
+        #Subquest Tutorial
+        "script_m061_mm_005","MAP_FLAG_P_EM0013",
+        #Various Tutorial Pop-ups #TODO I think these just decide which Tutorial to play? So no point?
+        "sflag0089_AmuletTutorial","sflag0090_AmuletTutorial",
+    ],
+    "mita_leyline": ["MAP_FLAG_P_E0250","MAP_FLAG_P_E0251","MAP_FLAG_P_E0243",
+        "script_m061_mm_012","script_m061_mm_016","MAP_FLAG_E0243",
+        ],
+    "yuzuru_train": [
+        #CoC Yuzuru Train Event
+        "MAP_FLAG_E0260","script_m061_mm_004",
+    ],
+    "demon_of_tower": [
+        #Demon of the Tower
+        "script_m061_mm_031","MAP_FLAG_P_EM0021",
+    ],
+    "meeting_goko": [
+        #Goko Meeting Movie
+        "MAP_FLAG_E0300","MAP_FLAG_P_E0300",
+        "MAP_FLAG_P_EM0027","script_m061_mm_024",
+    ],
+    "post_nuwa_1":[
+        #Post Nuwa Dazai Scene
+        #"MAP_FLAG_P_E0345","MAP_FLAG_E0345",
+
+        #Zako Leaves Should not be skipped, but is triggered by  Post Nuwa Dazai Scene anyway
+        #"script_m061_mm_002","MAP_FLAG_P_EM0019",
+        #Arriving in Tokyo after Abdiel Scene (Allows you to enter Tokyo without going up to meeting)
+        # CoV
+        "MAP_FLAG_P_E0360", "MAP_FLAG_P_E0360_4", "mis_m085_em2180_0","BossRush_1_Open", 
+        "MAP_FLAG_P_E0360_5", "MAP_FLAG_P_E0360_3", "MAP_FLAG_P_E0360_2", 
+        "MAP_FLAG_P_E0360_Finish","MAP_FLAG_P_E0360_End",
+        #CoC
+        "MAP_FLAG_E0360_es605","MAP_FLAG_E0360_es609","MAP_FLAG_E0360_es611"
+        "MAP_FLAG_E0360","MAP_FLAG_E0361","MAP_FLAG_E0360_0","MAP_FLAG_E0361_2"
+        
+        #Tokyo "normal" school section 
+        # CoC
+        "MAP_FLAG_E0362","MAP_FLAG_E0363","MAP_FLAG_E0364","MAP_FLAG_E0365","MAP_FLAG_E0366",
+        "MAP_FLAG_E0367","MAP_FLAG_E0363_2","MAP_FLAG_E0364_2",
+        "MAP_FLAG_EN0155_Old"
+        # CoV
+        "MAP_FLAG_E2049", # entering dorm room
+        "MAP_FLAG_EN0152","MAP_FLAG_EN0155","MAP_FLAG_E2051",
+        "MAP_FLAG_EN0155_EX", # entering school
+        "MAP_FLAG_EN0155_2","script_m082_Npc606_off", # itsukishima event 1
+        "MAP_FLAG_EN0155_4","mis_m061_em1400_miya05","mis_m082_em2080","mis_m082_em2082","mis_m080_em2080_1","mis_m080_em2080_2", #miyazu quest start
+        "MAP_FLAG_EN0155_3", # dazai school stop
+        "MAP_FLAG_EN0160","MAP_FLAG_EN0160_EX","mis_m082_em2080_NPC", # yoko school transfer
+        "MAP_FLAG_EN0160_2", # tao school stop
+        "MAP_FLAG_EN0160_3", # nurse
+        "MAP_FLAG_EN0161", # yuzuru school stop
+        "mis_m082_em2081", # required to complete Miyazu quest instantly
+    ],
+    "false_tutorials_and_locks":[
+        "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock","sflag0012_CampQuestLock",
+        #Cathedral of Shadows, Leyline Travel, Rails
+        "sflag0021_JakyoLock","sflag0020_RyuketsuWarpLock","sflag0093_CoasterLock",
+        #Demon Haunt (TalkingToAogami), 
+        "sflag0030_GardenLock","sflag0109_GardenTutorial",
+        #Navi Tutorial, Magatsuhi Devil
+        "pflag0018_NaviTutorial_Outer","pflag0019_NaviTutorial_Inner","MAP_FLAG_MagatsuhiDevilLock",
+        #Fusion Cutscene Skips #TODO: Maybe these always?
+        "pflag0024_FirstUnite","pflag0025_FirstUniteAccident",
+    ],
+    #These are not tested yet, just on the fly noting them down
+    # "pre_taito_creation": [
+    #     "MAP_FLAG_E0700","MAP_FLAG_E0701" #Dorm roof with Yuzuru and Dazai
+    #     "MAP_FLAG_E0730","MAP_FLAG_E0735", #War of the Gods (second maybe not?)
+    #     "MAP_FLAG_E0736", #Dazai/Abdiel post summit
+
+    #     
+    # ],
+    # "taito_creation": [
+    #     "MAP_FLAG_E0761", #Aogami asks alignement question?
+
+    #     "script_m062_em0145", #Zako greek area
+    #     "script_m062_em0147", #Zako nordic area
+
+    #     "MAP_FLAG_E0765", #Dazai hat scene
+    # ]
+}
+
+#Assining groups of flags to event scripts
+EVENTGROUPS = {
+    "MM_M0082_E0171_First": [
+        "npc_school","pre_dazai_tunnel","first_stretch_tutorials","lay_of_the_land","first_leyline",
+        "miman_tutorial","tutorial_group_2","mita_leyline","yuzuru_train","demon_of_tower","false_tutorials_and_locks",
+        ],
+    "MM_M061_EM0026": [
+        "meeting_goko","post_nuwa_1"
+        ],
+}
+
+#Scripts and in which functions we can insert safely
+SCRIPTS_TO_INSERT_INTO = {
+    "MM_M0082_E0171_First": ["ReceiveBeginPlay"],
+    "MM_M061_EM0026": ["E2019_Event","EvtDis_Finish_Complete"],
+    }
+
+#Groups that are relevant for tutorials
+TUTORIAL_GROUPS = [
+    "false_tutorials_and_locks","tutorial_group_2","miman_tutorial","first_stretch_tutorials","mita_leyline"
+]
 
 '''
 Returns the original script that is used as the base for a script with equivalent reward.
@@ -355,7 +578,7 @@ def updateDemonJoinInScript(file, oldDemonID, newDemonID, joinType,scriptName):
     file.updateFileWithJson(jsonData)                    
 
 '''
-Changes the reward for collecting the first miman which is rewarded via an reward.
+Changes the reward for collecting the first miman to the return Pillar.
     Parameters:
         config (Settings): randomization settings
         itemNames (List(String)): list of names of items
@@ -363,25 +586,11 @@ Changes the reward for collecting the first miman which is rewarded via an rewar
         essenceArr (List(Essence)): list of essences
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
-def adjustFirstMimanEventReward(config, itemNames, replacements, essenceArr, scriptFiles):
+def adjustFirstMimanEventReward(scriptFiles):
     #Grab file from file list
     file = scriptFiles.getFile('BP_ShopEvent')
 
     ogEssenceID = 496 #Id for Onmoraki's Essence
-    # essenceID = 496 #Start with Onmoraki's Essence and change value later
-    # if config.randomizeMimanRewards and not config.scaleItemsToArea:
-    #     #Grab random essence if item rewards not scaling
-    #     validEssences = []
-    #     for itemID, itemName in enumerate(itemNames): #Include all essences in the pool except Aogami/Tsukuyomi essences and demi-fiend essence
-    #         if 'Essence' in itemName and itemID not in numbers.BANNED_ESSENCES:
-    #             validEssences.append(itemID)
-    #     essenceID = random.choice(validEssences)
-    # elif (config.randomDemonLevels or config.randomizeMimanRewards) and config.scaleItemsToArea:
-    #     #Grab essence for Onmoraki's Replacement
-    #     demonID = replacements[290]
-    #     for essence in essenceArr:
-    #         if essence.demon.value == demonID:
-    #             essenceID = essence.ind
     essenceID = 70 #Return Pillar
 
     updateItemRewardInScript(file, ogEssenceID, essenceID, 'BP_ShopEvent')
@@ -398,62 +607,73 @@ Updates the old item given through the script to the new item.
 '''
 def updateItemRewardInScript(file, oldItemID, newItemID,scriptName,newItemAmount = 1):
     jsonData = file.json
-    bytecode = None
-    try: #get bytecode if UAssetAPI can parse it
-        exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
-        executeUbergraph = "ExecuteUbergraph_" + scriptName
-        exportIndex = exportNameList.index(executeUbergraph)
+    if scriptName in DEFAULT_ITEM_VAR.keys(): 
+        searchName = DEFAULT_ITEM_VAR[scriptName]
+        relevantExportName = "Default__" + scriptName + "_C" #Export name for script data
+        relevantExport = next(exp for exp in jsonData["Exports"] if exp['ObjectName'] == relevantExportName)
+        
+        for data in relevantExport['Data']:
+            if data['Name'] == searchName: #The value here is unique per script so no need to check for old demon ID
+                if data['Value'] == oldItemID:
+                    data['Value'] = newItemID
 
-        bytecode = Bytecode(jsonData["Exports"][exportIndex]['ScriptBytecode'])
-    except KeyError: #otherwise stop and note error
-        print("Script Byte Code only in raw form")
-        return
-    
-    relevantImportNames = ['ItemGet','ItemGetNum']
-    relevantFunctionNames = ['IItemWindowSetParameter', 'IMsgSetRichTextValueParam']
-
-    #grab original function calls, so that only calls for the original item get replaced to prevent chain replacements
-    if scriptName not in ORIGINAL_SCRIPT_FUNCTION_CALLS.keys():
-        ogFunctionCalls = getOriginalFunctionCalls(jsonData,bytecode, relevantImportNames,relevantFunctionNames)
-        ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName] = ogFunctionCalls
     else:
-        ogFunctionCalls = ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName]
-    importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
-    #These Imports are functions where the demon id to join gets passed as parameter
-    
-    relevantImports = {}
-    for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
-        if imp in importNameList:
-            relevantImports[imp] = -1 * importNameList.index(imp) -1
-    for imp,stackNode in relevantImports.items():
-            expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
-            expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_FinalFunction', stackNode))
-            ogExpressions = ogFunctionCalls[imp]
+        bytecode = None
+        try: #get bytecode if UAssetAPI can parse it
+            exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
+            executeUbergraph = "ExecuteUbergraph_" + scriptName
+            exportIndex = exportNameList.index(executeUbergraph)
+
+            bytecode = Bytecode(jsonData["Exports"][exportIndex]['ScriptBytecode'])
+        except KeyError: #otherwise stop and note error
+            print("Script Byte Code only in raw form")
+            return
+        
+        relevantImportNames = ['ItemGet','ItemGetNum']
+        relevantFunctionNames = ['IItemWindowSetParameter', 'IMsgSetRichTextValueParam']
+
+        #grab original function calls, so that only calls for the original item get replaced to prevent chain replacements
+        if scriptName not in ORIGINAL_SCRIPT_FUNCTION_CALLS.keys():
+            ogFunctionCalls = getOriginalFunctionCalls(jsonData,bytecode, relevantImportNames,relevantFunctionNames)
+            ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName] = ogFunctionCalls
+        else:
+            ogFunctionCalls = ORIGINAL_SCRIPT_FUNCTION_CALLS[scriptName]
+        importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+        #These Imports are functions where the demon id to join gets passed as parameter
+        
+        relevantImports = {}
+        for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
+            if imp in importNameList:
+                relevantImports[imp] = -1 * importNameList.index(imp) -1
+        for imp,stackNode in relevantImports.items():
+                expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+                expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_FinalFunction', stackNode))
+                ogExpressions = ogFunctionCalls[imp]
+                for index,exp in enumerate(expressions):
+                    ogItemValue = ogExpressions[index]['Parameters'][0].get('Value')
+                    if ogItemValue == oldItemID:
+                        exp['Parameters'][0]['Value']= newItemID
+                        #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
+                        if imp == 'ItemGet':
+                            exp['Parameters'][1]['Value']= newItemAmount
+        
+        
+        for func in relevantFunctionNames:
+            expressions = bytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
+            ogExpressions = ogFunctionCalls[func]
             for index,exp in enumerate(expressions):
-                ogItemValue = ogExpressions[index]['Parameters'][0].get('Value')
-                if ogItemValue == oldItemID:
-                    exp['Parameters'][0]['Value']= newItemID
-                    #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
-                    if imp == 'ItemGet':
-                        exp['Parameters'][1]['Value']= newItemAmount
-    
-    
-    for func in relevantFunctionNames:
-        expressions = bytecode.findExpressionUsage("UAssetAPI.Kismet.Bytecode.Expressions.EX_LocalVirtualFunction", virtualFunctionName= func)
-        ogExpressions = ogFunctionCalls[func]
-        for index,exp in enumerate(expressions):
-            if func == 'IItemWindowSetParameter':
-                ogItemValue = ogExpressions[index]['Parameters'][0].get('Value')
-                itemValue = exp['Parameters'][0].get('Value')
-                if ogItemValue == oldItemID:
-                    exp['Parameters'][0]['Value']= newItemID
-                    #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
-            if func == 'IMsgSetRichTextValueParam':
-                ogItemValue = ogExpressions[index]['Parameters'][1].get('Value')
-                itemValue = exp['Parameters'][1].get('Value')
-                if ogItemValue == oldItemID:
-                    exp['Parameters'][1]['Value']= newItemID
-                    #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
+                if func == 'IItemWindowSetParameter':
+                    ogItemValue = ogExpressions[index]['Parameters'][0].get('Value')
+                    itemValue = exp['Parameters'][0].get('Value')
+                    if ogItemValue == oldItemID:
+                        exp['Parameters'][0]['Value']= newItemID
+                        #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
+                if func == 'IMsgSetRichTextValueParam':
+                    ogItemValue = ogExpressions[index]['Parameters'][1].get('Value')
+                    itemValue = exp['Parameters'][1].get('Value')
+                    if ogItemValue == oldItemID:
+                        exp['Parameters'][1]['Value']= newItemID
+                        #print(scriptName + ": " + str(oldItemID) + " -> " + str(newItemID))
     file.updateFileWithJson(jsonData)
 
 '''
@@ -497,6 +717,7 @@ def createFakeMissionsForEventRewards(scriptFiles):
             fakeMission.ind = index
             fakeMission.reward = EXTRA_MISSION_REWARDS[fakeMission.ind]
             fakeMission.originalReward = copy.deepcopy(fakeMission.reward)
+            fakeMission.name = EXTRA_MISSION_NAMES[script]
 
             file = scriptFiles.getFile(script)
             jsonData = file.json
@@ -1033,116 +1254,6 @@ Set certain event flags early in order to skip events/tutorials.
         configSettings (Settings): settings to control which flags are set
 '''
 def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSettings: Settings):
-
-    #TODO: Maybe move these somewhere else?
-    FLAGGROUPS = {
-        "npc_school": [
-            "MAP_FLAG_P_E0171","MAP_FLAG_P_E0172","MAP_FLAG_P_E0173","MAP_FLAG_P_E0170_Finish",
-            "MAP_FLAG_E0171","MAP_FLAG_E0172","MAP_FLAG_E0173","MAP_FLAG_E0170_Finish",
-            #These Do not change anything, maybe something missing to trigger Yuzuru Meeting event automatically? If even possible this way
-            # "MAP_FLAG_E0171_Finish","MAP_FLAG_P_E0171_Finish",
-            # "MAP_FLAG_P_E0174","MAP_FLAG_E0174",
-        ],
-        "pre_dazai_tunnel": [
-            "MAP_FLAG_E0186",
-            "MAP_FLAG_P_E0186",
-            "MAP_FLAG_E0190","MAP_FLAG_E0190_npc", "MAP_FLAG_E0192", "MAP_FLAG_E0191","MAP_FLAG_E0195",
-            "MAP_FLAG_P_E0190","MAP_FLAG_P_E0191","MAP_FLAG_P_E0192","MAP_FLAG_P_E0195",
-        ],
-        "first_stretch_tutorials": [
-            "script_m061_mm_018",
-            "script_m061_mm_019", #Magatsuhi Crystal Tutorial
-            "script_m061_mm_020","script_m061_mm_021","script_m061_mm_026",
-            "MAP_FLAG_P_EM0002",#Magatsuhi Crystal Tutorial
-            "MAP_FLAG_P_EM0001","MAP_FLAG_P_EM0003","MAP_FLAG_P_EM0004","MAP_FLAG_P_EM0005",
-        ],
-        "lay_of_the_land": ["script_m061_mm_001","MAP_FLAG_P_EM0010",],
-        "first_leyline": ["sflag0018_FirstShop","MAP_FLAG_E0251","MAP_FLAG_P_EM0014",],
-        "miman_tutorial": [
-            "script_m061_mm_014",#"script_m061_mm_014_2", #This one is also responsible for the 1 miman reward scene, by not skipping it the first visit to Gustave gives reward immediately
-            "MAP_FLAG_P_EM0018","script_m061_mm_009",
-            ],
-        "tutorial_group_2": [
-            #Skyview Tutorial
-            "scriptflagp0513_SkyView","scriptflagp0517_SkyView_P",
-
-            #Tutorials (Slash, UniqueSymbol,AogamiDebris)
-            "script_m061_mm_011","script_m061_mm_030","MAP_FLAG_E2006",
-
-            #Tutorials CoV (Slash, UniqueSymbol,AogamiDebris)
-            "MAP_FLAG_P_EM0016","MAP_FLAG_P_EM0020","MAP_FLAG_P_E2006",
-            #Abcess Tutorial, Magatsu Rail (Vengeance too)
-            "script_m061_mm_013", "MAP_FLAG_P_EM0012", "scriptflagp0514_Magatsuro", "scriptflagp0518_Magatsuro_P",
-            #Magatsuhi Demon Tutorial
-            "scriptflagp0516_MagaDevil","scriptflagp0520_MagaDevil_P",
-            #Subquest Tutorial
-            "script_m061_mm_005","MAP_FLAG_P_EM0013",
-            #Various Tutorial Pop-ups #TODO I think these just decide which Tutorial to play? So no point?
-            "sflag0089_AmuletTutorial","sflag0090_AmuletTutorial",
-        ],
-        "mita_leyline": ["MAP_FLAG_P_E0250","MAP_FLAG_P_E0251","MAP_FLAG_P_E0243",
-            "script_m061_mm_012","script_m061_mm_016","MAP_FLAG_E0243",
-            ],
-        "yuzuru_train": [
-            #CoC Yuzuru Train Event
-            "MAP_FLAG_E0260","script_m061_mm_004",
-        ],
-        "demon_of_tower": [
-            #Demon of the Tower
-            "script_m061_mm_031","MAP_FLAG_P_EM0021",
-        ],
-        "meeting_goko": [
-            #Goko Meeting Movie
-            "MAP_FLAG_E0300","MAP_FLAG_P_E0300",
-            "MAP_FLAG_P_EM0027","script_m061_mm_024",
-        ],
-        "post_nuwa_1":[
-            #Post Nuwa Dazai Scene
-            #"MAP_FLAG_P_E0345","MAP_FLAG_E0345",
-
-            #Zako Leaves Should not be skipped, but is triggered by  Post Nuwa Dazai Scene anyway
-            #"script_m061_mm_002","MAP_FLAG_P_EM0019",
-            #Arriving in Tokyo after Abdiel Scene
-            #Re-investigate this since this way the simulator battles do not become available
-            #"MAP_FLAG_E0360_es605",
-            #"MAP_FLAG_E0360_0","MAP_FLAG_E0360","MAP_FLAG_E0360_es611","MAP_FLAG_E0360_es609",
-        ],
-        "false_tutorials_and_locks":[
-            "sflag0011_MagatsuhiGaugeLock","MAP_FLAG_PieceLock","sflag0012_CampQuestLock",
-            #Cathedral of Shadows, Leyline Travel, Rails
-            "sflag0021_JakyoLock","sflag0020_RyuketsuWarpLock","sflag0093_CoasterLock",
-            #Demon Haunt (TalkingToAogami), 
-            "sflag0030_GardenLock","sflag0109_GardenTutorial",
-            #Navi Tutorial, Magatsuhi Devil
-            "pflag0018_NaviTutorial_Outer","pflag0019_NaviTutorial_Inner","MAP_FLAG_MagatsuhiDevilLock",
-        ]
-    }
-
-    #Assining groups of flags to event scripts
-    EVENTGROUPS = {
-        "MM_M0082_E0171_First": [
-            "npc_school","pre_dazai_tunnel","first_stretch_tutorials","lay_of_the_land","first_leyline",
-            "miman_tutorial","tutorial_group_2","mita_leyline","yuzuru_train","demon_of_tower","false_tutorials_and_locks",
-            ],
-        "MM_M061_EM0026": [
-            "meeting_goko","post_nuwa_1"
-            ],
-    }
-
-    #Scripts and in which functions we can insert safely
-    SCRIPTS_TO_INSERT_INTO = {
-        "MM_M0082_E0171_First": ["ReceiveBeginPlay"],
-        "MM_M061_EM0026": ["E2019_Event","EvtDis_Finish_Complete"],
-        }
-    
-    #Groups that are relevant for tutorials
-    TUTORIAL_GROUPS = [
-        "false_tutorials_and_locks","tutorial_group_2","miman_tutorial","first_stretch_tutorials","mita_leyline"
-    ]
-
-    #TODO: Remove and instead check for tutorial groups later
-    TUTORIAL_RELATED_FLAGS = [flag for group in TUTORIAL_GROUPS for flag in FLAGGROUPS[group] ]
-
     for script,hookFuncs in SCRIPTS_TO_INSERT_INTO.items():
 
         file = scriptFiles.getFile(script)
@@ -1150,7 +1261,7 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
         jsonData = file.json
         file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
 
-        if "BPL_EventFlag" not in file.importNameList:
+        if "BPL_EventFlag" not in file.importNameList: #Adding classes/functions we need
             stackNode = file.importNameList.index("/Script/Project") * -1 -1
             file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_EventFlag", False)
             file.importNameList.append("BPL_EventFlag")
@@ -1168,6 +1279,7 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
             file.exportIndex = file.exportNameList.index(hookFunc)
             bytecode = Bytecode(jsonData["Exports"][file.exportIndex]['ScriptBytecode'])
             
+            #Grab the required value for SetEventFlagValue
             file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
             imp = "SetEventFlagValue"
             stackNode = -1 * file.importNameList.index(imp) -1
@@ -1176,8 +1288,10 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
             for flag,group in flaglist:
                 if flag not in eventFlagNames.keys():
                     continue
-                if not configSettings.skipTutorials and flag in TUTORIAL_RELATED_FLAGS or flag not in TUTORIAL_RELATED_FLAGS and not configSettings.removeCutscenes:
+                if not configSettings.skipTutorials and group in TUTORIAL_GROUPS or group not in TUTORIAL_GROUPS and not configSettings.removeCutscenes:
                     continue
+
+                #print(flag + " (" + group + ") updated")
 
                 # if flag not in  jsonData["NameMap"]:
                 #     jsonData["NameMap"].append(flag)
@@ -1186,14 +1300,15 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
                 nameConst["Value"] = eventFlagNames[flag]
 
                 if "false" in group:
-                    localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen(False)])
+                    #Set flag to false
+                    localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolean(False)])
                 else:
-                    localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolen()])
+                    localFinalFunction = jsonExports.getImportedFunctionCall(stackNode, [nameConst,jsonExports.getBytecodeBoolean()])
                 bytecode.json.insert(0,localFinalFunction)
         
         file.updateFileWithJson(jsonData)
         scriptFiles.setFile(script,file)
-        scriptFiles.writeFile(script,file)
+        #scriptFiles.writeFile(script,file)
 
     #Modify Event where Amanozako joins to not start Haunt Tutorial
     if configSettings.skipTutorials:
@@ -1223,6 +1338,124 @@ def setCertainFlagsEarly(scriptFiles, mapEventArr, eventFlagNames, configSetting
 
     return scriptFiles
 
-#TODO: Could increase skip step by 1 for LV_EXXX files so movie events skip to choices immediately instead of the line before them, though akward to look at
+'''
+Modifies the main events in Taito so owning all 3 keys is required, instead of depending on the flags set.
+    Parameters:
+        scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+'''
+def modifyEmpyreanKeyEvents(scriptFiles):
+    #Start by modyfing CoC/CoV "Wall" Event
+    script = "MM_M060_E0815"
+    file = scriptFiles.getFile(script)
+    file: Script_File
+    jsonData = file.json
+    file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+
+    if "BPL_EventFlag" not in file.importNameList: #Adding classes/functions we need
+        stackNode = file.importNameList.index("/Script/Project") * -1 -1
+        file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_EventFlag", False)
+        file.importNameList.append("BPL_EventFlag")
+    if "SetEventFlagValue" not in file.importNameList:
+        stackNode = file.importNameList.index("BPL_EventFlag") * -1 -1
+        file.addImport("/Script/CoreUObject", "Function",stackNode , "SetEventFlagValue", False)
+        file.importNameList.append("SetEventFlagValue")
+
+    if "BPL_MissionData" not in file.importNameList: #Adding classes/functions we need
+        stackNode = file.importNameList.index("/Script/Project") * -1 -1
+        file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_MissionData", False)
+        file.importNameList.append("BPL_MissionData")
+    if "CheckMissionCompleteCond" not in file.importNameList:
+        stackNode = file.importNameList.index("BPL_MissionData") * -1 -1
+        file.addImport("/Script/CoreUObject", "Function",stackNode , "CheckMissionCompleteCond", False)
+        file.importNameList.append("CheckMissionCompleteCond")
+
+
+    jsonData = file.json
+    file.exportNameList = [exp['ObjectName'] for exp in jsonData["Exports"]]
+    file.exportIndex = file.exportNameList.index("CheckActive") #CheckActive was chosen because it is regularly called as long as player is in Taito
+    bytecode = Bytecode(jsonData["Exports"][file.exportIndex]['ScriptBytecode'])
+
+    #Add variable to properties of CheckActive
+    boolVarName = "Temp_bool_Variable"
+    loadedProperties = jsonData["Exports"][file.exportIndex]["LoadedProperties"]
+    loadedProperties.append(jsonExports.getBooleanPropertyVar(boolVarName,True))
+
+    file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+    stackNodeSetFlag = -1 * file.importNameList.index("SetEventFlagValue") -1
+    stackNodeMissionCheck = -1 * file.importNameList.index("CheckMissionCompleteCond") -1
+
+    
+    #First insert MissionCheck
+    missionCheckInsert = jsonExports.getLetBool(
+        jsonExports.getImportedFunctionCall(stackNodeMissionCheck,[jsonExports.getIntConst(88),jsonExports.getBytecodeBoolean(True)]),
+        jsonExports.getLocalVar(boolVarName)
+        )
+    #If condition
+    jumpIfNot = jsonExports.getJumpIfNot(jsonExports.getLocalVar(boolVarName),56)
+
+    nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
+    nameConst["Value"] = 104 #MAP_FLAG_820_Start
+    localFinalFunction = jsonExports.getImportedFunctionCall(stackNodeSetFlag, [nameConst,jsonExports.getBytecodeBoolean()])
+
+    bytecode.json.insert(0, missionCheckInsert)
+    bytecode.json.insert(1, jumpIfNot)
+    bytecode.json.insert(2, localFinalFunction)
+
+    missionCheckInsert2 = copy.deepcopy(missionCheckInsert)
+    missionCheckInsert2["AssignmentExpression"]["Parameters"][0]["Value"] = 115
+    jumpIfNot2 = copy.deepcopy(jumpIfNot)
+    jumpIfNot2["CodeOffset"] += 56
+    nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
+    nameConst["Value"] = 416 #MAP_FLAG_820_Star
+    localFinalFunction = jsonExports.getImportedFunctionCall(stackNodeSetFlag, [nameConst,jsonExports.getBytecodeBoolean()])
+
+    bytecode.json.insert(3, missionCheckInsert2)
+    bytecode.json.insert(4, jumpIfNot2)
+    bytecode.json.insert(5, localFinalFunction)
+
+    scriptFiles.setFile(script,file)
+    scriptFiles.writeFile(script,file) #Because file does not get used again
+
+    '''
+    Edit the boss creation events.
+    '''
+    scripts = ["MM_M060_E0810","MM_M060_E0790","MM_M060_E0778"]
+    for script in scripts:
+        file = scriptFiles.getFile(script)
+        jsonData = file.json
+
+        oldFlagName = "MAP_FLAG_E0820_Start"
+        newFlagName = "MAP_FLAG_E3200_Start" #Use the Vengeance Flag instead to prevent access to ToE
+
+        jsonString = json.dumps(jsonData)
+        jsonString = jsonString.replace(oldFlagName,newFlagName)
+        jsonData = json.loads(jsonString)
+
+        file.json = jsonData
+
+        scriptFiles.setFile(script,file)
+
+    '''
+    Edit the boss vengeance events.
+    '''
+
+    scripts = ["MM_M060_E3110_Direct","MM_M060_E3130_Direct"]
+    for script in scripts:
+        file = scriptFiles.getFile(script)
+        jsonData = file.json
+
+        oldFlagName = "MAP_FLAG_E3200_Start" #Use the Vengeance Flag instead to prevent access to ToE
+        newFlagName = "MAP_FLAG_E0820_Start" 
+
+        jsonString = json.dumps(jsonData)
+        jsonString = jsonString.replace(oldFlagName,newFlagName)
+        jsonData = json.loads(jsonString)
+
+        file.json = jsonData
+
+        scriptFiles.setFile(script,file)
+
+
 #TODO: Add code that makes the needed modification to route choice cutscene, instaed of using preedited file
+#Now especially necessary since 2000 is now edited for Yoko Cutscene ModelSwap
     

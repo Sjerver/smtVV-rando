@@ -1,9 +1,10 @@
+from enum import Enum
 from base_classes.demon_assets import Position 
 import math
 
 RACE_ARRAY = ["None", "Unused", "Herald", "Megami", "Avian", "Divine", "Yoma", "Vile", "Raptor", "Unused9", "Deity", "Wargod", "Avatar", "Holy", "Genma", "Element", "Mitama", "Fairy", "Beast", "Jirae", "Fiend", "Jaki", "Wilder", "Fury", "Lady", "Dragon", "Kishin", "Kunitsu", "Femme", "Brute", "Fallen", "Night", "Snake", "Tyrant", "Drake", "Haunt", "Foul", "Chaos", "Devil", "Meta", "Nahobino", "Proto-fiend", "Matter", "Panagia", "Enigma", "UMA", "Qadistu", "Human", "Primal", "Void"]
 
-PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,110,1111,1112,1113,1114,1115,1116,1117,1118]
+PROTOFIEND_IDS = [1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118]
 
 #Demons that overlap in Event Encounters and in which ones they do
 DUPLICATE_SOURCES = {442 : [61 ,65], #School Aitvaras
@@ -19,6 +20,8 @@ DUPLICATE_SOURCES = {442 : [61 ,65], #School Aitvaras
 }
 #Selection of dummy demons to be overwritten with overlapping demons
 DUMMY_DEMONS= [487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511]
+#Unused demon id used to temporarily store data
+COPYOVER_DEMON = 1149
 
 #List of demons with a name that cannot be accessed by the player
 INACCESSIBLE_DEMONS = [71,364] #Old Lilith, Tao
@@ -31,7 +34,7 @@ TOTAL_DEMON_COUNT = 1201
 
 SPECIAL_FUSION_COUNT = 62
 #Races that cannot be downfused with an element
-NO_DOWNFUSE_RACES = ["Enigma","Fiend","UMA","Qadistu","Devil","Primal",""]
+NO_DOWNFUSE_RACES = ["Enigma","Fiend","UMA","Qadistu","Devil","Primal","","Chaos","Human","Panagia"]
 
 #Obtained by creating a linear trend function for the potential of compendium demons
 POTENTIAL_SCALING_FACTOR = 0.167
@@ -77,18 +80,62 @@ TUTORIAL_DAEMON_ID = 430
 
 FIRST_GUEST_YUZURU_ID = 1150
 
-#ChestIDs that are banned from containing key items
-CHEST_BANNED_KEY_ITEM = [29, #Very first Chest, cannot be obtained if it is not picked up at the beginning of the game
-    0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 #The vanilla content of theses chests seems dubious, so to be safe
+#List of chests that are not used in the game
+UNUSED_CHESTS = [
+    #Credit to CTOBN: https://docs.google.com/spreadsheets/d/1MOWJL29_geEw5w7X2gTmNBx_bQiKnb4xVMxY2nI34PY/edit?gid=1095877054#gid=1095877054 
+    3859, 3860, 3861, 3862, 3863, 3864, 3865, 3866, 3867, 3868,
+    3869, 3870, 3871, 3872, 3873, 3874, 3875, 3876, 3877, 3878,
+    3879, 3880, 3881, 3882, 3883, 3884, 3885, 3886, 3887, 3888,
+    3889, 3890, 3891, 3892, 3893, 3894, 3895, 3896, 3897, 3898,
+    3899, 3900, 3901, 3902, 3903, 3904, 3905, 3906, 3907, 3908,
+    3909, 3910, 3911, 3912, 3913, 3914, 3915, 3916, 3917, 3918,
+    3919, 3920, 3921, 3922, 3923, 3924,
+    3927, 3928, 3929, 3930, 3931, 3932, 3933, 3934, 3935, 3936,
+    3937, 3938, 3939, 3940, 3941, 3942, 3943, 3944, 3945, 3946,
+    3947, 3948, 3949, 3950, 3951, 3952,
+    0,1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+    11, 12, 13, 14, 15, 16, 17, 18, 19,
+    38, 59, 68, 80, 106, 107, 131, 183, 208, 227, 230, 248, 264, 361, 407, 428,
+    511, 512, 513, 514, 515, 516, 517, 518, 519, 520,
+    530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540,
+    547, 548, 549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 560, 561, 562, 563, 564, 565, 566, 567, 568, 569, 570, 571, 572, 573, 574, 575, 576, 577, 578, 579, 580,
+    612, 613, 614, 615, 616, 617, 618, 619, 620,
+    635, 636, 637, 638, 639, 640,
+    654, 655, 656, 657, 658, 659, 660,
+    743, 744, 745, 746, 747, 748, 749, 750,
+    766, 767, 768, 769, 770,
+    784, 785, 786, 787, 788, 789, 790,
+    793, 794, 795, 796, 797, 798, 799, 800,
+    # These are technically not unused, but contain quest related key-items that we dont wanna mess with currently
+    76,77, 78, 79, 142, 231, 232, 233, 254
 ]
+#The very first chest is unfortunately missable
+MISSABLE_CHESTS = [29]
+
+#Chests that should be treated as a different area than in the game data
+#Area to Chest IDs
+AREA_CHEST_EXCEPTIONS = {
+    961: [90, 91, 92, 93, 94, 95, 96, 97]
+}
+#Chest ID to area
+CHEST_AREA_EXCEPTIONS = {
+    chestID: area
+    for area, chestIDs in AREA_CHEST_EXCEPTIONS.items()
+    for chestID in chestIDs
+}
 
 CHEST_MACCA_MIN = 500
 CHEST_MACCA_MAX = 60000
 #Chance of a chest containing macca instead of an item/essence
 CHEST_MACCA_ODDS = 0.035
-
+CHEST_RELIC_ODDS = 0.00347
 #Chance of a chest containing an essence instead of an item
 CHEST_ESSENCE_ODDS = 0.42
+#Map of Areas that need to duplicate their rewards to another area
+AREA_MIRRORS = {
+    63: 64, 64: 63, #Chiyoda / Shinjuku
+    36: 38, 38: 36, #Demon Kings Castle / Shakan
+}
 
 #Chance that a boss demon will drop their essence
 BOSS_ESSENCE_ODDS = 0.30
@@ -124,19 +171,81 @@ CHEST_QUANTITY_WEIGHTS = {
     5: 4
 }
 
+#Based on Vending machines for now
+RELIC_MAP_SCALING = {
+    60: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #['Hologram Trading Card', 'Vinyl Umbrella', 'Soda', 'Time Capsule', 'Balloon Value Pack', 'Sealed Magazine', 'Antique Shirt', 'Game Console with Handle', 'Mysterious Mummy', 'Golden Triangle', 'Cardboard Cap Bottle', 'Rubber Duck', 'Can of Jelly', 'Marble Bottle'], 
+    61: [616, 640, 644, 617, 648, 652, 618, 619, 620, 621, 653, 642, 623, 635, 643, 629], #['Fortune', 'Black Tape Set', 'Powder Box', 'Soda', 'Old Newspaper', 'Cardboard Cap Bottle', 'Melted Doll', 'Cloth Mask', 'Cartridge Game Console', 'Shabby Building Material', 'Marble Bottle', 'High-Capacity Bottle', 'Can of Jelly', 'Time Capsule', 'Vinyl Umbrella', 'Can of Oden']
+    62: [622, 653, 652, 623, 624, 625, 626, 627, 617, 645, 649, 648, 650, 641], #['Hexagram Trading Card', 'Marble Bottle', 'Cardboard Cap Bottle', 'Can of Jelly', 'Anime Paperweight', 'Simple Undershirt', 'Segata III Game Console', 'Mouse Mummy', 'Soda', 'Bottle Container', 'Old Magazine', 'Old Newspaper', 'Novel', 'Ripped Manga'],
+    63: [628, 617, 629, 630, 631, 646, 632, 623, 633, 642, 654, 616], #['Telephone Card', 'Soda', 'Can of Oden', 'Electronic Music Box', 'School Swimsuit', 'Radio-yaki', 'Tablet Game Console', 'Can of Jelly', 'Crow Mummy', 'High-Capacity Bottle', 'Maid Costume', 'Fortune'], 
+    64: [856, 617, 857, 861, 865, 862, 623, 858, 642, 859, 866, 860, 648, 864, 863, 649, 616, 644], # 64: ['Soup Can', 'Soda', 'Dry Cell Battery', 'Crowned Bottle', 'Western Game Console', 'Chipped Decoration', 'Can of Jelly', 'Disposable Camera', 'High-Capacity Bottle', 'Mini Cartridge', 'Monstrous Mummy', "Traveler's Check", 'Old Newspaper', 'Dazzling Dress', 'Floral Painting', 'Old Magazine', 'Fortune', 'Powder Box']
+    16: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #Copy of Taito 60
+    35: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #Copy of Taito 60
+    36: [628, 617, 629, 630, 631, 646, 632, 623, 633, 642, 654, 616], #Copy of Chiyoda 63
+    38: [856, 617, 857, 861, 865, 862, 623, 858, 642, 859, 866, 860, 648, 864, 863, 649, 616, 644], #Copy of Shinjuku 64
+    107: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #Copy of Taito 60
+    960: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #Copy of Taito 60
+}
+
+VENDING_MACHINE_RELIC_QUANTITY_WEIGHTS = {
+    1: 284, 
+    2: 29, 
+    3: 11,
+    4: 8,  
+    5: 12, 
+    6: 6,
+    7: 5, 
+    8: 5,
+    12: 8, 
+    24: 4,
+}
+#This Vending Machine is missable because it only activates later after you are well past it making it unlikely that players will pick it up
+MISSABLE_VENDING_MACHINE = [50]
+
+#Vending Machines that should be treated as a different area than in the game data
+#Area to Vending Machine IDs
+AREA_VM_EXCEPTIONS = {
+    961: [10,11,12,20,21,22,23]  
+}
+#Vending Machine ID to area
+VM_AREA_EXCEPTIONS = {
+    vmID: area
+    for area, vmIDs in AREA_CHEST_EXCEPTIONS.items()
+    for vmID in vmIDs
+}
+
+
 #The number of different consumable items (including some DUMMY items), from indices 0-113
 CONSUMABLE_ITEM_COUNT = 114
 
-#Any chest with an item index 611 or higher contains a key item and should not be randomized
-KEY_ITEM_CUTOFF = 611
+#Any chest with an item index 657 or higher contains a key item and should not be randomized
+KEY_ITEM_CUTOFF = 657
 
 #Item indices that correspond to reusable items like the return pillar or gleam grenade and spyglass(spyscope is given by tutorial daemon)
 BANNED_ITEMS = [70, 73, 74, 75, 76, 77, 78, 79, 80, 81, 55]
 
-BANNED_ESSENCES = [359,555,545,546,547,548,549,550,551,552,553,554,556,557,558,559,606,607,608] #Old Lilith's Essence, Demi-fiends Essence, Aogami & Tsukuyomi Essences
+BANNED_ESSENCES = [359,545,546,547,548,549,550,551,552,553,554,556,557,558,559,606,607,608] #Old Lilith's Essence, Aogami & Tsukuyomi Essences
+
+DEMIFIEND_ESSENCE_ID = 555 #Demi-fiends Essence normal ID
+
+def getBannedEssences():
+    return BANNED_ESSENCES + [DEMIFIEND_ESSENCE_ID]
+
+'''
+Returns the area at which a certain amount of miman can be acquired.
+'''
+def getMimanRewardArea (miman):
+    if miman <= 50:
+        return 61
+    elif miman <= 99: #Last one is 63 because it requires Zako Quest from Area 3
+        return 62
+    elif miman <= 150:
+        return 63
+    else:
+        return 64
 
 #Chance that a miman reward is an essence
 MIMAN_ESSENCE_ODDS = 0.27272727
+MIMAN_RELIC_ODDS = 0.005 #Completely made up
 #Odds of how many different items a miman reward has
 MIMAN_ITEM_NUMBER_WEIGHTS = {
     1: 8,
@@ -156,16 +265,41 @@ MIMAN_ITEM_AMOUNT_WEIGHTS = {
     8: 1
 }
 
-#Item IDs of Key items in Miman Rewards in the normal game
-MIMAN_BASE_KEY_ITEMS = [819,816,810,829,818,823,817]#Talismans: Element, Avatar, Avian, Kishin, Genma, Fiend, Holy
+#Map of key item ids and in which areas they are only allowed in
+KEY_ITEM_AREA_RESTRICTIONS = {
+    658: [60,61,62,63,64,36,38,961], #Key of Austerity
+    659: [60,61,62,63,64,36,38,961], #Key of Benevolence
+    660: [60,61,62,63,64,36,38,961], #Key of Harmony
 
-#List of key item ids obtained via events
-GIFT_BASE_KEY_ITEMS = []
+}
+
+# Names belonging to areas
+AREA_NAMES = {
+  16: 'Empyrean',
+  35: 'TempleOfEternity',
+  36: 'DemonKingsCastle',
+  38: 'Shakan',
+  60: 'Taito',
+  61: 'Minato',
+  62: 'Shinagawa',
+  63: 'Chiyoda',
+  64: 'Shinjuku',
+  107: 'DemiFiend Area',
+  960: 'Taito Post Keys',
+  961: 'Minato (Egypt)',
+}
+# What areas not originally in the game are in game logic
+FAKE_AREA_TRANSLATIONS = {
+    960: 60,
+    961: 61,
+}
 
 #Chance a mission rewards macca
 MISSION_MACCA_ODDS= 0.1717
 #Chance a mission rewards an essence instead of an consumable item
 MISSION_ESSENCE_ODDS= 0.09090
+#Chance a mission rewards rewards a relic
+MISSION_RELIC_ODDS = 0.013
 MISSION_MACCA_MAX= 150000
 MISSION_MACCA_MIN= 4000
 
@@ -206,9 +340,12 @@ MISSION_DUPLICATES = {
 }
 
 #Missions that cannot receive macca as a reward
-MACCALESS_MISSIONS = [72] #Falcon's Head cannot get macca as reward due to being synced with Additional reward in CoV Rescue Miyazu Atsuta
+MACCALESS_MISSIONS = [
+    72, #Falcon's Head cannot get macca as reward due to being synced with Additional reward in CoV Rescue Miyazu Atsuta
+    58,59,62,64,65,66,67 #Missions whose reward can be gained repeatedly and cannot be macca due to repeat being given via event
+]
 
-#List of exclusive key item rewards from both canons
+#List of exclusive key item rewards from both canons #TODO: what even is the purpose here?? for potential exclusive progression items
 CREATION_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 VENGEANCE_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 
@@ -216,14 +353,16 @@ VENGEANCE_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 BANNED_KEY_REWARDS = [79] #Spyscope (dropped by tutorial daemon)
 
 #Exclusive mission from both canons to give potential exclusive rewards to (excluding missions whose rewards are not randomized or are not allowed to receive key item rewards)
-CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93,-7,-8,-9-10] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
-        #He of a Hundred Hands, Hellfire Highway, Search for Oyamatsumi, Glitter in Ginza, Netherworld Relay Racing, Will of the Samurai, Trial of the Seven Stars, Defeat the Demon Kings Armies
-        #Keeper of South/North/West/East Secondary Rewards
-VENGEANCE_EXLUSIVE_MISSIONS = [157,152,159,177,171,194,203,178,202,184,200,210,172,211,193,174,188,190,108,109,110,111,112,113] #Supply Run, Guide to the Lost, Heart of Garnet, As God Wills, A Self of my Own, Devotion To Order, Part-time Gasser, A Star is Born
+CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93,-7,-8,-9,-10,169,77,78,36,37,38,39] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
+        #He of a Hundred Hands, Hellfire Highway, Search for Oyamatsumi, Glitter in Ginza, Netherworld Relay Racing, Will of the Samurai, Trial of the Seven Stars, Defeat the Demon Kings Armies, The One I (Still) Love
+        #Keeper of South/North/West/East Secondary Rewards, Black Frost Strikes Back/Sobering Standoff
+        #Keeper of the North/South/East/West
+VENGEANCE_EXLUSIVE_MISSIONS = [157,152,159,177,171,194,203,178,202,184,200,210,172,211,193,174,188,190,108,109,110,111,112,113,176,175] #Supply Run, Guide to the Lost, Heart of Garnet, As God Wills, A Self of my Own, Devotion To Order, Part-time Gasser, A Star is Born
         #Disgraced Bird God, Alice's Wonderland, Shinjuku Jewel Hunt, Heroes of Heaven and Earth, Rite of Resurrection, 'God of Old, Devourer of Kin', The Heartbroken, Special Training: Army of Chaos
         #The Serpent King, The Great Adversary, Investigate the Anomalies in Tokyo, Investigate the Salt Incidents, Rescue Miyazu Atsuta, Investigate Jozoji Temple, Qadištu Showdown
+        #Vampire in Black/Hunter in White
 
-#Mutually exclusive missions that should never reward a key item
+#Mutually exclusive missions (or timed availability missions) that should never reward a key item 
 MUTUALLY_EXCLUSIVE_MISSIONS = [
     176,175,#Vampire in Black/Hunter in White
     70,71, #The Water Nymph/Spirit of Love
@@ -231,8 +370,14 @@ MUTUALLY_EXCLUSIVE_MISSIONS = [
     77,78, #Black Frost Strikes Back/Sobering Standoff
     138,139, #Reclaim/Liberate the Golden Stool (Have duplicates but not needed here)
     75,76, #Those Seeking Sanctuary, Holding the Line
-    51,50 #The Red Dragon's Invitation/The Seraphs Return
+    51,50, #The Red Dragon's Invitation/The Seraphs Return
     -2, -3, #Additional Rewards from The Red Dragon's Invitation/The Seraphs Return
+    156, #Prince of her Dream (Missable)
+    157, #Supply Run (Missable)
+    162, #In Pursuit of Knowledge (Missable according to the Wiki)
+    192, #Infiltrate the Demon Feast (Missable)
+    208, -16, #Sakura Cinders of the East (DLC) (Including Bonus)
+    209, -15, #Holy Will of Profane Dissent (DLC) (Including Bonus)
 ]
 
 #Reward cannot be randomized, due to Quest Progression Issues or too strong reward(True Demon) or mission is unused
@@ -390,6 +535,8 @@ CONSUMABLE_MAP_SCALING = {
   36: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] +CONSUMABLE_PROGRESSION[4]+CONSUMABLE_PROGRESSION[2]+ CONSUMABLE_PROGRESSION[3] +[13], #Demon Kings Castle / Shakan: Ambrosia,
   38: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] +CONSUMABLE_PROGRESSION[4]+CONSUMABLE_PROGRESSION[2]+ CONSUMABLE_PROGRESSION[3] +[13], #Demon Kings Castle / Shakan: same as above
   107: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] +CONSUMABLE_PROGRESSION[4]+ CONSUMABLE_PROGRESSION[3] +[], #Demi-Fiend Area: same as Empyrean
+  960: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] + CONSUMABLE_PROGRESSION[3] + CONSUMABLE_PROGRESSION[4] + [13], #Taito Post Keys: Ambrosia,
+  961: CONSUMABLE_PROGRESSION[0] + CONSUMABLE_PROGRESSION[1] + CONSUMABLE_PROGRESSION[3] + CONSUMABLE_PROGRESSION[4] + [13], #Minato (Egypt) copy of taito
 }
 
 # Describes what level essences rewards can be in areas
@@ -405,20 +552,24 @@ ESSENCE_MAP_SCALING = {
   36: [50,54], #Demon Kings Castle / Shakan
   38: [50,54], #Demon Kings Castle / Shakan,
   107: [86,95], #Demi-Fiend Area: same as Empyrean
+  960: [52,71], #Taito Post Keys
+  961: [52,71], #Minato Egypt
 }
 
 #Defines the missions that are scaled on the area
 REWARD_AREA_MISSIONS = {
-  16: [47,52,53,54,55,188,190,51,50],
-  35: [81,95],
+  16: [47,52,53,54,55,188,190,51,50,222,221],
+  35: [81,95,116],
   36: [212,114,174],
   38: [212,114,174],
-  60: [33,35,36,37,38,39,40,42,43,44,45,46,49,63,64,65,66,67,74,79,80,82,87,94,165,172,181,183,185,193,196,198,205,209,211,41,218],
+  60: [33,35,36,37,38,39,40,43,44,46,49,63,64,65,66,67,79,80,82,87,94,165,181,183,185,193,196,198,205,209,211,41,218,219,143],
   61: [6,7,8,9,13,56,57,58,61,68,69,70,71,86,150,151,166,167,170,201],
-  62: [12,92,14,15,16,17,18,19,20,21,75,76,83,91,152,155,156,157,160,161,162,189,191,192,197],
+  62: [12,92,14,15,16,17,18,19,20,21,75,76,83,91,106,152,155,156,157,160,161,162,189,191,192,197],
   63: [73,34,139,59,22,24,25,26,27,28,138,30,48,32,72,62,77,78,93,31,159,164,186,187,204,206,208,29],
-  64: [108,109,111,112,113,153,169,171,173,175,176,177,178,184,194,200,202,203,210],
-  107: [84]
+  64: [108,109,111,112,113,140,141,142,145,146,147,148,153,169,171,173,175,176,177,178,179,180,184,194,200,202,203,210],
+  107: [84,144],
+  960: [45,74], #The Holy Ring, Destined Leader (Post Taito KeyLock)
+  961: [42,172], #Minato Egypt
 }
 
 #Defines the amount of macca missions can reward in an area
@@ -432,7 +583,9 @@ MISSION_REWARD_AREA_MACCA_RANGES = {
     62: [4000, 15000], #Jojozi Temple, Eliminate Lahmu
     63: [6000, 22000], #Investigate Anomalies in Tokyo, Defeat the Demon King's Armies
     64: [6000, 22000], #Same as Chiyoda
-    107: [666666,666666] #Return of True Demon
+    107: [666666,666666], #Return of True Demon
+    960: [25000, 85000],#Escort the Prime Minister ,To The Empyrean
+    961: [25000, 85000], #Minato Egypt (copy of Taito)
 }
 
 #Defines the amount of macca chest can contain in an area
@@ -446,9 +599,20 @@ CHEST_AREA_MACCA_RANGES = {
     62: [5000, 10000], 
     63: [6000, 22000], 
     64: [10000, 20000], 
-    107: [50000, 60000] #same as taito
+    107: [50000, 60000], #same as taito
+    960: [50000, 60000],
+    961: [50000, 60000], #Minato Egypt (available from Taito)
 
 }
+#Combined maps for macca reward ranges
+COMBINED_MACCA_AREA_RANGES = {
+    "mission": MISSION_REWARD_AREA_MACCA_RANGES,
+    "chest": CHEST_AREA_MACCA_RANGES,
+}
+#IDs for Mitamas that are Canon Locked
+SHINJUKU_MITAMAS = [159,160,161,162]
+CHIYODA_MITAMAS = [168,372,375,378]
+
 
 #Odds that the first drop of an enemy is a lifestone
 DROP1_LIFESTONE_ODDS = 0.97
@@ -475,7 +639,20 @@ AREA_SHOP_UNLOCKS= {
 GUEST_IDS = [1150, 1151, 1152, 1153, 1154, 1157, 1158, 1159, 1161, 1162]
 
 #IDs of guest party members excluding Yuzuru and Dazai who have glitchy animations for physical skills
+#TODO: Decide if we should try to keep track of Yuzuru/Dazai but since you can just give them normal phys skills via fusion seems unnecessary
 GUEST_IDS_WORKING_ANIMS_ONLY = [1152, 1154, 1157, 1158, 1159, 1161]
+
+#Guests and special demons and which ids they additionally occupy
+GUEST_GROUPS = {
+    1150: [1153,1162], #Yuzuru Atsuta
+    1151: [], # Ichiro Dazai
+    1152: [1154], #Tao Isonokami
+    1157: [1158,1159], #Yoko Hiromine
+    365: [], #Tao (Panagia)
+    366: [], #Yoko (Panagia)
+}
+
+GUEST_DEMIFIEND = 1161
 
 #Event encounter IDs of Ishtar except one
 EXTRA_ISHTAR_ENCOUNTERS = [76, 77, 78, 79, 80, 81, 82]
@@ -509,6 +686,7 @@ ENEMY_HEALING_SKILL_IDS = [103, 104, 105, 106, 352, 353, 354, 355, 381, 382, 383
 
 #Skill ID of Lunation Flux which should be restricted more than other unique skills
 LUNATION_FLUX_ID = 927
+REVIVAL_CHANT_ID = 311 #Skil lID of Revival chant which nees to keep restrictions
 
 #Mission ID of Brawny Ambitions II for skill condition
 BRAWNY_AMBITIONS_ID = 197
@@ -1059,13 +1237,14 @@ def getBonusSkills():
             [ 'Lunar Hurricane',925,69,69],
             [ 'Luminescent Mirage',926,80,80],
             [ 'Lunation Flux',927,69,69],
-            [ 'Gaea Rage',830,95,99]
+            [ 'Gaea Rage',830,95,99],
+            [ 'Revival Chant',311,61,61] #Revival Chant but only assignable to nahobino
         ]
 
 
 def getAnimationFixOnlySkills():
     return [
-        [ 'Revival Chant',311,61,61] #Revival Chant can only be used by non-nahobino with the animation fix (though then functions as a revive swap for demons/npcs)
+       
     ]
 
 '''
@@ -1087,4 +1266,18 @@ def compareResistValues(a, b):
         return 1
     else:
         return -1
+
+
+class Canon(Enum):
+    CREATION = 0
+    VENGEANCE = 1
+
+    @staticmethod
+    def getCanonFromString(stringValue):
+        match stringValue:
+            case "Creation":
+                return Canon.CREATION
+            case "Vengeance":
+                return Canon.VENGEANCE 
+            
     

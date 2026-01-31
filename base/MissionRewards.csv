@@ -1,0 +1,225 @@
+ID,Name,Amount,ItemID,ItemName,Money
+0000,,0,0,NOT USED:ITEM_USE_00,0
+0001,,2,86,Strength Balm,500
+0002,,1,86,Strength Balm,1000
+0003,,1,86,Strength Balm,1000
+0004,The Angel's Trail,0,0,NOT USED:ITEM_USE_00,0
+0005,The Angels' Request,0,0,NOT USED:ITEM_USE_00,0
+0006,No Stone Unturned,1,815,Wargod Talisman,0
+0007,The Ultimate Omelet,1,837,Drake Talisman,0
+0008,The Cursed Mermaids,3,83,Grimoire,0
+0009,The Demon of the Spring,1,831,Femme Talisman,0
+0010,Save the Students,0,0,NOT USED:ITEM_USE_00,0
+0011,Save the Students (cont.),0,0,NOT USED:ITEM_USE_00,0
+0012,A Golden Opportunity,0,0,NOT USED:ITEM_USE_00,12000
+0013,Talisman Hunt,1,832,Brute Talisman,0
+0014,The Root of the Problem,1,820,Fairy Talisman,0
+0015,Can I Keep Them?,1,355,Lilim's Essence,0
+0016,Birds of a Feather,1,491,Feng Huang's Essence,0
+0017,Kumbhanda's Bottle,1,834,Night Talisman,0
+0018,A Goddess Stolen,2,109,Small Glory Crystal,0
+0019,The Tyrant of Tennozu,0,0,NOT USED:ITEM_USE_00,15000
+0020,The One I Love,3,83,Grimoire,0
+0021,A Wish for a Fish,1,821,Beast Talisman,0
+0022,Hellfire Highway,0,0,NOT USED:ITEM_USE_00,20000
+0023,The Augmented Goddess,0,0,NOT USED:ITEM_USE_00,0
+0024,The Search for Oyamatsumi,1,8,Balm of Life,0
+0025,One Mokoi's Trash...,1,354,Kaiwan's Essence,0
+0026,The Path to Myojin Forest,1,345,Silky's Essence,0
+0027,Glitter in Ginza,3,83,Grimoire,0
+0028,Clash with the Kunitsukami,1,830,Kunitsu Talisman,0
+0029,The Horn of Plenty,1,809,Megami Talisman,0
+0030,He of a Hundred Hands,0,0,NOT USED:ITEM_USE_00,18000
+0031,The Angel of Destruction,1,103,Light Sutra,0
+0032,Roar of Hatred,2,62,Phys Dampener,0
+0033,Downtown Rock 'n Roll,3,45,Critical Gem,0
+0034,An Unusual Forecast,1,6,Soma,0
+0035,The Ancient Guardian,1,774,Lord's Sword,0
+0036,Keeper of the South,1,110,Large Glory Crystal,0
+0037,Keeper of the East,1,110,Large Glory Crystal,0
+0038,Keeper of the West,1,110,Large Glory Crystal,0
+0039,Keeper of the North,1,110,Large Glory Crystal,0
+0040,The Egyptians' Fate,5,109,Small Glory Crystal,0
+0041,The Winged Sun,1,836,Tyrant Talisman,0
+0042,The Succession of Ra,2,110,Large Glory Crystal,0
+0043,Abaddon's Assault,3,83,Grimoire,0
+0044,Fionn's Resolve,1,98,Battle Sutra,0
+0045,The Holy Ring,1,808,Herald Talisman,0
+0046,The Bull God's Lineage,1,82,Gospel,0
+0047,A Plot Revealed,1,321,Demeter's Essence,0
+0048,The Golden Dragon's Arrival,1,828,Dragon Talisman,0
+0049,The Benevolent One,0,0,NOT USED:ITEM_USE_00,80000
+0050,The Seraph's Return,1,463,Michael's Essence,0
+0051,The Red Dragon's Invitation,1,369,Belial's Essence,0
+0052,The Compassionate Queen,0,0,NOT USED:ITEM_USE_00,150000
+0053,The Noble Queen,0,0,NOT USED:ITEM_USE_00,150000
+0054,The Wrathful Queen,0,0,NOT USED:ITEM_USE_00,150000
+0055,A Universe in Peril,3,82,Gospel,0
+0056,To Cure a Curse,1,833,Fallen Talisman,0
+0057,Chakra Drop Chomp,1,822,Jirae Talisman,0
+0058,Iced Out,1,14,Muscle Drink,0
+0059,Lighting the Way,1,2,Chakra Drop,0
+0060,,0,0,NOT USED:ITEM_USE_00,100
+0061,Magic from the East,1,813,Vile Talisman,0
+0062,Stones of Malice,1,51,Dispel Charm,0
+0063,On Bended Knees,1,489,Yatagarasu's Essence,0
+0064,The Sleeping Sands,1,10,Amrita Shower,0
+0065,A Princess in a Pickle,1,3,Chakra Pot,0
+0066,An Incentive for Incense,1,5,Bead Chain,0
+0067,A Need for Nectar,1,8,Balm of Life,0
+0068,Bully Breaker,1,341,Agathion's Essence,0
+0069,Pollution Panic,1,812,Yoma Talisman,0
+0070,The Water Nymph,2,92,Stamina Incense,0
+0071,The Spirit of Love,2,91,Health Incense,0
+0072,The Falcon's Head,1,827,Lady Talisman,0
+0073,A Power Beyond Control,4,109,Small Glory Crystal,0
+0074,The Destined Leader,1,105,Destruction Sutra,0
+0075,Those Seeking Sanctuary,1,104,Dark Sutra,0
+0076,Holding the Line,1,103,Light Sutra,0
+0077,Black Frost Strikes Back,1,84,Health Balm,0
+0078,A Sobering Standoff,1,85,Stamina Balm,0
+0079,The Raid on Tokyo,2,87,Magic Balm,0
+0080,In Defense of Tokyo,2,86,Strength Balm,0
+0081,The Doctor's Last Wish,1,84,Health Balm,0
+0082,The Rage of a Queen,1,85,Stamina Balm,0
+0083,A Goddess in Training,3,88,Vitality Balm,0
+0084,Return of the True Demon,0,0,NOT USED:ITEM_USE_00,666666
+0085,The Lay of the Land,0,0,NOT USED:ITEM_USE_00,0
+0086,Movin' on Up,1,62,Phys Dampener,0
+0087,A Preta Predicament,1,806,Haunt Talisman,0
+0088,The Three Keys,0,0,NOT USED:ITEM_USE_00,0
+0089,,1,86,Strength Balm,0
+0090,,1,86,Strength Balm,0
+0091,Defending Jozoji Temple,0,0,NOT USED:ITEM_USE_00,4000
+0092,Eliminate Lahmu,0,0,NOT USED:ITEM_USE_00,15000
+0093,Defeat the Demon King's Armies,0,0,NOT USED:ITEM_USE_00,22000
+0094,Escort the Prime Minister,0,0,NOT USED:ITEM_USE_00,25000
+0095,To the Empyrean,0,0,NOT USED:ITEM_USE_00,85000
+0096,For the God-Given World,0,0,NOT USED:ITEM_USE_00,0
+0097,For a World of Many,0,0,NOT USED:ITEM_USE_00,0
+0098,Forsaking the Throne,0,0,NOT USED:ITEM_USE_00,0
+0099,The Lay of the Land,0,0,NOT USED:ITEM_USE_00,0
+0100,The Angel's Trail,0,0,NOT USED:ITEM_USE_00,0
+0101,The Angels' Request,0,0,NOT USED:ITEM_USE_00,0
+0102,Head to Jozoji Temple,0,0,NOT USED:ITEM_USE_00,0
+0103,Eliminate Lahmu,0,0,NOT USED:ITEM_USE_00,0
+0104,Save the Students,0,0,NOT USED:ITEM_USE_00,0
+0105,Save the Students (cont.),0,0,NOT USED:ITEM_USE_00,0
+0106,A Golden Opportunity,0,0,NOT USED:ITEM_USE_00,12000
+0107,Go to Yuzuru's Aid,0,0,NOT USED:ITEM_USE_00,0
+0108,Investigate the Anomalies in Tokyo,0,0,NOT USED:ITEM_USE_00,6000
+0109,Investigate the Salt Incidents,0,0,NOT USED:ITEM_USE_00,8000
+0110,Breaking Angelic Ranks,0,0,NOT USED:ITEM_USE_00,0
+0111,Rescue Miyazu Atsuta,0,0,NOT USED:ITEM_USE_00,13000
+0112,Investigate Jozoji Temple,0,0,NOT USED:ITEM_USE_00,15000
+0113,Qadištu Showdown,0,0,NOT USED:ITEM_USE_00,18000
+0114,Chase Through Shakan,0,0,NOT USED:ITEM_USE_00,25000
+0115,The Three Keys,0,0,NOT USED:ITEM_USE_00,0
+0116,To the Empyrean,0,0,NOT USED:ITEM_USE_00,85000
+0117,Toward a New World,0,0,NOT USED:ITEM_USE_00,0
+0118,,0,0,NOT USED:ITEM_USE_00,0
+0119,Minato Battles,0,0,NOT USED:ITEM_USE_00,0
+0120,Shinagawa Battles A,0,0,NOT USED:ITEM_USE_00,0
+0121,Shinagawa Battles B,0,0,NOT USED:ITEM_USE_00,0
+0122,Shinjuku Battles,0,0,NOT USED:ITEM_USE_00,0
+0123,Army of Chaos Battles,0,0,NOT USED:ITEM_USE_00,0
+0124,Rival Battles A,0,0,NOT USED:ITEM_USE_00,0
+0125,Taito Battles A,0,0,NOT USED:ITEM_USE_00,0
+0126,Taito Battles B,0,0,NOT USED:ITEM_USE_00,0
+0127,Empyrean Battles,0,0,NOT USED:ITEM_USE_00,0
+0128,Battles to Save God's Order,0,0,NOT USED:ITEM_USE_00,0
+0129,Battles to Save Tokyo,0,0,NOT USED:ITEM_USE_00,0
+0130,Battles to Destroy the Throne,0,0,NOT USED:ITEM_USE_00,0
+0131,Battles for Humanity Alone,0,0,NOT USED:ITEM_USE_00,0
+0132,Battles to Preserve the World,0,0,NOT USED:ITEM_USE_00,0
+0133,Battles to Destroy the World,0,0,NOT USED:ITEM_USE_00,0
+0134,Battles of Rebirth,0,0,NOT USED:ITEM_USE_00,0
+0135,Battles of Two Goddesses,0,0,NOT USED:ITEM_USE_00,0
+0136,The Kunitsukami of Kanda-no-yashiro,0,0,NOT USED:ITEM_USE_00,0
+0137,Army of Chaos Battles,0,0,NOT USED:ITEM_USE_00,0
+0138,Reclaim the Golden Stool,1,84,Health Balm,0
+0139,Liberate the Golden Stool,1,85,Stamina Balm,0
+0140,The Horn of Plenty,1,809,Megami Talisman,0
+0141,Roar of Hatred,2,62,Phys Dampener,0
+0142,The Angel of Destruction,1,103,Light Sutra,0
+0143,The Winged Sun,1,836,Tyrant Talisman,0
+0144,Return of the True Demon,0,0,NOT USED:ITEM_USE_00,666666
+0145,Lighting the Way,1,2,Chakra Drop,0
+0146,Stones of Malice,1,51,Dispel Charm,0
+0147,A Power Beyond Control,4,109,Small Glory Crystal,0
+0148,An Unusual Forecast,1,6,Soma,0
+0149,,0,0,NOT USED:ITEM_USE_00,0
+0150,Beastly Battle of Wits,1,728,Virtuous Neutral Periapt,0
+0151,Brawny Ambitions,1,724,Unwrit Order Periapt,0
+0152,Guide to the Lost,1,109,Small Glory Crystal,0
+0153,Picture-Perfect Debut,1,106,Healing Sutra,0
+0154,,1,112,Lavish Demon Box,0
+0155,Essential Research,1,729,Treacherous Neutral Periapt,0
+0156,Prince of Her Dreams,3,623,Can of Jelly,0
+0157,Supply Run,5,26,Force Gem,0
+0158,,0,0,NOT USED:ITEM_USE_00,0
+0159,Heart of Garnet,2,4,Bead,0
+0160,Song of Nostalgia,1,841,Enigma Talisman,0
+0161,Tough Love,1,722,Virtuous Order Periapt,0
+0162,In Pursuit of Knowledge,1,723,Treacherous Order Periapt,0
+0163,,0,0,NOT USED:ITEM_USE_00,0
+0164,Miracle Research,1,74,Chakra Elixir,0
+0165,Guardian of Tokyo,4,112,Lavish Demon Box,0
+0166,Training: Minato,1,725,Virtuous Chaos Periapt,0
+0167,Home Sweet Home,1,727,Unwrit Chaos Periapt,0
+0168,,0,0,NOT USED:ITEM_USE_00,0
+0169,The One I (Still) Love,2,6,Soma,0
+0170,She Who Rules the Night,1,16,Soma Drop,0
+0171,A Self of My Own,1,16,Soma Drop,0
+0172,Rite of Resurrection,2,110,Large Glory Crystal,0
+0173,Special Training: The Kunitsukami,1,830,Kunitsu Talisman,0
+0174,Special Training: Army of Chaos,3,8,Balm of Life,0
+0175,The Hunter in White,6,93,Strength Incense,0
+0176,The Vampire in Black,6,94,Magic Incense,0
+0177,As God Wills,2,52,Attack Mirror,0
+0178,A Star Is Born,10,42,Charm Gem,0
+0179,Reclaim the Golden Stool,1,84,Health Balm,0
+0180,Liberate the Golden Stool,1,85,Stamina Balm,0
+0181,Heroes of the Celts,1,78,Eye of Balor,0
+0182,,0,0,NOT USED:ITEM_USE_00,0
+0183,Rascal of the Norse,1,5,Bead Chain,0
+0184,Alice's Wonderland,1,104,Dark Sutra,0
+0185,Maker of Myth,1,77,Blessed Fan,0
+0186,To New Horizons,2,112,Lavish Demon Box,0
+0187,Trial of the Seven Stars,3,53,Magic Mirror,0
+0188,The Serpent King,3,108,Calamity Sutra,0
+0189,Supersonic Racing,4,96,Agility Incense,0
+0190,The Great Adversary,1,843,Primal Talisman,0
+0191,Pixie on the Case,1,730,Unwrit Neutral Periapt,0
+0192,Infiltrate the Demon Feast,1,626,Segata III Game Console,0
+0193,The Heartbroken,2,112,Lavish Demon Box,0
+0194,Devotion to Order,5,45,Critical Gem,0
+0195,,0,0,NOT USED:ITEM_USE_00,0
+0196,Wannabee-ho Nahobino,1,73,Miracle Ice,0
+0197,Brawny Ambitions II,1,840,UMA Talisman,0
+0198,Brawny Ambitions III,1,75,Curative Cattail,0
+0199,,0,0,NOT USED:ITEM_USE_00,0
+0200,Shinjuku Jewel Hunt,3,83,Grimoire,0
+0201,Knocking on Death's Door,1,726,Treacherous Chaos Periapt,0
+0202,The Disgraced Bird God,1,102,Force Sutra,0
+0203,Part-Time Gasser,4,10,Amrita Shower,0
+0204,Netherworld Relay Racing,3,89,Agility Balm,0
+0205,Goddesses of Fate,1,79,Spyscope,0
+0206,Will of the Samurai,1,98,Battle Sutra,0
+0207,,0,0,NOT USED:ITEM_USE_00,0
+0208,Sakura Cinders of the East,5,87,Magic Balm,0
+0209,Holy Will and Profane Dissent,7,86,Strength Balm,0
+0210,Heroes of Heaven and Earth,1,76,Soul-Return,0
+0211,"God of Old, Devourer of Kin",2,99,Fire Sutra,0
+0212,Classified Courier,1,113,New Testament Tablet,0
+0213,,0,0,NOT USED:ITEM_USE_00,0
+0214,Rival Battles B,0,0,NOT USED:ITEM_USE_00,0
+0215,,0,0,NOT USED:ITEM_USE_00,0
+0216,,0,0,NOT USED:ITEM_USE_00,0
+0217,,0,0,NOT USED:ITEM_USE_00,0
+0218,The Guardian of Light,2,98,Battle Sutra,0
+0219,The Guardian of Light,2,98,Battle Sutra,0
+0220,,0,0,NOT USED:ITEM_USE_00,0
+0221,The Seraph's Return,1,463,Michael's Essence,0
+0222,The Red Dragon's Invitation,1,369,Belial's Essence,0
+0223,,0,0,NOT USED:ITEM_USE_00,0
