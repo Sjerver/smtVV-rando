@@ -353,9 +353,10 @@ VENGEANCE_EXCLUSIVE_KEY_REWARDS = [] #Currently not any
 BANNED_KEY_REWARDS = [79] #Spyscope (dropped by tutorial daemon)
 
 #Exclusive mission from both canons to give potential exclusive rewards to (excluding missions whose rewards are not randomized or are not allowed to receive key item rewards)
-CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93,-7,-8,-9-10,169,77,78] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
+CREATION_EXLUSIVE_MISSIONS = [72,40,42,26,25,30,22,24,27,204,206,187,93,-7,-8,-9,-10,169,77,78,36,37,38,39] #The Falcon's Head, Egyptians Fate, Succesion of Ra, Path to Myojin Forest, One Mokois Trash,
         #He of a Hundred Hands, Hellfire Highway, Search for Oyamatsumi, Glitter in Ginza, Netherworld Relay Racing, Will of the Samurai, Trial of the Seven Stars, Defeat the Demon Kings Armies, The One I (Still) Love
         #Keeper of South/North/West/East Secondary Rewards, Black Frost Strikes Back/Sobering Standoff
+        #Keeper of the North/South/East/West
 VENGEANCE_EXLUSIVE_MISSIONS = [157,152,159,177,171,194,203,178,202,184,200,210,172,211,193,174,188,190,108,109,110,111,112,113,176,175] #Supply Run, Guide to the Lost, Heart of Garnet, As God Wills, A Self of my Own, Devotion To Order, Part-time Gasser, A Star is Born
         #Disgraced Bird God, Alice's Wonderland, Shinjuku Jewel Hunt, Heroes of Heaven and Earth, Rite of Resurrection, 'God of Old, Devourer of Kin', The Heartbroken, Special Training: Army of Chaos
         #The Serpent King, The Great Adversary, Investigate the Anomalies in Tokyo, Investigate the Salt Incidents, Rescue Miyazu Atsuta, Investigate Jozoji Temple, Qadištu Showdown
@@ -375,6 +376,8 @@ MUTUALLY_EXCLUSIVE_MISSIONS = [
     157, #Supply Run (Missable)
     162, #In Pursuit of Knowledge (Missable according to the Wiki)
     192, #Infiltrate the Demon Feast (Missable)
+    208, -16, #Sakura Cinders of the East (DLC) (Including Bonus)
+    209, -15, #Holy Will of Profane Dissent (DLC) (Including Bonus)
 ]
 
 #Reward cannot be randomized, due to Quest Progression Issues or too strong reward(True Demon) or mission is unused
