@@ -7612,7 +7612,8 @@ class Randomizer:
             demiFiendEssenceName = self.itemNames[numbers.DEMIFIEND_ESSENCE_ID]
             numbers.GUEST_GROUPS[numbers.GUEST_DEMIFIEND] = []
         validInds = [demon.ind for demon in self.compendiumArr if demon.ind not in numbers.BAD_IDS and 'Mitama' not in demon.name and not demon.name.startswith('NOT USED')]
-        validInds.extend(numbers.GUEST_GROUPS.keys())
+        #TODO: Currently guests cannot replace each other (essence name swap at least does not work)
+        #validInds.extend(numbers.GUEST_GROUPS.keys())
 
         #Determine random pairing replacements
         swapPairings = {}
@@ -7665,6 +7666,8 @@ class Randomizer:
                 for syncedGuest in guestGroup:
                     swapPairings[syncedGuest] = swapPairings[guest]
 
+        if self.configSettings.swapDemifiend:
+            numbers.DEMIFIEND_ESSENCE_ID = self.itemNames.index(demiFiendEssenceName)
         for r,d in self.guestReplacements.items():
             recipient = self.getPlayerDemon(r)
             donor = self.getPlayerDemon(d)
