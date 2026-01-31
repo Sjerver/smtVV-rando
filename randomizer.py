@@ -5258,7 +5258,7 @@ class Randomizer:
                 else:
                     area = vm.area
 
-                check = Item_Check(Check_Type.VENDING_MACHINE, vm.ind, "Vending Machine " + str(vm.ind), area, True, False, False, 2, True, odds)
+                check = Item_Check(Check_Type.VENDING_MACHINE, vm.ind, "Vending Machine Type " + str(vm.ind), area, True, False, False, 2, True, odds)
 
                 if check.ind in numbers.MISSABLE_VENDING_MACHINE:
                     check.missable = True
@@ -5297,7 +5297,7 @@ class Randomizer:
                             area = 63
                             allowedCanons.append(Canon.CREATION)
 
-                        check = Item_Check(Check_Type.BASIC_ENEMY_DROP,index*10000 + enemy.ind,enemy.name + " Drop " +str(index),area,True,False,False,0,True,odds)
+                        check = Item_Check(Check_Type.BASIC_ENEMY_DROP,index*10000 + enemy.ind,enemy.name + " Drop " +str(index+1),area,True,False,False,0,True,odds)
                         check.allowedCanons = allowedCanons
 
                         
