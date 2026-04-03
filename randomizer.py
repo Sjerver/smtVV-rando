@@ -8427,7 +8427,7 @@ if __name__ == '__main__':
         if rando.configSettings.swapCutsceneModels:
             print('Cutscene Model Swaps on. This may take up to an hour to finish running. Please wait...')
         rando.createSeed()
-        
+        print('Please wait while the rando is running...')
         rando.fullRando(rando.configSettings)
         if not rando.configSettings.fixUniqueSkillAnimations:
             print('"Fix unique skill animations" patch not applied. If the game appears to hang during a battle animation, press the skip animations button')
