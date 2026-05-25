@@ -8091,6 +8091,7 @@ class Randomizer:
             self.randomizeNavigatorAbilities()
         if self.configSettings.navigatorModelSwap: #Create naviReplacementMap before updating event and mission text
             self.changeNavigatorDemons()
+            scriptLogic.adjustNavigatorChecks(self.naviReplacementMap,self.scriptFiles)
         message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings, self.playerBossArr, self.itemNames)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr],self.compendiumArr,self.enemyNames,self.configSettings)
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap, self.playerBossArr, self.compendiumArr,self.progressionItemNewChecks)

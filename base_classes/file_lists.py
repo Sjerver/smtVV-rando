@@ -138,6 +138,7 @@ SCRIPT_FOLDERS = {
     'MM_M060_EM1420': M060_FOLDER, # Fionn's Resolve
     'MM_M060_EM1602': M060_FOLDER, # The Destined Leader (Amanazako Could't Join Initially)
     'MM_M060_EM1601': M060_FOLDER, # The Destined Leader
+    'MM_M060_EM1601_Hit': M060_FOLDER, # The Destined Leader (Start?)
     'MM_M016_E0885': MAIN_M016_FOLDER, #Hayataro CoC Chaos
     'MM_M016_E0885_Direct': MAIN_M016_FOLDER, #Hayataro CoC Chaos
     'MM_M016_EM1450': M016_FOLDER, # A Plot Revealed
