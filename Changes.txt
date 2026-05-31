@@ -1,3 +1,14 @@
+Version 1.06.01
+Balance:
+- Protofiend essence skills are now decided before demons making them more likely to receive unique skills
+- Boss Demi-fiend now drops an essence tied to "demon" Demi-fiend if his guest version is swapped with a demon
+
+Bufixes:
+- The Destined Leader and similiar quests now check if you have the randomized navigator with you
+- Randomize Ishtar press turn setting now correctly saved to config.ini
+- If guests are swapped and items shuffled: Bosses now longer drop essences that don't "belong" to them. If there is no longer an essence for a demon because of guest-swaps, they instead drop a random item.
+- Fixed issue where relics could not be scaled for Minato (Egypt) checks
+
 Version 1.06
 
 Features:
