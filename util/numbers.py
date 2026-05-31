@@ -184,6 +184,7 @@ RELIC_MAP_SCALING = {
     38: [856, 617, 857, 861, 865, 862, 623, 858, 642, 859, 866, 860, 648, 864, 863, 649, 616, 644], #Copy of Shinjuku 64
     107: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #Copy of Taito 60
     960: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #Copy of Taito 60
+    961: [617, 618, 619, 620, 621, 623, 629, 635, 640, 642, 643, 644, 648, 652, 653], #Soda, Melted Doll, Cloth Mask, Cartridge Game Console, Shabby Building Material, Can of Jelly, Can of Oden, Time Capsule, Black Tape Set, High-Capacity Bottle, Vinyl Umbrella, Powder Box, Old Newspaper, Cardboard Cap Bottle, Marble Bottle
 }
 
 VENDING_MACHINE_RELIC_QUANTITY_WEIGHTS = {
