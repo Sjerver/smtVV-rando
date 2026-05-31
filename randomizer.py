@@ -706,7 +706,7 @@ class Randomizer:
         itemDrop2 = Item_Drop(enemyData.readWord(locations['item'] + 24), translation.translateItem(enemyData.readWord(locations['item'] + 24),self.itemNames),
                                                     enemyData.readWord(locations['item'] + 28), enemyData.readWord(locations['item'] + 32))
         demon.drops = Item_Drops(itemDrop1, itemDrop2, itemDrop3)
-        demon.innate = Translated_Value(enemyData.readWord(locations['innate']), self.obtainSkillFromID(enemyData.readWord(locations['innate'])).name)
+        demon.innate = Translated_Value(enemyData.readWord(locations['innate']), self.getSkillFromID(enemyData.readWord(locations['innate'])).name)
         demon.resist.physical = Translated_Value(enemyData.readWord(locations['innate'] + 4),
                                                     translation.translateResist(enemyData.readWord(locations['innate'] + 4)))
         demon.resist.fire = Translated_Value(enemyData.readWord(locations['innate'] + 4 * 2),
@@ -1432,7 +1432,7 @@ class Randomizer:
         Returns:
             The skill object with the given id
     '''
-    def obtainSkillFromID(self, ind):
+    def getSkillFromID(self, ind):
         #print(ind)
         if ind <= 400:
             return self.skillArr[ind]
@@ -1592,7 +1592,7 @@ class Randomizer:
                 #dont add skills that are already there or critical has to be tied to race and succession depends on setting
                 continue
             newFusionSkills.append(skill)
-            skill = self.obtainSkillFromID(skill)
+            skill = self.getSkillFromID(skill)
             if skill.magatsuhi.race1.value > 0:
                 availableRaces.append(skill.magatsuhi.race1.value) # gather races
                 skill.magatsuhi.race1.value = 0 #set races to 0
@@ -1605,7 +1605,7 @@ class Randomizer:
         for skillID in numbers.MAGATSUHI_SKILLS:
             if skillID in newFusionSkills: #if skill is already decided to be a fusion skill
                 continue
-            skill = self.obtainSkillFromID(skillID)
+            skill = self.getSkillFromID(skillID)
             if (skill.ind == 60 and not self.configSettings.includeOmagatokiCritical) or (skill.ind == 928 and not self.configSettings.includeOmnipotentSuccession) :
                 #only add race and skill for omagatoki critical and succession when setting is set
                 continue
@@ -1780,6 +1780,18 @@ class Randomizer:
                 for weight in weightedSkills.weights:
                     weight += 1
             
+            #Revival Chant / other nahobino only skills in vanilla inheritance need higher weights to guarantee assignment
+            if mask == numbers.PROTOFIEND_IDS and self.configSettings.forceAllSkills:
+                weightExceptions = [numbers.REVIVAL_CHANT_ID]
+                if not (self.configSettings.freeInheritance or self.configSettings.randomInheritance):
+                    for valueIndex, value in enumerate(weightedSkills.values):
+                        if self.getSkillFromID(value).owner.ind == -1: #Nahobino skills need to have their weights increased if vanilla inheritance
+                            weightExceptions.append(value)
+                
+                for valueIndex, value in enumerate(weightedSkills.values):
+                    if value in weightExceptions:
+                        weightedSkills.weights[valueIndex] *= numbers.LEVEL_SKILL_WEIGHT_MULTIPLIER
+
             #If there are skills to be learned
             if len(weightedSkills.values) > 0:
 
@@ -1802,8 +1814,8 @@ class Randomizer:
                         # Ensure Demon has at least one active skill and no skill appears twice
                         if not any(e.ind == rng for e in totalSkills) and self.ensureAtLeastOneActive(totalSkills, demon, rng):
                             #Check if skill passes additional conditions or skip that check if skills are not supposed to be weighted by stats and potentials
-                            if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon)):
-                                if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),demon,comp,settings):
+                            if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.getSkillFromID(rng), totalSkills, demon)):
+                                if self.checkUniqueSkillConditions(self.getSkillFromID(rng),demon,comp,settings):
                                     if rng in numbers.MAGATSUHI_SKILLS: #only 1 magatsuhi skill assigned to skill set
                                         for weightIndex,checkSkill in enumerate(weightedSkills.values):
                                             if checkSkill in numbers.MAGATSUHI_SKILLS:
@@ -1831,8 +1843,8 @@ class Randomizer:
                             weightedSkills.weights[weightedSkills.values.index(rng)] = 0
                             foundSkill = True
                         if not any(e.ind == rng for e in totalSkills):
-                            if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.obtainSkillFromID(rng), totalSkills, demon)):
-                                if self.checkUniqueSkillConditions(self.obtainSkillFromID(rng),demon,comp,settings):
+                            if not settings.potentialWeightedSkills or (self.checkAdditionalSkillConditions(self.getSkillFromID(rng), totalSkills, demon)):
+                                if self.checkUniqueSkillConditions(self.getSkillFromID(rng),demon,comp,settings):
                                     if rng in numbers.MAGATSUHI_SKILLS: #only 1 magatsuhi skill assigned to skill set
                                         for weightIndex,checkSkill in enumerate(weightedSkills.values):
                                             if checkSkill in numbers.MAGATSUHI_SKILLS:
@@ -1933,9 +1945,9 @@ class Randomizer:
         possibleSkills = [s for s in possibleSkills if self.obtainSkillFromID(s.ind).cost <= 60]
         '''   
         validity = False
-        skill = self.obtainSkillFromID(random.choice(possibleSkills).ind)
+        skill = self.getSkillFromID(random.choice(possibleSkills).ind)
         while not validity:
-            skill = self.obtainSkillFromID(random.choice(possibleSkills).ind)
+            skill = self.getSkillFromID(random.choice(possibleSkills).ind)
             if skill.ind in numbers.MAGATSUHI_SKILLS and random.random() > 0.5:
                 #Reduce chance that the protagonist starts with magatsuhi skill
                 continue
@@ -2081,49 +2093,49 @@ class Randomizer:
         if skill.name not in conditionalSkills and "Pleroma" not in skill.name and "Enhancer" not in skill.name and "Gestalt" not in skill.name:
             return True
 
-        if (skill.name == "Charge" or skill.name == "Critical Aura") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).skillType.value == 0 for e in totalSkillList) or demon.potential.physical > 0):
+        if (skill.name == "Charge" or skill.name == "Critical Aura") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).skillType.value == 0 for e in totalSkillList) or demon.potential.physical > 0):
             #Check for Charge, Critical Aura when already assigned Str-Based Skill or Demon has positive Physical Potential
             return True
-        elif skill.name == "Concentrate" and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).skillType.value == 1 for e in totalSkillList) or demon.stats.str.start <= demon.stats.mag.start):
+        elif skill.name == "Concentrate" and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).skillType.value == 1 for e in totalSkillList) or demon.stats.str.start <= demon.stats.mag.start):
             #Check for Concentrate when already assigned Mag-Based Skill or Demon has higher base mag than str
             return True
-        elif (skill.name == "Curse Siphon" or skill.name == "Great Curse Siphon" or skill.name == "Virus Carrier") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).skillType.value == 2 for e in totalSkillList) or demon.potential.ailment > 0):
+        elif (skill.name == "Curse Siphon" or skill.name == "Great Curse Siphon" or skill.name == "Virus Carrier") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).skillType.value == 2 for e in totalSkillList) or demon.potential.ailment > 0):
             #Check for Curse Siphon, Great Curse Siphon, Virus Carrier when already assigned ailment Skill or Demon has positive ailment Potential
             return True
-        elif (skill.name == "Bowl of Hygieia" or skill.name == "Heal Pleroma" or skill.name == "High Heal Pleroma" or skill.name == "Nation Founder" or skill.name == "Healing Hand" or skill.name == "Oath of Plenteousness") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).skillType.value == 3 for e in totalSkillList) or demon.potential.recover > 0):
+        elif (skill.name == "Bowl of Hygieia" or skill.name == "Heal Pleroma" or skill.name == "High Heal Pleroma" or skill.name == "Nation Founder" or skill.name == "Healing Hand" or skill.name == "Oath of Plenteousness") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).skillType.value == 3 for e in totalSkillList) or demon.potential.recover > 0):
             #Check for Bowl of Hygieia, Heal Pleroma, High Heal Pleroma, Nation Founder, Healing Hand, Oath of Plenteousness when already assigned heal Skill or Demon has positive recover Potential
             return True
-        elif (skill.name == "Poison Adept" or skill.name == "Poison Master") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).ailmentFlags.poison > 0 for e in totalSkillList) or demon.potential.ailment > 0):
+        elif (skill.name == "Poison Adept" or skill.name == "Poison Master") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).ailmentFlags.poison > 0 for e in totalSkillList) or demon.potential.ailment > 0):
             #Check for Poison Adept, Poison Master when already assigned poison-inflicting Skill or Demon has positive ailment Potential
             return True
-        elif (skill.name == "Phys Pleroma" or skill.name == "High Phys Pleroma" or skill.name == "Phys Enhancer" or skill.name == "Phys Gestalt" or skill.name == "Sankosho") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).element.value == 0 for e in totalSkillList) or demon.potential.physical > 0):
+        elif (skill.name == "Phys Pleroma" or skill.name == "High Phys Pleroma" or skill.name == "Phys Enhancer" or skill.name == "Phys Gestalt" or skill.name == "Sankosho") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).element.value == 0 for e in totalSkillList) or demon.potential.physical > 0):
             #Check for Phys Pleroma, High Phys Pleroma, Phys Enhancer, Phys Gestalt, Sankosho when already assigned phys element Skill or Demon has positive Physical Potential
             return True
-        elif (skill.name == "Fire Pleroma" or skill.name == "High Fire Pleroma" or skill.name == "Fire Enhancer" or skill.name == "Fire Gestalt" or skill.name == "Incendiary Stoning") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).element.value == 1 for e in totalSkillList) or demon.potential.fire > 0):
+        elif (skill.name == "Fire Pleroma" or skill.name == "High Fire Pleroma" or skill.name == "Fire Enhancer" or skill.name == "Fire Gestalt" or skill.name == "Incendiary Stoning") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).element.value == 1 for e in totalSkillList) or demon.potential.fire > 0):
             #Check for Fire Pleroma, High Fire Pleroma, Fire Enhancer, Fire Gestalt, Incendiary Stoning when already assigned fire element Skill or Demon has positive fire Potential
             return True
-        elif (skill.name == "Ice Pleroma" or skill.name == "High Ice Pleroma" or skill.name == "Ice Enhancer" or skill.name == "Ice Gestalt" or skill.name == "Roaring Mist") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).element.value == 2 for e in totalSkillList) or demon.potential.ice > 0):
+        elif (skill.name == "Ice Pleroma" or skill.name == "High Ice Pleroma" or skill.name == "Ice Enhancer" or skill.name == "Ice Gestalt" or skill.name == "Roaring Mist") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).element.value == 2 for e in totalSkillList) or demon.potential.ice > 0):
             #Check for Ice Pleroma, High Ice Pleroma, Ice Enhancer, Ice Gestalt, Roaring Mist when already assigned ice element Skill or Demon has positive ice Potential
             return True
-        elif (skill.name == "Elec Pleroma" or skill.name == "High Elec Pleroma" or skill.name == "Elec Enhancer" or skill.name == "Herkeios" or skill.name == "Elec Gestalt" or skill.name == "Carpet Bolting") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).element.value == 3 for e in totalSkillList) or demon.potential.elec > 0):
+        elif (skill.name == "Elec Pleroma" or skill.name == "High Elec Pleroma" or skill.name == "Elec Enhancer" or skill.name == "Herkeios" or skill.name == "Elec Gestalt" or skill.name == "Carpet Bolting") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).element.value == 3 for e in totalSkillList) or demon.potential.elec > 0):
             #Check for Elec Pleroma, High Elec Pleroma, Elec Enhancer, Herkeios, Elec Gestalt, Carpet Bolting when already assigned Elec element Skill or Demon has positive elec Potential
             return True
-        elif (skill.name == "Force Pleroma" or skill.name == "High Force Pleroma" or skill.name == "Force Enhancer" or skill.name == "Force Gestalt" or skill.name == "Catastrophic Gales") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).element.value == 4 for e in totalSkillList) or demon.potential.force > 0):
+        elif (skill.name == "Force Pleroma" or skill.name == "High Force Pleroma" or skill.name == "Force Enhancer" or skill.name == "Force Gestalt" or skill.name == "Catastrophic Gales") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).element.value == 4 for e in totalSkillList) or demon.potential.force > 0):
             #Check for Force Pleroma, High Force Pleroma, Force Enhancer, Force Gestalt, Catastrophic Gales when already assigned Force element Skill or Demon has positive Force Potential
             return True
-        elif (skill.name == "Light Pleroma" or skill.name == "High Light Pleroma" or skill.name == "Light Enhancer" or skill.name == "Light Gestalt" or skill.name == "Lighted Wheel") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).element.value == 5 for e in totalSkillList) or demon.potential.light > 0):
+        elif (skill.name == "Light Pleroma" or skill.name == "High Light Pleroma" or skill.name == "Light Enhancer" or skill.name == "Light Gestalt" or skill.name == "Lighted Wheel") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).element.value == 5 for e in totalSkillList) or demon.potential.light > 0):
             #Check for Light Pleroma, High Light Pleroma, Light Enhancer, Light Gestalt, Lighted Wheel when already assigned Light element Skill or Demon has positive Light Potential
             return True
-        elif (skill.name == "Dark Pleroma" or skill.name == "High Dark Pleroma" or skill.name == "Dark Enhancer" or skill.name == "Dark Gestalt" or skill.name == "Boon of Sloth") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).element.value == 6 for e in totalSkillList) or demon.potential.dark > 0):
+        elif (skill.name == "Dark Pleroma" or skill.name == "High Dark Pleroma" or skill.name == "Dark Enhancer" or skill.name == "Dark Gestalt" or skill.name == "Boon of Sloth") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).element.value == 6 for e in totalSkillList) or demon.potential.dark > 0):
             #Check for Dark Pleroma, High Dark Pleroma, Dark Enhancer, Dark Gestalt, Boon of Sloth when already assigned Dark element Skill or Demon has positive Dark Potential
             return True
-        elif (skill.name == "Almighty Pleroma" or skill.name == "High Almighty Pleroma" or skill.name == "Ceaseless Crucifixion") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).element.value == 7 for e in totalSkillList) or demon.potential.almighty > 0):
+        elif (skill.name == "Almighty Pleroma" or skill.name == "High Almighty Pleroma" or skill.name == "Ceaseless Crucifixion") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).element.value == 7 for e in totalSkillList) or demon.potential.almighty > 0):
             #Check for Almighty Pleroma, High Almighty Pleroma, Ceaseless Crucifixion when already assigned Almighty element Skill or Demon has positive Almighty Potential
             return True
         elif (skill.name == "Biondetta") and (demon.race.value != 2 and demon.race.value != 3 and demon.race.value != 24 and demon.race.value != 28):
             #Check for Biondetta when demon does not belong to herald, megami, femme, lady race
             return True
-        elif (skill.name == "Nation Builder") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.obtainSkillFromID(e.ind).skillType.value == 4 for e in totalSkillList) or demon.potential.support > 0):
+        elif (skill.name == "Nation Builder") and (any(self.determineSkillStructureByID(e.ind) == "Active" and self.getSkillFromID(e.ind).skillType.value == 4 for e in totalSkillList) or demon.potential.support > 0):
             #Check for Nation Builder when already assigned support type skill or demon has positive support potential
             return True
         else:
@@ -2685,7 +2697,7 @@ class Randomizer:
                     #Magatsuhi skills are not effected by potential and keep their weight
                 else:
                     probability = numbers.SKILL_WEIGHT
-                    realSkill = self.obtainSkillFromID(skill.ind)
+                    realSkill = self.getSkillFromID(skill.ind)
                     skillStructure = self.determineSkillStructureByID(skill.ind)
                     #Passive skills do not have a corresponding potential by default so we need to handle them seperately
                     if self.configSettings.potentialWeightedSkills and skillStructure == "Active":
@@ -3056,6 +3068,7 @@ class Randomizer:
         for e in essence:
             offset = e.offset
             buffer.writeWord(e.price, offset +12)
+            buffer.writeWord(e.demon.value, offset)
         return buffer
 
     '''
@@ -5341,8 +5354,22 @@ class Randomizer:
                             #Do not change Key_Items as they are quest related
                             continue
                         elif isinstance(item,Essence_Item) and self.configSettings.shuffleExistingItems:
-                            #Skip drop slots that usually drop their own essence when shuffled
-                            continue
+                            if enemyName == item.demon.name:
+                                #print(str(item.ind) + " " + enemyName + " / " + item.demon.name + " matches")
+                                #Skip drop slots that usually drop their own essence when shuffled
+                                continue
+                            else: #Essence doesn't match boss due do guest swaps
+                                #print(str(item.ind) + " " + enemyName + " / " + item.demon.name + " doesn't match")
+                                #Search for an fitting essence
+                                itemFound = False
+                                for essence in self.essenceArr:
+                                    if essence.demon.translation== enemyName:
+                                        item = self.generateNewItem(essence.ind,1)
+                                        itemFound = True
+                                        break
+                                if not itemFound:
+                                    item = self.generateRandomItemRewards(check)[0]
+                                
                         
                         
                         if demonID not in self.checkBossInfo.keys():
@@ -5410,7 +5437,7 @@ class Randomizer:
                     if isinstance(chosenItem, Key_Item):
                         print("WARNING: KEY ITEM has been forced")
                     forceItem = True
-                    print("Forced Item " + chosenItem.name + " had no naturally available checks")
+                    #print("Forced Item " + chosenItem.name + " had no naturally available checks")
                 else:
                     #Inverse weight of amount of valid checks for item to the power of checkPower
                     #wItem = [1 / (len(i.validChecks) ** checkPower) for i in filteredRelevantItems]
@@ -6791,7 +6818,7 @@ class Randomizer:
                        condition.ind = self.compendiumArr[mission.conditions[0].ind].learnedSkills[1].value
                     else:
                         condition.ind = self.compendiumArr[mission.conditions[0].ind].skills[1].value
-                    self.brawnyAmbitions2SkillName = self.obtainSkillFromID(condition.ind).name
+                    self.brawnyAmbitions2SkillName = self.getSkillFromID(condition.ind).name
 
         return missionArr
 
@@ -7382,8 +7409,8 @@ class Randomizer:
             normalSkillID = row['Normal Skill ID']
             uniqueSkillName = row['Unique Skill']
             normalSkillName = row['Normal Skill']
-            uniqueSkill = self.obtainSkillFromID(uniqueSkillID)
-            normalSkill = self.obtainSkillFromID(normalSkillID)
+            uniqueSkill = self.getSkillFromID(uniqueSkillID)
+            normalSkill = self.getSkillFromID(normalSkillID)
             #print("Changing " + uniqueSkill.name + " to " + normalSkill.name)
             if self.skillNames[uniqueSkillID] != uniqueSkillName:
                 print("Warning: skill ") + uniqueSkillName + " does not match " + self.skillNames[uniqueSkillID] + " at index " + str(index)
@@ -7396,7 +7423,7 @@ class Randomizer:
     '''
     def nerfBossHealing(self):
         for skillID in numbers.ENEMY_HEALING_SKILL_IDS:
-            skill = self.obtainSkillFromID(skillID)
+            skill = self.getSkillFromID(skillID)
             skill.healing.flag = skill.healing.flag // 2
             skill.healing.percent = skill.healing.percent // 2
 
@@ -7832,6 +7859,12 @@ class Randomizer:
             self.swapGuestsWithDemons()
 
         self.fillEssenceArr(itemBuffer)
+        #Reconfigure Demi-fiends essence to reference guest demi-fiend
+        if config.swapGuestsWithDemons and config.swapDemifiend:
+            demifiendEssenceIndex = [i for i,e in enumerate(self.essenceArr) if e.ind == numbers.DEMIFIEND_ORIGINAL_ESSENCE_ID][0]
+            self.essenceArr[demifiendEssenceIndex].demon = Translated_Value(numbers.GUEST_DEMIFIEND,self.playerBossArr[numbers.GUEST_DEMIFIEND].name)
+            
+
         self.fillShopArr(shopBuffer)
         self.fillMissionArr(missionBuffer)
         self.fillUniqueSymbolArr(uniqueSymbolBuffer)
@@ -7857,7 +7890,7 @@ class Randomizer:
             self.removeUniqueSkillAnimations()
         
         self.fusionSkillIDs = list(filter(lambda skill: 800 < skill and skill < 900,numbers.MAGATSUHI_SKILLS))
-        magatsuhiSkillsRaces = [self.obtainSkillFromID(skill) for skill in filter(lambda skill: 800 > skill or skill > 900, numbers.MAGATSUHI_SKILLS)]
+        magatsuhiSkillsRaces = [self.getSkillFromID(skill) for skill in filter(lambda skill: 800 > skill or skill > 900, numbers.MAGATSUHI_SKILLS)]
         if self.configSettings.randomizeMagatsuhiSkillReq:
             magatsuhiSkillsRaces = self.randomizeMagatsuhiSkillReqs()
        
@@ -7950,8 +7983,8 @@ class Randomizer:
         if config.randomSkills:
             self.adjustSkillSlotsToLevel(newComp)
             self.assignRandomStartingSkill(self.nahobino, levelSkillList, config)
-            newComp = self.assignRandomSkills(newComp,levelSkillList, config)
             self.assignRandomSkills(self.playerBossArr,levelSkillList, config, mask=numbers.PROTOFIEND_IDS)
+            newComp = self.assignRandomSkills(newComp,levelSkillList, config)
             # if config.fixUniqueSkillAnimations:
             #     self.assignRandomSkills(self.playerBossArr, levelSkillList, config, mask=numbers.GUEST_IDS_WORKING_ANIMS_ONLY)
             # else:
@@ -8091,6 +8124,7 @@ class Randomizer:
             self.randomizeNavigatorAbilities()
         if self.configSettings.navigatorModelSwap: #Create naviReplacementMap before updating event and mission text
             self.changeNavigatorDemons()
+            scriptLogic.adjustNavigatorChecks(self.naviReplacementMap,self.scriptFiles)
         message_logic.updateItemText(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.compendiumArr,self.fusionSkillIDs, self.fusionSkillReqs, self.skillNames, magatsuhiSkillsRaces, self.configSettings, self.playerBossArr, self.itemNames)
         message_logic.updateSkillDescriptions([self.skillArr, self.passiveSkillArr, self.innateSkillArr],self.compendiumArr,self.enemyNames,self.configSettings)
         message_logic.updateMissionInfo(self.encounterReplacements, self.bossReplacements, self.enemyNames, self.brawnyAmbitions2SkillName, fakeMissions, self.itemNames, self.configSettings.ensureDemonJoinLevel, self.naviReplacementMap, self.playerBossArr, self.compendiumArr,self.progressionItemNewChecks)
@@ -8120,9 +8154,9 @@ class Randomizer:
             storedNkm = scriptLogic.aiUpdate(self.skillReplacementMap, self.bossArr, self.scriptFiles)
             self.debugSkillReplacements(storedNkm)
             if self.configSettings.allowContemptOfGod:
-                self.obtainSkillFromID(numbers.CONTEMPT_OF_GOD_ID).skillType = Translated_Value(8,'')
+                self.getSkillFromID(numbers.CONTEMPT_OF_GOD_ID).skillType = Translated_Value(8,'')
             for skill in numbers.PHYSICAL_RATE_SKILLS:
-                self.obtainSkillFromID(skill).skillType = Translated_Value(14,'')
+                self.getSkillFromID(skill).skillType = Translated_Value(14,'')
         
         
         mapSymbolParamBuffer = self.updateMapSymbolBuffer(mapSymbolParamBuffer)
@@ -8269,27 +8303,27 @@ class Randomizer:
                     fileNames = ["BtlAI_e" +ai]
                     for fileName in fileNames:
                         newRank = "PASSIVE"
-                        if isinstance(self.obtainSkillFromID(new_skill),Active_Skill):
-                            newRank = self.obtainSkillFromID(new_skill).rank
+                        if isinstance(self.getSkillFromID(new_skill),Active_Skill):
+                            newRank = self.getSkillFromID(new_skill).rank
                         if old_skill >= 999:
-                            writer.writerow([self.bossArr[demon].name,demon,fileName, old_skill, new_skill, "NEW", self.obtainSkillFromID(new_skill).name,"NONE",newRank])
+                            writer.writerow([self.bossArr[demon].name,demon,fileName, old_skill, new_skill, "NEW", self.getSkillFromID(new_skill).name,"NONE",newRank])
                         else:
                             oldRank = "PASSIVE"
-                            if isinstance(self.obtainSkillFromID(old_skill),Active_Skill):
-                                oldRank = self.obtainSkillFromID(old_skill).rank
-                            writer.writerow([self.bossArr[demon].name,demon,fileName, old_skill, new_skill, self.obtainSkillFromID(old_skill).name, self.obtainSkillFromID(new_skill).name,oldRank,newRank])
+                            if isinstance(self.getSkillFromID(old_skill),Active_Skill):
+                                oldRank = self.getSkillFromID(old_skill).rank
+                            writer.writerow([self.bossArr[demon].name,demon,fileName, old_skill, new_skill, self.getSkillFromID(old_skill).name, self.getSkillFromID(new_skill).name,oldRank,newRank])
             for fileName, replacements in storedNkm.items():
                 for old_skill, new_skill in replacements.items():
                     newRank = "PASSIVE"
-                    if isinstance(self.obtainSkillFromID(new_skill),Active_Skill):
-                        newRank = self.obtainSkillFromID(new_skill).rank
+                    if isinstance(self.getSkillFromID(new_skill),Active_Skill):
+                        newRank = self.getSkillFromID(new_skill).rank
                     if old_skill >= 999:
-                        writer.writerow([fileName,-1,fileName, old_skill, new_skill,"NEW", self.obtainSkillFromID(new_skill).name,"NONE",newRank])
+                        writer.writerow([fileName,-1,fileName, old_skill, new_skill,"NEW", self.getSkillFromID(new_skill).name,"NONE",newRank])
                     else:
                         oldRank = "PASSIVE"
-                        if isinstance(self.obtainSkillFromID(old_skill),Active_Skill):
-                            oldRank = self.obtainSkillFromID(old_skill).rank
-                        writer.writerow([fileName,-1,fileName, old_skill, new_skill, self.obtainSkillFromID(old_skill).name, self.obtainSkillFromID(new_skill).name,oldRank,newRank])
+                        if isinstance(self.getSkillFromID(old_skill),Active_Skill):
+                            oldRank = self.getSkillFromID(old_skill).rank
+                        writer.writerow([fileName,-1,fileName, old_skill, new_skill, self.getSkillFromID(old_skill).name, self.getSkillFromID(new_skill).name,oldRank,newRank])
         
     def debugPrintUnassignedSkills(self, levelList):
         sortedDemons = sorted(self.compendiumArr, key=lambda demon: demon.level.value)
@@ -8390,7 +8424,7 @@ class Randomizer:
             for skill in demon.skills:
                 if skill.ind == 0:
                     continue
-                realSkill = self.obtainSkillFromID(skill.ind)
+                realSkill = self.getSkillFromID(skill.ind)
                 skillStructure = self.determineSkillStructureByID(skill.ind)
                 if skillStructure == "Active":
                     potentialType = realSkill.potentialType.translation
@@ -8401,7 +8435,7 @@ class Randomizer:
             for skill in demon.learnedSkills:
                 if skill.ind == 0:
                     continue
-                realSkill = self.obtainSkillFromID(skill.ind)
+                realSkill = self.getSkillFromID(skill.ind)
                 skillStructure = self.determineSkillStructureByID(skill.ind)
                 if skillStructure == "Active":
                     potentialType = realSkill.potentialType.translation
@@ -8421,13 +8455,13 @@ class Randomizer:
 if __name__ == '__main__':
     rando = Randomizer()
     print('Warning: This is an early build of the randomizer and some things may not work as intended. Performance will be somewhat worse than vanilla SMTVV')
-    print('Welcome to the SMTVV Rando v1.052. This version was created with game version 1.03 and will likely not work with other versions of SMTVV')
+    print('Welcome to the SMTVV Rando v1.06.01. This version was created with game version 1.03 and will likely not work with other versions of SMTVV')
     try:
         rando.configSettings, rando.textSeed = gui.createGUI(rando.configSettings)
         if rando.configSettings.swapCutsceneModels:
             print('Cutscene Model Swaps on. This may take up to an hour to finish running. Please wait...')
         rando.createSeed()
-        
+        print('Please wait while the rando is running...')
         rando.fullRando(rando.configSettings)
         if not rando.configSettings.fixUniqueSkillAnimations:
             print('"Fix unique skill animations" patch not applied. If the game appears to hang during a battle animation, press the skip animations button')

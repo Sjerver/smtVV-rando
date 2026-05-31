@@ -482,7 +482,7 @@ def createGUI(configSettings: Settings):
         else:
             ishtarScale.config(state=tk.DISABLED, bg=DISABLED_GRAY)
     
-    ishtarRandomizeCheckbox = tk.Checkbutton(page2FrameRight, text="Random", variable=randomIshtarPressTurnsVar, onvalue=1, offvalue=0, command=toggleIshtarCheckbox)
+    ishtarRandomizeCheckbox = tk.Checkbutton(page2FrameRight, text="Random", variable=randomIshtarPressTurnsVar, onvalue=True, offvalue=False, command=toggleIshtarCheckbox)
     ishtarRandomizeCheckbox.pack()
     ishtarScale.pack()
 

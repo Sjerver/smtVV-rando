@@ -30,7 +30,7 @@ SCRIPT_JOIN_TYPES = {
     'MM_M064_EM2280': Script_Join_Type.CODE, # The Hunter in White
     'MM_M060_EM1420': Script_Join_Type.CODE, # Fionn's Resolve
     'MM_M060_EM1602': Script_Join_Type.CODE, # The Destined Leader (Amanazako Could't Join Initially), not 100% sure on v1.02 locations
-    'MM_M060_EM1601': Script_Join_Type.CODE, # The Destined Leader 
+    'MM_M060_EM1601': Script_Join_Type.CODE, # The Destined Leader
     'MM_M016_E0885': Script_Join_Type.CODE, #Hayataro CoC Chaos
     'MM_M016_E0885_Direct': Script_Join_Type.CODE, #Hayataro CoC Chaos
     'MM_M016_EM1450': Script_Join_Type.CODE, # A Plot Revealed
@@ -44,6 +44,12 @@ SCRIPT_JOIN_TYPES = {
     'MM_M063_EM2170': Script_Join_Type.MASAKADO, # Guardian of Tokyo
     'MM_M061_EM2705': Script_Join_Type.CODE, # Guardian of Light
     'MM_M061_EM1782': Script_Join_Type.CODE, # Cleopatra Quest (Full Party Event)
+}
+
+#Map for scripts that check whether a certain navi is following you
+NAVI_CHECK_SCRIPTS = {
+    'MM_M060_EM1601_Hit': 38, #The Destined Leader (Amanozako)
+    'MM_M060_EM1601': 38, #The Destined Leader (Amanozako)
 }
 
 
@@ -479,7 +485,7 @@ def getGiftRewardAreas():
 '''
 Randomizes free demon joins based on the original joins level by adjusting the values in the corresponding event scripts.
 Parameters:
-    comp List(Compendium_Demon): list of all playable demons
+    replacements (Dictionary): mapping of demons to their replacements
     randomDemons (Boolean): whether to randomize the demon joins or set them to vanilla
     scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
@@ -575,7 +581,66 @@ def updateDemonJoinInScript(file, oldDemonID, newDemonID, joinType,scriptName):
                         subData[1]['Value'] = newDemonID
                         #print(scriptName + ": (DEMON) " + str(oldDemonID) + " -> " + str(newDemonID))
                         break
-    file.updateFileWithJson(jsonData)                    
+    file.updateFileWithJson(jsonData)
+
+'''
+Updates scripts that check whether a certain navigator is following you.
+    Parameters:
+        naviReplacements (Dictionary): mapping of demons to their replacements
+        scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
+'''
+def adjustNavigatorChecks(naviReplacements, scriptFiles):
+
+    for script, oldDemon in NAVI_CHECK_SCRIPTS.items():
+        file = scriptFiles.getFile(script)
+        jsonData = file.json
+        uassetData = file.uasset
+
+        replacement = naviReplacements[oldDemon]
+
+        updateNaviCheckInScript(file, oldDemon, replacement, script)
+
+        scriptFiles.setFile(script,file)
+
+'''
+Updates the old navigator check in the script to the new demon.
+    Parameters:
+        file (Script_File): file of the script
+        oldDemon (Integer): the id of the old item to overwrite
+        newDemon (Integer): the id of the new item that overwrites the old one
+        scriptName (String): name of the script
+'''
+def updateNaviCheckInScript(file, oldDemon, newDemon, script):
+    jsonData = file.json
+
+    relevantImportNames = [
+        'EqualEqual_IntInt'
+    ]
+
+    bytecode = None
+    try: #get bytecode if UAssetAPI can parse it
+        bytecode = Bytecode(jsonData["Exports"][0]['ScriptBytecode'])
+    except KeyError: #otherwise stop and note error
+        print("Script Byte Code only in raw form")
+        return
+    
+    importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
+    relevantImports = {}
+    for imp in relevantImportNames: #Determine import id for relevant import names which is always negative
+        if imp in importNameList:
+            relevantImports[imp] = -1 * importNameList.index(imp) -1
+    
+    for imp,stackNode in relevantImports.items():
+        expressions = bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_CallMath', stackNode)
+        expressions.extend(bytecode.findExpressionUsage('UAssetAPI.Kismet.Bytecode.Expressions.EX_FinalFunction', stackNode))
+        for index,exp in enumerate(expressions):
+            if imp == 'EqualEqual_IntInt':
+                demonValue = exp['Parameters'][1]['Value']
+                if demonValue == oldDemon:
+                    exp['Parameters'][1]['Value'] = newDemon
+
+
+    file.updateFileWithJson(jsonData)
 
 '''
 Changes the reward for collecting the first miman to the return Pillar.

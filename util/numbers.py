@@ -184,6 +184,7 @@ RELIC_MAP_SCALING = {
     38: [856, 617, 857, 861, 865, 862, 623, 858, 642, 859, 866, 860, 648, 864, 863, 649, 616, 644], #Copy of Shinjuku 64
     107: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #Copy of Taito 60
     960: [634, 643, 617, 635, 636, 651, 637, 638, 639, 655, 652, 647, 623, 653], #Copy of Taito 60
+    961: [617, 618, 619, 620, 621, 623, 629, 635, 640, 642, 643, 644, 648, 652, 653], #Soda, Melted Doll, Cloth Mask, Cartridge Game Console, Shabby Building Material, Can of Jelly, Can of Oden, Time Capsule, Black Tape Set, High-Capacity Bottle, Vinyl Umbrella, Powder Box, Old Newspaper, Cardboard Cap Bottle, Marble Bottle
 }
 
 VENDING_MACHINE_RELIC_QUANTITY_WEIGHTS = {
@@ -226,6 +227,7 @@ BANNED_ITEMS = [70, 73, 74, 75, 76, 77, 78, 79, 80, 81, 55]
 BANNED_ESSENCES = [359,545,546,547,548,549,550,551,552,553,554,556,557,558,559,606,607,608] #Old Lilith's Essence, Aogami & Tsukuyomi Essences
 
 DEMIFIEND_ESSENCE_ID = 555 #Demi-fiends Essence normal ID
+DEMIFIEND_ORIGINAL_ESSENCE_ID = 555
 
 def getBannedEssences():
     return BANNED_ESSENCES + [DEMIFIEND_ESSENCE_ID]
