@@ -3068,6 +3068,7 @@ class Randomizer:
         for e in essence:
             offset = e.offset
             buffer.writeWord(e.price, offset +12)
+            buffer.writeWord(e.demon.value, offset)
         return buffer
 
     '''
@@ -5341,7 +5342,6 @@ class Randomizer:
 
 
             for demonID in self.validBossDemons:
-                #TODO: Boss demi-fiend essence drop checks? AND just general demi-fiend checks if resists are not random!
                 enemy = self.bossArr[demonID]
                 drops = enemy.drops
                 enemyName = self.enemyNames[demonID]
@@ -5354,8 +5354,22 @@ class Randomizer:
                             #Do not change Key_Items as they are quest related
                             continue
                         elif isinstance(item,Essence_Item) and self.configSettings.shuffleExistingItems:
-                            #Skip drop slots that usually drop their own essence when shuffled
-                            continue
+                            if enemyName == item.demon.name:
+                                #print(str(item.ind) + " " + enemyName + " / " + item.demon.name + " matches")
+                                #Skip drop slots that usually drop their own essence when shuffled
+                                continue
+                            else: #Essence doesn't match boss due do guest swaps
+                                #print(str(item.ind) + " " + enemyName + " / " + item.demon.name + " doesn't match")
+                                #Search for an fitting essence
+                                itemFound = False
+                                for essence in self.essenceArr:
+                                    if essence.demon.translation== enemyName:
+                                        item = self.generateNewItem(essence.ind,1)
+                                        itemFound = True
+                                        break
+                                if not itemFound:
+                                    item = self.generateRandomItemRewards(check)[0]
+                                
                         
                         
                         if demonID not in self.checkBossInfo.keys():
@@ -7845,6 +7859,12 @@ class Randomizer:
             self.swapGuestsWithDemons()
 
         self.fillEssenceArr(itemBuffer)
+        #Reconfigure Demi-fiends essence to reference guest demi-fiend
+        if config.swapGuestsWithDemons and config.swapDemifiend:
+            demifiendEssenceIndex = [i for i,e in enumerate(self.essenceArr) if e.ind == numbers.DEMIFIEND_ORIGINAL_ESSENCE_ID][0]
+            self.essenceArr[demifiendEssenceIndex].demon = Translated_Value(numbers.GUEST_DEMIFIEND,self.playerBossArr[numbers.GUEST_DEMIFIEND].name)
+            
+
         self.fillShopArr(shopBuffer)
         self.fillMissionArr(missionBuffer)
         self.fillUniqueSymbolArr(uniqueSymbolBuffer)
