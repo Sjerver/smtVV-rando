@@ -4601,6 +4601,9 @@ class Randomizer:
                     demon = self.encountArr[symbolEncounter.encounterID].demons[0]
                     self.bossSymbolReplacementMap[symbolEncounter.symbol.value] = demon
                     symbolEncounter.symbol = Translated_Value(demon, self.enemyNames[demon])
+                #Primarily for Belphegor or other demons that cannot move
+                if symbolEncounter.symbol.value in numbers.SYMBOL_EXCEPTIONS.keys():
+                    symbolEncounter.symbol.value = numbers.SYMBOL_EXCEPTIONS[symbolEncounter.symbol.value]
 
 
     '''
