@@ -1,3 +1,11 @@
+Version 1.06.02
+Features:
+* Changed normal enemy additional press turn chance to go up to 7.0 like bosses
+
+Bufixes:
+* Fixed issue where you might not be able to progress if you collect all empyrean keys and then complete the quest by defeating all taito story bosses
+* Fixed issue with Belphegor's boss version replacing one of the many "bird" Punishing Foes
+
 Version 1.06.01
 Balance:
 - Protofiend essence skills are now decided before demons making them more likely to receive unique skills
