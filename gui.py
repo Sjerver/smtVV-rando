@@ -737,7 +737,7 @@ def createGUI(configSettings: Settings):
     pressTurnLabel = tk.Label(page4FrameBottomRight, text="Chance for basic enemies to receive additional press turns")
     pressTurnLabel.pack()
 
-    pressTurnScale = tk.Scale(page4FrameBottomRight, from_=0, to=1, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
+    pressTurnScale = tk.Scale(page4FrameBottomRight, from_=0, to=7.0, resolution=0.1, orient=tk.HORIZONTAL, bg=NAHOBINO_BLUE, troughcolor="Black", activebackground=NAHOBINO_BRIGHT_BLUE)
     pressTurnScale.set(0.0)
     pressTurnScale.pack()
         

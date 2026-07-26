@@ -4601,6 +4601,9 @@ class Randomizer:
                     demon = self.encountArr[symbolEncounter.encounterID].demons[0]
                     self.bossSymbolReplacementMap[symbolEncounter.symbol.value] = demon
                     symbolEncounter.symbol = Translated_Value(demon, self.enemyNames[demon])
+                #Primarily for Belphegor or other demons that cannot move
+                if symbolEncounter.symbol.value in numbers.SYMBOL_EXCEPTIONS.keys():
+                    symbolEncounter.symbol.value = numbers.SYMBOL_EXCEPTIONS[symbolEncounter.symbol.value]
 
 
     '''
@@ -8455,7 +8458,7 @@ class Randomizer:
 if __name__ == '__main__':
     rando = Randomizer()
     print('Warning: This is an early build of the randomizer and some things may not work as intended. Performance will be somewhat worse than vanilla SMTVV')
-    print('Welcome to the SMTVV Rando v1.06.01. This version was created with game version 1.03 and will likely not work with other versions of SMTVV')
+    print('Welcome to the SMTVV Rando v1.06.02. This version was created with game version 1.03 and will likely not work with other versions of SMTVV')
     try:
         rando.configSettings, rando.textSeed = gui.createGUI(rando.configSettings)
         if rando.configSettings.swapCutsceneModels:

@@ -1409,6 +1409,10 @@ Modifies the main events in Taito so owning all 3 keys is required, instead of d
         scriptFiles (Script_File_List): list of scripts to store scripts for multiple edits
 '''
 def modifyEmpyreanKeyEvents(scriptFiles):
+    #TODO: Does not seem to work if the quest is completed before all three keys are gathered
+    #I think it might be because I am checking the vengeance version of the quest?
+    #So this should be fine in creation
+
     #Start by modyfing CoC/CoV "Wall" Event
     script = "MM_M060_E0815"
     file = scriptFiles.getFile(script)
@@ -1424,15 +1428,16 @@ def modifyEmpyreanKeyEvents(scriptFiles):
         stackNode = file.importNameList.index("BPL_EventFlag") * -1 -1
         file.addImport("/Script/CoreUObject", "Function",stackNode , "SetEventFlagValue", False)
         file.importNameList.append("SetEventFlagValue")
-
-    if "BPL_MissionData" not in file.importNameList: #Adding classes/functions we need
+    
+    if "BPL_ItemData" not in file.importNameList: #Adding classes/functions we need
         stackNode = file.importNameList.index("/Script/Project") * -1 -1
-        file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_MissionData", False)
-        file.importNameList.append("BPL_MissionData")
-    if "CheckMissionCompleteCond" not in file.importNameList:
-        stackNode = file.importNameList.index("BPL_MissionData") * -1 -1
-        file.addImport("/Script/CoreUObject", "Function",stackNode , "CheckMissionCompleteCond", False)
-        file.importNameList.append("CheckMissionCompleteCond")
+        file.addImport("/Script/CoreUObject", "Class", stackNode, "BPL_ItemData", False)
+        file.importNameList.append("BPL_ItemData")
+    if "ItemIsGotten" not in file.importNameList:
+        stackNode = file.importNameList.index("BPL_ItemData") * -1 -1
+        file.addImport("/Script/CoreUObject", "Function",stackNode , "ItemIsGotten", False)
+        file.importNameList.append("ItemIsGotten")
+
 
 
     jsonData = file.json
@@ -1447,36 +1452,46 @@ def modifyEmpyreanKeyEvents(scriptFiles):
 
     file.importNameList = [imp['ObjectName'] for imp in jsonData['Imports']]
     stackNodeSetFlag = -1 * file.importNameList.index("SetEventFlagValue") -1
-    stackNodeMissionCheck = -1 * file.importNameList.index("CheckMissionCompleteCond") -1
+    # stackNodeMissionCheck = -1 * file.importNameList.index("CheckMissionCompleteCond") -1
+    # stackNodeMissionCheckComplete = -1 * file.importNameList.index("CheckMissionComplete") -1
+    stackNodeItemGotten = -1 * file.importNameList.index("ItemIsGotten") -1
+    
+    def getItemGottenInsert(itemID):
+            return jsonExports.getLetBool(
+            #88 is the creation one, 115 the vengeance one
+            jsonExports.getImportedFunctionCall(stackNodeItemGotten,[jsonExports.getIntConst(itemID)]),
+            jsonExports.getLocalVar(boolVarName)
+            )
+
+
+    #First insert MissionCheck
+    itemGottenInsert1 = getItemGottenInsert(658)
+    itemGottenInsert2 = getItemGottenInsert(659)
+    itemGottenInsert3 = getItemGottenInsert(660)
 
     
-    #First insert MissionCheck
-    missionCheckInsert = jsonExports.getLetBool(
-        jsonExports.getImportedFunctionCall(stackNodeMissionCheck,[jsonExports.getIntConst(88),jsonExports.getBytecodeBoolean(True)]),
-        jsonExports.getLocalVar(boolVarName)
-        )
     #If condition
-    jumpIfNot = jsonExports.getJumpIfNot(jsonExports.getLocalVar(boolVarName),56)
+    jumpIfNot = jsonExports.getJumpIfNot(jsonExports.getLocalVar(boolVarName),149)
+    # jumpIfNot2 = jsonExports.getJumpIfNot(jsonExports.getLocalVar(boolVarName),56+56)
+    # jumpIfNot3 = jsonExports.getJumpIfNot(jsonExports.getLocalVar(boolVarName),56+56+56)
 
     nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
     nameConst["Value"] = 104 #MAP_FLAG_820_Start
     localFinalFunction = jsonExports.getImportedFunctionCall(stackNodeSetFlag, [nameConst,jsonExports.getBytecodeBoolean()])
+    nameConst2 = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
+    nameConst2["Value"] = 416 #MAP_FLAG_E3200_Start
+    localFinalFunction2 = jsonExports.getImportedFunctionCall(stackNodeSetFlag, [nameConst2,jsonExports.getBytecodeBoolean()])
 
-    bytecode.json.insert(0, missionCheckInsert)
-    bytecode.json.insert(1, jumpIfNot)
-    bytecode.json.insert(2, localFinalFunction)
+    # bytecode.json.insert(0, missionCheckInsert)
+    # bytecode.json.insert(1, jumpIfNot)
+    # bytecode.json.insert(2, localFinalFunction)
 
-    missionCheckInsert2 = copy.deepcopy(missionCheckInsert)
-    missionCheckInsert2["AssignmentExpression"]["Parameters"][0]["Value"] = 115
-    jumpIfNot2 = copy.deepcopy(jumpIfNot)
-    jumpIfNot2["CodeOffset"] += 56
-    nameConst = copy.deepcopy(jsonExports.BYTECODE_EX_INTCONST)
-    nameConst["Value"] = 416 #MAP_FLAG_820_Star
-    localFinalFunction = jsonExports.getImportedFunctionCall(stackNodeSetFlag, [nameConst,jsonExports.getBytecodeBoolean()])
+    insertedBytecode = [itemGottenInsert1,jumpIfNot,itemGottenInsert2,jumpIfNot,itemGottenInsert3,jumpIfNot,localFinalFunction,localFinalFunction2]
 
-    bytecode.json.insert(3, missionCheckInsert2)
-    bytecode.json.insert(4, jumpIfNot2)
-    bytecode.json.insert(5, localFinalFunction)
+    for instruction in reversed(insertedBytecode):
+        bytecode.json.insert(0, instruction)
+
+    
 
     scriptFiles.setFile(script,file)
     scriptFiles.writeFile(script,file) #Because file does not get used again

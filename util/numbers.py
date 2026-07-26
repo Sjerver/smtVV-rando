@@ -482,6 +482,10 @@ ADD_LARGE_MODEL_DEMONS = {
 #List of demons that should be removed to the MapSymbolParamTable after collision calculation is done
 REMOVE_TEMP_MODEL_DEMONS = [-617,561,240,7,15,31,934,41,386,250,118,38,237,75,465,227,876,40,394,393,392,391,529,236,197,32,597,1,175,99,4,142,
                             528,454,385,207,387,381,60,100,122,226,2,251,275,264]
+#Primarily for Belphegor or other demons that cannot move
+SYMBOL_EXCEPTIONS = {
+    804: 86, #Belphegor
+}
 
 #Map of punishing foe ID - walkspeed for birds that have large flight cycles
 PUNISHING_FOE_BIRD_SPEEDS = {802: 1400, #Jatayu
