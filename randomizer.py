@@ -7744,7 +7744,7 @@ class Randomizer:
             configur = ConfigParser()
             configur.read('config.ini')
             configur.set('Seed', 'lastSeed', self.textSeed)
-            with open('config.ini', 'w') as f:
+            with open('config.ini', 'w',encoding='utf-8') as f:
                 configur.write(f)
         random.seed(self.textSeed)
          
@@ -8296,7 +8296,7 @@ class Randomizer:
         storedNkm(Dictionary): dictionary of skill replacements for the additional AI files
     '''
     def debugSkillReplacements(self, storedNkm):
-        with open(paths.SKILL_REPLACEMENTS, "w", newline="") as file:
+        with open(paths.SKILL_REPLACEMENTS, "w", newline="",encoding='utf-8') as file:
             writer = csv.writer(file)
             writer.writerow(["Demon Name","Demon ID","Script File", "Original Skill ID", "New Skill ID","Old Skill Name","New Skill Name","Old Rank","New Rank"])  # Header
 

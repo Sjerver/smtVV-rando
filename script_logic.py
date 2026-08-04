@@ -1296,7 +1296,7 @@ def aiUpdate(skillReplacementMap, bossArr, scriptFiles):
         scriptFiles.writeFile(fileName,file)
 
     if DEBUG_MODE:
-        with open(paths.SKILL_REPLACEMENT_FAILS, "w") as file:
+        with open(paths.SKILL_REPLACEMENT_FAILS, "w",encoding='utf-8') as file:
             for demon, categories in infoDict.items():
                 file.write(f"### {demon} ###\n")
                 for category, values in categories.items():

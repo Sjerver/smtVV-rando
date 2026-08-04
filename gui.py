@@ -1366,7 +1366,7 @@ def createGUI(configSettings: Settings):
 
     configur.set('Seed','lastSeed', textSeed)
 
-    with open('config.ini', 'w') as configfile:
+    with open('config.ini', 'w', encoding='utf-8') as configfile:
         configur.write(configfile)
 
     return (configSettings, textSeed)
